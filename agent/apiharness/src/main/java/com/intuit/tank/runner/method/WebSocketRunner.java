@@ -216,11 +216,9 @@ public class WebSocketRunner implements Runner {
             ? variables.evaluate(response.getExpectedContent()) : null;
 
         try {
-            // MVP: For echo servers, send the expected content and await echo
-            // This works well for testing since we control what we expect back
-            String messageToSend = expectedContent != null ? expectedContent : "test_" + System.currentTimeMillis();
-            CompletableFuture<String> future = client.sendAndAwaitResponse(messageToSend, timeoutMs);
-            String receivedMessage = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+            // Passively listen for server-pushed messages (does NOT send anything)
+            CompletableFuture<String> future = client.awaitNextMessage(timeoutMs);
+            String receivedMessage = future.get(timeoutMs + 100, TimeUnit.MILLISECONDS); // Add small buffer
 
             if (receivedMessage == null) {
                 if (response.isOptional()) {
@@ -233,6 +231,10 @@ public class WebSocketRunner implements Runner {
                 return TankConstants.HTTP_CASE_FAIL;
             }
 
+            LOG.info(LogUtil.getLogMessage(
+                "Received WebSocket message on " + connectionId + " : " + receivedMessage,
+                LogEventType.Informational, LoggingProfile.STANDARD));
+
             // Check expected content if specified
             if (expectedContent != null && !receivedMessage.contains(expectedContent)) {
                 if (response.isOptional()) {
@@ -241,13 +243,10 @@ public class WebSocketRunner implements Runner {
                         LogEventType.Informational, LoggingProfile.STANDARD));
                     return TankConstants.HTTP_CASE_PASS;
                 }
-                LOG.error("Received message doesn't contain expected content: " + expectedContent);
+                LOG.error("Received message doesn't contain expected content: " + expectedContent +
+                         ", actual: " + receivedMessage);
                 return TankConstants.HTTP_CASE_FAIL;
             }
-
-            LOG.debug(LogUtil.getLogMessage(
-                "Received WebSocket message on " + connectionId + " : " + receivedMessage,
-                LogEventType.Informational, LoggingProfile.VERBOSE));
 
             // Save to variable if specified
             if (response.getSaveVariable() != null) {

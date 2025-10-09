@@ -5,8 +5,10 @@ import static com.intuit.tank.util.ButtonLabel.EDIT_LABEL;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jakarta.enterprise.context.ConversationScoped;
@@ -30,12 +32,15 @@ public class WebSocketStepEditor implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_CONNECT = "CONNECT";
+    private static final String ACTION_SEND = "SEND";
     private static final String ACTION_DISCONNECT = "DISCONNECT";
 
     // WebSocket constants
     private static final String WEBSOCKET = "websocket";
     private static final String WEBSOCKET_ACTION = "ws-action";
     private static final String WEBSOCKET_URL = "ws-url";
+    private static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
+    private static final String WEBSOCKET_PAYLOAD = "ws-payload";
     private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
 
     @Inject
@@ -48,7 +53,8 @@ public class WebSocketStepEditor implements Serializable {
     private boolean editMode;
 
     private String action = ACTION_CONNECT;
-    private String url = "";
+    private String url = "";         // For CONNECT: input URL; For SEND/DISCONNECT: selected URL from dropdown
+    private String payload = "";     // For SEND: message payload
 
     private String buttonLabel = ADD_LABEL;
 
@@ -70,8 +76,12 @@ public class WebSocketStepEditor implements Serializable {
             action = actionData.getValue().toUpperCase();
         }
 
+        // All WebSocket steps now store URL in ws-url field
         RequestData urlData = findData(existingStep, WEBSOCKET_URL);
         url = urlData != null ? urlData.getValue() : "";
+
+        RequestData payloadData = findData(existingStep, WEBSOCKET_PAYLOAD);
+        payload = payloadData != null ? payloadData.getValue() : "";
     }
 
     public void addToScript() {
@@ -89,21 +99,35 @@ public class WebSocketStepEditor implements Serializable {
     private void createNewStep() {
         ScriptStep step;
         if (ACTION_CONNECT.equals(action)) {
-            // Auto-generate connection ID from URL
-            String connectionId = generateUniqueConnectionId(url);
-            step = ScriptStepFactory.createWebSocketConnect(connectionId, url, null); // No timeout
+            // CONNECT: Auto-generate connection ID from URL
+            String connId = generateUniqueConnectionId(url);
+            step = ScriptStepFactory.createWebSocketConnect(connId, url, null);
+        } else if (ACTION_SEND.equals(action)) {
+            // SEND: Find connectionId for the selected URL
+            String connId = getConnectionIdForUrl(url);
+            step = ScriptStepFactory.createWebSocketSend(connId, url, payload, null);
         } else {
-            // DISCONNECT: Find connection by URL matching
-            String connectionId = findConnectionIdByUrl(url);
-            step = ScriptStepFactory.createWebSocketDisconnect(connectionId);
+            // DISCONNECT: Find connectionId for the selected URL
+            String connId = getConnectionIdForUrl(url);
+            step = ScriptStepFactory.createWebSocketDisconnect(connId, url);
         }
         
         scriptEditor.insert(step);
     }
 
     private void applyToExistingStep() {
-        // Comments left blank as per design decision
-        step.setMethod(action.equals(ACTION_CONNECT) ? "WS_CONNECT" : "WS_DISCONNECT");
+        // Set method based on action
+        if (ACTION_CONNECT.equals(action)) {
+            step.setMethod("WS_CONNECT");
+        } else if (ACTION_SEND.equals(action)) {
+            step.setMethod("WS_SEND");
+            String connId = getConnectionIdForUrl(url);
+            step.setComments(connId);  // Store connectionId for agent
+        } else {
+            step.setMethod("WS_DISCONNECT");
+            String connId = getConnectionIdForUrl(url);
+            step.setComments(connId);  // Store connectionId for agent
+        }
 
         if (step.getData() == null) {
             step.setData(new HashSet<RequestData>());
@@ -113,8 +137,18 @@ public class WebSocketStepEditor implements Serializable {
 
         if (ACTION_CONNECT.equals(action)) {
             updateData(step, WEBSOCKET_URL, url);
+            removeData(step, WEBSOCKET_CONNECTION_ID);
+            removeData(step, WEBSOCKET_PAYLOAD);
+        } else if (ACTION_SEND.equals(action)) {
+            String connId = getConnectionIdForUrl(url);
+            updateData(step, WEBSOCKET_URL, url);  // Add URL for display
+            updateData(step, WEBSOCKET_CONNECTION_ID, connId);
+            updateData(step, WEBSOCKET_PAYLOAD, payload);
         } else {
-            updateData(step, WEBSOCKET_URL, url); // URL needed for both CONNECT and DISCONNECT
+            String connId = getConnectionIdForUrl(url);
+            updateData(step, WEBSOCKET_URL, url);  // Add URL for display
+            updateData(step, WEBSOCKET_CONNECTION_ID, connId);
+            removeData(step, WEBSOCKET_PAYLOAD);
         }
 
         ScriptUtil.updateStepLabel(step);
@@ -123,10 +157,25 @@ public class WebSocketStepEditor implements Serializable {
     private boolean validate() {
         boolean valid = true;
 
-        // URL is required for both CONNECT and DISCONNECT
-        if (StringUtils.isBlank(url)) {
-            messages.error("WebSocket URL is required");
-            valid = false;
+        if (ACTION_CONNECT.equals(action)) {
+            // URL is required for CONNECT
+            if (StringUtils.isBlank(url)) {
+                messages.error("WebSocket URL is required for CONNECT");
+                valid = false;
+            }
+        } else if (ACTION_SEND.equals(action)) {
+            // URL (connection) required for SEND
+            // Payload is optional (allows empty messages for ACKs, pings, etc.)
+            if (StringUtils.isBlank(url)) {
+                messages.error("WebSocket URL is required for SEND");
+                valid = false;
+            }
+        } else {
+            // URL (connection) required for DISCONNECT
+            if (StringUtils.isBlank(url)) {
+                messages.error("WebSocket URL is required for DISCONNECT");
+                valid = false;
+            }
         }
         
         return valid;
@@ -135,6 +184,7 @@ public class WebSocketStepEditor implements Serializable {
     private void resetFields() {
         this.action = ACTION_CONNECT;
         this.url = "";
+        this.payload = "";
         this.buttonLabel = ADD_LABEL;
     }
 
@@ -257,39 +307,93 @@ public class WebSocketStepEditor implements Serializable {
     }
 
     /**
-     * Get list of available WebSocket connections that can be disconnected.
-     * Returns connections that have CONNECT steps but no corresponding DISCONNECT steps.
+     * Get list of available WebSocket connections (as URLs) that can be used for SEND/DISCONNECT.
+     * Returns URLs that have CONNECT steps but no corresponding DISCONNECT steps.
      */
     public List<String> getAvailableConnections() {
-        List<String> availableConnections = new ArrayList<>();
-        Set<String> connectedIds = new HashSet<>();
+        List<String> availableUrls = new ArrayList<>();
+        Map<String, String> connectedUrlsById = new HashMap<>();  // connectionId -> URL
         Set<String> disconnectedIds = new HashSet<>();
         
         if (scriptEditor != null && scriptEditor.getSteps() != null) {
             // Find all CONNECT and DISCONNECT steps
             for (ScriptStep step : scriptEditor.getSteps()) {
-                if ("websocket".equals(step.getType()) && StringUtils.isNotBlank(step.getComments())) {
-                    String connectionId = step.getComments();
+                if ("websocket".equals(step.getType())) {
                     String method = step.getMethod();
+                    String connectionId = step.getComments();
                     
-                    if ("CONNECT".equals(method)) {
-                        connectedIds.add(connectionId);
-                    } else if ("DISCONNECT".equals(method)) {
+                    if ("WS_CONNECT".equals(method) && StringUtils.isNotBlank(connectionId)) {
+                        // Get URL from step data
+                        RequestData urlData = findData(step, WEBSOCKET_URL);
+                        if (urlData != null && StringUtils.isNotBlank(urlData.getValue())) {
+                            connectedUrlsById.put(connectionId, urlData.getValue());
+                        }
+                    } else if ("WS_DISCONNECT".equals(method) && StringUtils.isNotBlank(connectionId)) {
                         disconnectedIds.add(connectionId);
                     }
                 }
             }
             
-            // Return connections that are connected but not yet disconnected
-            for (String connectedId : connectedIds) {
-                if (!disconnectedIds.contains(connectedId)) {
-                    availableConnections.add(connectedId);
+            // Return URLs for connections that are connected but not yet disconnected
+            for (Map.Entry<String, String> entry : connectedUrlsById.entrySet()) {
+                String connectionId = entry.getKey();
+                String url = entry.getValue();
+                if (!disconnectedIds.contains(connectionId) && !availableUrls.contains(url)) {
+                    availableUrls.add(url);
                 }
             }
         }
         
-        availableConnections.sort(String::compareTo); // Sort alphabetically
-        return availableConnections;
+        availableUrls.sort(String::compareTo); // Sort alphabetically
+        return availableUrls;
+    }
+    
+    /**
+     * Find the connectionId for a given WebSocket URL.
+     * Used when creating SEND/DISCONNECT steps from a selected URL.
+     */
+    private String getConnectionIdForUrl(String targetUrl) {
+        if (StringUtils.isBlank(targetUrl) || scriptEditor == null || scriptEditor.getSteps() == null) {
+            return null;
+        }
+        
+        // Find the most recent CONNECT step with matching URL
+        for (int i = scriptEditor.getSteps().size() - 1; i >= 0; i--) {
+            ScriptStep step = scriptEditor.getSteps().get(i);
+            if ("websocket".equals(step.getType()) && "WS_CONNECT".equals(step.getMethod())) {
+                RequestData urlData = findData(step, WEBSOCKET_URL);
+                if (urlData != null && targetUrl.equals(urlData.getValue())) {
+                    // Found matching URL, return its connectionId from comments
+                    return step.getComments();
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Find the URL for a given connectionId.
+     * Used when editing SEND/DISCONNECT steps to populate the URL field.
+     */
+    private String getUrlForConnectionId(String connectionId) {
+        if (StringUtils.isBlank(connectionId) || scriptEditor == null || scriptEditor.getSteps() == null) {
+            return "";
+        }
+        
+        // Find the CONNECT step with matching connectionId
+        for (ScriptStep step : scriptEditor.getSteps()) {
+            if ("websocket".equals(step.getType()) && 
+                "WS_CONNECT".equals(step.getMethod()) && 
+                connectionId.equals(step.getComments())) {
+                RequestData urlData = findData(step, WEBSOCKET_URL);
+                if (urlData != null) {
+                    return urlData.getValue();
+                }
+            }
+        }
+        
+        return "";
     }
 
     // ConnectionId removed - now auto-generated internally
@@ -310,7 +414,13 @@ public class WebSocketStepEditor implements Serializable {
         this.url = url;
     }
 
-    // Timeout and RequestName fields removed per requirements
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
 
     public String getButtonLabel() {
         return buttonLabel;

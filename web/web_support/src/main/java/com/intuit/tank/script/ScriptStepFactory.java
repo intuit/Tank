@@ -216,7 +216,7 @@ public class ScriptStepFactory {
         return step;
     }
 
-    public static ScriptStep createWebSocketDisconnect(String connectionId) {
+    public static ScriptStep createWebSocketDisconnect(String connectionId, String url) {
         ScriptStep step = new ScriptStep();
         step.setType(WEBSOCKET);
         step.setMethod("WS_DISCONNECT");
@@ -230,9 +230,75 @@ public class ScriptStepFactory {
         actionData.setValue("disconnect");
         data.add(actionData);
 
+        // Add URL for UI display
+        RequestData urlData = new RequestData();
+        urlData.setType(WEBSOCKET);
+        urlData.setKey(WEBSOCKET_URL);
+        urlData.setValue(url);
+        data.add(urlData);
+
         step.setData(data);
         // Set default name for WebSocket Disconnect
         step.setName("WebSocket Disconnect");
+        return step;
+    }
+
+    /**
+     * Create a WebSocket SEND step.
+     * 
+     * @param connectionId The connection ID to send the message on
+     * @param url The WebSocket URL (for UI display)
+     * @param payload The message payload to send
+     * @param timeoutMs Optional timeout in milliseconds
+     * @return The configured ScriptStep
+     */
+    public static ScriptStep createWebSocketSend(String connectionId, String url, String payload, Integer timeoutMs) {
+        ScriptStep step = new ScriptStep();
+        step.setType(WEBSOCKET);
+        step.setMethod("WS_SEND");
+        // Store connectionId in comments field (used by agent runner)
+        step.setComments(connectionId);
+
+        Set<RequestData> data = new HashSet<RequestData>();
+
+        RequestData actionData = new RequestData();
+        actionData.setType(WEBSOCKET);
+        actionData.setKey(WEBSOCKET_ACTION);
+        actionData.setValue("send");
+        data.add(actionData);
+
+        // Add URL for UI display
+        RequestData urlData = new RequestData();
+        urlData.setType(WEBSOCKET);
+        urlData.setKey(WEBSOCKET_URL);
+        urlData.setValue(url);
+        data.add(urlData);
+
+        // Add connectionId as request data (for backend)
+        RequestData connIdData = new RequestData();
+        connIdData.setType(WEBSOCKET);
+        connIdData.setKey("ws-connection-id");
+        connIdData.setValue(connectionId);
+        data.add(connIdData);
+
+        // Add payload
+        RequestData payloadData = new RequestData();
+        payloadData.setType(WEBSOCKET);
+        payloadData.setKey("ws-payload");
+        payloadData.setValue(payload != null ? payload : "");
+        data.add(payloadData);
+
+        if (timeoutMs != null) {
+            RequestData timeoutData = new RequestData();
+            timeoutData.setType(WEBSOCKET);
+            timeoutData.setKey(WEBSOCKET_TIMEOUT_MS);
+            timeoutData.setValue(timeoutMs.toString());
+            data.add(timeoutData);
+        }
+
+        step.setData(data);
+        // Set default name for WebSocket Send
+        step.setName("WebSocket Send");
         return step;
     }
 

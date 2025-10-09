@@ -15,6 +15,7 @@ package com.intuit.tank.runner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.intuit.tank.harness.StopBehavior;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,7 @@ import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankHttpClient;
+import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.runner.method.TestStepRunner;
 import com.intuit.tank.runner.method.TimerMap;
 import com.intuit.tank.script.ScriptConstants;
@@ -66,6 +68,9 @@ public class TestPlanRunner implements Runnable {
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
+
+    // WebSocket clients - stored at TestPlanRunner level to persist across test steps
+    private Map<String, TankWebSocketClient> webSocketClients = new ConcurrentHashMap<>();
 
     public TestPlanRunner(Object httpClient, HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
@@ -391,5 +396,32 @@ public class TestPlanRunner implements Runnable {
             LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Get WebSocket client by connection ID
+     * @param connectionId the connection identifier
+     * @return the WebSocket client or null if not found
+     */
+    public TankWebSocketClient getWebSocketClient(String connectionId) {
+        return webSocketClients.get(connectionId);
+    }
+
+    /**
+     * Set WebSocket client for a connection ID
+     * @param connectionId the connection identifier
+     * @param client the WebSocket client
+     */
+    public void setWebSocketClient(String connectionId, TankWebSocketClient client) {
+        webSocketClients.put(connectionId, client);
+    }
+
+    /**
+     * Remove WebSocket client for a connection ID
+     * @param connectionId the connection identifier
+     * @return the removed client or null if not found
+     */
+    public TankWebSocketClient removeWebSocketClient(String connectionId) {
+        return webSocketClients.remove(connectionId);
     }
 }

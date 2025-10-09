@@ -15,8 +15,6 @@ package com.intuit.tank.runner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.annotation.Nonnull;
 
@@ -41,7 +39,7 @@ public class TestStepContext {
     private BaseResponse response;
     private String result;
     private List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
-    private Map<String, TankWebSocketClient> webSocketClients = new ConcurrentHashMap<>();
+    // WebSocket clients are now stored in TestPlanRunner for persistence across steps
 
     public TestStepContext(@Nonnull TestStep testStep,
             @Nonnull Variables variables, @Nonnull String testPlanName,
@@ -176,51 +174,33 @@ public class TestStepContext {
 
     /**
      * Get WebSocket client by connection ID
+     * Delegates to TestPlanRunner to ensure persistence across test steps
      * @param connectionId the connection identifier
      * @return the WebSocket client or null if not found
      */
     public TankWebSocketClient getWebSocketClient(String connectionId) {
-        return webSocketClients.get(connectionId);
+        return parent.getWebSocketClient(connectionId);
     }
 
     /**
      * Set WebSocket client for a connection ID
+     * Delegates to TestPlanRunner to ensure persistence across test steps
      * @param connectionId the connection identifier
      * @param client the WebSocket client
      */
     public void setWebSocketClient(String connectionId, TankWebSocketClient client) {
-        webSocketClients.put(connectionId, client);
+        parent.setWebSocketClient(connectionId, client);
     }
 
     /**
      * Remove WebSocket client for a connection ID
+     * Delegates to TestPlanRunner to ensure persistence across test steps
      * @param connectionId the connection identifier
      * @return the removed client or null if not found
      */
     public TankWebSocketClient removeWebSocketClient(String connectionId) {
-        return webSocketClients.remove(connectionId);
+        return parent.removeWebSocketClient(connectionId);
     }
 
-    /**
-     * Get all WebSocket client connection IDs
-     * @return set of connection IDs
-     */
-    public java.util.Set<String> getWebSocketConnectionIds() {
-        return webSocketClients.keySet();
-    }
-
-    /**
-     * Cleanup all WebSocket connections
-     */
-    public void cleanupWebSocketConnections() {
-        for (Map.Entry<String, TankWebSocketClient> entry : webSocketClients.entrySet()) {
-            try {
-                entry.getValue().disconnect();
-            } catch (Exception e) {
-                // Log but don't fail cleanup
-            }
-        }
-        webSocketClients.clear();
-    }
 
 }

@@ -367,7 +367,7 @@
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
             <p:commandLink id="linkWebSocket3" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
-              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{scriptEditor.editWebSocketStep(step)}"
               oncomplete="PF('webSocketDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
@@ -399,11 +399,6 @@
             <p:commandLink id="linkAggregator" update=":aggregatorForm:aggregatorPanelGroup" title="Edit Aggregator"
               rendered="#{scriptEditor.isAggregator(step)}" action="#{scriptEditor.editAggregator(step)}"
               oncomplete="PF('aggregatorDialog').show();">
-              <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
-            </p:commandLink>
-            <p:commandLink id="linkWebSocket2" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
-              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
-              oncomplete="PF('webSocketDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
           </p:column>
@@ -507,7 +502,7 @@
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenWebSocket3" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
-              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{scriptEditor.editWebSocketStep(step)}"
               oncomplete="PF('webSocketDialog').show();">
               <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />
@@ -644,7 +639,7 @@
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
             <p:commandLink id="linkWebSocket1" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
-              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{scriptEditor.editWebSocketStep(step)}"
               oncomplete="PF('webSocketDialog').show();">
               <h:outputText value="#{step.label}" styleClass="overflowEllipsis" title="#{step.label}" />
             </p:commandLink>
@@ -754,7 +749,7 @@
                 style="pad2" />
             </p:commandLink>
             <p:commandLink id="btnOpenWebSocket1" update=":webSocketForm:webSocketPanelGroup" title="Edit WebSocket"
-              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{webSocketStepEditor.editWebSocket(step)}"
+              rendered="#{scriptEditor.isWebSocketStep(step)}" action="#{scriptEditor.editWebSocketStep(step)}"
               oncomplete="PF('webSocketDialog').show();">
               <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
                 style="pad2" />

@@ -15,20 +15,46 @@
       <p:selectOneMenu value="#{webSocketStepEditor.action}">
         <p:ajax update=":webSocketForm:webSocketPanelGroup" />
         <f:selectItem itemLabel="Connect" itemValue="CONNECT" />
+        <f:selectItem itemLabel="Send" itemValue="SEND" />
         <f:selectItem itemLabel="Disconnect" itemValue="DISCONNECT" />
       </p:selectOneMenu>
     </div>
   </div>
   <div class="vertical-spacer clear-both" />
 
-  <!-- WebSocket URL -->
-  <div class="formRowDiv">
-    <div class="formLabelDiv required float-left">WebSocket URL</div>
-    <div class="formInput float-left">
-      <h:inputText value="#{webSocketStepEditor.url}" size="40" />
+  <!-- WebSocket URL (only for CONNECT) -->
+  <h:panelGroup rendered="#{webSocketStepEditor.action == 'CONNECT'}">
+    <div class="formRowDiv">
+      <div class="formLabelDiv required float-left">WebSocket URL</div>
+      <div class="formInput float-left">
+        <h:inputText value="#{webSocketStepEditor.url}" size="40" style="width: 400px;" />
+      </div>
     </div>
-  </div>
-  <div class="vertical-spacer clear-both" />
+    <div class="vertical-spacer clear-both" />
+  </h:panelGroup>
+
+  <!-- WebSocket URL (for SEND and DISCONNECT) -->
+  <h:panelGroup rendered="#{webSocketStepEditor.action == 'SEND' or webSocketStepEditor.action == 'DISCONNECT'}">
+    <div class="formRowDiv">
+      <div class="formLabelDiv required float-left">WebSocket URL</div>
+      <div class="formInput float-left">
+        <h:inputText value="#{webSocketStepEditor.url}" size="40" style="width: 400px;" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+  </h:panelGroup>
+
+  <!-- Payload (only for SEND) -->
+  <h:panelGroup rendered="#{webSocketStepEditor.action == 'SEND'}">
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Message Payload</div>
+      <div class="formInput float-left">
+        <h:inputTextarea value="#{webSocketStepEditor.payload}" rows="6" cols="40" 
+                         style="font-family: monospace; width: 400px;" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+  </h:panelGroup>
 
   <div class="vertical-spacer clear-both" />
 </ui:composition>

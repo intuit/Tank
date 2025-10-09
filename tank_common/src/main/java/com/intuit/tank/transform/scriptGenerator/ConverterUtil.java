@@ -53,6 +53,9 @@ import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.harness.data.TimerStep;
 import com.intuit.tank.harness.data.ValidationData;
 import com.intuit.tank.harness.data.VariableStep;
+import com.intuit.tank.harness.data.WebSocketAction;
+import com.intuit.tank.harness.data.WebSocketRequest;
+import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.project.BaseJob;
 import com.intuit.tank.project.RequestData;
@@ -214,6 +217,8 @@ public class ConverterUtil {
             testStep = convertClearStep(scriptStep);
         } else if (ScriptConstants.TIMER.equals(scriptStep.getType())) {
             testStep = convertTimerStep(scriptStep);
+        } else if ("websocket".equals(scriptStep.getType())) {
+            testStep = convertWebSocketStep(scriptStep);
         }
         testStep.setStepIndex(stepIndex);
         return testStep;
@@ -278,6 +283,63 @@ public class ConverterUtil {
             }
         }
         return sts;
+    }
+
+    /**
+     * Convert WebSocket step from database format to agent XML format
+     */
+    private static TestStep convertWebSocketStep(ScriptStep scriptStep) {
+        WebSocketStep ws = new WebSocketStep();
+        ws.setName(scriptStep.getName());
+        ws.setScriptGroupName(scriptStep.getScriptGroupName());
+        ws.setOnFail(scriptStep.getOnFail());
+        
+        // Get connectionId from comments field (where UI stores it)
+        ws.setConnectionId(scriptStep.getComments());
+        
+        // Parse action and request data from RequestData
+        String action = null;
+        String url = null;
+        String payload = null;
+        Integer timeoutMs = null;
+        
+        Set<RequestData> data = scriptStep.getData();
+        if (data != null) {
+            for (RequestData rd : data) {
+                String key = rd.getKey();
+                if ("ws-action".equals(key)) {
+                    action = rd.getValue();
+                } else if ("ws-url".equals(key)) {
+                    url = rd.getValue();
+                } else if ("ws-payload".equals(key)) {
+                    payload = rd.getValue();
+                } else if ("ws-timeout-ms".equals(key)) {
+                    try {
+                        timeoutMs = Integer.parseInt(rd.getValue());
+                    } catch (NumberFormatException e) {
+                        LOG.warn("Invalid timeout value for WebSocket step: " + rd.getValue());
+                    }
+                }
+            }
+        }
+        
+        // Set action (required)
+        if (action != null) {
+            try {
+                ws.setAction(WebSocketAction.fromValue(action.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                LOG.warn("Invalid WebSocket action: " + action);
+            }
+        }
+        
+        // Build request
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl(url);
+        request.setPayload(payload);
+        request.setTimeoutMs(timeoutMs);
+        ws.setRequest(request);
+        
+        return ws;
     }
 
     private static TestStep convertRequestStep(ScriptStep scriptStep) {

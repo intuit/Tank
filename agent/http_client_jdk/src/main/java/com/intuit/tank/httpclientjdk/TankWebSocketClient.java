@@ -38,6 +38,10 @@ public class TankWebSocketClient {
     private final AtomicReference<Channel> channel = new AtomicReference<>();
     private final ConcurrentHashMap<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
     
+    // Passive listening for server-pushed messages
+    private final ConcurrentLinkedQueue<CompletableFuture<String>> awaitNextMessageFutures = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<String> messageBuffer = new ConcurrentLinkedQueue<>();
+    
     // Configuration
     private final URI uri;
     private final boolean ssl;
@@ -211,6 +215,7 @@ public class TankWebSocketClient {
             ch.writeAndFlush(frame).addListener(future -> {
                 if (future.isSuccess()) {
                     messagesSent++;
+                    LOG.info("[WebSocket SENT]: \"{}\"", message);
                     LOG.debug("Sent correlated message: {} (ID: {})", message, correlationId);
                 } else {
                     LOG.error("Failed to send message: {} (ID: {})", message, correlationId, future.cause());
@@ -259,7 +264,8 @@ public class TankWebSocketClient {
             ch.writeAndFlush(frame).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
                     messagesSent++;
-                    LOG.debug("Sent message: {}", message);
+                    LOG.info("[WebSocket SENT]: \"{}\"", message);
+                    LOG.debug("Sent message: {}", message);  // Keep for backward compatibility
                     sendFuture.complete(null);
                 } else {
                     LOG.error("Failed to send message: {}", message, future.cause());
@@ -272,6 +278,43 @@ public class TankWebSocketClient {
         }
         
         return sendFuture;
+    }
+    
+    /**
+     * Passively await the next message from the server (for EXPECT actions)
+     * This does NOT send anything - it just listens for server-pushed messages
+     * 
+     * @param timeoutMs Timeout in milliseconds
+     * @return CompletableFuture<String> that completes when next message arrives
+     */
+    public CompletableFuture<String> awaitNextMessage(int timeoutMs) {
+        if (!connected.get()) {
+            return CompletableFuture.failedFuture(
+                new IllegalStateException("WebSocket not connected"));
+        }
+        
+        // Check if there's a buffered message first
+        String bufferedMessage = messageBuffer.poll();
+        if (bufferedMessage != null) {
+            LOG.debug("Returning buffered message: {}", bufferedMessage);
+            return CompletableFuture.completedFuture(bufferedMessage);
+        }
+        
+        // Create future for next message
+        CompletableFuture<String> messageFuture = new CompletableFuture<>();
+        awaitNextMessageFutures.add(messageFuture);
+        
+        // Set timeout
+        workerGroup.next().schedule(() -> {
+            if (!messageFuture.isDone()) {
+                awaitNextMessageFutures.remove(messageFuture);
+                messageFuture.completeExceptionally(
+                    new TimeoutException("No message received within " + timeoutMs + "ms"));
+            }
+        }, timeoutMs, TimeUnit.MILLISECONDS);
+        
+        LOG.debug("Awaiting next server message with {}ms timeout", timeoutMs);
+        return messageFuture;
     }
     
         /**
@@ -363,7 +406,13 @@ public class TankWebSocketClient {
                 return;
             }
             
-            // Handle WebSocket frames 
+            // ASYNCHRONOUS PASSIVE LISTENING:
+            // This handler is attached during CONNECT and remains active for the life of the connection.
+            // All incoming messages are immediately:
+            // 1. Logged to the debugger (for demo/monitoring visibility)
+            // 2. Queued in messageBuffer or delivered to awaitNextMessage futures (for EXPECT steps)
+            // This is thread-safe as it executes within the Netty event loop.
+            //
             // TODO: REPLACE THIS TO HANDLE MORE THAN ECHO SERVERS (Binary, Ping handling, etc)
             // This will require a new class to handle the different types of frames
             if (msg instanceof WebSocketFrame) {
@@ -372,10 +421,16 @@ public class TankWebSocketClient {
                 if (frame instanceof TextWebSocketFrame) {
                     String text = ((TextWebSocketFrame) frame).text();
                     messagesReceived++;
-                    LOG.debug("Received message: {}", text);
                     
-                    // Parse correlation ID from echo response
-                    // Echo format: "Echo: correlationId:originalMessage"
+                    // Strip "Echo: " prefix for cleaner demo logging
+                    String displayText = text.startsWith("Echo: ") ? text.substring(6) : text;
+                    
+                    // Log prominently for Tank Debugger visibility (INFO level ensures it appears in logs)
+                    LOG.info("[WebSocket RECEIVED]: \"{}\"", displayText);
+                    LOG.debug("Received message: {}", text);  // Keep for backward compatibility
+                    
+                    // Priority 1: Check for correlated responses (for sendAndAwaitResponse)
+                    boolean handledByCorrelation = false;
                     if (text.startsWith("Echo: ")) {
                         String echoContent = text.substring(6); // Remove "Echo: " prefix
                         int colonIndex = echoContent.indexOf(':');
@@ -388,17 +443,17 @@ public class TankWebSocketClient {
                             CompletableFuture<String> responseFuture = pendingRequests.remove(correlationId);
                             if (responseFuture != null) {
                                 // Return the original echo format for backward compatibility
-                                responseFuture.complete("Echo: " + originalMessage);
+                                responseFuture.complete(originalMessage);
                                 LOG.debug("Completed correlated response for ID: {}", correlationId);
-                            } else {
-                                LOG.warn("Received response for unknown correlation ID: {}", correlationId);
+                                handledByCorrelation = true;
                             }
-                        } else {
-                            LOG.warn("Received malformed echo response: {}", text);
                         }
-                    } else {
-                        // Handle non-echo messages (server-initiated)
-                        LOG.info("Server-initiated message: {}", text);
+                    }
+                    
+                    // Priority 2: If not correlated, deliver to passive listeners (EXPECT actions)
+                    // Messages are queued in messageBuffer if no active EXPECT is waiting
+                    if (!handledByCorrelation) {
+                        completeAwaitNextMessageFutures(text);
                     }
                     
                 } else if (frame instanceof CloseWebSocketFrame) {
@@ -449,5 +504,22 @@ public class TankWebSocketClient {
      */
     public int getPendingRequestCount() {
         return pendingRequests.size();
+    }
+    
+    /**
+     * Complete any passive listeners waiting for the next message
+     * If no listeners are present, buffer the message for later retrieval
+     * @param message The message to deliver
+     */
+    private void completeAwaitNextMessageFutures(String message) {
+        CompletableFuture<String> future = awaitNextMessageFutures.poll();
+        if (future != null) {
+            future.complete(message);
+            LOG.debug("Delivered server message to passive listener: {}", message);
+        } else {
+            // No active listeners, buffer the message
+            messageBuffer.add(message);
+            LOG.debug("Buffered server message (no active listeners): {}", message);
+        }
     }
 }
