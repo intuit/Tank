@@ -186,7 +186,8 @@ public class ScriptStepFactory {
         ScriptStep step = new ScriptStep();
         step.setType(WEBSOCKET);
         step.setMethod("WS_CONNECT");
-        // Comments left blank as per design decision
+        // Store connectionId in comments field so SEND/DISCONNECT can reference it
+        step.setComments(connectionId);
 
         Set<RequestData> data = new HashSet<RequestData>();
 

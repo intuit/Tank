@@ -72,22 +72,9 @@ public class HDWorkloadWebSocketTest {
                         </request>
                       </testStep>
                       
-                      <!-- WebSocket Expect -->
-                      <testStep xsi:type="ns2:webSocketStep"
-                                name="Expect Response"
-                                action="expect"
-                                connectionId="conn-1"
-                                onFail="abort">
-                        <stepIndex>3</stepIndex>
-                        <response>
-                          <timeoutMs>3000</timeoutMs>
-                          <expectedContent>"subscribed"</expectedContent>
-                        </response>
-                      </testStep>
-                      
                       <!-- Another HTTP Step -->
                       <testStep xsi:type="ns2:testStep" name="HTTP Request" onFail="abort">
-                        <stepIndex>4</stepIndex>
+                        <stepIndex>3</stepIndex>
                         <request name="GET" format="json">
                           <label>http://localhost:8080/api/data</label>
                           <path>/api/data</path>
@@ -103,7 +90,7 @@ public class HDWorkloadWebSocketTest {
                                 action="disconnect"
                                 connectionId="conn-1"
                                 onFail="continue">
-                        <stepIndex>5</stepIndex>
+                        <stepIndex>4</stepIndex>
                       </testStep>
                       
                     </useCase>
@@ -148,7 +135,7 @@ public class HDWorkloadWebSocketTest {
         HDScriptUseCase useCase = useCases.get(0);
         List<TestStep> steps = useCase.getScriptSteps();
         assertNotNull(steps);
-        assertEquals(6, steps.size());
+        assertEquals(5, steps.size());
 
         // And: Steps should be in correct order and type
         // Step 0: HTTP Login
@@ -176,27 +163,18 @@ public class HDWorkloadWebSocketTest {
         assertNotNull(wsSend.getRequest());
         assertEquals("{\"action\":\"subscribe\"}", wsSend.getRequest().getPayload());
 
-        // Step 3: WebSocket Expect
-        assertTrue(steps.get(3) instanceof WebSocketStep);
-        WebSocketStep wsExpect = (WebSocketStep) steps.get(3);
-        assertEquals("Expect Response", wsExpect.getName());
-        assertEquals(WebSocketAction.EXPECT, wsExpect.getAction());
-        assertEquals(3, wsExpect.getStepIndex());
-        assertNotNull(wsExpect.getResponse());
-        assertEquals("\"subscribed\"", wsExpect.getResponse().getExpectedContent());
-
-        // Step 4: HTTP Request
-        assertTrue(steps.get(4) instanceof RequestStep);
-        RequestStep httpStep2 = (RequestStep) steps.get(4);
+        // Step 3: HTTP Request
+        assertTrue(steps.get(3) instanceof RequestStep);
+        RequestStep httpStep2 = (RequestStep) steps.get(3);
         assertEquals("HTTP Request", httpStep2.getName());
-        assertEquals(4, httpStep2.getStepIndex());
+        assertEquals(3, httpStep2.getStepIndex());
 
-        // Step 5: WebSocket Disconnect
-        assertTrue(steps.get(5) instanceof WebSocketStep);
-        WebSocketStep wsDisconnect = (WebSocketStep) steps.get(5);
+        // Step 4: WebSocket Disconnect
+        assertTrue(steps.get(4) instanceof WebSocketStep);
+        WebSocketStep wsDisconnect = (WebSocketStep) steps.get(4);
         assertEquals("WebSocket Disconnect", wsDisconnect.getName());
         assertEquals(WebSocketAction.DISCONNECT, wsDisconnect.getAction());
-        assertEquals(5, wsDisconnect.getStepIndex());
+        assertEquals(4, wsDisconnect.getStepIndex());
     }
 
     @Test

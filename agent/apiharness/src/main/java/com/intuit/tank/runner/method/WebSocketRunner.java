@@ -43,7 +43,6 @@ public class WebSocketRunner implements Runner {
     private WebSocketStep step;
     private Variables variables;
     private WebSocketRequest request;
-    private WebSocketResponse response;
 
     /**
      * Constructor
@@ -54,7 +53,6 @@ public class WebSocketRunner implements Runner {
         this.step = (WebSocketStep) context.getTestStep();
         this.variables = context.getVariables();
         this.request = step.getRequest();
-        this.response = step.getResponse();
     }
 
     @Override
@@ -93,9 +91,6 @@ public class WebSocketRunner implements Runner {
                     break;
                 case SEND:
                     result = executeSend(connectionId);
-                    break;
-                case EXPECT:
-                    result = executeExpect(connectionId);
                     break;
                 case DISCONNECT:
                     result = executeDisconnect(connectionId);
@@ -190,81 +185,6 @@ public class WebSocketRunner implements Runner {
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage(
                 "Failed to send WebSocket message: " + e.getMessage(),
-                LogEventType.Informational, LoggingProfile.STANDARD), e);
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-    }
-
-    /**
-     * Execute WebSocket expect/receive action
-     */
-    private String executeExpect(String connectionId) throws Exception {
-        TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
-        if (client == null) {
-            LOG.error("WebSocket connection not found: " + connectionId);
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-
-        if (response == null) {
-            LOG.error("EXPECT action requires <response>");
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-
-        // Get timeout from response (not request)
-        final int timeoutMs = response.getTimeoutMs() != null ? response.getTimeoutMs() : 2000;
-        final String expectedContent = response.getExpectedContent() != null 
-            ? variables.evaluate(response.getExpectedContent()) : null;
-
-        try {
-            // Passively listen for server-pushed messages (does NOT send anything)
-            CompletableFuture<String> future = client.awaitNextMessage(timeoutMs);
-            String receivedMessage = future.get(timeoutMs + 100, TimeUnit.MILLISECONDS); // Add small buffer
-
-            if (receivedMessage == null) {
-                if (response.isOptional()) {
-                    LOG.info(LogUtil.getLogMessage(
-                        "No message within " + timeoutMs + "ms (optional EXPECT).",
-                        LogEventType.Informational, LoggingProfile.STANDARD));
-                    return TankConstants.HTTP_CASE_PASS;
-                }
-                LOG.warn("No WebSocket message received within timeout: " + timeoutMs + "ms");
-                return TankConstants.HTTP_CASE_FAIL;
-            }
-
-            LOG.info(LogUtil.getLogMessage(
-                "Received WebSocket message on " + connectionId + " : " + receivedMessage,
-                LogEventType.Informational, LoggingProfile.STANDARD));
-
-            // Check expected content if specified
-            if (expectedContent != null && !receivedMessage.contains(expectedContent)) {
-                if (response.isOptional()) {
-                    LOG.info(LogUtil.getLogMessage(
-                        "Message doesn't contain expected content (optional EXPECT): " + expectedContent,
-                        LogEventType.Informational, LoggingProfile.STANDARD));
-                    return TankConstants.HTTP_CASE_PASS;
-                }
-                LOG.error("Received message doesn't contain expected content: " + expectedContent +
-                         ", actual: " + receivedMessage);
-                return TankConstants.HTTP_CASE_FAIL;
-            }
-
-            // Save to variable if specified
-            if (response.getSaveVariable() != null) {
-                String varName = variables.evaluate(response.getSaveVariable());
-                variables.addVariable(varName, receivedMessage);
-            }
-
-            return TankConstants.HTTP_CASE_PASS;
-
-        } catch (Exception e) {
-            if (response.isOptional()) {
-                LOG.info(LogUtil.getLogMessage(
-                    "EXPECT optional; treating as pass despite error: " + e.getMessage(),
-                    LogEventType.Informational, LoggingProfile.STANDARD));
-                return TankConstants.HTTP_CASE_PASS;
-            }
-            LOG.error(LogUtil.getLogMessage(
-                "Failed to receive WebSocket message: " + e.getMessage(),
                 LogEventType.Informational, LoggingProfile.STANDARD), e);
             return TankConstants.HTTP_CASE_FAIL;
         }

@@ -89,9 +89,6 @@ public class WebSocketRequest {
                     throw new IllegalArgumentException("SEND action requires <payload>");
                 }
                 break;
-            case EXPECT:
-                // EXPECT uses WebSocketResponse, not WebSocketRequest
-                throw new IllegalArgumentException("EXPECT action should use WebSocketResponse, not WebSocketRequest");
             case DISCONNECT:
                 // No required fields
                 break;

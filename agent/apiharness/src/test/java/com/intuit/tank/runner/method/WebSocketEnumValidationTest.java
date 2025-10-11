@@ -29,10 +29,9 @@ public class WebSocketEnumValidationTest {
 
     @Test
     public void testWebSocketActionValidValues() {
-        // Test all valid actions (MVP: 4 basic actions)
+        // Test all valid actions (Core 3 actions)
         assertEquals(WebSocketAction.CONNECT, WebSocketAction.fromValue("connect"));
         assertEquals(WebSocketAction.SEND, WebSocketAction.fromValue("send"));
-        assertEquals(WebSocketAction.EXPECT, WebSocketAction.fromValue("expect"));
         assertEquals(WebSocketAction.DISCONNECT, WebSocketAction.fromValue("disconnect"));
     }
 
@@ -96,12 +95,9 @@ public class WebSocketEnumValidationTest {
         assertTrue(WebSocketAction.SEND.sendsData());
         assertFalse(WebSocketAction.SEND.isBlocking());
         
-        assertTrue(WebSocketAction.EXPECT.isBlocking());
-        assertTrue(WebSocketAction.EXPECT.receivesData());
-        assertTrue(WebSocketAction.EXPECT.requiresExistingConnection());
-        
+        assertTrue(WebSocketAction.DISCONNECT.isBlocking());
+        assertTrue(WebSocketAction.DISCONNECT.requiresExistingConnection());
         assertFalse(WebSocketAction.DISCONNECT.sendsData());
-        assertFalse(WebSocketAction.DISCONNECT.receivesData());
     }
 
     @Test
@@ -180,11 +176,5 @@ public class WebSocketEnumValidationTest {
         // Test DISCONNECT validation - no requirements
         WebSocketRequest disconnectRequest = new WebSocketRequest();
         disconnectRequest.validate(WebSocketAction.DISCONNECT); // Should pass
-        
-        // Test EXPECT validation - should throw (not applicable to WebSocketRequest)
-        WebSocketRequest expectRequest = new WebSocketRequest();
-        assertThrows(IllegalArgumentException.class, () -> {
-            expectRequest.validate(WebSocketAction.EXPECT);
-        });
     }
 }

@@ -28,8 +28,6 @@ public enum WebSocketAction {
     CONNECT("connect"),
     @XmlEnumValue("send")
     SEND("send"),
-    @XmlEnumValue("expect")
-    EXPECT("expect"),
     @XmlEnumValue("disconnect")
     DISCONNECT("disconnect");
 
@@ -55,7 +53,7 @@ public enum WebSocketAction {
         }
         
         throw new IllegalArgumentException("Unknown WebSocket action: " + value + 
-            ". Valid actions are: connect, send, expect, disconnect");
+            ". Valid actions are: connect, send, disconnect");
     }
 
     public boolean requiresExistingConnection() {
@@ -63,15 +61,11 @@ public enum WebSocketAction {
     }
 
     public boolean isBlocking() {
-        return this == CONNECT || this == EXPECT || this == DISCONNECT;
+        return this == CONNECT || this == DISCONNECT;
     }
 
     public boolean sendsData() {
         return this == SEND;
-    }
-
-    public boolean receivesData() {
-        return this == EXPECT;
     }
 
     @Override

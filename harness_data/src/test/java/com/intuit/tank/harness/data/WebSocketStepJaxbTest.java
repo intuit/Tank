@@ -95,46 +95,6 @@ public class WebSocketStepJaxbTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void testMarshallUnmarshallExpectStep() throws Exception {
-        // Given: A WebSocket EXPECT step with validation
-        WebSocketStep step = new WebSocketStep();
-        step.setName("Expect Confirmation");
-        step.setAction(WebSocketAction.EXPECT);
-        step.setConnectionId("conn-1");
-        step.setOnFail("abort");
-        step.setStepIndex(3);
-
-        WebSocketResponse response = new WebSocketResponse();
-        response.setTimeoutMs(3000);
-        response.setExpectedContent("\"status\":\"confirmed\"");
-        response.setSaveVariable("confirmationData");
-        step.setResponse(response);
-
-        // When: We marshall to XML
-        String xml = JaxbUtil.marshall(step);
-        
-        // Then: XML should contain response validation
-        assertNotNull(xml);
-        assertTrue(xml.contains("expect"));
-        assertTrue(xml.contains("confirmed"));
-
-        // When: We unmarshall back to object
-        WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
-
-        // Then: All fields should be preserved
-        assertEquals("Expect Confirmation", roundTrip.getName());
-        assertEquals(WebSocketAction.EXPECT, roundTrip.getAction());
-        assertEquals("conn-1", roundTrip.getConnectionId());
-        
-        assertNotNull(roundTrip.getResponse());
-        assertEquals(Integer.valueOf(3000), roundTrip.getResponse().getTimeoutMs());
-        assertEquals("\"status\":\"confirmed\"", roundTrip.getResponse().getExpectedContent());
-        assertEquals("confirmationData", roundTrip.getResponse().getSaveVariable());
-        assertNull(roundTrip.getRequest());
-    }
-
-    @Test
-    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshallUnmarshallDisconnectStep() throws Exception {
         // Given: A WebSocket DISCONNECT step
         WebSocketStep step = new WebSocketStep();

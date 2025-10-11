@@ -100,18 +100,9 @@ public class WebSocketResponse {
         this.saveVariable = saveVariable;
     }
     public void validate(WebSocketAction action) {
-        switch (action) {
-            case EXPECT:
-                // No required fields for MVP - can expect any message
-                break;
-            case CONNECT:
-            case SEND:
-            case DISCONNECT:
-                // These actions don't use WebSocketResponse
-                throw new IllegalArgumentException(action + " actions should not have WebSocketResponse");
-            default:
-                throw new IllegalArgumentException("Unknown WebSocket action: " + action);
-        }
+        // WebSocketResponse is not used by any of the core actions (CONNECT, SEND, DISCONNECT)
+        // This class is retained for future extensibility
+        throw new IllegalArgumentException(action + " action should not have WebSocketResponse");
     }
 
     @Override

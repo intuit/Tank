@@ -16,6 +16,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.RequestData;
@@ -30,6 +32,7 @@ import com.intuit.tank.util.Messages;
 public class WebSocketStepEditor implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LogManager.getLogger(WebSocketStepEditor.class);
 
     private static final String ACTION_CONNECT = "CONNECT";
     private static final String ACTION_SEND = "SEND";
@@ -102,14 +105,17 @@ public class WebSocketStepEditor implements Serializable {
             // CONNECT: Auto-generate connection ID from URL
             String connId = generateUniqueConnectionId(url);
             step = ScriptStepFactory.createWebSocketConnect(connId, url, null);
+            LOG.info("Created CONNECT step with connectionId={}, url={}", connId, url);
         } else if (ACTION_SEND.equals(action)) {
             // SEND: Find connectionId for the selected URL
             String connId = getConnectionIdForUrl(url);
             step = ScriptStepFactory.createWebSocketSend(connId, url, payload, null);
+            LOG.info("Created SEND step with connectionId={}, url={}", connId, url);
         } else {
             // DISCONNECT: Find connectionId for the selected URL
             String connId = getConnectionIdForUrl(url);
             step = ScriptStepFactory.createWebSocketDisconnect(connId, url);
+            LOG.info("Created DISCONNECT step with connectionId={}, url={}", connId, url);
         }
         
         scriptEditor.insert(step);
@@ -354,6 +360,7 @@ public class WebSocketStepEditor implements Serializable {
      */
     private String getConnectionIdForUrl(String targetUrl) {
         if (StringUtils.isBlank(targetUrl) || scriptEditor == null || scriptEditor.getSteps() == null) {
+            LOG.warn("Cannot find connectionId - targetUrl is blank or no steps available");
             return null;
         }
         
@@ -364,10 +371,25 @@ public class WebSocketStepEditor implements Serializable {
                 RequestData urlData = findData(step, WEBSOCKET_URL);
                 if (urlData != null && targetUrl.equals(urlData.getValue())) {
                     // Found matching URL, return its connectionId from comments
-                    return step.getComments();
+                    String connectionId = step.getComments();
+                    LOG.info("Found connectionId={} for url={}", connectionId, targetUrl);
+                    return connectionId;
                 }
             }
         }
+        
+        // Log available connections for debugging
+        StringBuilder availableConnections = new StringBuilder();
+        for (ScriptStep step : scriptEditor.getSteps()) {
+            if ("websocket".equals(step.getType()) && "WS_CONNECT".equals(step.getMethod())) {
+                RequestData urlData = findData(step, WEBSOCKET_URL);
+                if (urlData != null) {
+                    availableConnections.append(urlData.getValue()).append(", ");
+                }
+            }
+        }
+        LOG.warn("No connectionId found for url={}, available connections: [{}]", 
+                 targetUrl, availableConnections.toString());
         
         return null;
     }
