@@ -59,6 +59,7 @@ class LogicRunner implements Runner {
         }
         String scriptToRun = new LogicScriptUtil().buildScript(step.getScript());
         try {
+            System.setProperty("nashorn.args", "--language=es6");
             ScriptIOBean ioBean = new ScriptRunner().runScript(step.getName(), scriptToRun,
                     new ScriptEngineManager().getEngineByExtension("js"), inputs, outputLogger);
             String action = (String) ioBean.getOutput("action");
