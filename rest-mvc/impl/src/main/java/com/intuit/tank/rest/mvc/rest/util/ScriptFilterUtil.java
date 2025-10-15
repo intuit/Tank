@@ -120,6 +120,10 @@ public class ScriptFilterUtil {
      * @param steps
      */
     protected static void applyFilter(ScriptFilter filter, List<ScriptStep> steps) {
+        // DIAGNOSTIC: Track timing and memory for filter performance analysis
+        long startTime = System.nanoTime();
+        long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        
         boolean allConditionsMustPass = filter.getAllConditionsMustPass();
         Set<ScriptStep> stepsToDelete = new HashSet<ScriptStep>();
         SortedMap<Integer, ScriptStep> stepsToAdd = new TreeMap<Integer, ScriptStep>();
@@ -151,6 +155,14 @@ public class ScriptFilterUtil {
         for (ScriptStep delete : stepsToDelete) {
             steps.remove(delete);
         }
+        
+        // DIAGNOSTIC: Log filter performance metrics
+        long elapsed = (System.nanoTime() - startTime) / 1_000_000; // Convert to ms
+        long endMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long memDelta = (endMem - startMem) / 1024 / 1024; // Convert to MB
+        
+        logger.warn("FILTER_PERF: filter='{}', steps={}, added={}, deleted={}, time={}ms, memDelta={}MB", 
+            filter.getName(), steps.size(), stepsToAdd.size(), stepsToDelete.size(), elapsed, memDelta);
     }
 
     private static void doAction(List<ScriptStep> steps, SortedMap<Integer, ScriptStep> stepsToAdd,
