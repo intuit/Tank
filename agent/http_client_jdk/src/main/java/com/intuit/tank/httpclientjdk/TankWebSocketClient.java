@@ -422,11 +422,8 @@ public class TankWebSocketClient {
                     String text = ((TextWebSocketFrame) frame).text();
                     messagesReceived++;
                     
-                    // Strip "Echo: " prefix for cleaner demo logging
-                    String displayText = text.startsWith("Echo: ") ? text.substring(6) : text;
-                    
                     // Log prominently for Tank Debugger visibility (INFO level ensures it appears in logs)
-                    LOG.info("[WebSocket RECEIVED]: \"{}\"", displayText);
+                    LOG.info("[WebSocket RECEIVED]: \"{}\"", text);
                     LOG.debug("Received message: {}", text);  // Keep for backward compatibility
                     
                     // Priority 1: Check for correlated responses (for sendAndAwaitResponse)
@@ -442,8 +439,8 @@ public class TankWebSocketClient {
                             // Find and complete the corresponding future
                             CompletableFuture<String> responseFuture = pendingRequests.remove(correlationId);
                             if (responseFuture != null) {
-                                // Return the original echo format for backward compatibility
-                                responseFuture.complete(originalMessage);
+                                // Return message with "Echo: " prefix but without correlation ID
+                                responseFuture.complete("Echo: " + originalMessage);
                                 LOG.debug("Completed correlated response for ID: {}", correlationId);
                                 handledByCorrelation = true;
                             }
