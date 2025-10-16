@@ -83,21 +83,49 @@ public class ScriptFilterUtil {
             });
         }
         if (!externalFilters.isEmpty()) {
+            // DIAGNOSTIC: Track external script filter performance
+            long extGroupStart = System.nanoTime();
+            long extGroupStartMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            
             LoggingOutputLogger outputLogger = new LoggingOutputLogger();
+            
+            // DIAGNOSTIC: Track ScriptTO conversion time
+            long conversionStart = System.nanoTime();
             ScriptTO scriptTo = ScriptServiceUtil.scriptToTransferObject(script);
+            long conversionTime = (System.nanoTime() - conversionStart) / 1_000_000;
+            logger.warn("EXTERNAL_CONVERSION_PERF: scriptId={}, stepCount={}, Script->ScriptTO time={}ms",
+                script.getId(), script.getScriptSteps().size(), conversionTime);
+            
             ScriptRunner runner = new ScriptRunner();
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("script", scriptTo);
+            
             for (ScriptFilter filter : externalFilters) {
+                // DIAGNOSTIC: Track per-filter execution
+                long filterStart = System.nanoTime();
+                long filterStartMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                
                 ExternalScript externalScript = externalScriptDao.findById(filter.getExternalScriptId());
                 logger.info("Running external Script: " + externalScript);
+                
                 if (externalScript != null) {
                     Subsegment subsegment = AWSXRay.beginSubsegment("Apply.ExternalFilter." + externalScript.getName());
                     try {
+                        // DIAGNOSTIC: Track script execution time
+                        long execStart = System.nanoTime();
                         runner.runScript(externalScript.getName(), externalScript.getScript(),
                                 externalScript.getEngine(),
                                 map,
                                 outputLogger);
+                        long execTime = (System.nanoTime() - execStart) / 1_000_000;
+                        
+                        long filterElapsed = (System.nanoTime() - filterStart) / 1_000_000;
+                        long filterEndMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                        long filterMemDelta = (filterEndMem - filterStartMem) / 1024 / 1024;
+                        
+                        logger.warn("EXTERNAL_SCRIPT_PERF: filter='{}', scriptName='{}', scriptId={}, stepCount={}, execTime={}ms, totalTime={}ms, memDelta={}MB",
+                            filter.getName(), externalScript.getName(), script.getId(), 
+                            scriptTo.getSteps().size(), execTime, filterElapsed, filterMemDelta);
                     } catch (ScriptException e) {
                         logger.error("Error Running Script: " + e);
                         subsegment.addException(e);
@@ -107,10 +135,23 @@ public class ScriptFilterUtil {
                     }
                 }
             }
+            
+            // DIAGNOSTIC: Track object conversion back to entities
+            long reconversionStart = System.nanoTime();
             script.getScriptSteps().clear();
             for (ScriptStepTO stepTo : scriptTo.getSteps()) {
                 script.getScriptSteps().add(ScriptServiceUtil.transferObjectToScriptStep(stepTo));
             }
+            long reconversionTime = (System.nanoTime() - reconversionStart) / 1_000_000;
+            
+            long extGroupElapsed = (System.nanoTime() - extGroupStart) / 1_000_000;
+            long extGroupEndMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+            long extGroupMemDelta = (extGroupEndMem - extGroupStartMem) / 1024 / 1024;
+            
+            logger.warn("EXTERNAL_RECONVERSION_PERF: scriptId={}, stepCount={}, ScriptTO->Script time={}ms",
+                script.getId(), script.getScriptSteps().size(), reconversionTime);
+            logger.warn("EXTERNAL_GROUP_PERF: scriptId={}, filterCount={}, totalTime={}ms, totalMemDelta={}MB, breakdown: conversion={}ms, reconversion={}ms",
+                script.getId(), externalFilters.size(), extGroupElapsed, extGroupMemDelta, conversionTime, reconversionTime);
         }
     }
 
