@@ -174,13 +174,13 @@ public class WebSocketRunner implements Runner {
         String payload = variables.evaluate(request.getPayload());
 
         try {
-            // MVP: TEXT only, get timeout from request
-            int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : 2000;
-            client.sendMessage(payload).get(timeoutMs, TimeUnit.MILLISECONDS);
+            // Use sendAndAwaitResponse to get echo back and log it
+            int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : 5000;
+            String response = client.sendAndAwaitResponse(payload, timeoutMs).get(timeoutMs + 1000, TimeUnit.MILLISECONDS);
 
-            LOG.debug(LogUtil.getLogMessage(
-                "Sent WebSocket message on connection: " + connectionId + " - " + payload,
-                LogEventType.Informational, LoggingProfile.VERBOSE));
+            LOG.info(LogUtil.getLogMessage(
+                "WebSocket SEND successful on connection: " + connectionId + " (received echo response)",
+                LogEventType.Informational, LoggingProfile.STANDARD));
             return TankConstants.HTTP_CASE_PASS;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage(
