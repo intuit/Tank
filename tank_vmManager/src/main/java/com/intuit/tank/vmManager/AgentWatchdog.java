@@ -223,6 +223,15 @@ public class AgentWatchdog implements Runnable {
         for (VMInformation info : instances) {
             vmInfo.remove(info);
             vmTracker.setStatus(createTerminatedVmStatus(info));
+            
+            // Remove terminated instance from VMTracker to prevent blocking the job status transition (Starting -> Running)
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Interrupted while cleaning up terminated instance " + info.getInstanceId())));
+            }
+            vmTracker.removeStatusForInstance(info.getInstanceId());
+            
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
                 image.setStatus(VMStatus.terminated.name());
