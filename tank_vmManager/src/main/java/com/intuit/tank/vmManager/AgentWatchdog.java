@@ -19,6 +19,7 @@ package com.intuit.tank.vmManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
@@ -176,19 +177,20 @@ public class AgentWatchdog implements Runnable {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
+        Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
         LOG.info(new ObjectMessage(Map.of("Message",
-            "CloudVmStatusContainer has " + vmStatusForJob.getStatuses().size() + " statuses for job " + jobId)));
+            "CloudVmStatusContainer has " + statuses.size() + " statuses for job " + jobId)));
         
         // Add detailed breakdown if excessive statuses
-        if (LOG.isDebugEnabled() && vmStatusForJob.getStatuses().size() > expectedInstanceCount + 5) {
-            Map<VMStatus, Long> statusBreakdown = vmStatusForJob.getStatuses().stream()
+        if (LOG.isDebugEnabled() && statuses.size() > expectedInstanceCount + 5) {
+            Map<VMStatus, Long> statusBreakdown = statuses.stream()
                 .collect(Collectors.groupingBy(CloudVmStatus::getVmStatus, Collectors.counting()));
             LOG.warn(new ObjectMessage(Map.of("Message",
-                "CloudVmStatusContainer has excessive statuses (" + vmStatusForJob.getStatuses().size() + 
+                "CloudVmStatusContainer has excessive statuses (" + statuses.size() +
                 " vs expected " + expectedInstanceCount + "). Breakdown: " + statusBreakdown)));
         }
         
-        for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
+        for (CloudVmStatus status : statuses) {
             // Checks the state of Tank job.
             if (status.getVmStatus().equals(VMStatus.pending)) { // agent reported back ready, only relaunch "starting" agents
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
