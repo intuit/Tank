@@ -80,7 +80,7 @@ public class AgentWatchdogTest {
         CloudVmStatus vmstatusPending = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         Set<CloudVmStatus> setStarting = Stream.of(vmstatusStarting).collect(Collectors.toCollection(HashSet::new));
         Set<CloudVmStatus> setPending = Stream.of(vmstatusPending).collect(Collectors.toCollection(HashSet::new));
-        when(cloudVmStatusContainerMock.getStatuses()).thenReturn(setStarting).thenReturn(setPending);
+        when(cloudVmStatusContainerMock.getStatuses()).thenReturn(setStarting).thenReturn(setStarting).thenReturn(setPending).thenReturn(setPending);
         when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
 
         VMInformation vmInformation = new VMInformation();
@@ -96,6 +96,6 @@ public class AgentWatchdogTest {
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
         verify(amazonInstanceMock, never()).reboot(Mockito.anyList());
         verify(cloudVmStatusContainerMock, times(2)).getEndTime();
-        verify(cloudVmStatusContainerMock, times(2)).getStatuses();
+        verify(cloudVmStatusContainerMock, times(4)).getStatuses();
     }
 }
