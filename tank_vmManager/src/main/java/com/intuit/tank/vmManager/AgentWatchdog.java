@@ -19,7 +19,6 @@ package com.intuit.tank.vmManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.amazonaws.xray.AWSXRay;
@@ -177,27 +176,12 @@ public class AgentWatchdog implements Runnable {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
-        Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
-        LOG.info(new ObjectMessage(Map.of("Message",
-            "CloudVmStatusContainer has " + statuses.size() + " statuses for job " + jobId)));
-        
-        // Add detailed breakdown if excessive statuses
-        if (LOG.isDebugEnabled() && statuses.size() > expectedInstanceCount + 5) {
-            Map<VMStatus, Long> statusBreakdown = statuses.stream()
-                .collect(Collectors.groupingBy(CloudVmStatus::getVmStatus, Collectors.counting()));
-            LOG.warn(new ObjectMessage(Map.of("Message",
-                "CloudVmStatusContainer has excessive statuses (" + statuses.size() +
-                " vs expected " + expectedInstanceCount + "). Breakdown: " + statusBreakdown)));
-        }
-        
-        for (CloudVmStatus status : statuses) {
+        for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             // Checks the state of Tank job.
             if (status.getVmStatus().equals(VMStatus.pending)) { // agent reported back ready, only relaunch "starting" agents
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {
                     addInstance(reportedInstances, removedInstance);
-                    LOG.info(new ObjectMessage(Map.of("Message",
-                        "Agent " + status.getInstanceId() + " reported with VMStatus.pending, moved to reportedInstances")));
                 }
             }
         }
@@ -239,19 +223,6 @@ public class AgentWatchdog implements Runnable {
         for (VMInformation info : instances) {
             vmInfo.remove(info);
             vmTracker.setStatus(createTerminatedVmStatus(info));
-            
-            // Remove terminated instance from VMTracker to prevent blocking the job status transition (Starting -> Running)
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "Interrupted while cleaning up terminated instance " + info.getInstanceId())));
-            }
-            vmTracker.removeStatusForInstance(info.getInstanceId());
-            CloudVmStatusContainer containerAfterRemoval = vmTracker.getVmStatusForJob(jobId);
-            LOG.info(new ObjectMessage(Map.of("Message", 
-                "Removed terminated instance " + info.getInstanceId() + " from VMTracker. " +
-                "Container now has " + (containerAfterRemoval != null ? containerAfterRemoval.getStatuses().size() : "null") + " statuses")));
-            
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
                 image.setStatus(VMStatus.terminated.name());
@@ -268,8 +239,6 @@ public class AgentWatchdog implements Runnable {
             vmInfo.add(newInfo);
             // Add directly to started instances since these are restarted from scratch
             startedInstances.add(newInfo);
-            LOG.info(new ObjectMessage(Map.of("Message",
-                "Setting initial status for new instance " + newInfo.getInstanceId() + " with VMStatus.starting")));
             vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
             LOG.info(new ObjectMessage(Map.of("Message","Added image (" + newInfo.getInstanceId() + ") to VMImage table for job " + jobId)));
             try {
@@ -293,7 +262,7 @@ public class AgentWatchdog implements Runnable {
         return new CloudVmStatus(info.getInstanceId(), req.getJobId(),
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
-                VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
+                VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
     }
 
     private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
