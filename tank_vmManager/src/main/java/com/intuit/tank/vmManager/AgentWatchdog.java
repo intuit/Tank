@@ -178,6 +178,16 @@ public class AgentWatchdog implements Runnable {
         }
         LOG.info(new ObjectMessage(Map.of("Message",
             "CloudVmStatusContainer has " + vmStatusForJob.getStatuses().size() + " statuses for job " + jobId)));
+        
+        // Add detailed breakdown if excessive statuses
+        if (LOG.isDebugEnabled() && vmStatusForJob.getStatuses().size() > expectedInstanceCount + 5) {
+            Map<VMStatus, Long> statusBreakdown = vmStatusForJob.getStatuses().stream()
+                .collect(Collectors.groupingBy(CloudVmStatus::getVmStatus, Collectors.counting()));
+            LOG.warn(new ObjectMessage(Map.of("Message",
+                "CloudVmStatusContainer has excessive statuses (" + vmStatusForJob.getStatuses().size() + 
+                " vs expected " + expectedInstanceCount + "). Breakdown: " + statusBreakdown)));
+        }
+        
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             // Checks the state of Tank job.
             if (status.getVmStatus().equals(VMStatus.pending)) { // agent reported back ready, only relaunch "starting" agents
@@ -235,8 +245,10 @@ public class AgentWatchdog implements Runnable {
                 LOG.warn(new ObjectMessage(Map.of("Message", "Interrupted while cleaning up terminated instance " + info.getInstanceId())));
             }
             vmTracker.removeStatusForInstance(info.getInstanceId());
-            LOG.info(new ObjectMessage(Map.of("Message",
-                "Removed terminated instance " + info.getInstanceId() + " from VMTracker")));
+            CloudVmStatusContainer containerAfterRemoval = vmTracker.getVmStatusForJob(jobId);
+            LOG.info(new ObjectMessage(Map.of("Message", 
+                "Removed terminated instance " + info.getInstanceId() + " from VMTracker. " +
+                "Container now has " + (containerAfterRemoval != null ? containerAfterRemoval.getStatuses().size() : "null") + " statuses")));
             
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {

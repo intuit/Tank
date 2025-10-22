@@ -151,6 +151,9 @@ public class VMTrackerImpl implements VMTracker {
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
             if (shouldUpdateStatus(currentStatus)) {
                 statusMap.put(status.getInstanceId(), status);
+                LOG.debug(new ObjectMessage(Map.of("Message", 
+                    "Added status to statusMap: instanceId=" + status.getInstanceId() + 
+                    ", jobId=" + status.getJobId() + ", VMStatus=" + status.getVmStatus())));
                 if (status.getVmStatus() == VMStatus.running
                 		&& (status.getJobStatus() == JobStatus.Completed)
                 		&& !isDevMode()) {
@@ -245,7 +248,17 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void removeStatusForInstance(String instanceId) {
-        statusMap.remove(instanceId);
+        CloudVmStatus removedStatus = statusMap.remove(instanceId);
+        if (removedStatus != null) {
+            String jobId = removedStatus.getJobId();
+            CloudVmStatusContainer container = jobMap.get(jobId);
+            if (container != null) {
+                boolean removed = container.getStatuses().removeIf(s -> s.getInstanceId().equals(instanceId));
+                LOG.info(new ObjectMessage(Map.of(
+                    "Message", "Removed instance " + instanceId + " from CloudVmStatusContainer for job " + jobId + 
+                        ". Removed=" + removed + ", Container now has " + container.getStatuses().size() + " statuses")));
+            }
+        }
     }
 
     /**
@@ -305,6 +318,11 @@ public class VMTrackerImpl implements VMTracker {
         ControllerLoggingConfig.setupThreadContext();
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
+        LOG.debug(new ObjectMessage(Map.of("Message",
+            "Updated CloudVmStatusContainer for job " + status.getJobId() + 
+            ": instanceId=" + status.getInstanceId() + 
+            ", VMStatus=" + status.getVmStatus() + 
+            ", container size=" + cloudVmStatusContainer.getStatuses().size())));
         cloudVmStatusContainer.calculateUserDetails();
         boolean isFinished = true;
         boolean paused = true;
@@ -330,6 +348,11 @@ public class VMTrackerImpl implements VMTracker {
             }
             if (jobStatus != JobStatus.Running) {  // If no VMs are Running
                 running = false;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(new ObjectMessage(Map.of("Message",
+                        "Instance " + s.getInstanceId() + " is not running (status=" + jobStatus + 
+                        "), preventing job transition to Running")));
+                }
             }
         }
         if (isFinished) {
@@ -355,6 +378,10 @@ public class VMTrackerImpl implements VMTracker {
                 newStatus = JobQueueStatus.Stopped;
             } else if (running) {
                 newStatus = JobQueueStatus.Running;
+                LOG.info(new ObjectMessage(Map.of("Message",
+                    "All agents running for job " + status.getJobId() + 
+                    ". Transitioning job status to Running. Container has " + 
+                    cloudVmStatusContainer.getStatuses().size() + " statuses")));
                 if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
                     job.setStartTime(status.getStartTime());
                     jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
