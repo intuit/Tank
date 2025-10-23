@@ -70,6 +70,7 @@ public class AgentWatchdogTest {
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
         verify(amazonInstanceMock, never()).reboot(Mockito.anyList());
         verify(cloudVmStatusContainerMock, times(1)).getEndTime();
+        verify(cloudVmStatusContainerMock, times(1)).getStatuses();
     }
 
     @Test
@@ -95,5 +96,6 @@ public class AgentWatchdogTest {
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
         verify(amazonInstanceMock, never()).reboot(Mockito.anyList());
         verify(cloudVmStatusContainerMock, times(2)).getEndTime();
+        verify(cloudVmStatusContainerMock, times(1)).getStatuses();
     }
 }
