@@ -33,7 +33,7 @@
     <version.software.amazon.awssdk>2.34.5</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.19.0</version.aws-xray-sdk-bom>
 
-    <version.tomcat>11.0.12</version.tomcat>
+    <version.tomcat>11.0.13</version.tomcat>
     <weld.version>6.0.3.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
