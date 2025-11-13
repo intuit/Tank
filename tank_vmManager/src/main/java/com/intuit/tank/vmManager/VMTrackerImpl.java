@@ -315,6 +315,17 @@ public class VMTrackerImpl implements VMTracker {
         // look up the job
         JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
         for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
+            VMStatus vmStatus = s.getVmStatus();
+
+            // Skip inactive instances (terminated, stopped, shutting_down, stopping)
+            if (vmStatus == VMStatus.terminated || vmStatus == VMStatus.stopped ||
+                vmStatus == VMStatus.shutting_down || vmStatus == VMStatus.stopping) {
+                LOG.debug(new ObjectMessage(Map.of("Message",
+                    "Skipping inactive instance " + s.getInstanceId() +
+                    " (VMStatus=" + vmStatus + ") in job status calculation")));
+                continue;
+            }
+
             JobStatus jobStatus = s.getJobStatus();
             if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
                 isFinished = false;
