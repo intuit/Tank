@@ -14,7 +14,6 @@ package com.intuit.tank.httpclient4;
  */
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -91,14 +90,14 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
 
-        LOG.info("TANK_CONNECTION_LEAK_FIX: TankHttpClient4 initialized with LEAK FIX");
+        LOG.info("TANK_CONNECTION_LEAK_FIX_V2: TankHttpClient4 initialized with COMPREHENSIVE LEAK FIX (EntityUtils + explicit close)");
     }
 
     public Object createHttpClient() {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
-                .setConnectionManagerShared(true)
+                .setConnectionManagerShared(false)  // CRITICAL FIX: Don't share connection manager - let HttpClient manage lifecycle
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
@@ -312,7 +311,9 @@ public class TankHttpClient4 implements TankHttpClient {
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(method, context);
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -321,25 +322,21 @@ public class TankHttpClient4 implements TankHttpClient {
             // CRITICAL: Always consume entity if present, regardless of status code
             // This prevents connection leaks that cause CLOSE-WAIT states
             if (entity != null) {
-                try ( InputStream is = entity.getContent() ) {
+                try {
                     Header contentTypeHeader = response.getFirstHeader("Content-Type");
                     String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : "";
                     if (checkContentType(contentType)) {
-                        responseBody = is.readAllBytes();
+                        responseBody = EntityUtils.toByteArray(entity);  // Automatically consumes and closes
                     } else {
                         // Still consume the entity even if we don't keep the data
-                        byte[] buffer = new byte[8192];
-                        while (is.read(buffer) != -1) {
-                            // Drain stream to ensure connection can be reused
-                        }
+                        EntityUtils.consume(entity);  // Explicitly consume without reading
                     }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
                     // CRITICAL: Ensure entity is consumed even on error
-                    // This prevents connection leaks when read fails
                     try {
-                        EntityUtils.consume(entity);
-                    } catch (IOException consumeEx) {
+                        EntityUtils.consumeQuietly(entity);
+                    } catch (Exception consumeEx) {
                         LOG.warn(request.getLogUtil().getLogMessage("could not consume entity after error: " + consumeEx));
                     }
                 }
@@ -355,8 +352,15 @@ public class TankHttpClient4 implements TankHttpClient {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
         } finally {
-            // NOTE: In HttpClient 4.5, connection release is automatic when using try-with-resources
-            // and the entity is fully consumed. The deprecated method.releaseConnection() is not needed.
+            // CRITICAL: ALWAYS close the response to release the connection
+            if (response != null) {
+                try {
+                    response.close();
+                    LOG.debug("LEAK_FIX: Response closed successfully");
+                } catch (IOException e) {
+                    LOG.warn("LEAK_FIX: Failed to close response: " + e.getMessage(), e);
+                }
+            }
             if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
                 LOG.info(request.getLogUtil().getLogMessage(
                         "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
@@ -450,7 +454,7 @@ public class TankHttpClient4 implements TankHttpClient {
         } catch (Exception ex) {
             LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled() && response != null) {
                 LOG.debug("******** RESPONSE ***********");
                 LOG.debug(response.getLogMsg());
             }
