@@ -90,6 +90,8 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
+
+        LOG.info("TANK_CONNECTION_LEAK_FIX: TankHttpClient4 initialized with LEAK FIX");
     }
 
     public Object createHttpClient() {
