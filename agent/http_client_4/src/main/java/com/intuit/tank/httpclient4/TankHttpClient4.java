@@ -90,14 +90,14 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
 
-        LOG.info("TANK_CONNECTION_LEAK_FIX_V2: TankHttpClient4 initialized with COMPREHENSIVE LEAK FIX (EntityUtils + explicit close)");
+        LOG.info("TANK_MINIMAL_FIX: Status code filter removed + EntityUtils consumption (no error cleanup, no explicit close)");
     }
 
     public Object createHttpClient() {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
-                .setConnectionManagerShared(false)  // CRITICAL FIX: Don't share connection manager - let HttpClient manage lifecycle
+                .setConnectionManagerShared(true)  // REVERTED: Back to original setting for minimal test
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
@@ -311,9 +311,7 @@ public class TankHttpClient4 implements TankHttpClient {
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(method, context);
+        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
 
             // read response body
             byte[] responseBody = new byte[0];
@@ -333,12 +331,7 @@ public class TankHttpClient4 implements TankHttpClient {
                     }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
-                    // CRITICAL: Ensure entity is consumed even on error
-                    try {
-                        EntityUtils.consumeQuietly(entity);
-                    } catch (Exception consumeEx) {
-                        LOG.warn(request.getLogUtil().getLogMessage("could not consume entity after error: " + consumeEx));
-                    }
+                    // MINIMAL TEST: No error path cleanup - testing if it's needed
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
@@ -352,15 +345,6 @@ public class TankHttpClient4 implements TankHttpClient {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
         } finally {
-            // CRITICAL: ALWAYS close the response to release the connection
-            if (response != null) {
-                try {
-                    response.close();
-                    LOG.debug("LEAK_FIX: Response closed successfully");
-                } catch (IOException e) {
-                    LOG.warn("LEAK_FIX: Failed to close response: " + e.getMessage(), e);
-                }
-            }
             if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
                 LOG.info(request.getLogUtil().getLogMessage(
                         "Response from POST to " + request.getRequestUrl() + " got status code " + request.getResponse().getHttpCode() + " BODY { " + request.getResponse().getBody() + " }",
