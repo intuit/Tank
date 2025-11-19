@@ -90,14 +90,14 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
 
-        LOG.info("TANK_MINIMAL_FIX: Status code filter removed + EntityUtils consumption (no error cleanup, no explicit close)");
+        LOG.info("TANK_MINIMAL_PLUS_SHARED_FALSE: Status code + EntityUtils + shared=false (no error cleanup, no explicit close)");
     }
 
     public Object createHttpClient() {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
-                .setConnectionManagerShared(true)  // REVERTED: Back to original setting for minimal test
+                .setConnectionManagerShared(false)  // TEST: Changed to false - testing if this is the critical missing piece
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
