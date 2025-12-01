@@ -345,6 +345,32 @@ public class TankHttpClientJDKTest {
         assertNotNull(response.getBody());
     }
 
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBrotliEncoding() {
+        // Pre-compressed brotli data for "Hello, Brotli!"
+        byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
+        String expectedText = "Hello, Brotli!";
+        
+        wireMockServer.stubFor(get(urlEqualTo("/brotli"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(brotliCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/brotli");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("br", response.getHttpHeader("Content-Encoding"));
+        // Verify the body is properly decoded
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
             URL u = new URL(url);
