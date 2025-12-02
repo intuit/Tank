@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import org.brotli.dec.BrotliInputStream;
+
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
@@ -409,9 +411,15 @@ public class TankHttpClient3 implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
-                    bResponse;
+            if ("gzip".equalsIgnoreCase(contentEncoding)) {
+                try (InputStream gzipStream = new GZIPInputStream(new ByteArrayInputStream(bResponse))) {
+                    bResponse = gzipStream.readAllBytes();
+                }
+            } else if ("br".equalsIgnoreCase(contentEncoding)) {
+                try (InputStream brotliStream = new BrotliInputStream(new ByteArrayInputStream(bResponse))) {
+                    bResponse = brotliStream.readAllBytes();
+                }
+            }
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {

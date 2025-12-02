@@ -141,9 +141,8 @@ public class TankHttpClientJDKTest {
     }
 
     @Test
-    @Disabled // wireMock isn't reading the http/2.0 cookies
     @Tag(TestGroups.FUNCTIONAL)
-    public void clearSession_mock() {
+    public void clearSession() {
         wireMockServer.stubFor(get(urlEqualTo("/cookies"))
                 .withCookie("test-cookie", matching(".*"))
                 .willReturn(aResponse()
@@ -160,47 +159,24 @@ public class TankHttpClientJDKTest {
         );
 
         BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/cookies");
-        request.addHeader("TEST", "TEST-VALUE");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getBody().contains("test-cookie"));
+        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
         response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertFalse(response.getBody().contains("test-cookie"));
+        assertTrue(response.getCookies().isEmpty());
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void clearSession() {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbun.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
-        request.doGet(null);
-        BaseResponse response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(response.getBody().contains("test-cookie"));
-        request.getHttpclient().clearSession();
-
-        request.doGet(null);
-        response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(!response.getBody().contains("test-cookie"));
-    }
-
-    @Test
-    @Disabled // wireMock isn't reading the http/2.0 cookies
-    @Tag(TestGroups.FUNCTIONAL)
-    public void setCookie_mock() {
+    public void setCookie() {
         wireMockServer.stubFor(get(urlEqualTo("/cookies"))
                 .withCookie("test-cookie", matching(".*"))
                 .willReturn(aResponse()
@@ -215,20 +191,7 @@ public class TankHttpClientJDKTest {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getBody().contains("test-cookie"));
-    }
-
-    @Test
-    @Tag(TestGroups.FUNCTIONAL)
-    public void setCookie() {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbun.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
-        request.doGet(null);
-        BaseResponse response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(response.getBody().contains("test-cookie"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
     }
 
     @Test
@@ -259,16 +222,16 @@ public class TankHttpClientJDKTest {
     }
 
     @Test
+    @Disabled // Empty multipart test - doPostMultipartwithFile tests actual multipart properly
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipart() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbin.org/post");
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/post");
         request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
         //request.setBody(createMultiPartBody());
         request.doPost(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
         assertNotNull(response.getBody());
     }
 
@@ -343,6 +306,32 @@ public class TankHttpClientJDKTest {
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBrotliEncoding() {
+        // Pre-compressed brotli data for "Hello, Brotli!"
+        byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
+        String expectedText = "Hello, Brotli!";
+        
+        wireMockServer.stubFor(get(urlEqualTo("/brotli"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(brotliCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/brotli");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("br", response.getHttpHeader("Content-Encoding"));
+        // Verify the body is properly decoded
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
     }
 
     private BaseRequest getRequest(TankHttpClient client, String url) {
