@@ -13,30 +13,31 @@ package com.intuit.tank.http.xml;
  * #L%
  */
 
-import java.io.File;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathFactory;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.Namespace;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.input.sax.XMLReaders;
-import org.jdom2.output.XMLOutputter;
-import org.jdom2.xpath.XPath;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 /**
  * Generic class to provide xml file reading and writing capabilities
@@ -48,17 +49,16 @@ public class GenericXMLHandler implements Cloneable {
     protected File xmlFile = null;
     protected HashMap<String, String> namespaces;
     protected String xml;
-    private org.w3c.dom.Document dDoc;
 
     /**
      * Constructor
      */
     public GenericXMLHandler() {
         try {
-            this.xmlDocument = new Document();
+            this.xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             this.namespaces = new HashMap<String, String>();
-        } catch (Exception ex) {
-            LOG.error("Error initializing handler: " + ex.getMessage(), ex);
+        } catch (ParserConfigurationException ex) {
+            LOG.error("Error initializing handler: {}", ex.getMessage(), ex);
         }
     }
 
@@ -71,41 +71,33 @@ public class GenericXMLHandler implements Cloneable {
     public GenericXMLHandler(File xmlFile) {
         try {
             this.xmlFile = xmlFile;
-            this.xmlDocument = new org.jdom2.Document();
-            SAXBuilder builder = new SAXBuilder();
-            builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
-            this.xmlDocument = builder.build(this.xmlFile);
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            this.xmlDocument = builder.parse(this.xmlFile);
             this.namespaces = new HashMap<String, String>();
-        } catch (Exception ex) {
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
             this.xmlDocument = null;
-            LOG.error("Error initializing handler: " + ex.getMessage(), ex);
+            LOG.error("Error initializing handler: {}", ex.getMessage(), ex);
         }
     }
 
     /**
      * Constructor
      * 
-     * @param xmlFile
+     * @param xmlString
      *            The string representation of the xml data
      */
-    public GenericXMLHandler(String xmlFile) {
-        if (StringUtils.isNotEmpty(xmlFile)) {
-            this.xml = xmlFile;
+    public GenericXMLHandler(String xmlString) {
+        if (StringUtils.isNotEmpty(xmlString)) {
+            this.xml = xmlString;
             try {
                 this.xmlFile = null;
-                this.xmlDocument = new org.jdom2.Document();
-                SAXBuilder builder = new SAXBuilder();
-                builder.setXMLReaderFactory(XMLReaders.NONVALIDATING);
-                // LOG.debug("XML string to load: "+xmlFile);
-                xmlFile = xmlFile.substring(xmlFile.indexOf("<"));
-                this.xmlDocument = builder.build(new StringReader(xmlFile));
+                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                xmlString = xmlString.substring(xmlString.indexOf("<"));
+                this.xmlDocument = builder.parse(new InputSource(new StringReader(xmlString)));
                 this.namespaces = new HashMap<String, String>();
-                InputSource is = new InputSource(new StringReader(xml));
-                this.dDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .parse(is);
             } catch (Exception ex) {
                 this.xmlDocument = null;
-                LOG.error("Error parsing xml Response: " + xmlFile + ": " + ex.getMessage());
+                LOG.error("Error parsing xml Response: {}: {}", xmlString, ex.getMessage());
             }
         }
     }
@@ -120,85 +112,28 @@ public class GenericXMLHandler implements Cloneable {
      */
     public void SetElementText(String xPathExpression, String value) {
 
-        Element node;
         try {
-            node = SetElementText(xPathExpression, 0);
-            node.setText(value);
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
+            Element element = (Element) XPathFactory.newInstance().newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            if (element != null) element.setTextContent(value);
+        } catch (XPathExpressionException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
 
     }
 
     public void SetElementAttribute(String xPathExpression, String attribute, String value) {
 
-        Element node;
         try {
-            node = SetElementText(xPathExpression, 0);
-            node.setAttribute(attribute, value);
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
+            Element element = (Element) XPathFactory.newInstance().newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            element.setAttribute(attribute, value);
+        } catch (XPathExpressionException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
     }
 
-    /**
-     * Set the element's text value
-     * 
-     * @param xPathExpression
-     *            The xpath expression for the element
-     * @param currentNode
-     *            The value to set the text to
-     * @throws JDOMException
-     */
-    private Element SetElementText(String xPathExpression, int currentNode) throws JDOMException {
-
-        String currentPath = getCurrentPath(xPathExpression, currentNode);
-
-        if (xPathExists(currentPath)) {
-            if (currentPath.equals(xPathExpression)) {
-                return (org.jdom2.Element) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
-
-            }
-            else {
-                return SetElementText(xPathExpression, currentNode + 1);
-            }
-        } else {
-
-            String childNode = getChildNode(currentPath);
-            String namespace = getCurrentNamespace(currentPath);
-
-            Element element;
-            if (namespace != null) {
-                Namespace sNS = Namespace.getNamespace(namespace, this.namespaces.get(namespace));
-                element = new Element(childNode, sNS);
-                // element.setAttribute("someKey", "someValue", Namespace.getNamespace("someONS",
-                // "someOtherNamespace"));
-            } else {
-                element = new Element(childNode);
-            }
-
-            if (this.xmlDocument.hasRootElement()) {
-                Element node = (Element) XPath.selectSingleNode(this.xmlDocument, getParentPath(currentPath));
-                node.addContent(element);
-            } else {
-                if (this.xmlDocument.hasRootElement()) {
-                    this.xmlDocument.detachRootElement();
-                }
-
-                this.xmlDocument.addContent(element);
-            }
-
-            if (currentPath.equals(xPathExpression)) {
-                return element;
-            }
-            else {
-                return SetElementText(xPathExpression, currentNode + 1);
-            }
-
-        }
-    }
-
-    /**
+   /**
      * Get the text for the selected element
      * 
      * @param xPathExpression
@@ -207,15 +142,13 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementText(String xPathExpression) {
         try {
-            String result = XPathFactory.newInstance().newXPath().evaluate(xPathExpression, dDoc);
-            if (StringUtils.isNotEmpty(result)) {
-                return result;
-            }
-            return "";
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
-            return "";
+            Node node = (Node) XPathFactory.newInstance().newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            return node.getTextContent();
+        } catch (XPathExpressionException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
+        return "";
     }
 
     /**
@@ -227,12 +160,17 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementAttr(String xPathExpression) {
         try {
-            org.jdom2.Attribute node = (Attribute) XPath.selectSingleNode(this.xmlDocument, xPathExpression);
-            return node.getValue();
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
-            return "";
+            Node node = (Node) XPathFactory.newInstance().newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            NamedNodeMap attributes = node.getAttributes();
+            return IntStream.range(0, attributes.getLength())
+                    .mapToObj(attributes::item)
+                    .map(Node::getTextContent)
+                    .collect(Collectors.joining(","));
+        } catch (XPathExpressionException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
+        return "";
     }
 
     /**
@@ -243,26 +181,30 @@ public class GenericXMLHandler implements Cloneable {
      */
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
-            List<?> nodeList = XPath.selectNodes(this.xmlDocument, xPathExpression);
-            return nodeList.stream().map(aNodeList -> (Element) aNodeList).map(Element::getText).collect(Collectors.toCollection(ArrayList::new));
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
-            return null;
+            NodeList nodeList = (NodeList) XPathFactory.newInstance().newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODESET);
+            return IntStream.range(0, nodeList.getLength())
+                    .mapToObj(nodeList::item)
+                    .map(Node::getTextContent)
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } catch (XPathExpressionException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
+        return null;
     }
 
     /**
      * Does an xPath expression exist
      * 
-     * @param xpathExpr
+     * @param xPathExpression
      *            The xPath expression
      * @return TRUE if the xPath expression exists; false otherwise
      */
-    public boolean xPathExists(String xpathExpr)
+    public boolean xPathExists(String xPathExpression)
     {
         try {
-            return !(XPath.selectSingleNode(this.xmlDocument, xpathExpr) == null);
-        } catch (Exception ex) {
+            return !(XPathFactory.newInstance().newXPath().evaluate(xPathExpression, this.xmlDocument).isEmpty());
+        } catch (XPathExpressionException ex) {
             return false;
         }
     }
@@ -272,12 +214,18 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String toString() {
         if (this.xmlDocument != null) {
-            XMLOutputter outputter = new XMLOutputter();
-            String output = outputter.outputString(this.xmlDocument);
-            output = output.replaceAll("\r", "");
-            output = output.replaceAll("\n", "");
-            output = output.replaceAll("\t", "");
-            return output;
+            try {
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                StringWriter writer = new StringWriter();
+                transformer.transform(new DOMSource(this.xmlDocument), new StreamResult(writer));
+                String output = writer.getBuffer().toString();
+                output = output.replaceAll("\r", "");
+                output = output.replaceAll("\n", "");
+                output = output.replaceAll("\t", "");
+                return output;
+            } catch (TransformerException ex) {
+                LOG.error("Error in handler: {}", ex.getMessage(), ex);
+            }
         }
         return "";
     }
@@ -286,14 +234,12 @@ public class GenericXMLHandler implements Cloneable {
      * Save the xml to a file
      */
     public void Save() {
-        try {
-            XMLOutputter out = new XMLOutputter();
-            java.io.FileWriter writer = new java.io.FileWriter(this.xmlFile);
-            out.output(this.xmlDocument, writer);
+        try (FileWriter writer = new FileWriter(this.xmlFile)) {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.transform(new DOMSource(this.xmlDocument), new StreamResult(writer));
             writer.flush();
-            writer.close();
-        } catch (Exception ex) {
-            LOG.error("Error in handler: " + ex.getMessage(), ex);
+        } catch (TransformerException | IOException ex) {
+            LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
     }
 
