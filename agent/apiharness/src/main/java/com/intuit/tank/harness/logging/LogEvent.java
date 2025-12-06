@@ -159,6 +159,9 @@ public class LogEvent implements Serializable {
         if (ret != null) {
             String mimeType = request.getResponse().getHttpHeader("Content-Type");
             if (LogUtil.isTextMimeType(mimeType)) {
+                if (eventType == LogEventType.Validation || eventType == LogEventType.IO) {
+                    return ret;
+                }
                 int maxBodySize = 5000;
                 try {
                     maxBodySize = APITestHarness.getInstance().getTankConfig().getAgentConfig()
