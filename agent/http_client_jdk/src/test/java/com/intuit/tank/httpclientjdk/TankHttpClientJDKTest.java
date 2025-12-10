@@ -314,7 +314,7 @@ public class TankHttpClientJDKTest {
         // Pre-compressed brotli data for "Hello, Brotli!"
         byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
         String expectedText = "Hello, Brotli!";
-
+        
         wireMockServer.stubFor(get(urlEqualTo("/brotli"))
                 .willReturn(aResponse()
                         .withStatus(200)
