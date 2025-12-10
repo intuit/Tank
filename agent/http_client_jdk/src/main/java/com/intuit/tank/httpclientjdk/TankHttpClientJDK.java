@@ -248,17 +248,25 @@ public class TankHttpClientJDK implements TankHttpClient {
 
             // Read response body:
             byte[] responseBody = new byte[0];
-            // check for no content headers
-            if (response.statusCode() != 203 && response.statusCode() != 202 && response.statusCode() != 204) {
-                try (InputStream is = response.body()) {
+
+            // CRITICAL: Always consume response stream if present, regardless of status code
+            // This prevents connection leaks that cause CLOSE-WAIT states
+            InputStream responseStream = response.body();
+            if (responseStream != null) {
+                try (InputStream is = responseStream) {
                     String contentTypeHeader = response.headers().firstValue("Content-Type").orElse("");
                     if (checkContentType(contentTypeHeader)) {
                         responseBody = is.readAllBytes();
                     } else {
-                        is.readAllBytes();
+                        // Still consume the stream even if we don't keep the data
+                        byte[] buffer = new byte[8192];
+                        while (is.read(buffer) != -1) {
+                            // Drain stream to ensure connection can be reused
+                        }
                     }
                 } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("Could not get response body" + e));
+                    LOG.warn(request.getLogUtil().getLogMessage("Could not get response body: " + e));
+                    // Note: JDK HttpClient handles connection cleanup automatically with try-with-resources
                 }
             }
 
