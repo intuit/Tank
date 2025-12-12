@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="INFO" packages="com.intuit.tank.tools.debugger">
     <Appenders>
-        <DebuggerAppender name="debbuggerAppender">
+        <DebuggerAppender name="debuggerAppender">
             <PatternLayout>
                 <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss} %msg%n</pattern>
             </PatternLayout>
@@ -15,13 +15,13 @@
     </Appenders>
     <Loggers>
 		<Logger name="com" level="info" additivity="false">
-			<appender-ref ref="debbuggerAppender" level="info"/>
+			<appender-ref ref="debuggerAppender" level="info"/>
 		</Logger>
 		<Logger name="org" level="info" additivity="false">
-			<appender-ref ref="debbuggerAppender" level="info"/>
+			<appender-ref ref="debuggerAppender" level="info"/>
 		</Logger>
         <Root level="error">
-            <AppenderRef ref="debbuggerAppender"/>
+            <AppenderRef ref="debuggerAppender"/>
             <AppenderRef ref="agent"/>
         </Root>
     </Loggers>
