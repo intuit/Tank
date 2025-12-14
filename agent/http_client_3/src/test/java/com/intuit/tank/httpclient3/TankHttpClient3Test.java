@@ -221,6 +221,89 @@ public class TankHttpClient3Test {
     }
 
     @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testGzipEncoding() throws java.io.IOException {
+        String expectedText = "Hello, GZIP!";
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        try (java.util.zip.GZIPOutputStream gzos = new java.util.zip.GZIPOutputStream(baos)) {
+            gzos.write(expectedText.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        byte[] gzipCompressed = baos.toByteArray();
+
+        wireMockServer.stubFor(get(urlEqualTo("/gzip"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "gzip")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(gzipCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/gzip");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testEmptyResponseWithContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/empty-br"))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(new byte[0]))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/empty-br");
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(202, response.getHttpCode());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testUnknownContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/unknown-encoding"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "unknown-encoding")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("raw data"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/unknown-encoding");
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals("raw data", response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testNoContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/plain"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("plain text"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient3(), wireMockServer.baseUrl() + "/plain");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("plain text", response.getBody());
+    }
+
+    @Test
     @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {

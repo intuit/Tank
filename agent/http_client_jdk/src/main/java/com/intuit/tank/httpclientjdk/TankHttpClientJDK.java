@@ -376,13 +376,33 @@ public class TankHttpClientJDK implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            if ("gzip".equalsIgnoreCase(contentEncoding)) {
-                try (InputStream gzipStream = new GZIPInputStream(new ByteArrayInputStream(bResponse))) {
-                    bResponse = gzipStream.readAllBytes();
-                }
-            } else if ("br".equalsIgnoreCase(contentEncoding)) {
-                try (InputStream brotliStream = new BrotliInputStream(new ByteArrayInputStream(bResponse))) {
-                    bResponse = brotliStream.readAllBytes();
+            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
+                try {
+                    switch (contentEncoding.toLowerCase()) {
+                        case "gzip":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
+                                bResponse = gzipStream.readAllBytes();
+                            }
+                            break;
+
+                        case "br":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
+                                bResponse = brotliStream.readAllBytes();
+                            }
+                            break;
+
+                        default:
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
+                            }
+                            break;
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
                 }
             }
             response.setResponseBody(bResponse);
