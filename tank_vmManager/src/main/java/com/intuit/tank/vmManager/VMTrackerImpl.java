@@ -150,7 +150,7 @@ public class VMTrackerImpl implements VMTracker {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
             
-            LOG.debug(new ObjectMessage(Map.of("Message",
+            LOG.info(new ObjectMessage(Map.of("Message",
                 "Status update for instance " + status.getInstanceId() + 
                 " - VMStatus: " + status.getVmStatus() + ", JobStatus: " + status.getJobStatus() +
                 ", Job: " + status.getJobId())));
@@ -344,7 +344,7 @@ public class VMTrackerImpl implements VMTracker {
         JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
         
         // Log all statuses in container for debugging
-        LOG.debug(new ObjectMessage(Map.of("Message",
+        LOG.info(new ObjectMessage(Map.of("Message",
             "Status calculation for job " + status.getJobId() + " - Container has " + 
             cloudVmStatusContainer.getStatuses().size() + " statuses")));
         
@@ -359,7 +359,7 @@ public class VMTrackerImpl implements VMTracker {
                 continue;
             }
             
-            LOG.trace(new ObjectMessage(Map.of("Message",
+            LOG.info(new ObjectMessage(Map.of("Message",
                 "Checking instance " + s.getInstanceId() + 
                 " - VMStatus: " + vmStatus + ", JobStatus: " + s.getJobStatus())));
             

@@ -222,7 +222,15 @@ public class AgentWatchdog implements Runnable {
         VMImageDao dao = new VMImageDao();
         for (VMInformation info : instances) {
             vmInfo.remove(info);
-            vmTracker.removeStatusForInstance(info.getInstanceId()); // remove from tracker to prevent blocking job status
+            
+            // Update status to 'replaced' in the tracker (keeps visible in UI, but filtered out of calculations)
+            CloudVmStatus replacedStatus = vmTracker.getStatus(info.getInstanceId());
+            if (replacedStatus != null) {
+                replacedStatus.setVmStatus(VMStatus.replaced);
+                vmTracker.setStatus(replacedStatus);
+            }
+            
+            // Also update in the database for persistence
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
                 image.setStatus(VMStatus.replaced.name());  // mark as replaced (not terminated) for audit trail
@@ -230,8 +238,8 @@ public class AgentWatchdog implements Runnable {
             }
 
             LOG.info(new ObjectMessage(Map.of("Message",
-                "Replaced and removed instance " + info.getInstanceId() +
-                " from tracker for job " + jobId)));
+                "Marked instance " + info.getInstanceId() +
+                " as REPLACED (visible in UI but filtered from job status) for job " + jobId)));
         }
         LOG.info(new ObjectMessage(Map.of("Message","Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId)));
         instanceRequest.setNumberOfInstances(instances.size());
