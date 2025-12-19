@@ -128,298 +128,184 @@ width:10%;
 }
 
 /* ============================================
-   AGENT TRACKER - STATUS BADGES
+   AGENT TRACKER - STATUS STYLING
    ============================================ */
 
-/* Base status badge styling */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-
-/* Add primeicon before status text */
-.status-badge::before {
-  font-family: 'primeicons';
-  font-size: 12px;
-  display: inline-block;
-}
-
-/* Healthy states - green, recede into background */
+/* Status text with conditional styling - using h:outputText styleClass */
 .status-running,
 .status-ready {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-running::before {
-  content: '\e98f'; /* pi-play */
-}
-
-.status-ready::before {
-  content: '\e909'; /* pi-check-circle */
-}
-
-/* In-progress states - yellow/amber with subtle pulse */
 .status-starting,
 .status-pending,
 .status-queued,
 .status-created {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-starting::before,
-.status-pending::before,
-.status-queued::before {
-  content: '\e926'; /* pi-spinner */
-  animation: spin 1.5s linear infinite;
-}
-
-.status-created::before {
-  content: '\e927'; /* pi-clock */
-}
-
-/* Paused states - blue, neutral */
 .status-paused,
 .status-ramppaused {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #cce5ff;
   color: #004085;
   border: 1px solid #b8daff;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-paused::before,
-.status-ramppaused::before {
-  content: '\e905'; /* pi-pause */
-}
-
-/* Completed/terminated states - gray, muted */
 .status-completed,
 .status-terminated {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #e2e3e5;
   color: #383d41;
   border: 1px solid #d6d8db;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-completed::before,
-.status-terminated::before {
-  content: '\e909'; /* pi-check-circle */
-}
-
-/* Stopped/stopping states - orange, warning */
 .status-stopped,
 .status-stopping {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #ffe5d0;
   color: #8a4500;
   border: 1px solid #ffd4a8;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-stopped::before,
-.status-stopping::before {
-  content: '\e90c'; /* pi-stop-circle */
-}
-
-/* Critical states - red, impossible to miss */
 .status-aborted,
 .status-unknown,
 .status-shutting_down,
-.status-rebooting {
+.status-rebooting,
+.status-replaced {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+  font-weight: 600;
+  font-size: 11px;
 }
 
-.status-aborted::before {
-  content: '\e90e'; /* pi-times-circle */
-}
-
-.status-unknown::before,
-.status-shutting_down::before {
-  content: '\e924'; /* pi-exclamation-triangle */
-}
-
-.status-rebooting::before {
-  content: '\e952'; /* pi-refresh */
-  animation: spin 2s linear infinite;
-}
-
-/* Animations */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulse-attention {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-@keyframes pulse-critical {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-}
-
-/* Agent count text styling */
-.agent-count {
+/* Agent count styling */
+.agent-count-text {
   margin-left: 8px;
   color: #666;
   font-size: 11px;
-  font-weight: normal;
 }
 
 /* ============================================
    AGENT TRACKER - ACTION BUTTONS
    ============================================ */
 
-/* Base action button styling */
-.agent-action-btn {
-  min-width: 36px;
-  height: 28px;
-  padding: 4px 10px;
-  margin: 0 2px;
-  border-radius: 4px;
+/* Override PrimeFaces default button styling for action buttons */
+#jobTableId .ui-button.btn-run {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
   font-size: 11px;
-  font-weight: 600;
-  transition: all 0.15s ease;
-  border: 1px solid transparent;
-  cursor: pointer;
+  padding: 4px 10px;
+  min-width: 40px;
 }
 
-/* Run button - positive action (green) */
-.agent-action-btn.action-run {
-  background-color: #28a745;
-  color: white;
-  border-color: #28a745;
+#jobTableId .ui-button.btn-run:hover:not(.ui-state-disabled) {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
 }
 
-.agent-action-btn.action-run:hover:not(:disabled) {
-  background-color: #218838;
-  border-color: #1e7e34;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#jobTableId .ui-button.btn-start {
+  background-color: #17a2b8 !important;
+  border-color: #17a2b8 !important;
+  color: white !important;
+  font-size: 11px;
+  padding: 4px 10px;
+  min-width: 44px;
 }
 
-.agent-action-btn.action-run:active:not(:disabled) {
-  background-color: #1e7e34;
-  transform: translateY(0);
+#jobTableId .ui-button.btn-start:hover:not(.ui-state-disabled) {
+  background-color: #138496 !important;
+  border-color: #117a8b !important;
 }
 
-/* Start Load button - positive action (teal) */
-.agent-action-btn.action-start {
-  background-color: #17a2b8;
-  color: white;
-  border-color: #17a2b8;
+#jobTableId .ui-button.btn-pause {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+  color: white !important;
+  font-size: 11px;
+  padding: 4px 10px;
+  min-width: 50px;
 }
 
-.agent-action-btn.action-start:hover:not(:disabled) {
-  background-color: #138496;
-  border-color: #117a8b;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#jobTableId .ui-button.btn-pause:hover:not(.ui-state-disabled) {
+  background-color: #5a6268 !important;
+  border-color: #545b62 !important;
 }
 
-.agent-action-btn.action-start:active:not(:disabled) {
-  background-color: #117a8b;
-  transform: translateY(0);
+#jobTableId .ui-button.btn-stop {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  color: #212529 !important;
+  font-size: 11px;
+  padding: 4px 10px;
+  min-width: 42px;
 }
 
-/* Pause Ramp button - neutral (gray-blue) */
-.agent-action-btn.action-pause-ramp {
-  background-color: #6c757d;
-  color: white;
-  border-color: #6c757d;
+#jobTableId .ui-button.btn-stop:hover:not(.ui-state-disabled) {
+  background-color: #e0a800 !important;
+  border-color: #d39e00 !important;
 }
 
-.agent-action-btn.action-pause-ramp:hover:not(:disabled) {
-  background-color: #5a6268;
-  border-color: #545b62;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#jobTableId .ui-button.btn-kill {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  color: white !important;
+  font-size: 11px;
+  padding: 4px 10px;
+  min-width: 38px;
 }
 
-.agent-action-btn.action-pause-ramp:active:not(:disabled) {
-  background-color: #545b62;
-  transform: translateY(0);
+#jobTableId .ui-button.btn-kill:hover:not(.ui-state-disabled) {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
 }
 
-/* Stop button - caution (yellow/amber) */
-.agent-action-btn.action-stop {
-  background-color: #ffc107;
-  color: #212529;
-  border-color: #ffc107;
+#jobTableId .ui-button.btn-delete {
+  background-color: transparent !important;
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+  font-size: 13px;
+  padding: 4px 8px;
+  min-width: 28px;
 }
 
-.agent-action-btn.action-stop:hover:not(:disabled) {
-  background-color: #e0a800;
-  border-color: #d39e00;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#jobTableId .ui-button.btn-delete:hover:not(.ui-state-disabled) {
+  background-color: #dc3545 !important;
+  color: white !important;
 }
 
-.agent-action-btn.action-stop:active:not(:disabled) {
-  background-color: #d39e00;
-  transform: translateY(0);
-}
-
-/* Kill button - dangerous action (red) */
-.agent-action-btn.action-kill {
-  background-color: #dc3545;
-  color: white;
-  border-color: #dc3545;
-}
-
-.agent-action-btn.action-kill:hover:not(:disabled) {
-  background-color: #c82333;
-  border-color: #bd2130;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.agent-action-btn.action-kill:active:not(:disabled) {
-  background-color: #bd2130;
-  transform: translateY(0);
-}
-
-/* Delete button - destructive secondary (red outline) */
-.agent-action-btn.action-delete {
-  background-color: transparent;
-  color: #dc3545;
-  border-color: #dc3545;
-}
-
-.agent-action-btn.action-delete:hover:not(:disabled) {
-  background-color: #dc3545;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.agent-action-btn.action-delete:active:not(:disabled) {
-  background-color: #c82333;
-  border-color: #bd2130;
-  transform: translateY(0);
-}
-
-/* Disabled state for all action buttons */
-.agent-action-btn:disabled {
+/* Disabled button state */
+#jobTableId .ui-button.ui-state-disabled {
   opacity: 0.4;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Button container styling */
-.agent-actions-container {
-  display: flex;
-  gap: 4px;
-  align-items: center;
 }
