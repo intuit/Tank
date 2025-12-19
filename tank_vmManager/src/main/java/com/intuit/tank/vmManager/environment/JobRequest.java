@@ -89,7 +89,14 @@ public class JobRequest implements Runnable {
             try {
                 vmTracker.setStatus(createCloudStatus(instanceRequest, info));
                 dao.addImageFromInfo(request.getJobId(), info, request.getRegion());
-                logger.info(new ObjectMessage(Map.of("Message","Added image (" + info.getInstanceId() + ") to VMImage table")));
+                // TEMP_IP_LOGGING - START
+                logger.info(new ObjectMessage(Map.of(
+                    "Message", "Added image to VMImage table",
+                    "instanceId", info.getInstanceId(),
+                    "publicIp", info.getPublicIp() != null ? info.getPublicIp() : "N/A",
+                    "privateIp", info.getPrivateIp() != null ? info.getPrivateIp() : "N/A"
+                )));
+                // TEMP_IP_LOGGING - END
             } catch (Exception e) {
                 logger.warn(new ObjectMessage(Map.of("Message", "Error persisting VM Image: " + e)), e);
             }
