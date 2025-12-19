@@ -293,6 +293,32 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // reboot(result);
             }
 
+            // Wait for instances to get public IPs assigned and refresh the details
+            if (!result.isEmpty()) {
+                try {
+                    // Brief wait to allow AWS to assign public IPs
+                    Thread.sleep(3000);
+                    List<String> instanceIds = result.stream()
+                            .map(VMInformation::getInstanceId)
+                            .collect(Collectors.toList());
+                    DescribeInstancesResponse described = ec2AsyncClient.describeInstances(
+                            DescribeInstancesRequest.builder().instanceIds(instanceIds).build()
+                    ).get();
+                    // Update result with fresh instance data that includes public IPs
+                    List<VMInformation> updated = described.reservations().stream()
+                            .flatMap(reservation -> reservation.instances().stream()
+                                    .map(instance -> AmazonDataConverter.instanceToVmInformation(
+                                            reservation.requesterId(), instance, vmRegion)))
+                            .collect(Collectors.toList());
+                    result.clear();
+                    result.addAll(updated);
+                    LOG.debug("Refreshed {} instance details with public IP information", updated.size());
+                } catch (InterruptedException e) {
+                    LOG.warn("Interrupted while waiting for public IP assignment", e);
+                    Thread.currentThread().interrupt();
+                }
+            }
+
         } catch (SdkException ae) {
             LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
             throw new RuntimeException(ae);
