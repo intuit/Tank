@@ -220,6 +220,11 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         segment.putAnnotation("currentUsers", status.getCurrentUsers());
         segment.putAnnotation("TotalUsers", status.getTotalUsers());
         segment.putAnnotation("totalTps", status.getTotalTps());
+        
+        LOGGER.info("Agent " + instanceId + " reporting status - VMStatus: " + status.getVmStatus() + 
+            ", JobStatus: " + status.getJobStatus() + ", Users: " + status.getCurrentUsers() + 
+            "/" + status.getTotalUsers() + ", Job: " + status.getJobId());
+        
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
