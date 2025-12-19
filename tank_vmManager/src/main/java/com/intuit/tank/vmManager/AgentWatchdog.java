@@ -240,7 +240,12 @@ public class AgentWatchdog implements Runnable {
             // Add directly to started instances since these are restarted from scratch
             startedInstances.add(newInfo);
             vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
-            LOG.info(new ObjectMessage(Map.of("Message","Added image (" + newInfo.getInstanceId() + ") to VMImage table for job " + jobId)));
+            LOG.info(new ObjectMessage(Map.of(
+                "Message", "Added relaunched image to VMImage table for job " + jobId,
+                "instanceId", newInfo.getInstanceId(),
+                "publicIp", newInfo.getPublicIp() != null ? newInfo.getPublicIp() : "N/A",
+                "privateIp", newInfo.getPrivateIp() != null ? newInfo.getPrivateIp() : "N/A"
+            )));
             try {
                 dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                         instanceRequest.getRegion());
