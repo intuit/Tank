@@ -224,7 +224,7 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     /**
-     * If the vm is shutting down or terminated, don't update the status to something else.
+     * If the vm is shutting down, terminated, or replaced, don't update the status to something else.
      * @param currentStatus
      * @return
      */
@@ -234,7 +234,8 @@ public class VMTrackerImpl implements VMTracker {
             return (status != VMStatus.shutting_down
             		&& status != VMStatus.stopped
             		&& status != VMStatus.stopping
-                    && status != VMStatus.terminated);
+                    && status != VMStatus.terminated
+                    && status != VMStatus.replaced);
         }
         return true;
     }
@@ -245,7 +246,24 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void removeStatusForInstance(String instanceId) {
-        statusMap.remove(instanceId);
+        CloudVmStatus status = statusMap.remove(instanceId);
+
+        // also remove from the job's container to keep counts accurate
+        if (status != null) {
+            String jobId = status.getJobId();
+            // Synchronize on the same lock used by setStatusThread to prevent
+            // ConcurrentModificationException when iterating over statuses
+            synchronized (getCacheSyncObject(jobId)) {
+                CloudVmStatusContainer container = jobMap.get(jobId);
+                if (container != null) {
+                    boolean removed = container.getStatuses().remove(status);
+                    if (removed) {
+                        LOG.info(new ObjectMessage(Map.of("Message",
+                            "Removed instance " + instanceId + " from container for job " + jobId)));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -315,6 +333,16 @@ public class VMTrackerImpl implements VMTracker {
         // look up the job
         JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
         for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
+            VMStatus vmStatus = s.getVmStatus();
+            // skip replaced instances - these were replaced by AgentWatchdog due to failure
+            // but do NOT skip terminated/stopping/stopped/shutting_down - these are active agents in transition
+            if (vmStatus == VMStatus.replaced) {
+                LOG.info(new ObjectMessage(Map.of("Message",
+                    "Skipping replaced instance " + s.getInstanceId() +
+                    " in job status calculation for job " + status.getJobId())));
+                continue;
+            }
+            
             JobStatus jobStatus = s.getJobStatus();
             if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
                 isFinished = false;

@@ -247,7 +247,18 @@ public class JobEventSender {
         List<String> instanceIds = new ArrayList<String>();
         CloudVmStatusContainer statuses = vmTracker.getVmStatusForJob(jobId);
         if (statuses != null) {
-            instanceIds = statuses.getStatuses().stream().map(CloudVmStatus::getInstanceId).collect(Collectors.toList());
+            instanceIds = statuses.getStatuses().stream()
+                .filter(s -> {
+                    VMStatus vmStatus = s.getVmStatus();
+                    // skip unreachable instances - they can't receive commands
+                    return vmStatus != VMStatus.terminated &&
+                           vmStatus != VMStatus.replaced &&
+                           vmStatus != VMStatus.stopped &&
+                           vmStatus != VMStatus.shutting_down &&
+                           vmStatus != VMStatus.stopping;
+                })
+                .map(CloudVmStatus::getInstanceId)
+                .collect(Collectors.toList());
         }
         return instanceIds;
     }

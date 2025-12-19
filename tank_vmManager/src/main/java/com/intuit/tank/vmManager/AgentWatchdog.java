@@ -222,12 +222,16 @@ public class AgentWatchdog implements Runnable {
         VMImageDao dao = new VMImageDao();
         for (VMInformation info : instances) {
             vmInfo.remove(info);
-            vmTracker.setStatus(createTerminatedVmStatus(info));
+            vmTracker.removeStatusForInstance(info.getInstanceId()); // remove from tracker to prevent blocking job status
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
-                image.setStatus(VMStatus.terminated.name());
+                image.setStatus(VMStatus.replaced.name());  // mark as replaced (not terminated) for audit trail
                 dao.saveOrUpdate(image);
             }
+
+            LOG.info(new ObjectMessage(Map.of("Message",
+                "Replaced and removed instance " + info.getInstanceId() +
+                " from tracker for job " + jobId)));
         }
         LOG.info(new ObjectMessage(Map.of("Message","Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId)));
         instanceRequest.setNumberOfInstances(instances.size());
@@ -263,12 +267,6 @@ public class AgentWatchdog implements Runnable {
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
                 VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
-    }
-
-    private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
-        return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
-                JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
-                VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
     }
 
     private boolean shouldRelaunchInstances() {
