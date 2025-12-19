@@ -6,6 +6,7 @@
   xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui"
   xmlns:pe="http://primefaces.org/ui/extensions"
+  xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions"
   template="/WEB-INF/templates/tank.xhtml">
   <ui:define name="content">
 
@@ -102,16 +103,46 @@
 
 
 
-          <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
+          <p:column id="statusColumn" headerText="Status" styleClass="min-column-size"
             style="width:#{jobQueueManager.tablePrefs.getSize('statusColumn')}px;"
             rendered="#{jobQueueManager.tablePrefs.isVisible('statusColumn')}">
-            <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}" />
-            <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
-            <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and not node.useTwoStep}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting' and node.useTwoStep}" />
-            <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
+            
+            <!-- Project level status -->
+            <h:panelGroup rendered="#{node.type eq 'project'}">
+              <span class="status-badge #{node.allSubNodesCompleted() ? 'status-completed' : 'status-running'}">
+                <h:outputText value="#{node.allSubNodesCompleted() ? 'Completed' : 'Running'}" />
+              </span>
+              <span class="agent-count" rendered="#{not node.allSubNodesCompleted()}">
+                <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} jobs" />
+              </span>
+            </h:panelGroup>
+            
+            <!-- Job level status (no agents) -->
+            <h:panelGroup rendered="#{not node.hasSubNodes() and node.type eq 'job'}">
+              <span class="status-badge status-#{fn:toLowerCase(fn:replace(node.status, ' ', ''))}">
+                <h:outputText value="#{node.status}" />
+              </span>
+            </h:panelGroup>
+            
+            <!-- Job level status (with agents) -->
+            <h:panelGroup rendered="#{node.hasSubNodes() and node.type eq 'job'}">
+              <span class="status-badge status-#{fn:toLowerCase(fn:replace(node.status, ' ', ''))}">
+                <h:outputText value="#{node.status}" />
+              </span>
+              <span class="agent-count">
+                <h:outputText value="#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} ready" 
+                              rendered="#{node.useTwoStep and node.status eq 'Starting'}" />
+                <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} agents" 
+                              rendered="#{not node.useTwoStep or node.status ne 'Starting'}" />
+              </span>
+            </h:panelGroup>
+            
+            <!-- VM/Agent level status -->
+            <h:panelGroup rendered="#{node.type eq 'vm'}">
+              <span class="status-badge status-#{fn:toLowerCase(fn:replace(node.status, ' ', ''))}">
+                <h:outputText value="#{node.status}" />
+              </span>
+            </h:panelGroup>
           </p:column>
 
           <p:column id="regionColumn" style="width:#{jobQueueManager.tablePrefs.getSize('regionColumn')}px;"
@@ -183,34 +214,37 @@
           <p:column id="actionsColumn"
             style="width:#{jobQueueManager.tablePrefs.getSize('actionsColumn')}px; text-align:right;"
             styleClass="ellipsis min-column-size" rendered="#{jobQueueManager.tablePrefs.isVisible('actionsColumn')}">
-            <div class="float-left">
+            <div class="agent-actions-container">
 
-              <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="R" title="Run"
+              <p:commandButton id="btnRun" action="#{jobQueueAction.run(node)}" value="Run" title="Start this job"
+                styleClass="agent-action-btn action-run"
                 onerror="window.location.reload()"
                 disabled="#{!node.isRunnable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
-              <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="L" title="Start Load"
-                               onerror="window.location.reload()" rendered="#{node.type ne 'project' and node.useTwoStep}"
-                               disabled="#{!node.isStartable() or !jobQueueManager.canControlJob(node)}" ajax="true"
-                               update=":mainForm:jobTableId" />
-              <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="K" title="Kill"
-                onerror="window.location.reload()"
-                disabled="#{!node.isKillable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+              <p:commandButton id="btnStart" action="#{jobQueueAction.startAgents(node)}" value="Load" title="Start sending load"
+                styleClass="agent-action-btn action-start"
+                onerror="window.location.reload()" rendered="#{node.type ne 'project' and node.useTwoStep}"
+                disabled="#{!node.isStartable() or !jobQueueManager.canControlJob(node)}" ajax="true"
                 update=":mainForm:jobTableId" />
-              <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="PR"
-                title="Pause Ramp" onerror="window.location.reload()"
+              <p:commandButton id="btnPauseRamp" action="#{jobQueueAction.pauseRamp(node)}" value="Pause" title="Pause user ramp-up"
+                styleClass="agent-action-btn action-pause-ramp"
+                onerror="window.location.reload()"
                 disabled="#{!node.isRampPauseable() or !jobQueueManager.canControlJob(node) or node.isStartable()}" ajax="true"
                 update=":mainForm:jobTableId" />
-              <!-- <p:commandButton id="btnPause" action="#{jobQueueAction.pause(node)}" value="P" title="Pause"
-                   onerror="window.location.reload()" disabled="#{!node.isPauseable()}" ajax="true"
-                   update=":mainForm:jobTableId" /> -->
-              <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="S" title="Stop"
+              <p:commandButton id="btnStop" action="#{jobQueueAction.stop(node)}" value="Stop" title="Gracefully stop the job"
+                styleClass="agent-action-btn action-stop"
                 onerror="window.location.reload()"
                 disabled="#{!node.isStoppable() or !jobQueueManager.canControlJob(node) or node.isStartable()}" ajax="true"
                 update=":mainForm:jobTableId" />
-              <p:commandButton id="btnDelete" action="#{jobQueueManager.deleteJobInstance(node)}" value="X"
+              <p:commandButton id="btnKill" action="#{jobQueueAction.kill(node)}" value="Kill" title="Immediately terminate all agents"
+                styleClass="agent-action-btn action-kill"
                 onerror="window.location.reload()"
-                disabled="#{!node.isDeletable() or !jobQueueManager.canControlJob(node)}" ajax="false" title="Delete"
+                disabled="#{!node.isKillable() or !jobQueueManager.canControlJob(node)}" ajax="true"
+                update=":mainForm:jobTableId" />
+              <p:commandButton id="btnDelete" action="#{jobQueueManager.deleteJobInstance(node)}" value="×" title="Delete this job from the queue"
+                styleClass="agent-action-btn action-delete"
+                onerror="window.location.reload()"
+                disabled="#{!node.isDeletable() or !jobQueueManager.canControlJob(node)}" ajax="false"
                 update=":mainForm:jobTableId, :mainForm:messages" />
             </div>
             <div class="float-right">
