@@ -301,21 +301,25 @@ public class AmazonInstance implements IEnvironmentInstance {
                     List<String> instanceIds = result.stream()
                             .map(VMInformation::getInstanceId)
                             .collect(Collectors.toList());
-                    DescribeInstancesResponse described = ec2AsyncClient.describeInstances(
-                            DescribeInstancesRequest.builder().instanceIds(instanceIds).build()
-                    ).get();
-                    // Update result with fresh instance data that includes public IPs
-                    List<VMInformation> updated = described.reservations().stream()
-                            .flatMap(reservation -> reservation.instances().stream()
-                                    .map(instance -> AmazonDataConverter.instanceToVmInformation(
-                                            reservation.requesterId(), instance, vmRegion)))
-                            .collect(Collectors.toList());
-                    result.clear();
-                    result.addAll(updated);
-                    LOG.debug("Refreshed {} instance details with public IP information", updated.size());
+                    CompletableFuture<DescribeInstancesResponse> future = ec2AsyncClient.describeInstances(
+                            DescribeInstancesRequest.builder().instanceIds(instanceIds).build());
+                    if (future != null) {
+                        DescribeInstancesResponse described = future.get();
+                        // Update result with fresh instance data that includes public IPs
+                        List<VMInformation> updated = described.reservations().stream()
+                                .flatMap(reservation -> reservation.instances().stream()
+                                        .map(instance -> AmazonDataConverter.instanceToVmInformation(
+                                                reservation.requesterId(), instance, vmRegion)))
+                                .collect(Collectors.toList());
+                        result.clear();
+                        result.addAll(updated);
+                        LOG.debug("Refreshed {} instance details with public IP information", updated.size());
+                    }
                 } catch (InterruptedException e) {
                     LOG.warn("Interrupted while waiting for public IP assignment", e);
                     Thread.currentThread().interrupt();
+                } catch (ExecutionException e) {
+                    LOG.warn("Failed to refresh instance details for public IPs: {}", e.getMessage());
                 }
             }
 
