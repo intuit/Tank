@@ -271,8 +271,10 @@ public class JobEventSender {
 
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
         vmTracker.setStatus(status);
-        if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
-            // will terrminate instance after waiting for some cleanup time
+        if (status.getJobStatus() == JobStatus.Completed
+                || status.getVmStatus() == VMStatus.terminated
+                || status.getVmStatus() == VMStatus.replaced) {
+            // will terminate instance after waiting for some cleanup time
             terminator.terminate(status.getInstanceId());
             // check job status and kill off instances appropriately
             checkJobStatus(status.getJobId());
