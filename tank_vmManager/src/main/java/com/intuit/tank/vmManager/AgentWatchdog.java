@@ -246,12 +246,18 @@ public class AgentWatchdog implements Runnable {
         instances.clear();
         // Create and send instance start request
         List<VMInformation> newVms = amazonInstance.create(instanceRequest);
-        // Add new instances
+        // Add new instances - set to 'starting' status so watchdog waits for actual /v2/agent/ready call
         for (VMInformation newInfo : newVms) {
             vmInfo.add(newInfo);
-            // Add directly to started instances since these are restarted from scratch
+            // Add to startedInstances - watchdog will wait for this agent to actually report
             startedInstances.add(newInfo);
-            vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
+            CloudVmStatus newStatus = createCloudStatus(instanceRequest, newInfo);
+            vmTracker.setStatus(newStatus);
+            LOG.info(new ObjectMessage(Map.of(
+                "Message", "Created replacement agent with status " + newStatus.getVmStatus() + 
+                    " - watchdog will wait for /v2/agent/ready call",
+                "instanceId", newInfo.getInstanceId(),
+                "jobId", jobId)));
             // TEMP_IP_LOGGING - START
             LOG.info(new ObjectMessage(Map.of(
                 "Message", "Added relaunched image to VMImage table for job " + jobId,
@@ -273,15 +279,20 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @param req
-     * @param info
-     * @return
+     * Creates initial cloud status for a newly launched replacement agent.
+     * CRITICAL: Must use VMStatus.starting (not pending) so watchdog waits for actual agent registration.
+     * 
+     * Status flow: starting → (agent calls /v2/agent/ready) → pending → (receives START) → ready → running
+     * 
+     * @param req the instance request
+     * @param info the VM information for the new instance
+     * @return CloudVmStatus with starting state
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
         return new CloudVmStatus(info.getInstanceId(), req.getJobId(),
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
-                VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
+                VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
     }
 
     private boolean shouldRelaunchInstances() {
