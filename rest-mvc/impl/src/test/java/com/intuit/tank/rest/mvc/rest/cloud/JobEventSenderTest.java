@@ -195,16 +195,16 @@ public class JobEventSenderTest {
     @Test
     @DisplayName("getInstancesForJob excludes replaced instances (AgentWatchdog replacements)")
     void getInstancesForJob_excludesReplacedInstances() throws Exception {
-        // Given
+        // Given: VMStatus.replaced is set by AgentWatchdog when an agent fails and is replaced
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
-        container.getStatuses().add(createStatus("i-replaced", JobStatus.Stopped, VMStatus.terminated));
+        container.getStatuses().add(createStatus("i-replaced", JobStatus.Starting, VMStatus.replaced));
         
         when(vmTracker.getVmStatusForJob("123")).thenReturn(container);
         
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then
+        // Then: Replaced instances should be filtered out (can't receive commands)
         assertEquals(1, instances.size());
         assertTrue(instances.contains("i-running"));
         assertFalse(instances.contains("i-replaced"));
@@ -215,12 +215,12 @@ public class JobEventSenderTest {
     void getInstancesForJob_agentWatchdogScenario() throws Exception {
         // Given: Real-world scenario where AgentWatchdog replaced some agents
         // - 3 running agents (healthy)
-        // - 2 replaced agents (replaced by watchdog, now terminated)
+        // - 2 replaced agents (marked by watchdog with VMStatus.replaced)
         container.getStatuses().add(createStatus("i-healthy1", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-healthy2", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-healthy3", JobStatus.Running, VMStatus.running));
-        container.getStatuses().add(createStatus("i-replaced1", JobStatus.Stopped, VMStatus.terminated));
-        container.getStatuses().add(createStatus("i-replaced2", JobStatus.Stopped, VMStatus.terminated));
+        container.getStatuses().add(createStatus("i-replaced1", JobStatus.Starting, VMStatus.replaced));
+        container.getStatuses().add(createStatus("i-replaced2", JobStatus.Starting, VMStatus.replaced));
         
         when(vmTracker.getVmStatusForJob("123")).thenReturn(container);
         
@@ -234,6 +234,27 @@ public class JobEventSenderTest {
         assertTrue(instances.contains("i-healthy3"));
         assertFalse(instances.contains("i-replaced1"));
         assertFalse(instances.contains("i-replaced2"));
+    }
+
+    @Test
+    @DisplayName("getInstancesForJob excludes all terminal states correctly")
+    void getInstancesForJob_excludesAllTerminalStates() throws Exception {
+        // Given: One instance of each terminal state + one running
+        container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
+        container.getStatuses().add(createStatus("i-terminated", JobStatus.Completed, VMStatus.terminated));
+        container.getStatuses().add(createStatus("i-replaced", JobStatus.Starting, VMStatus.replaced));
+        container.getStatuses().add(createStatus("i-stopped", JobStatus.Stopped, VMStatus.stopped));
+        container.getStatuses().add(createStatus("i-stopping", JobStatus.Stopped, VMStatus.stopping));
+        container.getStatuses().add(createStatus("i-shutting-down", JobStatus.Stopped, VMStatus.shutting_down));
+        
+        when(vmTracker.getVmStatusForJob("123")).thenReturn(container);
+        
+        // When
+        List<String> instances = invokeGetInstancesForJob("123");
+        
+        // Then: Only the running instance should be included
+        assertEquals(1, instances.size());
+        assertTrue(instances.contains("i-running"));
     }
 
     @Test

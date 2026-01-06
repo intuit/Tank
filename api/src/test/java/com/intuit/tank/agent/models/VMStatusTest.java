@@ -1,24 +1,13 @@
-package com.intuit.tank.vm.vmManager.models;
-
-/*
- * #%L
- * Cloud Rest API
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
+package com.intuit.tank.agent.models;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The class <code>VMStatusTest</code> contains tests for the class <code>{@link VMStatus}</code>.
+ * Tests for the agent-side VMStatus enum.
+ * This enum is used by agents and doesn't include the 'replaced' status
+ * (which is only meaningful on the controller side).
  */
 public class VMStatusTest {
 
@@ -37,21 +26,11 @@ public class VMStatusTest {
         assertEquals(VMStatus.running, VMStatus.fromString("running"));
         assertEquals(VMStatus.pending, VMStatus.fromString("pending"));
         assertEquals(VMStatus.starting, VMStatus.fromString("starting"));
-        assertEquals(VMStatus.ready, VMStatus.fromString("ready"));
         assertEquals(VMStatus.rebooting, VMStatus.fromString("rebooting"));
         assertEquals(VMStatus.terminated, VMStatus.fromString("terminated"));
         assertEquals(VMStatus.stopped, VMStatus.fromString("stopped"));
         assertEquals(VMStatus.stopping, VMStatus.fromString("stopping"));
         assertEquals(VMStatus.rampPaused, VMStatus.fromString("rampPaused"));
-    }
-
-    @Test
-    @DisplayName("fromString returns replaced for 'replaced' value")
-    public void testFromString_replaced() {
-        VMStatus result = VMStatus.fromString("replaced");
-        
-        assertNotNull(result);
-        assertEquals(VMStatus.replaced, result);
     }
 
     @Test
@@ -73,7 +52,7 @@ public class VMStatusTest {
     }
 
     @Test
-    @DisplayName("fromString returns unknown for unrecognized values (graceful handling)")
+    @DisplayName("fromString returns unknown for unrecognized values")
     public void testFromString_unknownValueReturnsUnknown() {
         // Should not throw IllegalArgumentException - gracefully returns unknown
         VMStatus result = VMStatus.fromString("garbage-value");
@@ -83,21 +62,14 @@ public class VMStatusTest {
     }
 
     @Test
-    @DisplayName("fromString handles future/unknown enum values gracefully")
-    public void testFromString_futureCompatibility() {
-        // Simulates receiving a value from a newer version of the API
-        VMStatus result = VMStatus.fromString("some_new_status_from_future");
+    @DisplayName("fromString handles 'replaced' from controller gracefully (returns unknown)")
+    public void testFromString_replacedFromControllerReturnsUnknown() {
+        // The agent-side VMStatus doesn't have a 'replaced' enum value
+        // When the controller sends 'replaced', the agent should handle it gracefully
+        VMStatus result = VMStatus.fromString("replaced");
         
         assertNotNull(result);
         assertEquals(VMStatus.unknown, result);
     }
-
-    @Test
-    @DisplayName("replaced is a terminal state (for documentation)")
-    public void testReplaced_isTerminalState() {
-        // This test documents that 'replaced' is intended as a terminal state
-        // like 'terminated', used by AgentWatchdog when replacing failed agents
-        assertNotNull(VMStatus.replaced);
-        assertEquals("replaced", VMStatus.replaced.name());
-    }
 }
+

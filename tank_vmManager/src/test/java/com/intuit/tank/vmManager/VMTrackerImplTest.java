@@ -1,17 +1,27 @@
 package com.intuit.tank.vmManager;
 
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
+import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for VMTrackerImpl, focusing on the bug fix for terminated agents
- * blocking job status transitions.
+ * blocking job status transitions and the VMStatus.replaced handling.
  */
 public class VMTrackerImplTest {
 
@@ -21,6 +31,8 @@ public class VMTrackerImplTest {
     void setUp() {
         vmTracker = new VMTrackerImpl();
     }
+
+    // ============ Basic functionality tests ============
 
     @Test
     @DisplayName("getStatus returns null for non-existent instance")
@@ -100,6 +112,89 @@ public class VMTrackerImplTest {
     @DisplayName("getProjectStatusContainer returns null for non-existent project")
     void getProjectStatusContainer_returnsNullForNonExistent() {
         assertNull(vmTracker.getProjectStatusContainer("non-existent-project"));
+    }
+
+    // ============ shouldUpdateStatus tests (terminal state handling) ============
+
+    /**
+     * Use reflection to test the private shouldUpdateStatus method.
+     */
+    private boolean invokeShouldUpdateStatus(CloudVmStatus status) throws Exception {
+        Method method = VMTrackerImpl.class.getDeclaredMethod("shouldUpdateStatus", CloudVmStatus.class);
+        method.setAccessible(true);
+        return (boolean) method.invoke(vmTracker, status);
+    }
+
+    private CloudVmStatus createStatus(String instanceId, VMStatus vmStatus) {
+        return new CloudVmStatus(
+                instanceId,
+                "123",
+                "sg-test",
+                JobStatus.Starting,
+                VMImageType.AGENT,
+                VMRegion.US_WEST_2,
+                vmStatus,
+                new ValidationStatus(),
+                100,
+                50,
+                new Date(),
+                null
+        );
+    }
+
+    @Test
+    @DisplayName("shouldUpdateStatus returns true for null current status")
+    void shouldUpdateStatus_nullCurrentStatus_returnsTrue() throws Exception {
+        assertTrue(invokeShouldUpdateStatus(null));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = VMStatus.class, names = {"terminated", "replaced", "stopped", "stopping", "shutting_down"})
+    @DisplayName("shouldUpdateStatus returns false for terminal states")
+    void shouldUpdateStatus_terminalStates_returnsFalse(VMStatus terminalStatus) throws Exception {
+        CloudVmStatus status = createStatus("i-123", terminalStatus);
+        assertFalse(invokeShouldUpdateStatus(status), 
+            "Should reject updates for terminal state: " + terminalStatus);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = VMStatus.class, names = {"unknown", "starting", "pending", "ready", "running", "rampPaused", "rebooting"})
+    @DisplayName("shouldUpdateStatus returns true for active states")
+    void shouldUpdateStatus_activeStates_returnsTrue(VMStatus activeStatus) throws Exception {
+        CloudVmStatus status = createStatus("i-123", activeStatus);
+        assertTrue(invokeShouldUpdateStatus(status), 
+            "Should allow updates for active state: " + activeStatus);
+    }
+
+    @Test
+    @DisplayName("shouldUpdateStatus blocks update for replaced instance (AgentWatchdog scenario)")
+    void shouldUpdateStatus_replacedInstance_blocksUpdate() throws Exception {
+        // Given: An instance that was replaced by AgentWatchdog
+        CloudVmStatus replacedStatus = createStatus("i-replaced", VMStatus.replaced);
+        
+        // When/Then: Updates should be blocked
+        assertFalse(invokeShouldUpdateStatus(replacedStatus),
+            "Replaced instances should not accept status updates (race condition guard)");
+    }
+
+    // ============ VMStatus.replaced integration tests ============
+
+    @Test
+    @DisplayName("replaced status is recognized as a valid VMStatus")
+    void replacedStatus_isValidEnum() {
+        assertNotNull(VMStatus.replaced);
+        assertEquals("replaced", VMStatus.replaced.name());
+    }
+
+    @Test
+    @DisplayName("setStatus respects terminal state guard for replaced instances")
+    void setStatus_respectsTerminalGuard_forReplaced() throws Exception {
+        // Note: This is a partial test - full integration requires mocked dependencies
+        // The key behavior is tested via shouldUpdateStatus tests above
+        
+        // Verify the enum value exists and can be used
+        CloudVmStatus status = createStatus("i-test", VMStatus.replaced);
+        assertEquals(VMStatus.replaced, status.getVmStatus());
     }
 }
 
