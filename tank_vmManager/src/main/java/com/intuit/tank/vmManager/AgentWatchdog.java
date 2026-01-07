@@ -147,8 +147,8 @@ public class AgentWatchdog implements Runnable {
                         relaunch(startedInstances);
                         startTime = System.currentTimeMillis();
                     }
-                    LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": " + "Waiting for " + startedInstances.size() + " agents to report: "
-                            + getInstanceIdList(startedInstances))));
+                    LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": Waiting for " + startedInstances.size() + " agents to report: "
+                            + startedInstances.stream().map(VMInformation::getInstanceId).collect(Collectors.toList()))));
                     Thread.sleep(sleepTime);
                 } else {
                     LOG.info(new ObjectMessage(Map.of("Message","All Agents Reported back for job " + jobId + ".")));
