@@ -76,8 +76,8 @@ public class AmazonDataConverter {
         info.setPlatform(instance.platformAsString());
         info.setPrivateDNS(instance.privateDnsName());
         info.setPublicDNS(instance.publicDnsName());
-        info.setPrivateIp(instance.privateIpAddress()); // TEMP_IP_LOGGING
-        info.setPublicIp(instance.publicIpAddress()); // TEMP_IP_LOGGING
+        info.setPrivateIp(instance.privateIpAddress());
+        info.setPublicIp(instance.publicIpAddress());
         info.setState(instance.state().nameAsString());
         info.setSize(instance.instanceTypeAsString());
         return info;

@@ -53,12 +53,6 @@ public class CreateInstance implements Runnable {
         for (VMInformation info : vmInfo) {
             vmTracker.setStatus(createCloudStatus(request, info));
             dao.addImageFromInfo(request.getJobId(), info, request.getRegion());
-            // TEMP_IP_LOGGING - START
-            logger.info("Added image (" + info.getInstanceId() + 
-                ") with publicIp=" + (info.getPublicIp() != null ? info.getPublicIp() : "N/A") +
-                ", privateIp=" + (info.getPrivateIp() != null ? info.getPrivateIp() : "N/A") +
-                " to VMImage table");
-            // TEMP_IP_LOGGING - END
         }
     }
 

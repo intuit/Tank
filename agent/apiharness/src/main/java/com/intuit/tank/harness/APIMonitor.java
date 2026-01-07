@@ -85,9 +85,6 @@ public class APIMonitor implements Runnable {
             }
             
             if (!isLocal) {
-                LOG.info(LogUtil.getLogMessage("Sending status update - VMStatus: " + newStatus.getVmStatus() + 
-                    ", JobStatus: " + newStatus.getJobStatus() + ", Users: " + newStatus.getCurrentUsers() + 
-                    "/" + newStatus.getTotalUsers()));
                 setInstanceStatus(newStatus.getInstanceId(), newStatus);
             }
             APITestHarness.getInstance().checkAgentThreads();

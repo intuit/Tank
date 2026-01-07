@@ -96,7 +96,6 @@ public class VMInformation implements Serializable {
         return (String) this.items.get("privateDns");
     }
 
-    // TEMP_IP_LOGGING - START
     /**
      * Set the virtual machine private IP address
      * 
@@ -134,7 +133,6 @@ public class VMInformation implements Serializable {
     public String getPublicIp() {
         return (String) this.items.get("publicIp");
     }
-    // TEMP_IP_LOGGING - END
 
     public void setLaunchTime(Calendar data) {
         this.items.put("launchTime", data);

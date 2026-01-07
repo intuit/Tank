@@ -258,14 +258,6 @@ public class AgentWatchdog implements Runnable {
                     " - watchdog will wait for /v2/agent/ready call",
                 "instanceId", newInfo.getInstanceId(),
                 "jobId", jobId)));
-            // TEMP_IP_LOGGING - START
-            LOG.info(new ObjectMessage(Map.of(
-                "Message", "Added relaunched image to VMImage table for job " + jobId,
-                "instanceId", newInfo.getInstanceId(),
-                "publicIp", newInfo.getPublicIp() != null ? newInfo.getPublicIp() : "N/A",
-                "privateIp", newInfo.getPrivateIp() != null ? newInfo.getPrivateIp() : "N/A"
-            )));
-            // TEMP_IP_LOGGING - END
             try {
                 dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                         instanceRequest.getRegion());
