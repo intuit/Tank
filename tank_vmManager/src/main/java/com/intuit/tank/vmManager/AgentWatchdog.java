@@ -257,7 +257,9 @@ public class AgentWatchdog implements Runnable {
                 "Message", "Created replacement agent with status " + newStatus.getVmStatus() + 
                     " - watchdog will wait for /v2/agent/ready call",
                 "instanceId", newInfo.getInstanceId(),
-                "jobId", jobId)));
+                "jobId", jobId,
+                "publicIp", newInfo.getPublicIp() != null ? newInfo.getPublicIp() : "N/A",
+                "privateIp", newInfo.getPrivateIp() != null ? newInfo.getPrivateIp() : "N/A")));
             try {
                 dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                         instanceRequest.getRegion());
