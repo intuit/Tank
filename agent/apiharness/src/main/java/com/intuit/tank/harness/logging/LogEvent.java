@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.harness.APITestHarness;
+import com.intuit.tank.harness.data.FailableStep;
 import com.intuit.tank.harness.data.HDScript;
 import com.intuit.tank.harness.data.HDScriptGroup;
 import com.intuit.tank.harness.data.HDTestPlan;
@@ -104,6 +105,7 @@ public class LogEvent implements Serializable {
         appendField(map, LogFields.HttpRequestBody, getBody(HttpType.REQUEST));
         appendField(map, LogFields.HttpResponseHeaders, getHeaders(HttpType.RESPONSE));
         appendField(map, LogFields.HttpResponseBody, getBody(HttpType.RESPONSE));
+        appendField(map, LogFields.OnFailure, getOnFailure());
         map.put("Message", message);
         return map;
     }
@@ -157,6 +159,9 @@ public class LogEvent implements Serializable {
         if (ret != null) {
             String mimeType = request.getResponse().getHttpHeader("Content-Type");
             if (LogUtil.isTextMimeType(mimeType)) {
+                if (eventType == LogEventType.Validation || eventType == LogEventType.IO) {
+                    return ret;
+                }
                 int maxBodySize = 5000;
                 try {
                     maxBodySize = APITestHarness.getInstance().getTankConfig().getAgentConfig()
@@ -219,6 +224,13 @@ public class LogEvent implements Serializable {
         return (request != null && request.getResponse() != null && request.getResponse().getResponseTime() >= 0)
                 ? Long.toString(request.getResponse().getResponseTime())
                 : null;
+    }
+
+    private String getOnFailure() {
+        if (step instanceof FailableStep) {
+            return ((FailableStep) step).getOnFail();
+        }
+        return null;
     }
 
     public String getStepGroupName() {

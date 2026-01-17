@@ -13,13 +13,16 @@ package com.intuit.tank.httpclient4;
  * #L%
  */
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+
+import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
@@ -41,6 +44,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -89,13 +93,15 @@ public class TankHttpClient4 implements TankHttpClient {
         context.setUserToken(UUID.randomUUID());
         context.setCookieStore(new BasicCookieStore());
         context.setRequestConfig(requestConfig);
+
+        LOG.info("TANK_CONNECTION_LEAK_FIX_V2: TankHttpClient4 initialized with COMPREHENSIVE LEAK FIX (EntityUtils + explicit close)");
     }
 
     public Object createHttpClient() {
         UserTokenHandler userTokenHandler = (httpContext) -> httpContext.getAttribute(HttpClientContext.USER_TOKEN);
         // default this implementation will create no more than than 2 concurrent connections per given route and no more 20 connections in total
         return HttpClients.custom()
-                .setConnectionManagerShared(true)
+                .setConnectionManagerShared(false)  // CRITICAL FIX: Don't share connection manager - let HttpClient manage lifecycle
                 .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .setUserTokenHandler(userTokenHandler)
                 .evictIdleConnections(1L, TimeUnit.MINUTES)
@@ -309,22 +315,34 @@ public class TankHttpClient4 implements TankHttpClient {
         setHeaders(request, method, request.getHeaderInformation());
         long startTime = System.currentTimeMillis();
         request.setTimestamp(new Date(startTime));
-        try ( CloseableHttpResponse response = httpclient.execute(method, context) ) {
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(method, context);
 
             // read response body
             byte[] responseBody = new byte[0];
-            // check for no content headers
-            if (response.getStatusLine().getStatusCode() != 203 && response.getStatusLine().getStatusCode() != 202 && response.getStatusLine().getStatusCode() != 204) {
-                try ( InputStream is = response.getEntity().getContent() ) {
+            HttpEntity entity = response.getEntity();
+
+            // CRITICAL: Always consume entity if present, regardless of status code
+            // This prevents connection leaks that cause CLOSE-WAIT states
+            if (entity != null) {
+                try {
                     Header contentTypeHeader = response.getFirstHeader("Content-Type");
                     String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : "";
                     if (checkContentType(contentType)) {
-                        responseBody = is.readAllBytes();
+                        responseBody = EntityUtils.toByteArray(entity);  // Automatically consumes and closes
                     } else {
-                        is.readAllBytes();
+                        // Still consume the entity even if we don't keep the data
+                        EntityUtils.consume(entity);  // Explicitly consume without reading
                     }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
+                    // CRITICAL: Ensure entity is consumed even on error
+                    try {
+                        EntityUtils.consumeQuietly(entity);
+                    } catch (Exception consumeEx) {
+                        LOG.warn(request.getLogUtil().getLogMessage("could not consume entity after error: " + consumeEx));
+                    }
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
@@ -338,10 +356,14 @@ public class TankHttpClient4 implements TankHttpClient {
             LOG.error(request.getLogUtil().getLogMessage("Could not do " + method.getMethod() + " to url " + uri + " |  error: " + ex.toString(), LogEventType.IO), ex);
             throw new RuntimeException(ex);
         } finally {
-            try {
-                method.releaseConnection();
-            } catch (Exception e) {
-                LOG.warn("Could not release connection: " + e, e);
+            // CRITICAL: ALWAYS close the response to release the connection
+            if (response != null) {
+                try {
+                    response.close();
+                    LOG.debug("LEAK_FIX: Response closed successfully");
+                } catch (IOException e) {
+                    LOG.warn("LEAK_FIX: Failed to close response: " + e.getMessage(), e);
+                }
             }
             if (method.getMethod().equalsIgnoreCase("post") && request.getLogUtil().getAgentConfig().getLogPostResponse()) {
                 LOG.info(request.getLogUtil().getLogMessage(
@@ -431,12 +453,42 @@ public class TankHttpClient4 implements TankHttpClient {
             }
             response.setResponseTime(waitTime);
 
+            String contentEncoding = response.getHttpHeader("Content-Encoding");
+            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
+                try {
+                    switch (contentEncoding.toLowerCase()) {
+                        case "gzip":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
+                                bResponse = gzipStream.readAllBytes();
+                            }
+                            break;
+
+                        case "br":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
+                                bResponse = brotliStream.readAllBytes();
+                            }
+                            break;
+
+                        default:
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
+                            }
+                            break;
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
+                }
+            }
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
             LOG.warn("Unable to get response: " + ex.getMessage());
         } finally {
-            if (LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled() && response != null) {
                 LOG.debug("******** RESPONSE ***********");
                 LOG.debug(response.getLogMsg());
             }
