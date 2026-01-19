@@ -100,8 +100,13 @@ public class WebSocketResponse {
         this.saveVariable = saveVariable;
     }
     public void validate(WebSocketAction action) {
-        // WebSocketResponse is not used by any of the core actions (CONNECT, SEND, DISCONNECT)
-        // This class is retained for future extensibility
+        if (action == WebSocketAction.EXPECT) {
+            // EXPECT action uses WebSocketResponse - validation is optional
+            // expectedContent can be null (match any message)
+            // timeoutMs has sensible default in runner
+            return;
+        }
+        // Other actions (CONNECT, SEND, DISCONNECT) should not have WebSocketResponse
         throw new IllegalArgumentException(action + " action should not have WebSocketResponse");
     }
 
