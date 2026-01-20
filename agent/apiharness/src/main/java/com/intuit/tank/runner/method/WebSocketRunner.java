@@ -14,6 +14,7 @@ package com.intuit.tank.runner.method;
  */
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -21,8 +22,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.intuit.tank.harness.data.AssertionBlock;
 import com.intuit.tank.harness.data.FailOnPattern;
+import com.intuit.tank.harness.data.SaveOccurrence;
 import com.intuit.tank.harness.data.WebSocketAction;
+import com.intuit.tank.harness.data.WebSocketAssertion;
 import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.logging.LogUtil;
@@ -79,6 +83,20 @@ public class WebSocketRunner implements Runner {
             // Substitute variables in connectionId
             connectionId = variables.evaluate(connectionId);
             
+            // fail immediately (except for CONNECT which creates the connection and DISCONNECT which should still run to cleanup)
+            if (action != WebSocketAction.CONNECT && action != WebSocketAction.DISCONNECT) {
+                TankWebSocketClient existingClient = tsc.getWebSocketClient(connectionId);
+                if (existingClient != null && existingClient.hasFailed()) {
+                    MessageStream stream = existingClient.getMessageStream();
+                    LOG.error(LogUtil.getLogMessage(
+                        "WebSocket connection " + connectionId + " has already failed due to fail-on pattern: " +
+                        (stream != null ? stream.getFailurePattern() : "unknown") +
+                        " - aborting " + action + " action",
+                        LogEventType.Validation, LoggingProfile.STANDARD));
+                    return TankConstants.HTTP_CASE_FAIL;
+                }
+            }
+            
             // Validate request for this action
             if (request != null) {
                 request.validate(action);
@@ -94,6 +112,9 @@ public class WebSocketRunner implements Runner {
                     break;
                 case SEND:
                     result = executeSend(connectionId);
+                    break;
+                case ASSERT:
+                    result = executeAssert(connectionId);
                     break;
                 case DISCONNECT:
                     result = executeDisconnect(connectionId);
@@ -203,7 +224,45 @@ public class WebSocketRunner implements Runner {
     }
 
     /**
-     * Execute WebSocket disconnect action
+     * Execute WebSocket assert action.
+     * Validates assertions against collected MessageStream WITHOUT closing the connection.
+     * Use this for mid-session validation checkpoints.
+     */
+    private String executeAssert(String connectionId) throws Exception {
+        TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
+        if (client == null) {
+            LOG.error("WebSocket connection not found for assert: " + connectionId);
+            return TankConstants.HTTP_CASE_FAIL;
+        }
+
+        // Check if connection failed due to fail-on pattern
+        if (client.hasFailed()) {
+            MessageStream stream = client.getMessageStream();
+            LOG.error(LogUtil.getLogMessage(
+                "WebSocket connection " + connectionId + " has failed due to fail-on pattern: " +
+                (stream != null ? stream.getFailurePattern() : "unknown"),
+                LogEventType.Validation, LoggingProfile.STANDARD));
+            return TankConstants.HTTP_CASE_FAIL;
+        }
+
+        AssertionBlock assertions = step.getAssertions();
+        if (assertions == null || assertions.isEmpty()) {
+            LOG.warn("No assertions defined for websocket-assert step on connection: " + connectionId);
+            return TankConstants.HTTP_CASE_PASS;
+        }
+
+        MessageStream stream = client.getMessageStream();
+        if (stream == null) {
+            LOG.error("No MessageStream found for connection: " + connectionId);
+            return TankConstants.HTTP_CASE_FAIL;
+        }
+
+        return evaluateAssertions(assertions, stream, connectionId);
+    }
+
+    /**
+     * Execute WebSocket disconnect action.
+     * Runs assertions against collected MessageStream BEFORE closing the connection.
      */
     private String executeDisconnect(String connectionId) throws Exception {
         TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
@@ -212,20 +271,178 @@ public class WebSocketRunner implements Runner {
             return TankConstants.HTTP_CASE_PASS; // Not an error if already disconnected
         }
 
+        String result = TankConstants.HTTP_CASE_PASS;
+
         try {
+            // Get MessageStream for assertions and summary
+            MessageStream stream = client.getMessageStream();
+
+            // Check if connection failed due to fail-on pattern
+            if (client.hasFailed()) {
+                LOG.error(LogUtil.getLogMessage(
+                    "WebSocket connection " + connectionId + " failed due to fail-on pattern: " +
+                    (stream != null ? stream.getFailurePattern() : "unknown"),
+                    LogEventType.Validation, LoggingProfile.STANDARD));
+                result = TankConstants.HTTP_CASE_FAIL;
+            }
+
+            // Run assertions BEFORE closing (only if not already failed)
+            if (result.equals(TankConstants.HTTP_CASE_PASS)) {
+                AssertionBlock assertions = step.getAssertions();
+                if (assertions != null && !assertions.isEmpty()) {
+                    result = evaluateAssertions(assertions, stream, connectionId);
+                }
+            }
+
+            // Log stream summary
+            if (stream != null) {
+                LOG.info(LogUtil.getLogMessage(
+                    stream.getSummary(),
+                    LogEventType.Informational, LoggingProfile.STANDARD));
+            }
+
+            // Disconnect and cleanup
             client.disconnect();
             tsc.removeWebSocketClient(connectionId);
-            
+
             LOG.info(LogUtil.getLogMessage(
-                "WebSocket disconnected: " + connectionId,
+                "WebSocket disconnected: " + connectionId + " (result: " + result + ")",
                 LogEventType.Informational, LoggingProfile.STANDARD));
-            return TankConstants.HTTP_CASE_PASS;
+
+            return result;
+
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage(
                 "Failed to disconnect WebSocket: " + e.getMessage(),
                 LogEventType.Informational, LoggingProfile.STANDARD), e);
             return TankConstants.HTTP_CASE_FAIL;
         }
+    }
+
+    /**
+     * Evaluate assertions against the collected MessageStream.
+     * Called at DISCONNECT or explicit ASSERT action.
+     *
+     * @param assertions The assertion block containing expects and saves
+     * @param stream The MessageStream with collected messages
+     * @param connectionId The connection ID for logging
+     * @return PASS if all assertions pass, FAIL otherwise
+     */
+    private String evaluateAssertions(AssertionBlock assertions, MessageStream stream, String connectionId) {
+        if (assertions == null || assertions.isEmpty()) {
+            LOG.debug("No assertions to evaluate for connection: {}", connectionId);
+            return TankConstants.HTTP_CASE_PASS;
+        }
+
+        if (stream == null) {
+            LOG.error("Cannot evaluate assertions: MessageStream is null for connection: {}", connectionId);
+            return TankConstants.HTTP_CASE_FAIL;
+        }
+
+        LOG.info(LogUtil.getLogMessage(
+            "Evaluating assertions for connection " + connectionId + " (" + stream.getMessageCount() + " messages collected)",
+            LogEventType.Informational, LoggingProfile.STANDARD));
+
+        // Evaluate all EXPECT assertions
+        for (WebSocketAssertion expect : assertions.getExpects()) {
+            String pattern = expect.getPattern();
+            boolean isRegex = expect.isRegex();
+            int minCount = expect.getEffectiveMinCount();
+            Integer maxCount = expect.getMaxCount();
+
+            // Substitute variables in pattern
+            String evaluatedPattern = variables.evaluate(pattern);
+
+            int actualCount = stream.countMatching(evaluatedPattern, isRegex);
+
+            // Check minCount
+            if (actualCount < minCount) {
+                LOG.error(LogUtil.getLogMessage(
+                    "Assertion FAILED: expected pattern '" + evaluatedPattern + "' at least " + minCount +
+                    " time(s), but found " + actualCount + " match(es) in " + stream.getMessageCount() + " messages",
+                    LogEventType.Validation, LoggingProfile.STANDARD));
+                logCollectedMessagesOnFailure(stream);
+                return TankConstants.HTTP_CASE_FAIL;
+            }
+
+            // Check maxCount if specified
+            if (maxCount != null && actualCount > maxCount) {
+                LOG.error(LogUtil.getLogMessage(
+                    "Assertion FAILED: expected pattern '" + evaluatedPattern + "' at most " + maxCount +
+                    " time(s), but found " + actualCount + " match(es)",
+                    LogEventType.Validation, LoggingProfile.STANDARD));
+                logCollectedMessagesOnFailure(stream);
+                return TankConstants.HTTP_CASE_FAIL;
+            }
+
+            LOG.info(LogUtil.getLogMessage(
+                "Assertion PASSED: pattern '" + evaluatedPattern + "' found " + actualCount + " time(s)" +
+                (minCount > 1 ? " (min: " + minCount + ")" : "") +
+                (maxCount != null ? " (max: " + maxCount + ")" : ""),
+                LogEventType.Validation, LoggingProfile.VERBOSE));
+        }
+
+        // Process all SAVE assertions
+        for (WebSocketAssertion save : assertions.getSaves()) {
+            String pattern = save.getPattern();
+            String variableName = save.getVariable();
+            SaveOccurrence occurrence = save.getOccurrence();
+
+            if (StringUtils.isEmpty(variableName)) {
+                LOG.warn("Save assertion has no variable name specified, skipping");
+                continue;
+            }
+
+            // Substitute variables in pattern
+            String evaluatedPattern = variables.evaluate(pattern);
+
+            // Extract based on occurrence (default to LAST)
+            Optional<String> extracted;
+            if (occurrence == SaveOccurrence.FIRST) {
+                extracted = stream.extractFirst(evaluatedPattern);
+            } else {
+                extracted = stream.extractLast(evaluatedPattern);
+            }
+
+            if (extracted.isPresent()) {
+                String value = extracted.get();
+                variables.addVariable(variableName, value, true);
+                LOG.info(LogUtil.getLogMessage(
+                    "Saved value to variable #{" + variableName + "}: " +
+                    MessageStream.truncateForLog(value),
+                    LogEventType.Informational, LoggingProfile.STANDARD));
+            } else {
+                LOG.warn(LogUtil.getLogMessage(
+                    "Save assertion: pattern '" + evaluatedPattern + "' not found, variable #{" +
+                    variableName + "} not set",
+                    LogEventType.Informational, LoggingProfile.STANDARD));
+            }
+        }
+
+        LOG.info(LogUtil.getLogMessage(
+            "All assertions PASSED for connection: " + connectionId,
+            LogEventType.Validation, LoggingProfile.STANDARD));
+        return TankConstants.HTTP_CASE_PASS;
+    }
+
+    /**
+     * Log collected messages when an assertion fails (for debugging)
+     */
+    private void logCollectedMessagesOnFailure(MessageStream stream) {
+        List<MessageStream.TimestampedMessage> messages = stream.getAllMessages();
+        int count = messages.size();
+        int maxToLog = Math.min(count, 20);  // Log at most 20 messages
+
+        LOG.error("=== Collected messages ({} total, showing first {}) ===", count, maxToLog);
+        for (int i = 0; i < maxToLog; i++) {
+            MessageStream.TimestampedMessage msg = messages.get(i);
+            LOG.error("  [{}] ({}ms): {}", msg.index(), msg.relativeTimeMs(),
+                MessageStream.truncateForLog(msg.content()));
+        }
+        if (count > maxToLog) {
+            LOG.error("  ... and {} more messages", count - maxToLog);
+        }
+        LOG.error("=== End of collected messages ===");
     }
 
 }
