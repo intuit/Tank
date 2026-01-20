@@ -22,12 +22,14 @@ import jakarta.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+
 /**
  * WebSocketStep represents a WebSocket operation in a Tank script.
  */
 @XmlType(name = "webSocketStep", propOrder = { 
     "name", "scriptGroupName", "comments", "onFail", "action", "connectionId", 
-    "request", "response" 
+    "request", "failOnPatterns", "assertions"
 }, namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
@@ -53,9 +55,12 @@ public class WebSocketStep extends TestStep implements FailableStep {
     
     @XmlElement(name = "request")
     private WebSocketRequest request;
-    
-    @XmlElement(name = "response")
-    private WebSocketResponse response;
+
+    @XmlElement(name = "fail-on")
+    private List<FailOnPattern> failOnPatterns;
+
+    @XmlElement(name = "assertions")
+    private AssertionBlock assertions;
 
     /**
      * @return the name
@@ -169,17 +174,37 @@ public class WebSocketStep extends TestStep implements FailableStep {
     }
 
     /**
-     * @return the response
+     * @return the failOnPatterns
      */
-    public WebSocketResponse getResponse() {
-        return response;
+    public List<FailOnPattern> getFailOnPatterns() {
+        if (failOnPatterns == null) {
+            failOnPatterns = new java.util.ArrayList<>();
+        }
+        return failOnPatterns;
     }
 
     /**
-     * @param response the response to set
+     * @param failOnPatterns the failOnPatterns to set
      */
-    public void setResponse(WebSocketResponse response) {
-        this.response = response;
+    public void setFailOnPatterns(List<FailOnPattern> failOnPatterns) {
+        this.failOnPatterns = failOnPatterns;
+    }
+
+    /**
+     * @return the assertions
+     */
+    public AssertionBlock getAssertions() {
+        if (assertions == null) {
+            assertions = new AssertionBlock();
+        }
+        return assertions;
+    }
+
+    /**
+     * @param assertions the assertions to set
+     */
+    public void setAssertions(AssertionBlock assertions) {
+        this.assertions = assertions;
     }
 
     @Override

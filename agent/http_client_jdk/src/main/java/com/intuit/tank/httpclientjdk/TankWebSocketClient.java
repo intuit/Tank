@@ -17,11 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.URI;
-import java.util.Iterator;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 /**
  * Netty-based WebSocket client
@@ -38,28 +36,9 @@ public class TankWebSocketClient {
     // Connection state
     private final AtomicBoolean connected = new AtomicBoolean(false);
     private final AtomicReference<Channel> channel = new AtomicReference<>();
-    private final ConcurrentHashMap<String, CompletableFuture<String>> pendingRequests = new ConcurrentHashMap<>();
     
-    // Passive listening for server-pushed messages (legacy - kept for backward compatibility)
-    private final ConcurrentLinkedQueue<CompletableFuture<String>> awaitNextMessageFutures = new ConcurrentLinkedQueue<>();
-    
-    // Pattern-based message matching infrastructure
-    private static final int MAX_BUFFER_SIZE = 1000;
-    private final ConcurrentLinkedDeque<String> messageBuffer = new ConcurrentLinkedDeque<>();
-    private final CopyOnWriteArrayList<PendingExpect> pendingExpects = new CopyOnWriteArrayList<>();
-    
-    /**
-     * Represents a pending EXPECT operation waiting for a message matching its predicate
-     */
-    public record PendingExpect(
-        Predicate<String> matcher,
-        CompletableFuture<String> future,
-        long createdAt
-    ) {
-        public PendingExpect(Predicate<String> matcher, CompletableFuture<String> future) {
-            this(matcher, future, System.currentTimeMillis());
-        }
-    }
+    // Session-based message collection
+    private volatile MessageStream messageStream;
     
     // Configuration
     private final URI uri;
@@ -196,76 +175,7 @@ public class TankWebSocketClient {
     }
     
     /**
-     * Send message and wait for response (with proper correlation for concurrency)
-     * @param message Message to send
-     * @return CompletableFuture<String> with the response
-     */
-    public CompletableFuture<String> sendAndAwaitResponse(String message) {
-        return sendAndAwaitResponse(message, 5000); // 5 second timeout
-    }
-    
-    /**
-     * Send message and wait for response with custom timeout
-     * Handles concurrent requests properly using correlation IDs
-     * @param message Message to send
-     * @param timeoutMs Response timeout in milliseconds
-     * @return CompletableFuture<String> with the response
-     */
-    public CompletableFuture<String> sendAndAwaitResponse(String message, int timeoutMs) {
-        if (!connected.get()) {
-            return CompletableFuture.failedFuture(
-                new IllegalStateException("WebSocket not connected"));
-        }
-        
-        // Generate unique correlation ID for this request
-        String correlationId = java.util.UUID.randomUUID().toString();
-        CompletableFuture<String> responseFuture = new CompletableFuture<>();
-        
-        // Store the future with correlation ID
-        pendingRequests.put(correlationId, responseFuture);
-        
-        // Create message with correlation ID (for echo servers, we'll parse it back)
-        String correlatedMessage = correlationId + ":" + message;
-        
-        // Send message
-        Channel ch = channel.get();
-        if (ch != null && ch.isActive()) {
-            WebSocketFrame frame = new TextWebSocketFrame(correlatedMessage);
-            ch.writeAndFlush(frame).addListener(future -> {
-                if (future.isSuccess()) {
-                    messagesSent++;
-                    LOG.info("[WebSocket SENT]: \"{}\"", message);
-                    LOG.debug("Sent correlated message: {} (ID: {})", message, correlationId);
-                } else {
-                    LOG.error("Failed to send message: {} (ID: {})", message, correlationId, future.cause());
-                    // Remove from pending and fail the future
-                    CompletableFuture<String> failedFuture = pendingRequests.remove(correlationId);
-                    if (failedFuture != null) {
-                        failedFuture.completeExceptionally(future.cause());
-                    }
-                }
-            });
-        } else {
-            pendingRequests.remove(correlationId);
-            responseFuture.completeExceptionally(
-                new IllegalStateException("Channel not active"));
-        }
-        
-        // Set timeout using CompletableFuture.orTimeout (Java 9+) - race-free!
-        responseFuture.orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
-            .whenComplete((result, throwable) -> {
-                if (throwable instanceof TimeoutException) {
-                    // Clean up on timeout
-                    pendingRequests.remove(correlationId);
-                    LOG.warn("Request timeout for message: {} (ID: {})", message, correlationId);
-                }
-            });
-        
-        return responseFuture;
-    }
-    
-    /**
-     * Send message without waiting for response
+     * Send message without waiting for response (fire-and-forget)
      * @param message Message to send
      * @return CompletableFuture<Void> that completes when message is sent
      */
@@ -300,109 +210,8 @@ public class TankWebSocketClient {
     }
     
     /**
-     * Passively await the next message from the server (for EXPECT actions)
-     * This does NOT send anything - it just listens for server-pushed messages
-     * 
-     * @param timeoutMs Timeout in milliseconds
-     * @return CompletableFuture<String> that completes when next message arrives
+     * Disconnect from WebSocket server
      */
-    public CompletableFuture<String> awaitNextMessage(int timeoutMs) {
-        if (!connected.get()) {
-            return CompletableFuture.failedFuture(
-                new IllegalStateException("WebSocket not connected"));
-        }
-        
-        // Check if there's a buffered message first
-        String bufferedMessage = messageBuffer.poll();
-        if (bufferedMessage != null) {
-            LOG.debug("Returning buffered message: {}", bufferedMessage);
-            return CompletableFuture.completedFuture(bufferedMessage);
-        }
-        
-        // Create future for next message
-        CompletableFuture<String> messageFuture = new CompletableFuture<>();
-        awaitNextMessageFutures.add(messageFuture);
-        
-        // Set timeout
-        workerGroup.next().schedule(() -> {
-            if (!messageFuture.isDone()) {
-                awaitNextMessageFutures.remove(messageFuture);
-                messageFuture.completeExceptionally(
-                    new TimeoutException("No message received within " + timeoutMs + "ms"));
-            }
-        }, timeoutMs, TimeUnit.MILLISECONDS);
-        
-        LOG.debug("Awaiting next server message with {}ms timeout", timeoutMs);
-        return messageFuture;
-    }
-    
-    /**
-     * Wait for a message matching the given predicate (for EXPECT actions).
-     * This is the preferred method for pattern-based message matching.
-     *
-     * First checks the existing message buffer for a match, then registers
-     * a pending expect if no match is found.
-     *
-     * @param matcher Predicate to test incoming messages against
-     * @param timeoutMs Timeout in milliseconds
-     * @return CompletableFuture<String> that completes when a matching message arrives
-     */
-    public CompletableFuture<String> awaitMessage(Predicate<String> matcher, int timeoutMs) {
-        if (!connected.get()) {
-            return CompletableFuture.failedFuture(
-                new IllegalStateException("WebSocket not connected"));
-        }
-
-        // 1. Check existing buffer first (FIFO scan)
-        synchronized (messageBuffer) {
-            for (Iterator<String> it = messageBuffer.iterator(); it.hasNext();) {
-                String msg = it.next();
-                if (matcher.test(msg)) {
-                    it.remove();
-                    LOG.debug("Found matching message in buffer: {}", msg);
-                    return CompletableFuture.completedFuture(msg);
-                }
-            }
-        }
-
-        // 2. No match in buffer - register for future delivery
-        CompletableFuture<String> future = new CompletableFuture<>();
-        PendingExpect pending = new PendingExpect(matcher, future);
-        pendingExpects.add(pending);
-
-        LOG.debug("Registered pending EXPECT with {}ms timeout ({} pending total)",
-            timeoutMs, pendingExpects.size());
-
-        // 3. Set timeout - clean up on expiration
-        future.orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
-            .whenComplete((result, throwable) -> {
-                pendingExpects.remove(pending);
-                if (throwable instanceof TimeoutException) {
-                    LOG.warn("EXPECT timeout after {}ms, no matching message received", timeoutMs);
-                }
-            });
-
-        return future;
-    }
-
-    /**
-     * Convenience method: await message containing a specific substring
-     */
-    public CompletableFuture<String> awaitMessageContaining(String substring, int timeoutMs) {
-        return awaitMessage(msg -> msg.contains(substring), timeoutMs);
-    }
-
-    /**
-     * Convenience method: await message matching a regex pattern
-     */
-    public CompletableFuture<String> awaitMessageMatching(String regex, int timeoutMs) {
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-        return awaitMessage(msg -> pattern.matcher(msg).find(), timeoutMs);
-    }
-    
-        /**
-         * Disconnect from WebSocket server
-         */
         public void disconnect() {
             Channel ch = channel.get();
             if (ch != null && ch.isActive()) {
@@ -541,102 +350,61 @@ public class TankWebSocketClient {
                 connectionFuture.completeExceptionally(cause);
             }
             
-            // Complete all pending requests with error
-            pendingRequests.values().forEach(future -> {
-                if (!future.isDone()) {
-                    future.completeExceptionally(cause);
-                }
-            });
-            pendingRequests.clear();
-            
             ctx.close();
         }
     }
     
     /**
-     * Get the number of pending requests (for monitoring)
-     * @return Number of requests waiting for response
+     * Create a MessageStream for this connection to collect all incoming messages.
+     * Should be called during CONNECT action.
+     * @param connectionId The connection identifier
+     * @return The created MessageStream
      */
-    public int getPendingRequestCount() {
-        return pendingRequests.size();
+    public MessageStream createMessageStream(String connectionId) {
+        this.messageStream = new MessageStream(connectionId);
+        LOG.info("Created MessageStream for WebSocket connection: {}", connectionId);
+        return this.messageStream;
     }
     
     /**
-     * Get the number of pending EXPECT operations
-     * @return Number of expects waiting for matching messages
+     * Get the MessageStream for this connection
+     * @return The MessageStream or null if not created
      */
-    public int getPendingExpectCount() {
-        return pendingExpects.size();
+    public MessageStream getMessageStream() {
+        return messageStream;
     }
     
     /**
-     * Get the current message buffer size
-     * @return Number of unmatched messages in buffer
+     * Check if the connection has failed due to a fail-on pattern match
+     * @return true if failed
      */
-    public int getBufferedMessageCount() {
-        return messageBuffer.size();
+    public boolean hasFailed() {
+        return messageStream != null && messageStream.hasFailed();
     }
     
     /**
      * Central message routing handler.
-     * Routes incoming messages through this priority order:
-     * 1. Correlation-based responses (for sendAndAwaitResponse - echo server compatibility)
-     * 2. Pattern-based EXPECT matching (new)
-     * 3. Legacy awaitNextMessage futures (backward compatibility)
-     * 4. Buffer for future retrieval
+     * All incoming messages are routed to MessageStream for:
+     * - Fail-on pattern checking (abort test immediately if matched)
+     * - Collection for end-of-session assertions
      *
      * @param text The incoming message text
      */
     private void handleIncomingMessage(String text) {
-        // Priority 1: Check for correlated responses (sendAndAwaitResponse with echo servers)
-        if (text.startsWith("Echo: ")) {
-            String echoContent = text.substring(6);
-            int colonIndex = echoContent.indexOf(':');
-            if (colonIndex > 0) {
-                String correlationId = echoContent.substring(0, colonIndex);
-                CompletableFuture<String> responseFuture = pendingRequests.remove(correlationId);
-                if (responseFuture != null) {
-                    String originalMessage = echoContent.substring(colonIndex + 1);
-                    responseFuture.complete("Echo: " + originalMessage);
-                    LOG.debug("Completed correlated response for ID: {}", correlationId);
-                    return;
-                }
-            }
-        }
-
-        // Priority 2: Check pending EXPECTs for pattern match (new pattern-matching system)
-        for (PendingExpect pending : pendingExpects) {
+        // Route to MessageStream for session-based collection
+        // Messages are checked against fail-on patterns and buffered for assertions
+        if (messageStream != null) {
             try {
-                if (pending.matcher().test(text)) {
-                    pendingExpects.remove(pending);
-                    pending.future().complete(text);
-                    LOG.debug("Delivered message to pending EXPECT: {}", text);
-                    return;
-                }
-            } catch (Exception e) {
-                LOG.warn("Error testing message against EXPECT predicate: {}", e.getMessage());
+                messageStream.addMessage(text);
+                LOG.debug("Message collected: {}", MessageStream.truncateForLog(text));
+            } catch (WebSocketException e) {
+                LOG.error("[WebSocket] Connection {} failed on pattern '{}': {}",
+                    messageStream.getConnectionId(), e.getPattern(), e.getFailedMessage());
+                throw e;
             }
+        } else {
+            LOG.warn("Message received but no MessageStream attached - message ignored: {}", 
+                MessageStream.truncateForLog(text));
         }
-
-        // Priority 3: Legacy awaitNextMessage support (backward compatibility)
-        CompletableFuture<String> legacyFuture = awaitNextMessageFutures.poll();
-        if (legacyFuture != null) {
-            legacyFuture.complete(text);
-            LOG.debug("Delivered message to legacy awaitNextMessage listener: {}", text);
-            return;
-        }
-
-        // Priority 4: Buffer for future retrieval
-        synchronized (messageBuffer) {
-            messageBuffer.addLast(text);
-            // Prevent unbounded growth - remove oldest messages if over limit
-            while (messageBuffer.size() > MAX_BUFFER_SIZE) {
-                String dropped = messageBuffer.pollFirst();
-                LOG.warn("Message buffer overflow, dropped oldest message: {}",
-                    dropped != null ? dropped.substring(0, Math.min(50, dropped.length())) + "..." : "null");
-            }
-        }
-        LOG.debug("Buffered message for future EXPECT ({} buffered): {}",
-            messageBuffer.size(), text);
     }
 }

@@ -13,21 +13,21 @@ package com.intuit.tank.runner.method;
  * #L%
  */
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.intuit.tank.harness.data.FailOnPattern;
 import com.intuit.tank.harness.data.WebSocketAction;
 import com.intuit.tank.harness.data.WebSocketRequest;
-import com.intuit.tank.harness.data.WebSocketResponse;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.harness.test.data.Variables;
+import com.intuit.tank.httpclientjdk.MessageStream;
 import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
@@ -40,6 +40,7 @@ import com.intuit.tank.vm.common.TankConstants;
 public class WebSocketRunner implements Runner {
 
     private static final Logger LOG = LogManager.getLogger(WebSocketRunner.class);
+    private static final int DEFAULT_TIMEOUT_MS = 5000;
 
     private TestStepContext tsc;
     private WebSocketStep step;
@@ -94,9 +95,6 @@ public class WebSocketRunner implements Runner {
                 case SEND:
                     result = executeSend(connectionId);
                     break;
-                case EXPECT:
-                    result = executeExpect(connectionId);
-                    break;
                 case DISCONNECT:
                     result = executeDisconnect(connectionId);
                     break;
@@ -126,18 +124,13 @@ public class WebSocketRunner implements Runner {
 
         String url = variables.evaluate(request.getUrl());
         
-        // Get or create WebSocket client
         TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
         if (client == null) {
-            // Create new client
             client = new TankWebSocketClient(url);
             tsc.setWebSocketClient(connectionId, client);
         }
 
-        // Set timeout from request
-        int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : 5000;
-
-        // Connect
+        int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : DEFAULT_TIMEOUT_MS;
         CompletableFuture<Boolean> connectFuture = client.connect(timeoutMs);
         
         try {
@@ -146,6 +139,21 @@ public class WebSocketRunner implements Runner {
                 LOG.info(LogUtil.getLogMessage(
                     "WebSocket connected to: " + url,
                     LogEventType.Informational, LoggingProfile.STANDARD));
+
+                client.createMessageStream(connectionId);
+
+                List<FailOnPattern> failOnPatterns = step.getFailOnPatterns();
+                if (failOnPatterns != null && !failOnPatterns.isEmpty()) {
+                    MessageStream stream = client.getMessageStream();
+                    for (FailOnPattern pattern : failOnPatterns) {
+                        stream.addFailOnPattern(pattern.getPattern(), pattern.isRegex());
+                        LOG.debug("Registered fail-on pattern: {}", pattern);
+                    }
+                    LOG.info(LogUtil.getLogMessage(
+                        "Registered " + failOnPatterns.size() + " fail-on patterns for connection: " + connectionId,
+                        LogEventType.Informational, LoggingProfile.VERBOSE));
+                }
+
                 return TankConstants.HTTP_CASE_PASS;
             } else {
                 LOG.error(LogUtil.getLogMessage(
@@ -179,91 +187,16 @@ public class WebSocketRunner implements Runner {
         String payload = variables.evaluate(request.getPayload());
 
         try {
-            // Use sendAndAwaitResponse to get echo back and log it
-            int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : 5000;
-            String response = client.sendAndAwaitResponse(payload, timeoutMs).get(timeoutMs + 1000, TimeUnit.MILLISECONDS);
+            // Fire-and-forget send - messages collected in MessageStream for end-of-session assertions
+            client.sendMessage(payload).get();
 
             LOG.info(LogUtil.getLogMessage(
-                "WebSocket SEND successful on connection: " + connectionId + " (received echo response)",
+                "WebSocket SEND successful on connection: " + connectionId,
                 LogEventType.Informational, LoggingProfile.STANDARD));
             return TankConstants.HTTP_CASE_PASS;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage(
                 "Failed to send WebSocket message: " + e.getMessage(),
-                LogEventType.Informational, LoggingProfile.STANDARD), e);
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-    }
-
-    /**
-     * Execute WebSocket expect action - wait for a message matching criteria
-     */
-    private String executeExpect(String connectionId) throws Exception {
-        TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
-        if (client == null) {
-            LOG.error("WebSocket connection not found: " + connectionId);
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-
-        WebSocketResponse response = step.getResponse();
-        if (response == null) {
-            LOG.error("WebSocket response configuration is required for expect action");
-            return TankConstants.HTTP_CASE_FAIL;
-        }
-
-        int timeoutMs = response.getTimeoutMs() != null ? response.getTimeoutMs() : 5000;
-        String expectedContent = response.getExpectedContent();
-
-        // Build the matcher predicate
-        final Predicate<String> matcher;
-        if (StringUtils.isNotEmpty(expectedContent)) {
-            // Evaluate variables in expected content
-            String evaluatedPattern = variables.evaluate(expectedContent);
-            // Use contains matching (can be extended to regex in future)
-            matcher = msg -> msg.contains(evaluatedPattern);
-            LOG.debug("EXPECT waiting for message containing: \"{}\"", evaluatedPattern);
-        } else {
-            // No pattern specified - match any message
-            matcher = msg -> true;
-            LOG.debug("EXPECT waiting for any message");
-        }
-
-        try {
-            // Use the new pattern-matching awaitMessage method
-            String message = client.awaitMessage(matcher, timeoutMs)
-                .get(timeoutMs + 1000, TimeUnit.MILLISECONDS);
-
-            LOG.info(LogUtil.getLogMessage(
-                "WebSocket EXPECT received message on connection " + connectionId + ": " +
-                message.substring(0, Math.min(100, message.length())) +
-                (message.length() > 100 ? "..." : ""),
-                LogEventType.Informational, LoggingProfile.STANDARD));
-
-            // Save to variable if requested
-            String saveVariable = response.getSaveVariable();
-            if (StringUtils.isNotEmpty(saveVariable)) {
-                variables.addVariable(saveVariable, message, true);
-                LOG.debug("Saved received message to variable: #{" + saveVariable + "}");
-            }
-
-            return TankConstants.HTTP_CASE_PASS;
-
-        } catch (TimeoutException e) {
-            if (response.isOptional()) {
-                LOG.info(LogUtil.getLogMessage(
-                    "WebSocket EXPECT timeout (optional) on connection: " + connectionId,
-                    LogEventType.Informational, LoggingProfile.STANDARD));
-                return TankConstants.HTTP_CASE_PASS;
-            }
-            LOG.error(LogUtil.getLogMessage(
-                "WebSocket EXPECT timeout after " + timeoutMs + "ms on connection: " + connectionId +
-                (expectedContent != null ? ", expected content: " + expectedContent : ""),
-                LogEventType.Informational, LoggingProfile.STANDARD));
-            return TankConstants.HTTP_CASE_FAIL;
-
-        } catch (Exception e) {
-            LOG.error(LogUtil.getLogMessage(
-                "WebSocket EXPECT failed: " + e.getMessage(),
                 LogEventType.Informational, LoggingProfile.STANDARD), e);
             return TankConstants.HTTP_CASE_FAIL;
         }

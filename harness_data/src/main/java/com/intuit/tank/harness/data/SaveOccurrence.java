@@ -18,50 +18,42 @@ import jakarta.xml.bind.annotation.XmlEnumValue;
 import jakarta.xml.bind.annotation.XmlType;
 
 /**
- * WebSocket message types for Tank scripts.
+ * Specifies which occurrence to extract when saving WebSocket message content to a variable.
  */
-@XmlType(name = "webSocketMessageType", namespace = HarnessDataNamespace.NAMESPACE_V1)
+@XmlType(name = "saveOccurrence", namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlEnum(String.class)
-public enum WebSocketMessageType {
+public enum SaveOccurrence {
 
-    @XmlEnumValue("text")
-    TEXT("text");
+    @XmlEnumValue("first")
+    FIRST("first"),
+    
+    @XmlEnumValue("last")
+    LAST("last");
 
     private final String value;
 
-    WebSocketMessageType(String value) {
+    SaveOccurrence(String value) {
         this.value = value;
     }
 
     public String getValue() {
         return value;
     }
-    public static WebSocketMessageType fromValue(String value) {
+
+    public static SaveOccurrence fromValue(String value) {
         if (value == null) {
-            return TEXT;
+            return LAST;  // Default to last occurrence
         }
         
         String normalizedValue = value.toLowerCase().trim();
-        for (WebSocketMessageType type : WebSocketMessageType.values()) {
-            if (type.value.equals(normalizedValue)) {
-                return type;
+        for (SaveOccurrence occurrence : SaveOccurrence.values()) {
+            if (occurrence.value.equals(normalizedValue)) {
+                return occurrence;
             }
         }
         
-        throw new IllegalArgumentException("Unknown WebSocket message type: " + value + 
-            ". Valid types are: text");
-    }
-
-    public boolean isDataFrame() {
-        return this == TEXT;
-    }
-
-    public boolean isControlFrame() {
-        return false;
-    }
-
-    public static WebSocketMessageType getDefault() {
-        return TEXT;
+        throw new IllegalArgumentException("Unknown save occurrence: " + value + 
+            ". Valid values are: first, last");
     }
 
     @Override

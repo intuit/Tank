@@ -28,6 +28,8 @@ TimerStep
 ClearCookiesStep
 WebSocketStep
 WebSocketRequest
-WebSocketResponse
 WebSocketAction
-WebSocketMessageType
+WebSocketAssertion
+AssertionBlock
+FailOnPattern
+SaveOccurrence
