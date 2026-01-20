@@ -16,6 +16,7 @@ package com.intuit.tank.harness.data;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 /**
@@ -30,6 +31,7 @@ import jakarta.xml.bind.annotation.XmlType;
  */
 @XmlType(name = "webSocketAssertion", namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class WebSocketAssertion {
 
     @XmlAttribute(required = true)

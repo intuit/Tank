@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.WebSocketAction;
-import com.intuit.tank.harness.data.WebSocketMessageType;
 import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.test.data.Variables;

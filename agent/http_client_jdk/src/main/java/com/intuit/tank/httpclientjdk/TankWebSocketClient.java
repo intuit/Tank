@@ -298,15 +298,15 @@ public class TankWebSocketClient {
                 return;
             }
             
-            // ASYNCHRONOUS PASSIVE LISTENING:
+            // SESSION-BASED PASSIVE LISTENING:
             // This handler is attached during CONNECT and remains active for the life of the connection.
             // All incoming messages are immediately:
-            // 1. Logged to the debugger (for demo/monitoring visibility)
-            // 2. Queued in messageBuffer or delivered to awaitNextMessage futures (for EXPECT steps)
+            // 1. Logged for Tank Debugger visibility
+            // 2. Routed to MessageStream for collection and fail-on pattern checking
+            // 3. Available for ASSERT/DISCONNECT assertions against the full message history
             // This is thread-safe as it executes within the Netty event loop.
             //
-            // TODO: REPLACE THIS TO HANDLE MORE THAN ECHO SERVERS (Binary, Ping handling, etc)
-            // This will require a new class to handle the different types of frames
+            // TODO: Add support for BinaryWebSocketFrame handling
             if (msg instanceof WebSocketFrame) {
                 WebSocketFrame frame = (WebSocketFrame) msg;
                 

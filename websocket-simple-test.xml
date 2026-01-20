@@ -1,67 +1,119 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:workload xmlns:ns2="urn:com/intuit/tank/harness/data/v1" name="Local WebSocket Test" description="Tank WebSocket test
-  against local ws://localhost:8080 service - Session Model">
-      <client-class>com.intuit.tank.httpclientjdk.TankHttpClientJDK</client-class>
-      <plan testPlanName="Main" userPercentage="100">
-          <testSuite name="Group-1" description="WebSocket Session Test" loop="1">
-              <testGroup name="Local WebSocket Test" loop="1">
-                  <useCase>
-                      <!-- CONNECT: Opens connection, creates MessageStream, registers fail-on patterns -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Connect"
-  action="connect" connectionId="echo" onFail="abort">
-                          <stepIndex>0</stepIndex>
-                          <request>
-                              <url>ws://localhost:8080/ws/test</url>
-                              <timeoutMs>5000</timeoutMs>
-                          </request>
-                          <fail-on pattern="error" />
-                          <fail-on pattern="failed" />
-                      </testStep>
+<ns2:workload xmlns:ns2="urn:com/intuit/tank/harness/data/v1" name="Local WebSocket Test" description="Tank WebSocket test against local ws://localhost:8080 service - Session Model (Enhanced)">
+    <client-class>com.intuit.tank.httpclientjdk.TankHttpClientJDK</client-class>
+    <plan testPlanName="Main" userPercentage="100">
+        <testSuite name="Group-1" description="WebSocket Session Test - Full Coverage" loop="1">
+            <testGroup name="Local WebSocket Test" loop="1">
+                <useCase>
+                    <!-- ========== CONNECT ========== -->
+                    <!-- Opens connection, creates MessageStream, registers fail-on patterns -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Connect to Echo Server" action="connect" connectionId="echo" onFail="abort">
+                        <stepIndex>0</stepIndex>
+                        <request>
+                            <url>ws://localhost:8080/ws/test</url>
+                            <timeoutMs>5000</timeoutMs>
+                        </request>
+                        <fail-on pattern="error" />
+                        <fail-on pattern="failed" />
+                        <fail-on pattern="exception" />
+                    </testStep>
 
-                      <!-- SEND: Fire-and-forget, responses collected in background -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Send
-  Message 1" action="send" connectionId="echo" onFail="abort">
-                          <stepIndex>1</stepIndex>
-                          <request>
-                              <payload>Hello WebSocket!</payload>
-                          </request>
-                      </testStep>
+                    <!-- ========== SEND #1 ========== -->
+                    <!-- Fire-and-forget, response collected in MessageStream -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Send Message 1" action="send" connectionId="echo" onFail="abort">
+                        <stepIndex>1</stepIndex>
+                        <request>
+                            <payload>Hello WebSocket!</payload>
+                        </request>
+                    </testStep>
 
-                      <!-- SLEEP: Allow time for server to respond -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:sleepTimeStep">
-                          <stepIndex>2</stepIndex>
-                          <minTime>500</minTime>
-                          <maxTime>500</maxTime>
-                      </testStep>
+                    <!-- SLEEP: Allow server response time -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:thinkTime" minTime="300" maxTime="300">
+                        <stepIndex>2</stepIndex>
+                    </testStep>
 
-                      <!-- SEND: Another message -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" name="Send
-  Message 2" action="send" connectionId="echo" onFail="abort">
-                          <stepIndex>3</stepIndex>
-                          <request>
-                              <payload>Second message</payload>
-                          </request>
-                      </testStep>
+                    <!-- ========== SEND #2 ========== -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Send Message 2" action="send" connectionId="echo" onFail="abort">
+                        <stepIndex>3</stepIndex>
+                        <request>
+                            <payload>Second message</payload>
+                        </request>
+                    </testStep>
 
-                      <!-- SLEEP: Allow time for server to respond -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:sleepTimeStep">
-                          <stepIndex>4</stepIndex>
-                          <minTime>500</minTime>
-                          <maxTime>500</maxTime>
-                      </testStep>
+                    <!-- SLEEP: Allow server response time -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:thinkTime" minTime="300" maxTime="300">
+                        <stepIndex>4</stepIndex>
+                    </testStep>
 
-                      <!-- DISCONNECT: Runs assertions against collected messages, then closes -->
-                      <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep"
-  name="Disconnect and Assert" action="disconnect" connectionId="echo" onFail="abort">
-                          <stepIndex>5</stepIndex>
-                          <assertions>
-                              <expect pattern="Echo: Hello WebSocket!" minCount="1" />
-                              <expect pattern="Echo: Second message" minCount="1" />
-                              <save pattern="Echo: (.+)" variable="lastEcho" occurrence="last" />
-                          </assertions>
-                      </testStep>
-                  </useCase>
-              </testGroup>
-          </testSuite>
-      </plan>
-  </ns2:workload>
+                    <!-- ========== MID-SESSION ASSERT ========== -->
+                    <!-- Validates messages collected so far WITHOUT closing connection -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Mid-Session Checkpoint" action="assert" connectionId="echo" onFail="abort">
+                        <stepIndex>5</stepIndex>
+                        <assertions>
+                            <!-- Verify first message was echoed -->
+                            <expect pattern="Echo: Hello WebSocket!" minCount="1" />
+                            <!-- Verify we have at least 2 Echo responses using regex -->
+                            <expect pattern="Echo: .+" regex="true" minCount="2" />
+                            <!-- Save the first echo for variable extraction test -->
+                            <save pattern="Echo: (.+)" variable="firstEcho" occurrence="first" />
+                        </assertions>
+                    </testStep>
+
+                    <!-- ========== SEND #3 ========== -->
+                    <!-- Send after mid-session assert to verify connection still works -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Send Message 3" action="send" connectionId="echo" onFail="abort">
+                        <stepIndex>6</stepIndex>
+                        <request>
+                            <payload>Third message after assert</payload>
+                        </request>
+                    </testStep>
+
+                    <!-- SLEEP: Allow server response time -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:thinkTime" minTime="300" maxTime="300">
+                        <stepIndex>7</stepIndex>
+                    </testStep>
+
+                    <!-- ========== SEND #4 ========== -->
+                    <!-- Send a JSON-like payload to test varied content -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Send JSON-like Message" action="send" connectionId="echo" onFail="abort">
+                        <stepIndex>8</stepIndex>
+                        <request>
+                            <payload>{"type":"test","value":42}</payload>
+                        </request>
+                    </testStep>
+
+                    <!-- SLEEP: Allow server response time -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:thinkTime" minTime="300" maxTime="300">
+                        <stepIndex>9</stepIndex>
+                    </testStep>
+
+                    <!-- ========== DISCONNECT WITH FINAL ASSERTIONS ========== -->
+                    <!-- Validates full message history, then closes connection -->
+                    <testStep xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:webSocketStep" 
+                        name="Disconnect and Final Assert" action="disconnect" connectionId="echo" onFail="abort">
+                        <stepIndex>10</stepIndex>
+                        <assertions>
+                            <!-- Verify all 4 messages were echoed -->
+                            <expect pattern="Echo: Hello WebSocket!" minCount="1" maxCount="1" />
+                            <expect pattern="Echo: Second message" minCount="1" maxCount="1" />
+                            <expect pattern="Echo: Third message after assert" minCount="1" />
+                            <expect pattern="Echo: {&quot;type&quot;:&quot;test&quot;" minCount="1" />
+                            <!-- Regex: verify we got exactly 4 Echo responses -->
+                            <expect pattern="^Echo: " regex="true" minCount="4" maxCount="4" />
+                            <!-- Save the last echo (should be the JSON one) -->
+                            <save pattern="Echo: (.+)" variable="lastEcho" occurrence="last" />
+                            <!-- Save with regex capture group - extract value from JSON -->
+                            <save pattern="&quot;value&quot;:(\d+)" regex="true" variable="jsonValue" occurrence="last" />
+                        </assertions>
+                    </testStep>
+                </useCase>
+            </testGroup>
+        </testSuite>
+    </plan>
+</ns2:workload>

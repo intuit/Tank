@@ -12,14 +12,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tank WebSocket Client Unit Tests
+ * Tank WebSocket Client Unit Tests - Session-Based Model
+ * 
+ * Tests the fire-and-forget sendMessage() + MessageStream collection pattern.
  * 
  * @author Zak Kofiro
  */
 class TankWebSocketClientTest {
     
-    private static final int CONNECTION_TIMEOUT_MS = 5000; // Reduced for embedded server
-    private static final int MESSAGE_TIMEOUT_MS = 2000;    // Reduced for embedded server
+    private static final int CONNECTION_TIMEOUT_MS = 5000;
+    private static final int MESSAGE_WAIT_MS = 500; // Time to wait for async message collection
     
     private static EventLoopGroup sharedEventLoopGroup;
     private static EmbeddedWebSocketTestServer testServer;
@@ -105,15 +107,18 @@ class TankWebSocketClientTest {
     void testEchoMessage() throws Exception {
         // Given
         client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        client.createMessageStream("test-echo");
         String testMessage = "Hello WebSocket";
         String expectedResponse = "Echo: " + testMessage;
         
-        // When
-        CompletableFuture<String> responseFuture = client.sendAndAwaitResponse(testMessage);
-        String actualResponse = responseFuture.get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        // When - fire-and-forget send
+        client.sendMessage(testMessage).get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        Thread.sleep(MESSAGE_WAIT_MS); // Wait for async response collection
         
-        // Then
-        assertEquals(expectedResponse, actualResponse, "Should receive correct echo");
+        // Then - verify via MessageStream
+        MessageStream stream = client.getMessageStream();
+        int matchCount = stream.countMatching(expectedResponse, false);
+        assertEquals(1, matchCount, "Should receive correct echo in MessageStream");
         assertEquals(1, testServer.getMessageCount(), "Server should count message");
     }
     
@@ -122,15 +127,18 @@ class TankWebSocketClientTest {
     void testJsonMessage() throws Exception {
         // Given
         client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        client.createMessageStream("test-json");
         String jsonMessage = "{\"type\":\"test\",\"data\":\"value\"}";
         String expectedResponse = "Echo: " + jsonMessage;
         
-        // When
-        String actualResponse = client.sendAndAwaitResponse(jsonMessage)
-            .get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        // When - fire-and-forget send
+        client.sendMessage(jsonMessage).get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        Thread.sleep(MESSAGE_WAIT_MS); // Wait for async response collection
         
-        // Then
-        assertEquals(expectedResponse, actualResponse, "Should handle JSON correctly");
+        // Then - verify via MessageStream
+        MessageStream stream = client.getMessageStream();
+        int matchCount = stream.countMatching(expectedResponse, false);
+        assertEquals(1, matchCount, "Should handle JSON correctly");
     }
     
     @Test
@@ -138,27 +146,32 @@ class TankWebSocketClientTest {
     void testConcurrentBurst() throws Exception {
         // Given
         client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        client.createMessageStream("test-burst");
         int messageCount = 20;
-        List<CompletableFuture<String>> futures = new ArrayList<>();
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         
-        // When - Send all messages without waiting
+        // When - Send all messages without waiting (fire-and-forget)
         for (int i = 1; i <= messageCount; i++) {
             String message = "Burst message " + i;
-            futures.add(client.sendAndAwaitResponse(message));
+            futures.add(client.sendMessage(message));
         }
         
-        // Wait for all responses
+        // Wait for all sends to complete
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-            .get(MESSAGE_TIMEOUT_MS * 2, TimeUnit.MILLISECONDS);
+            .get(MESSAGE_WAIT_MS * 2, TimeUnit.MILLISECONDS);
         
-        // Then - Verify all responses are correct
+        // Wait for responses to be collected
+        Thread.sleep(MESSAGE_WAIT_MS * 2);
+        
+        // Then - Verify all responses collected in MessageStream
+        MessageStream stream = client.getMessageStream();
         for (int i = 1; i <= messageCount; i++) {
             String expected = "Echo: Burst message " + i;
-            String actual = futures.get(i - 1).getNow(null);
-            assertEquals(expected, actual, "Message " + i + " should have correct response");
+            assertTrue(stream.hasMatching(expected, false), 
+                      "Message " + i + " should be in MessageStream");
         }
         
-        assertEquals(0, client.getPendingRequestCount(), "All requests should be completed");
+        assertEquals(messageCount, stream.getMessageCount(), "Should receive all echoes");
         assertEquals(messageCount, testServer.getMessageCount(), "Server should receive all messages");
     }
     
@@ -178,25 +191,30 @@ class TankWebSocketClientTest {
                 connectionFutures.add(concurrentClient.connect());
             }
             
-            // Wait for all connections
+            // Wait for all connections and create MessageStreams
             for (int i = 0; i < clientCount; i++) {
                 Boolean connected = connectionFutures.get(i).get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
                 assertTrue(connected, "Client " + i + " should connect");
+                clients.get(i).createMessageStream("test-concurrent-" + i);
             }
             
             assertEquals(clientCount, testServer.getConnectionCount(), 
                         "Server should have " + clientCount + " connections");
             
-            // Send message from each client
-            List<CompletableFuture<String>> messageFutures = new ArrayList<>();
+            // Send message from each client (fire-and-forget)
             for (int i = 0; i < clientCount; i++) {
-                messageFutures.add(clients.get(i).sendAndAwaitResponse("Message from client " + i));
+                clients.get(i).sendMessage("Message from client " + i);
             }
             
-            // Verify all responses
+            // Wait for responses to be collected
+            Thread.sleep(MESSAGE_WAIT_MS * 2);
+            
+            // Verify all responses via MessageStream
             for (int i = 0; i < clientCount; i++) {
-                String response = messageFutures.get(i).get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-                assertEquals("Echo: Message from client " + i, response);
+                MessageStream stream = clients.get(i).getMessageStream();
+                String expected = "Echo: Message from client " + i;
+                assertTrue(stream.hasMatching(expected, false),
+                          "Client " + i + " should receive echo");
             }
             
         } finally {
@@ -249,7 +267,7 @@ class TankWebSocketClientTest {
         // Try to send a message (should handle gracefully)
         try {
             // This might fail or succeed depending on timing
-            client.sendAndAwaitResponse("test").get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            client.sendMessage("test").get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             // Expected - connection might be closed
         }
@@ -260,50 +278,27 @@ class TankWebSocketClientTest {
     }
     
     @Test
-    @DisplayName("Should handle message timeouts")
-    void testMessageTimeout() throws Exception {
-        // Given
-        client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        
-        // Configure server to drop next message
-        testServer.dropNextMessage();
-        
-        // When & Then
-        CompletableFuture<String> future = client.sendAndAwaitResponse("Will be dropped", 500);
-        
-        // CompletableFuture.get() wraps TimeoutException in ExecutionException
-        ExecutionException exception = assertThrows(ExecutionException.class, () -> {
-            future.get(1, TimeUnit.SECONDS);
-        }, "Should throw ExecutionException when timeout occurs");
-        
-        // Verify the cause is TimeoutException
-        assertTrue(exception.getCause() instanceof TimeoutException,
-                  "Cause should be TimeoutException, but was: " + exception.getCause().getClass());
-        
-        // Verify client is still functional
-        testServer.setEchoEnabled(true); // Re-enable echo
-        String response = client.sendAndAwaitResponse("Recovery test")
-            .get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals("Echo: Recovery test", response, "Client should recover after timeout");
-    }
-    
-    @Test
     @DisplayName("Should handle slow server responses")
     void testSlowServerResponse() throws Exception {
         // Given
         client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        client.createMessageStream("test-slow");
         
         // Configure server with delay
         testServer.setResponseDelayMs(100);
         
         // When
         long startTime = System.nanoTime();
-        String response = client.sendAndAwaitResponse("Slow message")
-            .get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        client.sendMessage("Slow message").get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        
+        // Wait for delayed response to be collected
+        Thread.sleep(MESSAGE_WAIT_MS);
         long responseTime = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         
-        // Then
-        assertEquals("Echo: Slow message", response, "Should receive delayed response");
+        // Then - verify via MessageStream
+        MessageStream stream = client.getMessageStream();
+        assertTrue(stream.hasMatching("Echo: Slow message", false), 
+                  "Should receive delayed response");
         assertTrue(responseTime >= 100, "Response time should include server delay");
         
         // Reset delay
@@ -329,7 +324,6 @@ class TankWebSocketClientTest {
         
         // Then
         assertFalse(client.isConnected(), "Should be disconnected");
-        assertEquals(0, client.getPendingRequestCount(), "Should have no pending requests");
     }
     
     @Test
@@ -338,10 +332,13 @@ class TankWebSocketClientTest {
         // Given
         client.connect().get(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         
-        // When
-        client.sendAndAwaitResponse("Message 1").get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        client.sendAndAwaitResponse("Message 2").get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        client.sendAndAwaitResponse("Message 3").get(MESSAGE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        // When - send messages (fire-and-forget)
+        client.sendMessage("Message 1").get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        client.sendMessage("Message 2").get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        client.sendMessage("Message 3").get(MESSAGE_WAIT_MS, TimeUnit.MILLISECONDS);
+        
+        // Wait for responses
+        Thread.sleep(MESSAGE_WAIT_MS);
         
         // Then
         String stats = client.getPerformanceStats();

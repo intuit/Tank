@@ -39,7 +39,6 @@ public class WebSocketStepTest {
         assertNotNull(roundTrip.getRequest());
         assertEquals("wss://echo.example/ws", roundTrip.getRequest().getUrl());
         assertEquals(Integer.valueOf(5000), roundTrip.getRequest().getTimeoutMs());
-        assertNull(roundTrip.getResponse());
     }
 
     @Test
@@ -58,6 +57,5 @@ public class WebSocketStepTest {
         assertEquals("conn-1", roundTrip.getConnectionId());
         assertEquals("conn-1", roundTrip.getComments());
         assertNull(roundTrip.getRequest());
-        assertNull(roundTrip.getResponse());
     }
 }

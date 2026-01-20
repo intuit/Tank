@@ -8,6 +8,11 @@ import org.junit.jupiter.api.Test;
 import com.intuit.tank.test.JaxbUtil;
 import com.intuit.tank.test.TestGroups;
 
+import com.intuit.tank.harness.data.AssertionBlock;
+import com.intuit.tank.harness.data.FailOnPattern;
+import com.intuit.tank.harness.data.SaveOccurrence;
+import com.intuit.tank.harness.data.WebSocketAssertion;
+
 /**
  * Tests for {@link WebSocketStep} JAXB marshalling and unmarshalling.
  * Verifies that WebSocket steps can be serialized to/from XML correctly.
@@ -53,7 +58,6 @@ public class WebSocketStepJaxbTest {
         assertNotNull(roundTrip.getRequest());
         assertEquals("ws://localhost:8080/ws/events", roundTrip.getRequest().getUrl());
         assertEquals(Integer.valueOf(5000), roundTrip.getRequest().getTimeoutMs());
-        assertNull(roundTrip.getResponse());
     }
 
     @Test
@@ -123,7 +127,6 @@ public class WebSocketStepJaxbTest {
         assertEquals(4, roundTrip.getStepIndex());
         
         assertNull(roundTrip.getRequest());
-        assertNull(roundTrip.getResponse());
     }
 
     @Test
@@ -205,5 +208,113 @@ public class WebSocketStepJaxbTest {
         assertTrue(info.contains("CONNECT"));
         assertTrue(info.contains("Test Connection"));
         assertTrue(info.contains("test-conn"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testMarshallUnmarshallWithFailOnPatterns() throws Exception {
+        // Given: A WebSocket step with fail-on patterns
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Connect with Fail-On");
+        step.setAction(WebSocketAction.CONNECT);
+        step.setConnectionId("conn-1");
+        step.setStepIndex(1);
+
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl("ws://localhost:8080/ws");
+        step.setRequest(request);
+
+        step.getFailOnPatterns().add(new FailOnPattern("error", false));
+        step.getFailOnPatterns().add(new FailOnPattern("\"status\":5\\d\\d", true));
+
+        // When: We marshall to XML
+        String xml = JaxbUtil.marshall(step);
+
+        // Then: XML should contain fail-on patterns
+        assertNotNull(xml);
+        assertTrue(xml.contains("fail-on"));
+        assertTrue(xml.contains("error"));
+
+        // When: We unmarshall back to object
+        WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
+
+        // Then: Fail-on patterns should be preserved
+        assertEquals(2, roundTrip.getFailOnPatterns().size());
+        assertEquals("error", roundTrip.getFailOnPatterns().get(0).getPattern());
+        assertFalse(roundTrip.getFailOnPatterns().get(0).isRegex());
+        assertTrue(roundTrip.getFailOnPatterns().get(1).isRegex());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testMarshallUnmarshallWithAssertions() throws Exception {
+        // Given: A WebSocket DISCONNECT step with assertions
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Disconnect with Assertions");
+        step.setAction(WebSocketAction.DISCONNECT);
+        step.setConnectionId("conn-1");
+        step.setStepIndex(5);
+
+        AssertionBlock assertions = new AssertionBlock();
+        assertions.getExpects().add(WebSocketAssertion.builder()
+            .pattern("Echo:")
+            .minCount(2)
+            .build());
+        assertions.getSaves().add(WebSocketAssertion.builder()
+            .pattern("\"id\":(\\d+)")
+            .regex(true)
+            .variable("lastId")
+            .occurrence(SaveOccurrence.LAST)
+            .build());
+        step.setAssertions(assertions);
+
+        // When: We marshall to XML
+        String xml = JaxbUtil.marshall(step);
+
+        // Then: XML should contain assertions
+        assertNotNull(xml);
+        assertTrue(xml.contains("assertions"));
+        assertTrue(xml.contains("expect"));
+        assertTrue(xml.contains("save"));
+
+        // When: We unmarshall back to object
+        WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
+
+        // Then: Assertions should be preserved
+        assertNotNull(roundTrip.getAssertions());
+        assertEquals(1, roundTrip.getAssertions().getExpects().size());
+        assertEquals(1, roundTrip.getAssertions().getSaves().size());
+        assertEquals("Echo:", roundTrip.getAssertions().getExpects().get(0).getPattern());
+        assertEquals("lastId", roundTrip.getAssertions().getSaves().get(0).getVariable());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testMarshallUnmarshallAssertAction() throws Exception {
+        // Given: A WebSocket ASSERT step
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Mid-Session Assert");
+        step.setAction(WebSocketAction.ASSERT);
+        step.setConnectionId("conn-1");
+        step.setStepIndex(3);
+
+        AssertionBlock assertions = new AssertionBlock();
+        assertions.getExpects().add(WebSocketAssertion.builder()
+            .pattern("authenticated")
+            .build());
+        step.setAssertions(assertions);
+
+        // When: We marshall to XML
+        String xml = JaxbUtil.marshall(step);
+
+        // Then: XML should contain assert action
+        assertNotNull(xml);
+        assertTrue(xml.contains("assert"));
+
+        // When: We unmarshall back to object
+        WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
+
+        // Then: ASSERT action should be preserved
+        assertEquals(WebSocketAction.ASSERT, roundTrip.getAction());
     }
 }

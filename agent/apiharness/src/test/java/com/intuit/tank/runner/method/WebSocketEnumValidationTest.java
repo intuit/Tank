@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.harness.data.WebSocketAction;
-import com.intuit.tank.harness.data.WebSocketMessageType;
 import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 
@@ -58,34 +57,6 @@ public class WebSocketEnumValidationTest {
     }
 
     @Test
-    public void testWebSocketMessageTypeValidValues() {
-        // Test all valid message types (MVP: TEXT only)
-        assertEquals(WebSocketMessageType.TEXT, WebSocketMessageType.fromValue("text"));
-    }
-
-    @Test
-    public void testWebSocketMessageTypeInvalidValue() {
-        // Test invalid message type throws exception
-        assertThrows(IllegalArgumentException.class, () -> {
-            WebSocketMessageType.fromValue("binary"); // Not supported in MVP
-        });
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            WebSocketMessageType.fromValue("ping"); // PING is an action, not message type
-        });
-        
-        // Test case insensitive (should work, not throw)
-        assertEquals(WebSocketMessageType.TEXT, WebSocketMessageType.fromValue("Text"));
-        assertEquals(WebSocketMessageType.TEXT, WebSocketMessageType.fromValue("TEXT"));
-    }
-
-    @Test
-    public void testWebSocketMessageTypeNullValue() {
-        // Test null returns default (TEXT)
-        assertEquals(WebSocketMessageType.TEXT, WebSocketMessageType.fromValue(null));
-    }
-
-    @Test
     public void testWebSocketActionProperties() {
         // Test action properties
         assertTrue(WebSocketAction.CONNECT.isBlocking());
@@ -98,15 +69,6 @@ public class WebSocketEnumValidationTest {
         assertTrue(WebSocketAction.DISCONNECT.isBlocking());
         assertTrue(WebSocketAction.DISCONNECT.requiresExistingConnection());
         assertFalse(WebSocketAction.DISCONNECT.sendsData());
-    }
-
-    @Test
-    public void testWebSocketMessageTypeProperties() {
-        // Test message type properties (MVP: TEXT only)
-        assertTrue(WebSocketMessageType.TEXT.isDataFrame());
-        assertFalse(WebSocketMessageType.TEXT.isControlFrame());
-        
-        // Control frames (PING/PONG) are actions, not message types in MVP
     }
 
     @Test
@@ -146,11 +108,9 @@ public class WebSocketEnumValidationTest {
         // Test toString methods
         assertEquals("connect", WebSocketAction.CONNECT.toString());
         assertEquals("send", WebSocketAction.SEND.toString());
-        assertEquals("text", WebSocketMessageType.TEXT.toString());
         
         // Test getValue methods
         assertEquals("connect", WebSocketAction.CONNECT.getValue());
-        assertEquals("text", WebSocketMessageType.TEXT.getValue());
     }
 
     @Test

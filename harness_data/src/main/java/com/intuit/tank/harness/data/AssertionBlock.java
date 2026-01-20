@@ -16,6 +16,7 @@ package com.intuit.tank.harness.data;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import java.util.List;
     "expects", "saves"
 }, namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement
 public class AssertionBlock {
 
     @XmlElement(name = "expect")
