@@ -277,6 +277,13 @@ public class WebSocketRunner implements Runner {
             // Get MessageStream for assertions and summary
             MessageStream stream = client.getMessageStream();
 
+            // Debug: Log fail state before checking
+            LOG.info(LogUtil.getLogMessage(
+                "DISCONNECT checking fail state for " + connectionId + ": hasFailed=" + client.hasFailed() +
+                ", streamFailed=" + (stream != null ? stream.hasFailed() : "null") +
+                ", failPattern=" + (stream != null ? stream.getFailurePattern() : "null"),
+                LogEventType.Informational, LoggingProfile.STANDARD));
+
             // Check if connection failed due to fail-on pattern
             if (client.hasFailed()) {
                 LOG.error(LogUtil.getLogMessage(
