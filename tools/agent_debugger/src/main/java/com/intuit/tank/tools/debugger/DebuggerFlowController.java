@@ -118,9 +118,11 @@ public class DebuggerFlowController implements FlowController {
         context.setTestStep(debuggerFrame.getStep(context.getTestStep().getStepIndex()));
         TestStep step = context.getTestStep();
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
-            if (debuggerFrame.runTimingSteps()) {
-                return true;
-            } else if (!(step instanceof SleepTimeStep) && !(step instanceof ThinkTimeStep)) {
+            if (step instanceof SleepTimeStep) {
+                return debuggerFrame.runSleepSteps();
+            } else if (step instanceof ThinkTimeStep) {
+                return debuggerFrame.runThinkSteps();
+            } else {
                 return true;
             }
         }
