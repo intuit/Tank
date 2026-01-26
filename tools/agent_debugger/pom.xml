@@ -40,7 +40,7 @@
             <path>
               <groupId>org.apache.logging.log4j</groupId>
               <artifactId>log4j-core</artifactId>
-              <version>2.25.3</version>
+              <version>${version.log4j}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
