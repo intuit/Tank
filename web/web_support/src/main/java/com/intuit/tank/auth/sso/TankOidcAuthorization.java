@@ -61,7 +61,7 @@ public class TankOidcAuthorization {
 
         Map<Object, Object> oidcRequestParameters = getOidcRequestParameters(oidcSsoConfig, authorizationCode);
 
-        LOG.info("Request Access Token from Authorization server");
+        LOG.debug("Request Access Token from Authorization server");
         HttpResponse<String> httpPostResponse = _webHttpClient.Post(authenticationUrl, oidcRequestParameters);
 
         return _gson.fromJson(httpPostResponse.body(), Token.class);
@@ -79,7 +79,7 @@ public class TankOidcAuthorization {
         String decodedUserInfoString = new String(decodedIdTokenBuffer);
 
         UserInfo userInfo = _gson.fromJson(decodedUserInfoString, UserInfo.class);
-        LOG.info("Decoding ID Token to UserInfo for " + userInfo.getUsername());
+        LOG.info("Decoding ID Token to UserInfo for {}", userInfo.getUsername());
         return userInfo;
     }
 
@@ -90,7 +90,7 @@ public class TankOidcAuthorization {
     private String getClientSecret(OidcSsoConfig oidcSsoConfig) {
         String clientKey = oidcSsoConfig.getClientSecret();
         if (clientKey.startsWith("/")) {
-            LOG.info("Found Client Key");
+            LOG.debug("Found Client Key");
             try (SsmClient ssmClient = SsmClient.builder().build()) {
                 GetParameterResponse response = ssmClient.getParameter(GetParameterRequest.builder().name(clientKey).withDecryption(true).build());
                 return response.parameter().value();
@@ -98,7 +98,7 @@ public class TankOidcAuthorization {
                 LOG.error("Error retrieving client secret from SSM", e);
             }
         }
-        LOG.info("Returning Default");
+        LOG.debug("Returning Default");
         return clientKey;
     }
 

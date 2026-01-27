@@ -109,8 +109,8 @@ public class BaseDaoTest {
 
         assertThrows(PersistenceException.class, () -> dao.persistCollection(entities));
 
-        dao.saveOrUpdate(entities.get(0));
-        assertThrows(PersistenceException.class, () -> dao.saveOrUpdate(entities.get(1)));
+        dao.saveOrUpdate(entities.get(1));
+        assertThrows(PersistenceException.class, () -> dao.saveOrUpdate(entities.get(0)));
     }
 
     @Test

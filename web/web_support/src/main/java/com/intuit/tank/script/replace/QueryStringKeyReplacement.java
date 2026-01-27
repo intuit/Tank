@@ -17,7 +17,7 @@ import java.util.List;
 
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.ScriptConstants;
-import com.intuit.tank.search.script.RequestStepSection;
+import com.intuit.tank.script.RequestStepSection;
 
 public class QueryStringKeyReplacement extends AbstractReplacement {
 

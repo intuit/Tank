@@ -267,15 +267,8 @@ Configuration is achieved via an XML file called `settings.xml`. The default is 
                 <!-- Locations used for informational purposes only. -->
                 <locations>
                 <location name="unspecified" displayName="Unspecified" />
-                <location name="san_diego" displayName="San Diego\, CA" />
+                <location name="san_diego" displayName="San Diego, CA" />
                 </locations>
-                
-                <!-- mail configuration for notifications -->
-                <mail>
-                <mail.smtp.host>localhost</mail.smtp.host>
-                <mail.smtp.port>25</mail.smtp.port>
-                <from-email>do_not_reply@myCompany.com</from-email>
-                </mail>
                 
                 <reporting>
                 <provider>

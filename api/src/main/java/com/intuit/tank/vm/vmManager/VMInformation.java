@@ -16,7 +16,9 @@ package com.intuit.tank.vm.vmManager;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Objects;
 
+import com.intuit.tank.vm.api.enumerated.VMImageType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
@@ -166,9 +168,23 @@ public class VMInformation implements Serializable {
         return (VMRegion) this.items.get("region");
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public void setImageType(VMImageType imageType) { this.items.put("imageType", imageType); }
+
+    public VMImageType getImageType() { return (VMImageType) this.items.get("imageType"); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VMInformation that = (VMInformation) o;
+        return Objects.equals(items, that.items);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(items);
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ResponseBody
 @ControllerAdvice
@@ -77,6 +78,11 @@ public class GenericExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpServletRequest request, Throwable ex) {
         return new ResponseEntity<>("Incorrect request body", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFound(HttpServletRequest request, Throwable ex) {
+        return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler

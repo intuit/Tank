@@ -13,18 +13,17 @@ package com.intuit.tank.standalone.agent;
  * #L%
  */
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -79,23 +78,21 @@ public class StandaloneAgentStartup implements Runnable {
                 URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
                 LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
-                    String settings = IOUtils.toString(settingsStream, StandardCharsets.UTF_8);
-                    FileUtils.writeStringToFile(new File(TANK_AGENT_DIR, "settings.xml"), settings, StandardCharsets.UTF_8);
+                    Files.write(Paths.get(TANK_AGENT_DIR, "settings.xml"), settingsStream.readAllBytes());
                     LOG.info("got settings file...");
                 }
                 url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
                 LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
                 try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
                     ZipEntry entry = zip.getNextEntry();
+                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
                     while (entry != null) {
-                        String name = entry.getName();
-                        LOG.info("Got file from controller: {}", name);
-                        File file = new File(TANK_AGENT_DIR, name);
-                        if (!file.toPath().normalize().startsWith(TANK_AGENT_DIR)) // Protect "Zip Slip"
-                            throw new Exception("Bad zip entry");
-                        try ( FileOutputStream fout = FileUtils.openOutputStream(file) ){
-                            IOUtils.copy(zip, fout);
-                        }
+                        String filename = entry.getName();
+                        LOG.info("Got file from controller: {}", filename);
+                        Path targetPath = agentDirPath.resolve(filename).normalize();
+                        if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
+                            throw new ZipException("Bad zip entry");
+                        Files.write(targetPath, zip.readAllBytes());
                         entry = zip.getNextEntry();
                     }
                 }
@@ -142,7 +139,7 @@ public class StandaloneAgentStartup implements Runnable {
                 try {
                     sendAvailability();
                 } catch (Exception e1) {
-                    LOG.warn("Error sending Availability: " + e1, e1);
+                    LOG.warn("Error sending Availability: {}", e1, e1);
                 }
                 try {
                     Thread.sleep(PING_TIME);
@@ -160,7 +157,7 @@ public class StandaloneAgentStartup implements Runnable {
         AgentAvailability availability = new AgentAvailability(currentAvailability.getInstanceId(),
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),
                 currentAvailability.getAvailabilityStatus());
-        LOG.info("Sending availaability: " + ToStringBuilder.reflectionToString(availability));
+        LOG.info("Sending availaability: {}", ToStringBuilder.reflectionToString(availability));
         agentClient.setStandaloneAgentAvailability(availability);
     }
 
@@ -199,7 +196,7 @@ public class StandaloneAgentStartup implements Runnable {
                 try {
                     agentStartup.capacity = Integer.parseInt(values[1]);
                 } catch (NumberFormatException e) {
-                    LOG.error("Error parsing capacity " + values[1] + " Capacity must be an integer.");
+                    LOG.error("Error parsing capacity {} Capacity must be an integer.", values[1]);
                     System.out.println("Error parsing capacity " + values[1] + " Capacity must be an integer.");
                     usage();
                     return;

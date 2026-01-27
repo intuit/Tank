@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import org.brotli.dec.BrotliInputStream;
+
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 
@@ -282,17 +284,25 @@ public class TankHttpClient3 implements TankHttpClient {
 
             // read response body
             byte[] responseBody = new byte[0];
-            // check for no content headers
-            if (method.getStatusCode() != 203 && method.getStatusCode() != 202 && method.getStatusCode() != 204) {
-                try ( InputStream is = method.getResponseBodyAsStream() ) {
+
+            // CRITICAL: Always consume response stream if present, regardless of status code
+            // This prevents connection leaks that cause CLOSE-WAIT states
+            InputStream responseStream = method.getResponseBodyAsStream();
+            if (responseStream != null) {
+                try ( InputStream is = responseStream ) {
                     String contentType = getContentHeader(method);
                     if (checkContentType(contentType)) {
                         responseBody = is.readAllBytes();
                     } else {
-                        is.readAllBytes();
+                        // Still consume the stream even if we don't keep the data
+                        byte[] buffer = new byte[8192];
+                        while (is.read(buffer) != -1) {
+                            // Drain stream to ensure connection can be reused
+                        }
                     }
                 } catch (IOException | NullPointerException e) {
                     LOG.warn(request.getLogUtil().getLogMessage("could not get response body: " + e));
+                    // Note: In HttpClient 3, releaseConnection() in finally block will handle cleanup
                 }
             }
             waitTime = System.currentTimeMillis() - startTime;
@@ -396,9 +406,35 @@ public class TankHttpClient3 implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
-                    bResponse;
+            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
+                try {
+                    switch (contentEncoding.toLowerCase()) {
+                        case "gzip":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
+                                bResponse = gzipStream.readAllBytes();
+                            }
+                            break;
+
+                        case "br":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
+                                bResponse = brotliStream.readAllBytes();
+                            }
+                            break;
+
+                        default:
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
+                            }
+                            break;
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
+                }
+            }
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {

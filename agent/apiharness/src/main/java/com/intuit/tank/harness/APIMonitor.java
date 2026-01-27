@@ -64,25 +64,29 @@ public class APIMonitor implements Runnable {
 
     @Override
     public void run() {
-
+        LOG.debug(LogUtil.getLogMessage("APIMonitor thread started."));
         while (doMonitor) {
+            updateInstanceStatus();
             try {
-                CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
-                newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
-                if (tpsInfo != null) {
-                    newStatus.setTotalTps(tpsInfo.getTotalTps());
-                    sendTps(tpsInfo);
-                }
-                if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
-                APITestHarness.getInstance().checkAgentThreads();
-            } catch (Exception t) {
-                LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
-            } finally {
-                try {
-                    Thread.sleep(reportInterval);
-                } catch ( InterruptedException ie) { /*Ignore*/ }
+                Thread.sleep(reportInterval);
+            } catch ( InterruptedException ie) { /*Ignore*/ }
+        }
+        updateInstanceStatus();
+    }
+
+    private void updateInstanceStatus() {
+        try {
+            CloudVmStatus newStatus = createStatus(APITestHarness.getInstance().getStatus());
+            newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
+            TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();
+            if (tpsInfo != null) {
+                newStatus.setTotalTps(tpsInfo.getTotalTps());
+                sendTps(tpsInfo);
             }
+            if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
+            APITestHarness.getInstance().checkAgentThreads();
+        } catch (Exception t) {
+            LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
         }
     }
 
@@ -126,10 +130,12 @@ public class APIMonitor implements Runnable {
     }
 
     public static void setDoMonitor(boolean monitor) {
+        LOG.debug(LogUtil.getLogMessage("Setting doMonitor to: " + monitor));
         doMonitor = monitor;
     }
 
     public synchronized static void setJobStatus(JobStatus jobStatus) {
+        LOG.debug(LogUtil.getLogMessage("Setting job status to: " + jobStatus));
         if (status != null && status.getJobStatus() != JobStatus.Completed) {
             try {
             	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
@@ -153,7 +159,7 @@ public class APIMonitor implements Runnable {
         }
     }
 
-    private static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
+    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
         String json = objectWriter.writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
@@ -163,6 +169,8 @@ public class APIMonitor implements Runnable {
                 .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
+
+        LOG.debug(LogUtil.getLogMessage("Sending instance status update for instance: " + instanceId + ", Status: " + json));
         client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
     }
 }

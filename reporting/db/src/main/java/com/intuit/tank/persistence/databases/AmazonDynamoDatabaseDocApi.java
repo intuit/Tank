@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 
 import jakarta.annotation.Nonnull;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
@@ -128,7 +129,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         try {
             if (!hasTable(tableName)) {
                 LOG.info("Creating table: " + tableName);
-                HierarchicalConfiguration resultsProviderConfig = config.getVmManagerConfig()
+                HierarchicalConfiguration<ImmutableNode> resultsProviderConfig = config.getVmManagerConfig()
                         .getResultsProviderConfig();
                 long readCapacity = getCapacity(resultsProviderConfig, "read-capacity", 10L);
                 long writeCapacity = getCapacity(resultsProviderConfig, "write-capacity", 50L);
@@ -160,7 +161,7 @@ public class AmazonDynamoDatabaseDocApi implements IDatabase {
         }
     }
 
-    private long getCapacity(HierarchicalConfiguration resultsProviderConfig, String key, long defaultValue) {
+    private long getCapacity(HierarchicalConfiguration<ImmutableNode> resultsProviderConfig, String key, long defaultValue) {
         if (resultsProviderConfig != null) {
             try {
                 String string = resultsProviderConfig.getString(key);

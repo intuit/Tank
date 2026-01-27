@@ -156,9 +156,6 @@
           <p:tab id="fileAssociationTabId" title="Data Files">
             <ui:include src="./associateFiles.xhtml"/>
           </p:tab>
-          <p:tab id="notificationTabId" title="Notifications">
-            <ui:include src="./notifications.xhtml"/>
-          </p:tab>
           <p:tab id="variablesTabId" title="Variables">
             <ui:include src="./variables.xhtml"/>
           </p:tab>
@@ -439,7 +436,7 @@
         <div class="vertical-spacer" />
         <p:commandButton widgetVar="submitJobBT" rendered="#{jobMaker.isValid()}" onclick="PF('submitJobBT').disable();"
           value="Add Job To Queue" action="#{jobMaker.addJobToQueue()}" ajax="true"
-          disabled="#{not projectBean.canEditProject()}" onsuccess="PF('createJobPopup').hide();PF('projectTabPanel').select(6)" />
+          disabled="#{not projectBean.canEditProject()}" onsuccess="PF('createJobPopup').hide();PF('projectTabPanel').select(5)" />
         <p:commandButton value="Cancel" type="button" styleClass="h-space" onclick="PF('createJobPopup').hide();" />
       </h:form>
     </p:dialog>
@@ -562,9 +559,8 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.chartModel ne null and projectJobQueueManager.chartModel.getData().getDataSet().size() ne 0}"
-            id="chartScript">
-            <p:lineChart model="#{projectJobQueueManager.chartModel}" style="height:400px"
+            rendered="#{projectJobQueueManager.chartModel ne null}" id="chartScript">
+            <p:chart value="#{projectJobQueueManager.chartModel}" style="height:400px"
               title="User Details over Time" />
           </h:panelGroup>
 
@@ -616,9 +612,9 @@
 
           <div class="vertical-spacer" />
           <h:panelGroup
-            rendered="#{projectJobQueueManager.tpsChartModel ne null and projectJobQueueManager.tpsChartModel.getData().getDataSet().size() ne 0}"
+            rendered="#{projectJobQueueManager.tpsChartModel ne null}"
             id="tpschartScript">
-            <p:lineChart model="#{projectJobQueueManager.tpsChartModel}" style="height:400px"
+            <p:chart value="#{projectJobQueueManager.tpsChartModel}" style="height:400px"
               title="Tps Details over Time"  />
           </h:panelGroup>
 

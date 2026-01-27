@@ -3,8 +3,8 @@ package com.intuit.tank.httpclient4;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -332,6 +332,116 @@ public class TankHttpClient4Test {
         return ret;
     }
 
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBrotliEncoding() {
+        // Pre-compressed brotli data for "Hello, Brotli!"
+        byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
+        String expectedText = "Hello, Brotli!";
+        
+        wireMockServer.stubFor(get(urlEqualTo("/brotli"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(brotliCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/brotli");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("br", response.getHttpHeader("Content-Encoding"));
+        // Verify the body is properly decoded
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testGzipEncoding() throws IOException {
+        String expectedText = "Hello, GZIP!";
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        try (java.util.zip.GZIPOutputStream gzos = new java.util.zip.GZIPOutputStream(baos)) {
+            gzos.write(expectedText.getBytes(StandardCharsets.UTF_8));
+        }
+        byte[] gzipCompressed = baos.toByteArray();
+
+        wireMockServer.stubFor(get(urlEqualTo("/gzip"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "gzip")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(gzipCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/gzip");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testEmptyResponseWithContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/empty-br"))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(new byte[0]))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/empty-br");
+        // Should NOT throw exception - defensive check should skip decompression
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(202, response.getHttpCode());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testUnknownContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/unknown-encoding"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "unknown-encoding")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("raw data"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/unknown-encoding");
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals("raw data", response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testNoContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/plain"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("plain text"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/plain");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("plain text", response.getBody());
+    }
+
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
             URL u = new URL(url);
@@ -356,7 +466,7 @@ public class TankHttpClient4Test {
      */
     public String toBase64(byte[] bytes) {
         try {
-            return new String(Base64.encodeBase64(bytes), StandardCharsets.UTF_8).trim();
+            return Base64.getEncoder().encodeToString(bytes).trim();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

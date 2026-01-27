@@ -14,9 +14,9 @@ package com.intuit.tank.vmManager.environment;
  */
 
 import java.util.List;
+import java.util.Map;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,7 +69,7 @@ public class JobRequest implements Runnable {
             List<VMInformation> response = this.getEnvironment().create(instanceRequest);
             persistInstances(instanceRequest, response);
         } catch (Exception ex) {
-            logger.error(new ObjectMessage(ImmutableMap.of("Message", "Error : " + ex)), ex);
+            logger.error(new ObjectMessage(Map.of("Message", "Error : " + ex)), ex);
         }
     }
 
@@ -80,7 +80,7 @@ public class JobRequest implements Runnable {
      */
     private void persistInstances(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo) {
         ControllerLoggingConfig.setupThreadContext();
-        logger.info(new ObjectMessage(ImmutableMap.of("Message","Created " + vmInfo.size() + " Amazon instances.")));
+        logger.info(new ObjectMessage(Map.of("Message","Created " + vmInfo.size() + " Amazon instances.")));
         VMImageDao dao = new VMImageDao();
         // create a watchdog to monitor these instances
         AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
@@ -89,9 +89,9 @@ public class JobRequest implements Runnable {
             try {
                 vmTracker.setStatus(createCloudStatus(instanceRequest, info));
                 dao.addImageFromInfo(request.getJobId(), info, request.getRegion());
-                logger.info(new ObjectMessage(ImmutableMap.of("Message","Added image (" + info.getInstanceId() + ") to VMImage table")));
+                logger.info(new ObjectMessage(Map.of("Message","Added image (" + info.getInstanceId() + ") to VMImage table")));
             } catch (Exception e) {
-                logger.warn(new ObjectMessage(ImmutableMap.of("Message", "Error persisting VM Image: " + e)), e);
+                logger.warn(new ObjectMessage(Map.of("Message", "Error persisting VM Image: " + e)), e);
             }
         }
         Thread thread = new Thread(watchDog);

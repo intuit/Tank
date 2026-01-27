@@ -60,8 +60,7 @@ public class ProjectNodeBean extends JobNodeBean {
 
     @Override
     public void reCalculate() {
-        int tps = jobBeans.stream().mapToInt(JobNodeBean::getTps).sum();
-        setTps(tps);
+        setTps(jobBeans.stream().mapToInt(JobNodeBean::getTps).sum());
     }
 
     /**
@@ -110,12 +109,7 @@ public class ProjectNodeBean extends JobNodeBean {
 
     @Override
     public boolean hasSubNodes() {
-        if (jobBeans.size() > 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return !jobBeans.isEmpty();
     }
 
     @Override

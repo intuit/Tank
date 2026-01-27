@@ -67,7 +67,7 @@ public class WorkloadScripts implements Serializable {
     @PostConstruct
     public void postConstruct() {
         List<TestPlan> testPlans = projectBean.getWorkload().getTestPlans();
-        if (testPlans.size() == 0) {
+        if (testPlans.isEmpty()) {
             addTestPlan(TestPlan.builder().name("Test Plan").usersPercentage(100).build());
         } else if (testPlans.size() > tabIndex) {
             this.currentTestPlan = testPlans.get(tabIndex);
@@ -122,12 +122,12 @@ public class WorkloadScripts implements Serializable {
         scriptSelectionModel.getTarget().clear();
     }
 
-    public void onSourceSelect(SelectEvent event) {
-        selectedAvailableScripts = (List<Script>) event.getObject();
+    public void onSourceSelect(SelectEvent<Script> event) {
+        selectedAvailableScripts = List.of(event.getObject());
     }
 
-    public void onTargetSelect(SelectEvent event) {
-        selectedSelectedScripts = (List<Script>) event.getObject();
+    public void onTargetSelect(SelectEvent<Script> event) {
+        selectedSelectedScripts = List.of(event.getObject());
     }
 
     public void onChange(TabChangeEvent event) {

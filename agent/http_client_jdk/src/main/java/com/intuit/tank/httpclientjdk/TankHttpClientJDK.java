@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import org.brotli.dec.BrotliInputStream;
+
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
@@ -249,17 +251,25 @@ public class TankHttpClientJDK implements TankHttpClient {
 
             // Read response body:
             byte[] responseBody = new byte[0];
-            // check for no content headers
-            if (response.statusCode() != 203 && response.statusCode() != 202 && response.statusCode() != 204) {
-                try (InputStream is = response.body()) {
+
+            // CRITICAL: Always consume response stream if present, regardless of status code
+            // This prevents connection leaks that cause CLOSE-WAIT states
+            InputStream responseStream = response.body();
+            if (responseStream != null) {
+                try (InputStream is = responseStream) {
                     String contentTypeHeader = response.headers().firstValue("Content-Type").orElse("");
                     if (checkContentType(contentTypeHeader)) {
                         responseBody = is.readAllBytes();
                     } else {
-                        is.readAllBytes();
+                        // Still consume the stream even if we don't keep the data
+                        byte[] buffer = new byte[8192];
+                        while (is.read(buffer) != -1) {
+                            // Drain stream to ensure connection can be reused
+                        }
                     }
                 } catch (IOException | NullPointerException e) {
-                    LOG.warn(request.getLogUtil().getLogMessage("Could not get response body" + e));
+                    LOG.warn(request.getLogUtil().getLogMessage("Could not get response body: " + e));
+                    // Note: JDK HttpClient handles connection cleanup automatically with try-with-resources
                 }
             }
 
@@ -355,9 +365,35 @@ public class TankHttpClientJDK implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            bResponse = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
-                    new GZIPInputStream(new ByteArrayInputStream(bResponse)).readAllBytes() :
-                    bResponse;
+            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
+                try {
+                    switch (contentEncoding.toLowerCase()) {
+                        case "gzip":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
+                                bResponse = gzipStream.readAllBytes();
+                            }
+                            break;
+
+                        case "br":
+                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
+                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
+                                bResponse = brotliStream.readAllBytes();
+                            }
+                            break;
+
+                        default:
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
+                            }
+                            break;
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
+                } catch (Exception e) {
+                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
+                }
+            }
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {

@@ -14,15 +14,21 @@ package com.intuit.tank.vm.settings;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
+
+import javax.annotation.Nonnull;
 
 /**
  * CnrComConfig configurator for the beans config file.
@@ -47,7 +53,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_TMP_FILE_STORAGE = "tmp-file-storage";
     private static final String KEY_JAR_FILE_STORAGE = "jar-file-storage";
     private static final String KEY_TIMING_FILE_STORAGE = "timing-file-storage";
-    private static final String KEY_MAIL_NODE = "mail";
     private static final String KEY_STANDALONE = "standalone";
     private static final String KEY_ENCRYPT_S3 = "s3-encrypt";
     private static final String CONFIG_NAME = "settings.xml";
@@ -59,12 +64,15 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private static final String KEY_OIDC_SSO_NODE = "oidc-sso";
 
     private static final String KEY_BANNER_TEXT = "banner-text";
+    private static final String KEY_USER_AUTO_DELETION_ENABLED = "user-auto-deletion-enabled";
+    private static final String KEY_USER_AUTO_DELETION_RETENTION_DAYS = "user-auto-deletion-retention-days";
+    private static final String KEY_USER_AUTO_DELETION_PERMITTED_USERS = "user-auto-deletion-permitted-users";
 
     private static String configName = CONFIG_NAME;
 
     static {
         File file = new File(configName);
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking file " + file.getAbsolutePath() + ": exists=" + file.exists())));
+        LOG.info(new ObjectMessage(Map.of("Message", "checking file " + file.getAbsolutePath() + ": exists=" + file.exists())));
         if (!file.exists()) {
             LOG.info("System.getenv('WATS_PROPERTIES') = '" + System.getenv("WATS_PROPERTIES") + "'");
             LOG.info("System.getProperty('WATS_PROPERTIES') = '" + System.getProperty("WATS_PROPERTIES") + "'");
@@ -74,7 +82,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 configName = System.getProperty("WATS_PROPERTIES") + "/" + CONFIG_NAME;
             }
         }
-        LOG.info(new ObjectMessage(ImmutableMap.of("Message", "Tank Configuration location = " + configName)));
+        LOG.info(new ObjectMessage(Map.of("Message", "Tank Configuration location = " + configName)));
     }
 
     private String configPath = configName;
@@ -82,7 +90,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
     private VmManagerConfig vmManagerConfig;
     private ProductConfig productConfig;
     private LocationsConfig locationsConfig;
-    private MailConfig mailConfig;
     private SecurityConfig securityConfig;
     private LogicStepConfig logicStepConfig;
     private ReportingConfig reportingConfig;
@@ -111,77 +118,105 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the Datafile storage root dir
      */
     public String getDataFileStorageDir() {
-        return config.getString(KEY_DATA_FILE_STORAGE, "/tmp/tank/datafiles");
+        return XMLConfig.getString(KEY_DATA_FILE_STORAGE, "/tmp/tank/datafiles");
     }
 
     /**
      * @return true if rest security is enabled
      */
     public boolean isRestSecurityEnabled() {
-        return config.getBoolean(KEY_REST_SECURITY_ENABLED, false);
+        return XMLConfig.getBoolean(KEY_REST_SECURITY_ENABLED, false);
     }
 
     /**
      * @return banner text
      */
     public String getTextBanner() {
-        return config.getString(KEY_BANNER_TEXT, "");
+        return XMLConfig.getString(KEY_BANNER_TEXT, "");
+    }
+
+    /**
+     * @return true if user auto-deletion is enabled
+     */
+    public boolean isUserAutoDeletionEnabled() {
+        return XMLConfig.getBoolean(KEY_USER_AUTO_DELETION_ENABLED, false);
+    }
+
+    /**
+     * @return the retention period in days for user auto-deletion
+     */
+    public int getUserAutoDeletionRetentionDays() {
+        return XMLConfig.getInt(KEY_USER_AUTO_DELETION_RETENTION_DAYS, 730);
+    }
+
+    /**
+     * @return the list of permitted users that should not be auto-deleted
+     */
+    public List<String> getUserAutoDeletionPermittedUsers() {
+        String users = XMLConfig.getString(KEY_USER_AUTO_DELETION_PERMITTED_USERS, "");
+        if (users == null || users.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(users.split(","))
+            .stream()
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
     }
 
     /**
      * @return true if rest security is enabled
      */
     public boolean isS3EncryptionEnabled() {
-        return config.getBoolean(KEY_ENCRYPT_S3, false);
+        return XMLConfig.getBoolean(KEY_ENCRYPT_S3, false);
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public boolean getStandalone() {
-        return config.getBoolean(KEY_STANDALONE, false);
+        return XMLConfig.getBoolean(KEY_STANDALONE, false);
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public String getTmpDir() {
-        return config.getString(KEY_TMP_FILE_STORAGE, "/tmp/tank/tmpfiles");
+        return XMLConfig.getString(KEY_TMP_FILE_STORAGE, "/tmp/tank/tmpfiles");
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public String getJarDir() {
-        return config.getString(KEY_JAR_FILE_STORAGE, "/tmp/tank/jars");
+        return XMLConfig.getString(KEY_JAR_FILE_STORAGE, "/tmp/tank/jars");
     }
 
     /**
      * @return the Datafile storage root dir
      */
     public String getTimingDir() {
-        return config.getString(KEY_TIMING_FILE_STORAGE, "/tmp/tank/timing");
+        return XMLConfig.getString(KEY_TIMING_FILE_STORAGE, "/tmp/tank/timing");
     }
 
     /**
      * @return the controller base url
      */
     public String getControllerBase() {
-        return config.getString(KEY_CONTROLLER_BASE, "http://tank.controller/");
+        return XMLConfig.getString(KEY_CONTROLLER_BASE, "http://tank.controller/");
     }
 
     /**
      * @return the controller base url
      */
     public String getInstanceName() {
-        return config.getString(KEY_INSTANCE_NAME, "prod");
+        return XMLConfig.getString(KEY_INSTANCE_NAME, "prod");
     }
 
     /**
      * @return the vmManagerConfig
      */
     public VmManagerConfig getVmManagerConfig() {
-        checkReload();
         return vmManagerConfig;
     }
 
@@ -189,7 +224,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the vmManagerConfig
      */
     public AgentConfig getAgentConfig() {
-        checkReload();
         return agentConfig;
     }
 
@@ -197,7 +231,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the vmManagerConfig
      */
     public ProductConfig getProductConfig() {
-        checkReload();
         return productConfig;
     }
 
@@ -205,16 +238,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the vmManagerConfig
      */
     public LogicStepConfig getLogicStepConfig() {
-        checkReload();
         return logicStepConfig;
-    }
-
-    /**
-     * @return the vmManagerConfig
-     */
-    public MailConfig getMailConfig() {
-        checkReload();
-        return mailConfig;
     }
 
     /**
@@ -228,7 +252,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the vmManagerConfig
      */
     public SecurityConfig getSecurityConfig() {
-        checkReload();
         return securityConfig;
     }
 
@@ -236,7 +259,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the reportingConfig
      */
     public ReportingConfig getReportingConfig() {
-        checkReload();
         return reportingConfig;
     }
 
@@ -244,7 +266,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * @return the oidcSsoConfig
      */
     public OidcSsoConfig getOidcSsoConfig() {
-        checkReload();
         return oidcSsoConfig;
     }
 
@@ -260,7 +281,7 @@ public class TankConfig extends BaseCommonsXmlConfig {
      * {@inheritDoc}
      */
     @Override
-    protected void initConfig(XMLConfiguration configuration) {
+    protected void initConfig(@Nonnull XMLConfiguration configuration) {
         vmManagerConfig = new VmManagerConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_VM_MANAGER_NODE));
         agentConfig = new AgentConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_AGENT_NODE));
@@ -268,7 +289,6 @@ public class TankConfig extends BaseCommonsXmlConfig {
                 BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_PRODUCTS_NODE));
         locationsConfig = new LocationsConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_LOCATIONS_NODE));
-        mailConfig = new MailConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration, KEY_MAIL_NODE));
         securityConfig = new SecurityConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,
                 KEY_SECURITY_NODE));
         logicStepConfig = new LogicStepConfig(BaseCommonsXmlConfig.getChildConfigurationAt(configuration,

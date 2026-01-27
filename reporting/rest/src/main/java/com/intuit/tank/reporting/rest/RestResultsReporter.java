@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -81,7 +81,7 @@ public class RestResultsReporter implements ResultsReporter {
     }
 
     @Override
-    public void config(HierarchicalConfiguration config) {
+    public void config(HierarchicalConfiguration<ImmutableNode> config) {
         try {
         } catch (Exception e) {
             LOG.error("Config not correct. Using default options.");

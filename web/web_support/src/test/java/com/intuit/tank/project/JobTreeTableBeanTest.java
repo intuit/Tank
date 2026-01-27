@@ -398,14 +398,18 @@ public class JobTreeTableBeanTest {
         pnb.addJob(new ActJobNodeBean("1", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
         pnb.addJob(new ActJobNodeBean("2", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
         fixture.setCurrentJobInstanceForTPS(pnb);
+
+        assertEquals("{\"data\":" +
+                "{\"datasets\":[{\"label\":\"Total TPS\",\"lineTension\":0.2}]}," +
+                "\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"TPS Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{\"y\":{\"type\":\"linear\",\"beginAtZero\":true}}},\"type\":\"line\"}", fixture.getTpsChartModel());
     }
 
     @Test
     public void testCurrentJobInstanceForUser() {
-        List<UserDetail> details = new ArrayList<>();
-        details.add(new UserDetail("script1", 10));
-        details.add(new UserDetail("script2", 20));
-        details.add(new UserDetail("script3", 30));
+        List<UserDetail> details1 = new ArrayList<>();
+        details1.add(new UserDetail("script1", 10));
+        details1.add(new UserDetail("script2", 20));
+        details1.add(new UserDetail("script3", 30));
         List<UserDetail> details2 = new ArrayList<>();
         details2.add(new UserDetail("script1", 40));
         details2.add(new UserDetail("script2", 50));
@@ -416,17 +420,24 @@ public class JobTreeTableBeanTest {
         details3.add(new UserDetail("script3", 20));
         LocalDateTime now = LocalDateTime.of(2023, 12, 25, 10, 30);
         Map<Date, List<UserDetail>> statusDetails = Map.of(
-                Date.from(Instant.from(now.atZone(ZoneId.systemDefault()))), details,
-                Date.from(Instant.from(now.minusSeconds(30).atZone(ZoneId.systemDefault()))), details2,
-                Date.from(Instant.from(now.minusSeconds(60).atZone(ZoneId.systemDefault()))), new ArrayList<>(),
-                Date.from(Instant.from(now.minusSeconds(120).atZone(ZoneId.systemDefault()))), details3);
+                Date.from(Instant.from(now.atZone(ZoneId.systemDefault()))), Collections.emptyList(),
+                Date.from(Instant.from(now.plusSeconds(30).atZone(ZoneId.systemDefault()))), details1,
+                Date.from(Instant.from(now.plusSeconds(60).atZone(ZoneId.systemDefault()))), Collections.emptyList(),
+                Date.from(Instant.from(now.plusSeconds(90).atZone(ZoneId.systemDefault()))), details2,
+                Date.from(Instant.from(now.plusSeconds(120).atZone(ZoneId.systemDefault()))), details3,
+                Date.from(Instant.from(now.plusSeconds(150).atZone(ZoneId.systemDefault()))), Collections.emptyList());
 
         ProjectNodeBean pnb = new ProjectNodeBean(new Project());
         pnb.setStatusDetailMap(statusDetails);
         fixture.setCurrentJobInstanceForUser(pnb);
 
-        assertEquals(3, fixture.getChartModel().getData().getDataSet().size());
-        assertEquals("[10:28:00, 10:29:00, 10:29:30, 10:30:00]", fixture.getChartModel().getData().getLabels().toString());
+        assertEquals("{\"data\":" +
+                "{\"labels\":[\"10:30:30\",\"10:31:00\",\"10:31:30\",\"10:32:00\",\"10:32:30\"],\"datasets\":[" +
+                "{\"data\":[10,null,40,40,null],\"label\":\"script1\",\"lineTension\":0.2}," +
+                "{\"data\":[20,null,50,30,null],\"label\":\"script2\",\"lineTension\":0.2}," +
+                "{\"data\":[30,null,60,20,null],\"label\":\"script3\",\"lineTension\":0.2}]}," +
+                "\"options\":{\"responsive\":true,\"maintainAspectRatio\":false,\"plugins\":{\"title\":{\"display\":true,\"text\":\"Users Chart\"},\"legend\":{\"position\":\"right\"}},\"scales\":{\"y\":{\"type\":\"linear\",\"beginAtZero\":true}}},\"type\":\"line\"}", fixture.getChartModel());
+
     }
 
     @Test

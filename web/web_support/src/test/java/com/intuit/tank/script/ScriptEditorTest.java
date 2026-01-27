@@ -13,18 +13,30 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.ModifiedScriptMessage;
+import com.intuit.tank.auth.Security;
 import com.intuit.tank.auth.TankSecurityContext;
+import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.filter.FilterBean;
+import com.intuit.tank.qualifier.Modified;
+import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.util.Messages;
+import jakarta.enterprise.context.ConversationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.AssertTrue;
+import org.jboss.weld.junit5.auto.ActivateScopes;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.converter.ScriptStepHolder;
 import com.intuit.tank.prefs.TablePreferences;
@@ -39,11 +51,8 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.context.Flash;
 import jakarta.security.enterprise.CallerPrincipal;
 
-/**
- * The class <code>ScriptEditorTest</code> contains tests for the class <code>{@link ScriptEditor}</code>.
- * 
- * @generatedBy CodePro at 12/15/14 3:54 PM
- */
+@EnableAutoWeld
+@ActivateScopes(ConversationScoped.class)
 public class ScriptEditorTest {
 
     @InjectMocks
@@ -53,13 +62,28 @@ public class ScriptEditorTest {
     private TankSecurityContext securityContext;
 
     @Mock
-    Messages messages;
+    private Messages messages;
+
+    @Mock
+    private ScriptSearchBean searchBean;
 
     @Mock
     private FilterBean filterBean;
 
     @Mock
+    private AggregatorEditor aggregatorEditor;
+
+    @Mock
+    private Security security;
+
+    @Mock
     private Conversation conversation;
+
+    @Mock
+    private Event<ModifiedScriptMessage> scriptEvent;
+
+    @Mock
+    private CopyBuffer copyBuffer;
 
     private AutoCloseable closeable;
 
@@ -78,6 +102,71 @@ public class ScriptEditorTest {
         assertNotNull(fixture);
     }
 
+    @Test
+    public void testDeleteRequest() {
+        ScriptStep step = ScriptStep.builder().name("ScriptStep").build();
+        when(aggregatorEditor.isAggregator(step)).thenReturn(Boolean.TRUE);
+        when(aggregatorEditor.getAggregatorPair(step)).thenReturn(new ScriptStep());
+        List<ScriptStep> steps = new LinkedList<>();
+        steps.add(step);
+        steps.add(ScriptStep.builder().name("ScriptStep").build());
+        fixture.setSteps(steps);
+        doNothing().when(searchBean).removeFromSearchMatch(any());
+
+        fixture.deleteRequest(step);
+
+        assertEquals(1, fixture.getSteps().size());
+    }
+
+    @Test
+    public void testPaste() {
+        List<ScriptStep> steps = new LinkedList<>();
+        steps.add(ScriptStep.builder().name("ScriptStep").build());
+        steps.add(ScriptStep.builder().name("ScriptStep").build());
+        fixture.setSteps(steps);
+        when(copyBuffer.getBuffer()).thenReturn(List.of(ScriptStep.builder().name("ScriptStep").build()));
+
+        fixture.paste();
+
+        assertEquals(3, fixture.getSteps().size());
+    }
+
+    @Test
+    public void testEditScript() {
+        Script script = Script.builder().name("Script").creator("TESTER").build();
+        script = new ScriptDao().saveOrUpdate(script);
+
+        when(conversation.isTransient()).thenReturn(Boolean.TRUE);
+        when(security.hasRight(any())).thenReturn(Boolean.TRUE);
+
+        assertEquals("success", fixture.editScript(script));
+
+        when(conversation.isTransient()).thenReturn(Boolean.TRUE);
+        when(security.hasRight(any())).thenReturn(Boolean.FALSE);
+
+        assertEquals("success", fixture.editScript(script));
+        verify(messages).warn("You do not have permission to edit this script.");
+    }
+
+    @Test
+    public void testDeleteSelected() {
+        when(aggregatorEditor.isAggregator(any())).thenReturn(Boolean.FALSE);
+        ScriptStep step = ScriptStep.builder().name("ScriptStep2").build();
+        List<ScriptStep> steps = new LinkedList<>();
+        steps.add(ScriptStep.builder().name("ScriptStep1").build());
+        steps.add(step);
+        steps.add(ScriptStep.builder().name("ScriptStep3").build());
+        fixture.setSteps(steps);
+        List<ScriptStep> selectedSteps = new LinkedList<>();
+        selectedSteps.add(step);
+        fixture.setSelectedSteps(selectedSteps);
+
+        fixture.deleteSelected();
+
+        assertTrue(fixture.getSelectedSteps().isEmpty());
+        verify(messages).info("Deleted 1 selected Script Steps.");
+    }
+
     /**
      * Run the String cancel() method test.
      * 
@@ -93,17 +182,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.cancel();
 
@@ -127,17 +214,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.clearOrderList();
 
@@ -160,18 +245,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        String query = "";
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        String query = "TEST";
 
         List<String> result = fixture.complete(query);
 
@@ -195,17 +278,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String query = "";
 
         List<String> result = fixture.complete(query);
@@ -230,17 +311,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String query = "";
 
         List<String> result = fixture.complete(query);
@@ -265,17 +344,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String query = "";
 
         List<String> result = fixture.complete(query);
@@ -300,17 +377,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.createScriptDetails();
 
@@ -333,17 +408,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.deselectAll();
 
@@ -366,17 +439,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.enterFilterMode();
 
@@ -399,17 +470,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         int result = fixture.getCurrentPage();
 
@@ -433,17 +502,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         ScriptStep result = fixture.getCurrentStep();
 
@@ -467,17 +534,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<String> result = fixture.getGotoGroupList();
 
@@ -501,17 +566,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getMaxThinkTime();
 
@@ -535,17 +598,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getMinThinkTime();
 
@@ -569,17 +630,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         int result = fixture.getNumRowsVisible();
 
@@ -603,24 +662,21 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(List.of(ScriptStep.builder().build()));
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<ScriptStepHolder> result = fixture.getOrderList();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        fixture.getOrderList();
     }
 
     /**
@@ -637,24 +693,19 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<ScriptStepHolder> result = fixture.getOrderList();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     /**
@@ -671,24 +722,19 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<ScriptStepHolder> result = fixture.getOrderList();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     /**
@@ -705,17 +751,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String s = "";
         String mimetype = "";
 
@@ -741,17 +785,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String s = "";
         String mimetype = "";
 
@@ -777,17 +819,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String s = "";
         String mimetype = "";
 
@@ -813,17 +853,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String s = "";
         String mimetype = "";
 
@@ -849,17 +887,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String s = "";
         String mimetype = "";
 
@@ -885,17 +921,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep step = new ScriptStep();
 
         ScriptStep result = fixture.getPreviousRequest(step);
@@ -915,17 +949,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep step = null;
 
         ScriptStep result = fixture.getPreviousRequest(step);
@@ -945,17 +977,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getSaveAsName();
 
@@ -979,17 +1009,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         Script result = fixture.getScript();
 
@@ -1013,17 +1041,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getScriptDetails();
     }
@@ -1042,17 +1068,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getScriptName();
 
@@ -1076,17 +1100,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<ScriptStep> result = fixture.getSelectedSteps();
 
@@ -1110,17 +1132,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getSleepTime();
 
@@ -1144,17 +1164,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         List<ScriptStep> result = fixture.getSteps();
 
@@ -1178,17 +1196,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         TablePreferences result = fixture.getTablePrefs();
 
@@ -1212,17 +1228,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         TableViewState result = fixture.getTableState();
 
@@ -1246,17 +1260,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getVariableKey();
 
@@ -1280,17 +1292,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         String result = fixture.getVariableValue();
 
@@ -1314,17 +1324,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(new LinkedList<>());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep step = new ScriptStep();
 
         fixture.insert(step);
@@ -1334,37 +1342,47 @@ public class ScriptEditorTest {
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
     }
 
-    /**
-     * Run the void insertThinkTime() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testInsertThinkTime_1() {
+    public void testInsertSleepTime() {
         fixture.setNumRowsVisible(1);
         fixture.setVariableValue("");
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        List<ScriptStep> steps = new LinkedList<>();
+        steps.add(ScriptStep.builder().name("ScriptStep1").build());
+        steps.add(ScriptStep.builder().name("ScriptStep2").build());
+        fixture.setSteps(steps);
+        fixture.setSelectedSteps(steps);
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+
+        fixture.insertSleepTime();
+    }
+
+    @Test
+    public void testInsertThinkTime() {
+        fixture.setNumRowsVisible(1);
+        fixture.setVariableValue("");
+        fixture.setCurrentPage(1);
+        fixture.setSleepTime("");
+        fixture.setMinThinkTime("");
+        fixture.setSteps(new LinkedList<>());
+        fixture.setSelectedSteps(Collections.emptyList());
+        fixture.setSaveAsName("");
+        fixture.setScript(Script.builder().name("").build());
+        fixture.setMaxThinkTime("");
+        fixture.setVariableKey("");
+        fixture.setCurrentStep(new ScriptStep());
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.insertThinkTime();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
     }
 
     /**
@@ -1381,17 +1399,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(new LinkedList<>());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.insertVariable();
 
@@ -1414,17 +1430,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isAggregator(scriptStep);
@@ -1449,17 +1463,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isAggregator(scriptStep);
@@ -1484,17 +1496,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isClearVariable(scriptStep);
@@ -1519,17 +1529,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isClearVariable(scriptStep);
@@ -1554,17 +1562,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isCookieStep(scriptStep);
@@ -1589,17 +1595,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isCookieStep(scriptStep);
@@ -1624,17 +1628,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         boolean result = fixture.isCopyEnabled();
 
@@ -1658,17 +1660,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         boolean result = fixture.isDeleteEnabled();
 
@@ -1692,17 +1692,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         boolean result = fixture.isDeleteEnabled();
 
@@ -1726,17 +1724,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isLogicStep(scriptStep);
@@ -1761,17 +1757,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isLogicStep(scriptStep);
@@ -1796,17 +1790,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isRequest(scriptStep);
@@ -1831,17 +1823,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isRequest(scriptStep);
@@ -1866,17 +1856,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isSleepTime(scriptStep);
@@ -1901,17 +1889,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isSleepTime(scriptStep);
@@ -1936,17 +1922,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isThinkTime(scriptStep);
@@ -1971,17 +1955,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isVariable(scriptStep);
@@ -2006,17 +1988,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep scriptStep = new ScriptStep();
 
         boolean result = fixture.isVariable(scriptStep);
@@ -2041,17 +2021,17 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("Script")
+                .steps(List.of(ScriptStep.builder().name("ScriptStep").scriptGroupName("GroupName").build()))
+                .build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.populateGroupList();
 
@@ -2074,17 +2054,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.populateGroupList();
 
@@ -2107,17 +2085,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.populateGroupList();
 
@@ -2140,17 +2116,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.populateGroupList();
 
@@ -2173,17 +2147,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.reIndexAndCheck();
 
@@ -2206,17 +2178,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.reIndexAndCheck();
 
@@ -2239,17 +2209,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.reIndexAndCheck();
 
@@ -2272,17 +2240,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.reindexScriptSteps();
 
@@ -2305,17 +2271,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.reindexScriptSteps();
 
@@ -2338,17 +2302,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
 
         fixture.selectAll();
 
@@ -2371,17 +2333,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         int currentPage = 1;
 
         fixture.setCurrentPage(currentPage);
@@ -2405,17 +2365,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         ScriptStep currentStep = new ScriptStep();
 
         fixture.setCurrentStep(currentStep);
@@ -2439,17 +2397,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String maxThinkTime = "";
 
         fixture.setMaxThinkTime(maxThinkTime);
@@ -2473,17 +2429,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String minThinkTime = "";
 
         fixture.setMinThinkTime(minThinkTime);
@@ -2507,17 +2461,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         int numRowsVisible = 1;
 
         fixture.setNumRowsVisible(numRowsVisible);
@@ -2541,18 +2493,19 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        List<ScriptStep> steps = new LinkedList<>();
+        steps.add(ScriptStep.builder().name("ScriptStep1").build());
+        steps.add(ScriptStep.builder().name("ScriptStep2").build());
+        fixture.setSteps(steps);
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStepHolder> list = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStepHolder> list = List.of(new ScriptStepHolder(0,"uuid" , "TEST"));
 
         fixture.setOrderList(list);
 
@@ -2575,18 +2528,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStepHolder> list = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStepHolder> list = Collections.emptyList();
 
         fixture.setOrderList(list);
 
@@ -2609,18 +2560,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStepHolder> list = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStepHolder> list = Collections.emptyList();
 
         fixture.setOrderList(list);
 
@@ -2643,18 +2592,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStepHolder> list = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStepHolder> list = Collections.emptyList();
 
         fixture.setOrderList(list);
 
@@ -2677,17 +2624,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String saveAsName = "";
 
         fixture.setSaveAsName(saveAsName);
@@ -2711,17 +2656,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         Script script1 = new Script();
         script1.setName("");
 
@@ -2746,17 +2689,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String name = "";
 
         fixture.setScriptName(name);
@@ -2780,18 +2721,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStep> selectedSteps = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStep> selectedSteps = Collections.emptyList();
 
         fixture.setSelectedSteps(selectedSteps);
 
@@ -2814,17 +2753,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String sleepTime = "";
 
         fixture.setSleepTime(sleepTime);
@@ -2848,18 +2785,16 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<ScriptStep> steps = new LinkedList();
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
+        List<ScriptStep> steps = Collections.emptyList();
 
         fixture.setSteps(steps);
 
@@ -2882,17 +2817,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String variableKey = "";
 
         fixture.setVariableKey(variableKey);
@@ -2916,17 +2849,15 @@ public class ScriptEditorTest {
         fixture.setCurrentPage(1);
         fixture.setSleepTime("");
         fixture.setMinThinkTime("");
-        fixture.setSteps(new LinkedList());
-        fixture.setSelectedSteps(new LinkedList());
+        fixture.setSteps(Collections.emptyList());
+        fixture.setSelectedSteps(Collections.emptyList());
         fixture.setSaveAsName("");
-        Script script = new Script();
-        script.setName("");
-        fixture.setScript(script);
+        fixture.setScript(Script.builder().name("").build());
         fixture.setMaxThinkTime("");
         fixture.setVariableKey("");
         fixture.setCurrentStep(new ScriptStep());
         fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.tablePrefs = new TablePreferences(Collections.emptyList());
         String variableValue = "";
 
         fixture.setVariableValue(variableValue);
@@ -2939,14 +2870,31 @@ public class ScriptEditorTest {
     @Test
     public void testSaveAsNoName() {
         fixture.saveAs();
+        verify(messages).error("You must give the script a name.");
+    }
+
+    @Test
+    public void testSaveAsToSaveException() {
+        Script script = Script.builder().name("Name").build();
+        fixture.setScript(script);
+        fixture.setSaveAsName("Name");
+
+        fixture.saveAs();
+
+        verify(messages).error(anyString());
     }
 
     @Test
     public void testSaveAsToSave() {
-        Script script = Script.builder().name("Name").build();
+        doNothing().when(scriptEvent).fire(any());
+        Script script = new ScriptDao().saveOrUpdate(
+                Script.builder().name("Name").creator("TESTER").build());
         fixture.setScript(script);
         fixture.setSaveAsName("Name");
+
         fixture.saveAs();
+
+        verify(messages).info("Script Name has been saved.");
     }
 
     @Test
@@ -2976,8 +2924,6 @@ public class ScriptEditorTest {
 
     @Test
     public void testReapplyFilters() {
-
-        Script script = Script.builder().name("Name").build();
         FacesContext facesContext = mock(FacesContext.class);
 
         try (MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
@@ -2987,12 +2933,28 @@ public class ScriptEditorTest {
             when(externalContext.getFlash()).thenReturn(flash);
             mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(facesContext);
 
-            fixture.setScript(script);
+            fixture.setScript(Script.builder().name("Name").build());
             AWSXRay.beginSegment("test");
-            String result = fixture.reapplyFilters();
+            assertEquals("success", fixture.reapplyFilters());
             AWSXRay.endSegment();
+        }
+    }
 
-            assertEquals("success", result);
+    @Test
+    public void testReapplyFilters_Exception() {
+        FacesContext facesContext = mock(FacesContext.class);
+
+        try (MockedStatic<ScriptFilterUtil> mockedscriptFilterUtil = Mockito.mockStatic(ScriptFilterUtil.class);
+             MockedStatic<FacesContext> mockedFacesContext = Mockito.mockStatic(FacesContext.class)) {
+            ExternalContext externalContext = mock(ExternalContext.class);
+            Flash flash = mock(Flash.class);
+            when(facesContext.getExternalContext()).thenReturn(externalContext);
+            when(externalContext.getFlash()).thenReturn(flash);
+            mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(facesContext);
+            mockedscriptFilterUtil.when(() -> ScriptFilterUtil.applyFilters(anyList(), any(Script.class))).thenThrow(new RuntimeException("failure"));
+
+            fixture.setScript(Script.builder().name("Name").build());
+            assertEquals("failure", fixture.reapplyFilters());
         }
     }
 
