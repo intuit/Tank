@@ -83,6 +83,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private String srsVersion;
     private boolean filingStatus;
     private boolean taxhubFlow;
+    private ValidationReportData reportData;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
         try {
@@ -257,6 +258,12 @@ public class HeadlessDebuggerSetup implements Serializable {
         ZonedDateTime now = ZonedDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         LOG.info("timestamp," + now.format(formatter));
+
+        // Write rich JSON report for external HTML report generation
+        if (reportData != null) {
+            reportData.setFinalMetadata(authId, username, srsVersion, filingStatus, taxhubFlow);
+            reportData.writeToFile(new File(System.getProperty("user.dir")));
+        }
 
         if (workingDir.exists()) {
             try {
@@ -575,6 +582,15 @@ public class HeadlessDebuggerSetup implements Serializable {
                     context.getResponse().logResponse(); // log full response
                     variablesOutput.displayVars(); // log variables
                 }
+                
+                // Record step data for JSON report
+                if (reportData != null && debugStep != null) {
+                    List<String> errorMsgs = new ArrayList<>();
+                    if (context.getErrors() != null) {
+                        context.getErrors().forEach(e -> errorMsgs.add(e.toString()));
+                    }
+                    reportData.recordStep(debugStep, success_status, errorMsgs);
+                }
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -662,6 +678,9 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.info("total_steps=" + steps.size());
                 LOG.info("format:step_number,method,path,validation_status");
                 LOG.info("------------------------------------------------------");
+                
+                // Initialize rich JSON report data collector
+                reportData = new ValidationReportData(workload.getName(), projectId);
             }
         }
     }
