@@ -17,6 +17,7 @@ package com.intuit.tank.vmManager;
  */
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,8 +34,11 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.VMImageDao;
+import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.VMInstance;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -205,9 +209,18 @@ public class AgentWatchdog implements Runnable {
             String msg = "Have "
                     + this.startedInstances.size()
                     + " agents that failed to start correctly and have exceeded the maximum number of restarts. Killing job.";
-            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
             LOG.info(new ObjectMessage(Map.of("Message", msg)));
-            // TODO Do we have to kill jobs here?
+            
+            // kill the job directly
+            killJobDirectly(jobId);
+            
+            // fire event for logging/notification only (observers would need to be changed to RequestScoped)
+            try {
+                vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
+            } catch (Exception e) {
+                LOG.warn("Failed to publish JOB_ABORTED event (non-critical): " + e.getMessage());
+            }
+            
             throw new RuntimeException("Killing jobs and exiting");
         }
         String msg = "Have " + instances.size() + " agents that failed to start or report correctly for job " + jobId + ". Relaunching. "
@@ -306,5 +319,42 @@ public class AgentWatchdog implements Runnable {
             }
         }
         return instanceRemoved;
+    }
+
+    private void killJobDirectly(String jobId) {
+        LOG.info(new ObjectMessage(Map.of("Message", "Killing job " + jobId + " directly from watchdog")));
+
+        vmTracker.stopJob(jobId);
+
+        List<String> allInstanceIds = vmInfo.stream()
+                .map(VMInformation::getInstanceId)
+                .collect(Collectors.toList());
+        if (!allInstanceIds.isEmpty()) {
+            LOG.info(new ObjectMessage(Map.of("Message", "Killing " + allInstanceIds.size() + " instances for job " + jobId)));
+            amazonInstance.killInstances(allInstanceIds);
+        }        
+
+        for (VMInformation info : vmInfo) {
+            CloudVmStatus status = vmTracker.getStatus(info.getInstanceId());
+            if (status != null) {
+                status.setVmStatus(VMStatus.terminated);
+                status.setJobStatus(JobStatus.Completed);
+                status.setEndTime(new Date());
+                vmTracker.setStatus(status);
+            }
+        }        
+
+        try {
+            JobInstanceDao dao = new JobInstanceDao();
+            JobInstance job = dao.findById(Integer.parseInt(jobId));
+            if (job != null) {
+                job.setStatus(JobQueueStatus.Completed);
+                job.setEndTime(new Date());
+                dao.saveOrUpdate(job);
+                LOG.info(new ObjectMessage(Map.of("Message", "Updated job " + jobId + " status to Completed")));
+            }
+        } catch (Exception e) {
+            LOG.error("Error updating job status in database: " + e.getMessage(), e);
+        }
     }
 }
