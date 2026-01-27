@@ -186,6 +186,14 @@ public class AgentWatchdog implements Runnable {
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {
                     addInstance(reportedInstances, removedInstance);
+                    long startupTimeMs = System.currentTimeMillis() - startTime;
+                    LOG.info(new ObjectMessage(Map.of(
+                        "Message", "Agent reported ready",
+                        "instanceId", status.getInstanceId(),
+                        "jobId", jobId,
+                        "startupTimeMs", startupTimeMs,
+                        "startupTimeSec", startupTimeMs / 1000.0,
+                        "remainingToReport", startedInstances.size())));
                 }
             }
         }

@@ -423,6 +423,14 @@ public class VMTrackerImpl implements VMTracker {
         if (job != null) {
             job.setEndTime(cloudVmStatusContainer.getEndTime());
             JobQueueStatus oldStatus = job.getStatus();
+
+            // don't downgrade from terminal state (Completed) - once a job is done, it stays done
+            if (oldStatus == JobQueueStatus.Completed) {
+                LOG.debug(new ObjectMessage(Map.of("Message",
+                    "Job " + status.getJobId() + " already Completed - ignoring status recalculation from instance updates")));
+                return;
+            }
+
             JobQueueStatus newStatus = job.getStatus();
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
