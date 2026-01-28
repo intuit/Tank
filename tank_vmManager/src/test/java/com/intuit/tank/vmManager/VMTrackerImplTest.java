@@ -157,7 +157,7 @@ public class VMTrackerImplTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = VMStatus.class, names = {"terminated", "replaced", "stopped", "stopping", "shutting_down"})
+    @EnumSource(value = VMStatus.class, names = {"terminated", "stopped", "stopping", "shutting_down"})
     @DisplayName("shouldUpdateStatus returns false for terminal states")
     void shouldUpdateStatus_terminalStates_returnsFalse(VMStatus terminalStatus) throws Exception {
         CloudVmStatus status = createStatus("i-123", terminalStatus);
@@ -175,14 +175,16 @@ public class VMTrackerImplTest {
     }
 
     @Test
-    @DisplayName("shouldUpdateStatus blocks update for replaced instance (AgentWatchdog scenario)")
-    void shouldUpdateStatus_replacedInstance_blocksUpdate() throws Exception {
+    @DisplayName("shouldUpdateStatus allows updates for replaced instances (protection handled in AgentWatchdog)")
+    void shouldUpdateStatus_replacedInstance_allowsUpdate() throws Exception {
         // Given: An instance that was replaced by AgentWatchdog
         CloudVmStatus replacedStatus = createStatus("i-replaced", VMStatus.replaced);
         
-        // When/Then: Updates should be blocked
-        assertFalse(invokeShouldUpdateStatus(replacedStatus),
-            "Replaced instances should not accept status updates (race condition guard)");
+        // When/Then: Updates should be allowed - protection is handled by removing
+        // instances from tracking lists in AgentWatchdog before marking as replaced,
+        // NOT by blocking in shouldUpdateStatus (which would break killJobDirectly)
+        assertTrue(invokeShouldUpdateStatus(replacedStatus),
+            "Replaced instances should allow updates (e.g., replaced -> terminated for killJobDirectly)");
     }
 
     // ============ VMStatus.replaced integration tests ============
