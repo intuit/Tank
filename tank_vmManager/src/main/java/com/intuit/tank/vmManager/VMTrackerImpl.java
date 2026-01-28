@@ -103,7 +103,7 @@ public class VMTrackerImpl implements VMTracker {
                         t.setDaemon(true);
                         return t;
                     },
-                    new ThreadPoolExecutor.DiscardOldestPolicy());
+                    new ThreadPoolExecutor.CallerRunsPolicy());  // Don't drop status updates - caller processes if queue full
 
     /**
      * 
