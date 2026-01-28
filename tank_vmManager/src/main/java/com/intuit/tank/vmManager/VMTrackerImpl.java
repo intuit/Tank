@@ -469,6 +469,9 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     private Object getCacheSyncObject(final String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Cannot synchronize on null jobId");
+        }
         locks.putIfAbsent(id, id);
         return locks.get(id);
     }

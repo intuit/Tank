@@ -329,6 +329,9 @@ public class AgentWatchdog implements Runnable {
         return instanceRemoved;
     }
 
+    // TODO: This method duplicates logic from JobEventSender.killJob(). Consider extracting to a shared
+    // JobTerminator service when Valkey overhaul happens. Current duplication is intentional to avoid
+    // CDI scope issues (JobEventSender is @RequestScoped, unavailable from background threads).
     private void killJobDirectly(String jobId) {
         LOG.info(new ObjectMessage(Map.of("Message", "Killing job " + jobId + " directly from watchdog")));
 
