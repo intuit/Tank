@@ -176,7 +176,17 @@ public class AgentWatchdog implements Runnable {
     private void checkForReportingInstances() {
         String jobId = instanceRequest.getJobId();
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
-        if (vmStatusForJob == null || vmStatusForJob.getEndTime() != null) {
+        
+        // Container might not exist yet if setStatus() async tasks haven't completed
+        // This is expected on the first few iterations - just wait for the executor to process
+        if (vmStatusForJob == null) {
+            LOG.debug(new ObjectMessage(Map.of("Message", 
+                "Job container not yet created for job " + jobId + " - waiting for async status updates")));
+            return;  // Return and check again on next iteration
+        }
+        
+        // Only treat as stopped if container exists AND has an end time (user/system stopped the job)
+        if (vmStatusForJob.getEndTime() != null) {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
@@ -329,9 +339,7 @@ public class AgentWatchdog implements Runnable {
         return instanceRemoved;
     }
 
-    // TODO: This method duplicates logic from JobEventSender.killJob(). Consider extracting to a shared
-    // JobTerminator service when Valkey overhaul happens. Current duplication is intentional to avoid
-    // CDI scope issues (JobEventSender is @RequestScoped, unavailable from background threads).
+    // TODO: This method duplicates logic from JobEventSender.killJob(). Consider extracting to a shared service
     private void killJobDirectly(String jobId) {
         LOG.info(new ObjectMessage(Map.of("Message", "Killing job " + jobId + " directly from watchdog")));
 
