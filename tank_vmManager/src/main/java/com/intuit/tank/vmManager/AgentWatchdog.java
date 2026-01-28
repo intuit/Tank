@@ -260,7 +260,10 @@ public class AgentWatchdog implements Runnable {
         amazonInstance.killInstances(instanceIds);
         // Set terminated status on the DAO
         VMImageDao dao = new VMImageDao();
-        for (VMInformation info : instances) {
+        // Create defensive copy - instances IS startedInstances (same reference),
+        // and we modify startedInstances inside the loop via removeInstance()
+        List<VMInformation> instancesToProcess = new ArrayList<>(instances);
+        for (VMInformation info : instancesToProcess) {
             vmInfo.remove(info);
             
             // Remove from all tracking lists FIRST - this prevents stale heartbeats from being processed
