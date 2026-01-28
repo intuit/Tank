@@ -178,8 +178,17 @@ public class AgentWatchdog implements Runnable {
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
         
         // Container might not exist yet if setStatus() async tasks haven't completed
-        // This is expected on the first few iterations - just wait for the executor to process
+        // OR it could be null because the job was killed/removed externally
         if (vmStatusForJob == null) {
+            // Check if job still exists and is active - if not, it was killed externally
+            JobInstanceDao dao = new JobInstanceDao();
+            JobInstance job = dao.findById(Integer.parseInt(jobId));
+            if (job == null || job.getStatus() == JobQueueStatus.Completed
+                    || job.getStatus() == JobQueueStatus.Aborted) {
+                stopped = true;
+                throw new RuntimeException("Job " + jobId + " was stopped or does not exist. Exiting watchdog.");
+            }
+            // Job exists and is active - container just not yet created (async race)
             LOG.debug(new ObjectMessage(Map.of("Message", 
                 "Job container not yet created for job " + jobId + " - waiting for async status updates")));
             return;  // Return and check again on next iteration
@@ -254,11 +263,26 @@ public class AgentWatchdog implements Runnable {
         for (VMInformation info : instances) {
             vmInfo.remove(info);
             
-            // Update status to 'replaced' in the tracker (keeps visible in UI, but filtered out of calculations)
+            // Remove from all tracking lists FIRST - this prevents stale heartbeats from being processed
+            // for this instance after we mark it as replaced (no need to modify shouldUpdateStatus)
+            removeInstance(startedInstances, info.getInstanceId());
+            removeInstance(reportedInstances, info.getInstanceId());
+
+            // NOW mark as replaced - safe because instance is removed from tracking
             CloudVmStatus replacedStatus = vmTracker.getStatus(info.getInstanceId());
             if (replacedStatus != null) {
                 replacedStatus.setVmStatus(VMStatus.replaced);
                 vmTracker.setStatus(replacedStatus);
+            } else {
+                // Create new replaced status if none exists (race condition protection)
+                CloudVmStatus newReplacedStatus = new CloudVmStatus(
+                    info.getInstanceId(), instanceRequest.getJobId(), "unknown",
+                    JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
+                    VMStatus.replaced, new ValidationStatus(), 0, 0, null, null);
+                vmTracker.setStatus(newReplacedStatus);
+                LOG.warn(new ObjectMessage(Map.of("Message",
+                    "Created new 'replaced' status for instance " + info.getInstanceId() +
+                    " - original status was missing (possible race condition)")));
             }
             
             // Also update in the database for persistence

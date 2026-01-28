@@ -230,28 +230,13 @@ public class VMTrackerImpl implements VMTracker {
         return oldStatus;
     }
 
-    /**
-     * If the vm is shutting down, terminated, or replaced, don't update the status to something else.
-     * This prevents race conditions where a user kills an instance while watchdog is replacing it,
-     * or stale status updates arrive after an instance has already transitioned to a terminal state.
-     * @param currentStatus
-     * @return
-     */
     private boolean shouldUpdateStatus(CloudVmStatus currentStatus) {
         if (currentStatus != null) {
             VMStatus status = currentStatus.getVmStatus();
-            boolean isTerminalState = (status == VMStatus.shutting_down
-                    || status == VMStatus.stopped
-                    || status == VMStatus.stopping
-                    || status == VMStatus.terminated
-                    || status == VMStatus.replaced);
-            if (isTerminalState) {
-                LOG.info(new ObjectMessage(Map.of("Message",
-                    "Ignoring status update for instance " + currentStatus.getInstanceId() +
-                    " - already in terminal state: " + status +
-                    " (possible race between user kill and watchdog replace)")));
-                return false;
-            }
+            return (status != VMStatus.shutting_down
+                    && status != VMStatus.stopped
+                    && status != VMStatus.stopping
+                    && status != VMStatus.terminated);
         }
         return true;
     }
