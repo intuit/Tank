@@ -30,18 +30,13 @@ public enum VMStatus implements Serializable {
     replaced;  // replaced by AgentWatchdog due to failure to report back
 
     public static final VMStatus fromString(String value) {
-        if (value == null || value.isEmpty()) {
-            return VMStatus.unknown;
-        }
+        VMStatus ret = null;
         if ("shutting-down".equals(value)) {
-            return VMStatus.shutting_down;
+            ret = VMStatus.shutting_down;
+        } else {
+            ret = VMStatus.valueOf(value);
         }
-        try {
-            return VMStatus.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            // Gracefully handle unknown values (e.g., from older/newer clients with different enum versions)
-            return VMStatus.unknown;
-        }
+        return ret != null ? ret : VMStatus.unknown;
     }
 
 }

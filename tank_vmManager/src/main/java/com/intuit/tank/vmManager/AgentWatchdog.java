@@ -176,26 +176,7 @@ public class AgentWatchdog implements Runnable {
     private void checkForReportingInstances() {
         String jobId = instanceRequest.getJobId();
         CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
-        
-        // Container might not exist yet if setStatus() async tasks haven't completed
-        // OR it could be null because the job was killed/removed externally
-        if (vmStatusForJob == null) {
-            // Check if job still exists and is active - if not, it was killed externally
-            JobInstanceDao dao = new JobInstanceDao();
-            JobInstance job = dao.findById(Integer.parseInt(jobId));
-            if (job == null || job.getStatus() == JobQueueStatus.Completed
-                    || job.getStatus() == JobQueueStatus.Aborted) {
-                stopped = true;
-                throw new RuntimeException("Job " + jobId + " was stopped or does not exist. Exiting watchdog.");
-            }
-            // Job exists and is active - container just not yet created (async race)
-            LOG.debug(new ObjectMessage(Map.of("Message", 
-                "Job container not yet created for job " + jobId + " - waiting for async status updates")));
-            return;  // Return and check again on next iteration
-        }
-        
-        // Only treat as stopped if container exists AND has an end time (user/system stopped the job)
-        if (vmStatusForJob.getEndTime() != null) {
+        if (vmStatusForJob == null || vmStatusForJob.getEndTime() != null) {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
@@ -262,34 +243,17 @@ public class AgentWatchdog implements Runnable {
         VMImageDao dao = new VMImageDao();
         for (VMInformation info : instances) {
             vmInfo.remove(info);
+            vmTracker.setStatus(createReplacedVmStatus(info));
 
-            // Mark as replaced - keeps visible in UI but filtered from job status
-            CloudVmStatus replacedStatus = vmTracker.getStatus(info.getInstanceId());
-            if (replacedStatus != null) {
-                replacedStatus.setVmStatus(VMStatus.replaced);
-                vmTracker.setStatus(replacedStatus);
-            } else {
-                // Create new replaced status if none exists (race condition protection)
-                CloudVmStatus newReplacedStatus = new CloudVmStatus(
-                    info.getInstanceId(), instanceRequest.getJobId(), "unknown",
-                    JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
-                    VMStatus.replaced, new ValidationStatus(), 0, 0, null, null);
-                vmTracker.setStatus(newReplacedStatus);
-                LOG.warn(new ObjectMessage(Map.of("Message",
-                    "Created new 'replaced' status for instance " + info.getInstanceId() +
-                    " - original status was missing (possible race condition)")));
-            }
-            
-            // Also update in the database for persistence
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
-                image.setStatus(VMStatus.replaced.name());  // mark as replaced (not terminated) for audit trail
+                image.setStatus(VMStatus.replaced.name());
                 dao.saveOrUpdate(image);
             }
 
             LOG.info(new ObjectMessage(Map.of("Message",
                 "Marked instance " + info.getInstanceId() +
-                " as REPLACED (visible in UI but filtered from job status) for job " + jobId)));
+                " as REPLACED for job " + jobId)));
         }
         LOG.info(new ObjectMessage(Map.of("Message","Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId)));
         instanceRequest.setNumberOfInstances(instances.size());
@@ -337,6 +301,12 @@ public class AgentWatchdog implements Runnable {
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
                 VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
+    }
+
+    private CloudVmStatus createReplacedVmStatus(VMInformation info) {
+        return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
+                JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
+                VMStatus.replaced, new ValidationStatus(), 0, 0, null, null);
     }
 
     private boolean shouldRelaunchInstances() {
