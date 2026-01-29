@@ -10,8 +10,12 @@ package com.intuit.tank.tools.headless;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.intuit.tank.harness.data.SleepTimeStep;
+import com.intuit.tank.harness.data.TestStep;
+import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
+import com.intuit.tank.runner.ErrorContainer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +45,7 @@ public class ValidationReportData {
     /**
      * Records a completed step with all its details.
      */
-    public void recordStep(DebugStep debugStep, boolean success, List<String> validationErrors) {
+    public void recordStep(DebugStep debugStep, boolean success, List<ErrorContainer> validationErrors) {
         StepData step = new StepData();
         
         // Basic info
@@ -50,6 +54,8 @@ public class ValidationReportData {
             step.info = debugStep.getStepRun().getInfo();
         }
         step.success = success;
+        step.skipped = false;
+        step.stepType = "REQUEST";
         step.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         
         // Request details
@@ -96,9 +102,21 @@ public class ValidationReportData {
             }
         }
         
-        // Validation errors
+        // Validation errors - serialize full details instead of toString()
         if (validationErrors != null && !validationErrors.isEmpty()) {
-            step.errors = new ArrayList<>(validationErrors);
+            step.errors = new ArrayList<>();
+            for (ErrorContainer ec : validationErrors) {
+                ValidationError ve = new ValidationError();
+                ve.location = ec.getLocation();
+                ve.phase = ec.getValidation() != null && ec.getValidation().getPhase() != null 
+                    ? ec.getValidation().getPhase().getDisplay() : null;
+                ve.rawValidation = ec.getOriginalValidation() != null 
+                    ? ec.getOriginalValidation().toString() : null;
+                ve.interpretedValidation = ec.getValidation() != null 
+                    ? ec.getValidation().toString() : null;
+                ve.message = ec.getReason();
+                step.errors.add(ve);
+            }
         }
         
         steps.add(step);
@@ -111,6 +129,34 @@ public class ValidationReportData {
         } else {
             summary.failureCount++;
         }
+    }
+    
+    /**
+     * Records a skipped step (ThinkTime, SleepTime, or Logic step).
+     */
+    public void recordSkippedStep(TestStep testStep) {
+        StepData step = new StepData();
+        step.stepIndex = testStep.getStepIndex() + 1;
+        step.info = testStep.getInfo();
+        step.success = null;  // null indicates not executed
+        step.skipped = true;
+        step.timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        
+        if (testStep instanceof ThinkTimeStep) {
+            ThinkTimeStep think = (ThinkTimeStep) testStep;
+            step.stepType = "THINK_TIME";
+            step.minTime = think.getMinTime();
+            step.maxTime = think.getMaxTime();
+        } else if (testStep instanceof SleepTimeStep) {
+            SleepTimeStep sleep = (SleepTimeStep) testStep;
+            step.stepType = "SLEEP_TIME";
+            step.sleepTime = sleep.getValue();
+        } else {
+            step.stepType = "LOGIC";
+        }
+        
+        steps.add(step);
+        summary.skippedCount++;
     }
     
     /**
@@ -185,12 +231,27 @@ public class ValidationReportData {
     public static class StepData {
         public int stepIndex;
         public String info;
-        public boolean success;
+        public Boolean success;  // Boolean to allow null for skipped steps
+        public boolean skipped;
+        public String stepType;  // "REQUEST", "THINK_TIME", "SLEEP_TIME", "LOGIC"
         public String timestamp;
         public RequestData request;
         public ResponseData response;
         public Map<String, VariableChange> variableChanges;
-        public List<String> errors;
+        public List<ValidationError> errors;
+        
+        // Fields for think/sleep steps
+        public String minTime;    // For ThinkTimeStep
+        public String maxTime;    // For ThinkTimeStep
+        public String sleepTime;  // For SleepTimeStep
+    }
+    
+    public static class ValidationError {
+        public String location;
+        public String phase;
+        public String rawValidation;
+        public String interpretedValidation;
+        public String message;
     }
     
     public static class RequestData {
