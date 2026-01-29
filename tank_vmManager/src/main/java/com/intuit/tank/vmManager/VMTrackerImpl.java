@@ -19,11 +19,9 @@ package com.intuit.tank.vmManager;
 import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_EVENT_TIME_KEY;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -103,7 +101,7 @@ public class VMTrackerImpl implements VMTracker {
                         t.setDaemon(true);
                         return t;
                     },
-                    new ThreadPoolExecutor.CallerRunsPolicy());  // Don't drop status updates - caller processes if queue full
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
 
     /**
      * 
@@ -247,33 +245,7 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void removeStatusForInstance(String instanceId) {
-        // First, get the status to find the jobId (without removing yet)
-        CloudVmStatus status = statusMap.get(instanceId);
-
-        if (status != null) {
-            String jobId = status.getJobId();
-            // Synchronize on the job lock to ensure atomic removal from both
-            // statusMap and container - prevents race with setStatusThread
-            synchronized (getCacheSyncObject(jobId)) {
-                // Now remove from statusMap inside the sync block
-                CloudVmStatus removedStatus = statusMap.remove(instanceId);
-
-                // Also remove from the job's container to keep counts accurate
-                if (removedStatus != null) {
-                    CloudVmStatusContainer container = jobMap.get(jobId);
-                    if (container != null) {
-                        boolean removed = container.getStatuses().remove(removedStatus);
-                        if (removed) {
-                            LOG.info(new ObjectMessage(Map.of("Message",
-                                "Removed instance " + instanceId + " from container for job " + jobId)));
-                        }
-                    }
-                }
-            }
-        } else {
-            // Instance not in statusMap - just try to remove (no-op if not present)
-            statusMap.remove(instanceId);
-        }
+        statusMap.remove(instanceId);
     }
 
     /**
@@ -282,19 +254,12 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void removeStatusForJob(String jobId) {
-        // Synchronize on the same lock used by setStatusThread to prevent
-        // ConcurrentModificationException when iterating over statuses
-        synchronized (getCacheSyncObject(jobId)) {
-            CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
-            if (cloudVmStatusContainer != null) {
-                // Copy to avoid ConcurrentModificationException - the underlying
-                // HashSet could be modified by setStatusThread while we iterate
-                List<CloudVmStatus> statusesCopy = new ArrayList<>(cloudVmStatusContainer.getStatuses());
-                for (CloudVmStatus s : statusesCopy) {
-                    removeStatusForInstance(s.getInstanceId());
-                }
-                jobMap.remove(jobId);
+        CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
+        if (cloudVmStatusContainer != null) {
+            for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
+                removeStatusForInstance(s.getInstanceId());
             }
+            jobMap.remove(jobId);
         }
     }
 
@@ -408,14 +373,6 @@ public class VMTrackerImpl implements VMTracker {
         if (job != null) {
             job.setEndTime(cloudVmStatusContainer.getEndTime());
             JobQueueStatus oldStatus = job.getStatus();
-
-            // don't downgrade from terminal state (Completed) - once a job is done, it stays done
-            if (oldStatus == JobQueueStatus.Completed) {
-                LOG.debug(new ObjectMessage(Map.of("Message",
-                    "Job " + status.getJobId() + " already Completed - ignoring status recalculation from instance updates")));
-                return;
-            }
-
             JobQueueStatus newStatus = job.getStatus();
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
@@ -454,9 +411,6 @@ public class VMTrackerImpl implements VMTracker {
     }
 
     private Object getCacheSyncObject(final String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Cannot synchronize on null jobId");
-        }
         locks.putIfAbsent(id, id);
         return locks.get(id);
     }
