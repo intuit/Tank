@@ -260,18 +260,10 @@ public class AgentWatchdog implements Runnable {
         amazonInstance.killInstances(instanceIds);
         // Set terminated status on the DAO
         VMImageDao dao = new VMImageDao();
-        // Create defensive copy - instances IS startedInstances (same reference),
-        // and we modify startedInstances inside the loop via removeInstance()
-        List<VMInformation> instancesToProcess = new ArrayList<>(instances);
-        for (VMInformation info : instancesToProcess) {
+        for (VMInformation info : instances) {
             vmInfo.remove(info);
-            
-            // Remove from all tracking lists FIRST - this prevents stale heartbeats from being processed
-            // for this instance after we mark it as replaced (no need to modify shouldUpdateStatus)
-            removeInstance(startedInstances, info.getInstanceId());
-            removeInstance(reportedInstances, info.getInstanceId());
 
-            // NOW mark as replaced - safe because instance is removed from tracking
+            // Mark as replaced - keeps visible in UI but filtered from job status
             CloudVmStatus replacedStatus = vmTracker.getStatus(info.getInstanceId());
             if (replacedStatus != null) {
                 replacedStatus.setVmStatus(VMStatus.replaced);
