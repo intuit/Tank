@@ -583,13 +583,9 @@ public class HeadlessDebuggerSetup implements Serializable {
                     variablesOutput.displayVars(); // log variables
                 }
                 
-                // Record step data for JSON report
+                // Record step data for JSON report with full validation error details
                 if (reportData != null && debugStep != null) {
-                    List<String> errorMsgs = new ArrayList<>();
-                    if (context.getErrors() != null) {
-                        context.getErrors().forEach(e -> errorMsgs.add(e.toString()));
-                    }
-                    reportData.recordStep(debugStep, success_status, errorMsgs);
+                    reportData.recordStep(debugStep, success_status, context.getErrors());
                 }
             } catch (Exception e1) {
                 e1.printStackTrace();
@@ -696,6 +692,15 @@ public class HeadlessDebuggerSetup implements Serializable {
 
     public void stepExecuted() {
         executedStepCounter++;
+    }
+
+    /**
+     * Records a skipped step (ThinkTime, SleepTime, or Logic step) to the JSON report.
+     */
+    public void recordSkippedStep(TestStep testStep) {
+        if (reportData != null) {
+            reportData.recordSkippedStep(testStep);
+        }
     }
 
 }

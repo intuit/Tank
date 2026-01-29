@@ -110,6 +110,9 @@ public class AutomationFlowController implements FlowController {
                         + "SKIPPED";
                 debuggerSetup.stepExecuted();
                 LOG.info(stepInfo);
+                
+                // Record skipped step to JSON report
+                debuggerSetup.recordSkippedStep(skippedStep);
             }
         }
         debuggerSetup.setNextStep(context);
