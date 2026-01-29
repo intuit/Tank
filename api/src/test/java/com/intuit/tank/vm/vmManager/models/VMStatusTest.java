@@ -55,41 +55,17 @@ public class VMStatusTest {
     }
 
     @Test
-    @DisplayName("fromString returns unknown for null input")
-    public void testFromString_nullReturnsUnknown() {
-        VMStatus result = VMStatus.fromString(null);
-        
-        assertNotNull(result);
-        assertEquals(VMStatus.unknown, result);
+    @DisplayName("fromString throws for invalid values (original behavior)")
+    public void testFromString_invalidValueThrows() {
+        // Original behavior: valueOf throws IllegalArgumentException for invalid values
+        assertThrows(IllegalArgumentException.class, () -> VMStatus.fromString("garbage-value"));
     }
 
     @Test
-    @DisplayName("fromString returns unknown for empty string")
-    public void testFromString_emptyReturnsUnknown() {
-        VMStatus result = VMStatus.fromString("");
-        
-        assertNotNull(result);
-        assertEquals(VMStatus.unknown, result);
-    }
-
-    @Test
-    @DisplayName("fromString returns unknown for unrecognized values (graceful handling)")
-    public void testFromString_unknownValueReturnsUnknown() {
-        // Should not throw IllegalArgumentException - gracefully returns unknown
-        VMStatus result = VMStatus.fromString("garbage-value");
-        
-        assertNotNull(result);
-        assertEquals(VMStatus.unknown, result);
-    }
-
-    @Test
-    @DisplayName("fromString handles future/unknown enum values gracefully")
-    public void testFromString_futureCompatibility() {
-        // Simulates receiving a value from a newer version of the API
-        VMStatus result = VMStatus.fromString("some_new_status_from_future");
-        
-        assertNotNull(result);
-        assertEquals(VMStatus.unknown, result);
+    @DisplayName("fromString throws for null input (original behavior)")
+    public void testFromString_nullThrows() {
+        // Original behavior: valueOf throws NullPointerException for null
+        assertThrows(NullPointerException.class, () -> VMStatus.fromString(null));
     }
 
     @Test

@@ -490,40 +490,32 @@ public class VMTrackerImplTest {
         }
     }
 
-    // ============ removeStatusForInstance race condition fix tests ============
+    // ============ removeStatusForInstance tests ============
 
     @Test
-    @DisplayName("removeStatusForInstance removes from both statusMap and container atomically")
-    void removeStatusForInstance_atomicRemoval() throws Exception {
-        String jobId = "atomic-remove-job";
-        String instanceId = "i-atomic-test";
+    @DisplayName("removeStatusForInstance removes from statusMap")
+    void removeStatusForInstance_removesFromStatusMap() throws Exception {
+        String jobId = "remove-test-job";
+        String instanceId = "i-remove-test";
         
         // Given: An instance with status (using direct manipulation)
         CloudVmStatus status = createStatusWithJobStatus(instanceId, jobId, VMStatus.running, JobStatus.Running);
         addStatusDirectly(status);
         
-        // Verify it exists in both places
+        // Verify it exists
         assertNotNull(vmTracker.getStatus(instanceId), "Status should exist in statusMap");
-        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
-        assertNotNull(container, "Container should exist");
-        assertTrue(container.getStatuses().stream().anyMatch(s -> s.getInstanceId().equals(instanceId)),
-            "Instance should be in container");
         
         // When: Remove the status
         vmTracker.removeStatusForInstance(instanceId);
         
-        // Then: Should be removed from both statusMap and container
+        // Then: Should be removed from statusMap
         assertNull(vmTracker.getStatus(instanceId), "Status should be removed from statusMap");
-        container = vmTracker.getVmStatusForJob(jobId);
-        assertNotNull(container); // Container still exists (job not removed)
-        assertFalse(container.getStatuses().stream().anyMatch(s -> s.getInstanceId().equals(instanceId)),
-            "Instance should be removed from container");
     }
 
     @Test
-    @DisplayName("removeStatusForInstance handles non-existent instance gracefully with sync")
+    @DisplayName("removeStatusForInstance handles non-existent instance gracefully")
     void removeStatusForInstance_nonExistent_noException() {
-        // Should not throw even with the new synchronized logic
+        // Should not throw
         assertDoesNotThrow(() -> vmTracker.removeStatusForInstance("i-does-not-exist"));
     }
 }

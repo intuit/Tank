@@ -73,8 +73,8 @@ public class JobEventSenderTest {
     }
 
     @Test
-    @DisplayName("getInstancesForJob excludes terminated instances")
-    void getInstancesForJob_excludesTerminatedInstances() throws Exception {
+    @DisplayName("getInstancesForJob includes terminated instances (AWS handles idempotently)")
+    void getInstancesForJob_includesTerminatedInstances() throws Exception {
         // Given: Mix of running and terminated instances
         container.getStatuses().add(createStatus("i-running1", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-terminated", JobStatus.Stopped, VMStatus.terminated));
@@ -85,16 +85,16 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: Only running instances should be returned
-        assertEquals(2, instances.size());
+        // Then: All instances returned (AWS terminateInstances is idempotent)
+        assertEquals(3, instances.size());
         assertTrue(instances.contains("i-running1"));
         assertTrue(instances.contains("i-running2"));
-        assertFalse(instances.contains("i-terminated"));
+        assertTrue(instances.contains("i-terminated"));
     }
 
     @Test
-    @DisplayName("getInstancesForJob excludes stopped instances")
-    void getInstancesForJob_excludesStoppedInstances() throws Exception {
+    @DisplayName("getInstancesForJob includes stopped instances (EC2 still exists)")
+    void getInstancesForJob_includesStoppedInstances() throws Exception {
         // Given
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-stopped", JobStatus.Stopped, VMStatus.stopped));
@@ -104,15 +104,15 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then
-        assertEquals(1, instances.size());
+        // Then: stopped instances are included (EC2 still exists, needs termination)
+        assertEquals(2, instances.size());
         assertTrue(instances.contains("i-running"));
-        assertFalse(instances.contains("i-stopped"));
+        assertTrue(instances.contains("i-stopped"));
     }
 
     @Test
-    @DisplayName("getInstancesForJob excludes stopping instances")
-    void getInstancesForJob_excludesStoppingInstances() throws Exception {
+    @DisplayName("getInstancesForJob includes stopping instances (EC2 still exists)")
+    void getInstancesForJob_includesStoppingInstances() throws Exception {
         // Given
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-stopping", JobStatus.Stopped, VMStatus.stopping));
@@ -122,15 +122,15 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then
-        assertEquals(1, instances.size());
+        // Then: stopping instances are included (EC2 still exists)
+        assertEquals(2, instances.size());
         assertTrue(instances.contains("i-running"));
-        assertFalse(instances.contains("i-stopping"));
+        assertTrue(instances.contains("i-stopping"));
     }
 
     @Test
-    @DisplayName("getInstancesForJob excludes shutting_down instances")
-    void getInstancesForJob_excludesShuttingDownInstances() throws Exception {
+    @DisplayName("getInstancesForJob includes shutting_down instances (EC2 still exists)")
+    void getInstancesForJob_includesShuttingDownInstances() throws Exception {
         // Given
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-shuttingdown", JobStatus.Stopped, VMStatus.shutting_down));
@@ -140,10 +140,10 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then
-        assertEquals(1, instances.size());
+        // Then: shutting_down instances are included (EC2 still exists)
+        assertEquals(2, instances.size());
         assertTrue(instances.contains("i-running"));
-        assertFalse(instances.contains("i-shuttingdown"));
+        assertTrue(instances.contains("i-shuttingdown"));
     }
 
     @Test
@@ -237,9 +237,9 @@ public class JobEventSenderTest {
     }
 
     @Test
-    @DisplayName("getInstancesForJob excludes all terminal states correctly")
-    void getInstancesForJob_excludesAllTerminalStates() throws Exception {
-        // Given: One instance of each terminal state + one running
+    @DisplayName("getInstancesForJob excludes only replaced instances")
+    void getInstancesForJob_excludesOnlyReplaced() throws Exception {
+        // Given: One instance of each state
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-terminated", JobStatus.Completed, VMStatus.terminated));
         container.getStatuses().add(createStatus("i-replaced", JobStatus.Starting, VMStatus.replaced));
@@ -252,9 +252,15 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: Only the running instance should be included
-        assertEquals(1, instances.size());
+        // Then: Only replaced is excluded (watchdog already killed it on AWS)
+        // All others included (EC2 instances exist or AWS handles idempotently)
+        assertEquals(5, instances.size());
         assertTrue(instances.contains("i-running"));
+        assertTrue(instances.contains("i-terminated"));
+        assertTrue(instances.contains("i-stopped"));
+        assertTrue(instances.contains("i-stopping"));
+        assertTrue(instances.contains("i-shutting-down"));
+        assertFalse(instances.contains("i-replaced"));
     }
 
     @Test
