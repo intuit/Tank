@@ -73,8 +73,8 @@ public class JobEventSenderTest {
     }
 
     @Test
-    @DisplayName("getInstancesForJob includes terminated instances (AWS handles idempotently)")
-    void getInstancesForJob_includesTerminatedInstances() throws Exception {
+    @DisplayName("getInstancesForJob excludes terminated instances (no longer exist on AWS)")
+    void getInstancesForJob_excludesTerminatedInstances() throws Exception {
         // Given: Mix of running and terminated instances
         container.getStatuses().add(createStatus("i-running1", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-terminated", JobStatus.Stopped, VMStatus.terminated));
@@ -85,11 +85,11 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: All instances returned (AWS terminateInstances is idempotent)
-        assertEquals(3, instances.size());
+        // Then: Terminated instances excluded (no longer exist on AWS)
+        assertEquals(2, instances.size());
         assertTrue(instances.contains("i-running1"));
         assertTrue(instances.contains("i-running2"));
-        assertTrue(instances.contains("i-terminated"));
+        assertFalse(instances.contains("i-terminated"));
     }
 
     @Test
@@ -193,8 +193,8 @@ public class JobEventSenderTest {
     }
 
     @Test
-    @DisplayName("getInstancesForJob includes replaced instances (needed for EC2 termination)")
-    void getInstancesForJob_includesReplacedInstances() throws Exception {
+    @DisplayName("getInstancesForJob excludes replaced instances (can't receive HTTP commands)")
+    void getInstancesForJob_excludesReplacedInstances() throws Exception {
         // Given: VMStatus.replaced is set by AgentWatchdog when an agent fails and is replaced
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-replaced", JobStatus.Starting, VMStatus.replaced));
@@ -204,14 +204,14 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: ALL instances returned including replaced (EC2 still needs termination)
-        assertEquals(2, instances.size());
+        // Then: Replaced instances filtered out (they can't receive HTTP commands)
+        assertEquals(1, instances.size());
         assertTrue(instances.contains("i-running"));
-        assertTrue(instances.contains("i-replaced"));
+        assertFalse(instances.contains("i-replaced"));
     }
 
     @Test
-    @DisplayName("getInstancesForJob returns all instances including replaced for AgentWatchdog scenario")
+    @DisplayName("getInstancesForJob excludes replaced instances in AgentWatchdog scenario")
     void getInstancesForJob_agentWatchdogScenario() throws Exception {
         // Given: Real-world scenario where AgentWatchdog replaced some agents
         // - 3 running agents (healthy)
@@ -227,18 +227,18 @@ public class JobEventSenderTest {
         // When: User tries to kill the job
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: ALL instances returned (replaced EC2 instances still need termination)
-        assertEquals(5, instances.size());
+        // Then: Only healthy instances returned (replaced no longer exist on AWS)
+        assertEquals(3, instances.size());
         assertTrue(instances.contains("i-healthy1"));
         assertTrue(instances.contains("i-healthy2"));
         assertTrue(instances.contains("i-healthy3"));
-        assertTrue(instances.contains("i-replaced1"));
-        assertTrue(instances.contains("i-replaced2"));
+        assertFalse(instances.contains("i-replaced1"));
+        assertFalse(instances.contains("i-replaced2"));
     }
 
     @Test
-    @DisplayName("getInstancesForJob returns all instances regardless of status")
-    void getInstancesForJob_returnsAllInstances() throws Exception {
+    @DisplayName("getInstancesForJob excludes replaced and terminated, keeps other statuses")
+    void getInstancesForJob_excludesReplacedAndTerminated() throws Exception {
         // Given: One instance of each state
         container.getStatuses().add(createStatus("i-running", JobStatus.Running, VMStatus.running));
         container.getStatuses().add(createStatus("i-terminated", JobStatus.Completed, VMStatus.terminated));
@@ -252,14 +252,15 @@ public class JobEventSenderTest {
         // When
         List<String> instances = invokeGetInstancesForJob("123");
         
-        // Then: ALL instances returned (no filtering - AWS handles idempotently)
-        assertEquals(6, instances.size());
+        // Then: Excludes replaced and terminated (no longer exist on AWS)
+        // Keeps stopped/stopping/shutting_down (EC2 still exists, needs termination)
+        assertEquals(4, instances.size());
         assertTrue(instances.contains("i-running"));
-        assertTrue(instances.contains("i-terminated"));
         assertTrue(instances.contains("i-stopped"));
         assertTrue(instances.contains("i-stopping"));
         assertTrue(instances.contains("i-shutting-down"));
-        assertTrue(instances.contains("i-replaced"));
+        assertFalse(instances.contains("i-terminated"));
+        assertFalse(instances.contains("i-replaced"));
     }
 
     @Test

@@ -146,7 +146,12 @@ public class JobEventSender {
         }
         String jobId = null;
         for (String instanceId : instanceIds) {
-            CloudVmStatus status = new CloudVmStatus(vmTracker.getStatus(instanceId));
+            CloudVmStatus existingStatus = vmTracker.getStatus(instanceId);
+            if (existingStatus == null) {
+                LOG.warn("No status found for instance " + instanceId + " - skipping status update");
+                continue;
+            }
+            CloudVmStatus status = new CloudVmStatus(existingStatus);
             status.setCurrentUsers(0);
             status.setEndTime(new Date());
             status.setJobStatus(JobStatus.Completed);
@@ -247,7 +252,14 @@ public class JobEventSender {
         List<String> instanceIds = new ArrayList<String>();
         CloudVmStatusContainer statuses = vmTracker.getVmStatusForJob(jobId);
         if (statuses != null) {
-            instanceIds = statuses.getStatuses().stream().map(CloudVmStatus::getInstanceId).collect(Collectors.toList());
+            instanceIds = statuses.getStatuses().stream()
+                .filter(s -> {
+                    VMStatus vmStatus = s.getVmStatus();
+                    // Only exclude instances that no longer exist on AWS
+                    return vmStatus != VMStatus.replaced && vmStatus != VMStatus.terminated;
+                })
+                .map(CloudVmStatus::getInstanceId)
+                .collect(Collectors.toList());
         }
         return instanceIds;
     }
