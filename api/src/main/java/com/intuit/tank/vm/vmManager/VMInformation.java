@@ -96,6 +96,44 @@ public class VMInformation implements Serializable {
         return (String) this.items.get("privateDns");
     }
 
+    /**
+     * Set the virtual machine private IP address
+     * 
+     * @param data
+     *            The virtual machine's private IP address
+     */
+    public void setPrivateIp(String data) {
+        this.items.put("privateIp", data);
+    }
+
+    /**
+     * Get the virtual machine private IP address
+     * 
+     * @return The virtual machine's private IP address
+     */
+    public String getPrivateIp() {
+        return (String) this.items.get("privateIp");
+    }
+
+    /**
+     * Set the virtual machine public IP address
+     * 
+     * @param data
+     *            The virtual machine's public IP address
+     */
+    public void setPublicIp(String data) {
+        this.items.put("publicIp", data);
+    }
+
+    /**
+     * Get the virtual machine public IP address
+     * 
+     * @return The virtual machine's public IP address
+     */
+    public String getPublicIp() {
+        return (String) this.items.get("publicIp");
+    }
+
     public void setLaunchTime(Calendar data) {
         this.items.put("launchTime", data);
     }

@@ -78,6 +78,8 @@ public class CommandListener {
             String path = exchange.getRequestURI().getPath();
             if (path.equals(AgentCommand.start.getPath()) || path.equals(AgentCommand.run.getPath())) {
                 response = "Received command " + path + ", Starting Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+                LOG.info(LogUtil.getLogMessage("Received START command - launching test threads for job " + 
+                    APITestHarness.getInstance().getAgentRunData().getJobId()));
                 startTest();
             } else if (path.startsWith(AgentCommand.stop.getPath())) {
                 response = "Received command " + path + ", Stopping Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
