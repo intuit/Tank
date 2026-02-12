@@ -127,8 +127,21 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                         .forEach(filterIds::add);
 
                 if (!filterIds.isEmpty()) {
+                    // DIAGNOSTIC: Track timing and memory for filter group performance analysis
+                    long groupStart = System.nanoTime();
+                    long groupStartMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    
                     ScriptFilterUtil.applyFilters(filterIds, script);
                     ScriptUtil.setScriptStepLabels(script);
+                    
+                    // DIAGNOSTIC: Log filter group performance metrics
+                    long groupElapsed = (System.nanoTime() - groupStart) / 1_000_000;
+                    long groupEndMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+                    long groupMemDelta = (groupEndMem - groupStartMem) / 1024 / 1024;
+                    
+                    LOGGER.warn("FILTER_GROUP_PERF: scriptId={}, filterCount={}, totalTime={}ms, totalMemDelta={}MB", 
+                        scriptId, filterIds.size(), groupElapsed, groupMemDelta);
+                    
                     script = new ScriptDao().saveOrUpdate(script);
                     sendMsg(script, ModificationType.UPDATE);
                     return "Filters applied";
