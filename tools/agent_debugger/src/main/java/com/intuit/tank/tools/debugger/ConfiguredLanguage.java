@@ -16,6 +16,7 @@ package com.intuit.tank.tools.debugger;
  * #L%
  */
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,15 +57,18 @@ public class ConfiguredLanguage {
     static {
         for (String[] row : data) {
             try {
+                System.setProperty("nashorn.args", "--language=es6");
                 ScriptEngine engineByName = manager.getEngineByName(row[0]);
                 if (engineByName == null) {
-                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).newInstance();
+                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).getDeclaredConstructor().newInstance();
                     manager.registerEngineName(row[0], fact);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
                 extensionSet.addAll(engineByName.getFactory().getExtensions());
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
             for (ScriptEngineFactory fact : manager.getEngineFactories()) {
                 System.out.println(fact.getLanguageName());

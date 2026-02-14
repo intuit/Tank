@@ -89,6 +89,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     public ScriptEngine getEngine() {
+        System.setProperty("nashorn.args", "--language=es6");
         return new ScriptEngineManager().getEngineByExtension(FilenameUtils.getExtension(name));
     }
 
