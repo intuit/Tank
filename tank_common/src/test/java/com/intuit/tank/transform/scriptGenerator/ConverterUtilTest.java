@@ -625,6 +625,28 @@ public class ConverterUtilTest {
         assertEquals("legacy-comment-id", getConnectionId(converted));
     }
 
+    @Test
+    public void testConvertWebSocketStep_ParsesFailOnAndAssertionsFromRequestData() throws Exception {
+        ScriptStep scriptStep = createWebSocketScriptStep("legacy-comment-id", "request-data-id");
+        scriptStep.getData().add(createWebSocketData("ws-fail-on.0.pattern", "error"));
+        scriptStep.getData().add(createWebSocketData("ws-fail-on.0.regex", "true"));
+        scriptStep.getData().add(createWebSocketData("ws-assert-expect.0.pattern", "ready"));
+        scriptStep.getData().add(createWebSocketData("ws-assert-expect.0.min", "1"));
+        scriptStep.getData().add(createWebSocketData("ws-assert-save.0.pattern", "id:(\\\\d+)"));
+        scriptStep.getData().add(createWebSocketData("ws-assert-save.0.variable", "lastId"));
+        scriptStep.getData().add(createWebSocketData("ws-assert-save.0.occurrence", "last"));
+
+        Object converted = convertWebSocketStep(scriptStep);
+
+        assertEquals(1, getFailOnCount(converted));
+        assertEquals("error", getFailOnPattern(converted, 0));
+        assertTrue(isFailOnRegex(converted, 0));
+        assertEquals(1, getExpectCount(converted));
+        assertEquals("ready", getExpectPattern(converted, 0));
+        assertEquals(1, getSaveCount(converted));
+        assertEquals("lastId", getSaveVariable(converted, 0));
+    }
+
     private Object convertWebSocketStep(ScriptStep scriptStep) throws Exception {
         Method method = ConverterUtil.class.getDeclaredMethod("convertWebSocketStep", ScriptStep.class);
         method.setAccessible(true);
@@ -634,6 +656,61 @@ public class ConverterUtilTest {
     private String getConnectionId(Object webSocketStep) throws Exception {
         Method getter = webSocketStep.getClass().getDeclaredMethod("getConnectionId");
         return (String) getter.invoke(webSocketStep);
+    }
+
+    private int getFailOnCount(Object webSocketStep) throws Exception {
+        Method getter = webSocketStep.getClass().getDeclaredMethod("getFailOnPatterns");
+        List<?> failOnPatterns = (List<?>) getter.invoke(webSocketStep);
+        return failOnPatterns != null ? failOnPatterns.size() : 0;
+    }
+
+    private String getFailOnPattern(Object webSocketStep, int index) throws Exception {
+        Method getter = webSocketStep.getClass().getDeclaredMethod("getFailOnPatterns");
+        List<?> failOnPatterns = (List<?>) getter.invoke(webSocketStep);
+        Method patternGetter = failOnPatterns.get(index).getClass().getDeclaredMethod("getPattern");
+        return (String) patternGetter.invoke(failOnPatterns.get(index));
+    }
+
+    private boolean isFailOnRegex(Object webSocketStep, int index) throws Exception {
+        Method getter = webSocketStep.getClass().getDeclaredMethod("getFailOnPatterns");
+        List<?> failOnPatterns = (List<?>) getter.invoke(webSocketStep);
+        Method regexGetter = failOnPatterns.get(index).getClass().getDeclaredMethod("isRegex");
+        return (Boolean) regexGetter.invoke(failOnPatterns.get(index));
+    }
+
+    private int getExpectCount(Object webSocketStep) throws Exception {
+        Object assertions = getAssertions(webSocketStep);
+        Method getter = assertions.getClass().getDeclaredMethod("getExpects");
+        List<?> expects = (List<?>) getter.invoke(assertions);
+        return expects != null ? expects.size() : 0;
+    }
+
+    private String getExpectPattern(Object webSocketStep, int index) throws Exception {
+        Object assertions = getAssertions(webSocketStep);
+        Method getter = assertions.getClass().getDeclaredMethod("getExpects");
+        List<?> expects = (List<?>) getter.invoke(assertions);
+        Method patternGetter = expects.get(index).getClass().getDeclaredMethod("getPattern");
+        return (String) patternGetter.invoke(expects.get(index));
+    }
+
+    private int getSaveCount(Object webSocketStep) throws Exception {
+        Object assertions = getAssertions(webSocketStep);
+        Method getter = assertions.getClass().getDeclaredMethod("getSaves");
+        List<?> saves = (List<?>) getter.invoke(assertions);
+        return saves != null ? saves.size() : 0;
+    }
+
+    private String getSaveVariable(Object webSocketStep, int index) throws Exception {
+        Object assertions = getAssertions(webSocketStep);
+        Method getter = assertions.getClass().getDeclaredMethod("getSaves");
+        List<?> saves = (List<?>) getter.invoke(assertions);
+        Method variableGetter = saves.get(index).getClass().getDeclaredMethod("getVariable");
+        return (String) variableGetter.invoke(saves.get(index));
+    }
+
+    private Object getAssertions(Object webSocketStep) throws Exception {
+        Method getter = webSocketStep.getClass().getDeclaredMethod("getAssertions");
+        return getter.invoke(webSocketStep);
     }
 
     private ScriptStep createWebSocketScriptStep(String commentsConnectionId, String requestDataConnectionId) {
@@ -666,5 +743,13 @@ public class ConverterUtilTest {
 
         scriptStep.setData(data);
         return scriptStep;
+    }
+
+    private RequestData createWebSocketData(String key, String value) {
+        RequestData requestData = new RequestData();
+        requestData.setType("websocket");
+        requestData.setKey(key);
+        requestData.setValue(value);
+        return requestData;
     }
 }

@@ -202,6 +202,16 @@ public class ScriptStepFactoryTest {
         assertEquals(connectionId, getRequestDataValue(result, "ws-connection-id"));
     }
 
+    @Test
+    public void testCreateWebSocketAssert_StoresConnectionIdInDataAndComments() {
+        String connectionId = "conn-assert";
+        ScriptStep result = ScriptStepFactory.createWebSocketAssert(connectionId, "ws://localhost/assert");
+
+        assertEquals(connectionId, result.getComments());
+        assertEquals(connectionId, getRequestDataValue(result, "ws-connection-id"));
+        assertEquals("assert", getRequestDataValue(result, "ws-action"));
+    }
+
     private String getRequestDataValue(ScriptStep step, String key) {
         for (RequestData data : step.getData()) {
             if (key.equals(data.getKey())) {

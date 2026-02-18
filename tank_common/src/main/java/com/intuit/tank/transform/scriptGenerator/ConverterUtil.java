@@ -17,7 +17,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,9 +36,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.data.AssignmentData;
+import com.intuit.tank.harness.data.AssertionBlock;
 import com.intuit.tank.harness.data.AuthenticationStep;
 import com.intuit.tank.harness.data.ClearCookiesStep;
 import com.intuit.tank.harness.data.CookieStep;
+import com.intuit.tank.harness.data.FailOnPattern;
 import com.intuit.tank.harness.data.HDRequest;
 import com.intuit.tank.harness.data.HDResponse;
 import com.intuit.tank.harness.data.HDScript;
@@ -54,7 +59,9 @@ import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.harness.data.TimerStep;
 import com.intuit.tank.harness.data.ValidationData;
 import com.intuit.tank.harness.data.VariableStep;
+import com.intuit.tank.harness.data.SaveOccurrence;
 import com.intuit.tank.harness.data.WebSocketAction;
+import com.intuit.tank.harness.data.WebSocketAssertion;
 import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.http.AuthScheme;
@@ -74,6 +81,9 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class ConverterUtil {
     private static final Logger LOG = LogManager.getLogger(ConverterUtil.class);
+    private static final String WEBSOCKET_FAIL_ON_PREFIX = "ws-fail-on.";
+    private static final String WEBSOCKET_ASSERT_EXPECT_PREFIX = "ws-assert-expect.";
+    private static final String WEBSOCKET_ASSERT_SAVE_PREFIX = "ws-assert-save.";
 
     public static HDWorkload convertScriptToHdWorkload(Script script) {
 
@@ -301,25 +311,35 @@ public class ConverterUtil {
         String payload = null;
         Integer timeoutMs = null;
         String connectionIdFromData = null;
+        Map<Integer, Map<String, String>> failOnFields = new HashMap<Integer, Map<String, String>>();
+        Map<Integer, Map<String, String>> expectFields = new HashMap<Integer, Map<String, String>>();
+        Map<Integer, Map<String, String>> saveFields = new HashMap<Integer, Map<String, String>>();
         
         Set<RequestData> data = scriptStep.getData();
         if (data != null) {
             for (RequestData rd : data) {
                 String key = rd.getKey();
+                String value = rd.getValue();
                 if ("ws-action".equals(key)) {
-                    action = rd.getValue();
+                    action = value;
                 } else if ("ws-url".equals(key)) {
-                    url = rd.getValue();
+                    url = value;
                 } else if ("ws-connection-id".equals(key)) {
-                    connectionIdFromData = rd.getValue();
+                    connectionIdFromData = value;
                 } else if ("ws-payload".equals(key)) {
-                    payload = rd.getValue();
+                    payload = value;
                 } else if ("ws-timeout-ms".equals(key)) {
                     try {
-                        timeoutMs = Integer.parseInt(rd.getValue());
+                        timeoutMs = Integer.parseInt(value);
                     } catch (NumberFormatException e) {
-                        LOG.warn("Invalid timeout value for WebSocket step: " + rd.getValue());
+                        LOG.warn("Invalid timeout value for WebSocket step: " + value);
                     }
+                } else if (key.startsWith(WEBSOCKET_FAIL_ON_PREFIX)) {
+                    collectIndexedField(failOnFields, key, WEBSOCKET_FAIL_ON_PREFIX, value);
+                } else if (key.startsWith(WEBSOCKET_ASSERT_EXPECT_PREFIX)) {
+                    collectIndexedField(expectFields, key, WEBSOCKET_ASSERT_EXPECT_PREFIX, value);
+                } else if (key.startsWith(WEBSOCKET_ASSERT_SAVE_PREFIX)) {
+                    collectIndexedField(saveFields, key, WEBSOCKET_ASSERT_SAVE_PREFIX, value);
                 }
             }
         }
@@ -342,8 +362,163 @@ public class ConverterUtil {
         request.setPayload(payload);
         request.setTimeoutMs(timeoutMs);
         ws.setRequest(request);
+
+        ws.setFailOnPatterns(buildFailOnPatterns(failOnFields));
+
+        AssertionBlock assertions = buildAssertions(expectFields, saveFields);
+        if (!assertions.isEmpty()) {
+            ws.setAssertions(assertions);
+        }
         
         return ws;
+    }
+
+    private static void collectIndexedField(Map<Integer, Map<String, String>> fieldsByIndex,
+                                            String key,
+                                            String prefix,
+                                            String value) {
+        IndexedDataKey indexedDataKey = parseIndexedDataKey(key, prefix);
+        if (indexedDataKey == null) {
+            return;
+        }
+        Map<String, String> rowFields = fieldsByIndex.get(indexedDataKey.getIndex());
+        if (rowFields == null) {
+            rowFields = new HashMap<String, String>();
+            fieldsByIndex.put(indexedDataKey.getIndex(), rowFields);
+        }
+        rowFields.put(indexedDataKey.getField(), value);
+    }
+
+    private static List<FailOnPattern> buildFailOnPatterns(Map<Integer, Map<String, String>> failOnFields) {
+        List<FailOnPattern> failOnPatterns = new ArrayList<FailOnPattern>();
+        for (Map<String, String> row : getOrderedRows(failOnFields)) {
+            String pattern = row.get("pattern");
+            if (StringUtils.isBlank(pattern)) {
+                continue;
+            }
+            FailOnPattern failOnPattern = new FailOnPattern();
+            failOnPattern.setPattern(pattern);
+            failOnPattern.setRegex(Boolean.parseBoolean(row.get("regex")));
+            failOnPatterns.add(failOnPattern);
+        }
+        return failOnPatterns;
+    }
+
+    private static AssertionBlock buildAssertions(Map<Integer, Map<String, String>> expectFields,
+                                                  Map<Integer, Map<String, String>> saveFields) {
+        AssertionBlock block = new AssertionBlock();
+
+        for (Map<String, String> row : getOrderedRows(expectFields)) {
+            String pattern = row.get("pattern");
+            if (StringUtils.isBlank(pattern)) {
+                continue;
+            }
+            WebSocketAssertion expect = new WebSocketAssertion();
+            expect.setPattern(pattern);
+            expect.setRegex(Boolean.parseBoolean(row.get("regex")));
+
+            Integer min = parseIntegerOrNull(row.get("min"), "expect.min");
+            if (min != null) {
+                expect.setMinCount(min);
+            }
+            Integer max = parseIntegerOrNull(row.get("max"), "expect.max");
+            if (max != null) {
+                expect.setMaxCount(max);
+            }
+
+            block.getExpects().add(expect);
+        }
+
+        for (Map<String, String> row : getOrderedRows(saveFields)) {
+            String pattern = row.get("pattern");
+            if (StringUtils.isBlank(pattern)) {
+                continue;
+            }
+            WebSocketAssertion save = new WebSocketAssertion();
+            save.setPattern(pattern);
+            save.setRegex(Boolean.parseBoolean(row.get("regex")));
+
+            String variable = row.get("variable");
+            if (StringUtils.isNotBlank(variable)) {
+                save.setVariable(variable);
+            }
+
+            String occurrence = row.get("occurrence");
+            if (StringUtils.isNotBlank(occurrence)) {
+                try {
+                    save.setOccurrence(SaveOccurrence.fromValue(occurrence));
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Invalid save occurrence value for WebSocket assertion: {}", occurrence);
+                }
+            }
+
+            block.getSaves().add(save);
+        }
+
+        return block;
+    }
+
+    private static Integer parseIntegerOrNull(String value, String fieldName) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            LOG.warn("Invalid integer value for WebSocket assertion field {}: {}", fieldName, value);
+            return null;
+        }
+    }
+
+    private static List<Map<String, String>> getOrderedRows(Map<Integer, Map<String, String>> rowsByIndex) {
+        if (rowsByIndex.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> indexes = new ArrayList<Integer>(rowsByIndex.keySet());
+        Collections.sort(indexes);
+
+        List<Map<String, String>> orderedRows = new ArrayList<Map<String, String>>();
+        for (Integer index : indexes) {
+            orderedRows.add(rowsByIndex.get(index));
+        }
+        return orderedRows;
+    }
+
+    private static IndexedDataKey parseIndexedDataKey(String key, String prefix) {
+        if (!key.startsWith(prefix)) {
+            return null;
+        }
+        String remaining = key.substring(prefix.length());
+        int separator = remaining.indexOf('.');
+        if (separator <= 0 || separator >= remaining.length() - 1) {
+            return null;
+        }
+
+        String indexValue = remaining.substring(0, separator);
+        if (!StringUtils.isNumeric(indexValue)) {
+            return null;
+        }
+        String field = remaining.substring(separator + 1);
+        return new IndexedDataKey(Integer.parseInt(indexValue), field);
+    }
+
+    private static final class IndexedDataKey {
+        private final int index;
+        private final String field;
+
+        private IndexedDataKey(int index, String field) {
+            this.index = index;
+            this.field = field;
+        }
+
+        private int getIndex() {
+            return index;
+        }
+
+        private String getField() {
+            return field;
+        }
     }
 
     private static TestStep convertRequestStep(ScriptStep scriptStep) {

@@ -16,13 +16,14 @@
         <p:ajax update=":webSocketForm:webSocketPanelGroup" />
         <f:selectItem itemLabel="Connect" itemValue="CONNECT" />
         <f:selectItem itemLabel="Send" itemValue="SEND" />
+        <f:selectItem itemLabel="Assert" itemValue="ASSERT" />
         <f:selectItem itemLabel="Disconnect" itemValue="DISCONNECT" />
       </p:selectOneMenu>
     </div>
   </div>
   <div class="vertical-spacer clear-both" />
 
-  <!-- WebSocket URL (only for CONNECT) -->
+  <!-- CONNECT -->
   <h:panelGroup rendered="#{webSocketStepEditor.action == 'CONNECT'}">
     <div class="formRowDiv">
       <div class="formLabelDiv required float-left">WebSocket URL</div>
@@ -31,10 +32,38 @@
       </div>
     </div>
     <div class="vertical-spacer clear-both" />
+
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Timeout (ms)</div>
+      <div class="formInput float-left">
+        <h:inputText value="#{webSocketStepEditor.timeoutMs}" size="12" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Fail-On Patterns</div>
+      <div class="formInput float-left" style="width: 480px;">
+        <ui:repeat value="#{webSocketStepEditor.failOnEntries}" var="failOn" varStatus="status">
+          <div class="vertical-spacer clear-both" />
+          <h:inputText value="#{failOn.pattern}" size="28" style="width: 250px;" />
+          <h:outputText value=" Regex " style="margin-left: 10px;" />
+          <p:selectBooleanCheckbox value="#{failOn.regex}" />
+          <p:commandButton value="Remove" process="@this"
+            action="#{webSocketStepEditor.removeFailOnEntry(status.index)}"
+            update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
+        </ui:repeat>
+        <div class="vertical-spacer clear-both" />
+        <p:commandButton value="Add Fail-On" process="@this"
+          action="#{webSocketStepEditor.addFailOnEntry}"
+          update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
   </h:panelGroup>
 
-  <!-- WebSocket URL (for SEND and DISCONNECT) -->
-  <h:panelGroup rendered="#{webSocketStepEditor.action == 'SEND' or webSocketStepEditor.action == 'DISCONNECT'}">
+  <!-- SEND -->
+  <h:panelGroup rendered="#{webSocketStepEditor.action == 'SEND'}">
     <div class="formRowDiv">
       <div class="formLabelDiv required float-left">WebSocket URL</div>
       <div class="formInput float-left">
@@ -42,15 +71,94 @@
       </div>
     </div>
     <div class="vertical-spacer clear-both" />
-  </h:panelGroup>
 
-  <!-- Payload (only for SEND) -->
-  <h:panelGroup rendered="#{webSocketStepEditor.action == 'SEND'}">
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Timeout (ms)</div>
+      <div class="formInput float-left">
+        <h:inputText value="#{webSocketStepEditor.timeoutMs}" size="12" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+
     <div class="formRowDiv">
       <div class="formLabelDiv float-left">Message Payload</div>
       <div class="formInput float-left">
         <h:inputTextarea value="#{webSocketStepEditor.payload}" rows="6" cols="40" 
                          style="font-family: monospace; width: 400px;" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+  </h:panelGroup>
+
+  <!-- ASSERT + DISCONNECT -->
+  <h:panelGroup rendered="#{webSocketStepEditor.action == 'ASSERT' or webSocketStepEditor.action == 'DISCONNECT'}">
+    <div class="formRowDiv">
+      <div class="formLabelDiv required float-left">Connection</div>
+      <div class="formInput float-left">
+        <p:selectOneMenu value="#{webSocketStepEditor.selectedConnectionId}" style="width: 420px;">
+          <p:ajax update=":webSocketForm:webSocketPanelGroup" />
+          <f:selectItem itemLabel="Select active connection" itemValue="" />
+          <f:selectItems value="#{webSocketStepEditor.availableConnectionOptions}" />
+        </p:selectOneMenu>
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Resolved URL</div>
+      <div class="formInput float-left">
+        <h:outputText value="#{webSocketStepEditor.urlForSelectedConnection}" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Expect Assertions</div>
+      <div class="formInput float-left" style="width: 520px;">
+        <ui:repeat value="#{webSocketStepEditor.expectEntries}" var="expect" varStatus="status">
+          <div class="vertical-spacer clear-both" />
+          <h:inputText value="#{expect.pattern}" size="20" style="width: 170px;" />
+          <h:outputText value=" Regex " style="margin-left: 8px;" />
+          <p:selectBooleanCheckbox value="#{expect.regex}" />
+          <h:outputText value=" Min " style="margin-left: 8px;" />
+          <h:inputText value="#{expect.minCount}" size="4" />
+          <h:outputText value=" Max " style="margin-left: 8px;" />
+          <h:inputText value="#{expect.maxCount}" size="4" />
+          <p:commandButton value="Remove" process="@this"
+            action="#{webSocketStepEditor.removeExpectEntry(status.index)}"
+            update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
+        </ui:repeat>
+        <div class="vertical-spacer clear-both" />
+        <p:commandButton value="Add Expect" process="@this"
+          action="#{webSocketStepEditor.addExpectEntry}"
+          update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
+      </div>
+    </div>
+    <div class="vertical-spacer clear-both" />
+
+    <div class="formRowDiv">
+      <div class="formLabelDiv float-left">Save Assertions</div>
+      <div class="formInput float-left" style="width: 560px;">
+        <ui:repeat value="#{webSocketStepEditor.saveEntries}" var="save" varStatus="status">
+          <div class="vertical-spacer clear-both" />
+          <h:inputText value="#{save.pattern}" size="20" style="width: 170px;" />
+          <h:outputText value=" Regex " style="margin-left: 8px;" />
+          <p:selectBooleanCheckbox value="#{save.regex}" />
+          <h:outputText value=" Variable " style="margin-left: 8px;" />
+          <h:inputText value="#{save.variable}" size="10" />
+          <h:outputText value=" Occurrence " style="margin-left: 8px;" />
+          <p:selectOneMenu value="#{save.occurrence}" style="width: 90px;">
+            <f:selectItem itemLabel="Last" itemValue="last" />
+            <f:selectItem itemLabel="First" itemValue="first" />
+          </p:selectOneMenu>
+          <p:commandButton value="Remove" process="@this"
+            action="#{webSocketStepEditor.removeSaveEntry(status.index)}"
+            update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
+        </ui:repeat>
+        <div class="vertical-spacer clear-both" />
+        <p:commandButton value="Add Save" process="@this"
+          action="#{webSocketStepEditor.addSaveEntry}"
+          update=":webSocketForm:webSocketPanelGroup" styleClass="icon-button h-space" />
       </div>
     </div>
     <div class="vertical-spacer clear-both" />

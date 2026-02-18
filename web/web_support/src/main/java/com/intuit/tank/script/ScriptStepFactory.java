@@ -30,6 +30,7 @@ public class ScriptStepFactory {
     private static final String WEBSOCKET_ACTION = "ws-action";
     private static final String WEBSOCKET_URL = "ws-url";
     private static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
+    private static final String WEBSOCKET_PAYLOAD = "ws-payload";
     private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
 
     public static ScriptStep createVariable(String key, String value) {
@@ -258,6 +259,38 @@ public class ScriptStepFactory {
         return step;
     }
 
+    public static ScriptStep createWebSocketAssert(String connectionId, String url) {
+        ScriptStep step = new ScriptStep();
+        step.setType(WEBSOCKET);
+        step.setMethod("WS_ASSERT");
+        // Keep as compatibility mirror only. Runtime should rely on ws-connection-id.
+        step.setComments(connectionId);
+
+        Set<RequestData> data = new HashSet<RequestData>();
+
+        RequestData actionData = new RequestData();
+        actionData.setType(WEBSOCKET);
+        actionData.setKey(WEBSOCKET_ACTION);
+        actionData.setValue("assert");
+        data.add(actionData);
+
+        RequestData urlData = new RequestData();
+        urlData.setType(WEBSOCKET);
+        urlData.setKey(WEBSOCKET_URL);
+        urlData.setValue(url);
+        data.add(urlData);
+
+        RequestData connIdData = new RequestData();
+        connIdData.setType(WEBSOCKET);
+        connIdData.setKey(WEBSOCKET_CONNECTION_ID);
+        connIdData.setValue(connectionId);
+        data.add(connIdData);
+
+        step.setData(data);
+        step.setName("WebSocket Assert");
+        return step;
+    }
+
     /**
      * Create a WebSocket SEND step.
      * 
@@ -299,7 +332,7 @@ public class ScriptStepFactory {
         // Add payload
         RequestData payloadData = new RequestData();
         payloadData.setType(WEBSOCKET);
-        payloadData.setKey("ws-payload");
+        payloadData.setKey(WEBSOCKET_PAYLOAD);
         payloadData.setValue(payload != null ? payload : "");
         data.add(payloadData);
 

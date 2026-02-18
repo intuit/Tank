@@ -2,6 +2,7 @@ package com.intuit.tank.script;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -50,6 +51,29 @@ public class WebSocketStepEditorTest {
     }
 
     @Test
+    public void testAddAssertStep_DoesNotInsertWithoutConnection() {
+        editor.setAction("ASSERT");
+        editor.addExpectEntry();
+        editor.getExpectEntries().get(0).setPattern("connected");
+
+        editor.addToScript();
+
+        verify(messages).error(anyString());
+        verify(scriptEditor, never()).insert(Mockito.any(ScriptStep.class));
+    }
+
+    @Test
+    public void testAddAssertStep_DoesNotInsertWithoutAssertions() {
+        editor.setAction("ASSERT");
+        editor.setSelectedConnectionId("conn-1");
+
+        editor.addToScript();
+
+        verify(messages).error(anyString());
+        verify(scriptEditor, never()).insert(Mockito.any(ScriptStep.class));
+    }
+
+    @Test
     public void testGetAvailableConnections_UsesWsConnectionIdNotComments() {
         String url = "ws://localhost/socket";
         ScriptStep connect = createWebSocketStep("WS_CONNECT", url, "real-conn", "user-note-connect");
@@ -86,6 +110,68 @@ public class WebSocketStepEditorTest {
         ScriptStep inserted = captor.getValue();
         assertEquals("real-conn", getDataValue(inserted, "ws-connection-id"));
         assertEquals("real-conn", inserted.getComments());
+    }
+
+    @Test
+    public void testAddAssertStep_UsesSelectedConnectionAndPersistsAssertions() {
+        String url = "ws://localhost/assert";
+        ScriptStep connect = createWebSocketStep("WS_CONNECT", url, "conn-assert", "legacy");
+
+        List<ScriptStep> steps = new ArrayList<>();
+        steps.add(connect);
+        when(scriptEditor.getSteps()).thenReturn(steps);
+
+        editor.setAction("ASSERT");
+        editor.setSelectedConnectionId("conn-assert");
+
+        editor.addExpectEntry();
+        WebSocketStepEditor.ExpectAssertionEntry expect = editor.getExpectEntries().get(0);
+        expect.setPattern("ready");
+        expect.setRegex(true);
+        expect.setMinCount("1");
+
+        editor.addSaveEntry();
+        WebSocketStepEditor.SaveAssertionEntry save = editor.getSaveEntries().get(0);
+        save.setPattern("id:(\\d+)");
+        save.setVariable("lastId");
+        save.setOccurrence("last");
+
+        editor.addToScript();
+
+        ArgumentCaptor<ScriptStep> captor = ArgumentCaptor.forClass(ScriptStep.class);
+        verify(scriptEditor).insert(captor.capture());
+        ScriptStep inserted = captor.getValue();
+
+        assertEquals("conn-assert", getDataValue(inserted, "ws-connection-id"));
+        assertEquals("assert", getDataValue(inserted, "ws-action"));
+        assertEquals("ready", getDataValue(inserted, "ws-assert-expect.0.pattern"));
+        assertEquals("true", getDataValue(inserted, "ws-assert-expect.0.regex"));
+        assertEquals("1", getDataValue(inserted, "ws-assert-expect.0.min"));
+        assertEquals("id:(\\d+)", getDataValue(inserted, "ws-assert-save.0.pattern"));
+        assertEquals("lastId", getDataValue(inserted, "ws-assert-save.0.variable"));
+    }
+
+    @Test
+    public void testAddConnectStep_PersistsFailOnPatterns() {
+        editor.setAction("CONNECT");
+        editor.setUrl("ws://localhost/connect");
+        editor.setTimeoutMs("1200");
+
+        editor.addFailOnEntry();
+        WebSocketStepEditor.FailOnEntry entry = editor.getFailOnEntries().get(0);
+        entry.setPattern("error");
+        entry.setRegex(true);
+
+        editor.addToScript();
+
+        ArgumentCaptor<ScriptStep> captor = ArgumentCaptor.forClass(ScriptStep.class);
+        verify(scriptEditor).insert(captor.capture());
+        ScriptStep inserted = captor.getValue();
+
+        assertEquals("error", getDataValue(inserted, "ws-fail-on.0.pattern"));
+        assertEquals("true", getDataValue(inserted, "ws-fail-on.0.regex"));
+        assertEquals("1200", getDataValue(inserted, "ws-timeout-ms"));
+        assertTrue(getDataValue(inserted, "ws-connection-id").length() > 0);
     }
 
     private ScriptStep createWebSocketStep(String method, String url, String connectionId, String comments) {
