@@ -17,6 +17,7 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.ScriptStepFactory;
 
@@ -172,5 +173,41 @@ public class ScriptStepFactoryTest {
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.ScriptStepFactory.createVariable(ScriptStepFactory.java:23)
         assertNotNull(result);
+    }
+
+    @Test
+    public void testCreateWebSocketConnect_StoresConnectionIdInDataAndComments() {
+        String connectionId = "conn-connect";
+        ScriptStep result = ScriptStepFactory.createWebSocketConnect(connectionId, "ws://localhost/connect", 5000);
+
+        assertEquals(connectionId, result.getComments());
+        assertEquals(connectionId, getRequestDataValue(result, "ws-connection-id"));
+    }
+
+    @Test
+    public void testCreateWebSocketSend_StoresConnectionIdInDataAndComments() {
+        String connectionId = "conn-send";
+        ScriptStep result = ScriptStepFactory.createWebSocketSend(connectionId, "ws://localhost/send", "payload", 5000);
+
+        assertEquals(connectionId, result.getComments());
+        assertEquals(connectionId, getRequestDataValue(result, "ws-connection-id"));
+    }
+
+    @Test
+    public void testCreateWebSocketDisconnect_StoresConnectionIdInDataAndComments() {
+        String connectionId = "conn-disconnect";
+        ScriptStep result = ScriptStepFactory.createWebSocketDisconnect(connectionId, "ws://localhost/disconnect");
+
+        assertEquals(connectionId, result.getComments());
+        assertEquals(connectionId, getRequestDataValue(result, "ws-connection-id"));
+    }
+
+    private String getRequestDataValue(ScriptStep step, String key) {
+        for (RequestData data : step.getData()) {
+            if (key.equals(data.getKey())) {
+                return data.getValue();
+            }
+        }
+        return null;
     }
 }

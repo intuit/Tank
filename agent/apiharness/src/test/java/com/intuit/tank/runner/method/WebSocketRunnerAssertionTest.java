@@ -174,6 +174,36 @@ public class WebSocketRunnerAssertionTest {
     }
 
     @Test
+    @DisplayName("ASSERT should pass with empty request object when assertions pass")
+    public void testAssertPassWithEmptyRequestObject() {
+        WebSocketStep step = new WebSocketStep();
+        step.setAction(WebSocketAction.ASSERT);
+        step.setConnectionId("conn-1");
+        step.setRequest(new WebSocketRequest());
+
+        AssertionBlock assertions = new AssertionBlock();
+        assertions.getExpects().add(WebSocketAssertion.builder().pattern("success").build());
+        step.setAssertions(assertions);
+
+        Variables variables = new Variables();
+        TestStepContext context = new TestStepContext(
+            step, variables, "test-plan", "test-unique",
+            new TimerMap(), testPlanRunner);
+
+        TankWebSocketClient client = mock(TankWebSocketClient.class);
+        MessageStream stream = new MessageStream("conn-1");
+        stream.addMessage("{\"status\":\"success\"}");
+        when(client.hasFailed()).thenReturn(false);
+        when(client.getMessageStream()).thenReturn(stream);
+        context.setWebSocketClient("conn-1", client);
+
+        WebSocketRunner runner = new WebSocketRunner(context);
+        String result = runner.execute();
+
+        assertEquals(TankConstants.HTTP_CASE_PASS, result);
+    }
+
+    @Test
     @DisplayName("ASSERT should fail when MessageStream is null")
     public void testAssertFailNullStream() {
         WebSocketStep step = new WebSocketStep();

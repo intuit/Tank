@@ -29,6 +29,7 @@ public class ScriptStepFactory {
     private static final String WEBSOCKET = "websocket";
     private static final String WEBSOCKET_ACTION = "ws-action";
     private static final String WEBSOCKET_URL = "ws-url";
+    private static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
     private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
 
     public static ScriptStep createVariable(String key, String value) {
@@ -186,7 +187,7 @@ public class ScriptStepFactory {
         ScriptStep step = new ScriptStep();
         step.setType(WEBSOCKET);
         step.setMethod("WS_CONNECT");
-        // Store connectionId in comments field so SEND/DISCONNECT can reference it
+        // Keep as compatibility mirror only. Runtime should rely on ws-connection-id.
         step.setComments(connectionId);
 
         Set<RequestData> data = new HashSet<RequestData>();
@@ -202,6 +203,12 @@ public class ScriptStepFactory {
         urlData.setKey(WEBSOCKET_URL);
         urlData.setValue(url);
         data.add(urlData);
+
+        RequestData connIdData = new RequestData();
+        connIdData.setType(WEBSOCKET);
+        connIdData.setKey(WEBSOCKET_CONNECTION_ID);
+        connIdData.setValue(connectionId);
+        data.add(connIdData);
 
         if (timeoutMs != null) {
             RequestData timeoutData = new RequestData();
@@ -221,7 +228,8 @@ public class ScriptStepFactory {
         ScriptStep step = new ScriptStep();
         step.setType(WEBSOCKET);
         step.setMethod("WS_DISCONNECT");
-        // Comments left blank as per design decision
+        // Keep as compatibility mirror only. Runtime should rely on ws-connection-id.
+        step.setComments(connectionId);
 
         Set<RequestData> data = new HashSet<RequestData>();
 
@@ -237,6 +245,12 @@ public class ScriptStepFactory {
         urlData.setKey(WEBSOCKET_URL);
         urlData.setValue(url);
         data.add(urlData);
+
+        RequestData connIdData = new RequestData();
+        connIdData.setType(WEBSOCKET);
+        connIdData.setKey(WEBSOCKET_CONNECTION_ID);
+        connIdData.setValue(connectionId);
+        data.add(connIdData);
 
         step.setData(data);
         // Set default name for WebSocket Disconnect
@@ -257,7 +271,7 @@ public class ScriptStepFactory {
         ScriptStep step = new ScriptStep();
         step.setType(WEBSOCKET);
         step.setMethod("WS_SEND");
-        // Store connectionId in comments field (used by agent runner)
+        // Keep as compatibility mirror only. Runtime should rely on ws-connection-id.
         step.setComments(connectionId);
 
         Set<RequestData> data = new HashSet<RequestData>();
@@ -278,7 +292,7 @@ public class ScriptStepFactory {
         // Add connectionId as request data (for backend)
         RequestData connIdData = new RequestData();
         connIdData.setType(WEBSOCKET);
-        connIdData.setKey("ws-connection-id");
+        connIdData.setKey(WEBSOCKET_CONNECTION_ID);
         connIdData.setValue(connectionId);
         data.add(connIdData);
 

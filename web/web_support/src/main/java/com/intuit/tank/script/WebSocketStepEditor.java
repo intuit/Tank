@@ -89,6 +89,7 @@ public class WebSocketStepEditor implements Serializable {
 
     public void addToScript() {
         if (!validate()) {
+            return;
         }
 
         if (editMode && step != null) {
@@ -122,17 +123,24 @@ public class WebSocketStepEditor implements Serializable {
     }
 
     private void applyToExistingStep() {
+        String connId;
+
         // Set method based on action
         if (ACTION_CONNECT.equals(action)) {
             step.setMethod("WS_CONNECT");
+            connId = getStepConnectionId(step);
+            if (StringUtils.isBlank(connId)) {
+                connId = generateUniqueConnectionId(url);
+            }
+            step.setComments(connId); // Compatibility mirror only
         } else if (ACTION_SEND.equals(action)) {
             step.setMethod("WS_SEND");
-            String connId = getConnectionIdForUrl(url);
-            step.setComments(connId);  // Store connectionId for agent
+            connId = getConnectionIdForUrl(url);
+            step.setComments(connId);  // Compatibility mirror only
         } else {
             step.setMethod("WS_DISCONNECT");
-            String connId = getConnectionIdForUrl(url);
-            step.setComments(connId);  // Store connectionId for agent
+            connId = getConnectionIdForUrl(url);
+            step.setComments(connId);  // Compatibility mirror only
         }
 
         if (step.getData() == null) {
@@ -143,15 +151,13 @@ public class WebSocketStepEditor implements Serializable {
 
         if (ACTION_CONNECT.equals(action)) {
             updateData(step, WEBSOCKET_URL, url);
-            removeData(step, WEBSOCKET_CONNECTION_ID);
+            updateData(step, WEBSOCKET_CONNECTION_ID, connId);
             removeData(step, WEBSOCKET_PAYLOAD);
         } else if (ACTION_SEND.equals(action)) {
-            String connId = getConnectionIdForUrl(url);
             updateData(step, WEBSOCKET_URL, url);  // Add URL for display
             updateData(step, WEBSOCKET_CONNECTION_ID, connId);
             updateData(step, WEBSOCKET_PAYLOAD, payload);
         } else {
-            String connId = getConnectionIdForUrl(url);
             updateData(step, WEBSOCKET_URL, url);  // Add URL for display
             updateData(step, WEBSOCKET_CONNECTION_ID, connId);
             removeData(step, WEBSOCKET_PAYLOAD);
@@ -281,8 +287,11 @@ public class WebSocketStepEditor implements Serializable {
         
         if (scriptEditor != null && scriptEditor.getSteps() != null) {
             for (ScriptStep step : scriptEditor.getSteps()) {
-                if ("websocket".equals(step.getType()) && StringUtils.isNotBlank(step.getComments())) {
-                    existingIds.add(step.getComments());
+                if ("websocket".equals(step.getType())) {
+                    String connectionId = getStepConnectionId(step);
+                    if (StringUtils.isNotBlank(connectionId)) {
+                        existingIds.add(connectionId);
+                    }
                 }
             }
         }
@@ -301,9 +310,11 @@ public class WebSocketStepEditor implements Serializable {
             if ("websocket".equals(step.getType()) && "WS_CONNECT".equals(step.getMethod())) {
                 RequestData urlData = findData(step, WEBSOCKET_URL);
                 if (urlData != null && targetUrl.equals(urlData.getValue())) {
-                    // Found matching URL, extract connection ID from comments or generate one
-                    return StringUtils.isNotBlank(step.getComments()) ? 
-                           step.getComments() : generateConnectionIdFromUrl(targetUrl);
+                    // Found matching URL, extract connection ID from ws-connection-id first, then comments (legacy)
+                    String connectionId = getStepConnectionId(step);
+                    return StringUtils.isNotBlank(connectionId)
+                           ? connectionId
+                           : generateConnectionIdFromUrl(targetUrl);
                 }
             }
         }
@@ -326,7 +337,7 @@ public class WebSocketStepEditor implements Serializable {
             for (ScriptStep step : scriptEditor.getSteps()) {
                 if ("websocket".equals(step.getType())) {
                     String method = step.getMethod();
-                    String connectionId = step.getComments();
+                    String connectionId = getStepConnectionId(step);
                     
                     if ("WS_CONNECT".equals(method) && StringUtils.isNotBlank(connectionId)) {
                         // Get URL from step data
@@ -370,8 +381,8 @@ public class WebSocketStepEditor implements Serializable {
             if ("websocket".equals(step.getType()) && "WS_CONNECT".equals(step.getMethod())) {
                 RequestData urlData = findData(step, WEBSOCKET_URL);
                 if (urlData != null && targetUrl.equals(urlData.getValue())) {
-                    // Found matching URL, return its connectionId from comments
-                    String connectionId = step.getComments();
+                    // Found matching URL, return ws-connection-id first, then comments (legacy)
+                    String connectionId = getStepConnectionId(step);
                     LOG.info("Found connectionId={} for url={}", connectionId, targetUrl);
                     return connectionId;
                 }
@@ -407,7 +418,7 @@ public class WebSocketStepEditor implements Serializable {
         for (ScriptStep step : scriptEditor.getSteps()) {
             if ("websocket".equals(step.getType()) && 
                 "WS_CONNECT".equals(step.getMethod()) && 
-                connectionId.equals(step.getComments())) {
+                connectionId.equals(getStepConnectionId(step))) {
                 RequestData urlData = findData(step, WEBSOCKET_URL);
                 if (urlData != null) {
                     return urlData.getValue();
@@ -416,6 +427,14 @@ public class WebSocketStepEditor implements Serializable {
         }
         
         return "";
+    }
+
+    private String getStepConnectionId(ScriptStep scriptStep) {
+        RequestData connIdData = findData(scriptStep, WEBSOCKET_CONNECTION_ID);
+        if (connIdData != null && StringUtils.isNotBlank(connIdData.getValue())) {
+            return connIdData.getValue();
+        }
+        return scriptStep.getComments();
     }
 
     // ConnectionId removed - now auto-generated internally

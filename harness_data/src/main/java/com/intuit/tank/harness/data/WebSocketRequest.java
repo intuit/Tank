@@ -92,6 +92,9 @@ public class WebSocketRequest {
             case DISCONNECT:
                 // No required fields
                 break;
+            case ASSERT:
+                // No required fields
+                break;
             default:
                 throw new IllegalArgumentException("Unknown WebSocket action: " + action);
         }

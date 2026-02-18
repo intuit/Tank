@@ -14,6 +14,7 @@ package com.intuit.tank.transform.scriptGenerator;
  */
 
 import java.util.HashSet;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.RequestDataType;
 
@@ -603,5 +605,66 @@ public class ConverterUtilTest {
         boolean result = ConverterUtil.isAssignment(data);
 
         assertFalse(result);
+    }
+
+    @Test
+    public void testConvertWebSocketStep_UsesConnectionIdFromRequestDataWhenPresent() throws Exception {
+        ScriptStep scriptStep = createWebSocketScriptStep("legacy-comment-id", "request-data-id");
+
+        Object converted = convertWebSocketStep(scriptStep);
+
+        assertEquals("request-data-id", getConnectionId(converted));
+    }
+
+    @Test
+    public void testConvertWebSocketStep_FallsBackToCommentsForLegacyScripts() throws Exception {
+        ScriptStep scriptStep = createWebSocketScriptStep("legacy-comment-id", null);
+
+        Object converted = convertWebSocketStep(scriptStep);
+
+        assertEquals("legacy-comment-id", getConnectionId(converted));
+    }
+
+    private Object convertWebSocketStep(ScriptStep scriptStep) throws Exception {
+        Method method = ConverterUtil.class.getDeclaredMethod("convertWebSocketStep", ScriptStep.class);
+        method.setAccessible(true);
+        return method.invoke(null, scriptStep);
+    }
+
+    private String getConnectionId(Object webSocketStep) throws Exception {
+        Method getter = webSocketStep.getClass().getDeclaredMethod("getConnectionId");
+        return (String) getter.invoke(webSocketStep);
+    }
+
+    private ScriptStep createWebSocketScriptStep(String commentsConnectionId, String requestDataConnectionId) {
+        ScriptStep scriptStep = new ScriptStep();
+        scriptStep.setType("websocket");
+        scriptStep.setMethod("WS_SEND");
+        scriptStep.setComments(commentsConnectionId);
+
+        Set<RequestData> data = new HashSet<>();
+
+        RequestData action = new RequestData();
+        action.setType("websocket");
+        action.setKey("ws-action");
+        action.setValue("send");
+        data.add(action);
+
+        RequestData url = new RequestData();
+        url.setType("websocket");
+        url.setKey("ws-url");
+        url.setValue("ws://localhost/socket");
+        data.add(url);
+
+        if (requestDataConnectionId != null) {
+            RequestData connectionId = new RequestData();
+            connectionId.setType("websocket");
+            connectionId.setKey("ws-connection-id");
+            connectionId.setValue(requestDataConnectionId);
+            data.add(connectionId);
+        }
+
+        scriptStep.setData(data);
+        return scriptStep;
     }
 }

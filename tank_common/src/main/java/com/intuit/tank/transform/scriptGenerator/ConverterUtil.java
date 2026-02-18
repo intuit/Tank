@@ -26,6 +26,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 
 import com.amazonaws.xray.AWSXRay;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
@@ -294,14 +295,12 @@ public class ConverterUtil {
         ws.setScriptGroupName(scriptStep.getScriptGroupName());
         ws.setOnFail(scriptStep.getOnFail());
         
-        // Get connectionId from comments field (where UI stores it)
-        ws.setConnectionId(scriptStep.getComments());
-        
         // Parse action and request data from RequestData
         String action = null;
         String url = null;
         String payload = null;
         Integer timeoutMs = null;
+        String connectionIdFromData = null;
         
         Set<RequestData> data = scriptStep.getData();
         if (data != null) {
@@ -311,6 +310,8 @@ public class ConverterUtil {
                     action = rd.getValue();
                 } else if ("ws-url".equals(key)) {
                     url = rd.getValue();
+                } else if ("ws-connection-id".equals(key)) {
+                    connectionIdFromData = rd.getValue();
                 } else if ("ws-payload".equals(key)) {
                     payload = rd.getValue();
                 } else if ("ws-timeout-ms".equals(key)) {
@@ -322,6 +323,9 @@ public class ConverterUtil {
                 }
             }
         }
+
+        // Primary source is ws-connection-id, fallback to comments for legacy scripts.
+        ws.setConnectionId(StringUtils.isNotBlank(connectionIdFromData) ? connectionIdFromData : scriptStep.getComments());
         
         // Set action (required)
         if (action != null) {

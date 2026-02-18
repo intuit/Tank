@@ -126,13 +126,8 @@ public class WebSocketRequestTest {
     @DisplayName("ASSERT validation should always pass")
     public void testValidateAssert() {
         WebSocketRequest request = new WebSocketRequest();
-        
-        // ASSERT falls through to default case which throws
-        // But ASSERT is a valid action that should be handled
-        // Let's check the actual behavior
-        assertThrows(IllegalArgumentException.class, () -> {
-            request.validate(WebSocketAction.ASSERT);
-        });
+
+        assertDoesNotThrow(() -> request.validate(WebSocketAction.ASSERT));
     }
 
     // ==================== toString Tests ====================
