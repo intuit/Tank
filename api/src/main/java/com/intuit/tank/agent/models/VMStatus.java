@@ -22,13 +22,18 @@ public enum VMStatus implements Serializable {
     terminated;
 
     public static final VMStatus fromString(String value) {
-        VMStatus ret = null;
-        if ("shutting-down".equals(value)) {
-            ret = VMStatus.shutting_down;
-        } else {
-            ret = VMStatus.valueOf(value);
+        if (value == null || value.isEmpty()) {
+            return VMStatus.unknown;
         }
-        return ret != null ? ret : VMStatus.unknown;
+        if ("shutting-down".equals(value)) {
+            return VMStatus.shutting_down;
+        }
+        try {
+            return VMStatus.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            // Gracefully handle unknown values (e.g., 'replaced' from controller which agent doesn't need)
+            return VMStatus.unknown;
+        }
     }
 
 }

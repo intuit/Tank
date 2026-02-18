@@ -172,12 +172,17 @@ public class JobManager implements Serializable {
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 ret.setTargetRampRate(jobInfo.jobRequest.getTargetRatePerAgent());
                 jobInfo.agentData.add(agentData);
+                LOG.info(new ObjectMessage(Map.of("Message", "Agent " + agentData.getInstanceId() + 
+                    " added to job " + agentData.getJobId() + ". Total agents now: " + jobInfo.agentData.size() + 
+                    "/" + jobInfo.numberOfMachines + ", isFilled: " + jobInfo.isFilled())));
                 CloudVmStatus status = vmTracker.getStatus(agentData.getInstanceId());
                 if(status != null) {
                     status.setVmStatus(VMStatus.pending);
                     vmTracker.setStatus(status);
                 }
                 if (jobInfo.isFilled()) {
+                    LOG.info(new ObjectMessage(Map.of("Message", "All " + jobInfo.numberOfMachines + 
+                        " agents registered for job " + agentData.getJobId() + " - starting test thread")));
                     new Thread( () -> { startTest(jobInfo); }).start();
                 }
             }
@@ -209,8 +214,14 @@ public class JobManager implements Serializable {
             LOG.info(new ObjectMessage(Map.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                     info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         }
+        LOG.info(new ObjectMessage(Map.of("Message", "Sending START commands to " + info.agentData.size() + 
+            " agents for job " + jobId)));
         info.agentData.parallelStream()
-                .map(agentData -> agentData.getInstanceUrl() + AgentCommand.start.getPath())
+                .map(agentData -> {
+                    String url = agentData.getInstanceUrl() + AgentCommand.start.getPath();
+                    LOG.info(new ObjectMessage(Map.of("Message", "Sending command to url " + url)));
+                    return url;
+                })
                 .map(URI::create)
                 .map(uri -> sendCommand(uri, MAX_RETRIES))
                 .forEach(future -> {

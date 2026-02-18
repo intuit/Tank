@@ -434,15 +434,13 @@ Configuration is achieved via an XML file called `settings.xml`. The default is 
                     <type name="c3.8xlarge" cost="1.68" users="16000" cpus="32" ecus="108" mem="60" jvmArgs="-Xms50g -Xmx50g" />
                 </instance-types>
             
-                <!-- watchdog is used to check if all agents start correctly. -->
+                <!-- watchdog monitors agents after EC2 launch, waiting for them to call /v2/agent/ready -->
                 <watchdog>
-                    <!-- The maximum amount of time to wait for the agents to start before restarting -->
-                    <max-time-for-agent-start>3m</max-time-for-agent-start>
-                    <!-- The maximum amount of time to wait for the agents to report to the controller before restarting -->
-                    <max-time-for-agent-report>5m</max-time-for-agent-report>
-                    <!-- the maximum number of restarts before stopping test -->
-                    <max-restarts>2</max-restarts>
-                    <!-- The amount of time to wait between checking for agent start -->
+                    <!-- Time to wait for agents to report ready before relaunching -->
+                    <max-time-for-agent-report>3m</max-time-for-agent-report>
+                    <!-- Max relaunch attempts before aborting the job -->
+                    <max-restarts>3</max-restarts>
+                    <!-- Polling interval for checking agent status -->
                     <sleep-time-between-check>30s</sleep-time-between-check>
                 </watchdog>
                 

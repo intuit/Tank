@@ -745,4 +745,120 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
     }
+
+    // ============ getCurrentSubNodes tests (VMStatus.replaced filtering) ============
+
+    /**
+     * Helper to create a VMNodeBean with a specific VMStatus.
+     */
+    private VMNodeBean createVMNodeBean(String instanceId, VMStatus vmStatus) {
+        CloudVmStatus cvs = new CloudVmStatus(
+                instanceId, 
+                "123", 
+                "sg-1", 
+                JobStatus.Running, 
+                VMImageType.AGENT, 
+                VMRegion.US_EAST_2, 
+                vmStatus, 
+                new ValidationStatus(), 
+                10, 
+                100, 
+                new Date(), 
+                null
+        );
+        return new VMNodeBean(cvs, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+    }
+
+    @Test
+    public void testGetCurrentSubNodes_filtersReplacedInstances() throws Exception {
+        // Setup
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new JobConfiguration());
+        JobInstance jobInstance = new JobInstance(workload, "test");
+        jobInstance.setStatus(JobQueueStatus.Running);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+        
+        List<VMNodeBean> vmBeans = new LinkedList<>();
+        vmBeans.add(createVMNodeBean("i-001", VMStatus.running));
+        vmBeans.add(createVMNodeBean("i-002", VMStatus.running));
+        vmBeans.add(createVMNodeBean("i-003", VMStatus.replaced)); // Should be filtered
+        vmBeans.add(createVMNodeBean("i-004", VMStatus.running));
+        fixture.setVmBeans(vmBeans);
+        
+        // Execute
+        List<VMNodeBean> result = fixture.getCurrentSubNodes();
+        
+        // Verify: replaced instance should be filtered out
+        assertEquals(3, result.size(), "Should exclude replaced instance");
+        assertEquals(4, fixture.getSubNodes().size(), "getSubNodes should include ALL");
+    }
+
+    @Test
+    public void testGetCurrentSubNodes_filtersTerminatedInstances() throws Exception {
+        // Setup
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new JobConfiguration());
+        JobInstance jobInstance = new JobInstance(workload, "test");
+        jobInstance.setStatus(JobQueueStatus.Running);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+        
+        List<VMNodeBean> vmBeans = new LinkedList<>();
+        vmBeans.add(createVMNodeBean("i-001", VMStatus.running));
+        vmBeans.add(createVMNodeBean("i-002", VMStatus.terminated)); // Should be filtered
+        vmBeans.add(createVMNodeBean("i-003", VMStatus.running));
+        fixture.setVmBeans(vmBeans);
+        
+        // Execute
+        List<VMNodeBean> result = fixture.getCurrentSubNodes();
+        
+        // Verify
+        assertEquals(2, result.size(), "Should exclude terminated instance");
+    }
+
+    @Test
+    public void testGetCurrentSubNodes_filtersBothReplacedAndTerminated() throws Exception {
+        // Setup: Mix of running, replaced, and terminated
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new JobConfiguration());
+        JobInstance jobInstance = new JobInstance(workload, "test");
+        jobInstance.setStatus(JobQueueStatus.Running);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+        
+        List<VMNodeBean> vmBeans = new LinkedList<>();
+        vmBeans.add(createVMNodeBean("i-001", VMStatus.running));
+        vmBeans.add(createVMNodeBean("i-002", VMStatus.running));
+        vmBeans.add(createVMNodeBean("i-003", VMStatus.replaced));    // Should be filtered
+        vmBeans.add(createVMNodeBean("i-004", VMStatus.terminated));  // Should be filtered
+        vmBeans.add(createVMNodeBean("i-005", VMStatus.running));
+        fixture.setVmBeans(vmBeans);
+        
+        // Execute
+        List<VMNodeBean> result = fixture.getCurrentSubNodes();
+        
+        // Verify: Both replaced and terminated should be filtered
+        assertEquals(3, result.size(), "Should only include running instances");
+        assertEquals(5, fixture.getSubNodes().size(), "getSubNodes should include ALL for visibility");
+    }
+
+    @Test
+    public void testGetCurrentSubNodes_allReplaced_returnsEmpty() throws Exception {
+        // Setup: Edge case where all instances are replaced
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new JobConfiguration());
+        JobInstance jobInstance = new JobInstance(workload, "test");
+        jobInstance.setStatus(JobQueueStatus.Starting);
+        ActJobNodeBean fixture = new ActJobNodeBean(jobInstance, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
+        
+        List<VMNodeBean> vmBeans = new LinkedList<>();
+        vmBeans.add(createVMNodeBean("i-001", VMStatus.replaced));
+        vmBeans.add(createVMNodeBean("i-002", VMStatus.replaced));
+        fixture.setVmBeans(vmBeans);
+        
+        // Execute
+        List<VMNodeBean> result = fixture.getCurrentSubNodes();
+        
+        // Verify
+        assertEquals(0, result.size(), "Should return empty when all replaced");
+        assertEquals(2, fixture.getSubNodes().size(), "All should still be visible in getSubNodes");
+    }
 }

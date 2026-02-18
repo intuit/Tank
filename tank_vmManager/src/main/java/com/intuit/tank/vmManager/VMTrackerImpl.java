@@ -149,6 +149,7 @@ public class VMTrackerImpl implements VMTracker {
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+            
             if (shouldUpdateStatus(currentStatus)) {
                 statusMap.put(status.getInstanceId(), status);
                 if (status.getVmStatus() == VMStatus.running
@@ -157,6 +158,10 @@ public class VMTrackerImpl implements VMTracker {
 	                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
 	                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
                 }
+            } else {
+                LOG.debug(new ObjectMessage(Map.of("Message",
+                    "Skipping status update for instance " + status.getInstanceId() +
+                    " - current status is " + (currentStatus != null ? currentStatus.getVmStatus() : "null"))));
             }
             String jobId = status.getJobId();
             CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
@@ -223,17 +228,12 @@ public class VMTrackerImpl implements VMTracker {
         return oldStatus;
     }
 
-    /**
-     * If the vm is shutting down or terminated, don't update the status to something else.
-     * @param currentStatus
-     * @return
-     */
     private boolean shouldUpdateStatus(CloudVmStatus currentStatus) {
         if (currentStatus != null) {
             VMStatus status = currentStatus.getVmStatus();
             return (status != VMStatus.shutting_down
-            		&& status != VMStatus.stopped
-            		&& status != VMStatus.stopping
+                    && status != VMStatus.stopped
+                    && status != VMStatus.stopping
                     && status != VMStatus.terminated);
         }
         return true;
@@ -314,7 +314,21 @@ public class VMTrackerImpl implements VMTracker {
 
         // look up the job
         JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
-        for (CloudVmStatus s : cloudVmStatusContainer.getStatuses()) {
+        
+        // Take a snapshot to avoid ConcurrentModificationException if another thread modifies
+        // the set while we iterate (defense in depth, even though we're synchronized)
+        Set<CloudVmStatus> statusesSnapshot = new HashSet<>(cloudVmStatusContainer.getStatuses());
+        
+        int activeInstanceCount = 0;
+        for (CloudVmStatus s : statusesSnapshot) {
+            VMStatus vmStatus = s.getVmStatus();
+            // skip replaced instances - these were replaced by AgentWatchdog due to failure
+            // but do NOT skip terminated/stopping/stopped/shutting_down - these are active agents in transition
+            if (vmStatus == VMStatus.replaced) {
+                continue;
+            }
+            activeInstanceCount++;
+            
             JobStatus jobStatus = s.getJobStatus();
             if (jobStatus != JobStatus.Completed) {  // If no VMs are Completed
                 isFinished = false;
@@ -332,6 +346,21 @@ public class VMTrackerImpl implements VMTracker {
                 running = false;
             }
         }
+        
+        // if all instances are replaced and replacements haven't reported yet,
+        // don't change job status - wait for active agents to report
+        if (activeInstanceCount == 0) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                "No active instances for job " + status.getJobId() + 
+                " (all replaced or empty) - skipping status calculation until replacements report")));
+            return;
+        }
+        
+        LOG.debug(new ObjectMessage(Map.of("Message",
+            "Status calc complete for job " + status.getJobId() + 
+            " - isFinished=" + isFinished + ", paused=" + paused + 
+            ", rampPaused=" + rampPaused + ", stopped=" + stopped + ", running=" + running)));
+        
         if (isFinished) {
             LOG.info(new ObjectMessage(Map.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
             if (cloudVmStatusContainer.getEndTime() == null) {
@@ -343,6 +372,7 @@ public class VMTrackerImpl implements VMTracker {
         }
         if (job != null) {
             job.setEndTime(cloudVmStatusContainer.getEndTime());
+            JobQueueStatus oldStatus = job.getStatus();
             JobQueueStatus newStatus = job.getStatus();
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
@@ -361,6 +391,12 @@ public class VMTrackerImpl implements VMTracker {
                 }
             }
 
+            if (oldStatus != newStatus) {
+                LOG.info(new ObjectMessage(Map.of("Message",
+                    "Job " + status.getJobId() + " status transition: " + oldStatus + " -> " + newStatus +
+                    " (isFinished=" + isFinished + ", paused=" + paused + ", rampPaused=" + rampPaused +
+                    ", stopped=" + stopped + ", running=" + running + ")")));
+            }
             LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
             job.setStatus(newStatus);
             jobInstanceDao.get().saveOrUpdate(job);
