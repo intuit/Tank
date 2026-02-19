@@ -3,6 +3,7 @@
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
   xmlns:f="http://xmlns.jcp.org/jsf/core"
+  xmlns:ts="http://xmlns.jcp.org/jsf/composite/tag"
   xmlns:p="http://primefaces.org/ui">
 
   <p:messages />
@@ -42,7 +43,11 @@
     <div class="vertical-spacer clear-both" />
 
     <div class="formRowDiv">
-      <div class="formLabelDiv float-left">Fail-On Patterns</div>
+      <div class="formLabelDiv float-left">
+        Fail-On Patterns
+        <ts:tip tipId="wsFailOnTip"
+          text="Checked against every incoming message while the connection is open. If a match is found, the connection is marked failed and later SEND/ASSERT steps fail.<br/><br/><b>Examples:</b><br/>• Plain text: <code>error</code><br/>• Regex: <code>.*fatal.*</code>" />
+      </div>
       <div class="formInput float-left" style="width: 480px;">
         <ui:repeat value="#{webSocketStepEditor.failOnEntries}" var="failOn" varStatus="status">
           <div class="vertical-spacer clear-both" />
@@ -113,7 +118,11 @@
     <div class="vertical-spacer clear-both" />
 
     <div class="formRowDiv">
-      <div class="formLabelDiv float-left">Expect Assertions</div>
+      <div class="formLabelDiv float-left">
+        Expect Assertions
+        <ts:tip tipId="wsExpectTip"
+          text="Validated during ASSERT or DISCONNECT using collected messages. Min/Max are inclusive match counts.<br/><br/><b>Examples:</b><br/>• Exactly once: <code>pattern=order-confirmed, min=1, max=1</code><br/>• At least one regex match: <code>pattern=\&quot;status\&quot;:\&quot;(ok|ready)\&quot;, regex=true, min=1</code>" />
+      </div>
       <div class="formInput float-left" style="width: 520px;">
         <ui:repeat value="#{webSocketStepEditor.expectEntries}" var="expect" varStatus="status">
           <div class="vertical-spacer clear-both" />
@@ -137,7 +146,11 @@
     <div class="vertical-spacer clear-both" />
 
     <div class="formRowDiv">
-      <div class="formLabelDiv float-left">Save Assertions</div>
+      <div class="formLabelDiv float-left">
+        Save Assertions
+        <ts:tip tipId="wsSaveTip"
+          text="Find a message that matches Pattern and save the matched content to Variable. Variable is required when Pattern is set. Occurrence chooses first or last match.<br/><br/><b>Examples:</b><br/>• Save last plain match: <code>pattern=sessionId=, variable=sessionValue, occurrence=last</code><br/>• Save first regex match: <code>pattern=token=([A-Za-z0-9_-]+), regex=true, variable=authToken, occurrence=first</code>" />
+      </div>
       <div class="formInput float-left" style="width: 560px;">
         <ui:repeat value="#{webSocketStepEditor.saveEntries}" var="save" varStatus="status">
           <div class="vertical-spacer clear-both" />

@@ -804,8 +804,8 @@
       </h:form>
     </p:dialog>
 
-    <p:dialog id="webSocketDialogId" header="Insert WebSocket" appendTo="@(body)" height="700" width="930"
-      dynamic="true" widgetVar="webSocketDialog" modal="true">
+    <p:dialog id="webSocketDialogId" header="Insert WebSocket" appendTo="@(body)" height="350" width="465"
+      dynamic="true" widgetVar="webSocketDialog" modal="true" contentStyle="overflow-y:auto;">
       <h:form id="webSocketForm">
         <h:panelGroup id="webSocketPanelGroup">
           <ui:include src="./websocket-editor.xhtml"/>
