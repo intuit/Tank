@@ -29,33 +29,33 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>6.6.26.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.34.5</version.software.amazon.awssdk>
-    <version.aws-xray-sdk-bom>2.19.0</version.aws-xray-sdk-bom>
+    <version.hibernate>6.6.41.Final</version.hibernate>
+    <version.software.amazon.awssdk>2.41.32</version.software.amazon.awssdk>
+    <version.aws-xray-sdk-bom>2.20.0</version.aws-xray-sdk-bom>
 
-    <version.tomcat>11.0.13</version.tomcat>
-    <weld.version>6.0.3.Final</weld.version>
+    <version.tomcat>11.0.15</version.tomcat>
+    <weld.version>6.0.4.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
-    <version.enunciate>2.18.1</version.enunciate>
+    <version.enunciate>2.19.0</version.enunciate>
 
     <version.faces>4.1.2</version.faces>
-    <version.primefaces>15.0.8</version.primefaces>
-    <version.primefaces-ext>15.0.8</version.primefaces-ext>
+    <version.primefaces>15.0.12</version.primefaces>
+    <version.primefaces-ext>15.0.12</version.primefaces-ext>
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.4</version.surefire>
     <version.jacoco>0.8.13</version.jacoco>
-    <version.junit>5.13.4</version.junit>
-    <version.mockito>5.19.0</version.mockito>
+    <version.junit>6.0.3</version.junit>
+    <version.mockito>5.20.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
     <version.jaxb>4.0.2</version.jaxb>
-    <version.spring-webmvc>6.2.11</version.spring-webmvc>
-    <version.wiremock>3.13.1</version.wiremock>
-    <version.jackson>2.19.2</version.jackson>
+    <version.spring-webmvc>6.2.15</version.spring-webmvc>
+    <version.wiremock>3.13.2</version.wiremock>
+    <version.jackson>2.19.4</version.jackson>
     <version.log4j>2.25.3</version.log4j>
 
     <!-- maven-compiler-plugin -->
-    <version.compiler.plugin>3.14.0</version.compiler.plugin>
+    <version.compiler.plugin>3.14.1</version.compiler.plugin>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
@@ -338,7 +338,7 @@
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-junit5</artifactId>
-      <version>5.0.1.Final</version>
+      <version>5.0.3.Final</version>
       <scope>test</scope>
     </dependency>
 
@@ -356,7 +356,7 @@
       <dependency>
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
-        <version>9.4.0</version>
+        <version>9.5.0</version>
       </dependency>
 
       <dependency>
@@ -425,7 +425,7 @@
       <dependency>
         <groupId>org.glassfish.soteria</groupId>
         <artifactId>jakarta.security.enterprise</artifactId>
-        <version>3.0.3</version>
+        <version>3.0.4</version>
       </dependency>
 
       <!-- JSF -->
@@ -470,13 +470,13 @@
       <dependency>
         <groupId>software.xdev</groupId>
         <artifactId>chartjs-java-model</artifactId>
-        <version>2.8.1</version>
+        <version>2.9.0</version>
       </dependency>
 
       <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
-        <version>2.3.232</version>
+        <version>2.4.240</version>
       </dependency>
 
       <dependency>
@@ -488,7 +488,7 @@
       <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-configuration2</artifactId>
-      <version>2.12.0</version>
+      <version>2.13.0</version>
     </dependency>
 
     <dependency>
