@@ -30,7 +30,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>6.6.41.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.41.11</version.software.amazon.awssdk>
+    <version.software.amazon.awssdk>2.41.32</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.20.0</version.aws-xray-sdk-bom>
 
     <version.tomcat>11.0.15</version.tomcat>
@@ -45,8 +45,8 @@
     <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.4</version.surefire>
     <version.jacoco>0.8.13</version.jacoco>
-    <version.junit>5.14.2</version.junit>
-    <version.mockito>5.21.0</version.mockito>
+    <version.junit>6.0.3</version.junit>
+    <version.mockito>5.20.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
     <version.jaxb>4.0.2</version.jaxb>
     <version.spring-webmvc>6.2.15</version.spring-webmvc>
