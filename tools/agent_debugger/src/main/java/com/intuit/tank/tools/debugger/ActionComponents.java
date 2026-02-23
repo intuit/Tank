@@ -179,6 +179,8 @@ public class ActionComponents implements ScriptChangedListener {
             toolBar.add(new JLabel(" "));
             toolBar.add(actions.getShowVariablesAction());
             toolBar.add(new JLabel(" "));
+            toolBar.add(actions.getShowMessageStreamsAction());
+            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getFindAction());
 
             toolBar.addSeparator();
@@ -283,6 +285,9 @@ public class ActionComponents implements ScriptChangedListener {
             JMenu actionsMenu = new JMenu("Actions");
             actionsMenu.add(runSleepStepsCB);
             actionsMenu.add(runThinkStepsCB);
+            actionsMenu.addSeparator();
+            actionsMenu.add(actions.getShowVariablesAction());
+            actionsMenu.add(actions.getShowMessageStreamsAction());
             actionsMenu.addSeparator();
             actionsMenu.add(actions.getSaveReqResponseAction());
             actionsMenu.add(actions.getSaveLogAction());

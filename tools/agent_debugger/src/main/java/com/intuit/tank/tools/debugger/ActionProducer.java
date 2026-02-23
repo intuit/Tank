@@ -64,6 +64,7 @@ public class ActionProducer {
     public static final String ACTION_CHOOSE_SCRIPT = "Choose Script";
     public static final String ACTION_CHOOSE_DATAFILE = "Choose Datafile";
     public static final String ACTION_SHOW_VARIABLES = "Show Project Variables";
+    public static final String ACTION_SHOW_MESSAGE_STREAMS = "Show Message Streams";
     public static final String ACTION_CHOOSE_PROJECT = "Choose Project";
     public static final String ACTION_RELOAD = "Reload";
     public static final String ACTION_QUIT = "Quit";
@@ -640,6 +641,27 @@ public class ActionProducer {
             };
             ret.putValue(Action.SHORT_DESCRIPTION, "Display and edit project variables.");
             actionMap.put(ACTION_SHOW_VARIABLES, ret);
+        }
+        return ret;
+    }
+
+    public Action getShowMessageStreamsAction() {
+        Action ret = actionMap.get(ACTION_SHOW_MESSAGE_STREAMS);
+        if (ret == null) {
+            ret = new AbstractAction(ACTION_SHOW_MESSAGE_STREAMS, getIcon("data_grid.png", IconSize.SMALL)) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        new MessageStreamDialog(debuggerFrame, debuggerFrame.getSelectedDebugStep()).setVisible(true);
+                    } catch (Exception e1) {
+                        showError("Error opening MessageStream view: " + e1);
+                    }
+                }
+            };
+            ret.putValue(Action.SHORT_DESCRIPTION, "Display collected WebSocket MessageStream data for the selected step.");
+            actionMap.put(ACTION_SHOW_MESSAGE_STREAMS, ret);
         }
         return ret;
     }

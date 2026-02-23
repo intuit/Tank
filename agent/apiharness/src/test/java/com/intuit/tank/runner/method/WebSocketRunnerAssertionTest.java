@@ -17,6 +17,7 @@ import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.httpclientjdk.MessageStream;
 import com.intuit.tank.httpclientjdk.TankWebSocketClient;
+import com.intuit.tank.runner.ErrorContainer;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.common.TankConstants;
@@ -96,6 +97,10 @@ public class WebSocketRunnerAssertionTest {
         String result = runner.execute();
 
         assertEquals(TankConstants.HTTP_CASE_FAIL, result);
+        assertFalse(context.getErrors().isEmpty());
+        ErrorContainer error = context.getErrors().get(0);
+        assertEquals("WEBSOCKET_ASSERT", error.getLocation());
+        assertTrue(error.getReason().contains("Expected pattern"));
     }
 
     @Test

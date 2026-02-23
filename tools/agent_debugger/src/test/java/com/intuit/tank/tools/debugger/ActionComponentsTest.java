@@ -68,6 +68,11 @@ public class ActionComponentsTest {
     }
 
     @Test
+    public void testShowMessageStreamsAction() {
+        assertNotNull(actions.getShowMessageStreamsAction());
+    }
+
+    @Test
     public void testStart() {
         actionComponents.start();
         assertFalse(actions.getStartAction().isEnabled());

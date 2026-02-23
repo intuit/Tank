@@ -323,6 +323,7 @@ public class TestPlanRunner implements Runnable {
                 }
                 throw new RuntimeException(e);
             } finally {
+                tsc.setResult(validation);
                 flowController.endStep(tsc);
             }
             previousRequest = tsc.getRequest();

@@ -23,15 +23,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
@@ -61,8 +63,11 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.harness.data.Header;
 import com.intuit.tank.harness.data.RequestStep;
 import com.intuit.tank.harness.data.TestStep;
+import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
+import com.intuit.tank.httpclientjdk.MessageStream;
+import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
@@ -113,12 +118,13 @@ public class AgentDebuggerFrame extends JFrame {
     private int multiSelectEnd;
     private boolean multiSelect;
 
+    private static final int MAX_MESSAGE_STREAM_PREVIEW_COUNT = 200;
+
     /**
      * @throws HeadlessException
      */
     public AgentDebuggerFrame(final boolean isStandalone, String serviceUrl, String token) throws HeadlessException {
         super("Intuit Tank Agent Debugger");
-        BufferedImage url, url2, url3;
         Taskbar.getTaskbar().setIconImage(new ImageIcon(
                 Thread.currentThread().getContextClassLoader().getResource("tankIcon.png")).getImage());
         workingDir = PanelBuilder.createWorkingDir(this, serviceUrl, token);
@@ -846,6 +852,7 @@ public class AgentDebuggerFrame extends JFrame {
                     debugStep.setEntryVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
+                    debugStep.setEntryMessageStreams(captureMessageStreams(context));
                 }
                 fireStepChanged(stepIndex);
                 fireStepStarted(stepIndex);
@@ -864,9 +871,13 @@ public class AgentDebuggerFrame extends JFrame {
                     debugStep.setExitVariables(context.getVariables().getVariableValues());
                     debugStep.setRequest(context.getRequest());
                     debugStep.setResponse(context.getResponse());
+                    debugStep.setExitMessageStreams(captureMessageStreams(context));
                 }
                 try {
-                    if (context.getResponse() != null && (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1)) {
+                    boolean hasHttpError = context.getResponse() != null &&
+                            (context.getResponse().getHttpCode() >= 400 || context.getResponse().getHttpCode() == -1);
+                    boolean hasStepFailure = TankConstants.HTTP_CASE_FAIL.equals(context.getResult());
+                    if (hasHttpError || hasStepFailure) {
                         // highlight the line
                         int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep);
                         int lineEndOffset = scriptEditorTA.getLineEndOffset(currentRunningStep);
@@ -878,7 +889,9 @@ public class AgentDebuggerFrame extends JFrame {
                 }
                 if (!context.getErrors().isEmpty()) {
                     try {
-                        debugStep.setErrors(context.getErrors());
+                        if (debugStep != null) {
+                            debugStep.setErrors(context.getErrors());
+                        }
                         scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(currentRunningStep), errorIcon);
                     } catch (BadLocationException e) {
                         e.printStackTrace();
@@ -919,6 +932,14 @@ public class AgentDebuggerFrame extends JFrame {
 
     public TestStep getStep(int stepIndex) {
         return steps.get(stepIndex).getStepRun();
+    }
+
+    public DebugStep getSelectedDebugStep() {
+        int selectedIndex = getSelectedStepIndex();
+        if (selectedIndex >= 0 && selectedIndex < steps.size()) {
+            return steps.get(selectedIndex);
+        }
+        return null;
     }
 
     public void setCurrentTitle(String string) {
@@ -1010,6 +1031,85 @@ public class AgentDebuggerFrame extends JFrame {
         try {
             scriptEditorTA.setCaretPosition(scriptEditorTA.getLineStartOffset(line));
         } catch (BadLocationException e) { e.printStackTrace(); }
+    }
+
+    private int getSelectedStepIndex() {
+        try {
+            int line = scriptEditorTA.getCaretLineNumber();
+            if (line >= 0 && line < steps.size()) {
+                return line;
+            }
+        } catch (Exception ignored) {
+            // Fallback below.
+        }
+        if (currentRunningStep >= 0 && currentRunningStep < steps.size()) {
+            return currentRunningStep;
+        }
+        return steps.isEmpty() ? -1 : 0;
+    }
+
+    private Map<String, DebugStep.MessageStreamSnapshot> captureMessageStreams(TestStepContext context) {
+        Map<String, DebugStep.MessageStreamSnapshot> snapshots = new LinkedHashMap<String, DebugStep.MessageStreamSnapshot>();
+        if (context == null) {
+            return snapshots;
+        }
+        for (String connectionId : getKnownWebSocketConnectionIds()) {
+            if (StringUtils.isBlank(connectionId)) {
+                continue;
+            }
+            TankWebSocketClient client = context.getWebSocketClient(connectionId);
+            if (client == null) {
+                continue;
+            }
+            snapshots.put(connectionId, createSnapshot(connectionId, client));
+        }
+        return snapshots;
+    }
+
+    private Set<String> getKnownWebSocketConnectionIds() {
+        Set<String> connectionIds = new TreeSet<String>();
+        for (DebugStep debugStep : steps) {
+            if (debugStep == null || !(debugStep.getStepRun() instanceof WebSocketStep)) {
+                continue;
+            }
+            WebSocketStep webSocketStep = (WebSocketStep) debugStep.getStepRun();
+            if (StringUtils.isNotBlank(webSocketStep.getConnectionId())) {
+                connectionIds.add(webSocketStep.getConnectionId());
+            }
+        }
+        return connectionIds;
+    }
+
+    private DebugStep.MessageStreamSnapshot createSnapshot(String connectionId, TankWebSocketClient client) {
+        DebugStep.MessageStreamSnapshot snapshot = new DebugStep.MessageStreamSnapshot();
+        snapshot.setConnectionId(connectionId);
+        snapshot.setConnected(client.isConnected());
+
+        MessageStream stream = client.getMessageStream();
+        if (stream == null) {
+            return snapshot;
+        }
+
+        snapshot.setFailed(stream.hasFailed());
+        snapshot.setMessageCount(stream.getMessageCount());
+        snapshot.setElapsedTimeMs(stream.getElapsedTimeMs());
+        snapshot.setFailurePattern(stream.getFailurePattern());
+        snapshot.setFailureMessage(stream.getFailureMessage());
+
+        List<MessageStream.TimestampedMessage> allMessages = stream.getAllMessages();
+        int startIndex = Math.max(0, allMessages.size() - MAX_MESSAGE_STREAM_PREVIEW_COUNT);
+        List<DebugStep.MessageSnapshot> messageSnapshots = new ArrayList<DebugStep.MessageSnapshot>();
+        for (int i = startIndex; i < allMessages.size(); i++) {
+            MessageStream.TimestampedMessage message = allMessages.get(i);
+            DebugStep.MessageSnapshot messageSnapshot = new DebugStep.MessageSnapshot();
+            messageSnapshot.setIndex(message.index());
+            messageSnapshot.setRelativeTimeMs(message.relativeTimeMs());
+            messageSnapshot.setTimestamp(message.timestamp());
+            messageSnapshot.setContent(message.content());
+            messageSnapshots.add(messageSnapshot);
+        }
+        snapshot.setMessages(messageSnapshots);
+        return snapshot;
     }
 
     public RequestResponsePanel getRequestResponsePanel() {

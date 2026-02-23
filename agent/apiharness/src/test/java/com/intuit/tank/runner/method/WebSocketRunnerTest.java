@@ -20,6 +20,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 import com.intuit.tank.harness.data.WebSocketAction;
@@ -27,6 +29,7 @@ import com.intuit.tank.harness.data.WebSocketRequest;
 import com.intuit.tank.harness.data.WebSocketStep;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.httpclientjdk.TankWebSocketClient;
+import com.intuit.tank.runner.ErrorContainer;
 import com.intuit.tank.runner.TestPlanRunner;
 import com.intuit.tank.runner.TestStepContext;
 import com.intuit.tank.vm.common.TankConstants;
@@ -81,6 +84,79 @@ public class WebSocketRunnerTest {
     }
 
     @Test
+    public void testConnectFailurePropagatesErrorAndCleansUpClient() {
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Connect Failure Propagation Test");
+        step.setAction(WebSocketAction.CONNECT);
+        step.setConnectionId("conn-1");
+
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl("ws://localhost:8080/ws/does-not-exist");
+        request.setTimeoutMs(750);
+        step.setRequest(request);
+
+        Variables variables = new Variables();
+        TestStepContext context = new TestStepContext(
+            step, variables, "test-plan", "test-unique",
+            new TimerMap(), testPlanRunner);
+
+        TankWebSocketClient client = mock(TankWebSocketClient.class);
+        CompletableFuture<Boolean> failedFuture = new CompletableFuture<>();
+        failedFuture.completeExceptionally(new RuntimeException("Invalid handshake response getStatus: 404"));
+        when(client.isConnected()).thenReturn(true);
+        when(client.connect(750)).thenReturn(failedFuture);
+        context.setWebSocketClient("conn-1", client);
+
+        WebSocketRunner runner = new WebSocketRunner(context);
+        String result = runner.execute();
+
+        assertEquals(TankConstants.HTTP_CASE_FAIL, result);
+        assertNull(context.getWebSocketClient("conn-1"));
+        assertFalse(context.getErrors().isEmpty());
+        ErrorContainer error = context.getErrors().get(0);
+        assertEquals("WEBSOCKET_CONNECT", error.getLocation());
+        assertTrue(error.getReason().contains("404"));
+        verify(client).disconnect();
+    }
+
+    @Test
+    public void testConnectReplacesStaleClientForRetry() {
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Connect Retry Replaces Stale Client Test");
+        step.setAction(WebSocketAction.CONNECT);
+        step.setConnectionId("conn-1");
+
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl("ws://localhost:8080/ws/test");
+        request.setTimeoutMs(1200);
+        step.setRequest(request);
+
+        Variables variables = new Variables();
+        TestStepContext context = new TestStepContext(
+            step, variables, "test-plan", "test-unique",
+            new TimerMap(), testPlanRunner);
+
+        TankWebSocketClient staleClient = mock(TankWebSocketClient.class);
+        when(staleClient.isConnected()).thenReturn(false);
+        context.setWebSocketClient("conn-1", staleClient);
+
+        try (MockedConstruction<TankWebSocketClient> mockedConstruction = Mockito.mockConstruction(TankWebSocketClient.class,
+                (mock, constructionContext) -> {
+                    assertEquals("ws://localhost:8080/ws/test", constructionContext.arguments().get(0));
+                    when(mock.connect(1200)).thenReturn(CompletableFuture.completedFuture(true));
+                })) {
+            WebSocketRunner runner = new WebSocketRunner(context);
+            String result = runner.execute();
+
+            assertEquals(TankConstants.HTTP_CASE_PASS, result);
+            verify(staleClient).disconnect();
+            assertEquals(1, mockedConstruction.constructed().size());
+            TankWebSocketClient replacementClient = mockedConstruction.constructed().get(0);
+            assertEquals(replacementClient, context.getWebSocketClient("conn-1"));
+        }
+    }
+
+    @Test
     public void testMissingConnectionId() {
         WebSocketStep step = new WebSocketStep();
         step.setName("Missing Connection ID Test");
@@ -122,7 +198,7 @@ public class WebSocketRunnerTest {
         step.setName("Connect Without URL Test");
         step.setAction(WebSocketAction.CONNECT);
         step.setConnectionId("test_conn");
-        
+
         // Request without URL
         WebSocketRequest request = new WebSocketRequest();
         step.setRequest(request);
@@ -136,6 +212,8 @@ public class WebSocketRunnerTest {
         String result = runner.execute();
 
         assertEquals(TankConstants.HTTP_CASE_FAIL, result);
+        assertFalse(context.getErrors().isEmpty());
+        assertEquals("WEBSOCKET_CONNECT", context.getErrors().get(0).getLocation());
     }
 
     @Test
@@ -197,6 +275,7 @@ public class WebSocketRunnerTest {
             new TimerMap(), testPlanRunner);
 
         TankWebSocketClient client = mock(TankWebSocketClient.class);
+        when(client.isConnected()).thenReturn(true);
         when(client.connect(4000)).thenReturn(CompletableFuture.completedFuture(true));
         context.setWebSocketClient("conn-1", client);
 

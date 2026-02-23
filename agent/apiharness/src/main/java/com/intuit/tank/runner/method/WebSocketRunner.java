@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.data.AssertionBlock;
 import com.intuit.tank.harness.data.FailOnPattern;
 import com.intuit.tank.harness.data.SaveOccurrence;
+import com.intuit.tank.harness.data.ValidationData;
 import com.intuit.tank.harness.data.WebSocketAction;
 import com.intuit.tank.harness.data.WebSocketAssertion;
 import com.intuit.tank.harness.data.WebSocketRequest;
@@ -35,7 +36,9 @@ import com.intuit.tank.httpclientjdk.MessageStream;
 import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.logging.LoggingProfile;
+import com.intuit.tank.runner.ErrorContainer;
 import com.intuit.tank.runner.TestStepContext;
+import com.intuit.tank.script.RequestDataPhase;
 import com.intuit.tank.vm.common.TankConstants;
 
 /**
@@ -88,17 +91,20 @@ public class WebSocketRunner implements Runner {
                 TankWebSocketClient existingClient = tsc.getWebSocketClient(connectionId);
                 if (existingClient != null && existingClient.hasFailed()) {
                     MessageStream stream = existingClient.getMessageStream();
+                    String failPattern = stream != null ? stream.getFailurePattern() : "unknown";
                     LOG.error(LogUtil.getLogMessage(
                         "WebSocket connection " + connectionId + " has already failed due to fail-on pattern: " +
-                        (stream != null ? stream.getFailurePattern() : "unknown") +
+                        failPattern +
                         " - aborting " + action + " action",
                         LogEventType.Validation, LoggingProfile.STANDARD));
+                    addValidationError("WEBSOCKET_FAIL_ON", "failOnPattern", failPattern,
+                        stream != null ? stream.getFailureMessage() : "", "Connection already marked failed");
                     return TankConstants.HTTP_CASE_FAIL;
                 }
             }
             
-            // Validate request for this action
-            if (request != null) {
+            // CONNECT validation is handled in executeConnect() to ensure debugger-visible error details.
+            if (request != null && action != WebSocketAction.CONNECT) {
                 request.validate(action);
             }
             
@@ -140,12 +146,19 @@ public class WebSocketRunner implements Runner {
     private String executeConnect(String connectionId) throws Exception {
         if (request == null || StringUtils.isEmpty(request.getUrl())) {
             LOG.error("WebSocket URL is required for connect action");
+            addValidationError("WEBSOCKET_CONNECT", "url", "non-empty", "",
+                "WebSocket URL is required for connect action");
             return TankConstants.HTTP_CASE_FAIL;
         }
 
         String url = variables.evaluate(request.getUrl());
         
         TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
+        if (client != null && !client.isConnected()) {
+            cleanupWebSocketClient(connectionId, client);
+            client = null;
+        }
+
         if (client == null) {
             client = new TankWebSocketClient(url);
             tsc.setWebSocketClient(connectionId, client);
@@ -180,12 +193,19 @@ public class WebSocketRunner implements Runner {
                 LOG.error(LogUtil.getLogMessage(
                     "Failed to connect to WebSocket: " + url,
                     LogEventType.Informational, LoggingProfile.STANDARD));
+                addValidationError("WEBSOCKET_CONNECT", "url", url, "connection rejected",
+                    "Failed to connect to WebSocket: " + url);
+                cleanupWebSocketClient(connectionId, client);
                 return TankConstants.HTTP_CASE_FAIL;
             }
         } catch (Exception e) {
+            String actualError = extractConnectError(e);
             LOG.error(LogUtil.getLogMessage(
-                "Failed to connect to WebSocket: " + url + " - " + e.getMessage(),
+                "Failed to connect to WebSocket: " + url + " - " + actualError,
                 LogEventType.Informational, LoggingProfile.STANDARD), e);
+            addValidationError("WEBSOCKET_CONNECT", "url", url, actualError,
+                "Failed to connect to WebSocket: " + url + " - " + actualError);
+            cleanupWebSocketClient(connectionId, client);
             return TankConstants.HTTP_CASE_FAIL;
         }
     }
@@ -232,16 +252,20 @@ public class WebSocketRunner implements Runner {
         TankWebSocketClient client = tsc.getWebSocketClient(connectionId);
         if (client == null) {
             LOG.error("WebSocket connection not found for assert: " + connectionId);
+            addValidationError("WEBSOCKET_ASSERT", "connectionId", connectionId, "", "WebSocket connection not found for assert");
             return TankConstants.HTTP_CASE_FAIL;
         }
 
         // Check if connection failed due to fail-on pattern
         if (client.hasFailed()) {
             MessageStream stream = client.getMessageStream();
+            String failPattern = stream != null ? stream.getFailurePattern() : "unknown";
             LOG.error(LogUtil.getLogMessage(
                 "WebSocket connection " + connectionId + " has failed due to fail-on pattern: " +
-                (stream != null ? stream.getFailurePattern() : "unknown"),
+                failPattern,
                 LogEventType.Validation, LoggingProfile.STANDARD));
+            addValidationError("WEBSOCKET_FAIL_ON", "failOnPattern", failPattern,
+                stream != null ? stream.getFailureMessage() : "", "Connection failed due to fail-on pattern");
             return TankConstants.HTTP_CASE_FAIL;
         }
 
@@ -254,6 +278,8 @@ public class WebSocketRunner implements Runner {
         MessageStream stream = client.getMessageStream();
         if (stream == null) {
             LOG.error("No MessageStream found for connection: " + connectionId);
+            addValidationError("WEBSOCKET_ASSERT", "messageStream", "present", "missing",
+                "No MessageStream found for connection");
             return TankConstants.HTTP_CASE_FAIL;
         }
 
@@ -286,10 +312,13 @@ public class WebSocketRunner implements Runner {
 
             // Check if connection failed due to fail-on pattern
             if (client.hasFailed()) {
+                String failPattern = stream != null ? stream.getFailurePattern() : "unknown";
                 LOG.error(LogUtil.getLogMessage(
                     "WebSocket connection " + connectionId + " failed due to fail-on pattern: " +
-                    (stream != null ? stream.getFailurePattern() : "unknown"),
+                    failPattern,
                     LogEventType.Validation, LoggingProfile.STANDARD));
+                addValidationError("WEBSOCKET_FAIL_ON", "failOnPattern", failPattern,
+                    stream != null ? stream.getFailureMessage() : "", "Disconnect detected failed WebSocket connection");
                 result = TankConstants.HTTP_CASE_FAIL;
             }
 
@@ -364,20 +393,28 @@ public class WebSocketRunner implements Runner {
 
             // Check minCount
             if (actualCount < minCount) {
+                String reason = "Expected pattern '" + evaluatedPattern + "' at least " + minCount +
+                    " time(s), found " + actualCount;
                 LOG.error(LogUtil.getLogMessage(
                     "Assertion FAILED: expected pattern '" + evaluatedPattern + "' at least " + minCount +
                     " time(s), but found " + actualCount + " match(es) in " + stream.getMessageCount() + " messages",
                     LogEventType.Validation, LoggingProfile.STANDARD));
+                addValidationError("WEBSOCKET_ASSERT", evaluatedPattern, String.valueOf(minCount),
+                    String.valueOf(actualCount), reason);
                 logCollectedMessagesOnFailure(stream);
                 return TankConstants.HTTP_CASE_FAIL;
             }
 
             // Check maxCount if specified
             if (maxCount != null && actualCount > maxCount) {
+                String reason = "Expected pattern '" + evaluatedPattern + "' at most " + maxCount +
+                    " time(s), found " + actualCount;
                 LOG.error(LogUtil.getLogMessage(
                     "Assertion FAILED: expected pattern '" + evaluatedPattern + "' at most " + maxCount +
                     " time(s), but found " + actualCount + " match(es)",
                     LogEventType.Validation, LoggingProfile.STANDARD));
+                addValidationError("WEBSOCKET_ASSERT", evaluatedPattern, String.valueOf(maxCount),
+                    String.valueOf(actualCount), reason);
                 logCollectedMessagesOnFailure(stream);
                 return TankConstants.HTTP_CASE_FAIL;
             }
@@ -450,6 +487,38 @@ public class WebSocketRunner implements Runner {
             LOG.error("  ... and {} more messages", count - maxToLog);
         }
         LOG.error("=== End of collected messages ===");
+    }
+
+    private void addValidationError(String location, String key, String expected, String actual, String reason) {
+        ValidationData original = new ValidationData();
+        original.setKey(StringUtils.defaultString(key));
+        original.setCondition("EQUALS");
+        original.setValue(StringUtils.defaultString(expected));
+        original.setPhase(RequestDataPhase.POST_REQUEST);
+
+        ValidationData interpreted = original.copy();
+        interpreted.setValue(StringUtils.defaultString(actual));
+
+        tsc.addError(new ErrorContainer(location, original, interpreted, reason));
+    }
+
+    private String extractConnectError(Throwable throwable) {
+        Throwable root = throwable;
+        while (root.getCause() != null) {
+            root = root.getCause();
+        }
+        return StringUtils.defaultIfEmpty(root.getMessage(), root.getClass().getSimpleName());
+    }
+
+    private void cleanupWebSocketClient(String connectionId, TankWebSocketClient client) {
+        if (client != null) {
+            try {
+                client.disconnect();
+            } catch (Exception e) {
+                LOG.debug("Ignoring disconnect error while cleaning up websocket client for {}", connectionId, e);
+            }
+        }
+        tsc.removeWebSocketClient(connectionId);
     }
 
 }
