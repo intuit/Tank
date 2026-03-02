@@ -20,9 +20,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Date;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
@@ -169,7 +169,7 @@ public class APIMonitor implements Runnable {
         }
     }
 
-    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
+    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JacksonException {
         String json = objectWriter.writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()

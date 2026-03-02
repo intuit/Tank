@@ -13,13 +13,11 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -29,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.intuit.tank.http.BaseResponse;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JsonResponse extends BaseResponse {
 
@@ -90,12 +89,12 @@ public class JsonResponse extends BaseResponse {
     private void initialize() {
         try {
             if (!StringUtils.isEmpty(this.response)) {
-                this.jsonMap = new ObjectMapper().readValue(this.response, HashMap.class);
+                this.jsonMap = new JsonMapper().readValue(this.response, HashMap.class);
             } else {
                 this.jsonMap = new HashMap();
             }
-        } catch (IOException ex) {
-            logger.warn("Unable to parse the response string as a JSON object: " + this.response, ex);
+        } catch (Exception ex) {
+            logger.warn("Unable to parse the response string as a JSON object: {}", this.response, ex);
         }
     }
 

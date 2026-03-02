@@ -7,8 +7,8 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.projects.models.AutomationRequest;
 import com.intuit.tank.projects.models.ProjectContainer;
@@ -126,7 +126,7 @@ public class ProjectClient extends BaseClient{
 
         try {
             requestBody = objectMapper.writeValueAsString(projectRequest);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 
@@ -157,7 +157,7 @@ public class ProjectClient extends BaseClient{
 
         try {
             requestBody = objectMapper.writeValueAsString(projectRequest);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 

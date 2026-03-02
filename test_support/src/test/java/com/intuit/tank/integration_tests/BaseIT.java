@@ -1,6 +1,5 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -12,6 +11,7 @@ import java.time.Duration;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.json.JsonMapper;
 
 public class BaseIT {
 
@@ -31,7 +31,7 @@ public class BaseIT {
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final HttpClient httpClient = getHttpClient();
 
-    protected final ObjectMapper objectMapper = new ObjectMapper();
+    protected final JsonMapper jsonMapper = new JsonMapper();
 
 
     protected static HttpClient getHttpClient() {
