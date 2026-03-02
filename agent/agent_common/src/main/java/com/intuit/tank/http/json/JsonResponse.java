@@ -45,13 +45,13 @@ public class JsonResponse extends BaseResponse {
 
     @Override
     public void setResponseBody(String body) {
-        this.response = this.cleanString(body);
+        this.response = body.strip();
     }
 
     @Override
     public void setResponseBody(byte[] byteArray) {
         this.responseByteArray = byteArray;
-        this.response = this.cleanString(new String(byteArray));
+        this.response = new String(byteArray).strip();
     }
 
     @Override
@@ -78,21 +78,11 @@ public class JsonResponse extends BaseResponse {
         }
     }
 
-    private String cleanString(String input) {
-        try {
-            return StringUtils.remove(input.trim(),"(\r\n)+");
-        } catch (Exception ex) {
-            return input;
-        }
-    }
-
     private void initialize() {
         try {
-            if (!StringUtils.isEmpty(this.response)) {
-                this.jsonMap = new JsonMapper().readValue(this.response, HashMap.class);
-            } else {
-                this.jsonMap = new HashMap();
-            }
+            this.jsonMap = (StringUtils.isNotEmpty(this.response)) ?
+                    new JsonMapper().readValue(this.response, HashMap.class) :
+                    new HashMap();
         } catch (Exception ex) {
             logger.warn("Unable to parse the response string as a JSON object: {}", this.response, ex);
         }
