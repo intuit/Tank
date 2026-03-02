@@ -51,7 +51,7 @@
     <version.jaxb>4.0.2</version.jaxb>
     <version.spring-webmvc>6.2.15</version.spring-webmvc>
     <version.wiremock>3.13.2</version.wiremock>
-    <version.jackson>2.19.4</version.jackson>
+    <version.jackson>2.21.1</version.jackson>
     <version.log4j>2.25.3</version.log4j>
 
     <!-- maven-compiler-plugin -->
