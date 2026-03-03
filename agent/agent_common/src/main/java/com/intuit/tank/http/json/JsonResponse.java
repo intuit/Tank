@@ -15,6 +15,7 @@ package com.intuit.tank.http.json;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.intuit.tank.http.BaseResponse;
-import tools.jackson.databind.json.JsonMapper;
 
 public class JsonResponse extends BaseResponse {
 
@@ -79,13 +79,9 @@ public class JsonResponse extends BaseResponse {
     }
 
     private void initialize() {
-        try {
-            this.jsonMap = (StringUtils.isNotEmpty(this.response)) ?
-                    new JsonMapper().readValue(this.response, HashMap.class) :
-                    new HashMap();
-        } catch (Exception ex) {
-            logger.warn("Unable to parse the response string as a JSON object: {}", this.response, ex);
-        }
+        this.jsonMap = (StringUtils.isNotEmpty(this.response)) ?
+                GenericJsonHandler.fromJson(this.response, HashMap.class) :
+                Collections.emptyMap();
     }
 
 }
