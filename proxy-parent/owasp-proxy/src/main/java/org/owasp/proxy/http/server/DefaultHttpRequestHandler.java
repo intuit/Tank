@@ -82,6 +82,15 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
         client.get().disconnect();
     }
 
+    /**
+     * Get the HttpClient for WebSocket handoff after 101 upgrade.
+     * 
+     * @return The HttpClient managing the server connection
+     */
+    public HttpClient getHttpClient() {
+        return client.get();
+    }
+
     /*
      * (non-Javadoc)
      * 

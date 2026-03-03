@@ -17,6 +17,7 @@ package com.intuit.tank.proxy.table;
  */
 
 import com.intuit.tank.conversation.Transaction;
+import com.intuit.tank.handler.WebSocketSession;
 
 /**
  * TransactinRecordedListener
@@ -27,4 +28,19 @@ import com.intuit.tank.conversation.Transaction;
 public interface TransactionRecordedListener {
 
     public void transactionProcessed(Transaction t, boolean filtered);
+
+    /**
+     * Called when a new WebSocket session is started.
+     */
+    default void webSocketSessionStarted(WebSocketSession session) {}
+
+    /**
+     * Called when a WebSocket session receives a new message.
+     */
+    default void webSocketMessageReceived(WebSocketSession session) {}
+
+    /**
+     * Called when a WebSocket session is closed.
+     */
+    default void webSocketSessionClosed(WebSocketSession session) {}
 }

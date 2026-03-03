@@ -93,6 +93,7 @@ import com.intuit.tank.proxy.table.ShowHostsDialog;
 import com.intuit.tank.proxy.table.TransactionRecordedListener;
 import com.intuit.tank.proxy.table.TransactionTable;
 import com.intuit.tank.proxy.table.TransactionTableModel;
+import com.intuit.tank.handler.WebSocketSession;
 import com.intuit.tank.util.WebConversationJaxbParseXML;
 
 /**
@@ -172,6 +173,64 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void webSocketSessionStarted(WebSocketSession session) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            model.addWebSocketSession(session);
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void webSocketMessageReceived(WebSocketSession session) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            model.updateWebSocketSession(session);
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void webSocketSessionClosed(WebSocketSession session) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            model.updateWebSocketSession(session);
+        });
+    }
+
+    /**
+     * Format WebSocket session messages for display in details dialog.
+     */
+    private String formatWebSocketMessages(WebSocketSession session) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== WebSocket Session ===\n");
+        sb.append("URL: ").append(session.getUrl()).append("\n");
+        sb.append("Connection ID: ").append(session.getConnectionId()).append("\n");
+        sb.append("Status: ").append(session.isClosed() ? "Closed" : "Active").append("\n");
+        sb.append("Messages: ").append(session.getMessageCount()).append("\n");
+        sb.append("\n=== Messages ===\n\n");
+
+        for (WebSocketSession.CapturedMessage msg : session.getMessages()) {
+            String direction = msg.fromClient ? "→ CLIENT" : "← SERVER";
+            String type = msg.type != null ? msg.type.name() : "TEXT";
+            sb.append(direction).append(" [").append(type).append("] ");
+            sb.append(new java.text.SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(msg.timestamp)));
+            sb.append("\n");
+            sb.append(msg.getPayloadAsText()).append("\n\n");
+        }
+
+        if (session.getMessageCount() == 0) {
+            sb.append("(No messages captured yet)\n");
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * @throws IOException
      * @throws GeneralSecurityException
      * 
@@ -226,6 +285,12 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             TargetedConnectionHandler tch = new SSLConnectionHandler(cp, true, hpch);
             tch = new LoopAvoidingTargetedConnectionHandler(sg, tch);
             hpch.setConnectHandler(tch);
+            
+            // Register WebSocket handler for recording WS connections
+            hpch.setWebSocketHandler((clientSocket, serverSocket, wsUrl, request) -> {
+                application.handleWebSocketConnection(clientSocket, serverSocket, wsUrl);
+            });
+            
             TargetedConnectionHandler socks = new SocksConnectionHandler(tch, true);
             application.startSession(this);
             p = new Proxy(listen, socks, null);
@@ -386,11 +451,22 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                     Point p = e.getPoint();
                     int row = table.rowAtPoint(p);
                     int index = (Integer) table.getValueAt(row, 0) - 1;
-                    Transaction transaction = model.getTransactionForIndex(index);
-                    if (transaction != null) {
-                        detailsTF.setText(transaction.toString());
-                        detailsTF.setCaretPosition(0);
-                        detailsDialog.setVisible(true);
+                    
+                    // Check if it's a WebSocket session
+                    if (model.isWebSocketSession(index)) {
+                        WebSocketSession session = model.getWebSocketSessionForIndex(index);
+                        if (session != null) {
+                            detailsTF.setText(formatWebSocketMessages(session));
+                            detailsTF.setCaretPosition(0);
+                            detailsDialog.setVisible(true);
+                        }
+                    } else {
+                        Transaction transaction = model.getTransactionForIndex(index);
+                        if (transaction != null) {
+                            detailsTF.setText(transaction.toString());
+                            detailsTF.setCaretPosition(0);
+                            detailsDialog.setVisible(true);
+                        }
                     }
                 }
             }

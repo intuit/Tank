@@ -18,18 +18,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.intuit.tank.conversation.Header;
 import com.intuit.tank.conversation.Request;
 import com.intuit.tank.conversation.Response;
 import com.intuit.tank.conversation.Transaction;
+import com.intuit.tank.conversation.WebSocketTransaction;
+import com.intuit.tank.handler.WebSocketRelay;
+import com.intuit.tank.handler.WebSocketSession;
 import com.intuit.tank.proxy.config.ConfigInclusionExclusionRule;
 import com.intuit.tank.proxy.config.ProxyConfiguration;
 import com.intuit.tank.proxy.config.TransactionPart;
@@ -37,6 +45,8 @@ import com.intuit.tank.proxy.table.TransactionRecordedListener;
 import com.intuit.tank.util.HeaderParser;
 
 public final class Application {
+
+    private static final Logger LOG = LogManager.getLogger(Application.class);
 
     // private Properties properties;
     private JAXBContext context;
@@ -48,6 +58,10 @@ public final class Application {
     public static final Header REDIRECT_MARKER = new Header("X-PROXY-APP", "redirectCollapse");
 
     private ProxyConfiguration proxyConfiguration;
+
+    // WebSocket recording
+    private final List<WebSocketRelay> activeWebSocketRelays = new CopyOnWriteArrayList<>();
+    private final List<WebSocketTransaction> completedWebSocketTransactions = new CopyOnWriteArrayList<>();
 
     public Application(ProxyConfiguration proxyConfiguration) {
         this.proxyConfiguration = proxyConfiguration;
@@ -211,6 +225,30 @@ public final class Application {
 
     public void endSession() throws IOException {
         if (sessionStarted) {
+            // Stop all active WebSocket relays and collect their transactions
+            for (WebSocketRelay relay : activeWebSocketRelays) {
+                relay.stop();
+                try {
+                    relay.awaitCompletion(5000);  // Wait up to 5 seconds
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                completedWebSocketTransactions.add(relay.getSession().toTransaction());
+            }
+            activeWebSocketRelays.clear();
+
+            // Serialize WebSocket transactions
+            for (WebSocketTransaction wsTx : completedWebSocketTransactions) {
+                try {
+                    marshaller.marshal(wsTx, osw);
+                    LOG.info("Serialized WebSocket transaction: {} ({} messages)", 
+                            wsTx.getUrl(), wsTx.getMessageCount());
+                } catch (JAXBException e) {
+                    LOG.error("Failed to serialize WebSocket transaction: {}", e.getMessage());
+                }
+            }
+            completedWebSocketTransactions.clear();
+
             osw.write("\n");
             osw.write("</sns:session>");
             osw.flush();
@@ -218,6 +256,63 @@ public final class Application {
         }
         sessionStarted = false;
         System.out.println("Finishing up");
+    }
+
+    /**
+     * Handle a WebSocket connection - start relay and record messages.
+     * Called from HttpProxyConnectionHandler after 101 upgrade.
+     * 
+     * @param clientSocket Socket connected to client (browser)
+     * @param serverSocket Socket connected to server (origin)
+     * @param wsUrl WebSocket URL (ws:// or wss://)
+     */
+    public void handleWebSocketConnection(Socket clientSocket, Socket serverSocket, String wsUrl) {
+        if (!sessionStarted || paused) {
+            LOG.debug("WebSocket connection ignored (session not active): {}", wsUrl);
+            return;
+        }
+
+        LOG.info("Starting WebSocket relay for: {}", wsUrl);
+
+        // Create session and relay
+        WebSocketSession session = new WebSocketSession(wsUrl, null);
+        
+        // Set up message callback to notify UI
+        session.setMessageCallback(() -> {
+            if (listener != null) {
+                listener.webSocketMessageReceived(session);
+            }
+        });
+        
+        WebSocketRelay relay = new WebSocketRelay(clientSocket, serverSocket, session);
+
+        // Track active relay
+        activeWebSocketRelays.add(relay);
+
+        // Notify listener of new session
+        if (listener != null) {
+            listener.webSocketSessionStarted(session);
+        }
+
+        // Start relay in background
+        relay.start();
+
+        // When relay completes, move to completed transactions
+        new Thread(() -> {
+            try {
+                relay.awaitCompletion();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            if (activeWebSocketRelays.remove(relay)) {
+                completedWebSocketTransactions.add(session.toTransaction());
+                LOG.info("WebSocket session completed: {} ({} messages)", 
+                        wsUrl, session.getMessageCount());
+                if (listener != null) {
+                    listener.webSocketSessionClosed(session);
+                }
+            }
+        }, "WS-Completion-" + session.getConnectionId()).start();
     }
 
     /**

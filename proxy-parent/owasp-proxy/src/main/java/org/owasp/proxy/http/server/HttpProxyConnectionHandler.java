@@ -81,6 +81,24 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
 
     private TargetedConnectionHandler connectHandler = null;
 
+    private WebSocketConnectionHandler webSocketHandler = null;
+
+    /**
+     * Callback interface for WebSocket connection handling.
+     */
+    public interface WebSocketConnectionHandler {
+        /**
+         * Handle a WebSocket connection after HTTP 101 upgrade.
+         * 
+         * @param clientSocket Socket connected to client
+         * @param serverSocket Socket connected to server
+         * @param wsUrl The WebSocket URL (ws:// or wss://)
+         * @param request The original upgrade request
+         */
+        void handleWebSocketConnection(Socket clientSocket, Socket serverSocket, 
+                String wsUrl, StreamingRequest request);
+    }
+
     static {
         logger.setLevel(Level.FINE);
     }
@@ -91,6 +109,10 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
 
     public void setConnectHandler(TargetedConnectionHandler connectHandler) {
         this.connectHandler = connectHandler;
+    }
+
+    public void setWebSocketHandler(WebSocketConnectionHandler webSocketHandler) {
+        this.webSocketHandler = webSocketHandler;
     }
 
     /*
@@ -355,6 +377,13 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
                 if (!writeResponse(request, response, out))
                     return;
 
+                // Check for WebSocket upgrade (101 Switching Protocols)
+                if ("101".equals(response.getStatus())) {
+                    if (handleWebSocketUpgrade(socket, request, requestHandler)) {
+                        return;  // WebSocket relay took over, exit HTTP loop
+                    }
+                }
+
                 holder.state = State.READY;
                 version = response.getVersion();
                 connection = response.getHeader("Connection");
@@ -395,6 +424,66 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             }
         }
 
+    }
+
+    /**
+     * Handle WebSocket upgrade - hand off to WebSocket relay.
+     * 
+     * @param clientSocket Client socket
+     * @param request The upgrade request
+     * @param handler The request handler (to get server socket)
+     * @return true if WebSocket relay was started, false if not a valid upgrade
+     */
+    private boolean handleWebSocketUpgrade(Socket clientSocket, StreamingRequest request, 
+            HttpRequestHandler handler) {
+        try {
+            // Check if this is a WebSocket upgrade request
+            String upgrade = request.getHeader("Upgrade");
+            if (upgrade == null || !upgrade.equalsIgnoreCase("websocket")) {
+                return false;  // Not a WebSocket upgrade
+            }
+
+            // Get server socket from handler chain
+            Socket serverSocket = getServerSocket(handler);
+            if (serverSocket == null) {
+                logger.warning("WebSocket upgrade detected but couldn't get server socket");
+                return false;
+            }
+
+            // Extract WebSocket URL
+            String host = request.getHeader("Host");
+            String resource = request.getResource();
+            boolean ssl = request.isSsl();
+            String wsUrl = (ssl ? "wss://" : "ws://") + host + resource;
+
+            logger.info("WebSocket upgrade detected: " + wsUrl);
+
+            // Notify any registered WebSocket handler
+            if (webSocketHandler != null) {
+                webSocketHandler.handleWebSocketConnection(clientSocket, serverSocket, wsUrl, request);
+                return true;
+            }
+
+            // No handler - just log and continue (connection will close)
+            logger.warning("No WebSocket handler registered, connection will close");
+            return false;
+
+        } catch (Exception e) {
+            logger.warning("Error handling WebSocket upgrade: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Try to extract server socket from handler chain.
+     */
+    private Socket getServerSocket(HttpRequestHandler handler) {
+        // Unwrap handler chain to find DefaultHttpRequestHandler
+        if (handler instanceof DefaultHttpRequestHandler) {
+            return ((DefaultHttpRequestHandler) handler).getHttpClient().getSocket();
+        }
+        // TODO: Handle wrapped handlers (BufferingHttpRequestHandler, etc.)
+        return null;
     }
 
     private boolean writeResponse(RequestHeader request,

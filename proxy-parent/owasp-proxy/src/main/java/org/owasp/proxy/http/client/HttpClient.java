@@ -565,6 +565,25 @@ public class HttpClient {
         }
     }
 
+    /**
+     * Get the underlying socket for WebSocket handoff after 101 upgrade.
+     * After calling this, the caller takes ownership of the socket.
+     * 
+     * @return The server socket, or null if not connected
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * Release socket ownership without closing it (for WebSocket handoff).
+     * After calling this, disconnect() will not close the socket.
+     */
+    public void releaseSocket() {
+        socket = null;
+        state = State.DISCONNECTED;
+    }
+
     public long getRequestTime() {
         return requestSubmissionTime;
     }
