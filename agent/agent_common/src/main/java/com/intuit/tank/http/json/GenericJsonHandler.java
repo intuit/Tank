@@ -17,7 +17,7 @@ public class GenericJsonHandler {
      * @param clazz
      * @return
      */
-    public static <T> T fromJson(String json, Class<T> clazz) {
+    protected static <T> T fromJson(String json, Class<T> clazz) {
         try {
             return jsonMapper.readValue(json, clazz);
         } catch (Exception ex) {

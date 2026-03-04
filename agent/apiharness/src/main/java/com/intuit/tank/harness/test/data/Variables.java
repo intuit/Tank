@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
@@ -136,11 +137,8 @@ public class Variables {
     }
 
     public Map<String, String> getVariableValues() {
-        Map<String, String> ret = new HashMap<String, String>();
-        for (Entry<String, VariableValue> entry : variables.entrySet()) {
-            ret.put(entry.getKey(), entry.getValue().getValue());
-        }
-        return ret;
+        return variables.entrySet().stream()
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().getValue()));
     }
 
     /**
@@ -181,17 +179,13 @@ public class Variables {
      *            true to allow override of variable
      */
     public void addVariable(String key, String value, boolean allowOverride) {
-        String result = null;
-        if (value.length() < 1) {
-            result = this.processString(key, value);
-        } else if (ValidationUtil.isFunction(value)) {
-            result = this.processFunction(key, value);
-        } else {
-            result = this.processString(key, value);
-        }
-        VariableValue variableValue = this.variables.get(key);
+        String result = ValidationUtil.isFunction(value)
+                ? processFunction(key, value)
+                : processString(key, value);
+
+        VariableValue variableValue = variables.get(key);
         if (variableValue == null || variableValue.allowOverride) {
-            this.variables.put(key, new VariableValue(result, allowOverride));
+            variables.put(key, new VariableValue(result, allowOverride));
             context.set(key, result);
         }
     }
@@ -223,7 +217,7 @@ public class Variables {
                 return Double.valueOf(variable);
             }
         } catch (NumberFormatException e) {
-            LOG.error(variable + " is not a Double.");
+            LOG.error("{} is not a Double.", variable);
         }
         return null;
     }
@@ -241,7 +235,7 @@ public class Variables {
                 return Integer.valueOf(variable);
             }
         } catch (NumberFormatException e) {
-            LOG.error(variable + " is not a Double.");
+            LOG.error("{} is not a Integer.", variable);
         }
         return null;
     }
@@ -272,7 +266,6 @@ public class Variables {
      *            The string value
      */
     private String processString(String key, String value) {
-
         value = evaluate(value);
         logVariable(key, value);
         return value;
