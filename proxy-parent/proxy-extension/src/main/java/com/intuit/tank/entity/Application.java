@@ -316,7 +316,14 @@ public final class Application {
     }
 
     /**
-     * 
+     * @return completed WebSocket transactions (sessions that have finished relaying)
+     */
+    public List<WebSocketTransaction> getCompletedWebSocketTransactions() {
+        return completedWebSocketTransactions;
+    }
+
+    /**
+     *
      */
     public void pauseSession() {
         paused = true;

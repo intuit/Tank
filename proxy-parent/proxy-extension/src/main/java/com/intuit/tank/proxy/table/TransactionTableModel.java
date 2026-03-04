@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.swing.table.DefaultTableModel;
 
 import com.intuit.tank.conversation.Transaction;
+import com.intuit.tank.conversation.WebSocketTransaction;
 import com.intuit.tank.entity.Application;
 import com.intuit.tank.handler.WebSocketSession;
 import com.intuit.tank.util.HeaderParser;
@@ -224,6 +225,27 @@ public class TransactionTableModel extends DefaultTableModel {
             }
         }
         return "/";
+    }
+
+    /**
+     * Get WebSocket transactions from all tracked sessions.
+     */
+    public List<WebSocketTransaction> getWebSocketTransactions() {
+        List<WebSocketTransaction> result = new ArrayList<>();
+        for (WebSocketSession session : webSocketSessions.values()) {
+            result.add(session.toTransaction());
+        }
+        return result;
+    }
+
+    /**
+     * Load WebSocket transactions into the model (used when opening a saved recording).
+     */
+    public void addWebSocketTransactions(List<WebSocketTransaction> wsTxns) {
+        for (WebSocketTransaction wsTx : wsTxns) {
+            WebSocketSession session = new WebSocketSession(wsTx.getUrl(), null);
+            addWebSocketSession(session);
+        }
     }
 
     /**

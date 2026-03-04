@@ -84,6 +84,7 @@ import org.owasp.proxy.ssl.SSLContextSelector;
 
 import com.intuit.tank.conversation.Session;
 import com.intuit.tank.conversation.Transaction;
+import com.intuit.tank.conversation.WebSocketTransaction;
 import com.intuit.tank.entity.Application;
 import com.intuit.tank.handler.BufferingHttpRequestHandler;
 import com.intuit.tank.proxy.config.ProxyConfiguration;
@@ -349,9 +350,10 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             fileChooser.getSelectedFile();
             try {
-                List<Transaction> transactions = new WebConversationJaxbParseXML().parse(new FileReader(fileChooser
+                Session session = new WebConversationJaxbParseXML().parseSession(new FileReader(fileChooser
                         .getSelectedFile()));
-                model.setTransactions(transactions);
+                model.setTransactions(session.getTransactions());
+                model.addWebSocketTransactions(session.getWebSocketTransactions());
                 saveAction.setEnabled(false);
                 filterAction.setEnabled(true);
                 currentFile = fileChooser.getSelectedFile();
@@ -374,8 +376,9 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
                 Marshaller marshaller = ctx.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                Session session = new Session(model.getTransactions(), configDialog.getConfiguration()
-                        .isFollowRedirects());
+                List<WebSocketTransaction> wsTxns = model.getWebSocketTransactions();
+                Session session = new Session(model.getTransactions(), wsTxns,
+                        configDialog.getConfiguration().isFollowRedirects());
                 System.out.println("outputting to : " + currentFile.getCanonicalPath());
                 marshaller.marshal(session, currentFile);
             } catch (JAXBException | IOException e) {

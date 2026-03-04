@@ -12,6 +12,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.XMLEvent;
 
+import com.intuit.tank.conversation.Session;
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.vm.exception.ParseExceptionConverter;
 import com.intuit.tank.vm.exception.WatsParseException;
@@ -33,6 +34,23 @@ public class WebConversationJaxbParseXML {
      */
     public List<Transaction> parse(String xml) throws WatsParseException {
         return parse(new StringReader(xml));
+    }
+
+    /**
+     * Unmarshal an entire Session object from XML, preserving both HTTP and WebSocket transactions.
+     */
+    public Session parseSession(Reader reader) throws WatsParseException {
+        try {
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+            Unmarshaller um = ctx.createUnmarshaller();
+            return (Session) um.unmarshal(reader);
+        } catch (JAXBException e) {
+            throw ParseExceptionConverter.handleException(e.getLinkedException());
+        } catch (Exception e) {
+            throw ParseExceptionConverter.handleException(e);
+        }
     }
 
     /**

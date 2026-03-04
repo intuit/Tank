@@ -6,3 +6,5 @@ Request
 Response
 Session
 Transaction
+WebSocketMessage
+WebSocketTransaction
