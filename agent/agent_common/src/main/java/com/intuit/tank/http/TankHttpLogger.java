@@ -43,4 +43,15 @@ public interface TankHttpLogger {
      * @return
      */
     public AgentConfig getAgentConfig();
+
+    /**
+     * Returns true if the debugger is running the client code.
+     * Used to gate expensive request/response logging that is only
+     * consumed by the debugger UI.
+     *
+     * @return true if running inside the Tank Debugger tool
+     */
+    default boolean isDebugMode() {
+        return false;
+    }
 }
