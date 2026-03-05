@@ -316,11 +316,11 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
         startAction.setEnabled(true);
         stopAction.setEnabled(false);
         pauseAction.setEnabled(false);
+        // Enable save if any traffic was recorded
+        isDirty = true;
         saveAction.setEnabled(true);
         filterAction.setEnabled(true);
         openAction.setEnabled(true);
-        application = null;
-        saveAction.setEnabled(isDirty);
     }
 
     /**

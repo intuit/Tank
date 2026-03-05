@@ -119,9 +119,10 @@ public class MessageUtils {
                 } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
-            } else
-                throw new MessageFormatException("Unsupported coding : "
-                        + algo);
+            } else {
+                // Skip unsupported encodings (e.g. zstd) — pass content through
+                // rather than crashing the proxy
+            }
         }
         return content;
     }
@@ -191,9 +192,10 @@ public class MessageUtils {
                 } catch (IOException e) {}
             } else if (IDENTITY.equalsIgnoreCase(algo)) {
                 // nothing to do
-            } else
-                throw new MessageFormatException("Unsupported coding : "
-                        + algo);
+            } else {
+                // Skip unsupported encodings (e.g. zstd) — pass content through
+                // rather than crashing the proxy
+            }
         }
         return content;
     }

@@ -294,25 +294,26 @@ public final class Application {
             listener.webSocketSessionStarted(session);
         }
 
-        // Start relay in background
+        // Start relay
         relay.start();
 
-        // When relay completes, move to completed transactions
-        new Thread(() -> {
-            try {
-                relay.awaitCompletion();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        // Block until relay completes — this keeps the calling thread alive
+        // so the socket cleanup in HttpProxyConnectionHandler doesn't fire
+        try {
+            relay.awaitCompletion();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // Relay done — move to completed transactions
+        if (activeWebSocketRelays.remove(relay)) {
+            completedWebSocketTransactions.add(session.toTransaction());
+            LOG.info("WebSocket session completed: {} ({} messages)",
+                    wsUrl, session.getMessageCount());
+            if (listener != null) {
+                listener.webSocketSessionClosed(session);
             }
-            if (activeWebSocketRelays.remove(relay)) {
-                completedWebSocketTransactions.add(session.toTransaction());
-                LOG.info("WebSocket session completed: {} ({} messages)", 
-                        wsUrl, session.getMessageCount());
-                if (listener != null) {
-                    listener.webSocketSessionClosed(session);
-                }
-            }
-        }, "WS-Completion-" + session.getConnectionId()).start();
+        }
     }
 
     /**

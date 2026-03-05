@@ -280,6 +280,7 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
      */
     public void handleConnection(Socket socket, InetSocketAddress target,
             boolean ssl) throws IOException {
+        boolean webSocketTakeover = false;
         try {
             InetAddress source = socket.getInetAddress();
 
@@ -374,12 +375,21 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
                     }
                 }
 
+                // Log response status for debugging upgrade detection
+                String upgradeHeader = request.getHeader("Upgrade");
+                if (upgradeHeader != null) {
+                    logger.info("Request has Upgrade header: " + upgradeHeader +
+                                ", response status: " + response.getStatus() +
+                                ", resource: " + request.getResource());
+                }
+
                 if (!writeResponse(request, response, out))
                     return;
 
                 // Check for WebSocket upgrade (101 Switching Protocols)
                 if ("101".equals(response.getStatus())) {
                     if (handleWebSocketUpgrade(socket, request, requestHandler)) {
+                        webSocketTakeover = true;
                         return;  // WebSocket relay took over, exit HTTP loop
                     }
                 }
@@ -416,11 +426,13 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             }
             logger.info("Target was " + target);
         } finally {
-            try {
-                requestHandler.dispose();
-            } catch (IOException ioe) {
-                logger.warning("Error disposing of requestHandler resources: "
-                        + ioe.getMessage());
+            if (!webSocketTakeover) {
+                try {
+                    requestHandler.dispose();
+                } catch (IOException ioe) {
+                    logger.warning("Error disposing of requestHandler resources: "
+                            + ioe.getMessage());
+                }
             }
         }
 
@@ -444,11 +456,14 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             }
 
             // Get server socket from handler chain
+            logger.info("Attempting to get server socket from handler: " + handler.getClass().getName());
             Socket serverSocket = getServerSocket(handler);
             if (serverSocket == null) {
                 logger.warning("WebSocket upgrade detected but couldn't get server socket");
                 return false;
             }
+            logger.info("Got server socket: " + serverSocket.getClass().getName() +
+                        " connected=" + serverSocket.isConnected() + " closed=" + serverSocket.isClosed());
 
             // Extract WebSocket URL
             String host = request.getHeader("Host");
@@ -456,10 +471,11 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             boolean ssl = request.isSsl();
             String wsUrl = (ssl ? "wss://" : "ws://") + host + resource;
 
-            logger.info("WebSocket upgrade detected: " + wsUrl);
+            logger.info("WebSocket upgrade detected: " + wsUrl + " clientSocket=" + clientSocket.getClass().getName());
 
             // Notify any registered WebSocket handler
             if (webSocketHandler != null) {
+                logger.info("Calling webSocketHandler for " + wsUrl);
                 webSocketHandler.handleWebSocketConnection(clientSocket, serverSocket, wsUrl, request);
                 return true;
             }
@@ -479,10 +495,26 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
      */
     private Socket getServerSocket(HttpRequestHandler handler) {
         // Unwrap handler chain to find DefaultHttpRequestHandler
-        if (handler instanceof DefaultHttpRequestHandler) {
-            return ((DefaultHttpRequestHandler) handler).getHttpClient().getSocket();
+        HttpRequestHandler current = handler;
+        for (int i = 0; i < 10 && current != null; i++) {
+            if (current instanceof DefaultHttpRequestHandler) {
+                return ((DefaultHttpRequestHandler) current).getHttpClient().getSocket();
+            }
+            // Unwrap via reflection (handler chains use a 'next' field)
+            try {
+                java.lang.reflect.Field nextField = current.getClass().getDeclaredField("next");
+                nextField.setAccessible(true);
+                Object next = nextField.get(current);
+                if (next instanceof HttpRequestHandler) {
+                    current = (HttpRequestHandler) next;
+                } else {
+                    break;
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                break;
+            }
         }
-        // TODO: Handle wrapped handlers (BufferingHttpRequestHandler, etc.)
+        logger.warning("Could not unwrap handler chain to find server socket: " + handler.getClass().getName());
         return null;
     }
 
@@ -490,8 +522,18 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
             StreamingResponse response, OutputStream out) throws IOException {
         try {
             out.write(response.getHeader());
+            out.flush();
         } catch (IOException ioe) { // client gone
             return false;
+        }
+        // For 101 Switching Protocols, don't stream content — the connection
+        // switches to WebSocket frames which the relay will handle
+        try {
+            if ("101".equals(response.getStatus())) {
+                return true;
+            }
+        } catch (MessageFormatException e) {
+            // ignore
         }
         InputStream content = null;
         try {

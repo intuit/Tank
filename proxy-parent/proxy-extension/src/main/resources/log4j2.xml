@@ -9,6 +9,9 @@
         </RollingFile>
     </Appenders>
     <Loggers>
+        <Logger name="com.intuit.tank.handler" level="debug" additivity="false">
+            <AppenderRef ref="proxy"/>
+        </Logger>
         <Root level="error">
             <AppenderRef ref="proxy"/>
         </Root>

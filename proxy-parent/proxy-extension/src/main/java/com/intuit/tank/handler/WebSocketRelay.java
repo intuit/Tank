@@ -82,11 +82,17 @@ public class WebSocketRelay {
         Socket writeSocket = clientToServer ? serverSocket : clientSocket;
 
         try {
+            LOG.info("[WebSocket {}] Relay thread starting. readSocket={} closed={} writeSocket={} closed={}",
+                    direction, readSocket.getClass().getSimpleName(), readSocket.isClosed(),
+                    writeSocket.getClass().getSimpleName(), writeSocket.isClosed());
+
             // Set SO_TIMEOUT to prevent infinite blocking on read
             readSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 
             InputStream in = readSocket.getInputStream();
             OutputStream out = writeSocket.getOutputStream();
+            LOG.info("[WebSocket {}] Got streams. in={} out={}", direction,
+                    in.getClass().getSimpleName(), out.getClass().getSimpleName());
 
             while (running.get() && !readSocket.isClosed() && !writeSocket.isClosed()) {
                 try {
@@ -136,11 +142,11 @@ public class WebSocketRelay {
                 }
             }
 
-        } catch (IOException e) {
-            LOG.error("[WebSocket {}] Failed to get streams: {}", direction, e.getMessage());
+        } catch (Exception e) {
+            LOG.error("[WebSocket {}] Failed to get streams: {}", direction, e.getMessage(), e);
         } finally {
             completionLatch.countDown();
-            LOG.debug("[WebSocket {}] Relay thread exiting", direction);
+            LOG.info("[WebSocket {}] Relay thread exiting", direction);
         }
     }
 

@@ -265,6 +265,11 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
             }
         }
         response = next.handleRequest(source, request, isContinue);
+        // Skip buffering for 101 Switching Protocols (WebSocket upgrade)
+        // — the response has no body and the connection switches to WS frames
+        if ("101".equals(response.getStatus())) {
+            return response;
+        }
         if (brq != null) {
             handleResponse(brq, response);
         }
