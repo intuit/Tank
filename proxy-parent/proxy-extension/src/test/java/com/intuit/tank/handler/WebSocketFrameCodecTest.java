@@ -1,5 +1,6 @@
 package com.intuit.tank.handler;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -237,6 +238,34 @@ class WebSocketFrameCodecTest {
         assertTrue(frame2.isFin());
         assertEquals(WebSocketFrame.Opcode.CONTINUATION, frame2.getOpcode());
         assertEquals("lo", frame2.getPayloadAsText());
+    }
+
+    @Test
+    @DisplayName("readFrame should return frame with UNKNOWN opcode for reserved opcodes instead of throwing")
+    void testReadReservedOpcodeDoesNotThrow() throws IOException {
+        // Opcode 0xB is reserved per RFC 6455 — should not crash the codec
+        byte[] frameBytes = new byte[] {
+            (byte) 0x8B,  // FIN=1, opcode=0xB (reserved control frame)
+            0x00           // MASK=0, length=0
+        };
+
+        WebSocketFrame frame = codec.readFrame(new ByteArrayInputStream(frameBytes));
+        assertNotNull(frame);
+        assertTrue(frame.isFin());
+    }
+
+    @Test
+    @DisplayName("readFrame should handle reserved non-control opcode 0x3")
+    void testReadReservedNonControlOpcode() throws IOException {
+        byte[] frameBytes = new byte[] {
+            (byte) 0x83,  // FIN=1, opcode=0x3
+            0x03,         // MASK=0, length=3
+            'a', 'b', 'c'
+        };
+
+        WebSocketFrame frame = codec.readFrame(new ByteArrayInputStream(frameBytes));
+        assertNotNull(frame);
+        assertEquals(3, frame.getPayload().length);
     }
 
     @Test

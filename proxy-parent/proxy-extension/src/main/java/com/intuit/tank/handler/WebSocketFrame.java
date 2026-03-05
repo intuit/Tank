@@ -24,8 +24,9 @@ public class WebSocketFrame {
         // 0x3-0x7 reserved for further non-control frames
         CLOSE(0x8),         // Connection close
         PING(0x9),          // Ping (keep-alive)
-        PONG(0xA);          // Pong (response to ping)
+        PONG(0xA),          // Pong (response to ping)
         // 0xB-0xF reserved for further control frames
+        UNKNOWN(-1);        // Sentinel for reserved/unknown opcodes
 
         private final int code;
 
@@ -43,7 +44,7 @@ public class WebSocketFrame {
                     return op;
                 }
             }
-            throw new IllegalArgumentException("Unknown opcode: " + code);
+            return UNKNOWN;
         }
 
         public boolean isControl() {

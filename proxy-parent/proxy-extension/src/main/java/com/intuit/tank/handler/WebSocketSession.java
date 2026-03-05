@@ -3,6 +3,7 @@ package com.intuit.tank.handler;
 import com.intuit.tank.conversation.WebSocketMessage;
 import com.intuit.tank.conversation.WebSocketTransaction;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,14 +38,14 @@ public class WebSocketSession {
     // Thread-safe list for concurrent access from relay threads
     private final List<CapturedMessage> messages = new CopyOnWriteArrayList<>();
 
-    // For handling fragmented messages
-    private final StringBuilder clientFragmentBuffer = new StringBuilder();
-    private final StringBuilder serverFragmentBuffer = new StringBuilder();
+    // For handling fragmented messages (ByteArrayOutputStream preserves binary fidelity)
+    private final ByteArrayOutputStream clientFragmentBuffer = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream serverFragmentBuffer = new ByteArrayOutputStream();
     private WebSocketFrame.Opcode clientFragmentOpcode = null;
     private WebSocketFrame.Opcode serverFragmentOpcode = null;
 
     // Callback for UI updates when messages are added
-    private Runnable messageCallback;
+    private volatile Runnable messageCallback;
 
     /**
      * Represents a captured WebSocket message with metadata
@@ -103,15 +104,15 @@ public class WebSocketSession {
         }
 
         // Handle fragmentation
-        StringBuilder fragmentBuffer = fromClient ? clientFragmentBuffer : serverFragmentBuffer;
+        ByteArrayOutputStream fragmentBuffer = fromClient ? clientFragmentBuffer : serverFragmentBuffer;
 
         if (frame.getOpcode() == WebSocketFrame.Opcode.CONTINUATION) {
             // Continuation of a fragmented message
-            fragmentBuffer.append(frame.getPayloadAsText());
+            fragmentBuffer.write(frame.getPayload(), 0, frame.getPayload().length);
         } else {
             // Start of a new message (possibly fragmented)
-            fragmentBuffer.setLength(0);
-            fragmentBuffer.append(frame.getPayloadAsText());
+            fragmentBuffer.reset();
+            fragmentBuffer.write(frame.getPayload(), 0, frame.getPayload().length);
             if (fromClient) {
                 clientFragmentOpcode = frame.getOpcode();
             } else {
@@ -126,7 +127,7 @@ public class WebSocketSession {
                 opcode = frame.getOpcode();
             }
 
-            byte[] payload = fragmentBuffer.toString().getBytes(StandardCharsets.UTF_8);
+            byte[] payload = fragmentBuffer.toByteArray();
             messages.add(new CapturedMessage(fromClient, opcode, payload, System.currentTimeMillis()));
 
             // Notify callback
@@ -135,7 +136,7 @@ public class WebSocketSession {
             }
 
             // Reset fragment state
-            fragmentBuffer.setLength(0);
+            fragmentBuffer.reset();
             if (fromClient) {
                 clientFragmentOpcode = null;
             } else {

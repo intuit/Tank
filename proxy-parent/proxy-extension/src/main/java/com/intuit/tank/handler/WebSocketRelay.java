@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WebSocketRelay {
 
     private static final Logger LOG = LogManager.getLogger(WebSocketRelay.class);
+    private static final int SOCKET_TIMEOUT_MS = 30_000; // 30 second read timeout
 
     private final Socket clientSocket;
     private final Socket serverSocket;
@@ -80,6 +82,9 @@ public class WebSocketRelay {
         Socket writeSocket = clientToServer ? serverSocket : clientSocket;
 
         try {
+            // Set SO_TIMEOUT to prevent infinite blocking on read
+            readSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+
             InputStream in = readSocket.getInputStream();
             OutputStream out = writeSocket.getOutputStream();
 
@@ -112,6 +117,13 @@ public class WebSocketRelay {
                         break;
                     }
 
+                } catch (SocketTimeoutException e) {
+                    // SO_TIMEOUT fired — check if relay is still running and retry
+                    if (running.get()) {
+                        LOG.trace("[WebSocket {}] Read timeout, retrying...", direction);
+                        continue;
+                    }
+                    break;
                 } catch (SocketException e) {
                     // Socket closed - normal termination
                     LOG.debug("[WebSocket {}] Socket closed: {}", direction, e.getMessage());

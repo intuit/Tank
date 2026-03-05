@@ -2,6 +2,7 @@ package com.intuit.tank.handler;
 
 import com.intuit.tank.conversation.WebSocketMessage;
 import com.intuit.tank.conversation.WebSocketTransaction;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -252,6 +253,42 @@ class WebSocketSessionTest {
         // Second message: server→client
         assertFalse(messages.get(1).isFromClient());
         assertEquals("Echo: Hello", messages.get(1).getContentAsString());
+    }
+
+    @Test
+    @DisplayName("Binary fragmented frames should reassemble without data corruption")
+    void testBinaryFragmentedMessagePreservesBytes() {
+        byte[] part1 = new byte[] {(byte) 0xFF, 0x00, (byte) 0xAB};
+        byte[] part2 = new byte[] {(byte) 0xCD, (byte) 0xEF, 0x01};
+
+        // First binary fragment (FIN=0)
+        WebSocketFrame frag1 = new WebSocketFrame(
+            false, WebSocketFrame.Opcode.BINARY, false, part1, null
+        );
+        // Final continuation (FIN=1)
+        WebSocketFrame frag2 = new WebSocketFrame(
+            true, WebSocketFrame.Opcode.CONTINUATION, false, part2, null
+        );
+
+        session.addFrame(frag1, true);
+        session.addFrame(frag2, true);
+
+        assertEquals(1, session.getMessageCount());
+
+        WebSocketSession.CapturedMessage msg = session.getMessages().get(0);
+        assertEquals(WebSocketFrame.Opcode.BINARY, msg.type);
+
+        // Critical: binary bytes must survive round-trip exactly
+        byte[] expected = new byte[] {(byte) 0xFF, 0x00, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x01};
+        assertArrayEquals(expected, msg.payload);
+    }
+
+    @Test
+    @DisplayName("messageCallback field should be volatile for thread-safe visibility")
+    void testMessageCallbackFieldIsVolatile() throws NoSuchFieldException {
+        java.lang.reflect.Field field = WebSocketSession.class.getDeclaredField("messageCallback");
+        assertTrue(java.lang.reflect.Modifier.isVolatile(field.getModifiers()),
+            "messageCallback must be volatile for thread-safe access from relay threads");
     }
 
     @Test
