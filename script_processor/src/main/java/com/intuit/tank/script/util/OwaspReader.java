@@ -33,11 +33,14 @@ import org.json.JSONObject;
 
 import com.intuit.tank.conversation.Cookie;
 import com.intuit.tank.conversation.Header;
+import com.intuit.tank.conversation.Session;
 import com.intuit.tank.conversation.Transaction;
+import com.intuit.tank.conversation.WebSocketTransaction;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.RequestDataType;
 import com.intuit.tank.script.ScriptConstants;
+import com.intuit.tank.transform.scriptGenerator.WebSocketTransactionConverter;
 import com.intuit.tank.util.HeaderParser;
 import com.intuit.tank.util.KeyValuePair;
 import com.intuit.tank.util.WebConversationJaxbParseXML;
@@ -70,8 +73,20 @@ public class OwaspReader implements RecordedScriptReader {
      */
     @Override
     public List<ScriptStep> read(Reader reader) throws WatsParseException {
-        return transactionsToRequest(new WebConversationJaxbParseXML()
-                .parse(reader));
+        WebConversationJaxbParseXML parser = new WebConversationJaxbParseXML();
+        Session session = parser.parseSession(reader);
+
+        // Convert HTTP transactions
+        List<ScriptStep> result = transactionsToRequest(session.getTransactions());
+
+        // Convert WebSocket transactions (appended after HTTP steps)
+        List<WebSocketTransaction> wsTransactions = session.getWebSocketTransactions();
+        if (wsTransactions != null && !wsTransactions.isEmpty()) {
+            int nextIndex = result.size() + 1;
+            result.addAll(WebSocketTransactionConverter.convertAll(wsTransactions, nextIndex));
+        }
+
+        return result;
     }
 
     public List<ScriptStep> transactionsToRequest( Collection<Transaction> entries) {
