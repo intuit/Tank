@@ -8,7 +8,6 @@
 package com.intuit.tank.clients;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.json.JsonMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.jobs.models.*;
 
@@ -47,7 +46,7 @@ public class JobClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, JobContainer.class);
+                    return JSON_MAPPER.readValue(is, JobContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -74,7 +73,7 @@ public class JobClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, JobTO.class);
+                    return JSON_MAPPER.readValue(is, JobTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -101,7 +100,7 @@ public class JobClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, JobContainer.class);
+                    return JSON_MAPPER.readValue(is, JobContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -118,11 +117,10 @@ public class JobClient extends BaseClient{
     }
 
     public Map<String, String> createJob(CreateJobRequest jobRequest) {
-        JsonMapper jsonMapper = new JsonMapper();
         String requestBody;
 
         try {
-            requestBody = jsonMapper.writeValueAsString(jobRequest);
+            requestBody = JSON_MAPPER.writeValueAsString(jobRequest);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
@@ -137,7 +135,7 @@ public class JobClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return jsonMapper.readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -160,7 +158,7 @@ public class JobClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, List.class);
+                    return JSON_MAPPER.readValue(is, List.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {

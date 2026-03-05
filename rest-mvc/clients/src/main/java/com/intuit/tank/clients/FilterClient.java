@@ -10,8 +10,6 @@ package com.intuit.tank.clients;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.filters.models.*;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.io.InputStream;
 import java.net.http.HttpRequest;
@@ -46,7 +44,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, FilterContainer.class);
+                    return JSON_MAPPER.readValue(is, FilterContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -73,7 +71,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, FilterGroupContainer.class);
+                    return JSON_MAPPER.readValue(is, FilterGroupContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -100,7 +98,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, FilterTO.class);
+                    return JSON_MAPPER.readValue(is, FilterTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -127,7 +125,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, FilterGroupTO.class);
+                    return JSON_MAPPER.readValue(is, FilterGroupTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -147,7 +145,7 @@ public class FilterClient extends BaseClient{
         String requestBody;
 
         try {
-            requestBody = new ObjectMapper().writeValueAsString(filtersRequest);
+            requestBody = JSON_MAPPER.writeValueAsString(filtersRequest);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }

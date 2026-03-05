@@ -88,12 +88,11 @@ public class AgentClient extends BaseClient {
 
 
     public AgentTestStartData agentReady(AgentData agentData) throws JacksonException {
-        JsonMapper jsonMapper = new JsonMapper();
 
         HttpRequest request = requestBuilder("/ready")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(agentData)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(agentData)))
                 .build();
 
         try {
@@ -101,7 +100,7 @@ public class AgentClient extends BaseClient {
 
             if (checkStatusCode(response.statusCode())) {
                 try (InputStream is = response.body()) {
-                    return jsonMapper.readValue(is, AgentTestStartData.class);
+                    return JSON_MAPPER.readValue(is, AgentTestStartData.class);
                 }
             } else {
                 try (InputStream errorStream = response.body()) {
@@ -156,9 +155,8 @@ public class AgentClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
-                JsonMapper jsonMapper = new JsonMapper();
                 try (InputStream is = response.body()) {
-                    return jsonMapper.readValue(is, TankHttpClientDefinitionContainer.class);
+                    return JSON_MAPPER.readValue(is, TankHttpClientDefinitionContainer.class);
                 }
             } else {
                 try (InputStream errorStream = response.body()) {
@@ -175,12 +173,11 @@ public class AgentClient extends BaseClient {
     }
 
     public void setStandaloneAgentAvailability(AgentAvailability availability) throws JacksonException {
-        JsonMapper jsonMapper = new JsonMapper();
 
         HttpRequest request = requestBuilder("/availability")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(availability)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(availability)))
                 .build();
 
         try {
@@ -209,9 +206,8 @@ public class AgentClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                JsonMapper jsonMapper = new JsonMapper();
                 try(InputStream is = response.body()) {
-                    return jsonMapper.readValue(is, CloudVmStatus.class);
+                    return JSON_MAPPER.readValue(is, CloudVmStatus.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -228,12 +224,11 @@ public class AgentClient extends BaseClient {
     }
 
     public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws JacksonException {
-        JsonMapper jsonMapper = new JsonMapper();
 
         HttpRequest request = requestBuilder("/instance/status/", instanceId)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(VmStatus)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(VmStatus)))
                 .build();
 
         try {

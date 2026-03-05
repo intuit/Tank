@@ -11,7 +11,6 @@ import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.datafiles.models.DataFileDescriptor;
 import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class DataFileClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, DataFileDescriptorContainer.class);
+                    return JSON_MAPPER.readValue(is, DataFileDescriptorContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -80,7 +79,7 @@ public class DataFileClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return new JsonMapper().readValue(is, DataFileDescriptor.class);
+                    return JSON_MAPPER.readValue(is, DataFileDescriptor.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {

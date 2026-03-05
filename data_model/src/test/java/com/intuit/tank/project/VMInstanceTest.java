@@ -286,7 +286,7 @@ public class VMInstanceTest {
         VMRegion result = fixture.getRegion();
 
         assertNotNull(result);
-        assertEquals("Asia Pacific (Singapore)", result.toString());
+        assertEquals("ASIA_1", result.toString());
         assertEquals("ap-southeast-1", result.getRegion());
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("Asia Pacific (Singapore)", result.getDescription());

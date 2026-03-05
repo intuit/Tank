@@ -8,24 +8,20 @@
 package com.intuit.tank.clients;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.projects.models.AutomationRequest;
 import com.intuit.tank.projects.models.ProjectContainer;
 import com.intuit.tank.projects.models.ProjectTO;
-import com.intuit.tank.script.models.ExternalScriptTO;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class ProjectClient extends BaseClient{
-
     private static final String SERVICE_BASE_URL = "/v2/projects";
 
     public ProjectClient(String serviceUrl, String token)  {
@@ -51,9 +47,8 @@ public class ProjectClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, ProjectContainer.class);
+                    return JSON_MAPPER.readValue(is, ProjectContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -70,9 +65,8 @@ public class ProjectClient extends BaseClient{
     }
 
     public Map<Integer, String> getProjectNames() throws IOException, InterruptedException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         HttpRequest request = requestBuilder("/names")
+                .header("Accept", "application/json")
                 .GET()
                 .build();
 
@@ -80,7 +74,7 @@ public class ProjectClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -102,9 +96,8 @@ public class ProjectClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, ProjectTO.class);
+                    return JSON_MAPPER.readValue(is, ProjectTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -121,11 +114,10 @@ public class ProjectClient extends BaseClient{
     }
 
     public Map<String, String> createProject(AutomationRequest projectRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
 
         try {
-            requestBody = objectMapper.writeValueAsString(projectRequest);
+            requestBody = JSON_MAPPER.writeValueAsString(projectRequest);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
@@ -140,7 +132,7 @@ public class ProjectClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -152,11 +144,10 @@ public class ProjectClient extends BaseClient{
 
 
     public Map<String, String> updateProject(AutomationRequest projectRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
 
         try {
-            requestBody = objectMapper.writeValueAsString(projectRequest);
+            requestBody = JSON_MAPPER.writeValueAsString(projectRequest);
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
@@ -171,7 +162,7 @@ public class ProjectClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
