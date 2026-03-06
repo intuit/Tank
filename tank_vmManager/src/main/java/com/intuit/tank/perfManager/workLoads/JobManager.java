@@ -32,7 +32,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import com.amazonaws.xray.contexts.SegmentContextExecutors;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.api.enumerated.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -134,9 +134,8 @@ public class JobManager implements Serializable {
     }
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String requestBody = objectMapper
+            String requestBody = new ObjectMapper()
                     .writeValueAsString(standaloneAgentRequest);
             var request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -149,7 +148,7 @@ public class JobManager implements Serializable {
                 throw new RuntimeException("failed to send standalone start to agent: " + response.toString());
             }
         } catch (IOException | InterruptedException e) {
-            LOG.error("Error sending StandaloneAgentRequest : " + e.getMessage(), e);
+            LOG.error("Error sending StandaloneAgentRequest : {}", e.getMessage(), e);
         }
     }
 

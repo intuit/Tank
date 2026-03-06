@@ -241,7 +241,7 @@ public class AgentDataCpTest {
 
         assertNotNull(result);
         assertEquals("Asia Pacific (Singapore)", result.getDescription());
-        assertEquals("Asia Pacific (Singapore)", result.toString());
+        assertEquals("ASIA_1", result.toString());
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("ASIA_1", result.name());
     }
@@ -312,9 +312,11 @@ public class AgentDataCpTest {
             throws Exception {
         AgentData fixture = new AgentData("", "", "", 1, VMRegion.ASIA_1, "");
         fixture.setUsers(1);
-        int users = 1;
+        int users = 2;
 
         fixture.setUsers(users);
+
+        assertEquals(2, fixture.getUsers());
 
     }
 

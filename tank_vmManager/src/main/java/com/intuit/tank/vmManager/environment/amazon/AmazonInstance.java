@@ -2,8 +2,8 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.JobInstance;
@@ -623,7 +623,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         try {
             String sb = new ObjectMapper().writeValueAsString(userDataMap);
             return Base64.getEncoder().encodeToString(sb.getBytes());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOG.error("Failed to convert userDataMap to Json: {}", e.getMessage());
         }
         return "";

@@ -1,6 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,12 +89,12 @@ public class ProjectApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = jsonMapper.readTree(response.body());
         assertTrue(responseBody.has("projects"), "Response should contain 'projects' field");
 
         JsonNode projects = responseBody.get("projects");
         assertTrue(projects.isArray(), "Projects should be an array");
-        assertTrue(projects.size() > 0, "Should contain at least one project");
+        assertFalse(projects.isEmpty(), "Should contain at least one project");
 
         // Validate project structure
         JsonNode firstProject = projects.get(0);
@@ -117,7 +118,7 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
-        Map<String, String> projectNames = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> projectNames = jsonMapper.readValue(response.body(), Map.class);
         assertTrue(projectNames.containsValue("Simple Endurance Project"),
                 "Response should contain 'Simple Endurance Project'");
         assertTrue(projectNames.containsValue("PDS_Perf_Baseline"),
@@ -126,17 +127,17 @@ public class ProjectApiIT extends BaseIT {
         assertTrue(projectNames.size() > 10,
                 "Response should contain multiple projects (at least 10)");
 
-        assertEquals(298, Integer.parseInt(projectNames.entrySet().stream()
+        assertEquals(298, Integer.parseInt(Objects.requireNonNull(projectNames.entrySet().stream()
                 .filter(entry -> "Simple Endurance Project".equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .orElse(null)), "Should find project ID for 'Simple Endurance Project'");
+                .orElse(null))), "Should find project ID for 'Simple Endurance Project'");
 
-        assertEquals(367, Integer.parseInt(projectNames.entrySet().stream()
-                    .filter(entry -> "PDS_Perf_Baseline".equals(entry.getValue()))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(null)), "Should find project ID for 'PDS_Perf_Baseline'");
+        assertEquals(367, Integer.parseInt(Objects.requireNonNull(projectNames.entrySet().stream()
+                .filter(entry -> "PDS_Perf_Baseline".equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null))), "Should find project ID for 'PDS_Perf_Baseline'");
     }
 
     @Test
@@ -159,9 +160,9 @@ public class ProjectApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode project = objectMapper.readTree(response.body());
+        JsonNode project = jsonMapper.readTree(response.body());
         assertEquals(projectId, project.get("id").asInt(), "Should return correct project ID");
-        assertEquals("Simple Endurance Project", project.get("name").asText(), "Should return correct project name");
+        assertEquals("Simple Endurance Project", project.get("name").asString(), "Should return correct project name");
         assertTrue(project.has("creator"), "Project should have creator field");
         assertTrue(project.has("created"), "Project should have created field");
         assertTrue(project.has("modified"), "Project should have modified field");
@@ -210,9 +211,9 @@ public class ProjectApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("ProjectId"), "Response should contain ProjectId");
-        assertEquals(responseBody.get("status"), ("Created"), "Response should indicate project was created");
+        assertEquals(("Created"), responseBody.get("status"), "Response should indicate project was created");
 
         // Store for cleanup
         int projectId = Integer.parseInt(responseBody.get("ProjectId"));
@@ -244,7 +245,7 @@ public class ProjectApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("ProjectId"), "Response should contain ProjectId");
 
         // Store for cleanup
@@ -280,7 +281,7 @@ public class ProjectApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
         assertEquals(String.valueOf(projectId), responseBody.get("ProjectId"), "Response should contain correct ProjectId");
         assertTrue(responseBody.get("status").contains("Updated"), "Response should indicate project was updated");
 
@@ -575,7 +576,7 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Should create project successfully");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
         int projectId = Integer.parseInt(responseBody.get("ProjectId"));
         createdProjectIds.add(projectId);
 
@@ -594,9 +595,9 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Project should exist");
 
-        JsonNode project = objectMapper.readTree(response.body());
+        JsonNode project = jsonMapper.readTree(response.body());
         assertEquals(projectId, project.get("id").asInt(), "Should return correct project ID");
-        assertEquals(expectedName, project.get("name").asText(), "Should return correct project name");
+        assertEquals(expectedName, project.get("name").asString(), "Should return correct project name");
     }
 
     private void verifyComplexProjectConfiguration(int projectId, String expectedName) throws Exception {
@@ -611,20 +612,20 @@ public class ProjectApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Project should exist");
 
-        JsonNode project = objectMapper.readTree(response.body());
+        JsonNode project = jsonMapper.readTree(response.body());
         assertEquals(projectId, project.get("id").asInt(), "Should return correct project ID");
-        assertEquals(expectedName, project.get("name").asText(), "Should return correct project name");
-        assertEquals("Complex Integration Test Product", project.get("productName").asText(),
+        assertEquals(expectedName, project.get("name").asString(), "Should return correct project name");
+        assertEquals("Complex Integration Test Product", project.get("productName").asString(),
                     "Should have correct product name");
 
         // Verify workload configuration
-        if (project.has("workloads") && project.get("workloads").isArray() && project.get("workloads").size() > 0) {
+        if (project.has("workloads") && project.get("workloads").isArray() && !project.get("workloads").isEmpty()) {
             JsonNode workload = project.get("workloads").get(0);
             assertTrue(workload.has("jobConfiguration"), "Workload should have job configuration");
 
             JsonNode jobConfig = workload.get("jobConfiguration");
-            assertEquals("120s", jobConfig.get("rampTimeExpression").asText(), "Should have correct ramp time");
-            assertEquals("600s", jobConfig.get("simulationTimeExpression").asText(), "Should have correct simulation time");
+            assertEquals("120s", jobConfig.get("rampTimeExpression").asString(), "Should have correct ramp time");
+            assertEquals("600s", jobConfig.get("simulationTimeExpression").asString(), "Should have correct simulation time");
         }
     }
 

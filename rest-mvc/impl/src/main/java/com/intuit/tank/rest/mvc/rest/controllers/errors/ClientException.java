@@ -7,8 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,7 +43,7 @@ public class ClientException extends RuntimeException {
             ObjectMapper mapper = new ObjectMapper();
             Map<String, String> map = mapper.readValue(this.message, Map.class);
             return map.get("message");
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOGGER.error("ClientException error processing JSON error message");
             return message;
         }

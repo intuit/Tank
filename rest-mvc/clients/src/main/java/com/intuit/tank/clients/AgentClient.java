@@ -7,9 +7,9 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
 import com.intuit.tank.projects.models.ProjectTO;
@@ -87,13 +87,12 @@ public class AgentClient extends BaseClient {
     }
 
 
-    public AgentTestStartData agentReady(AgentData agentData) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public AgentTestStartData agentReady(AgentData agentData) throws JacksonException {
 
         HttpRequest request = requestBuilder("/ready")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(agentData)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(agentData)))
                 .build();
 
         try {
@@ -101,7 +100,7 @@ public class AgentClient extends BaseClient {
 
             if (checkStatusCode(response.statusCode())) {
                 try (InputStream is = response.body()) {
-                    return objectMapper.readValue(is, AgentTestStartData.class);
+                    return JSON_MAPPER.readValue(is, AgentTestStartData.class);
                 }
             } else {
                 try (InputStream errorStream = response.body()) {
@@ -109,7 +108,7 @@ public class AgentClient extends BaseClient {
                     throw new ClientException(responseBody, response.statusCode());
                 }
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to process JSON object: ", e);
         } catch (ClientException e1) {
             throw e1;
@@ -156,9 +155,8 @@ public class AgentClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try (InputStream is = response.body()) {
-                    return objectMapper.readValue(is, TankHttpClientDefinitionContainer.class);
+                    return JSON_MAPPER.readValue(is, TankHttpClientDefinitionContainer.class);
                 }
             } else {
                 try (InputStream errorStream = response.body()) {
@@ -174,13 +172,12 @@ public class AgentClient extends BaseClient {
         return null;
     }
 
-    public void setStandaloneAgentAvailability(AgentAvailability availability) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public void setStandaloneAgentAvailability(AgentAvailability availability) throws JacksonException {
 
         HttpRequest request = requestBuilder("/availability")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(availability)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(availability)))
                 .build();
 
         try {
@@ -191,7 +188,7 @@ public class AgentClient extends BaseClient {
                     throw new ClientException(responseBody, response.statusCode());
                 }
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to process JSON object: ", e);
         } catch (ClientException e1) {
             throw e1;
@@ -209,9 +206,8 @@ public class AgentClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, CloudVmStatus.class);
+                    return JSON_MAPPER.readValue(is, CloudVmStatus.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -227,13 +223,12 @@ public class AgentClient extends BaseClient {
         return null;
     }
 
-    public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws JacksonException {
 
         HttpRequest request = requestBuilder("/instance/status/", instanceId)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(VmStatus)))
+                .POST(HttpRequest.BodyPublishers.ofString(JSON_MAPPER.writeValueAsString(VmStatus)))
                 .build();
 
         try {
@@ -245,7 +240,7 @@ public class AgentClient extends BaseClient {
                     throw new ClientException(responseBody, response.statusCode());
                 }
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to process JSON object: ", e);
         } catch (ClientException e1) {
             throw e1;

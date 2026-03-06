@@ -1,7 +1,7 @@
 package com.intuit.tank.harness;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.api.enumerated.VMImageType;

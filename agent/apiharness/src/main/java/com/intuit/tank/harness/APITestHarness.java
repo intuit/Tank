@@ -30,7 +30,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
@@ -66,6 +65,7 @@ import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 public class APITestHarness {
     private static final Logger LOG = LogManager.getLogger(APITestHarness.class);
@@ -299,8 +299,8 @@ public class APITestHarness {
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
             while (count < FIBONACCI.length) {
                 try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    String json = objectMapper.writerFor(AgentData.class)
+                    JsonMapper jsonMapper = new JsonMapper();
+                    String json = jsonMapper.writerFor(AgentData.class)
                             .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI(baseUrl + "/v2/agent/ready"))
@@ -310,10 +310,10 @@ public class APITestHarness {
                             .POST(BodyPublishers.ofString(json))
                             .build();
                     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-                    startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
+                    startData = jsonMapper.readerFor(AgentTestStartData.class).readValue(response.body());
                     break;
                 } catch (Exception e) {
-                    LOG.error("Error sending ready: " + e, e);
+                    LOG.error("Error sending ready: {}", e, e);
                     try {
                         Thread.sleep(FIBONACCI[count++] * 1000);
                     } catch ( InterruptedException ignored) {}
@@ -345,7 +345,7 @@ public class APITestHarness {
             thread.setDaemon(false);
             thread.start();
         } catch (Exception e) {
-            LOG.error("Error communicating with controller: " + e, e);
+            LOG.error("Error communicating with controller: {}", e, e);
             System.exit(0);
         }
     }

@@ -13,13 +13,12 @@ package com.intuit.tank.http.json;
  * #L%
  */
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -46,13 +45,13 @@ public class JsonResponse extends BaseResponse {
 
     @Override
     public void setResponseBody(String body) {
-        this.response = this.cleanString(body);
+        this.response = body.strip();
     }
 
     @Override
     public void setResponseBody(byte[] byteArray) {
         this.responseByteArray = byteArray;
-        this.response = this.cleanString(new String(byteArray));
+        this.response = new String(byteArray).strip();
     }
 
     @Override
@@ -79,24 +78,10 @@ public class JsonResponse extends BaseResponse {
         }
     }
 
-    private String cleanString(String input) {
-        try {
-            return StringUtils.remove(input.trim(),"(\r\n)+");
-        } catch (Exception ex) {
-            return input;
-        }
-    }
-
     private void initialize() {
-        try {
-            if (!StringUtils.isEmpty(this.response)) {
-                this.jsonMap = new ObjectMapper().readValue(this.response, HashMap.class);
-            } else {
-                this.jsonMap = new HashMap();
-            }
-        } catch (IOException ex) {
-            logger.warn("Unable to parse the response string as a JSON object: " + this.response, ex);
-        }
+        this.jsonMap = (StringUtils.isNotEmpty(this.response)) ?
+                GenericJsonHandler.fromJson(this.response, HashMap.class) :
+                Collections.emptyMap();
     }
 
 }
