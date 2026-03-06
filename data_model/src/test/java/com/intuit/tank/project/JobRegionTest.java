@@ -13,12 +13,11 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobRegionTest</code> contains tests for the class <code>{@link JobRegion}</code>.
@@ -42,8 +41,8 @@ public class JobRegionTest {
         assertNotNull(result);
         assertEquals("0", result.getUsers());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -64,8 +63,8 @@ public class JobRegionTest {
         assertNotNull(result);
         assertEquals("0", result.getUsers());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -101,7 +100,7 @@ public class JobRegionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -119,7 +118,7 @@ public class JobRegionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -137,7 +136,7 @@ public class JobRegionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -155,7 +154,7 @@ public class JobRegionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -173,7 +172,7 @@ public class JobRegionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
