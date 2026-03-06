@@ -289,7 +289,6 @@ public abstract class BaseRequest {
     @SuppressWarnings("rawtypes")
     public void logRequest(String url, String body, String method, Map<String, String> headerInformation, List<String> cookies, boolean force) {
         if (!force && (logUtil == null || !logUtil.isDebugMode())) {
-            LOG.info("logRequest SKIPPED (not debug mode)");  // TEMP - remove after validation
             return;
         }
         try {
