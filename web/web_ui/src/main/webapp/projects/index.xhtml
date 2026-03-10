@@ -18,7 +18,7 @@
         <div class="toolbar-ui">
           <p:linkButton value="New Project" href="#{request.contextPath}/projects/createProject.jsf"
                         icon="ui-icon-plus" disabled="#{not createProjectBean.canCreateProject()}"
-                        style="margin: 0 10px 0 20px; border-radius:5px">
+                        style="border-radius:5px">
           </p:linkButton>
         </div>
         </f:facet>
@@ -134,14 +134,14 @@
           <h:panelGroup>
 
             <p:commandLink title="Delete #{pe.entity.name}" oncomplete="PF('confirmDelete').show()" ajax="true"
-              action="#{projectDescriptionBean.setSelectedProject(pe)}" update=":confirmDeleteDialog">
-              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              action="#{projectDescriptionBean.setSelectedProject(pe)}" update=":confirmDeleteDialog"
+              styleClass="ts-action-icon ts-action-delete">
+              <i class="pi pi-trash" />
             </p:commandLink>
 
             <p:commandLink id="btnOpen" action="#{projectBean.openProject(pe.entity)}" title="Edit #{pe.entity.name}"
-              ajax="true">
-              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
-                style="padding: 2px;" />
+              ajax="true" styleClass="ts-action-icon">
+              <i class="pi pi-pencil" />
             </p:commandLink>
           </h:panelGroup>
         </p:column>

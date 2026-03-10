@@ -86,15 +86,15 @@
 
                 <p:commandLink title="Delete #{filterGroupEnvelope.entity.name}"
                   oncomplete="PF('confirmFilterGroup').show();" ajax="true"
-                  action="#{filterGroupBean.setSelectedFilter(filterGroupEnvelope)}" update=":confirmFilterGroupId">
-                  <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                  action="#{filterGroupBean.setSelectedFilter(filterGroupEnvelope)}" update=":confirmFilterGroupId"
+                  styleClass="ts-action-icon ts-action-delete">
+                  <i class="pi pi-trash" />
                 </p:commandLink>
 
                 <p:commandLink id="editGroupLinkId"
-                  action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}" styleClass="pointer"
+                  action="#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}" styleClass="pointer ts-action-icon"
                   title="Edit #{filterGroupEnvelope.entity.name}" ajax="true">
-                  <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
-                    style="padding: 2px;" title="Edit #{filterGroupEnvelope.entity.name}" />
+                  <i class="pi pi-pencil" />
                 </p:commandLink>
               </h:panelGroup>
 
@@ -173,14 +173,14 @@
               <h:panelGroup>
 
                 <p:commandLink title="Delete #{filterEnvelope.entity.name}" oncomplete="PF('confirmDelete').show();" ajax="true"
-                  action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog">
-                  <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                  action="#{filterBean.setSelectedFilter(filterEnvelope)}" update=":confirmDeleteFilterDialog"
+                  styleClass="ts-action-icon ts-action-delete">
+                  <i class="pi pi-trash" />
                 </p:commandLink>
 
                 <p:commandLink action="#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}"
-                  styleClass="pointer" title="Edit #{filterEnvelope.entity.name}" ajax="true">
-                  <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
-                    style="padding: 2px;" title="Edit #{filterEnvelope.entity.name}" />
+                  styleClass="pointer ts-action-icon" title="Edit #{filterEnvelope.entity.name}" ajax="true">
+                  <i class="pi pi-pencil" />
                 </p:commandLink>
               </h:panelGroup>
 

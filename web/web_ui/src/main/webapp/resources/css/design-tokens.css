@@ -1,0 +1,388 @@
+/* ============================================================
+   TANK DESIGN SYSTEM — Color & Typography Tokens
+   ============================================================
+   Architecture:
+     Layer 1: Primitives  (raw scales, never used directly in components)
+     Layer 2: Semantics   (purpose-based, used in components)
+     Layer 3: Components  (optional overrides for specific UI elements)
+
+   Naming:  --{layer}-{category}-{variant}
+   Radix-inspired 12-step scale:
+     1-2   = backgrounds
+     3-4   = interactive / component backgrounds
+     5-6   = borders
+     7-8   = solid backgrounds (buttons, badges)
+     9-10  = solid backgrounds (hover)
+     11-12 = text
+   ============================================================ */
+
+:root {
+  /* --------------------------------------------------------
+     LAYER 1: PRIMITIVE SCALES
+     -------------------------------------------------------- */
+
+  /* --- Neutral (Cool Slate) --- */
+  --gray-1:  #FCFCFD;
+  --gray-2:  #F8F9FA;
+  --gray-3:  #F1F3F5;
+  --gray-4:  #E9ECEF;
+  --gray-5:  #DEE2E6;
+  --gray-6:  #CED4DA;
+  --gray-7:  #ADB5BD;
+  --gray-8:  #868E96;
+  --gray-9:  #495057;
+  --gray-10: #343A40;
+  --gray-11: #212529;
+  --gray-12: #16191D;
+
+  /* --- Primary (Blue) ---
+     Modernized from legacy #4A75B5 (now --blue-8).
+     Default primary is --blue-9: richer, better contrast.    */
+  --blue-1:  #F5F8FF;
+  --blue-2:  #EBF1FF;
+  --blue-3:  #DBE6FF;
+  --blue-4:  #C4D5FF;
+  --blue-5:  #A3BFFA;
+  --blue-6:  #7DA2F2;
+  --blue-7:  #5B86E5;
+  --blue-8:  #4A75B5;
+  --blue-9:  #3B66A5;
+  --blue-10: #2D5294;
+  --blue-11: #1E3F7B;
+  --blue-12: #102A5C;
+
+  /* --- Accent (Amber) ---
+     Evolved from legacy #E17009 (now --amber-8).             */
+  --amber-1:  #FFFBF5;
+  --amber-2:  #FFF3E0;
+  --amber-3:  #FFE4BA;
+  --amber-4:  #FFD08A;
+  --amber-5:  #FFBB58;
+  --amber-6:  #FFA726;
+  --amber-7:  #F59300;
+  --amber-8:  #E17009;
+  --amber-9:  #D46200;
+  --amber-10: #BF5700;
+  --amber-11: #9A4500;
+  --amber-12: #6B3000;
+
+  /* --- Success (Green) --- */
+  --green-1:  #F4FBF6;
+  --green-2:  #E6F7EA;
+  --green-3:  #C8EDCF;
+  --green-4:  #A0DFB0;
+  --green-5:  #6ECC84;
+  --green-6:  #46B85E;
+  --green-7:  #2EA44F;
+  --green-8:  #27903F;
+  --green-9:  #1F7A33;
+  --green-10: #186528;
+  --green-11: #114D1E;
+  --green-12: #0A3313;
+
+  /* --- Warning (Yellow) --- */
+  --yellow-1:  #FFFEF5;
+  --yellow-2:  #FFFCE0;
+  --yellow-3:  #FFF7B8;
+  --yellow-4:  #FFEF8A;
+  --yellow-5:  #FFE55C;
+  --yellow-6:  #FFDA2D;
+  --yellow-7:  #F5C400;
+  --yellow-8:  #DBAD00;
+  --yellow-9:  #C29700;
+  --yellow-10: #A88200;
+  --yellow-11: #7A5F00;
+  --yellow-12: #4D3C00;
+
+  /* --- Error (Red) --- */
+  --red-1:  #FFF5F5;
+  --red-2:  #FFE8E8;
+  --red-3:  #FFD0D0;
+  --red-4:  #FFB0B0;
+  --red-5:  #FF8A8A;
+  --red-6:  #F56565;
+  --red-7:  #E53E3E;
+  --red-8:  #D32F2F;
+  --red-9:  #B71C1C;
+  --red-10: #9B1414;
+  --red-11: #7A1010;
+  --red-12: #520B0B;
+
+  /* --- Info (Teal) ---
+     Distinct from primary blue so info badges don't collide
+     visually with navigation elements.                        */
+  --teal-1:  #F0FDFA;
+  --teal-2:  #E0FAF3;
+  --teal-3:  #B2F0E0;
+  --teal-4:  #81E5C9;
+  --teal-5:  #4FD1B0;
+  --teal-6:  #2BB89A;
+  --teal-7:  #14A085;
+  --teal-8:  #0E8A72;
+  --teal-9:  #0A7460;
+  --teal-10: #075E4E;
+  --teal-11: #04483B;
+  --teal-12: #023029;
+
+
+  /* --------------------------------------------------------
+     LAYER 2: SEMANTIC TOKENS
+     Components reference these, never primitives directly.
+     -------------------------------------------------------- */
+
+  /* --- Surfaces --- */
+  --color-bg-app:             var(--gray-1);
+  --color-bg-subtle:          var(--gray-2);
+  --color-bg-component:       var(--gray-3);
+  --color-bg-component-hover: var(--gray-4);
+
+  /* --- Text --- */
+  --color-text-primary:    var(--gray-12);
+  --color-text-secondary:  var(--gray-11);
+  --color-text-tertiary:   var(--gray-8);
+  --color-text-inverse:    #FFFFFF;
+  --color-text-link:       var(--blue-9);
+  --color-text-link-hover: var(--blue-10);
+
+  /* --- Borders --- */
+  --color-border-subtle:   var(--gray-5);
+  --color-border-default:  var(--gray-6);
+  --color-border-strong:   var(--gray-7);
+  --color-border-focus:    var(--blue-6);
+
+  /* --- Primary action --- */
+  --color-primary:         var(--blue-9);
+  --color-primary-hover:   var(--blue-10);
+  --color-primary-active:  var(--blue-11);
+  --color-primary-subtle:  var(--blue-3);
+
+  /* --- Accent / CTA --- */
+  --color-accent:          var(--amber-9);
+  --color-accent-hover:    var(--amber-10);
+  --color-accent-active:   var(--amber-11);
+  --color-accent-subtle:   var(--amber-3);
+
+  /* --- Semantic status --- */
+  --color-success:         var(--green-7);
+  --color-success-subtle:  var(--green-2);
+  --color-success-text:    var(--green-11);
+
+  --color-warning:         var(--yellow-7);
+  --color-warning-subtle:  var(--yellow-2);
+  --color-warning-text:    var(--yellow-12);
+
+  --color-error:           var(--red-7);
+  --color-error-subtle:    var(--red-2);
+  --color-error-text:      var(--red-11);
+
+  --color-info:            var(--teal-7);
+  --color-info-subtle:     var(--teal-2);
+  --color-info-text:       var(--teal-11);
+
+
+  /* --------------------------------------------------------
+     LAYER 3: COMPONENT TOKENS
+     Direct mappings to Tank UI elements.
+     -------------------------------------------------------- */
+
+  /* Header / navigation */
+  --header-bg:             var(--color-primary);
+  --header-text:           var(--color-text-inverse);
+  --header-link-hover:     var(--color-accent);
+
+  /* Data tables */
+  --table-header-bg:       var(--color-primary);
+  --table-header-text:     var(--color-text-inverse);
+  --table-row-even:        var(--color-bg-app);
+  --table-row-odd:         var(--color-bg-subtle);
+  --table-row-hover:       var(--blue-2);
+  --table-border:          var(--color-border-subtle);
+
+  /* Buttons */
+  --btn-primary-bg:         var(--color-primary);
+  --btn-primary-bg-hover:   var(--color-primary-hover);
+  --btn-primary-text:       var(--color-text-inverse);
+  --btn-secondary-bg:       var(--color-bg-component);
+  --btn-secondary-bg-hover: var(--color-bg-component-hover);
+  --btn-secondary-text:     var(--color-text-primary);
+  --btn-danger-bg:          var(--color-error);
+  --btn-danger-bg-hover:    var(--red-8);
+  --btn-danger-text:        var(--color-text-inverse);
+
+  /* Panels / accordions */
+  --panel-border:          var(--color-border-default);
+  --panel-header-bg:       var(--color-bg-subtle);
+  --panel-header-text:     var(--color-text-primary);
+
+  /* Dialogs */
+  --dialog-overlay:        rgba(0, 0, 0, 0.45);
+  --dialog-bg:             var(--color-bg-app);
+  --dialog-header-bg:      var(--color-bg-subtle);
+  --dialog-border:         var(--color-border-default);
+
+  /* Status indicator (ajax loading) */
+  --status-bg:             var(--color-primary);
+  --status-text:           var(--color-text-inverse);
+  --status-border:         var(--blue-11);
+
+  /* Focus ring */
+  --focus-ring:            0 0 0 2px var(--color-border-focus);
+
+  /* Shadows */
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+
+  /* Border radius */
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-mono:   'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+
+  --text-xs:     0.75rem;    /* 12px */
+  --text-sm:     0.8125rem;  /* 13px */
+  --text-base:   0.875rem;   /* 14px */
+  --text-lg:     1rem;       /* 16px */
+  --text-xl:     1.125rem;   /* 18px */
+  --text-2xl:    1.25rem;    /* 20px */
+  --text-3xl:    1.5rem;     /* 24px */
+
+  --leading-tight:  1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --font-normal:    450;
+  --font-medium:    550;
+  --font-semibold:  650;
+  --font-bold:      750;
+
+  /* Spacing scale */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+
+/* ============================================================
+   DARK MODE (future use — tokens are dark-ready)
+   Apply via <html data-theme="dark"> or system preference.
+   Only primitives change; all semantic + component tokens
+   resolve automatically.
+   ============================================================ */
+[data-theme="dark"] {
+  --gray-1:  #111113;
+  --gray-2:  #18191B;
+  --gray-3:  #212225;
+  --gray-4:  #272A2D;
+  --gray-5:  #2E3135;
+  --gray-6:  #363A3F;
+  --gray-7:  #43484E;
+  --gray-8:  #5A6169;
+  --gray-9:  #696E77;
+  --gray-10: #7B8089;
+  --gray-11: #B0B4BA;
+  --gray-12: #EDEEF0;
+
+  --blue-1:  #0D1520;
+  --blue-2:  #111D2F;
+  --blue-3:  #112D4E;
+  --blue-4:  #12396B;
+  --blue-5:  #1A4685;
+  --blue-6:  #25569E;
+  --blue-7:  #3069B8;
+  --blue-8:  #4A7FD1;
+  --blue-9:  #5B93E5;
+  --blue-10: #7BAAF0;
+  --blue-11: #A3C5F7;
+  --blue-12: #D5E4FC;
+
+  --amber-1:  #1F1300;
+  --amber-2:  #2B1A00;
+  --amber-3:  #3F2800;
+  --amber-4:  #553600;
+  --amber-5:  #6D4500;
+  --amber-6:  #875600;
+  --amber-7:  #A36800;
+  --amber-8:  #C47D00;
+  --amber-9:  #F59300;
+  --amber-10: #FFAB30;
+  --amber-11: #FFC26E;
+  --amber-12: #FFDEAB;
+
+  --green-1:  #0D1F12;
+  --green-2:  #0F291A;
+  --green-3:  #133A24;
+  --green-4:  #194D30;
+  --green-5:  #20603D;
+  --green-6:  #28754C;
+  --green-7:  #2EA44F;
+  --green-8:  #3FBA63;
+  --green-9:  #56CF79;
+  --green-10: #7ADE97;
+  --green-11: #A8EBB8;
+  --green-12: #D4F5DD;
+
+  --yellow-1:  #1C1500;
+  --yellow-2:  #281E00;
+  --yellow-3:  #3D2E00;
+  --yellow-4:  #534000;
+  --yellow-5:  #6B5200;
+  --yellow-6:  #856600;
+  --yellow-7:  #A07C00;
+  --yellow-8:  #C29700;
+  --yellow-9:  #E5B300;
+  --yellow-10: #FFCF3A;
+  --yellow-11: #FFE078;
+  --yellow-12: #FFF0B8;
+
+  --red-1:  #1F1111;
+  --red-2:  #2D1515;
+  --red-3:  #451E1E;
+  --red-4:  #5C2828;
+  --red-5:  #753333;
+  --red-6:  #904040;
+  --red-7:  #B04E4E;
+  --red-8:  #D06060;
+  --red-9:  #E87777;
+  --red-10: #F09595;
+  --red-11: #F5B8B8;
+  --red-12: #FAD8D8;
+
+  --teal-1:  #0D1F1A;
+  --teal-2:  #0F2922;
+  --teal-3:  #133A32;
+  --teal-4:  #194D44;
+  --teal-5:  #206055;
+  --teal-6:  #287567;
+  --teal-7:  #2EA88D;
+  --teal-8:  #3ABFA3;
+  --teal-9:  #4FD1B5;
+  --teal-10: #72DEC8;
+  --teal-11: #A0EBDB;
+  --teal-12: #D0F5ED;
+
+  --color-text-inverse: #111113;
+  --dialog-overlay:     rgba(0, 0, 0, 0.65);
+
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}

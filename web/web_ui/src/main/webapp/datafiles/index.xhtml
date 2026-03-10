@@ -117,8 +117,9 @@ xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                            oncomplete="PF('confirmDelete').show();"
                            ajax="true" immediate="true"
                            action="#{dataFileBrowser.setSelectedFile(selectableDataFile)}"
-                           update=":confirmDeleteDialog">
-              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                           update=":confirmDeleteDialog"
+                           styleClass="ts-action-icon ts-action-delete">
+              <i class="pi pi-trash" />
             </p:commandLink>
             <p:commandLink styleClass="no-decor" render="viewGrid, viewPaneHeader" immediate="true" update=":viewPaneID"
               oncomplete="PF('viewPane').show();" action="#{dataFileBrowser.setViewDatafile(selectableDataFile.entity)}">

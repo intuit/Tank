@@ -68,13 +68,13 @@
         <p:column id="actionsColumn" styleClass="ellipsis actions-column-small">
           <h:panelGroup>
             <p:commandLink title="Delete User #{selectableUser.entity.name}" oncomplete="PF('confirmDelete').show();"
-              ajax="true" action="#{userAdmin.setSelectedUser(selectableUser)}" update=":confirmDeleteDialog">
-              <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+              ajax="true" action="#{userAdmin.setSelectedUser(selectableUser)}" update=":confirmDeleteDialog"
+              styleClass="ts-action-icon ts-action-delete">
+              <i class="pi pi-trash" />
             </p:commandLink>
             <p:commandLink action="#{userEdit.edit(selectableUser.entity)}" title="Edit #{selectableUser.entity.name}"
-              ajax="true">
-              <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
-                style="padding: 2px;" />
+              ajax="true" styleClass="ts-action-icon">
+              <i class="pi pi-pencil" />
             </p:commandLink>
             <p:commandLink action="#{userAdmin.resetPreferences(selectableUser.entity)}" title="Reset Preferences for #{selectableUser.entity.name}"
               ajax="true">

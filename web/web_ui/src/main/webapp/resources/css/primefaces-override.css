@@ -1,106 +1,989 @@
-.ui-widget,.ui-widget input,.ui-widget select,.ui-widget textarea,.ui-widget button {
-  font-size: 12px;
+/* ============================================================
+   primefaces-override.css — Modern flat overrides for Redmond theme
+   Strategy: Keep Redmond for structural CSS, flatten all visuals
+   ============================================================ */
+
+/* --------------------------------------------------------
+   KILL ALL GRADIENTS & OLD CHROME
+   This is the single most impactful change.
+   -------------------------------------------------------- */
+.ui-widget-header,
+.ui-state-default,
+.ui-state-hover,
+.ui-state-active,
+.ui-state-highlight,
+.ui-widget-content,
+body .ui-datatable thead th,
+body .ui-treetable thead th,
+body .ui-toolbar,
+body .ui-dialog .ui-dialog-titlebar,
+body .ui-panel .ui-panel-titlebar,
+body .ui-accordion .ui-accordion-header,
+body .ui-tabs .ui-tabs-nav,
+body .ui-paginator,
+body .ui-paginator .ui-paginator-page,
+body .ui-paginator .ui-paginator-first,
+body .ui-paginator .ui-paginator-prev,
+body .ui-paginator .ui-paginator-next,
+body .ui-paginator .ui-paginator-last {
+  background-image: none !important;
 }
 
-.ui-login-box {
-  width: 360px;
-  padding: 2%;
-  margin: 8% auto;
+
+/* --------------------------------------------------------
+   BASE WIDGET FONT
+   -------------------------------------------------------- */
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
 }
 
-.CodeMirror {
-  border: 1px solid gray;
+
+/* --------------------------------------------------------
+   GLOBAL WIDGET SURFACES
+   -------------------------------------------------------- */
+body .ui-widget-content {
+  background-color: var(--color-bg-app);
+  border-color: var(--color-border-subtle);
 }
 
-.ui-corner-tr,.ui-corner-tl,.ui-corner-all {
-  border-radius: 0;
+body .ui-widget-header {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-subtle);
 }
 
-.ui-button-text-only .ui-button-text {
-  padding-left: 12px;
+
+/* --------------------------------------------------------
+   STATE CLASSES — flatten jQuery UI states
+   -------------------------------------------------------- */
+body .ui-state-default {
+  background-color: var(--color-bg-app);
+  border-color: var(--color-border-default);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.ui-widget-content .ui-datatable-odd {
-  background-color: #DBEAFF;
+body .ui-state-hover {
+  background-color: var(--color-bg-component-hover);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
 }
 
-.ui-widget-content .ui-datatable-even {
-  background-color: #FFFFFF;
+body .ui-state-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
-.ui-widget-content .ui-datatable-even:hover,.ui-widget-content .ui-datatable-odd:hover {
-  background-color: #FFFEE2;
+body .ui-state-focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--focus-ring);
+  outline: none;
 }
 
-.ui-widget-content {
-  background-image: none;
+body .ui-state-highlight {
+  background-color: var(--color-primary-subtle);
+  border-color: var(--blue-5);
+  color: var(--color-text-primary);
 }
 
-.ui-datatable-scrollable-header,.ui-datatable-scrollable-footer {
+body .ui-state-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+body .ui-state-error {
+  background-color: var(--color-error-subtle);
+  border-color: var(--color-error);
+  color: var(--color-error-text);
+}
+
+
+/* --------------------------------------------------------
+   CORNER RADIUS — modern roundness
+   -------------------------------------------------------- */
+.ui-corner-all, .ui-corner-top, .ui-corner-bottom,
+.ui-corner-tl, .ui-corner-tr, .ui-corner-bl, .ui-corner-br {
+  border-radius: var(--radius-md);
+}
+
+
+/* --------------------------------------------------------
+   HEADER TOOLBAR (top navigation)
+   -------------------------------------------------------- */
+body #topNavForm .ui-toolbar {
+  background-color: var(--color-primary) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: var(--space-3) var(--space-6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+body #topNavForm .ui-toolbar .ui-state-default {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+body #topNavForm .ui-toolbar .ui-toolbar-group-left,
+body #topNavForm .ui-toolbar .ui-toolbar-group-right {
+  display: flex;
+  align-items: center;
+}
+
+
+/* --------------------------------------------------------
+   PAGE-LEVEL TOOLBARS (action bars below header)
+   -------------------------------------------------------- */
+body .ui-toolbar.ts-page-toolbar {
+  background-color: var(--color-bg-subtle) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-3);
+  box-shadow: none;
+  /* Flexbox alignment — override PF float layout */
+  display: flex !important;
+  align-items: center;
+  min-height: 44px;
+  height: auto !important;
+  gap: var(--space-2);
+}
+
+/* Toolbar groups — flex children, kill floats */
+body .ui-toolbar.ts-page-toolbar .ui-toolbar-group-left,
+body .ui-toolbar.ts-page-toolbar .ui-toolbar-group-right {
+  float: none !important;
+  display: flex;
+  align-items: center;
+}
+
+body .ui-toolbar.ts-page-toolbar .ui-toolbar-group-right {
+  margin-left: auto;
+}
+
+/* Inner toolbar-ui wrappers — inline flex */
+body .ts-page-toolbar .toolbar-ui {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+}
+
+/* Override header-style white text inside page toolbar */
+body .ts-page-toolbar .ts-header-menu-itm,
+body .ts-page-toolbar .ts-header-menu-itm a,
+body .ts-page-toolbar .ts-header-menu-itm a:active,
+body .ts-page-toolbar .ts-header-menu-itm a:visited {
+  color: var(--color-text-primary);
+}
+
+body .ts-page-toolbar .ts-header-menu-itm a:hover {
+  color: var(--color-primary);
+}
+
+/* Page toolbar title */
+body .ts-page-toolbar .header-font-size {
+  color: var(--color-text-primary);
+}
+
+
+/* --------------------------------------------------------
+   DATA TABLE
+   -------------------------------------------------------- */
+body .ui-datatable {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Header area (search bar) */
+body .ui-datatable .ui-datatable-header {
+  background-color: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Search bar layout inside datatable header */
+body .ui-datatable .ui-datatable-header .ui-outputpanel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Column headers — muted, uppercase, clean */
+body .ui-datatable thead th {
+  background-color: var(--color-bg-subtle) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--color-border-default) !important;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-3) var(--space-4);
+}
+
+body .ui-datatable thead th.ui-state-hover {
+  background-color: var(--color-bg-component-hover) !important;
+  color: var(--color-text-primary);
+}
+
+body .ui-datatable thead th.ui-state-active {
+  background-color: var(--color-bg-component) !important;
+  color: var(--color-primary);
+}
+
+/* Sort icons */
+body .ui-datatable .ui-sortable-column-icon {
+  color: var(--color-text-tertiary);
+}
+
+body .ui-datatable .ui-state-active .ui-sortable-column-icon {
+  color: var(--color-primary);
+}
+
+/* Column filter inputs */
+body .ui-datatable .ui-column-filter {
+  width: 90%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  background-color: var(--color-bg-app);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+body .ui-datatable .ui-column-filter:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+/* Body rows — NO zebra stripes, just hover */
+body .ui-datatable tbody td {
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+body .ui-widget-content .ui-datatable-even,
+body .ui-widget-content .ui-datatable-odd {
+  background-color: var(--color-bg-app);
+}
+
+body .ui-widget-content .ui-datatable-even:hover,
+body .ui-widget-content .ui-datatable-odd:hover {
+  background-color: var(--color-bg-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+/* Scrollable table bits */
+body .ui-datatable-scrollable-header,
+body .ui-datatable-scrollable-footer {
   background: none;
 }
 
-.ui-tabs .ui-tabs-panel {
-  padding: 1em .4em;
+body .ui-datatable-scrollable-body {
+  position: relative;
 }
 
-.ui-accordion .ui-accordion-content {
-  border-right: 1px solid #79B7E7;
-  border-left: 1px solid #79B7E7;
-  border-bottom: 1px solid #79B7E7;
+/* Footer */
+body .ui-datatable .ui-datatable-footer {
+  background-color: var(--color-bg-subtle);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
-.rf-pp-hdr-cnt {
-  color: #FFFFFF;
+
+/* --------------------------------------------------------
+   TREE TABLE
+   -------------------------------------------------------- */
+body .ui-treetable {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
-.ui-tabs .ui-tabs-panel {
-  background-color: #ffffff;
+body .ui-treetable thead th {
+  background-color: var(--color-bg-subtle) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--color-border-default) !important;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-3) var(--space-4);
 }
 
+body .ui-treetable tbody td {
+  border: none;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+body .ui-treetable tbody tr:hover td {
+  background-color: var(--color-bg-subtle);
+}
+
+body .ui-treetable .ui-treetable-toggler {
+  color: var(--color-text-tertiary);
+}
+
+body .ui-treetable .ui-treetable-toggler:hover {
+  color: var(--color-primary);
+}
+
+body .ui-treetable-scrollable-header,
+body .ui-treetable-scrollable-footer {
+  background: none;
+}
+
+body .ui-treetable-scrollable-body {
+  position: relative;
+}
+
+
+/* --------------------------------------------------------
+   PAGINATOR
+   -------------------------------------------------------- */
+body .ui-paginator {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-app) !important;
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+body .ui-paginator .ui-paginator-page {
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) !important;
+  background-color: transparent !important;
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast);
+}
+
+body .ui-paginator .ui-paginator-page:hover {
+  background-color: var(--color-bg-component-hover) !important;
+}
+
+body .ui-paginator .ui-paginator-page.ui-state-active {
+  background-color: var(--color-primary) !important;
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+
+body .ui-paginator .ui-paginator-first,
+body .ui-paginator .ui-paginator-prev,
+body .ui-paginator .ui-paginator-next,
+body .ui-paginator .ui-paginator-last {
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) !important;
+  background-color: transparent !important;
+  color: var(--color-text-tertiary);
+  font-family: "primeicons" !important;
+  transition: background-color var(--transition-fast);
+}
+
+body .ui-paginator .ui-paginator-first:hover,
+body .ui-paginator .ui-paginator-prev:hover,
+body .ui-paginator .ui-paginator-next:hover,
+body .ui-paginator .ui-paginator-last:hover {
+  background-color: var(--color-bg-component-hover) !important;
+  color: var(--color-text-primary);
+}
+
+body .ui-paginator .ui-paginator-first:before { content: "\e92d"; }
+body .ui-paginator .ui-paginator-prev:before  { content: "\e931"; }
+body .ui-paginator .ui-paginator-next:before  { content: "\e932"; }
+body .ui-paginator .ui-paginator-last:before  { content: "\e92e"; }
+
+body .ui-paginator .ui-paginator-current {
+  color: var(--color-text-tertiary);
+}
+
+body .ui-paginator .ui-paginator-rpp-options {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-app);
+}
+
+
+/* --------------------------------------------------------
+   BUTTONS
+   -------------------------------------------------------- */
+body .ui-button {
+  background-color: var(--color-bg-app) !important;
+  border: 1px solid var(--color-border-default) !important;
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md) !important;
+  padding: var(--space-2) var(--space-4);
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+body .ui-button:hover {
+  background-color: var(--color-bg-component-hover) !important;
+  border-color: var(--color-border-strong) !important;
+}
+
+body .ui-button:focus {
+  border-color: var(--color-border-focus) !important;
+  box-shadow: var(--focus-ring);
+}
+
+body .ui-button-text-only .ui-button-text {
+  padding: 0;
+}
+
+body .ui-button-icon-only {
+  width: 34px;
+  height: 34px;
+  padding: var(--space-1);
+}
+
+body .ui-button.ui-state-disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+
+/* --------------------------------------------------------
+   INPUT FIELDS
+   -------------------------------------------------------- */
+body .ui-inputtext,
+body .ui-inputfield {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-app);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+body .ui-inputtext:hover {
+  border-color: var(--color-border-strong);
+}
+
+body .ui-inputtext:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--focus-ring);
+}
+
+body .ui-inputtext::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Select dropdown */
+body .ui-selectonemenu {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+body .ui-selectonemenu .ui-selectonemenu-trigger {
+  background-color: transparent !important;
+  border: none;
+}
+
+
+/* --------------------------------------------------------
+   CHECKBOXES
+   -------------------------------------------------------- */
+body .ui-chkbox .ui-chkbox-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  background-color: var(--color-bg-app) !important;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+body .ui-chkbox .ui-chkbox-box:hover {
+  border-color: var(--color-border-strong) !important;
+}
+
+body .ui-chkbox .ui-chkbox-box.ui-state-active {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-primary);
+}
+
+
+/* --------------------------------------------------------
+   DIALOG / MODAL
+   -------------------------------------------------------- */
+body .ui-dialog {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+body .ui-dialog .ui-dialog-titlebar {
+  background-color: var(--color-bg-subtle) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--color-border-subtle) !important;
+  padding: var(--space-4);
+  border-radius: 0 !important;
+}
+
+body .ui-dialog .ui-dialog-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+body .ui-dialog .ui-dialog-titlebar-close {
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  transition: background-color var(--transition-fast);
+}
+
+body .ui-dialog .ui-dialog-titlebar-close:hover {
+  background-color: var(--color-bg-component-hover) !important;
+}
+
+body .ui-dialog .ui-dialog-content {
+  padding: var(--space-5);
+}
+
+body .ui-dialog .ui-dialog-buttonpane {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+  background-color: var(--color-bg-subtle);
+}
+
+body .ui-dialog-mask {
+  background: var(--dialog-overlay) !important;
+}
+
+
+/* --------------------------------------------------------
+   GROWL / MESSAGES
+   -------------------------------------------------------- */
+body .ui-growl-item-container {
+  background-color: var(--color-bg-app);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg);
+  opacity: 1;
+}
+
+body .ui-growl-item {
+  padding: var(--space-3) var(--space-4);
+}
+
+body .ui-growl-title {
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+body .ui-growl-message {
+  color: var(--color-text-secondary);
+}
+
+/* Inline messages */
+body .ui-messages {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+body .ui-messages-info {
+  background-color: var(--color-info-subtle);
+  border: 1px solid var(--teal-5);
+  color: var(--color-info-text);
+}
+
+body .ui-messages-warn {
+  background-color: var(--color-warning-subtle);
+  border: 1px solid var(--yellow-5);
+  color: var(--color-warning-text);
+}
+
+body .ui-messages-error {
+  background-color: var(--color-error-subtle);
+  border: 1px solid var(--red-5);
+  color: var(--color-error-text);
+}
+
+
+/* --------------------------------------------------------
+   TABS
+   -------------------------------------------------------- */
+body .ui-tabs .ui-tabs-nav {
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--color-border-subtle) !important;
+}
+
+body .ui-tabs .ui-tabs-nav li {
+  background-color: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px;
+}
+
+body .ui-tabs .ui-tabs-nav li a {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+}
+
+body .ui-tabs .ui-tabs-nav li:hover {
+  border-bottom-color: var(--color-border-strong) !important;
+}
+
+body .ui-tabs .ui-tabs-nav li.ui-state-active {
+  border-bottom-color: var(--color-primary) !important;
+}
+
+body .ui-tabs .ui-tabs-nav li.ui-state-active a {
+  color: var(--color-primary);
+}
+
+body .ui-tabs .ui-tabs-panel {
+  padding: var(--space-4);
+  background-color: var(--color-bg-app);
+  border: none;
+}
+
+
+/* --------------------------------------------------------
+   ACCORDION
+   -------------------------------------------------------- */
+body .ui-accordion .ui-accordion-header {
+  background-color: var(--color-bg-subtle) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: var(--radius-md) !important;
+  margin-top: var(--space-1);
+}
+
+body .ui-accordion .ui-accordion-header a {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-primary);
+}
+
+body .ui-accordion .ui-accordion-content {
+  border: 1px solid var(--color-border-subtle);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: var(--space-4);
+}
+
+
+/* --------------------------------------------------------
+   SELECT CHECKBOX MENU
+   -------------------------------------------------------- */
+body .ui-selectcheckboxmenu {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+body .ui-selectcheckboxmenu .ui-selectcheckboxmenu-trigger {
+  background-color: transparent !important;
+  border: none;
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+body .ui-selectcheckboxmenu-panel {
+  background-color: var(--color-bg-app);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+
+/* --------------------------------------------------------
+   MENU (dropdown menus)
+   -------------------------------------------------------- */
+body .ui-menu {
+  background-color: var(--color-bg-app);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1) 0;
+}
+
+body .ui-menu .ui-menuitem-link {
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-text-primary);
+  border-radius: 0;
+  transition: background-color var(--transition-fast);
+}
+
+body .ui-menu .ui-menuitem-link:hover {
+  background-color: var(--color-bg-component-hover) !important;
+}
+
+
+/* --------------------------------------------------------
+   PANEL
+   -------------------------------------------------------- */
+body .ui-panel {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg) !important;
+}
+
+body .ui-panel .ui-panel-titlebar {
+  background-color: var(--color-bg-subtle) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--color-border-subtle) !important;
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0 !important;
+}
+
+
+/* --------------------------------------------------------
+   LOGIN BOX
+   -------------------------------------------------------- */
+.ui-login-box {
+  width: 380px;
+  padding: var(--space-10) var(--space-8);
+  margin: 8% auto;
+  background-color: var(--color-bg-app) !important;
+  border: 1px solid var(--color-border-subtle) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Labels */
+.ui-login-box label,
+.ui-login-box .ui-outputlabel {
+  color: var(--color-text-secondary) !important;
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+/* Inputs — full width */
+.ui-login-box .ts-login-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: var(--space-3) var(--space-3) !important;
+  font-size: var(--text-base) !important;
+}
+
+/* SSO divider */
+.ui-login-box .ts-login-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.ui-login-box .ts-login-divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.ui-login-box .ts-login-divider p {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Login button — primary CTA */
+.ui-login-box .ts-login-btn,
+.ui-login-box .ts-login-btn-sso {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-text-inverse) !important;
+  width: 100% !important;
+  padding: var(--space-3) var(--space-4) !important;
+  margin-top: var(--space-4);
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-semibold) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.ui-login-box .ts-login-btn .ui-button-text,
+.ui-login-box .ts-login-btn-sso .ui-button-text {
+  color: var(--color-text-inverse);
+}
+
+.ui-login-box .ts-login-btn:hover,
+.ui-login-box .ts-login-btn-sso:hover {
+  background-color: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+}
+
+
+/* --------------------------------------------------------
+   CODE MIRROR
+   -------------------------------------------------------- */
+.CodeMirror {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+}
+
+
+/* --------------------------------------------------------
+   ORDER LIST
+   -------------------------------------------------------- */
 .scriptOrderMarker .ui-orderlist-list {
   width: 400px;
-  height: 400px
-}
-.ui-datatable-scrollable-body {
-  position: relative;
-}
-.ui-treetable-scrollable-body {
-  position: relative;
+  height: 400px;
 }
 
-body .ui-paginator .ui-paginator-first,body .ui-paginator .ui-paginator-prev,body .ui-paginator .ui-paginator-next,body .ui-paginator .ui-paginator-last {
-    border: 1px solid rgba(0,0,0,0);
+
+/* --------------------------------------------------------
+   TABLE LINKS
+   -------------------------------------------------------- */
+body .ui-datatable a,
+body .ui-treetable a {
+  color: var(--color-text-link);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
-body .ui-paginator .ui-paginator-first {
-    font-family: "primeicons" !important;
-    background: none;
-}
-body .ui-paginator .ui-paginator-first:before {
-    content: "\e92d";
+body .ui-datatable a:hover,
+body .ui-treetable a:hover {
+  color: var(--color-text-link-hover);
+  text-decoration: underline;
 }
 
-body .ui-paginator .ui-paginator-prev {
-    font-family: "primeicons" !important;
-    background: none;
-}
-body .ui-paginator .ui-paginator-prev:before {
-    content: "\e931";
+
+/* --------------------------------------------------------
+   FILE UPLOAD
+   -------------------------------------------------------- */
+body .ui-fileupload {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
 }
 
-body .ui-paginator .ui-paginator-next {
-    font-family: "primeicons" !important;
-    background: none;
-}
-body .ui-paginator .ui-paginator-next:before {
-    content: "\e932";
+body .ui-fileupload .ui-fileupload-choose {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-text-inverse);
 }
 
-body .ui-paginator .ui-paginator-last {
-    font-family: "primeicons" !important;
-    background: none;
+
+/* --------------------------------------------------------
+   INPLACE EDITOR
+   -------------------------------------------------------- */
+body .ui-inplace .ui-inplace-display:hover {
+  background-color: var(--color-bg-component-hover);
 }
-body .ui-paginator .ui-paginator-last:before {
-    content: "\e92e";
+
+
+/* --------------------------------------------------------
+   DIVIDER (hide in toolbar, show elsewhere)
+   -------------------------------------------------------- */
+body .ui-toolbar .ui-divider {
+  display: none;
+}
+
+
+/* --------------------------------------------------------
+   ACTION ICONS (PrimeIcon replacements for old PNGs)
+   -------------------------------------------------------- */
+.ts-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.ts-action-icon:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-component-hover);
+}
+
+.ts-action-icon.ts-action-delete:hover {
+  color: var(--color-error);
+  background-color: var(--color-error-subtle);
+}
+
+.ts-action-icon i {
+  font-size: 14px;
+}
+
+
+/* --------------------------------------------------------
+   CHECKBOX + LABEL alignment in toolbars
+   -------------------------------------------------------- */
+body .ts-page-toolbar .ui-chkbox {
+  vertical-align: middle;
+  margin-right: var(--space-1);
+}
+
+body .ts-page-toolbar label {
+  vertical-align: middle;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+}
+
+/* Fix state-highlight on labels/text inside toolbars */
+body .ts-page-toolbar .ui-state-highlight {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-text-primary);
+}
+
+/* Button group — closely spaced buttons */
+body .ts-page-toolbar .ts-btn-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Consistent button sizing in page toolbar */
+body .ts-page-toolbar .ui-button {
+  padding: var(--space-2) var(--space-3) !important;
+  font-size: var(--text-sm) !important;
+  white-space: nowrap;
+}
+
+/* Toolbar inner spacing */
+body .ts-page-toolbar .h-space {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 var(--space-2);
+}
+
+body .ts-page-toolbar .formLabel {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  white-space: nowrap;
 }

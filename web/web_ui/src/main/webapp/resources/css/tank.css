@@ -1,40 +1,46 @@
-/*  Tank Styles */
+/* ============================================================
+   tank.css — Tank-specific component styles
+   Migrated to design tokens.
+   ============================================================ */
+
+/* --- Header navigation --- */
 .ts-header-menu-itm,
-.ts-header-menu-itm a, 
+.ts-header-menu-itm a,
 .ts-header-menu-itm a:active,
-.ts-header-menu-itm a:visited
-{
+.ts-header-menu-itm a:visited {
   text-decoration: none;
-  font-size: 14px;
-  color: #ffffff;
-  padding-right: 10px;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--header-text);
+  padding-right: var(--space-3);
+  transition: color var(--transition-fast);
 }
 
 .ts-header-menu-itm-selected,
-.ts-header-menu-itm-selected a, 
+.ts-header-menu-itm-selected a,
 .ts-header-menu-itm-selected a:active,
 .ts-header-menu-itm-selected a:visited,
 .ts-header-menu-itm-selected a:hover,
 .ts-header-menu-itm a:hover {
-    color: #E17009;
+  color: var(--header-link-hover);
 }
 
-.content
-{
-    margin: 2px 0 0 0;  
+.content {
+  margin: 2px 0 0 0;
 }
 
+/* --- Tab styles (RichFaces compat) --- */
 .rf-tab-cnt {
-background: none repeat scroll 0 0;
-background-color : #FFFFFF;
+  background: none;
+  background-color: var(--color-bg-app);
 }
 
 .rf-tab-hdr-act {
-border-radius : 5px 5px 0px 0px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .rf-tab-hdr-tabline-vis {
-  border-color: #C0C0C0;
+  border-color: var(--color-border-default);
   border-style: solid;
   border-width: 1px 1px 0;
   height: 25px;
@@ -43,86 +49,72 @@ border-radius : 5px 5px 0px 0px;
   position: relative;
   white-space: nowrap;
   background-image: none;
-  background-color: #FFFFFF;
+  background-color: var(--color-bg-app);
 }
 
-.normal-column{
-width:30%;
-}
-
-.wide-column{
-width:40%;
-}
-
-.short-column{
-width:10%;
-}
+/* --- Column width classes --- */
+.normal-column { width: 40%; }
+.wide-column   { width: 60%; }
+.short-column  { width: 20%; }
 
 .actions-column-small {
   text-align: center;
-  width:40px;
-  min-width: 40px; 
-  max-width:40px;
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
 }
 
 .actions-column-medium {
   text-align: center;
-  width:80px;
-  min-width: 80px; 
-  max-width:80px;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .actions-column-large {
   text-align: left;
-  width:160px;
-  min-width: 160px; 
-  max-width:160px;
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
 }
 
 .select-column {
   text-align: center;
   width: 20px;
-  min-width: 20px; 
-  max-width:20px;
+  min-width: 20px;
+  max-width: 20px;
 }
+
 .min-column-size {
-    min-width:100px;  
+  min-width: 100px;
 }
 
-.normal-column {
-  width: 40%;
-}
-
-.wide-column {
-  width: 60%;
-}
-
-.short-column {
-  width: 20%;
-}
-
+/* --- Ellipsis overflow --- */
 .ellipsis {
-    overflow: hidden;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
+/* --- AJAX loading status --- */
 .status {
   display: none;
-  margin: 0px;
-  border: 3px solid #023257;
-  background: none repeat scroll 0 0 #477EA8;
-  padding: 20px;
+  margin: 0;
+  border: none;
+  background-color: var(--color-bg-app);
+  padding: var(--space-4) var(--space-5);
   position: fixed;
-  right: 10px;
-  top: 10px;
+  right: var(--space-4);
+  top: var(--space-16);
   width: auto;
-  opacity: 0.80;
-  border-radius: 10px;
-  color: #ffffff;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xl);
+  z-index: 9999;
+  border-left: 4px solid var(--color-primary);
 }
 
+/* --- Error text --- */
 .error {
-	color: red;
+  color: var(--color-error);
 }

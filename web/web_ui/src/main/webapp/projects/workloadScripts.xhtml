@@ -108,14 +108,16 @@
 
               <p:commandLink oncomplete="PF('confirmScriptGroupDelete').show();" ajax="true"
                 action="#{workloadScripts.setCurrentScriptGroup(group)}"
-                update=":scriptDeletePopup">
-                <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                update=":scriptDeletePopup"
+                styleClass="ts-action-icon ts-action-delete">
+                <i class="pi pi-trash" />
               </p:commandLink>
 
               <p:commandLink update=":editScriptGroupID" ajax="true" action="#{workloadScripts.setScriptGroup(group)}"
-                oncomplete="PF('editScriptGroup').show();">
-                <h:graphicImage library="gfx" name="16/document_editing.png" width="16px" height="16px"
-                  style="padding: 2px;" title="Edit #{group.name}?" />
+                oncomplete="PF('editScriptGroup').show();"
+                styleClass="ts-action-icon"
+                title="Edit #{group.name}?">
+                <i class="pi pi-pencil" />
               </p:commandLink>
 
               <p:commandLink update=":scriptGroupPopupID" ajax="true"

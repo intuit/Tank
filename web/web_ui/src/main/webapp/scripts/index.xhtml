@@ -185,17 +185,16 @@
           <p:commandLink title="Delete #{selectable.entity.name}"
                          oncomplete="PF('confirmDelete').show();" ajax="true"
                          action="#{scriptBean.setSelectedScript(selectable)}"
-                         update=":confirmDeleteDialogId">
-            <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+                         update=":confirmDeleteDialogId"
+                         styleClass="ts-action-icon ts-action-delete">
+            <i class="pi pi-trash" />
           </p:commandLink>
 
           <p:commandLink id="btnOpen"
             action="#{scriptEditor.editScript(selectable.entity)}"
-            styleClass="pointer" ajax="true">
-            <h:graphicImage
-              library="gfx" name="16/document_editing.png"
-              width="16px" height="16px" style="padding: 2px;"
-              title="Edit #{selectable.entity.name}" />
+            styleClass="pointer ts-action-icon" ajax="true"
+            title="Edit #{selectable.entity.name}">
+            <i class="pi pi-pencil" />
           </p:commandLink>
 
           <p:commandLink title="Save As"

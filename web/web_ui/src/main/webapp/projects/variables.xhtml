@@ -50,8 +50,9 @@
       <p:column id="operationColumn" style="width: 25px;" resizable="false">
         <p:commandLink oncomplete="PF('confirmVariableDelete').show();" ajax="true"
           action="#{projectVariableEditor.setCurrentEntry(variable)}" immediate="true" id="deleteVariableBT"
-          update=":mainForm:projectTabPanelID:variableDeletePopup:confirmVariableDeleteID">
-          <h:graphicImage library="gfx" name="16/delete.png" width="16px" height="16px" style="padding: 2px;" />
+          update=":mainForm:projectTabPanelID:variableDeletePopup:confirmVariableDeleteID"
+          styleClass="ts-action-icon ts-action-delete">
+          <i class="pi pi-trash" />
         </p:commandLink>
       </p:column>
     </p:dataTable>

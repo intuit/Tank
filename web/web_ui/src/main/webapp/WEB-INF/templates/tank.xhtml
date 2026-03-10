@@ -11,12 +11,17 @@
     <title>Intuit Tank</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&amp;display=swap" rel="stylesheet" />
+
     <h:outputScript target="head" library="primefaces" name="jquery/jquery.js" />
     <!-- <h:outputScript target="head" library="primefaces" name="jquery/ui/jquery-ui.js" /> -->
     <!-- Allows to use $ instead of jquery -->
     <script type="text/javascript"> $ = jQuery;</script>
 
     <h:outputScript library="js" name="tank.js" />
+    <h:outputStylesheet library="css" name="design-tokens.css" />
     <h:outputStylesheet library="css" name="tank.css" />
     <h:outputStylesheet library="css" name="primefaces-override.css" />
     <h:outputStylesheet library="css" name="screen.css" />
@@ -37,7 +42,7 @@
     <div id="container">
       <h:form id="topNavForm">
         <div id="header" style="width: 100%; padding: 0;">
-          <p:toolbar id="bar" style="height: 54px;">
+          <p:toolbar id="bar">
 
             <p:toolbarGroup align="left">
               <h:outputLink value="#{request.contextPath}/">

@@ -28,15 +28,15 @@
   </composite:interface>
 
   <composite:implementation>
-    <p:toolbar id="#{cc.attrs.toolbarId}" style="height: 40px; display: inherit">
+    <p:toolbar id="#{cc.attrs.toolbarId}" styleClass="ts-page-toolbar">
 
-      <p:toolbarGroup align="left" style="float: left" rendered="#{cc.attrs.title.length() gt 0}">
-        <h:panelGroup layout="block" styleClass="toolbar-ui ellipsis" style="width:#{cc.attrs.titleWidth};">
-          <h:outputText value="#{cc.attrs.title}" title="#{cc.attrs.title}" styleClass="ts-header-menu-itm pad15Right header-font-size" />
+      <p:toolbarGroup align="left" rendered="#{cc.attrs.title.length() gt 0}">
+        <h:panelGroup styleClass="toolbar-ui ellipsis">
+          <h:outputText value="#{cc.attrs.title}" title="#{cc.attrs.title}" styleClass="header-font-size" style="margin-right: 12px;" />
         </h:panelGroup>
       </p:toolbarGroup>
 
-      <p:toolbarGroup align="left" style="float: left">
+      <p:toolbarGroup align="left">
         <h:panelGroup>
           <composite:renderFacet name="actions" />
         </h:panelGroup>
@@ -44,10 +44,10 @@
 
       <p:divider />
 
-      <p:toolbarGroup align="left" style="float: left" rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.shortToolbar eq 'false'}">
+      <p:toolbarGroup align="left" rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.shortToolbar eq 'false'}">
         <h:panelGroup layout="block" styleClass="toolbar-ui">
           <p:commandButton id="deleteSelectedBtn" value="#{cc.attrs.deleteSelectedLabel}" type="button"
-            icon="ui-icon-trash" style="margin: 0 5px 0 5px; border-radius:5px"
+            icon="ui-icon-trash"
             styleClass="icon-button" disabled="#{!cc.attrs.selectionTracker.hasSelected()}"
             onclick="PF('#{cc.attrs.widgetVar}').show()" rendered="#{cc.attrs.showDeleteSelected}"/>
         </h:panelGroup>
@@ -63,21 +63,17 @@
       </p:toolbarGroup>
 
 
-      <p:toolbarGroup align="right" style="margin-top:6px; float: right" rendered="#{cc.attrs.showRightComponents eq 'true' and cc.attrs.shortToolbar eq 'false'}">
-        <composite:renderFacet name="additional-group" />
+      <p:toolbarGroup align="right" rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.showSelectAll eq 'true'}">
+        <h:panelGroup styleClass="toolbar-ui ts-btn-group">
+          <p:commandButton value="#{cc.attrs.selectAllLabel}" action="#{cc.attrs.selectionTracker.selectAll}"
+            update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
+          <p:commandButton value="#{cc.attrs.selectNoneLabel}" action="#{cc.attrs.selectionTracker.unselectAll}"
+            update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
+        </h:panelGroup>
       </p:toolbarGroup>
 
-      <p:toolbarGroup align="right" style="float: right" rendered="#{cc.attrs.selectionTracker ne null and cc.attrs.showSelectAll eq 'true'}">
-        <h:panelGroup layout="block" styleClass="toolbar-ui">
-          <h:panelGroup styleClass="ts-header-menu-itm ">
-            <p:commandLink value="#{cc.attrs.selectAllLabel}" action="#{cc.attrs.selectionTracker.selectAll}"
-              update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="ts-header-menu-itm ">
-            <p:commandLink value="#{cc.attrs.selectNoneLabel}" action="#{cc.attrs.selectionTracker.unselectAll}"
-              update="deleteSelectedBtn, #{cc.attrs.reRender}" ajax="true" />
-          </h:panelGroup>
-        </h:panelGroup>
+      <p:toolbarGroup align="right" rendered="#{cc.attrs.showRightComponents eq 'true' and cc.attrs.shortToolbar eq 'false'}">
+        <composite:renderFacet name="additional-group" />
       </p:toolbarGroup>
     </p:toolbar>
   </composite:implementation>
