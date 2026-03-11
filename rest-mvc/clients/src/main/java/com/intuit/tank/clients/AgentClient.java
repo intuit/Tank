@@ -8,11 +8,9 @@
 package com.intuit.tank.clients;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
-import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
@@ -25,7 +23,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 public class AgentClient extends BaseClient {
-
+    protected static final XmlMapper XML_MAPPER = XmlMapper.builder().build();
     private static final String SERVICE_BASE_URL = "/v2/agent";
 
     public AgentClient(String serviceUrl, String token)  {
@@ -127,9 +125,8 @@ public class AgentClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
-                XmlMapper xmlMapper = new XmlMapper();
                 try (InputStream is = response.body()) {
-                    return xmlMapper.readValue(is, Headers.class);
+                    return XML_MAPPER.readValue(is, Headers.class);
                 }
             } else {
                 try (InputStream errorStream = response.body()) {

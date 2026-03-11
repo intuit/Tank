@@ -30,9 +30,7 @@ public class BaseIT {
     protected static final String ACCEPT_HEADER = "Accept";
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final HttpClient httpClient = getHttpClient();
-
-    protected final JsonMapper jsonMapper = JsonMapper.builder().build();
-
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     protected static HttpClient getHttpClient() {
         return HttpClient.newBuilder()
@@ -107,7 +105,7 @@ public class BaseIT {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error retrieving token from SSM: " + e.getMessage());
+            LOG.error("Error retrieving token from SSM: {}", e.getMessage());
         }
 
         return null;

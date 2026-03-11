@@ -76,7 +76,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("dataFiles"), "Response should contain 'dataFiles' field");
 
         JsonNode dataFiles = responseBody.get("dataFiles");
@@ -125,7 +125,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        Map<String, String> dataFileNames = jsonMapper.readValue(response.body(), Map.class);
+        Map<String, String> dataFileNames = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(dataFileNames, "DataFile names map should not be null");
 
         assertFalse(dataFileNames.isEmpty(), "Should have at least one data file to test with");
@@ -153,7 +153,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> getAllResponse = httpClient.send(getAllRequest, BodyHandlers.ofString());
         assertEquals(200, getAllResponse.statusCode(), "Should get all data files successfully");
 
-        JsonNode responseBody = jsonMapper.readTree(getAllResponse.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(getAllResponse.body());
         JsonNode dataFiles = responseBody.get("dataFiles");
 
         assertFalse(dataFiles.isEmpty(), "Should have at least one data file to test with");
@@ -174,7 +174,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode dataFile = jsonMapper.readTree(response.body());
+        JsonNode dataFile = JSON_MAPPER.readTree(response.body());
         assertEquals(dataFileId, dataFile.get("id").asInt(), "Should return correct data file ID");
         assertEquals(expectedName, dataFile.get("name").asString(), "Should return correct data file name");
         assertTrue(dataFile.has("created"), "DataFile should have created timestamp");
@@ -306,7 +306,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("datafileId"), "Response should contain datafileId");
         assertTrue(responseBody.get("message").contains("uploaded"), "Response should indicate successful upload");
 
@@ -339,7 +339,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create initial data file");
 
-        Map<String, String> createResponseBody = jsonMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> createResponseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int dataFileId = Integer.parseInt(createResponseBody.get("datafileId"));
         createdDataFileIds.add(dataFileId);
 
@@ -363,7 +363,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(201, updateResponse.statusCode(), "Should return HTTP 201 Created for overwrite");
 
-        Map<String, String> updateResponseBody = jsonMapper.readValue(updateResponse.body(), Map.class);
+        Map<String, String> updateResponseBody = JSON_MAPPER.readValue(updateResponse.body(), Map.class);
         assertEquals(String.valueOf(dataFileId), updateResponseBody.get("datafileId"),
                     "Should return same datafileId for overwrite");
         assertTrue(updateResponseBody.get("message").contains("overwritten with new datafile"),
@@ -391,7 +391,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create data file for deletion test");
 
-        Map<String, String> createResponseBody = jsonMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> createResponseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int dataFileId = Integer.parseInt(createResponseBody.get("datafileId"));
 
         // Act - Delete the data file
@@ -529,7 +529,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Data file should exist after creation");
 
-        JsonNode dataFile = jsonMapper.readTree(response.body());
+        JsonNode dataFile = JSON_MAPPER.readTree(response.body());
         assertEquals(dataFileId, dataFile.get("id").asInt(), "Data file ID should match");
         assertEquals(expectedName, dataFile.get("name").asString(), "Data file name should match");
     }

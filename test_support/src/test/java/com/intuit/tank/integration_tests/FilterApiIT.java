@@ -53,7 +53,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("filters"), "Response should contain 'filters' field");
 
         JsonNode filters = responseBody.get("filters");
@@ -154,7 +154,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("filterGroups"), "Response should contain 'filterGroups' field");
 
         JsonNode filterGroups = responseBody.get("filterGroups");
@@ -261,7 +261,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode filter = jsonMapper.readTree(response.body());
+        JsonNode filter = JSON_MAPPER.readTree(response.body());
         assertEquals(filterId, filter.get("id").asInt(), "Should return correct filter ID");
         assertTrue(filter.has("name"), "Filter should have name field");
         assertTrue(filter.has("productName"), "Filter should have productName field");
@@ -307,7 +307,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode filterGroup = jsonMapper.readTree(response.body());
+        JsonNode filterGroup = JSON_MAPPER.readTree(response.body());
         assertEquals(filterGroupId, filterGroup.get("id").asInt(), "Should return correct filter group ID");
         assertTrue(filterGroup.has("name"), "Filter group should have name field");
         assertTrue(filterGroup.has("productName"), "Filter group should have productName field");
@@ -352,7 +352,7 @@ public class FilterApiIT extends BaseIT {
         HttpResponse<String> copyResponse = httpClient.send(copyRequest, BodyHandlers.ofString());
         assertEquals(201, copyResponse.statusCode(), "Should successfully copy script");
 
-        Map<String, String> responseBody = jsonMapper.readValue(copyResponse.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(copyResponse.body(), Map.class);
         assertNotNull(responseBody.get("message"), "Copy response should contain message");
 
         String message = responseBody.get("message");

@@ -189,7 +189,7 @@ public class AgentApiIT extends BaseIT {
 
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("jobId"), "Response should contain jobId");
         assertTrue(responseBody.has("rampTime"), "Response should contain rampTime");
         assertTrue(responseBody.has("totalAgents"), "Response should contain totalAgents");
@@ -256,7 +256,7 @@ public class AgentApiIT extends BaseIT {
 
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode instanceStatus = jsonMapper.readTree(response.body());
+        JsonNode instanceStatus = JSON_MAPPER.readTree(response.body());
         assertTrue(instanceStatus.has("instanceId"), "Response should contain instanceId");
         assertTrue(instanceStatus.has("jobId"), "Response should contain jobId");
         assertTrue(instanceStatus.has("jobStatus"), "Response should contain jobStatus");
@@ -471,7 +471,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create job successfully");
 
-        Map<String, String> responseBody = jsonMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int jobId = Integer.parseInt(responseBody.get("JobId"));
         createdJobIds.add(jobId);
 
@@ -504,7 +504,7 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        JsonNode vmStatuses = jsonMapper.readTree(response.body());
+        JsonNode vmStatuses = JSON_MAPPER.readTree(response.body());
         if (vmStatuses.has("statuses")) {
             JsonNode statuses = vmStatuses.get("statuses");
             if (statuses.isArray()) {

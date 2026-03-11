@@ -255,7 +255,7 @@ public class APITestHarness {
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
-        JsonMapper jsonMapper = JsonMapper.builder().build();
+        JsonMapper JSON_MAPPER = JsonMapper.builder().build();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
@@ -300,7 +300,7 @@ public class APITestHarness {
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
             while (count < FIBONACCI.length) {
                 try {
-                    String json = jsonMapper.writerFor(AgentData.class)
+                    String json = JSON_MAPPER.writerFor(AgentData.class)
                             .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI(baseUrl + "/v2/agent/ready"))
@@ -310,7 +310,7 @@ public class APITestHarness {
                             .POST(BodyPublishers.ofString(json))
                             .build();
                     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-                    startData = jsonMapper.readerFor(AgentTestStartData.class).readValue(response.body());
+                    startData = JSON_MAPPER.readerFor(AgentTestStartData.class).readValue(response.body());
                     break;
                 } catch (Exception e) {
                     LOG.error("Error sending ready: {}", e, e);

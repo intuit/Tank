@@ -75,7 +75,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("jobs"), "Response should contain 'jobs' field");
 
         JsonNode jobs = responseBody.get("jobs");
@@ -117,7 +117,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("jobs"), "Response should contain 'jobs' field");
 
         JsonNode jobs = responseBody.get("jobs");
@@ -172,7 +172,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("JobId"), "Response should contain JobId");
         assertTrue(responseBody.get("status").contains("created"), "Response should indicate job creation");
 
@@ -236,7 +236,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode job = jsonMapper.readTree(response.body());
+        JsonNode job = JSON_MAPPER.readTree(response.body());
         assertEquals(jobId, job.get("id").asInt(), "Should return correct job ID");
         assertTrue(job.has("name"), "Job should have name field");
         assertTrue(job.has("status"), "Job should have status field");
@@ -261,7 +261,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode());
 
-        List<Map<String, String>> statuses = jsonMapper.readValue(response.body(), List.class);
+        List<Map<String, String>> statuses = JSON_MAPPER.readValue(response.body(), List.class);
         assertNotNull(statuses, "Status list should not be null");
 
         if (!statuses.isEmpty()) {
@@ -313,7 +313,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Should create test job successfully");
 
-        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         int jobId = Integer.parseInt(responseBody.get("JobId"));
         createdJobIds.add(jobId);
 
@@ -333,7 +333,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         JsonNode jobs = responseBody.get("jobs");
 
         boolean jobFound = false;
@@ -360,7 +360,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = jsonMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         JsonNode jobs = responseBody.get("jobs");
 
         boolean jobFound = false;
@@ -388,7 +388,7 @@ public class JobApiIT extends BaseIT {
         assertEquals(200, response.statusCode(), "Job should exist after creation");
         System.out.println(response.body());
 
-        JsonNode job = jsonMapper.readTree(response.body());
+        JsonNode job = JSON_MAPPER.readTree(response.body());
         assertEquals(jobId, job.get("id").asInt(), "Job ID should match");
         assertEquals(expectedName, job.get("name").asString(), "Job name should match");
         assertEquals("Created", job.get("status").asString(), "Job status should be 'Created'");
@@ -444,7 +444,7 @@ public class JobApiIT extends BaseIT {
                      "Should return HTTP 200 OK or 404 Not Found for job VM statuses");
         if (response.statusCode() == 200) {
 
-            JsonNode vmStatuses = jsonMapper.readTree(response.body());
+            JsonNode vmStatuses = JSON_MAPPER.readTree(response.body());
             assertTrue(vmStatuses.has("vmStatuses"), "Response should contain vmStatuses field");
             assertTrue(vmStatuses.get("vmStatuses").isArray(), "VM statuses should be an array");
         }
@@ -653,7 +653,7 @@ public class JobApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should create standard workload job successfully");
 
-        Map<String, String> responseBody = jsonMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("JobId"), "Response should contain JobId");
 
         // Store for cleanup
