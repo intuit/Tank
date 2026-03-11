@@ -11,13 +11,14 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Map;
 
 public class ClientException extends RuntimeException {
 
     private static final Logger LOGGER = LogManager.getLogger(ClientException.class);
-
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     private static final long serialVersionUID = 1L;
 
     private int statusCode;
@@ -40,8 +41,7 @@ public class ClientException extends RuntimeException {
 
     public String getErrorMessage() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, String> map = mapper.readValue(this.message, Map.class);
+            Map<String, String> map = JSON_MAPPER.readValue(this.message, Map.class);
             return map.get("message");
         } catch (JacksonException e) {
             LOGGER.error("ClientException error processing JSON error message");

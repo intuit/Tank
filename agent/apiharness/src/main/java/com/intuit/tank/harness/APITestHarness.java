@@ -255,6 +255,7 @@ public class APITestHarness {
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
+        JsonMapper jsonMapper = JsonMapper.builder().build();
         CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
@@ -299,7 +300,6 @@ public class APITestHarness {
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
             while (count < FIBONACCI.length) {
                 try {
-                    JsonMapper jsonMapper = new JsonMapper();
                     String json = jsonMapper.writerFor(AgentData.class)
                             .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()

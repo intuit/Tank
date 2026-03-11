@@ -189,7 +189,7 @@ public class DataFileClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return new ObjectMapper().readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }

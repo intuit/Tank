@@ -79,9 +79,10 @@ public class JsonResponse extends BaseResponse {
     }
 
     private void initialize() {
-        this.jsonMap = (StringUtils.isNotEmpty(this.response)) ?
-                GenericJsonHandler.fromJson(this.response, HashMap.class) :
-                Collections.emptyMap();
+        Map map = StringUtils.isNotEmpty(response)
+                ? GenericJsonHandler.fromJson(response, HashMap.class)
+                : null;
+        jsonMap = (map != null) ? map : Collections.emptyMap();
     }
 
 }

@@ -31,7 +31,7 @@ public class BaseIT {
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final HttpClient httpClient = getHttpClient();
 
-    protected final JsonMapper jsonMapper = new JsonMapper();
+    protected final JsonMapper jsonMapper = JsonMapper.builder().build();
 
 
     protected static HttpClient getHttpClient() {
