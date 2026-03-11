@@ -45,13 +45,13 @@ public class JsonResponse extends BaseResponse {
 
     @Override
     public void setResponseBody(String body) {
-        this.response = body.strip();
+        this.response = cleanString(body);
     }
 
     @Override
     public void setResponseBody(byte[] byteArray) {
         this.responseByteArray = byteArray;
-        this.response = new String(byteArray).strip();
+        this.response = cleanString(new String(byteArray));
     }
 
     @Override
@@ -77,7 +77,15 @@ public class JsonResponse extends BaseResponse {
             return "";
         }
     }
-
+    
+    private String cleanString(String input) {
+        return input == null ? null :
+                input.strip()
+                        .replace("\r\n", "")
+                        .replace("\r", "")
+                        .replace("\n", "");
+    }
+    
     private void initialize() {
         Map map = StringUtils.isNotEmpty(response)
                 ? GenericJsonHandler.fromJson(response, HashMap.class)
