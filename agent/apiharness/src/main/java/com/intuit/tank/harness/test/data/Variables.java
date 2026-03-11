@@ -16,8 +16,10 @@ package com.intuit.tank.harness.test.data;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
@@ -60,16 +62,19 @@ public class Variables {
 
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);
 
+    // Cache for compiled JEXL expressions to avoid repeated parsing
+    private static final Map<String, JexlExpression> expressionCache = new ConcurrentHashMap<>();
+
     private JexlContext context;
 
     /**
      * Get the single instance of the variables class
-     * 
+     *
      * @return The variable class instance
-     * 
+     *
      *         static public Variables getInstance(){ if (Variables.instance == null) Variables.instance = new
      *         Variables(); return Variables.instance; }
-     * 
+     *
      *         /** Constructor
      */
     public Variables() {
@@ -98,33 +103,42 @@ public class Variables {
     }
 
     public String evaluate(String s) {
-    	if (StringUtils.isNotEmpty(s)) {
-	        if (s.contains("#")) {  // Performance Shortcut
-	            Matcher m = p.matcher(s);
-	            while (m.find()) { // find next match, very costly
-	                String match = m.group();
-	                String group = m.group(1);
-                    JexlExpression expression = jexl.createExpression(group);
-	                String result = (String) expression.evaluate(context);
-	                if (result == null && (group.contains("getCSVData") || group.contains("getFile"))) {
-	                    APITestHarness.getInstance().addKill();
-	                    LOG.error(LogUtil.getLogMessage("CSV file (" + group + ") has no more data.",
-	                            LogEventType.Validation, LoggingProfile.USER_VARIABLE));
-	                    throw new KillScriptException("CSV file (" + group + ") has no more data.");
-	                }
-	                s = StringUtils.replace(s, match, result != null ? result : "");
-	            }
-	        }
-    	}
-    	return s;
+        if (StringUtils.isEmpty(s) || s.indexOf('#') == -1) {
+            return s;  // Fast path: no expressions to evaluate
+        }
+
+        Matcher m = p.matcher(s);
+        if (!m.find()) {
+            return s;  // No matches found
+        }
+
+        // Use StringBuilder with appendReplacement for efficient string building
+        StringBuilder result = new StringBuilder(s.length() + 64);
+        do {
+            String group = m.group(1);
+
+            // Get or create cached expression
+            JexlExpression expression = expressionCache.computeIfAbsent(group, jexl::createExpression);
+
+            String evalResult = (String) expression.evaluate(context);
+            if (evalResult == null && (group.contains("getCSVData") || group.contains("getFile"))) {
+                APITestHarness.getInstance().addKill();
+                LOG.error(LogUtil.getLogMessage("CSV file (" + group + ") has no more data.",
+                        LogEventType.Validation, LoggingProfile.USER_VARIABLE));
+                throw new KillScriptException("CSV file (" + group + ") has no more data.");
+            }
+
+            // Use appendReplacement to build result efficiently
+            m.appendReplacement(result, Matcher.quoteReplacement(evalResult != null ? evalResult : ""));
+        } while (m.find());
+
+        m.appendTail(result);
+        return result.toString();
     }
 
     public Map<String, String> getVariableValues() {
-        Map<String, String> ret = new HashMap<String, String>();
-        for (Entry<String, VariableValue> entry : variables.entrySet()) {
-            ret.put(entry.getKey(), entry.getValue().getValue());
-        }
-        return ret;
+        return variables.entrySet().stream()
+                .collect(Collectors.toMap(Entry::getKey, e -> e.getValue().getValue()));
     }
 
     /**
@@ -165,17 +179,13 @@ public class Variables {
      *            true to allow override of variable
      */
     public void addVariable(String key, String value, boolean allowOverride) {
-        String result = null;
-        if (value.length() < 1) {
-            result = this.processString(key, value);
-        } else if (ValidationUtil.isFunction(value)) {
-            result = this.processFunction(key, value);
-        } else {
-            result = this.processString(key, value);
-        }
-        VariableValue variableValue = this.variables.get(key);
+        String result = ValidationUtil.isFunction(value)
+                ? processFunction(key, value)
+                : processString(key, value);
+
+        VariableValue variableValue = variables.get(key);
         if (variableValue == null || variableValue.allowOverride) {
-            this.variables.put(key, new VariableValue(result, allowOverride));
+            variables.put(key, new VariableValue(result, allowOverride));
             context.set(key, result);
         }
     }
@@ -207,7 +217,7 @@ public class Variables {
                 return Double.valueOf(variable);
             }
         } catch (NumberFormatException e) {
-            LOG.error(variable + " is not a Double.");
+            LOG.error("{} is not a Double.", variable);
         }
         return null;
     }
@@ -225,7 +235,7 @@ public class Variables {
                 return Integer.valueOf(variable);
             }
         } catch (NumberFormatException e) {
-            LOG.error(variable + " is not a Double.");
+            LOG.error("{} is not a Integer.", variable);
         }
         return null;
     }
@@ -256,7 +266,6 @@ public class Variables {
      *            The string value
      */
     private String processString(String key, String value) {
-
         value = evaluate(value);
         logVariable(key, value);
         return value;

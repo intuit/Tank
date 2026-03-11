@@ -22,10 +22,10 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +34,7 @@ import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * 
@@ -45,6 +46,7 @@ import org.apache.logging.log4j.message.ObjectMessage;
 public class AmazonUtil {
 
     private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
     protected static String BASE = "http://169.254.169.254/latest";
@@ -249,7 +251,7 @@ public class AmazonUtil {
         try {
             String userData = getResponseString(BASE + USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return new ObjectMapper().readValue(userData, new TypeReference<Map<String, String>>() {});
+                return JSON_MAPPER.readValue(userData, new TypeReference<Map<String, String>>() {});
             }
         } catch (IllegalArgumentException | IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message","Unable to parse tank json: This is normal during the bake process")));

@@ -1,8 +1,7 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import tools.jackson.databind.JsonNode;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -17,7 +16,6 @@ public class AgentApiIT extends BaseIT {
 
     private static final String AGENT_ENDPOINT = "/v2/agent";
     private static final String JOBS_ENDPOINT = "/v2/jobs";
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final List<Integer> createdJobIds = new ArrayList<>();
     private final List<String> testInstanceIds = new ArrayList<>();
 
@@ -77,7 +75,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         assertEquals("application/xml;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
         assertTrue(response.body().contains("<turboScale-settings>"), "Response should contain XML content");
@@ -98,7 +96,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         assertEquals("application/octet-stream",
                     response.headers().firstValue("Content-Type").orElse(""),
@@ -124,7 +122,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
@@ -148,7 +146,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
         assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
@@ -190,15 +188,15 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("jobId"), "Response should contain jobId");
         assertTrue(responseBody.has("rampTime"), "Response should contain rampTime");
         assertTrue(responseBody.has("totalAgents"), "Response should contain totalAgents");
         assertTrue(responseBody.has("concurrentUsers"), "Response should contain concurrentUsers");
 
         // Verify the response contains the correct job ID
-        assertEquals(String.valueOf(jobId), responseBody.get("jobId").asText(),
+        assertEquals(String.valueOf(jobId), responseBody.get("jobId").asString(),
                     "Response jobId should match the created job ID");
     }
 
@@ -256,16 +254,16 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode instanceStatus = objectMapper.readTree(response.body());
+        JsonNode instanceStatus = JSON_MAPPER.readTree(response.body());
         assertTrue(instanceStatus.has("instanceId"), "Response should contain instanceId");
         assertTrue(instanceStatus.has("jobId"), "Response should contain jobId");
         assertTrue(instanceStatus.has("jobStatus"), "Response should contain jobStatus");
         assertTrue(instanceStatus.has("vmStatus"), "Response should contain vmStatus");
         assertTrue(instanceStatus.has("vmRegion"), "Response should contain vmRegion");
 
-        assertEquals(instanceId, instanceStatus.get("instanceId").asText(),
+        assertEquals(instanceId, instanceStatus.get("instanceId").asString(),
                     "Instance ID should match requested ID");
     }
 
@@ -368,7 +366,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 202);
+        assertEquals(202, response.statusCode());
     }
 
     @Test
@@ -473,7 +471,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create job successfully");
 
-        Map<String, String> responseBody = objectMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int jobId = Integer.parseInt(responseBody.get("JobId"));
         createdJobIds.add(jobId);
 
@@ -487,7 +485,7 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> startResponse = httpClient.send(startRequest, BodyHandlers.ofString());
         assertEquals(200, startResponse.statusCode(), "Should start job successfully");
-        assertEquals(startResponse.body(), "Starting", "Should return 'Starting' status");
+        assertEquals("Starting", startResponse.body(), "Should return 'Starting' status");
 
         return jobId;
     }
@@ -506,13 +504,13 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        JsonNode vmStatuses = objectMapper.readTree(response.body());
+        JsonNode vmStatuses = JSON_MAPPER.readTree(response.body());
         if (vmStatuses.has("statuses")) {
             JsonNode statuses = vmStatuses.get("statuses");
             if (statuses.isArray()) {
                 for (JsonNode status : statuses) {
                     if (status.has("instanceId")) {
-                        instanceIds.add(status.get("instanceId").asText());
+                        instanceIds.add(status.get("instanceId").asString());
                     }
                 }
             }

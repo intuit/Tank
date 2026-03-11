@@ -1,7 +1,5 @@
 package com.intuit.tank.harness;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.intuit.tank.reporting.api.ResultsReporter;
 import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -68,7 +66,6 @@ class APIMonitorTest {
     private static Field statusField;
     private static Object originalStaticStatusValue;
     private static Field reportIntervalField;
-    private static final ObjectWriter testObjectWriter = new ObjectMapper().writerFor(CloudVmStatus.class).withDefaultPrettyPrinter();
 
     @BeforeEach
     void setUp() throws Exception {
