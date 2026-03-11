@@ -57,11 +57,6 @@ public class AuthenticationEditorTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(authEditor);
-    }
-
-    @Test
     public void testGetAuthSchemes_NotEmpty() {
         List<String> schemes = authEditor.getAuthSchemes();
         assertNotNull(schemes);

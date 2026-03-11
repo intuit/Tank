@@ -54,11 +54,6 @@ public class UserEditTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(userEdit);
-    }
-
-    @Test
     public void testGetSetPassword() {
         userEdit.setPassword("mypassword");
         assertEquals("mypassword", userEdit.getPassword());

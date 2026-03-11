@@ -61,11 +61,6 @@ public class DataFileBrowserTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(fixture);
-    }
-
-    @Test
     public void testGetSetSelectedFile() {
         SelectableWrapper<DataFile> wrapper = new SelectableWrapper<>(new DataFile());
         fixture.setSelectedFile(wrapper);

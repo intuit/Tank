@@ -66,11 +66,6 @@ public class ScriptFilterCreationBeanTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(bean);
-    }
-
-    @Test
     public void testGetSetName() {
         bean.setName("TestFilter");
         assertEquals("TestFilter", bean.getName());

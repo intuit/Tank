@@ -39,12 +39,6 @@ public class JobReportDataTest {
     }
 
     @Test
-    public void testConstructor() {
-        JobReportData data = new JobReportData(PROJECT_NAME, jobInstance);
-        assertNotNull(data);
-    }
-
-    @Test
     public void testGetProjectName() {
         JobReportData data = new JobReportData(PROJECT_NAME, jobInstance);
         assertEquals(PROJECT_NAME, data.getProjectName());

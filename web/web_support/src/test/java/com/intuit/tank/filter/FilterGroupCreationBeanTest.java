@@ -59,11 +59,6 @@ public class FilterGroupCreationBeanTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(filterGroupCreationBean);
-    }
-
-    @Test
     public void testGetSfg_WhenNull_ReturnsNewGroup() {
         ScriptFilterGroup sfg = filterGroupCreationBean.getSfg();
         assertNotNull(sfg);

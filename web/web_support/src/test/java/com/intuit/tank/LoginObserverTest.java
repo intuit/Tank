@@ -53,9 +53,4 @@ public class LoginObserverTest {
 
         verify(preferencesBean).init("testuser");
     }
-
-    @Test
-    public void testObserveLogin_NotNull() {
-        assertNotNull(loginObserver);
-    }
 }

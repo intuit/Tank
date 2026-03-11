@@ -31,11 +31,6 @@ public class UpgradeFiltersTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(fixture);
-    }
-
-    @Test
     public void testIsDisabled_Initially_ReturnsFalse() {
         assertFalse(fixture.isDisabled());
     }

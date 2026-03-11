@@ -364,11 +364,7 @@ public class ProjectBeanTest {
         // the positive path up to the DAO call; the test simply confirms the error
         // message path is NOT triggered for a whitespace-only name.
         // The DAO call will fail in a unit test environment, so we catch that exception.
-        try {
-            projectBean.saveAs();
-        } catch (Exception e) {
-            // Expected – DAO not available in unit tests
-        }
+        projectBean.saveAs();
         verify(messages, never()).error("You must give the script a name.");
     }
 
@@ -380,11 +376,8 @@ public class ProjectBeanTest {
     void testDoSave_WithMockedDependencies_DelegatesToCollaborators() {
         // doSave() calls all mock.save() then tries ProjectDao - with H2 it may succeed or fail
         // We check that the mock collaborators are invoked
-        try {
-            projectBean.doSave();
-        } catch (Exception e) {
-            // DAO failure in test env is acceptable
-        }
+        projectBean.doSave();
+
         verify(usersAndTimes).save();
         verify(dataFileBean).save();
         verify(notificationsEditor).save();
@@ -408,8 +401,6 @@ public class ProjectBeanTest {
         AWSXRay.beginSegment("test-project-save");
         try {
             projectBean.save();
-        } catch (Exception e) {
-            // DAO failure acceptable
         } finally {
             try { AWSXRay.endSegment(); } catch (Exception ignored) {}
         }
@@ -430,8 +421,6 @@ public class ProjectBeanTest {
         AWSXRay.beginSegment("test-save-as");
         try {
             projectBean.saveAs();
-        } catch (Exception e) {
-            // DAO failure acceptable in test env
         } finally {
             try { AWSXRay.endSegment(); } catch (Exception ignored) {}
         }
@@ -445,8 +434,6 @@ public class ProjectBeanTest {
         AWSXRay.beginSegment("test-save-same-name");
         try {
             projectBean.saveAs();
-        } catch (Exception e) {
-            // DAO failure acceptable
         } finally {
             try { AWSXRay.endSegment(); } catch (Exception ignored) {}
         }

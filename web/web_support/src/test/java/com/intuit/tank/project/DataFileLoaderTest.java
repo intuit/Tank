@@ -25,12 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataFileLoaderTest {
 
     @Test
-    public void testConstructor() {
-        DataFileLoader loader = new DataFileLoader();
-        assertNotNull(loader);
-    }
-
-    @Test
     public void testGetCreatorList_ReturnsNonNull() {
         DataFileLoader loader = new DataFileLoader();
         SelectItem[] items = loader.getCreatorList();

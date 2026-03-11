@@ -100,12 +100,7 @@ public class ProjectDescriptionBeanTest {
         Project project = new Project();
         project.setName("TestProject");
 
-        // This will fail at DAO but should not throw NPE
-        try {
-            bean.delete(project);
-        } catch (Exception e) {
-            // Expected - DAO not available in unit tests
-        }
+        bean.delete(project);
     }
 
     @Test
@@ -115,11 +110,7 @@ public class ProjectDescriptionBeanTest {
         Project project = new Project();
         project.setName("TestProject");
 
-        try {
-            bean.delete(project);
-        } catch (Exception e) {
-            // Expected - DAO not available in unit tests
-        }
+        bean.delete(project);
     }
 
     @Test

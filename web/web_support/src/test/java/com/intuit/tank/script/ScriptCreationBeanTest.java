@@ -81,11 +81,6 @@ public class ScriptCreationBeanTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(scriptCreationBean);
-    }
-
-    @Test
     public void testGetSetName() {
         scriptCreationBean.setName("MyScript");
         assertEquals("MyScript", scriptCreationBean.getName());

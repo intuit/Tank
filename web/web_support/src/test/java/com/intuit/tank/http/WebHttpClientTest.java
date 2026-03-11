@@ -14,12 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WebHttpClientTest {
 
     @Test
-    public void testConstructor_CreatesNonNull() {
-        WebHttpClient client = new WebHttpClient();
-        assertNotNull(client);
-    }
-
-    @Test
     public void testFormBodyPublisher_EmptyMap_ReturnsPublisher() {
         Map<Object, Object> params = new LinkedHashMap<>();
         HttpRequest.BodyPublisher publisher = WebHttpClient.formBodyPublisher(params);

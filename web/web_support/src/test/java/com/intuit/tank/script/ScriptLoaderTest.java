@@ -24,12 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ScriptLoaderTest {
 
     @Test
-    public void testConstructor() {
-        ScriptLoader loader = new ScriptLoader();
-        assertNotNull(loader);
-    }
-
-    @Test
     public void testObserveEvents_WhenScriptClass_Invalidates() {
         ScriptLoader loader = new ScriptLoader();
         // First get entities to populate

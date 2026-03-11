@@ -48,11 +48,6 @@ public class NotificationsEditorTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(notificationsEditor);
-    }
-
-    @Test
     public void testGetNotificationEventList_ReturnsAllValues() {
         JobLifecycleEvent[] events = notificationsEditor.getNotificationEventList();
         assertNotNull(events);

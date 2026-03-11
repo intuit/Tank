@@ -62,11 +62,6 @@ public class UsersAndTimesTest {
     }
 
     @Test
-    public void testConstructor() {
-        assertNotNull(usersAndTimes);
-    }
-
-    @Test
     public void testGetTerminationPolicyList_ReturnsAllValues() {
         TerminationPolicy[] list = usersAndTimes.getTerminationPolicyList();
         assertNotNull(list);
