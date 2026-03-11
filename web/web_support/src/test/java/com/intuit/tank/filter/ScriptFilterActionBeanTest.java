@@ -16,14 +16,23 @@ package com.intuit.tank.filter;
 import java.util.List;
 
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.filter.ScriptFilterActionBean;
+import com.intuit.tank.filter.ScriptFilterCreationBean;
+import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.script.FailureTypes;
 import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
+import com.intuit.tank.vm.script.util.AddActionScope;
+import com.intuit.tank.vm.script.util.RemoveActionScope;
+import com.intuit.tank.vm.script.util.ReplaceActionScope;
 
 /**
  * The class <code>ScriptFilterActionBeanTest</code> contains tests for the class <code>{@link ScriptFilterActionBean}</code>.
@@ -1683,6 +1692,169 @@ public class ScriptFilterActionBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.filter.ScriptFilterActionBean.<init>(ScriptFilterActionBean.java:48)
+    }
+
+    // ── Mockito-based tests for uncovered branches ──────────────────────────
+
+    @InjectMocks
+    private ScriptFilterActionBean bean;
+
+    @Mock
+    private ScriptFilterCreationBean sfcb;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initMocks() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeMocks() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testGetActionScopeValues_WithRemoveType() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.remove);
+        List<String> values = bean.getActionScopeValues();
+        assertNotNull(values);
+        assertFalse(values.isEmpty());
+    }
+
+    @Test
+    public void testGetActionScopeValues_WithReplaceType() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.replace);
+        List<String> values = bean.getActionScopeValues();
+        assertNotNull(values);
+        assertFalse(values.isEmpty());
+    }
+
+    @Test
+    public void testEditAction_WithAssignmentScope() {
+        ScriptFilterAction action = new ScriptFilterAction();
+        action.setAction(ScriptFilterActionType.add);
+        action.setScope(AddActionScope.assignment.getValue());
+        action.setKey("key1");
+        action.setValue("=someValue");
+        bean.editAction(action);
+        assertEquals(AddActionScope.assignment.getValue(), bean.getScope());
+    }
+
+    @Test
+    public void testEditAction_WithValidationScope() {
+        ScriptFilterAction action = new ScriptFilterAction();
+        action.setAction(ScriptFilterActionType.add);
+        action.setScope(AddActionScope.validation.getValue());
+        action.setKey("key2");
+        action.setValue("==expectedValue");
+        bean.editAction(action);
+        assertEquals(AddActionScope.validation.getValue(), bean.getScope());
+    }
+
+    @Test
+    public void testDone_WithAssignmentScope_SetsValuePrefixPlusValue() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.add);
+        bean.setScope(AddActionScope.assignment.getValue());
+        bean.setKey("myKey");
+        bean.setValuePrefix("=");
+        bean.setValue("myValue");
+        // editMode is false, so sfcb.getFilter().addAction() is called
+        ScriptFilter filter = new ScriptFilter();
+        when(sfcb.getFilter()).thenReturn(filter);
+        bean.done();
+        assertEquals("=myValue", bean.getAction().getValue());
+    }
+
+    @Test
+    public void testDone_WithEditModeFalse_AddsActionToFilter() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.remove);
+        bean.setScope(RemoveActionScope.request.getValue());
+        bean.setKey("k");
+        bean.setValue("v");
+        ScriptFilter filter = new ScriptFilter();
+        when(sfcb.getFilter()).thenReturn(filter);
+        bean.done();
+        verify(sfcb).getFilter();
+    }
+
+    @Test
+    public void testIsKeyBoxRendered_WithReplaceAndOnfailScope() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.replace);
+        bean.setScope(ReplaceActionScope.onfail.getValue());
+        assertFalse(bean.isKeyBoxRendered());
+    }
+
+    @Test
+    public void testIsValuePrefixRendered_WithAssignmentScope() {
+        bean.setupNewAction();
+        bean.setScope(AddActionScope.assignment.getValue());
+        assertTrue(bean.isValuePrefixRendered());
+    }
+
+    @Test
+    public void testIsValuePrefixRendered_WithValidationScope() {
+        bean.setupNewAction();
+        bean.setScope(AddActionScope.validation.getValue());
+        assertTrue(bean.isValuePrefixRendered());
+    }
+
+    @Test
+    public void testIsAssignmentScope_WithAddAssignmentScope() {
+        bean.setupNewAction();
+        bean.setScope(AddActionScope.assignment.getValue());
+        assertTrue(bean.isAssignmentScope());
+        assertEquals("=", bean.getValuePrefix());
+    }
+
+    @Test
+    public void testIsAssignmentScope_WithReplaceAssignmentScope() {
+        bean.setupNewAction();
+        bean.setScope(ReplaceActionScope.assignment.getValue());
+        assertTrue(bean.isAssignmentScope());
+    }
+
+    @Test
+    public void testIsValidationScope_WithAddValidationScope() {
+        bean.setupNewAction();
+        bean.setScope(AddActionScope.validation.getValue());
+        assertTrue(bean.isValidationScope());
+    }
+
+    @Test
+    public void testIsValidationScope_WithReplaceValidationScope() {
+        bean.setupNewAction();
+        bean.setScope(ReplaceActionScope.validation.getValue());
+        assertTrue(bean.isValidationScope());
+    }
+
+    @Test
+    public void testIsValueBoxRendered_WithRemoveType() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.remove);
+        bean.setScope(RemoveActionScope.request.getValue());
+        assertFalse(bean.isValueBoxRendered());
+    }
+
+    @Test
+    public void testIsValueBoxRendered_WithReplaceAndOnfailScope() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.replace);
+        bean.setScope(ReplaceActionScope.onfail.getValue());
+        assertFalse(bean.isValueBoxRendered());
+    }
+
+    @Test
+    public void testIsOnFailOptionsRendered_WithReplaceAndOnfailScope() {
+        bean.setupNewAction();
+        bean.setActionType(ScriptFilterActionType.replace);
+        bean.setScope(ReplaceActionScope.onfail.getValue());
+        assertTrue(bean.isOnFailOptionsRendered());
     }
 
     /**

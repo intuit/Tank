@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.ModifiedScriptMessage;
+import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.dao.ScriptDao;
@@ -26,6 +27,7 @@ import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.settings.AccessRight;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -84,6 +86,33 @@ public class ScriptEditorTest {
 
     @Mock
     private CopyBuffer copyBuffer;
+
+    @Mock
+    private VariableEditor variableEditor;
+
+    @Mock
+    private ClearCookiesEditor clearCookiesEditor;
+
+    @Mock
+    private CookieStepEditor cookieStepEditor;
+
+    @Mock
+    private AuthenticationEditor authenticationEditor;
+
+    @Mock
+    private ThinkTimeEditor thinkTimeEditor;
+
+    @Mock
+    private SleepTimeEditor sleepTimeEditor;
+
+    @Mock
+    private ScriptRequestEditor requestEditor;
+
+    @Mock
+    private LogicStepEditor logicStepEditor;
+
+    @Mock
+    private PreferencesBean userPrefs;
 
     private AutoCloseable closeable;
 
@@ -2961,5 +2990,146 @@ public class ScriptEditorTest {
     @Test
     public void testCanel() {
         assertEquals("success", fixture.cancel());
+    }
+
+    private ScriptEditor setupFixtureWithSteps(List<ScriptStep> steps) throws Exception {
+        java.lang.reflect.Field stepsField = ScriptEditor.class.getDeclaredField("steps");
+        stepsField.setAccessible(true);
+        stepsField.set(fixture, steps);
+        Script script = new Script();
+        java.lang.reflect.Field scriptField = ScriptEditor.class.getDeclaredField("script");
+        scriptField.setAccessible(true);
+        scriptField.set(fixture, script);
+        return fixture;
+    }
+
+    @Test
+    public void testEditVariable_DelegatesToVariableEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editVariable(step);
+        verify(variableEditor).editVariable(step);
+    }
+
+    @Test
+    public void testEditThinkTime_DelegatesToThinkTimeEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editThinkTime(step);
+        verify(thinkTimeEditor).editThinkTime(step);
+    }
+
+    @Test
+    public void testEditCookieStep_DelegatesToCookieStepEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editCookieStep(step);
+        verify(cookieStepEditor).editCookieStep(step);
+    }
+
+    @Test
+    public void testEditAuthStep_DelegatesToAuthenticationEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editAuthStep(step);
+        verify(authenticationEditor).editAuthentication(step);
+    }
+
+    @Test
+    public void testEditSleepTime_DelegatesToSleepTimeEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editSleepTime(step);
+        verify(sleepTimeEditor).editSleepTime(step);
+    }
+
+    @Test
+    public void testEditLogicStep_DelegatesToLogicStepEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editLogicStep(step);
+        verify(logicStepEditor).editLogicStep(step);
+    }
+
+    @Test
+    public void testEditAggregator_DelegatesToAggregatorEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editAggregator(step);
+        verify(aggregatorEditor).editAggregator(step);
+    }
+
+    @Test
+    public void testEditRequest_DelegatesToRequestEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        fixture.editRequest(step);
+        verify(requestEditor).editRequest(step);
+    }
+
+    @Test
+    public void testAddTimerGroup_DelegatesToAggregatorEditor() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        fixture.addTimerGroup();
+        verify(aggregatorEditor).insertAggregator();
+    }
+
+    @Test
+    public void testCopySelected_ClearsAndAddsToBuffer() throws Exception {
+        List<ScriptStep> steps = new LinkedList<>();
+        setupFixtureWithSteps(steps);
+        ScriptStep step = ScriptStep.builder().build();
+        List<ScriptStep> selected = new LinkedList<>();
+        selected.add(step);
+        java.lang.reflect.Field selectedField = ScriptEditor.class.getDeclaredField("selectedSteps");
+        selectedField.setAccessible(true);
+        selectedField.set(fixture, selected);
+
+        List<ScriptStep> buffer = new LinkedList<>();
+        when(copyBuffer.getBuffer()).thenReturn(buffer);
+        fixture.copySelected();
+        verify(copyBuffer).clear();
+        assertTrue(buffer.contains(step));
+    }
+
+    @Test
+    public void testCanEditScript_WhenHasRight_ReturnsTrue() throws Exception {
+        Script script = new Script();
+        java.lang.reflect.Field scriptField = ScriptEditor.class.getDeclaredField("script");
+        scriptField.setAccessible(true);
+        scriptField.set(fixture, script);
+        when(security.hasRight(AccessRight.EDIT_SCRIPT)).thenReturn(true);
+        assertTrue(fixture.canEditScript());
+    }
+
+    @Test
+    public void testCanEditScript_WhenIsOwner_ReturnsTrue() throws Exception {
+        Script script = new Script();
+        java.lang.reflect.Field scriptField = ScriptEditor.class.getDeclaredField("script");
+        scriptField.setAccessible(true);
+        scriptField.set(fixture, script);
+        when(security.hasRight(AccessRight.EDIT_SCRIPT)).thenReturn(false);
+        when(security.isOwner(script)).thenReturn(true);
+        assertTrue(fixture.canEditScript());
+    }
+
+    @Test
+    public void testCanEditScript_WhenNeitherRightNorOwner_ReturnsFalse() throws Exception {
+        Script script = new Script();
+        java.lang.reflect.Field scriptField = ScriptEditor.class.getDeclaredField("script");
+        scriptField.setAccessible(true);
+        scriptField.set(fixture, script);
+        when(security.hasRight(AccessRight.EDIT_SCRIPT)).thenReturn(false);
+        when(security.isOwner(script)).thenReturn(false);
+        assertFalse(fixture.canEditScript());
     }
 }

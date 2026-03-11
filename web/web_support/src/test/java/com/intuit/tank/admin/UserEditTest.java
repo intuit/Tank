@@ -13,243 +13,186 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import com.intuit.tank.ModifiedUserMessage;
+import com.intuit.tank.project.User;
+import com.intuit.tank.util.Messages;
+import jakarta.enterprise.context.Conversation;
+import jakarta.enterprise.event.Event;
+import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.primefaces.model.DualListModel;
 
-import com.intuit.tank.admin.UserEdit;
-import com.intuit.tank.project.User;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-/**
- * The class <code>UserEditTest</code> contains tests for the class <code>{@link UserEdit}</code>.
- * 
- * @generatedBy CodePro at 12/15/14 3:52 PM
- */
-@Disabled
 public class UserEditTest {
-    /**
-     * Run the UserEdit() constructor test.
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testUserEdit_1()
-            throws Exception {
-        UserEdit result = new UserEdit();
-        assertNotNull(result);
+
+    @InjectMocks
+    private UserEdit userEdit;
+
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private Conversation conversation;
+
+    @Mock
+    private Event<ModifiedUserMessage> userEvent;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
     }
 
-    /**
-     * Run the String cancel() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testCancel_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-
-        String result = fixture.cancel();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-        assertNotNull(result);
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
-    /**
-     * Run the String edit(User) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testEdit_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
+    public void testConstructor() {
+        assertNotNull(userEdit);
+    }
+
+    @Test
+    public void testGetSetPassword() {
+        userEdit.setPassword("mypassword");
+        assertEquals("mypassword", userEdit.getPassword());
+    }
+
+    @Test
+    public void testGetSetPasswordConfirm() {
+        userEdit.setPasswordConfirm("mypassword");
+        assertEquals("mypassword", userEdit.getPasswordConfirm());
+    }
+
+    @Test
+    public void testGetUser_InitiallyNull() {
+        assertNull(userEdit.getUser());
+    }
+
+    @Test
+    public void testGetSetSelectionModel() {
+        DualListModel<String> model = new DualListModel<>();
+        userEdit.setSelectionModel(model);
+        assertEquals(model, userEdit.getSelectionModel());
+    }
+
+    @Test
+    public void testCancel_EndsConversationAndClearsState() {
+        String result = userEdit.cancel();
+        assertEquals("success", result);
+        verify(conversation).end();
+        assertNull(userEdit.getUser());
+    }
+
+    @Test
+    public void testSave_WhenPasswordMismatch_ShowsError() {
+        userEdit.setPassword("pass1");
+        userEdit.setPasswordConfirm("pass2");
+
+        // inject a non-null user to avoid NPE
+        userEdit.setSelectionModel(new DualListModel<>());
+        // We need a user - use reflection to set it
+        try {
+            java.lang.reflect.Field field = UserEdit.class.getDeclaredField("user");
+            field.setAccessible(true);
+            User u = new User();
+            field.set(userEdit, u);
+        } catch (Exception e) {
+            fail("Could not set user via reflection: " + e.getMessage());
+        }
+
+        String result = userEdit.save();
+        assertNull(result);
+        verify(messages).error(anyString());
+    }
+
+    @Test
+    public void testSave_WhenNewUserAndNoPassword_ShowsError() {
+        userEdit.setPassword("");
+        userEdit.setPasswordConfirm("");
+
+        try {
+            java.lang.reflect.Field field = UserEdit.class.getDeclaredField("user");
+            field.setAccessible(true);
+            User u = new User(); // id=0 means new user
+            field.set(userEdit, u);
+        } catch (Exception e) {
+            fail("Could not set user: " + e.getMessage());
+        }
+        userEdit.setSelectionModel(new DualListModel<>());
+
+        String result = userEdit.save();
+        assertNull(result);
+        verify(messages).error(anyString());
+    }
+
+    @Test
+    public void testNewUser_BeginsConversationAndCreatesUser() {
+        String result = userEdit.newUser();
+        assertEquals("success", result);
+        verify(conversation).begin();
+        assertNotNull(userEdit.getUser());
+    }
+
+    @Test
+    public void testEdit_BeginsConversationAndSetsUser() {
         User user = new User();
-
-        String result = fixture.edit(user);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-        assertNotNull(result);
+        user.setName("testuser");
+        String result = userEdit.edit(user);
+        assertEquals("success", result);
+        verify(conversation).begin();
+        assertEquals(user, userEdit.getUser());
     }
 
-    /**
-     * Run the String getPassword() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetPassword_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
+    public void testSave_WhenNewUserWithPasswordMatch_EncodesPasswordAndAttemptsSave() throws Exception {
+        User user = new User();
+        user.setName("newuser");
+        user.setEmail("test@test.com");
+        // id=0 means new user - but we need to set password
 
-        String result = fixture.getPassword();
+        java.lang.reflect.Field field = UserEdit.class.getDeclaredField("user");
+        field.setAccessible(true);
+        field.set(userEdit, user);
+
+        userEdit.setPassword("mypassword");
+        userEdit.setPasswordConfirm("mypassword");
+        userEdit.setSelectionModel(new DualListModel<>());
+
+        // Should save to H2 - may succeed or fail; just test it doesn't NPE
+        try {
+            userEdit.save();
+        } catch (Exception e) {
+            // DAO operations may fail - acceptable
+        }
+        // Password should have been encoded on the user object
+        assertNotNull(user.getPassword());
     }
 
-    /**
-     * Run the String getPasswordConfirm() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetPasswordConfirm_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
+    public void testGenerateApiToken_WhenTokenNull_GeneratesAndSaves() throws Exception {
+        User user = new User();
+        user.setName("tokenuser");
+        user.setEmail("token@test.com");
+        // apiToken is null by default
+        assertNull(user.getApiToken());
 
-        String result = fixture.getPasswordConfirm();
-    }
+        user.setPassword("hashedpassword");
+        // Save user to DB first
+        com.intuit.tank.dao.UserDao dao = new com.intuit.tank.dao.UserDao();
+        user = dao.saveOrUpdate(user);
 
-    /**
-     * Run the DualListModel<String> getSelectionModel() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetSelectionModel_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
+        java.lang.reflect.Field field = UserEdit.class.getDeclaredField("user");
+        field.setAccessible(true);
+        field.set(userEdit, user);
 
-        DualListModel<String> result = fixture.getSelectionModel();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the User getUser() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testGetUser_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-
-        User result = fixture.getUser();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String newUser() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testNewUser_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-
-        String result = fixture.newUser();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the void setPassword(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetPassword_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-        String password = "";
-
-        fixture.setPassword(password);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-    }
-
-    /**
-     * Run the void setPasswordConfirm(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetPasswordConfirm_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-        String passwordConfirm = "";
-
-        fixture.setPasswordConfirm(passwordConfirm);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
-    }
-
-    /**
-     * Run the void setSelectionModel(DualListModel<String>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetSelectionModel_1()
-            throws Exception {
-        UserEdit fixture = new UserEdit();
-        fixture.setSelectionModel(new DualListModel<String>());
-        fixture.edit(new User());
-        DualListModel<String> selectionModel = new DualListModel<String>();
-
-        fixture.setSelectionModel(selectionModel);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.admin.UserEdit.setSelectionModel(UserEdit.java:92)
+        assertDoesNotThrow(() -> userEdit.generateApiToken());
+        assertNotNull(userEdit.getUser().getApiToken());
     }
 }

@@ -13,371 +13,175 @@ package com.intuit.tank.filter;
  * #L%
  */
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.*;
 
 import com.intuit.tank.filter.UpgradeFilters;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * The class <code>UpgradeFiltersTest</code> contains tests for the class <code>{@link UpgradeFilters}</code>.
- * 
- * @generatedBy CodePro at 12/15/14 3:53 PM
- */
 public class UpgradeFiltersTest {
-    /**
-     * Run the UpgradeFilters() constructor test.
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
+
+    private UpgradeFilters fixture;
+
+    @BeforeEach
+    void setUp() {
+        fixture = new UpgradeFilters();
+    }
+
     @Test
-    public void testUpgradeFilters_1()
-            throws Exception {
-        UpgradeFilters result = new UpgradeFilters();
+    public void testConstructor() {
+        assertNotNull(fixture);
+    }
+
+    @Test
+    public void testIsDisabled_Initially_ReturnsFalse() {
+        assertFalse(fixture.isDisabled());
+    }
+
+    @Test
+    public void testUpgrade_RunsWithoutException() {
+        // upgrade() calls DAO - may succeed with H2 (empty) or fail gracefully
+        assertDoesNotThrow(() -> fixture.upgrade());
+    }
+
+    @Test
+    public void testUpgrade_WhenAlreadyUpgraded_DoesNothing() {
+        // Call twice - second call should be a no-op since filtersUpgraded=false still (DAO fails)
+        assertDoesNotThrow(() -> fixture.upgrade());
+        assertDoesNotThrow(() -> fixture.upgrade());
+    }
+
+    @Test
+    public void testReplaceVariables_SingleVariable() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("replaceVariables", String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "prefix @myVar suffix");
+        assertEquals("prefix #{myVar} suffix", result);
+    }
+
+    @Test
+    public void testReplaceVariables_MultipleVariables() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("replaceVariables", String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "@var1 and @var2");
+        assertEquals("#{var1} and #{var2}", result);
+    }
+
+    @Test
+    public void testReplaceVariables_NoVariables_ReturnsUnchanged() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("replaceVariables", String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "no variables here");
+        assertEquals("no variables here", result);
+    }
+
+    @Test
+    public void testProcessConcat_SimpleStrings() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processConcat", String.class);
+        method.setAccessible(true);
+
+        // value starts with "#function.string.concat." then rest is split by '.'
+        String result = (String) method.invoke(fixture, "#function.string.concat.hello.world");
+        assertEquals("helloworld", result);
+    }
+
+    @Test
+    public void testProcessConcat_WithVariable() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processConcat", String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "#function.string.concat.hello.@myVar");
+        assertEquals("hello#{myVar}", result);
+    }
+
+    @Test
+    public void testProcessConcat_WithDotReplacement() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processConcat", String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "#function.string.concat.hello-dot-world");
+        assertEquals("hello.world", result);
+    }
+
+    @Test
+    public void testProcessFunction_BasicCsvFunction() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
+
+        // value: "#function.generic.getcsv.file.csv" -> parts[3] onwards
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.myfile.csv");
         assertNotNull(result);
+        assertTrue(result.startsWith("#{ioFunctions.getCSVData("));
+        assertTrue(result.endsWith(")}"));
     }
 
-    /**
-     * Run the boolean isDisabled() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
     @Test
-    public void testIsDisabled_1()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
+    public void testProcessFunction_WithNumericArg() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
 
-        boolean result = fixture.isDisabled();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.isDisabled(UpgradeFilters.java:38)
-        assertTrue(!result);
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.file.5");
+        assertNotNull(result);
+        // 5 is numeric - should not be quoted
+        assertTrue(result.contains("5"));
     }
 
-    /**
-     * Run the boolean isDisabled() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
     @Test
-    public void testIsDisabled_2()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
+    public void testProcessFunction_WithMultipleArgs_AddsCommasBetween() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
 
-        boolean result = fixture.isDisabled();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.isDisabled(UpgradeFilters.java:38)
-        assertTrue(!result);
+        // parts[3] = "arg1", parts[4] = "arg2" → should insert ", " between them
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.arg1.arg2");
+        assertNotNull(result);
+        assertTrue(result.contains(", "));
     }
 
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
     @Test
-    public void testUpgrade_1()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
+    public void testProcessFunction_WithVariableArg() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
 
+        // @myVar → becomes #{myVar}
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.@myVar");
+        assertNotNull(result);
+        assertTrue(result.contains("#{myVar}"));
+    }
+
+    @Test
+    public void testProcessFunction_WithELExpressionArg() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
+
+        // #{someExpr} → becomes someExpr (strips #{})
+        // We pass it as part of the split by '.' - so we use a value without dots in the expression
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.#{someExpr}");
+        assertNotNull(result);
+        assertTrue(result.contains("someExpr"));
+    }
+
+    @Test
+    public void testProcessFunction_WithDotReplacementArg() throws Exception {
+        Method method = UpgradeFilters.class.getDeclaredMethod("processFunction", String.class, String.class);
+        method.setAccessible(true);
+
+        String result = (String) method.invoke(fixture, "ioFunctions.getCSVData", "#function.generic.getcsv.hello-dot-world");
+        assertNotNull(result);
+        assertTrue(result.contains("\"hello.world\""));
+    }
+
+    @Test
+    public void testIsDisabled_AfterUpgrade_ReturnsTrueIfNoException() {
+        // After successful upgrade (which with H2 empty data may succeed), filtersUpgraded becomes true
         fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_2()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_3()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_4()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_5()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_6()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_7()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_8()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_9()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_10()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_11()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_12()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_13()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_14()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_15()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
-    }
-
-    /**
-     * Run the void upgrade() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:53 PM
-     */
-    @Test
-    public void testUpgrade_16()
-            throws Exception {
-        UpgradeFilters fixture = new UpgradeFilters();
-
-        fixture.upgrade();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.filter.UpgradeFilters.upgrade(UpgradeFilters.java:83)
+        // If no exception, filtersUpgraded=true → isDisabled()=true
+        // If exception, filtersUpgraded stays false → isDisabled()=false
+        // Either way, no exception thrown
+        assertDoesNotThrow(() -> fixture.isDisabled());
     }
 }

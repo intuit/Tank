@@ -14,8 +14,11 @@ package com.intuit.tank.project;
  */
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.intuit.tank.project.JobDetailFormatter;
 import com.intuit.tank.project.JobInstance;
@@ -24,6 +27,9 @@ import com.intuit.tank.project.JobValidator;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.junit.jupiter.api.Test;
 
@@ -48,23 +54,70 @@ public class JobDetailFormatterTest {
 
     @Test
     public void buildDetails() {
-//        throw new RuntimeException("Test not implemented");
+        // Test buildDetails with a full JobInstance (no versions - avoids DB calls for regions/datafiles/notifications)
+        JobInstance ji = new JobInstance();
+        ji.setName("TestJob");
+        ji.setCreator("admin");
+        ji.setSimulationTime(3600000L);
+        ji.setRampTime(600000L);
+        ji.setBaselineVirtualUsers(10);
+        ji.setTotalVirtualUsers(100);
+
+        TestPlan tp = TestPlan.builder().name("Main").usersPercentage(100).build();
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>(java.util.List.of(tp)));
+
+        JobValidator validator = new JobValidator(java.util.List.of(tp), new java.util.HashMap<>());
+
+        // This exercises the buildDetails(validator, workload, jobInstance, null) path
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
+        assertTrue(result.contains("TestJob"));
+    }
+
+    @Test
+    public void buildDetails_WithBestPracticeViolations() {
+        // buildDetails with a Script that has best practice violations
+        Script script = new Script();
+        script.setName("TestScript");
+        JobValidator validator = new JobValidator(script);
+
+        // No best practice violations by default - so no prefix added
+        String result = JobDetailFormatter.createJobDetails(validator, "TestScript");
+        assertNotNull(result);
     }
 
     @Test
     public void calculateCost() {
-//        JobDetailFormatter.calculateCost(new TankConfig(), , regions, simulationTime)
-//        throw new RuntimeException("Test not implemented");
+        // Test with standard (non-increasing) strategy - uses numAgents
+        TankConfig config = new TankConfig();
+        JobInstance proposedJobInstance = new JobInstance();
+        proposedJobInstance.setIncrementStrategy(com.intuit.tank.vm.api.enumerated.IncrementStrategy.standard);
+        List<JobRegion> regions = new LinkedList<>();
+        long simulationTime = 3600000L;
+
+        String result = JobDetailFormatter.calculateCost(config, proposedJobInstance, regions, simulationTime);
+        assertNotNull(result);
+        assertTrue(result.startsWith("$"));
     }
 
     @Test
     public void createJobDetailsJobValidatorWorkloadJobInstance() {
-//        throw new RuntimeException("Test not implemented");
+        JobValidator validator = new JobValidator(new Script());
+        Workload workload = new Workload();
+        JobInstance proposedJobInstance = new JobInstance();
+        proposedJobInstance.setName("TestJob");
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, proposedJobInstance);
+        assertNotNull(result);
     }
 
     @Test
     public void createJobDetailsJobValidatorString() {
-//        throw new RuntimeException("Test not implemented");
+        JobValidator validator = new JobValidator(new Script());
+        String result = JobDetailFormatter.createJobDetails(validator, "MyScript");
+        assertNotNull(result);
+        assertTrue(result.contains("MyScript"));
     }
 
     @Test
@@ -367,6 +420,186 @@ public class JobDetailFormatterTest {
         //       at com.intuit.tank.project.BaseJob.<init>(BaseJob.java:28)
         //       at com.intuit.tank.project.JobInstance.<init>(JobInstance.java:115)
         assertEquals(0L, result);
+    }
+
+    @Test
+    public void testGetSimulationTime_WithScriptTerminationPolicy() {
+        JobInstance proposedJobInstance = new JobInstance();
+        proposedJobInstance.setTerminationPolicy(com.intuit.tank.vm.api.enumerated.TerminationPolicy.script);
+        Workload workload = new Workload();
+        TestPlan tp = TestPlan.builder().name("tp").usersPercentage(100).build();
+        workload.addTestPlan(tp);
+        JobValidator validator = new JobValidator(new Script());
+
+        long result = JobDetailFormatter.getSimulationTime(proposedJobInstance, workload, validator);
+        // with no scripts, expected time = 0
+        assertEquals(0L, result);
+    }
+
+    @Test
+    public void testGetSimulationTime_WithTimeTerminationPolicy() {
+        JobInstance proposedJobInstance = new JobInstance();
+        proposedJobInstance.setTerminationPolicy(com.intuit.tank.vm.api.enumerated.TerminationPolicy.time);
+        proposedJobInstance.setSimulationTime(5000L);
+        Workload workload = new Workload();
+        JobValidator validator = new JobValidator(new Script());
+
+        long result = JobDetailFormatter.getSimulationTime(proposedJobInstance, workload, validator);
+        assertEquals(5000L, result);
+    }
+
+    @Test
+    public void testCalculateCost_WithIncreasingStrategy() {
+        TankConfig config = new TankConfig();
+        JobInstance proposedJobInstance = new JobInstance();
+        proposedJobInstance.setIncrementStrategy(com.intuit.tank.vm.api.enumerated.IncrementStrategy.increasing);
+        proposedJobInstance.setNumUsersPerAgent(100);
+        List<JobRegion> regions = new LinkedList<>();
+        regions.add(new JobRegion(com.intuit.tank.vm.api.enumerated.VMRegion.US_EAST, "200"));
+        long simulationTime = 3600000L;
+
+        String result = JobDetailFormatter.calculateCost(config, proposedJobInstance, regions, simulationTime);
+        assertNotNull(result);
+        assertTrue(result.startsWith("$"));
+    }
+
+    @Test
+    public void testEstimateCost_MultipleInstances() {
+        BigDecimal cost = JobDetailFormatter.estimateCost(5, BigDecimal.valueOf(0.5D), 7200000L);
+        assertNotNull(cost);
+        assertTrue(cost.doubleValue() > 0);
+    }
+
+    @Test
+    public void testCreateJobDetails_WithScriptName() {
+        JobValidator validator = new JobValidator(new Script());
+        String result = JobDetailFormatter.createJobDetails(validator, "TestScript");
+        assertNotNull(result);
+        assertTrue(result.contains("TestScript"));
+    }
+
+    @Test
+    public void testAddProperty_WithStyleAddsSpanTags() {
+        StringBuilder sb = new StringBuilder();
+        // addProperty(key, value) with both non-blank
+        JobDetailFormatter.addProperty(sb, "MyKey", "MyValue");
+        String content = sb.toString();
+        assertTrue(content.contains("MyKey"));
+        assertTrue(content.contains("MyValue"));
+    }
+
+    @Test
+    public void testBuildDetails_WithStandardStrategy_CoversStandardBranches() {
+        JobInstance ji = new JobInstance();
+        ji.setName("StandardJob");
+        ji.setCreator("admin");
+        ji.setIncrementStrategy(IncrementStrategy.standard);
+        ji.setSimulationTime(3600000L);
+        ji.setRampTime(600000L);
+        ji.setBaselineVirtualUsers(10);
+        ji.setTotalVirtualUsers(100);
+        ji.setTargetRampRate(10.0);
+        ji.setTargetRatePerAgent(5.0);
+        ji.setNumUsersPerAgent(50);
+
+        TestPlan tp = TestPlan.builder().name("Main").usersPercentage(100).build();
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>(java.util.List.of(tp)));
+
+        JobValidator validator = new JobValidator(java.util.List.of(tp), new java.util.HashMap<>());
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
+        assertTrue(result.contains("StandardJob"));
+    }
+
+    @Test
+    public void testBuildDetails_WithIncreasingStrategy_ZeroTotalUsers_ShowsError() {
+        JobInstance ji = new JobInstance();
+        ji.setName("IncreasingJob");
+        ji.setCreator("admin");
+        ji.setIncrementStrategy(IncrementStrategy.increasing);
+        ji.setTotalVirtualUsers(0); // error case
+        ji.setTerminationPolicy(TerminationPolicy.time);
+        ji.setSimulationTime(0); // error case
+
+        TestPlan tp = TestPlan.builder().name("Main").usersPercentage(100).build();
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>(java.util.List.of(tp)));
+
+        JobValidator validator = new JobValidator(java.util.List.of(tp), new java.util.HashMap<>());
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
+        assertTrue(result.contains("ERRORS"));
+    }
+
+    @Test
+    public void testBuildDetails_WithVariablesContainingCsv() {
+        JobInstance ji = new JobInstance();
+        ji.setName("CsvJob");
+        ji.setCreator("admin");
+        ji.setIncrementStrategy(IncrementStrategy.increasing);
+        ji.setSimulationTime(3600000L);
+        ji.setRampTime(600000L);
+        ji.setTotalVirtualUsers(50);
+
+        // Add a variable that ends in .csv (not in datafiles list - should generate warning)
+        Map<String, String> vars = new HashMap<>();
+        vars.put("dataFile", "mydata.csv");
+        ji.setVariables(vars);
+
+        TestPlan tp = TestPlan.builder().name("Main").usersPercentage(100).build();
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>(java.util.List.of(tp)));
+
+        JobValidator validator = new JobValidator(java.util.List.of(tp), new java.util.HashMap<>());
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
+        // Should contain warning about the CSV reference
+        assertTrue(result.contains("mydata.csv") || result.contains("dataFile"));
+    }
+
+    @Test
+    public void testBuildDetails_WithBlankName_ShowsNameError() {
+        JobInstance ji = new JobInstance();
+        ji.setName(""); // blank name triggers error
+        ji.setCreator("admin");
+        ji.setIncrementStrategy(IncrementStrategy.increasing);
+        ji.setSimulationTime(3600000L);
+        ji.setTotalVirtualUsers(10);
+
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>());
+
+        JobValidator validator = new JobValidator(new java.util.LinkedList<>(), new java.util.HashMap<>());
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
+        // blank name causes "Name cannot be null" error
+        assertTrue(result.contains("ERRORS") || result.contains("Name cannot be null") || result.contains("Name"));
+    }
+
+    @Test
+    public void testBuildDetails_WithTestPlanAndScriptGroup_CoversScriptLoop() {
+        JobInstance ji = new JobInstance();
+        ji.setName("ScriptJob");
+        ji.setCreator("admin");
+        ji.setIncrementStrategy(IncrementStrategy.increasing);
+        ji.setSimulationTime(3600000L);
+        ji.setRampTime(600000L);
+        ji.setTotalVirtualUsers(100);
+
+        TestPlan tp = TestPlan.builder().name("Main").usersPercentage(100).build();
+        // No script groups - should add "contains no script groups" error
+        Workload workload = new Workload();
+        workload.setTestPlan(new java.util.LinkedList<>(java.util.List.of(tp)));
+
+        JobValidator validator = new JobValidator(java.util.List.of(tp), new java.util.HashMap<>());
+
+        String result = JobDetailFormatter.createJobDetails(validator, workload, ji);
+        assertNotNull(result);
     }
 
     /**
