@@ -13,12 +13,15 @@ package com.intuit.tank.wrapper;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectLoader;
 import com.intuit.tank.view.filter.ViewFilterType;
@@ -213,5 +216,100 @@ public class EntityVersionLoaderTest {
 
         boolean result = fixture.isCurrent(version);
         assertTrue(result);
+    }
+
+    /**
+     * Concrete test implementation of EntityVersionLoader that doesn't need CDI.
+     */
+    private static class TestEntityVersionLoader extends EntityVersionLoader<Project, Object> {
+        private final List<Project> entities;
+
+        TestEntityVersionLoader(List<Project> entities) {
+            this.entities = entities;
+        }
+
+        @Override
+        protected List<Project> getEntities() {
+            return entities;
+        }
+    }
+
+    @Test
+    public void testGetVersionContainer_WithConcreteLoader_ReturnsNonNull() {
+        List<Project> projects = new ArrayList<>();
+        Project p = new Project();
+        p.setName("TestProject");
+        projects.add(p);
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(projects);
+
+        VersionContainer<Project> container = loader.getVersionContainer();
+        assertNotNull(container);
+        assertNotNull(container.getEntities());
+        assertEquals(1, container.getEntities().size());
+    }
+
+    @Test
+    public void testGetVersionContainer_WithViewFilter_All() {
+        List<Project> projects = new ArrayList<>();
+        Project p = new Project();
+        p.setName("P1");
+        projects.add(p);
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(projects);
+
+        VersionContainer<Project> container = loader.getVersionContainer(ViewFilterType.ALL);
+        assertNotNull(container);
+        assertEquals(1, container.getEntities().size());
+    }
+
+    @Test
+    public void testGetVersionEntities_ReturnsAllForViewFilterAll() {
+        List<Project> projects = new ArrayList<>();
+        projects.add(new Project());
+        projects.add(new Project());
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(projects);
+
+        List<Project> result = loader.getVersionEntities();
+        assertNotNull(result);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testGetVersionEntities_WithViewFilter() {
+        List<Project> projects = new ArrayList<>();
+        Project recent = new Project();
+        recent.setCreated(new Date());
+        projects.add(recent);
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(projects);
+
+        // ViewFilterType.ALL returns all
+        List<Project> result = loader.getVersionEntities(ViewFilterType.ALL);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testObserveEvents_Invalidates() {
+        List<Project> projects = new ArrayList<>();
+        projects.add(new Project());
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(projects);
+
+        // Load once to set version
+        VersionContainer<Project> c1 = loader.getVersionContainer();
+        int v1 = c1.getVersion();
+
+        // Observe event → invalidates → next getVersionContainer reloads and increments version
+        loader.observeEvents(new Object());
+        VersionContainer<Project> c2 = loader.getVersionContainer();
+        assertTrue(c2.getVersion() > v1);
+    }
+
+    @Test
+    public void testIsCurrent_AfterReload_VersionMismatches() {
+        TestEntityVersionLoader loader = new TestEntityVersionLoader(new ArrayList<>());
+        loader.invalidate(); // version = 1
+
+        // version=1 matches
+        assertTrue(loader.isCurrent(1));
+        // version=0 doesn't match
+        assertFalse(loader.isCurrent(0));
     }
 }

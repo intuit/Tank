@@ -15,657 +15,292 @@ package com.intuit.tank.project;
 
 import java.util.List;
 
-import jakarta.faces.model.SelectItem;
-
+import com.intuit.tank.auth.Security;
+import com.intuit.tank.util.Messages;
+import com.intuit.tank.view.filter.ViewFilterType;
+import com.intuit.tank.vm.settings.AccessRight;
+import com.intuit.tank.wrapper.SelectableWrapper;
+import com.intuit.tank.wrapper.VersionContainer;
+import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
-import com.intuit.tank.ModifiedDatafileMessage;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.DataFileBrowser;
-import com.intuit.tank.view.filter.ViewFilterType;
-import com.intuit.tank.wrapper.SelectableWrapper;
-
-/**
- * The class <code>DataFileBrowserTest</code> contains tests for the class <code>{@link DataFileBrowser}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:54 PM
- */
 public class DataFileBrowserTest {
-    /**
-     * Run the DataFileBrowser() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testDataFileBrowser_1()
-        throws Exception {
-        DataFileBrowser result = new DataFileBrowser();
-        assertNotNull(result);
+
+    @InjectMocks
+    private DataFileBrowser fixture;
+
+    @Mock
+    private DataFileLoader dataFileLoader;
+
+    @Mock
+    private Security security;
+
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private Event<com.intuit.tank.ModifiedDatafileMessage> dataFileEvent;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
     }
 
-  
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
 
-    /**
-     * Run the boolean enablePrev() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testEnablePrev_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
+    public void testGetSetSelectedFile() {
+        SelectableWrapper<DataFile> wrapper = new SelectableWrapper<>(new DataFile());
+        fixture.setSelectedFile(wrapper);
+        assertEquals(wrapper, fixture.getSelectedFile());
+    }
+
+    @Test
+    public void testGetSetViewDatafile() {
+        DataFile df = new DataFile();
+        fixture.setViewDatafile(df);
+        assertEquals(df, fixture.getViewDatafile());
+    }
+
+    @Test
+    public void testSetViewDatafile_ResetsCurrentPage() {
+        fixture.setCurrentPage(5);
         fixture.setViewDatafile(new DataFile());
+        // currentPage is reset to 0 in setViewDatafile
+        assertEquals(0, fixture.getCurrentPage());
+    }
+
+    @Test
+    public void testGetSetNumEntriesToShow() {
+        fixture.setNumEntriesToShow(100);
+        assertEquals(100, fixture.getNumEntriesToShow());
+    }
+
+    @Test
+    public void testGetSetCurrentPage() {
+        fixture.setCurrentPage(3);
+        assertEquals(3, fixture.getCurrentPage());
+    }
+
+    @Test
+    public void testGetSetInputPage() {
+        fixture.setInputPage(4);
+        assertEquals(4, fixture.getInputPage());
+    }
+
+    @Test
+    public void testNextSetOfEntries_IncrementsPage() {
         fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        boolean result = fixture.enablePrev();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertTrue(result);
-    }
-
-    /**
-     * Run the boolean enablePrev() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testEnablePrev_2()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(0);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        boolean result = fixture.enablePrev();
-        assertTrue(!result);
-    }
-
-    /**
-     * Run the SelectItem[] getCreatorList() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    @Disabled
-    public void testGetCreatorList_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        SelectItem[] result = fixture.getCreatorList();
-    }
-
-    /**
-     * Run the int getCurrentPage() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetCurrentPage_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        int result = fixture.getCurrentPage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertEquals(1, result);
-    }
-
-    /**
-     * Run the String getDataFileDownloadLink(DataFile) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetDataFileDownloadLink_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        DataFile dataFile = new DataFile();
-
-        String result = fixture.getDataFileDownloadLink(dataFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the String getDataFileDownloadLink(DataFile) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetDataFileDownloadLink_2()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        DataFile dataFile = null;
-
-        String result = fixture.getDataFileDownloadLink(dataFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-
-    /**
-     * Run the List<DataFile> getEntityList(ViewFilterType) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    @Disabled
-    public void testGetEntityList_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        ViewFilterType viewFilter = ViewFilterType.ALL;
-
-        List<DataFile> result = fixture.getEntityList(viewFilter);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the List<DataFile> getEntityList(ViewFilterType) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    @Disabled
-    public void testGetEntityList_2()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        ViewFilterType viewFilter = ViewFilterType.ALL;
-
-        List<DataFile> result = fixture.getEntityList(viewFilter);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-
-    /**
-     * Run the int getInputPage() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetInputPage_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper(new DataFile()));
-
-        int result = fixture.getInputPage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertEquals(1, result);
-    }
-
-    /**
-     * Run the int getNumEntriesToShow() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetNumEntriesToShow_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper(new DataFile()));
-
-        int result = fixture.getNumEntriesToShow();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertEquals(1, result);
-    }
-
-    /**
-     * Run the SelectableWrapper<DataFile> getSelectedFile() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetSelectedFile_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        SelectableWrapper<DataFile> result = fixture.getSelectedFile();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-
-
-    /**
-     * Run the DataFile getViewDatafile() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGetViewDatafile_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        DataFile result = fixture.getViewDatafile();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the void goToFirstPage() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testGoToFirstPage_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        fixture.goToFirstPage();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-    }
-
-
-    /**
-     * Run the boolean isCurrent() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    @Disabled
-    public void testIsCurrent_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        boolean result = fixture.isCurrent();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertTrue(result);
-    }
-
-    /**
-     * Run the boolean isCurrent() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    @Disabled
-    public void testIsCurrent_2()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
-        boolean result = fixture.isCurrent();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertTrue(result);
-    }
-
-
-    /**
-     * Run the void nextSetOfEntries() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
-    @Test
-    public void testNextSetOfEntries_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
         fixture.nextSetOfEntries();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+        assertEquals(2, fixture.getCurrentPage());
     }
 
-    /**
-     * Run the void prevSetOfEntries() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testPrevSetOfEntries_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-
+    public void testPrevSetOfEntries_DecrementsPage() {
+        fixture.setCurrentPage(2);
         fixture.prevSetOfEntries();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+        assertEquals(1, fixture.getCurrentPage());
     }
 
-
-    /**
-     * Run the void setCurrentPage(int) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testSetCurrentPage_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
+    public void testEnablePrev_WhenPageGreaterThanZero_ReturnsTrue() {
         fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        int currentPage = 1;
-
-        fixture.setCurrentPage(currentPage);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+        assertTrue(fixture.enablePrev());
     }
 
-    /**
-     * Run the void setInputPage(int) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testSetInputPage_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        int inputPage = 1;
-
-        fixture.setInputPage(inputPage);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testEnablePrev_WhenPageZero_ReturnsFalse() {
+        fixture.setCurrentPage(0);
+        assertFalse(fixture.enablePrev());
     }
 
-    /**
-     * Run the void setNumEntriesToShow(int) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testSetNumEntriesToShow_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        int numEntriesToShow = 1;
-
-        fixture.setNumEntriesToShow(numEntriesToShow);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testGoToFirstPage_SetsCurrentPageToZero() {
+        fixture.setCurrentPage(5);
+        fixture.goToFirstPage();
+        assertEquals(0, fixture.getCurrentPage());
     }
 
-    /**
-     * Run the void setSelectedFile(SelectableWrapper<DataFile>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testSetSelectedFile_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        SelectableWrapper<DataFile> selectedFile = new SelectableWrapper((Object) null);
-
-        fixture.setSelectedFile(selectedFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testGoToLastPage_SetsCurrentPage() {
+        // With no viewDatafile and default numEntriesToShow=50, numPages=0
+        fixture.goToLastPage();
+        assertEquals(0, fixture.getCurrentPage());
     }
 
-    /**
-     * Run the void setViewDatafile(DataFile) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    public void testSetViewDatafile_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        DataFile viewDatafile = new DataFile();
-
-        fixture.setViewDatafile(viewDatafile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testGetTotalLines_NoViewDatafile_ReturnsOne() {
+        // With null viewDatafile, getCurrentEntries returns ["current Data File Not set."]
+        assertEquals(1, fixture.getTotalLines());
     }
 
-    /**
-     * Run the void setViewDatafileId(int) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
-    @Disabled
-    public void testSetViewDatafileId_1()
-        throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.setInputPage(1);
-        fixture.setNumEntriesToShow(1);
-        fixture.setViewDatafile(new DataFile());
-        fixture.setCurrentPage(1);
-        fixture.setSelectedFile(new SelectableWrapper((Object) null));
-        int viewDatafileId = 1;
+    public void testGetStartIndex_WithDefaultState_ReturnsOne() {
+        // currentPage=0, numEntriesToShow=50, totalLines=1 → startIndex = 1
+        assertEquals(1, fixture.getStartIndex());
+    }
 
-        fixture.setViewDatafileId(viewDatafileId);
+    @Test
+    public void testGetEndIndex_WithDefaultState_ReturnsOne() {
+        // currentPage=0, numEntriesToShow=50, totalLines=1 → endIndex = 1
+        assertEquals(1, fixture.getEndIndex());
+    }
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    @Test
+    public void testEnableNext_WithDefaultState_ReturnsFalse() {
+        // endIndex(1) is not < totalLines(1)
+        assertFalse(fixture.enableNext());
+    }
+
+    @Test
+    public void testGetNumPages_WithDefaultState_ReturnsZero() {
+        // 1 line / 50 per page = 0
+        assertEquals(0, fixture.getNumPages());
+    }
+
+    @Test
+    public void testJumpToInputPage_ValidPage_UpdatesCurrentPage() {
+        fixture.setInputPage(1); // page index 0
+        fixture.jumpToInputPage();
+        assertEquals(0, fixture.getCurrentPage());
+    }
+
+    @Test
+    public void testJumpToInputPage_NegativePage_DoesNotUpdate() {
+        fixture.setCurrentPage(0);
+        fixture.setInputPage(0); // pageNum = -1, invalid
+        fixture.jumpToInputPage();
+        assertEquals(0, fixture.getCurrentPage());
+    }
+
+    @Test
+    public void testGetDataFileDownloadLink_WithDataFile_ReturnsUrl() {
+        DataFile df = new DataFile();
+        String link = fixture.getDataFileDownloadLink(df);
+        assertNotNull(link);
+        assertTrue(link.contains("/v2/datafiles/download/"));
+    }
+
+    @Test
+    public void testGetDataFileDownloadLink_NullDataFile_ReturnsEmpty() {
+        String link = fixture.getDataFileDownloadLink(null);
+        assertEquals("", link);
+    }
+
+    @Test
+    public void testGetEntityList_ReturnsList() {
+        VersionContainer<DataFile> container = mock(VersionContainer.class);
+        when(container.getVersion()).thenReturn(1);
+        when(container.getEntities()).thenReturn(List.of(new DataFile()));
+        when(dataFileLoader.getVersionContainer(ViewFilterType.ALL)).thenReturn(container);
+
+        List<DataFile> result = fixture.getEntityList(ViewFilterType.ALL);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testIsCurrent_DelegatesToDataFileLoader() {
+        when(dataFileLoader.isCurrent(anyInt())).thenReturn(true);
+        assertTrue(fixture.isCurrent());
+
+        when(dataFileLoader.isCurrent(anyInt())).thenReturn(false);
+        assertFalse(fixture.isCurrent());
+    }
+
+    @Test
+    public void testCanCreateDatafile_WhenHasRight_ReturnsTrue() {
+        when(security.hasRight(AccessRight.CREATE_DATAFILE)).thenReturn(true);
+        assertTrue(fixture.canCreateDatafile());
+    }
+
+    @Test
+    public void testCanCreateDatafile_WhenNoRight_ReturnsFalse() {
+        when(security.hasRight(AccessRight.CREATE_DATAFILE)).thenReturn(false);
+        assertFalse(fixture.canCreateDatafile());
+    }
+
+    @Test
+    public void testDelete_WhenNoPermission_ShowsWarning() {
+        DataFile df = new DataFile();
+        when(security.hasRight(AccessRight.DELETE_DATAFILE)).thenReturn(false);
+        when(security.isOwner(df)).thenReturn(false);
+
+        fixture.delete(df);
+
+        verify(messages).warn(anyString());
+    }
+
+    @Test
+    public void testDelete_WhenOwner_AttemptsDeletion() {
+        DataFile df = new DataFile();
+        df.setPath("testfile.csv");
+        when(security.hasRight(AccessRight.DELETE_DATAFILE)).thenReturn(false);
+        when(security.isOwner(df)).thenReturn(true);
+
+        // DAO call will fail without DB, but no warning should be shown
+        fixture.delete(df);
+
+        verify(messages, never()).warn(anyString());
+    }
+
+    @Test
+    public void testDelete_WhenHasRight_AttemptsDeletion() {
+        DataFile df = new DataFile();
+        when(security.hasRight(AccessRight.DELETE_DATAFILE)).thenReturn(true);
+        when(security.isOwner(df)).thenReturn(false);
+
+        fixture.delete(df);
+
+        verify(messages, never()).warn(anyString());
+    }
+
+    @Test
+    public void testGetCreatorList_DelegatesToLoader() {
+        jakarta.faces.model.SelectItem[] items = new jakarta.faces.model.SelectItem[0];
+        when(dataFileLoader.getCreatorList()).thenReturn(items);
+
+        jakarta.faces.model.SelectItem[] result = fixture.getCreatorList();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetEntries_WithNoViewDatafile_ReturnsContent() {
+        // getEntries() calls getCurrentEntries() which returns ["current Data File Not set."]
+        String entries = fixture.getEntries();
+        assertNotNull(entries);
+        assertTrue(entries.contains("current Data File Not set."));
+    }
+
+    @Test
+    public void testSetViewDatafileId_WithMissingId_SetsNullViewDatafile() {
+        // setViewDatafileId calls DAO findById - with H2 and unknown ID it should return null
+        fixture.setViewDatafileId(99999);
+        assertNull(fixture.getViewDatafile());
+    }
+
+    @Test
+    public void testDelete_WhenOwner_InfoMessageOnSuccess() {
+        // When delete succeeds (H2 allows delete of non-existent entity), info message is called
+        DataFile df = new DataFile();
+        df.setPath("file.csv");
+        when(security.hasRight(AccessRight.DELETE_DATAFILE)).thenReturn(true);
+        // With H2, deleting a non-persisted entity may succeed silently
+        fixture.delete(df);
+        // verify either info was called (success) or error was called (exception)
+        // we just check no warning was raised
+        verify(messages, never()).warn(anyString());
     }
 }

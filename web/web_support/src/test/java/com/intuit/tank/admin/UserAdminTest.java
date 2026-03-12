@@ -13,145 +13,174 @@ package com.intuit.tank.admin;
  * #L%
  */
 
+import java.util.LinkedList;
 import java.util.List;
 
+import com.intuit.tank.ModifiedUserMessage;
+import com.intuit.tank.prefs.TablePreferences;
+import com.intuit.tank.prefs.TableViewState;
+import com.intuit.tank.project.Preferences;
+import com.intuit.tank.util.Messages;
+import com.intuit.tank.view.filter.ViewFilterType;
+import com.intuit.tank.wrapper.VersionContainer;
+import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.admin.UserAdmin;
 import com.intuit.tank.project.User;
-import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.wrapper.SelectableWrapper;
 
-/**
- * The class <code>UserAdminTest</code> contains tests for the class <code>{@link UserAdmin}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:52 PM
- */
 public class UserAdminTest {
-    /**
-     * Run the UserAdmin() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
+
+    @InjectMocks
+    private UserAdmin userAdmin;
+
+    @Mock
+    private UserLoader userLoader;
+
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private Event<ModifiedUserMessage> userEvent;
+
+    @Mock
+    private Event<Preferences> deletedPrefsEvent;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        closeable = MockitoAnnotations.openMocks(this);
+        // tablePrefs and tableState are protected fields in SelectableBean (different package)
+        java.lang.reflect.Field tablePrefsField = com.intuit.tank.wrapper.SelectableBean.class.getDeclaredField("tablePrefs");
+        tablePrefsField.setAccessible(true);
+        tablePrefsField.set(userAdmin, new TablePreferences(new LinkedList<>()));
+        java.lang.reflect.Field tableStateField = com.intuit.tank.wrapper.SelectableBean.class.getDeclaredField("tableState");
+        tableStateField.setAccessible(true);
+        tableStateField.set(userAdmin, new TableViewState());
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
     @Test
-    public void testUserAdmin_1()
-        throws Exception {
-        UserAdmin result = new UserAdmin();
+    public void testGetSelectedUser_SetAndGet() {
+        User user = new User();
+        SelectableWrapper<User> wrapper = new SelectableWrapper<>(user);
+        userAdmin.setSelectedUser(wrapper);
+        assertEquals(wrapper, userAdmin.getSelectedUser());
+    }
+
+    @Test
+    public void testIsCurrent_WhenCurrent_ReturnsTrue() {
+        when(userLoader.isCurrent(anyInt())).thenReturn(true);
+        assertTrue(userAdmin.isCurrent());
+    }
+
+    @Test
+    public void testIsCurrent_WhenNotCurrent_ReturnsFalse() {
+        when(userLoader.isCurrent(anyInt())).thenReturn(false);
+        assertFalse(userAdmin.isCurrent());
+    }
+
+    @Test
+    public void testGetEntityList_ReturnsUsers() {
+        VersionContainer<User> container = mock(VersionContainer.class);
+        when(container.getVersion()).thenReturn(1);
+        when(container.getEntities()).thenReturn(List.of(new User()));
+        when(userLoader.getVersionContainer()).thenReturn(container);
+
+        List<User> result = userAdmin.getEntityList(ViewFilterType.ALL);
         assertNotNull(result);
+        assertEquals(1, result.size());
     }
 
-    /**
-     * Run the SelectableWrapper<User> getSelectedUser() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetSelectedUser_1()
-        throws Exception {
-        UserAdmin fixture = new UserAdmin();
-        fixture.setSelectedUser(new SelectableWrapper((Object) null));
-
-        SelectableWrapper<User> result = fixture.getSelectedUser();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.admin.UserAdmin.<init>(UserAdmin.java:35)
-        assertNotNull(result);
-    }
-
- 
-    /**
-     * Run the void resetPreferences(User) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testResetPreferences_1()
-        throws Exception {
-        UserAdmin fixture = new UserAdmin();
-        fixture.setSelectedUser(new SelectableWrapper((Object) null));
+    public void testDelete_WhenUserNotInDB_ShowsError() {
         User user = new User();
-        user.setName("");
-
-        fixture.resetPreferences(user);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.project.User.<init>(User.java:61)
+        user.setName("nonexistentuser");
+        // With H2 DB: no projects owned, no scripts, etc.
+        // deleteUserData returns 0 for user not in DB → messages.error called
+        userAdmin.delete(user);
+        verify(messages).error(anyString());
     }
 
-    /**
-     * Run the void resetPreferences(User) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testResetPreferences_2()
-        throws Exception {
-        UserAdmin fixture = new UserAdmin();
-        fixture.setSelectedUser(new SelectableWrapper((Object) null));
+    public void testResetPreferences_WhenNoPreferences_DoesNothing() {
         User user = new User();
-        user.setName("");
-
-        fixture.resetPreferences(user);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.project.User.<init>(User.java:61)
+        user.setName("noprefuser");
+        // PreferencesDao.getForOwner returns null for user without prefs
+        assertDoesNotThrow(() -> userAdmin.resetPreferences(user));
+        // deletedPrefsEvent should NOT be fired
+        verify(deletedPrefsEvent, never()).fire(any());
     }
 
-    /**
-     * Run the void resetPreferences(User) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testResetPreferences_3()
-        throws Exception {
-        UserAdmin fixture = new UserAdmin();
-        fixture.setSelectedUser(new SelectableWrapper((Object) null));
+    public void testDelete_WhenUserOwnsProjects_ShowsErrorWithProjectNames() {
+        // Create a project owned by a specific user so that getUserOwnedResources returns non-empty
+        String username = "testowner_" + System.nanoTime();
+        com.intuit.tank.project.Project project = new com.intuit.tank.project.Project();
+        project.setName("OwnedProject");
+        project.setCreator(username);
+        new com.intuit.tank.dao.ProjectDao().saveOrUpdate(project);
+
         User user = new User();
-        user.setName("");
+        user.setName(username);
 
-        fixture.resetPreferences(user);
+        userAdmin.delete(user);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.project.User.<init>(User.java:61)
+        // Should show error about owned resources
+        verify(messages).error(anyString());
     }
 
-    /**
-     * Run the void setSelectedUser(SelectableWrapper<User>) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testSetSelectedUser_1()
-        throws Exception {
-        UserAdmin fixture = new UserAdmin();
-        fixture.setSelectedUser(new SelectableWrapper((Object) null));
-        SelectableWrapper<User> selectedUser = new SelectableWrapper((Object) null);
+    public void testDelete_WhenUserInDB_AnonymizesAndDeletes() {
+        // Create and persist a user with no owned resources
+        // Note: findByUserName uses INNER JOIN on groups, so user must have a group to be found
+        // Create user with a group - group is cascade-persisted with the user
+        String groupName = "testgroup_" + System.nanoTime();
+        com.intuit.tank.project.Group group = new com.intuit.tank.project.Group(groupName);
 
-        fixture.setSelectedUser(selectedUser);
+        String username = "deluser_" + System.nanoTime();
+        User user = new User();
+        user.setName(username);
+        user.setEmail(username + "@test.com");
+        user.setPassword("testpassword");
+        user.addGroup(group);
+        new com.intuit.tank.dao.UserDao().saveOrUpdate(user);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.admin.UserAdmin.<init>(UserAdmin.java:35)
+        // deleteUserData finds user via INNER JOIN on groups, anonymizes, returns > 0
+        userAdmin.delete(user);
+
+        // Should call info (deleted successfully) - not error about owned resources
+        verify(messages, never()).error(contains("owns the following resources"));
+        verify(messages).info(anyString());
+    }
+
+    @Test
+    public void testResetPreferences_WhenPreferencesExist_FiresDeleteEvent() {
+        // Create preferences for a user in H2
+        String username = "prefuser_" + System.nanoTime();
+        com.intuit.tank.project.Preferences prefs = new com.intuit.tank.project.Preferences();
+        prefs.setCreator(username);
+        new com.intuit.tank.dao.PreferencesDao().saveOrUpdate(prefs);
+
+        User user = new User();
+        user.setName(username);
+
+        userAdmin.resetPreferences(user);
+
+        // deletedPrefsEvent should be fired
+        verify(deletedPrefsEvent).fire(any(Preferences.class));
     }
 }

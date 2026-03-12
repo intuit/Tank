@@ -528,9 +528,67 @@ public class PreferencesBeanTest {
         FastDateFormat timestampFormat = FastDateFormat.getInstance();
 
         preferencesBean.setTimestampFormat(timestampFormat);
+    }
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.PreferencesBean.<init>(PreferencesBean.java:179)
+    @Test
+    public void testFormatDate_Null_ReturnsNull() {
+        preferencesBean.setDateTimeFotmat(FastDateFormat.getInstance());
+        assertNull(preferencesBean.formatDate(null));
+    }
+
+    @Test
+    public void testSetClientTimeZone_ChangesTimezone() {
+        java.util.TimeZone tz = java.util.TimeZone.getTimeZone("UTC");
+        preferencesBean.setClientTimeZone(tz);
+        assertEquals(tz, preferencesBean.getClientTimeZone());
+    }
+
+    @Test
+    public void testGetClientTimeZone_DefaultPST() {
+        java.util.TimeZone tz = preferencesBean.getClientTimeZone();
+        assertNotNull(tz);
+    }
+
+    @Test
+    public void testSetScreenSizes_WithDigits_UpdatesDimensions() {
+        preferencesBean.setScreenSizes("1024", "768");
+        assertEquals(1004, preferencesBean.getScreenWidth());
+        assertEquals(748, preferencesBean.getScreenHeight());
+    }
+
+    @Test
+    public void testSetScreenSizes_NonDigitWidth_DoesNotUpdateWidth() {
+        preferencesBean.setScreenWidth(800);
+        preferencesBean.setScreenSizes("abc", "600");
+        assertEquals(800, preferencesBean.getScreenWidth());
+        assertEquals(580, preferencesBean.getScreenHeight());
+    }
+
+    @Test
+    public void testSetScreenSizes_NonDigitHeight_DoesNotUpdateHeight() {
+        preferencesBean.setScreenHeight(500);
+        preferencesBean.setScreenSizes("1024", "xyz");
+        assertEquals(1004, preferencesBean.getScreenWidth());
+        assertEquals(500, preferencesBean.getScreenHeight());
+    }
+
+    @Test
+    public void testInit_WithOwner_LoadsOrCreatesPreferences() {
+        // Calls H2 DB; should not throw
+        assertDoesNotThrow(() -> preferencesBean.init("testowner123"));
+        assertNotNull(preferencesBean.getPreferences());
+    }
+
+    @Test
+    public void testGetCollectionFilterString_MultipleItems_JoinsWithComma() {
+        java.util.List<String> items = java.util.List.of("alpha", "beta", "gamma");
+        String result = preferencesBean.getCollectionFilterString(items);
+        assertEquals("alpha, beta, gamma", result);
+    }
+
+    @Test
+    public void testPrefsChanged_WhenPreferencesNotNull_SavesToDB() {
+        preferencesBean.init("testownersave");
+        assertDoesNotThrow(() -> preferencesBean.prefsChanged());
     }
 }

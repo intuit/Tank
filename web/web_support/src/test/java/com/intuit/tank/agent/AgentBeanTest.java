@@ -261,4 +261,31 @@ public class AgentBeanTest {
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.agent.AgentBean.setAgents(AgentBean.java:66)
     }
+
+    @Test
+    public void testGetAgentStatus_WhenJobNotFound_ThrowsNPE() {
+        AgentBean fixture = new AgentBean();
+        fixture.setAgents(new LinkedList<>());
+        fixture.setJobs(new LinkedList<>());
+        // VMTrackerImpl.getVmStatusForJob("unknown") returns null → NPE on container.getStatuses()
+        assertThrows(NullPointerException.class, () -> fixture.getAgentStatus("unknownJobId"));
+    }
+
+    @Test
+    public void testGetJobs_WhenNull_LoadsFromDao() {
+        AgentBean fixture = new AgentBean();
+        // jobs is null initially - calls new JobQueueDao().findAll() from H2
+        List<JobQueue> result = fixture.getJobs();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetSelectedJob_WhenNull_AndJobsNotEmpty_ReturnsFirst() {
+        AgentBean fixture = new AgentBean();
+        JobQueue jq = new JobQueue();
+        fixture.setJobs(List.of(jq));
+        fixture.setSelectedJob(null);
+        JobQueue result = fixture.getSelectedJob();
+        assertEquals(jq, result);
+    }
 }
