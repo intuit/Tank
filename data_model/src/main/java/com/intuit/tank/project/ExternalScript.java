@@ -20,6 +20,9 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -89,7 +92,17 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     public ScriptEngine getEngine() {
-        return new ScriptEngineManager().getEngineByExtension(FilenameUtils.getExtension(name));
+        String ext = FilenameUtils.getExtension(name);
+        if ("js".equalsIgnoreCase(ext)) {
+            return GraalJSScriptEngine.create(null,
+                    Context.newBuilder("js")
+                           .allowExperimentalOptions(true)
+                           .allowHostAccess(HostAccess.ALL)
+                           .allowHostClassLookup(className -> true)
+                           .option("js.ecmascript-version", "2023")
+                           .option("js.nashorn-compat", "true"));
+        }
+        return new ScriptEngineManager().getEngineByExtension(ext);
     }
 
     /**
