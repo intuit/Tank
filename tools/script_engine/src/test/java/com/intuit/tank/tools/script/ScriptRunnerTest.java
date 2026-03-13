@@ -108,7 +108,7 @@ class ScriptRunnerTest {
         runner.runScript("debug-test", script, jsEngine(), inputs, logger);
 
         String output = logger.getOutput();
-        assertTrue(output.contains("Starting scriptEngine") || output.contains("Finished scriptEngine")
-                || output.length() >= 0, "Output logger should have been invoked");
+        assertFalse(output.isEmpty(), "Output logger should have been invoked");
+        assertTrue(output.contains("Starting scriptEngine") || output.contains("Finished scriptEngine"));
     }
 }
