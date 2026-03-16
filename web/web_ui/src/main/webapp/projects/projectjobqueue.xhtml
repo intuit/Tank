@@ -121,7 +121,7 @@
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"
         style="width:#{projectJobQueueManager.tablePrefs.getSize('regionColumn')}px;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('regionColumn')}">
-        <h:outputText value="#{node.region.description}" />
+        <h:outputText value="#{node.region}" />
       </p:column>
 
       <p:column id="activeUsersColumn"
