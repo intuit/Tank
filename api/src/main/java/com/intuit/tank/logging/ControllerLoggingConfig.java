@@ -23,6 +23,7 @@ public class ControllerLoggingConfig {
 
     public static void initializeControllerThreadContext(JobRequest job, String instanceName, String controllerBaseUrl) {
         jobId = job.getId();
+        loggingProfile = job.getLoggingProfile();
         env = instanceName;
         httpHost = controllerBaseUrl;
         useEips = String.valueOf(job.isUseEips());
@@ -35,8 +36,6 @@ public class ControllerLoggingConfig {
             instanceId = AmazonUtil.getInstanceId();
             publicIp = hostInfo.getPublicIp();
             location = AmazonUtil.getZone();
-            loggingProfile = AmazonUtil.getLoggingProfile().getDisplayName();
-            projectName = AmazonUtil.getProjectName();
         }
     }
 

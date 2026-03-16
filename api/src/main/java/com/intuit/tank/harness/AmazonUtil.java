@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
 
@@ -253,7 +254,7 @@ public class AmazonUtil {
             if (StringUtils.isNotEmpty(userData)) {
                 return JSON_MAPPER.readValue(userData, new TypeReference<Map<String, String>>() {});
             }
-        } catch (IllegalArgumentException | IOException e) {
+        } catch (StreamReadException | IllegalArgumentException | IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message","Unable to parse tank json: This is normal during the bake process")));
         }
         return Collections.emptyMap();
