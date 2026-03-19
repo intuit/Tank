@@ -45,6 +45,29 @@ import javax.xml.xpath.XPathFactory;
 public class GenericXMLHandler implements Cloneable {
     static Logger LOG = LogManager.getLogger(GenericXMLHandler.class);
 
+    private static final DocumentBuilderFactory DOCUMENT_BUILDER_FACTORY;
+    private static final XPathFactory XPATH_FACTORY = XPathFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY;
+
+    static {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        } catch (ParserConfigurationException ex) {
+            LOG.warn("Could not set all XXE prevention features: {}", ex.getMessage());
+        }
+        dbf.setXIncludeAware(false);
+        dbf.setExpandEntityReferences(false);
+        DOCUMENT_BUILDER_FACTORY = dbf;
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        tf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        TRANSFORMER_FACTORY = tf;
+    }
+
     protected Document xmlDocument = null;
     protected File xmlFile = null;
     protected HashMap<String, String> namespaces;
@@ -55,7 +78,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public GenericXMLHandler() {
         try {
-            this.xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            this.xmlDocument = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder().newDocument();
             this.namespaces = new HashMap<String, String>();
         } catch (ParserConfigurationException ex) {
             LOG.error("Error initializing handler: {}", ex.getMessage(), ex);
@@ -71,7 +94,7 @@ public class GenericXMLHandler implements Cloneable {
     public GenericXMLHandler(File xmlFile) {
         try {
             this.xmlFile = xmlFile;
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
             this.xmlDocument = builder.parse(this.xmlFile);
             this.namespaces = new HashMap<String, String>();
         } catch (ParserConfigurationException | SAXException | IOException ex) {
@@ -91,7 +114,7 @@ public class GenericXMLHandler implements Cloneable {
             this.xml = xmlString;
             try {
                 this.xmlFile = null;
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                DocumentBuilder builder = DOCUMENT_BUILDER_FACTORY.newDocumentBuilder();
                 xmlString = xmlString.substring(xmlString.indexOf("<"));
                 this.xmlDocument = builder.parse(new InputSource(new StringReader(xmlString)));
                 this.namespaces = new HashMap<String, String>();
@@ -113,7 +136,7 @@ public class GenericXMLHandler implements Cloneable {
     public void SetElementText(String xPathExpression, String value) {
 
         try {
-            Element element = (Element) XPathFactory.newInstance().newXPath()
+            Element element = (Element) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
             if (element != null) element.setTextContent(value);
         } catch (XPathExpressionException ex) {
@@ -125,7 +148,7 @@ public class GenericXMLHandler implements Cloneable {
     public void SetElementAttribute(String xPathExpression, String attribute, String value) {
 
         try {
-            Element element = (Element) XPathFactory.newInstance().newXPath()
+            Element element = (Element) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
             element.setAttribute(attribute, value);
         } catch (XPathExpressionException ex) {
@@ -142,7 +165,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementText(String xPathExpression) {
         try {
-            Node node = (Node) XPathFactory.newInstance().newXPath()
+            Node node = (Node) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
             return node.getTextContent();
         } catch (XPathExpressionException ex) {
@@ -160,7 +183,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementAttr(String xPathExpression) {
         try {
-            Node node = (Node) XPathFactory.newInstance().newXPath()
+            Node node = (Node) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
             NamedNodeMap attributes = node.getAttributes();
             return IntStream.range(0, attributes.getLength())
@@ -181,7 +204,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
-            NodeList nodeList = (NodeList) XPathFactory.newInstance().newXPath()
+            NodeList nodeList = (NodeList) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODESET);
             return IntStream.range(0, nodeList.getLength())
                     .mapToObj(nodeList::item)
@@ -203,7 +226,7 @@ public class GenericXMLHandler implements Cloneable {
     public boolean xPathExists(String xPathExpression)
     {
         try {
-            return !(XPathFactory.newInstance().newXPath().evaluate(xPathExpression, this.xmlDocument).isEmpty());
+            return !(XPATH_FACTORY.newXPath().evaluate(xPathExpression, this.xmlDocument).isEmpty());
         } catch (XPathExpressionException ex) {
             return false;
         }
@@ -215,7 +238,7 @@ public class GenericXMLHandler implements Cloneable {
     public String toString() {
         if (this.xmlDocument != null) {
             try {
-                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
                 StringWriter writer = new StringWriter();
                 transformer.transform(new DOMSource(this.xmlDocument), new StreamResult(writer));
                 String output = writer.getBuffer().toString();
@@ -235,7 +258,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public void Save() {
         try (FileWriter writer = new FileWriter(this.xmlFile)) {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
             transformer.transform(new DOMSource(this.xmlDocument), new StreamResult(writer));
             writer.flush();
         } catch (TransformerException | IOException ex) {
