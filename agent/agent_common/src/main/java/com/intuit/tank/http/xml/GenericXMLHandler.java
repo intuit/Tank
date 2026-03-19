@@ -150,7 +150,7 @@ public class GenericXMLHandler implements Cloneable {
         try {
             Element element = (Element) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
-            element.setAttribute(attribute, value);
+            if (element != null) element.setAttribute(attribute, value);
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
@@ -167,7 +167,7 @@ public class GenericXMLHandler implements Cloneable {
         try {
             Node node = (Node) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
-            return node.getTextContent();
+            return node != null ? node.getTextContent() : "";
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
