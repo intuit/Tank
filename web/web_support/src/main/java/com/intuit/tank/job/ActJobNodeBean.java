@@ -129,7 +129,12 @@ public class ActJobNodeBean extends JobNodeBean {
 
     @Override
     public List<VMNodeBean> getCurrentSubNodes() {
-        return vmBeans.stream().filter(vm -> !vm.getStatus().equals(VMStatus.terminated.toString())).collect(Collectors.toList());
+        // Filter out both terminated and replaced agents from the count
+        // terminated = normal shutdown, replaced = watchdog replaced a failed agent
+        return vmBeans.stream()
+                .filter(vm -> !vm.getStatus().equals(VMStatus.terminated.toString())
+                           && !vm.getStatus().equals(VMStatus.replaced.toString()))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1049,4 +1049,116 @@ public class LogEventTest {
 
         assertEquals("testValidationStatus", fixture.getValidationStatus());
     }
+
+    /**
+     * Test OnFailure field is logged for RequestStep with STANDARD profile
+     */
+    @Test
+    public void testBuildMessage_OnFailure_RequestStep_Standard() {
+        LogEvent fixture = new LogEvent();
+        RequestStep step = new RequestStep();
+        step.setRequest(new HDRequest());
+        step.setResponse(new HDResponse());
+        step.setOnFail("continue");
+        step.setName("TestStep");
+        
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setEventType(LogEventType.Validation);
+        fixture.setStep(step);
+        fixture.setMessage("Validation Failed");
+        
+        Map<String, String> result = fixture.buildMessage();
+        
+        assertNotNull(result);
+        assertTrue(result.containsKey("OnFailure"), "OnFailure field should be present in STANDARD profile");
+        assertEquals("continue", result.get("OnFailure"));
+    }
+
+    /**
+     * Test OnFailure field is logged for RequestStep with VERBOSE profile
+     */
+    @Test
+    public void testBuildMessage_OnFailure_RequestStep_Verbose() {
+        LogEvent fixture = new LogEvent();
+        RequestStep step = new RequestStep();
+        step.setRequest(new HDRequest());
+        step.setResponse(new HDResponse());
+        step.setOnFail("abort");
+        step.setName("TestStep");
+        
+        fixture.setActiveProfile(LoggingProfile.VERBOSE);
+        fixture.setEventType(LogEventType.Validation);
+        fixture.setStep(step);
+        fixture.setMessage("Validation Failed");
+        
+        Map<String, String> result = fixture.buildMessage();
+        
+        assertNotNull(result);
+        assertTrue(result.containsKey("OnFailure"), "OnFailure field should be present in VERBOSE profile");
+        assertEquals("abort", result.get("OnFailure"));
+    }
+
+    /**
+     * Test OnFailure field is NOT logged for non-FailableStep types
+     */
+    @Test
+    public void testBuildMessage_OnFailure_NonFailableStep() {
+        LogEvent fixture = new LogEvent();
+        ClearCookiesStep step = new ClearCookiesStep();
+        
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setEventType(LogEventType.System);
+        fixture.setStep(step);
+        fixture.setMessage("Clear cookies");
+        
+        Map<String, String> result = fixture.buildMessage();
+        
+        assertNotNull(result);
+        assertFalse(result.containsKey("OnFailure"), "OnFailure field should NOT be present for non-FailableStep");
+    }
+
+    /**
+     * Test OnFailure field is NOT logged when RequestStep has null onFail value
+     */
+    @Test
+    public void testBuildMessage_OnFailure_NullValue() {
+        LogEvent fixture = new LogEvent();
+        RequestStep step = new RequestStep();
+        step.setRequest(new HDRequest());
+        step.setResponse(new HDResponse());
+        step.setOnFail(null);
+        step.setName("TestStep");
+        
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setEventType(LogEventType.Validation);
+        fixture.setStep(step);
+        fixture.setMessage("Validation Failed");
+        
+        Map<String, String> result = fixture.buildMessage();
+        
+        assertNotNull(result);
+        assertFalse(result.containsKey("OnFailure"), "OnFailure field should NOT be present when value is null");
+    }
+
+    /**
+     * Test OnFailure field is logged for LogicStep (another FailableStep implementation)
+     */
+    @Test
+    public void testBuildMessage_OnFailure_LogicStep() {
+        LogEvent fixture = new LogEvent();
+        LogicStep step = new LogicStep();
+        step.setOnFail("skipGroup");
+        step.setName("TestLogicStep");
+        
+        fixture.setActiveProfile(LoggingProfile.STANDARD);
+        fixture.setEventType(LogEventType.Validation);
+        fixture.setStep(step);
+        fixture.setMessage("Logic validation failed");
+        
+        Map<String, String> result = fixture.buildMessage();
+        
+        assertNotNull(result);
+        assertTrue(result.containsKey("OnFailure"), "OnFailure field should be present for LogicStep");
+        assertEquals("skipGroup", result.get("OnFailure"));
+    }
 }

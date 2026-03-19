@@ -56,8 +56,14 @@ public class ActionComponentsTest {
     }
 
     @Test
-    public void testRunTimingStepsCB() {
-        JCheckBox jCheckBox = actionComponents.getRunTimingStepsCB();
+    public void testRunSleepStepsCB() {
+        JCheckBox jCheckBox = actionComponents.getRunSleepStepsCB();
+        assertNotNull(jCheckBox);
+    }
+
+    @Test
+    public void testRunThinkStepsCB() {
+        JCheckBox jCheckBox = actionComponents.getRunThinkStepsCB();
         assertNotNull(jCheckBox);
     }
 

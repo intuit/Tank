@@ -15,6 +15,9 @@ package com.intuit.tank.tools.debugger;
 
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -34,7 +37,12 @@ public class ActionComponents implements ScriptChangedListener {
     private JMenuBar menuBar;
     private JPopupMenu popupMenu;
     private ActionProducer actions;
-    private JCheckBox runTimingStepsCB;
+    private static final String DEBUGGER_PROPERTIES = "debugger.properties";
+    private static final String PROP_RUN_SLEEP_STEPS = "run.sleep.steps";
+    private static final String PROP_RUN_THINK_STEPS = "run.think.steps";
+
+    private JCheckBox runSleepStepsCB;
+    private JCheckBox runThinkStepsCB;
     private JLabel titleLabel;
 
     /**
@@ -46,7 +54,9 @@ public class ActionComponents implements ScriptChangedListener {
     public ActionComponents(boolean standalone, JComboBox testPlanChooser, JComboBox<TankClientChoice> tankClientChooser, ActionProducer actions) {
         super();
         this.actions = actions;
-        runTimingStepsCB = new JCheckBox("Run Timing Steps", false);
+        boolean[] defaults = loadTimingStepDefaults();
+        runSleepStepsCB = new JCheckBox("Run Sleep Steps", defaults[0]);
+        runThinkStepsCB = new JCheckBox("Run Think Steps", defaults[1]);
         createMenuBar(actions, standalone);
         createToolBar(testPlanChooser, tankClientChooser, actions, standalone);
         createPopupMenu();
@@ -216,10 +226,17 @@ public class ActionComponents implements ScriptChangedListener {
     }
 
     /**
-     * @return the runTimingStepsCB
+     * @return the runSleepStepsCB
      */
-    public JCheckBox getRunTimingStepsCB() {
-        return runTimingStepsCB;
+    public JCheckBox getRunSleepStepsCB() {
+        return runSleepStepsCB;
+    }
+
+    /**
+     * @return the runThinkStepsCB
+     */
+    public JCheckBox getRunThinkStepsCB() {
+        return runThinkStepsCB;
     }
 
     /**
@@ -264,7 +281,8 @@ public class ActionComponents implements ScriptChangedListener {
             menuBar.add(runMenu);
 
             JMenu actionsMenu = new JMenu("Actions");
-            actionsMenu.add(runTimingStepsCB);
+            actionsMenu.add(runSleepStepsCB);
+            actionsMenu.add(runThinkStepsCB);
             actionsMenu.addSeparator();
             actionsMenu.add(actions.getSaveReqResponseAction());
             actionsMenu.add(actions.getSaveLogAction());
@@ -276,6 +294,27 @@ public class ActionComponents implements ScriptChangedListener {
 
     public void setCurrentTitle(String string) {
         this.titleLabel.setText(string);
+    }
+
+    /**
+     * Load timing step defaults from debugger.properties
+     * @return boolean array [runSleepSteps, runThinkSteps]
+     */
+    private boolean[] loadTimingStepDefaults() {
+        boolean runSleep = false;
+        boolean runThink = false;
+        File f = new File(DEBUGGER_PROPERTIES);
+        if (f.exists()) {
+            try (FileInputStream in = new FileInputStream(f)) {
+                Properties props = new Properties();
+                props.load(in);
+                runSleep = Boolean.parseBoolean(props.getProperty(PROP_RUN_SLEEP_STEPS, "false"));
+                runThink = Boolean.parseBoolean(props.getProperty(PROP_RUN_THINK_STEPS, "false"));
+            } catch (Exception e) {
+                // Use defaults if properties can't be loaded
+            }
+        }
+        return new boolean[] { runSleep, runThink };
     }
 
 }

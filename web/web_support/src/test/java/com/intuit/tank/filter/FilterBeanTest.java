@@ -13,11 +13,20 @@ package com.intuit.tank.filter;
  * #L%
  */
 
+import com.intuit.tank.auth.Security;
+import com.intuit.tank.util.ExceptionHandler;
+import com.intuit.tank.util.Messages;
+import com.intuit.tank.vm.settings.AccessRight;
+
 import java.util.List;
 
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.project.ScriptFilter;
@@ -27,20 +36,88 @@ import com.intuit.tank.wrapper.SelectableWrapper;
 
 /**
  * The class <code>FilterBeanTest</code> contains tests for the class <code>{@link FilterBean}</code>.
- * 
+ *
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
 public class FilterBeanTest {
-    /**
-     * Run the FilterBean() constructor test.
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
+
+    @InjectMocks
+    private FilterBean filterBean;
+
+    @Mock
+    private Security security;
+
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private ExceptionHandler exceptionHandler;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
     @Test
     public void testFilterBean_1()
             throws Exception {
         FilterBean result = new FilterBean();
         assertNotNull(result);
+    }
+
+    @Test
+    public void testGetEntityList_ReturnsNonNull() {
+        List<ScriptFilter> result = filterBean.getEntityList(ViewFilterType.ALL);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetSelectedFilterIds_EmptyList_ReturnsEmpty() {
+        List<Integer> result = filterBean.getSelectedFilterIds();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testProcessSelection_SelectsFiltersInGroup() {
+        ScriptFilter filter = new ScriptFilter();
+        filter.setName("testFilter");
+        ScriptFilterGroup group = new ScriptFilterGroup();
+        group.addFilter(filter);
+
+        SelectableWrapper<ScriptFilter> filterWrapper = new SelectableWrapper<>(filter);
+        filterWrapper.setSelected(false);
+        filterBean.getSelectionList().add(filterWrapper);
+
+        SelectableWrapper<ScriptFilterGroup> groupWrapper = new SelectableWrapper<>(group);
+        groupWrapper.setSelected(true); // setting to selected
+
+        filterBean.processSelection(groupWrapper);
+        assertTrue(filterWrapper.isSelected());
+    }
+
+    @Test
+    public void testDelete_WhenNoPermission_ShowsWarning() {
+        ScriptFilter filter = new ScriptFilter();
+        filter.setName("testFilter");
+        when(security.hasRight(AccessRight.DELETE_FILTER)).thenReturn(false);
+        when(security.isOwner(filter)).thenReturn(false);
+
+        filterBean.delete(filter);
+        verify(messages).warn(anyString());
+    }
+
+    @Test
+    public void testDeleteSelectedFilter_WhenNull_DoesNothing() {
+        filterBean.setSelectedFilter(null);
+        assertDoesNotThrow(() -> filterBean.deleteSelectedFilter());
     }
 
     /**

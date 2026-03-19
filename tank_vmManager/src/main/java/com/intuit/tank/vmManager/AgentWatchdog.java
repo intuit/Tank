@@ -17,6 +17,7 @@ package com.intuit.tank.vmManager;
  */
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,8 +34,11 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.VMImageDao;
+import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.VMInstance;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -182,6 +186,14 @@ public class AgentWatchdog implements Runnable {
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {
                     addInstance(reportedInstances, removedInstance);
+                    long startupTimeMs = System.currentTimeMillis() - startTime;
+                    LOG.info(new ObjectMessage(Map.of(
+                        "Message", "Agent reported ready",
+                        "instanceId", status.getInstanceId(),
+                        "jobId", jobId,
+                        "startupTimeMs", startupTimeMs,
+                        "startupTimeSec", startupTimeMs / 1000.0,
+                        "remainingToReport", startedInstances.size())));
                 }
             }
         }
@@ -205,9 +217,18 @@ public class AgentWatchdog implements Runnable {
             String msg = "Have "
                     + this.startedInstances.size()
                     + " agents that failed to start correctly and have exceeded the maximum number of restarts. Killing job.";
-            vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
             LOG.info(new ObjectMessage(Map.of("Message", msg)));
-            // TODO Do we have to kill jobs here?
+            
+            // kill the job directly
+            killJobDirectly(jobId);
+            
+            // fire event for logging/notification only (observers would need to be changed to RequestScoped)
+            try {
+                vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(), msg, JobLifecycleEvent.JOB_ABORTED));
+            } catch (Exception e) {
+                LOG.warn("Failed to publish JOB_ABORTED event (non-critical): " + e.getMessage());
+            }
+            
             throw new RuntimeException("Killing jobs and exiting");
         }
         String msg = "Have " + instances.size() + " agents that failed to start or report correctly for job " + jobId + ". Relaunching. "
@@ -222,25 +243,37 @@ public class AgentWatchdog implements Runnable {
         VMImageDao dao = new VMImageDao();
         for (VMInformation info : instances) {
             vmInfo.remove(info);
-            vmTracker.setStatus(createTerminatedVmStatus(info));
+            vmTracker.setStatus(createReplacedVmStatus(info));
+
             VMInstance image = dao.getImageByInstanceId(info.getInstanceId());
             if (image != null) {
-                image.setStatus(VMStatus.terminated.name());
+                image.setStatus(VMStatus.replaced.name());
                 dao.saveOrUpdate(image);
             }
+
+            LOG.info(new ObjectMessage(Map.of("Message",
+                "Marked instance " + info.getInstanceId() +
+                " as REPLACED for job " + jobId)));
         }
         LOG.info(new ObjectMessage(Map.of("Message","Setting number of instances to relaunch to: " + instances.size() + " for job " + jobId)));
         instanceRequest.setNumberOfInstances(instances.size());
         instances.clear();
         // Create and send instance start request
         List<VMInformation> newVms = amazonInstance.create(instanceRequest);
-        // Add new instances
+        // Add new instances - set to 'starting' status so watchdog waits for actual /v2/agent/ready call
         for (VMInformation newInfo : newVms) {
             vmInfo.add(newInfo);
-            // Add directly to started instances since these are restarted from scratch
+            // Add to startedInstances - watchdog will wait for this agent to actually report
             startedInstances.add(newInfo);
-            vmTracker.setStatus(createCloudStatus(instanceRequest, newInfo));
-            LOG.info(new ObjectMessage(Map.of("Message","Added image (" + newInfo.getInstanceId() + ") to VMImage table for job " + jobId)));
+            CloudVmStatus newStatus = createCloudStatus(instanceRequest, newInfo);
+            vmTracker.setStatus(newStatus);
+            LOG.info(new ObjectMessage(Map.of(
+                "Message", "Created replacement agent with status " + newStatus.getVmStatus() + 
+                    " - watchdog will wait for /v2/agent/ready call",
+                "instanceId", newInfo.getInstanceId(),
+                "jobId", jobId,
+                "publicIp", newInfo.getPublicIp() != null ? newInfo.getPublicIp() : "N/A",
+                "privateIp", newInfo.getPrivateIp() != null ? newInfo.getPrivateIp() : "N/A")));
             try {
                 dao.addImageFromInfo(instanceRequest.getJobId(), newInfo,
                         instanceRequest.getRegion());
@@ -254,21 +287,26 @@ public class AgentWatchdog implements Runnable {
     }
 
     /**
-     * @param req
-     * @param info
-     * @return
+     * Creates initial cloud status for a newly launched replacement agent.
+     * CRITICAL: Must use VMStatus.starting (not pending) so watchdog waits for actual agent registration.
+     * 
+     * Status flow: starting → (agent calls /v2/agent/ready) → pending → (receives START) → ready → running
+     * 
+     * @param req the instance request
+     * @param info the VM information for the new instance
+     * @return CloudVmStatus with starting state
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
         return new CloudVmStatus(info.getInstanceId(), req.getJobId(),
                 req.getInstanceDescription() != null ? req.getInstanceDescription().getSecurityGroup() : "unknown",
                 JobStatus.Starting,
-                VMImageType.AGENT, req.getRegion(), VMStatus.pending, new ValidationStatus(), 0, 0, null, null);
+                VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
     }
 
-    private CloudVmStatus createTerminatedVmStatus(VMInformation info) {
+    private CloudVmStatus createReplacedVmStatus(VMInformation info) {
         return new CloudVmStatus(info.getInstanceId(), instanceRequest.getJobId(), "unknown",
                 JobStatus.Stopped, VMImageType.AGENT, instanceRequest.getRegion(),
-                VMStatus.terminated, new ValidationStatus(), 0, 0, null, null);
+                VMStatus.replaced, new ValidationStatus(), 0, 0, null, null);
     }
 
     private boolean shouldRelaunchInstances() {
@@ -288,5 +326,43 @@ public class AgentWatchdog implements Runnable {
             }
         }
         return instanceRemoved;
+    }
+
+    // TODO: This method duplicates logic from JobEventSender.killJob(). Consider extracting to a shared service
+    private void killJobDirectly(String jobId) {
+        LOG.info(new ObjectMessage(Map.of("Message", "Killing job " + jobId + " directly from watchdog")));
+
+        vmTracker.stopJob(jobId);
+
+        List<String> allInstanceIds = vmInfo.stream()
+                .map(VMInformation::getInstanceId)
+                .collect(Collectors.toList());
+        if (!allInstanceIds.isEmpty()) {
+            LOG.info(new ObjectMessage(Map.of("Message", "Killing " + allInstanceIds.size() + " instances for job " + jobId)));
+            amazonInstance.killInstances(allInstanceIds);
+        }        
+
+        for (VMInformation info : vmInfo) {
+            CloudVmStatus status = vmTracker.getStatus(info.getInstanceId());
+            if (status != null) {
+                status.setVmStatus(VMStatus.terminated);
+                status.setJobStatus(JobStatus.Completed);
+                status.setEndTime(new Date());
+                vmTracker.setStatus(status);
+            }
+        }        
+
+        try {
+            JobInstanceDao dao = new JobInstanceDao();
+            JobInstance job = dao.findById(Integer.parseInt(jobId));
+            if (job != null) {
+                job.setStatus(JobQueueStatus.Completed);
+                job.setEndTime(new Date());
+                dao.saveOrUpdate(job);
+                LOG.info(new ObjectMessage(Map.of("Message", "Updated job " + jobId + " status to Completed")));
+            }
+        } catch (Exception e) {
+            LOG.error("Error updating job status in database: " + e.getMessage(), e);
+        }
     }
 }

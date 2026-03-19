@@ -19,50 +19,61 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VMStatusTest</code> contains tests for the class <code>{@link VMStatus}</code>.
- *
- * @generatedBy CodePro at 12/15/14 2:57 PM
  */
 public class VMStatusTest {
-    /**
-     * Run the VMStatus fromString(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 2:57 PM
-     */
+
     @Test
-    @Disabled
-    public void testFromString_1()
-        throws Exception {
-        String value = "shutting-down";
-
-        VMStatus result = VMStatus.fromString(value);
-
+    @DisplayName("fromString handles shutting-down special case")
+    public void testFromString_shuttingDown() {
+        VMStatus result = VMStatus.fromString("shutting-down");
+        
         assertNotNull(result);
-        assertEquals("shutting_down", result.name());
-        assertEquals("shutting_down", result.toString());
-        assertEquals(6, result.ordinal());
+        assertEquals(VMStatus.shutting_down, result);
     }
 
-    /**
-     * Run the VMStatus fromString(String) method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 2:57 PM
-     */
     @Test
-    public void testFromString_2()
-        throws Exception {
-        String value = VMStatus.rebooting.name();
+    @DisplayName("fromString returns correct enum for valid values")
+    public void testFromString_validValues() {
+        assertEquals(VMStatus.running, VMStatus.fromString("running"));
+        assertEquals(VMStatus.pending, VMStatus.fromString("pending"));
+        assertEquals(VMStatus.starting, VMStatus.fromString("starting"));
+        assertEquals(VMStatus.ready, VMStatus.fromString("ready"));
+        assertEquals(VMStatus.rebooting, VMStatus.fromString("rebooting"));
+        assertEquals(VMStatus.terminated, VMStatus.fromString("terminated"));
+        assertEquals(VMStatus.stopped, VMStatus.fromString("stopped"));
+        assertEquals(VMStatus.stopping, VMStatus.fromString("stopping"));
+        assertEquals(VMStatus.rampPaused, VMStatus.fromString("rampPaused"));
+    }
 
-        VMStatus result = VMStatus.fromString(value);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.IllegalArgumentException: No enum constant com.intuit.tank.vm.vmManager.models.VMStatus.
-        //       at java.lang.Enum.valueOf(Enum.java:238)
-        //       at com.intuit.tank.vm.vmManager.models.VMStatus.valueOf(VMStatus.java:5)
-        //       at com.intuit.tank.vm.vmManager.models.VMStatus.fromString(VMStatus.java:20)
+    @Test
+    @DisplayName("fromString returns replaced for 'replaced' value")
+    public void testFromString_replaced() {
+        VMStatus result = VMStatus.fromString("replaced");
+        
         assertNotNull(result);
+        assertEquals(VMStatus.replaced, result);
+    }
+
+    @Test
+    @DisplayName("fromString throws for invalid values (original behavior)")
+    public void testFromString_invalidValueThrows() {
+        // Original behavior: valueOf throws IllegalArgumentException for invalid values
+        assertThrows(IllegalArgumentException.class, () -> VMStatus.fromString("garbage-value"));
+    }
+
+    @Test
+    @DisplayName("fromString throws for null input (original behavior)")
+    public void testFromString_nullThrows() {
+        // Original behavior: valueOf throws NullPointerException for null
+        assertThrows(NullPointerException.class, () -> VMStatus.fromString(null));
+    }
+
+    @Test
+    @DisplayName("replaced is a terminal state (for documentation)")
+    public void testReplaced_isTerminalState() {
+        // This test documents that 'replaced' is intended as a terminal state
+        // like 'terminated', used by AgentWatchdog when replacing failed agents
+        assertNotNull(VMStatus.replaced);
+        assertEquals("replaced", VMStatus.replaced.name());
     }
 }

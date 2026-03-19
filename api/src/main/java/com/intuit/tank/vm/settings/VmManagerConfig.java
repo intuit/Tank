@@ -206,23 +206,6 @@ public class VmManagerConfig implements Serializable {
 
     /**
      * 
-     * @param defaultMills
-     * @return
-     */
-    public long getMaxAgentStartMills(long defaultMills) {
-        String string = config.getString("watchdog/max-time-for-agent-start");
-        if (string != null) {
-            try {
-                return TimeUtil.parseTimeString(string);
-            } catch (Exception e) {
-                LOG.error(e.toString());
-            }
-        }
-        return defaultMills;
-    }
-
-    /**
-     * 
      * @return the provider classname. should be an instance of IDatabase
      */
     public String getResultsProvider() {

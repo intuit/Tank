@@ -83,7 +83,10 @@ public class APIMonitor implements Runnable {
                 newStatus.setTotalTps(tpsInfo.getTotalTps());
                 sendTps(tpsInfo);
             }
-            if (!isLocal) setInstanceStatus(newStatus.getInstanceId(), newStatus);
+            
+            if (!isLocal) {
+                setInstanceStatus(newStatus.getInstanceId(), newStatus);
+            }
             APITestHarness.getInstance().checkAgentThreads();
         } catch (Exception t) {
             LOG.error(LogUtil.getLogMessage("Unable to send status metrics | " + t.getMessage()), t);
@@ -120,13 +123,20 @@ public class APIMonitor implements Runnable {
      */
     private JobStatus calculateJobStatus(WatsAgentStatusResponse agentStatus, JobStatus currentStatus) {
         AgentCommand cmd = APITestHarness.getInstance().getCmd();
-        return cmd == AgentCommand.pause ? JobStatus.Paused
+        JobStatus newStatus = cmd == AgentCommand.pause ? JobStatus.Paused
                 : cmd == AgentCommand.stop ? JobStatus.Stopped
                 : cmd == AgentCommand.pause_ramp ? JobStatus.RampPaused
                 : currentStatus == JobStatus.Unknown
                     || currentStatus == JobStatus.Starting
                     && agentStatus.getCurrentNumberUsers() > 0 ? JobStatus.Running
                 : currentStatus;
+        
+        if (newStatus != currentStatus) {
+            LOG.info(LogUtil.getLogMessage("Agent JobStatus transition: " + currentStatus + " -> " + newStatus +
+                " (cmd=" + cmd + ", currentUsers=" + agentStatus.getCurrentNumberUsers() + ")"));
+        }
+        
+        return newStatus;
     }
 
     public static void setDoMonitor(boolean monitor) {

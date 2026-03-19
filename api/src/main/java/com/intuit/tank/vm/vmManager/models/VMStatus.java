@@ -26,7 +26,8 @@ public enum VMStatus implements Serializable {
     stopping,
     stopped,
     shutting_down,
-    terminated;
+    terminated,
+    replaced;  // replaced by AgentWatchdog due to failure to report back
 
     public static final VMStatus fromString(String value) {
         VMStatus ret = null;

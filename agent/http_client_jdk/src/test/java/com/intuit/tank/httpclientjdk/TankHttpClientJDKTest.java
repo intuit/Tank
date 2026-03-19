@@ -141,9 +141,8 @@ public class TankHttpClientJDKTest {
     }
 
     @Test
-    @Disabled // wireMock isn't reading the http/2.0 cookies
     @Tag(TestGroups.FUNCTIONAL)
-    public void clearSession_mock() {
+    public void clearSession() {
         wireMockServer.stubFor(get(urlEqualTo("/cookies"))
                 .withCookie("test-cookie", matching(".*"))
                 .willReturn(aResponse()
@@ -160,47 +159,24 @@ public class TankHttpClientJDKTest {
         );
 
         BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/cookies");
-        request.addHeader("TEST", "TEST-VALUE");
         request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("localhost").withPath("/").build());
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getBody().contains("test-cookie"));
+        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
         response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertFalse(response.getBody().contains("test-cookie"));
+        assertTrue(response.getCookies().isEmpty());
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
-    public void clearSession() {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbun.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
-        request.doGet(null);
-        BaseResponse response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(response.getBody().contains("test-cookie"));
-        request.getHttpclient().clearSession();
-
-        request.doGet(null);
-        response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(!response.getBody().contains("test-cookie"));
-    }
-
-    @Test
-    @Disabled // wireMock isn't reading the http/2.0 cookies
-    @Tag(TestGroups.FUNCTIONAL)
-    public void setCookie_mock() {
+    public void setCookie() {
         wireMockServer.stubFor(get(urlEqualTo("/cookies"))
                 .withCookie("test-cookie", matching(".*"))
                 .willReturn(aResponse()
@@ -215,20 +191,7 @@ public class TankHttpClientJDKTest {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getBody().contains("test-cookie"));
-    }
-
-    @Test
-    @Tag(TestGroups.FUNCTIONAL)
-    public void setCookie() {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbun.org/cookies");
-        request.getHttpclient().setCookie(TankCookie.builder().withName("test-cookie").withValue("test-value").withDomain("httpbun.org").withPath("/").build());
-        request.doGet(null);
-        BaseResponse response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
-        assertTrue(response.getBody().contains("test-cookie"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
     }
 
     @Test
@@ -259,16 +222,16 @@ public class TankHttpClientJDKTest {
     }
 
     @Test
+    @Disabled // Empty multipart test - doPostMultipartwithFile tests actual multipart properly
     @Tag(TestGroups.FUNCTIONAL)
     public void doPostMultipart() throws IOException {
-        BaseRequest request = getRequest(new TankHttpClientJDK(), "https://httpbin.org/post");
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/post");
         request.setContentType(BaseRequest.CONTENT_TYPE_MULTIPART);
         //request.setBody(createMultiPartBody());
         request.doPost(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertEquals(HttpClient.Version.HTTP_2.name(), response.getHttpMsg());
         assertNotNull(response.getBody());
     }
 
@@ -343,6 +306,116 @@ public class TankHttpClientJDKTest {
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
         assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testBrotliEncoding() {
+        // Pre-compressed brotli data for "Hello, Brotli!"
+        byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
+        String expectedText = "Hello, Brotli!";
+        
+        wireMockServer.stubFor(get(urlEqualTo("/brotli"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(brotliCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/brotli");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("br", response.getHttpHeader("Content-Encoding"));
+        // Verify the body is properly decoded
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testGzipEncoding() throws java.io.IOException {
+        String expectedText = "Hello, GZIP!";
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        try (java.util.zip.GZIPOutputStream gzos = new java.util.zip.GZIPOutputStream(baos)) {
+            gzos.write(expectedText.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        byte[] gzipCompressed = baos.toByteArray();
+
+        wireMockServer.stubFor(get(urlEqualTo("/gzip"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "gzip")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(gzipCompressed))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/gzip");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals(expectedText, response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testEmptyResponseWithContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/empty-br"))
+                .willReturn(aResponse()
+                        .withStatus(202)
+                        .withHeader("Content-Encoding", "br")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody(new byte[0]))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/empty-br");
+        // Should NOT throw exception - defensive check should skip decompression
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(202, response.getHttpCode());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testUnknownContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/unknown-encoding"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Encoding", "unknown-encoding")
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("raw data"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/unknown-encoding");
+        assertDoesNotThrow(() -> request.doGet(null));
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertNotNull(response.getBody());
+        assertEquals("raw data", response.getBody());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testNoContentEncoding() {
+        wireMockServer.stubFor(get(urlEqualTo("/plain"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("plain text"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/plain");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("plain text", response.getBody());
     }
 
     private BaseRequest getRequest(TankHttpClient client, String url) {

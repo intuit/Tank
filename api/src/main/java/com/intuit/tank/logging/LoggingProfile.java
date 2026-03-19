@@ -36,7 +36,8 @@ public enum LoggingProfile {
             LogFields.StepGroupName,
             LogFields.RequestUrl,
             LogFields.HttpResponseTime,
-            LogFields.TestIteration
+            LogFields.TestIteration,
+            LogFields.OnFailure
     ),
     USER_VARIABLE("User Variables", "Logs common fields plus user variables.",
             LogFields.EventType,
@@ -109,7 +110,8 @@ public enum LoggingProfile {
             LogFields.UserVariables,
             LogFields.ValidationStatus,
             LogFields.ValidationCriteria,
-            LogFields.PreValidationCriteria
+            LogFields.PreValidationCriteria,
+            LogFields.OnFailure
     ),
     TERSE("Terse", "Logs minimum fields.",
             LogFields.EventType,

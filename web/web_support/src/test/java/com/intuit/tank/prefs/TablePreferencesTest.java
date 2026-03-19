@@ -23,6 +23,8 @@ import jakarta.faces.model.SelectItem;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import org.mockito.Mockito;
 
 import org.primefaces.component.api.DynamicColumn;
 import org.primefaces.component.api.UIColumn;
@@ -462,5 +464,143 @@ public class TablePreferencesTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.prefs.TablePreferences.<init>(TablePreferences.java:48)
+    }
+
+    private TablePreferences createPrefsWithColumn(String colName, int size, boolean visible, boolean hideable) {
+        ColumnPreferences cp = new ColumnPreferences(colName, colName + "_display", size,
+                visible ? ColumnPreferences.Visibility.VISIBLE : ColumnPreferences.Visibility.HIDDEN,
+                hideable ? ColumnPreferences.Hidability.HIDABLE : ColumnPreferences.Hidability.NON_HIDABLE);
+        List<ColumnPreferences> prefs = new LinkedList<>();
+        prefs.add(cp);
+        return new TablePreferences(prefs);
+    }
+
+    @Test
+    public void testSetSize_WhenColExists_UpdatesAndFiresEvent() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        PreferencesChangedListener listener = mock(PreferencesChangedListener.class);
+        fixture.registerListener(listener);
+
+        fixture.setSize("col1", 200);
+
+        assertEquals(200, fixture.getSize("col1"));
+        verify(listener).prefsChanged();
+    }
+
+    @Test
+    public void testSetVisible_WhenColExists_UpdatesAndFiresEvent() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        PreferencesChangedListener listener = mock(PreferencesChangedListener.class);
+        fixture.registerListener(listener);
+
+        fixture.setVisible("col1", false);
+
+        assertFalse(fixture.isVisible("col1"));
+        verify(listener).prefsChanged();
+    }
+
+    @Test
+    public void testIsVisible_WhenColExists_ReturnsCorrectValue() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        assertTrue(fixture.isVisible("col1"));
+
+        TablePreferences fixture2 = createPrefsWithColumn("col2", 100, false, true);
+        assertFalse(fixture2.isVisible("col2"));
+    }
+
+    @Test
+    public void testGetSize_WhenColExists_ReturnsActualSize() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 150, true, true);
+        assertEquals(150, fixture.getSize("col1"));
+    }
+
+    @Test
+    public void testGetTotalSize_WithNonZeroColumns() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        int total = fixture.getTotalSize();
+        // visible col with size 100 => (100 + 20) + 20 = 140
+        assertEquals(140, total);
+    }
+
+    @Test
+    public void testGetMaxTotalSize_WhenResultExceedsMax() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 500, true, true);
+        // total would be (500+20)+40 = 560, max=100 => return max
+        assertEquals(100, fixture.getMaxTotalSize(100));
+    }
+
+    @Test
+    public void testGetMaxTotalSize_WhenResultUnderMax() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 50, true, true);
+        // total = (50+20)+40 = 110, max=500 => return 110
+        assertEquals(110, fixture.getMaxTotalSize(500));
+    }
+
+    @Test
+    public void testSetVisibleColumns_WithActualCol_UpdatesVisibility() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+
+        fixture.setVisibleColumns(new LinkedList<>());
+        assertFalse(fixture.isVisible("col1"));
+
+        fixture.setVisibleColumns(List.of("col1"));
+        assertTrue(fixture.isVisible("col1"));
+    }
+
+    @Test
+    public void testOnResize_CallsSetSizeWithExtractedId() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+
+        ColumnResizeEvent event = mock(ColumnResizeEvent.class);
+        org.primefaces.component.api.UIColumn column = mock(org.primefaces.component.api.UIColumn.class);
+        when(event.getColumn()).thenReturn(column);
+        when(column.getClientId()).thenReturn("form:table:col1");
+        when(event.getWidth()).thenReturn(250);
+
+        fixture.onResize(event);
+
+        assertEquals(250, fixture.getSize("col1"));
+    }
+
+    @Test
+    public void testFireEvent_NotifiesAllListeners() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+
+        PreferencesChangedListener l1 = mock(PreferencesChangedListener.class);
+        PreferencesChangedListener l2 = mock(PreferencesChangedListener.class);
+        fixture.registerListener(l1);
+        fixture.registerListener(l2);
+
+        fixture.setSize("col1", 300);
+
+        verify(l1).prefsChanged();
+        verify(l2).prefsChanged();
+    }
+
+    @Test
+    public void testUnregisterListener_RemovedListenerNotNotified() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        PreferencesChangedListener l1 = mock(PreferencesChangedListener.class);
+        fixture.registerListener(l1);
+        fixture.unregisterListener(l1);
+
+        fixture.setSize("col1", 200);
+
+        verify(l1, never()).prefsChanged();
+    }
+
+    @Test
+    public void testGetVisibiltyList_WithHideableCol_ReturnsItem() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        List<SelectItem> list = fixture.getVisibiltyList();
+        assertEquals(1, list.size());
+        assertEquals("col1", list.get(0).getValue());
+    }
+
+    @Test
+    public void testGetVisibleColumns_WithVisibleCol_ContainsColName() {
+        TablePreferences fixture = createPrefsWithColumn("col1", 100, true, true);
+        List<String> visible = fixture.getVisibleColumns();
+        assertTrue(visible.contains("col1"));
     }
 }

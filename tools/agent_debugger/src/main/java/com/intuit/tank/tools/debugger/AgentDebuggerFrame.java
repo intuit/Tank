@@ -324,8 +324,12 @@ public class AgentDebuggerFrame extends JFrame {
         scriptChangedListeners.add(l);
     }
 
-    public boolean runTimingSteps() {
-        return actionComponents.getRunTimingStepsCB().isSelected();
+    public boolean runSleepSteps() {
+        return actionComponents.getRunSleepStepsCB().isSelected();
+    }
+
+    public boolean runThinkSteps() {
+        return actionComponents.getRunThinkStepsCB().isSelected();
     }
 
     /**
