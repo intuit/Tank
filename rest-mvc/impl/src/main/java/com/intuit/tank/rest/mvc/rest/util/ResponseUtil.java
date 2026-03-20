@@ -29,6 +29,16 @@ import java.io.OutputStream;
 
 public class ResponseUtil {
     private static final Logger LOG = LogManager.getLogger(ResponseUtil.class);
+    private static final JAXBContext SCRIPT_TO_JAXB_CONTEXT;
+    private static final JAXBContext HARNESS_DATA_JAXB_CONTEXT = ConverterUtil.JAXB_CONTEXT;
+
+    static {
+        try {
+            SCRIPT_TO_JAXB_CONTEXT = JAXBContext.newInstance(ScriptTO.class);
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private ResponseUtil() {
         // empty private constructor to implement util pattern
@@ -39,16 +49,16 @@ public class ResponseUtil {
             AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
             try {
                 JAXBContext ctx;
-                if(toMarshall instanceof ScriptTO) {
-                    ctx = JAXBContext.newInstance(toMarshall.getClass());
+                if (toMarshall instanceof ScriptTO) {
+                    ctx = SCRIPT_TO_JAXB_CONTEXT;
+                } else if (toMarshall instanceof HDWorkload) {
+                    ctx = HARNESS_DATA_JAXB_CONTEXT;
                 } else {
-                    ctx = JAXBContext.newInstance(toMarshall.getClass().getPackage().getName());
+                    ctx = JAXBContext.newInstance(toMarshall.getClass());
                 }
-                if (ctx != null) {
-                    Marshaller marshaller = ctx.createMarshaller();
-                    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                    marshaller.marshal(toMarshall, outputStream);
-                }
+                Marshaller marshaller = ctx.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                marshaller.marshal(toMarshall, outputStream);
             } catch (JAXBException e) {
                 LOG.error("Error Marshalling XML to Stream: " + e.toString(), e);
                 throw new GenericServiceResourceNotFoundException("ResponseUtil", "harness or tank script file", e);
