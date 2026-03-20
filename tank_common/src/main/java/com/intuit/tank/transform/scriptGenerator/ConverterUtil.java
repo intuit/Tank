@@ -70,6 +70,15 @@ import com.intuit.tank.vm.settings.TankConfig;
 
 public class ConverterUtil {
     private static final Logger LOG = LogManager.getLogger(ConverterUtil.class);
+    private static final JAXBContext JAXB_CONTEXT;
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     public static HDWorkload convertScriptToHdWorkload(Script script) {
 
@@ -130,8 +139,7 @@ public class ConverterUtil {
     public static String getWorkloadXML(HDWorkload hdWorkload) {
         AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getSimpleName());
         try (StringWriter stringWriter = new StringWriter()){
-            JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
-            Marshaller marshaller = context.createMarshaller();
+            Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(hdWorkload, stringWriter);
             return stringWriter.toString();
