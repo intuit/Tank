@@ -417,8 +417,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         jobInstance.setTotalVirtualUsers(totalVirtualUsers);
         queue.addJob(jobInstance);
         workload = new WorkloadDao().saveOrUpdate(workload);
-        String jobDetails = JobDetailFormatter.createJobDetails(
-                new JobValidator(workload.getTestPlans(), jobInstance.getVariables(), false), workload, jobInstance);
+        String jobDetails = JobDetailFormatter.createJobDetails(validator, workload, jobInstance);
         jobInstance.setJobDetails(jobDetails);
         jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
         jobQueueDao.saveOrUpdate(queue);

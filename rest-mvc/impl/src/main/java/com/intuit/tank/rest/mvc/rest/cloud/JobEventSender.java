@@ -71,7 +71,10 @@ public class JobEventSender {
                 job.setStatus(JobQueueStatus.Starting);
                 jobInstanceDao.saveOrUpdate(job);
 
-                ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
+                java.io.File scriptFile = ProjectDaoUtil.getScriptFile(jobId);
+                if (!scriptFile.exists()) {
+                    ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
+                }
 
                 vmTracker.removeStatusForJob(jobId);
                 jobManager.startJob(job.getId());
