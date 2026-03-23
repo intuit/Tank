@@ -174,6 +174,19 @@ public class JobController {
                 .body(responseBody);
     }
 
+    @RequestMapping(value = "{jobId}", method = RequestMethod.DELETE)
+    @Operation(description = "Soft-deletes a job by setting its status to Deleted. " +
+            "Returns 404 if job not found. Returns 409 Conflict if job is in an active state (Starting, Running, Paused, RampPaused) — " +
+            "stop or kill the job first.", summary = "Delete a job")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted job"),
+            @ApiResponse(responseCode = "404", description = "Job not found", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Job is in an active state and cannot be deleted", content = @Content)
+    })
+    public ResponseEntity<Map<String, String>> deleteJob(@PathVariable @Parameter(description = "The job ID to delete", required = true) Integer jobId) {
+        return new ResponseEntity<>(jobService.deleteJob(jobId), HttpStatus.OK);
+    }
+
     // Job Status Setters
 
     @RequestMapping(value = "/start/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )

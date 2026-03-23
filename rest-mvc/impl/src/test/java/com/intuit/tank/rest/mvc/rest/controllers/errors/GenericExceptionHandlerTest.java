@@ -39,6 +39,14 @@ public class GenericExceptionHandlerTest {
     }
 
     @Test
+    public void testHandleConflictException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        GenericServiceConflictException conflictException = new GenericServiceConflictException("jobs", "job", "Cannot delete active job");
+        SimpleErrorResponse response = genericExceptionHandler.handleConflictException(conflictException);
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+    }
+
+    @Test
     public void testHandleOtherErrors() {
         GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
         Throwable e = mock(Throwable.class);

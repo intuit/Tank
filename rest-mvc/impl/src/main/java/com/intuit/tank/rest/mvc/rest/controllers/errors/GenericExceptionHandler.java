@@ -48,6 +48,12 @@ public class GenericExceptionHandler {
     }
 
     @ExceptionHandler
+    public SimpleErrorResponse handleConflictException(GenericServiceConflictException e) {
+        LOGGER.error("handling a conflict error from the " + e.getService() + " service", e);
+        return genericErrorResponse(HttpStatus.CONFLICT, "Conflict: " + e.getMessage(), e);
+    }
+
+    @ExceptionHandler
     public SimpleErrorResponse handleBadRequestException(GenericServiceBadRequestException e) {
         LOGGER.error("handling an error from the " + e.getService() + " service", e);
         return genericErrorResponse(HttpStatus.BAD_REQUEST, "Incorrect request or parameter: " + e.getMessage(), e);

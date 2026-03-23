@@ -39,17 +39,20 @@ public class JobQueueAction {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
             ActJobNodeBean jobNode = (ActJobNodeBean) node;
+            String status = jobNode.getStatus();
 
-            if (jobNode.getStatus().equals(JobQueueStatus.Created.toString())) {
+            if (status.equals(JobQueueStatus.Deleted.toString())) {
+                return; // deleted jobs cannot be run
+            }
+
+            if (status.equals(JobQueueStatus.Created.toString())) {
                 controller.startJob(jobNode.getId());
+            } else if (status.equals(JobStatus.Paused.toString())) {
+                controller.restartJob(jobNode.getId());
+            } else if (status.equals(JobStatus.RampPaused.toString())) {
+                controller.resumeRampJob(jobNode.getJobId());
             } else {
-                if (jobNode.getStatus().equals(JobStatus.Paused.toString())) {
-                    controller.restartJob(jobNode.getId());
-                } else if ( jobNode.getStatus().equals(JobStatus.RampPaused.toString())) {
-                    controller.resumeRampJob(jobNode.getJobId());
-                } else {
-                    controller.startJob(jobNode.getId());
-                }
+                controller.startJob(jobNode.getId());
             }
         } else if (node instanceof VMNodeBean) {
              controller.restartAgent(node.getId());
@@ -63,6 +66,9 @@ public class JobQueueAction {
         AWSXRay.getCurrentSegment().putAnnotation("job.action", "startAgents");
         AWSXRay.getCurrentSegment().putAnnotation("jobId", node.getJobId());
         if (node instanceof ActJobNodeBean) {
+            if (node.getStatus().equals(JobQueueStatus.Deleted.toString())) {
+                return; // deleted jobs cannot start agents
+            }
             if(node.isUseTwoStep()) {
                 controller.startAgents(node.getId());
             }
