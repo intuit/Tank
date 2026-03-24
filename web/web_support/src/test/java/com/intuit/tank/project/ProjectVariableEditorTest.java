@@ -17,9 +17,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.ProjectVariableEditor;
@@ -468,5 +473,180 @@ public class ProjectVariableEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.VariableEntry.<init>(VariableEntry.java:30)
+    }
+
+    // ===== Mockito-based tests for branch coverage =====
+
+    @InjectMocks
+    private ProjectVariableEditor editor;
+
+    @Mock
+    private Messages messages;
+
+    @Mock
+    private com.intuit.tank.ProjectBean projectBean;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUpMocks() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDownMocks() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testAddEntry_WhenValueEmpty_ShowsWarning() {
+        editor.setVariables(new ArrayList<>());
+        editor.setCurrentEntry(new VariableEntry("key", ""));
+        editor.addEntry();
+        verify(messages).warn(contains("Value cannot be empty"));
+    }
+
+    @Test
+    public void testAddEntry_WhenKeyEmpty_ShowsWarning() {
+        editor.setVariables(new ArrayList<>());
+        editor.setCurrentEntry(new VariableEntry("", "value"));
+        editor.addEntry();
+        verify(messages).warn(contains("Key cannot be empty"));
+    }
+
+    @Test
+    public void testAddEntry_WhenDuplicateKey_ShowsWarning() {
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("existingKey", "val1"));
+        editor.setVariables(vars);
+        editor.setCurrentEntry(new VariableEntry("existingkey", "val2")); // equalsIgnoreCase match
+        editor.addEntry();
+        verify(messages).warn(contains("Duplicate key"));
+    }
+
+    @Test
+    public void testAddEntry_WhenValid_AddsEntry() {
+        List<VariableEntry> vars = new ArrayList<>();
+        editor.setVariables(vars);
+        editor.setCurrentEntry(new VariableEntry("newKey", "newValue"));
+        when(messages.isEmpty()).thenReturn(true);
+        editor.addEntry();
+        assertEquals(1, vars.size());
+        assertEquals("newKey", vars.get(0).getKey());
+    }
+
+    @Test
+    public void testDelete_WhenKeyExists_RemovesEntry() {
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("removeMe", "val"));
+        editor.setVariables(vars);
+        editor.delete("removeMe");
+        assertTrue(vars.isEmpty());
+    }
+
+    @Test
+    public void testDelete_WhenKeyNotExists_NoChange() {
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("keepMe", "val"));
+        editor.setVariables(vars);
+        editor.delete("notPresent");
+        assertEquals(1, vars.size());
+    }
+
+    @Test
+    public void testDelete_WhenNullKey_DoesNothing() {
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("keepMe", "val"));
+        editor.setVariables(vars);
+        editor.delete(null);
+        assertEquals(1, vars.size());
+    }
+
+    @Test
+    public void testSavedVariable_WhenDuplicateKey_RemovesOldEntry() {
+        VariableEntry original = new VariableEntry("dup", "old");
+        VariableEntry updated = new VariableEntry("dup", "new");
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(original);
+        vars.add(updated);
+        editor.setVariables(vars);
+        editor.savedVariable(updated); // should remove original (different instance, same key)
+        assertEquals(1, vars.size());
+        assertEquals("new", vars.get(0).getValue());
+    }
+
+    @Test
+    public void testNewEntry_SetsCurrentEntry() {
+        editor.newEntry();
+        assertNotNull(editor.getCurrentEntry());
+    }
+
+    @Test
+    public void testCopyTo_CopiesVariablesToWorkload() {
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("k1", "v1"));
+        vars.add(new VariableEntry("k2", "v2"));
+        editor.setVariables(vars);
+
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new JobConfiguration());
+        editor.copyTo(workload);
+        assertEquals("v1", workload.getJobConfiguration().getVariables().get("k1"));
+        assertEquals("v2", workload.getJobConfiguration().getVariables().get("k2"));
+    }
+
+    @Test
+    public void testInit_LoadsVariablesFromProjectBean() {
+        JobConfiguration jc = new JobConfiguration();
+        jc.getVariables().put("key1", "val1");
+        jc.getVariables().put("key2", "val2");
+        when(projectBean.getJobConfiguration()).thenReturn(jc);
+
+        editor.init();
+
+        assertEquals(2, editor.getVariables().size());
+    }
+
+    @Test
+    public void testInit_WithEmptyVariables() {
+        JobConfiguration jc = new JobConfiguration();
+        when(projectBean.getJobConfiguration()).thenReturn(jc);
+
+        editor.init();
+
+        assertNotNull(editor.getVariables());
+        assertTrue(editor.getVariables().isEmpty());
+    }
+
+    @Test
+    public void testSave_PersistsVariablesToJobConfiguration() {
+        JobConfiguration jc = new JobConfiguration();
+        Workload workload = Workload.builder().name("test").build();
+        workload.setJobConfiguration(jc);
+        when(projectBean.getWorkload()).thenReturn(workload);
+
+        List<VariableEntry> vars = new ArrayList<>();
+        vars.add(new VariableEntry("k1", "v1"));
+        vars.add(new VariableEntry("k2", "v2"));
+        editor.setVariables(vars);
+        editor.save();
+
+        assertEquals("v1", jc.getVariables().get("k1"));
+        assertEquals("v2", jc.getVariables().get("k2"));
+    }
+
+    @Test
+    public void testGetVariables_WhenNull_LazyInitFromProjectBean() {
+        JobConfiguration jc = new JobConfiguration();
+        jc.getVariables().put("lazyKey", "lazyVal");
+        Workload workload = Workload.builder().name("test").build();
+        workload.setJobConfiguration(jc);
+        when(projectBean.getWorkload()).thenReturn(workload);
+
+        List<VariableEntry> result = editor.getVariables();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("lazyKey", result.get(0).getKey());
     }
 }

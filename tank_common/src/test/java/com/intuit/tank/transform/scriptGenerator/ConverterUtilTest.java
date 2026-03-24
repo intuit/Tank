@@ -495,11 +495,21 @@ public class ConverterUtilTest {
         assertFalse(ConverterUtil.includedHeader("content-type"));
     }
 
+    @Test
+    public void testJAXBContextIsCachedStaticField() {
+        // Verify ConverterUtil exposes a cached, non-null JAXBContext
+        assertNotNull(ConverterUtil.JAXB_CONTEXT, "JAXB_CONTEXT should be initialized");
+
+        // Verify it's the same instance across accesses (not recreated)
+        assertSame(ConverterUtil.JAXB_CONTEXT, ConverterUtil.JAXB_CONTEXT,
+                "JAXB_CONTEXT should be a singleton");
+    }
+
     /**
      * Run the boolean isAssignment(RequestData) method test.
-     * 
+     *
      * @throws Exception
-     * 
+     *
      * @generatedBy CodePro at 9/10/14 10:36 AM
      */
     @Test

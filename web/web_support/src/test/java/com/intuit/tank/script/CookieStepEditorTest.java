@@ -13,9 +13,14 @@ package com.intuit.tank.script;
  * #L%
  */
 
+import com.intuit.tank.util.Messages;
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.CookieStepEditor;
@@ -26,16 +31,67 @@ import com.intuit.tank.script.CookieStepEditor;
  * @generatedBy CodePro at 12/15/14 3:52 PM
  */
 public class CookieStepEditorTest {
-    /**
-     * Run the CookieStepEditor() constructor test.
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
+
+    @InjectMocks
+    private CookieStepEditor cookieStepEditor;
+
+    @Mock
+    private ScriptEditor scriptEditor;
+
+    @Mock
+    private Messages messages;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
+    }
+
     @Test
     public void testCookieStepEditor_1()
         throws Exception {
         CookieStepEditor result = new CookieStepEditor();
         assertNotNull(result);
+    }
+
+    @Test
+    public void testAddToScript_WhenNameEmpty_ShowsError() {
+        cookieStepEditor.insertCookieStep();
+        cookieStepEditor.setName("");
+        cookieStepEditor.addToScript();
+        verify(messages).error(anyString());
+        verify(scriptEditor, never()).insert(any());
+    }
+
+    @Test
+    public void testAddToScript_WhenNameSet_InsertsStep() {
+        cookieStepEditor.insertCookieStep();
+        cookieStepEditor.setName("sessionCookie");
+        cookieStepEditor.setValue("abc123");
+        cookieStepEditor.setDomain("example.com");
+        cookieStepEditor.setPath("/");
+        cookieStepEditor.addToScript();
+        verify(scriptEditor).insert(any(ScriptStep.class));
+    }
+
+    @Test
+    public void testAddToScript_WhenEditMode_CallsDone() {
+        ScriptStep step = new ScriptStep();
+        step.setScriptGroupName("group");
+        cookieStepEditor.editCookieStep(step);
+        cookieStepEditor.setName("cookieName");
+        cookieStepEditor.setValue("cookieValue");
+        cookieStepEditor.setDomain("domain.com");
+        cookieStepEditor.setPath("/path");
+        cookieStepEditor.addToScript();
+        // done() should have been called, updating the step
+        assertNotNull(step.getData());
     }
 
     /**

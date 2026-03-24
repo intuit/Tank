@@ -85,6 +85,16 @@ public class ConverterUtil {
     private static final String WEBSOCKET_ASSERT_EXPECT_PREFIX = "ws-assert-expect.";
     private static final String WEBSOCKET_ASSERT_SAVE_PREFIX = "ws-assert-save.";
 
+    public static final JAXBContext JAXB_CONTEXT;
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
+        } catch (JAXBException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     public static HDWorkload convertScriptToHdWorkload(Script script) {
 
         String name = "TestPlan for " + script.getName();
@@ -144,8 +154,7 @@ public class ConverterUtil {
     public static String getWorkloadXML(HDWorkload hdWorkload) {
         AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getSimpleName());
         try (StringWriter stringWriter = new StringWriter()){
-            JAXBContext context = JAXBContext.newInstance(HDWorkload.class.getPackage().getName());
-            Marshaller marshaller = context.createMarshaller();
+            Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(hdWorkload, stringWriter);
             return stringWriter.toString();
