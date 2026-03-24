@@ -13,10 +13,16 @@ package com.intuit.tank.perfManager.workLoads;
  * #L%
  */
 
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.Workload;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * The class <code>WorkLoadFactoryTest</code> contains tests for the class <code>{@link WorkLoadFactory}</code>.
@@ -57,5 +63,28 @@ public class WorkLoadFactoryTest {
         String result = fixture.buildScriptXml(jobId, workload);
 
         assertNotNull(result);
+    }
+
+    @Nested
+    @ExtendWith(MockitoExtension.class)
+    class GetModelRunnerGuardTests {
+
+        @Mock
+        private JobInstanceDao jobInstanceDao;
+
+        @InjectMocks
+        private WorkLoadFactory factory;
+
+        @Test
+        @DisplayName("getModelRunner throws IllegalStateException when job not found")
+        void getModelRunner_throwsWhenJobNotFound() {
+            when(jobInstanceDao.findById(99999)).thenReturn(null);
+
+            IllegalStateException ex = assertThrows(IllegalStateException.class,
+                    () -> factory.getModelRunner(99999));
+
+            assertTrue(ex.getMessage().contains("99999"));
+            assertTrue(ex.getMessage().contains("not found"));
+        }
     }
 }

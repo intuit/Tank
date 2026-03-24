@@ -112,9 +112,9 @@ public class JobStatusHelperTest {
 
     /**
      * Run the boolean canRampBePaused(String) method test.
-     * 
+     *
      * @throws Exception
-     * 
+     *
      * @generatedBy CodePro at 12/15/14 3:52 PM
      */
     @Test
@@ -128,6 +128,61 @@ public class JobStatusHelperTest {
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canRampBePaused(JobStatusHelper.java:43)
         assertTrue(!result);
+    }
+
+    @Test
+    public void testDeletedJobCannotBeRun() {
+        assertFalse(JobStatusHelper.canBeRun("Deleted"));
+    }
+
+    @Test
+    public void testDeletedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Deleted"));
+    }
+
+    @Test
+    public void testCreatedJobCanBeDeleted() {
+        assertTrue(JobStatusHelper.canBeDeleted("Created"));
+    }
+
+    @Test
+    public void testCompletedJobCanBeDeleted() {
+        assertTrue(JobStatusHelper.canBeDeleted("Completed"));
+    }
+
+    @Test
+    public void testAbortedJobCanBeDeleted() {
+        assertTrue(JobStatusHelper.canBeDeleted("Aborted"));
+    }
+
+    @Test
+    public void testRunningJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Running"));
+    }
+
+    @Test
+    public void testStartingJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Starting"));
+    }
+
+    @Test
+    public void testQueuedJobCanBeDeleted() {
+        assertTrue(JobStatusHelper.canBeDeleted("Queued"));
+    }
+
+    @Test
+    public void testStoppedJobCanBeDeleted() {
+        assertTrue(JobStatusHelper.canBeDeleted("Stopped"));
+    }
+
+    @Test
+    public void testPausedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Paused"));
+    }
+
+    @Test
+    public void testRampPausedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("RampPaused"));
     }
 
 }

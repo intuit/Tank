@@ -20,6 +20,7 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 public class JobStatusHelper {
 
     public static boolean canBeRun(String status) {
+        if (status.equals(JobQueueStatus.Deleted.toString())) return false;
         return (status.equals(JobQueueStatus.Created.toString())
         		|| status.equals(JobQueueStatus.Queued.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
@@ -63,6 +64,10 @@ public class JobStatusHelper {
     }
 
 	public static boolean canBeDeleted(String status) {
-		return (status.equalsIgnoreCase(JobQueueStatus.Created.toString()));
+		return (status.equalsIgnoreCase(JobQueueStatus.Created.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Queued.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Stopped.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Completed.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Aborted.toString()));
 	}
 }

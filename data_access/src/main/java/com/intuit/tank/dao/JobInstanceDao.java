@@ -59,6 +59,7 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         List<JobQueueStatus> statuses = new ArrayList<JobQueueStatus>();
         statuses.add(JobQueueStatus.Completed);
         statuses.add(JobQueueStatus.Aborted);
+        statuses.add(JobQueueStatus.Deleted);
         NamedParameter parameter = new NamedParameter(JobInstance.PROPERTY_STATUS, "status", statuses);
         String sb = buildQlSelect(prefix) + startWhere() +
                 buildWhereClause(Operation.NOT_IN, prefix, parameter);
