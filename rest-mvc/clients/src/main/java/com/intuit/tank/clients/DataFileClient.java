@@ -7,10 +7,10 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.datafiles.models.DataFileDescriptor;
 import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,9 +51,8 @@ public class DataFileClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, DataFileDescriptorContainer.class);
+                    return JSON_MAPPER.readValue(is, DataFileDescriptorContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -79,9 +78,8 @@ public class DataFileClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, DataFileDescriptor.class);
+                    return JSON_MAPPER.readValue(is, DataFileDescriptor.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -167,13 +165,9 @@ public class DataFileClient extends BaseClient{
     }
 
     public Map<String, String> uploadDatafile(Integer id, Path filepath) throws IOException {
-        URI uri;
-
-        if(id == null) {
-            uri = URI.create(urlBuilder.buildUrl("/upload"));
-        } else {
-            uri = URI.create(urlBuilder.buildUrl("/upload") + "?id=" + id);
-        }
+        URI uri = (id == null) ?
+                URI.create(urlBuilder.buildUrl("/upload")) :
+                URI.create(urlBuilder.buildUrl("/upload") + "?id=" + id);
 
         String boundary = "Boundary-" + Long.toHexString(System.currentTimeMillis());
 
@@ -195,7 +189,7 @@ public class DataFileClient extends BaseClient{
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return new ObjectMapper().readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }

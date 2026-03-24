@@ -20,9 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Date;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import tools.jackson.core.JacksonException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +34,7 @@ import com.intuit.tank.reporting.api.TPSInfoContainer;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import tools.jackson.databind.json.JsonMapper;
 
 public class APIMonitor implements Runnable {
 
@@ -44,7 +43,7 @@ public class APIMonitor implements Runnable {
      */
     private static final int MIN_REPORT_TIME = 15000;
     private static final Logger LOG = LogManager.getLogger(APIMonitor.class);
-    private static final ObjectWriter objectWriter = new ObjectMapper().writerFor(CloudVmStatus.class).withDefaultPrettyPrinter();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
     private static boolean doMonitor = true;
     private static final HttpClient client = HttpClient.newHttpClient();
     private static CloudVmStatus status;
@@ -169,8 +168,8 @@ public class APIMonitor implements Runnable {
         }
     }
 
-    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
-        String json = objectWriter.writeValueAsString(VmStatus);
+    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JacksonException {
+        String json = jsonMapper.writeValueAsString(VmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
