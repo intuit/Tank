@@ -17,6 +17,7 @@ package com.intuit.tank.dao;
  */
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -29,9 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 
 
@@ -84,7 +83,7 @@ public class WorkloadDao extends BaseDao<Workload> {
     		commit();
         } catch (Exception e) {
     	    rollback();
-            e.printStackTrace();
+            LOG.error("Error loading workload {}: {}", id, e.toString(), e);
             throw new RuntimeException(e);
 		} finally {
 			cleanup();
@@ -93,16 +92,12 @@ public class WorkloadDao extends BaseDao<Workload> {
     }
 
     public Workload loadScriptsForWorkload(Workload workload) {
-        for (TestPlan testPlan : workload.getTestPlans()) {
-            List<ScriptGroup> scriptGroups = testPlan.getScriptGroups();
-            for (ScriptGroup scriptGroup : scriptGroups) {
-                List<ScriptGroupStep> scriptGroupSteps = scriptGroup.getScriptGroupSteps();
-                for (ScriptGroupStep scriptGroupStep : scriptGroupSteps) {
-                    Script script = scriptGroupStep.getScript();
-                    scriptDao.loadScriptSteps(script);
-                }
-            }
-        }
+        List<Script> scripts = workload.getTestPlans().stream()
+                .flatMap(testPlan -> testPlan.getScriptGroups().stream())
+                .flatMap(scriptGroup -> scriptGroup.getScriptGroupSteps().stream())
+                .map(ScriptGroupStep::getScript)
+                .collect(java.util.stream.Collectors.toList());
+        scriptDao.loadScriptStepsBulk(scripts);
         return workload;
     }
 

@@ -22,7 +22,6 @@ import java.util.List;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.JoinType;
@@ -30,6 +29,7 @@ import jakarta.persistence.criteria.Root;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 
 /**
@@ -71,7 +71,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             commit();
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
+            LOG.error("Error in JobQueueDao: {}", e.toString(), e);
             throw new RuntimeException(e);
         } finally {
             cleanup();
@@ -98,7 +98,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             return results;
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
+            LOG.error("Error in JobQueueDao: {}", e.toString(), e);
             throw new RuntimeException(e);
         } finally {
             cleanup();
@@ -124,7 +124,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
 	        commit();
         } catch (Exception e) {
         	rollback();
-            e.printStackTrace();
+            LOG.error("Error in JobQueueDao: {}", e.toString(), e);
             throw new RuntimeException(e);
     	} finally {
     		cleanup();
@@ -138,19 +138,28 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return JobQueue
      */
     public JobQueue findForJobId(Integer jobId) {
+        EntityManager em = getEntityManager();
         try {
-            String string = "select x.test_id from test_instance_jobs x where x.job_id = ?";
-            Query q = getEntityManager().createNativeQuery(string);
-            q.setParameter(1, jobId);
-            Integer result = null;
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+            Root<JobQueue> root = query.from(JobQueue.class);
+            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
+            query.select(root).distinct(true)
+                    .where(cb.equal(root.join(JobQueue.PROPERTY_JOBS, JoinType.LEFT).get("id"), jobId));
             try {
-            	result = (Integer) q.getSingleResult();
+                JobQueue result = em.createQuery(query).getSingleResult();
+                commit();
+                return result;
             } catch (NoResultException nre) {
-            	return null;
+                commit();
+                return null;
             }
-            return findById(result);
         } catch (Exception e) {
-            LOG.error("Error finding for Job ID: {}", e, e);
+            rollback();
+            LOG.error("Error finding JobQueue for job ID {}: {}", jobId, e.toString(), e);
+        } finally {
+            cleanup();
         }
         return null;
     }

@@ -116,7 +116,7 @@ public class ScriptDao extends BaseDao<Script> {
             commit();
         } catch (Exception e) {
         	rollback();
-            e.printStackTrace();
+            LOG.error("Error deleting script {}: {}", id, e.toString(), e);
             throw new RuntimeException(e);
         } finally {
             cleanup();
@@ -162,7 +162,7 @@ public class ScriptDao extends BaseDao<Script> {
                 .stream()
                 .collect(Collectors.toMap(SerializedScriptStep::getId, Function.identity()));
         for (Script s : scripts) {
-            if ((s.getScriptSteps() == null || s.getScriptSteps().isEmpty()) && s.getSerializedScriptStepId() != null) {
+            if (s.getSerializedScriptStepId() != null) {
                 SerializedScriptStep blob = stepMap.get(s.getSerializedScriptStepId());
                 if (blob != null) {
                     s.deserializeSteps(blob);
@@ -197,9 +197,8 @@ public class ScriptDao extends BaseDao<Script> {
             LOG.debug("Saved Script Steps with id {} for script {}", savedSerializedStep.getId(), script.getId());
             commit();
         } catch (Exception e) {
-            LOG.error("Error saving script {} Exception: {}", script.getName(), e.toString());
+            LOG.error("Error saving script {} Exception: {}", script.getName(), e.toString(), e);
         	rollback();
-            e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
             cleanup();

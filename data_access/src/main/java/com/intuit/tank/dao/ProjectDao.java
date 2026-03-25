@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -52,6 +53,8 @@ import org.hibernate.jpa.QueryHints;
 public class ProjectDao extends OwnableDao<Project> {
     private static final Logger LOG = LogManager.getLogger(ProjectDao.class);
 
+    private final ScriptDao scriptDao = new ScriptDao();
+
     public ProjectDao() {
         super();
         setReloadEntities(true);
@@ -80,7 +83,7 @@ public class ProjectDao extends OwnableDao<Project> {
             LOG.error("No entities for Project {} in findByName()", name);
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
+            LOG.error("Error in findByName for project {}: {}", name, e.toString(), e);
             throw new RuntimeException(e);
         } finally {
             cleanup();
@@ -163,8 +166,7 @@ public class ProjectDao extends OwnableDao<Project> {
             commit();
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
-            LOG.info("No entities found at all for Project");
+            LOG.error("Error in findAll for Project: {}", e.toString(), e);
         } finally {
             cleanup();
         }
@@ -191,8 +193,7 @@ public class ProjectDao extends OwnableDao<Project> {
             commit();
         } catch (Exception e) {
             rollback();
-            e.printStackTrace();
-            LOG.info("No entities found at all for Project");
+            LOG.error("Error in findAllFast for Project: {}", e.toString(), e);
         } finally {
             cleanup();
         }
@@ -200,18 +201,15 @@ public class ProjectDao extends OwnableDao<Project> {
     }
 
     @Nullable
-    public Project loadScripts(Integer ProjectId) {
-        Project project = findByIdEager(ProjectId);
+    public Project loadScripts(Integer projectId) {
+        Project project = findByIdEager(projectId);
         if (project != null && !project.getWorkloads().isEmpty()) {
-            List<Script> scripts = new ArrayList<>();
-            for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
-                for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
-                    for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
-                        scripts.add(scriptGroupStep.getScript());
-                    }
-                }
-            }
-            new ScriptDao().loadScriptStepsBulk(scripts);
+            List<Script> scripts = project.getWorkloads().get(0).getTestPlans().stream()
+                    .flatMap(testPlan -> testPlan.getScriptGroups().stream())
+                    .flatMap(scriptGroup -> scriptGroup.getScriptGroupSteps().stream())
+                    .map(ScriptGroupStep::getScript)
+                    .collect(Collectors.toList());
+            scriptDao.loadScriptStepsBulk(scripts);
         }
         return project;
     }
