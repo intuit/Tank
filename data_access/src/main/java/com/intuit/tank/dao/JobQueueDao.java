@@ -23,7 +23,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +59,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
             Root<JobQueue> root = query.from(JobQueue.class);
-            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.INNER);
+            root.fetch(JobQueue.PROPERTY_JOBS, JoinType.LEFT);
             query.select(root)
                     .where(cb.equal(root.<String>get(JobQueue.PROPERTY_PROJECT_ID), projectId));
             try {
@@ -82,9 +85,24 @@ public class JobQueueDao extends BaseDao<JobQueue> {
      * @return
      */
     public List<JobQueue> getForProjectIds(@Nonnull List<Integer> projectIds) {
-        String prefix = "x";
-        NamedParameter parameter = new NamedParameter(JobQueue.PROPERTY_PROJECT_ID, "pId", projectIds);
-        return super.listWithJQL(buildQlSelect(prefix) + startWhere() + buildWhereClause(Operation.IN, prefix, parameter), parameter);
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<JobQueue> query = cb.createQuery(JobQueue.class);
+            Root<JobQueue> root = query.from(JobQueue.class);
+            query.select(root)
+                    .where(root.get(JobQueue.PROPERTY_PROJECT_ID).in(projectIds));
+            List<JobQueue> results = em.createQuery(query).getResultList();
+            commit();
+            return results;
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
     }
     
     /**
@@ -132,7 +150,7 @@ public class JobQueueDao extends BaseDao<JobQueue> {
             }
             return findById(result);
         } catch (Exception e) {
-            LOG.error("Error finding for Job ID: " + e, e);
+            LOG.error("Error finding for Job ID: {}", e, e);
         }
         return null;
     }

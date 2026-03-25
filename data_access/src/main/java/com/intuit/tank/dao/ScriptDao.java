@@ -20,6 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
 import jakarta.annotation.Nonnull;
@@ -46,6 +48,8 @@ import com.intuit.tank.vm.common.util.MethodTimer;
  */
 public class ScriptDao extends BaseDao<Script> {
     private static final Logger LOG = LogManager.getLogger(ScriptDao.class);
+
+    private final SerializedScriptStepDao serializedScriptStepDao = new SerializedScriptStepDao();
 
     /**
      * {@inheritDoc}
@@ -91,7 +95,7 @@ public class ScriptDao extends BaseDao<Script> {
                     StringBuilder sb = new StringBuilder();
                     for (ScriptGroupStep step : scriptGroupsForScript) {
                         Project p = extractProject(step);
-                        if (sb.length() != 0) {
+                        if (!sb.isEmpty()) {
                             sb.append(", ");
                         }
                         if (p != null) {
@@ -100,7 +104,7 @@ public class ScriptDao extends BaseDao<Script> {
                             sb.append("unknown project");
                         }
                     }
-                    if (sb.length() > 0) {
+                    if (!sb.isEmpty()) {
                         // throw exception
                         throw new IllegalArgumentException("Cannot delete script " + entity.getName()
                                 + " because it is used in the following projects: " + sb);
@@ -131,11 +135,40 @@ public class ScriptDao extends BaseDao<Script> {
 
     public Script loadScriptSteps(@Nonnull Script script) {
         if (script.getScriptSteps() == null || script.getScriptSteps().isEmpty()) {
-            SerializedScriptStep serializedScriptStep = new SerializedScriptStepDao().findById(script
+            SerializedScriptStep serializedScriptStep = serializedScriptStepDao.findById(script
                     .getSerializedScriptStepId());
             script.deserializeSteps(serializedScriptStep);
         }
         return script;
+    }
+
+    /**
+     * Bulk-load serialized steps for multiple scripts in a single IN query instead of
+     * issuing one SELECT per script.
+     *
+     * @param scripts the scripts whose steps should be loaded
+     */
+    public void loadScriptStepsBulk(@Nonnull List<Script> scripts) {
+        List<Integer> ids = scripts.stream()
+                .filter(s -> s.getScriptSteps() == null || s.getScriptSteps().isEmpty())
+                .map(Script::getSerializedScriptStepId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return;
+        }
+        Map<Integer, SerializedScriptStep> stepMap = serializedScriptStepDao.findForIds(ids)
+                .stream()
+                .collect(Collectors.toMap(SerializedScriptStep::getId, Function.identity()));
+        for (Script s : scripts) {
+            if ((s.getScriptSteps() == null || s.getScriptSteps().isEmpty()) && s.getSerializedScriptStepId() != null) {
+                SerializedScriptStep blob = stepMap.get(s.getSerializedScriptStepId());
+                if (blob != null) {
+                    s.deserializeSteps(blob);
+                }
+            }
+        }
     }
 
     /**
@@ -146,15 +179,14 @@ public class ScriptDao extends BaseDao<Script> {
     public Script saveOrUpdate(Script script) {
         MethodTimer mt = new MethodTimer(LOG, getClass(), "saveOrUpdate").start();
         int size = script.getScriptSteps().size();
-        LOG.info("persisting script " + script.getName() + " with id " + script.getId()
-                + " into database");
+        LOG.info("persisting script {} with id {} into database", script.getName(), script.getId());
         EntityManager em = getEntityManager();
         try {
             begin();
             SerializedScriptStep serializedScriptStep = serialize(script);
             serializedScriptStep.setSerialzedData(
                     getHibernateSession().getLobHelper().createBlob(serializedScriptStep.getBytes()));
-            SerializedScriptStep savedSerializedStep = new SerializedScriptStepDao().saveOrUpdate(serializedScriptStep);
+            SerializedScriptStep savedSerializedStep = serializedScriptStepDao.saveOrUpdate(serializedScriptStep);
             script.setSerializedScriptStepId(serializedScriptStep.getId());
             if (script.getId() == 0) {
                 em.persist(script);
@@ -162,10 +194,10 @@ public class ScriptDao extends BaseDao<Script> {
                 script.setModified(new Date());
                 script = em.merge(script);
             }
-            LOG.debug("Saved Script Steps with id " + savedSerializedStep.getId() + " for script " + script.getId());
+            LOG.debug("Saved Script Steps with id {} for script {}", savedSerializedStep.getId(), script.getId());
             commit();
         } catch (Exception e) {
-            LOG.error("Error saving script " + script.getName() + " Exception: " + e.toString());
+            LOG.error("Error saving script {} Exception: {}", script.getName(), e.toString());
         	rollback();
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -179,7 +211,7 @@ public class ScriptDao extends BaseDao<Script> {
 
     private SerializedScriptStep serialize(Script script) {
         SerializedScriptStep serializedScriptStep = script.getId() > 0 ?
-                new SerializedScriptStepDao().findById(script.getSerializedScriptStepId()) :
+                serializedScriptStepDao.findById(script.getSerializedScriptStepId()) :
                 null;
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              GZIPOutputStream gz = new GZIPOutputStream(bos);

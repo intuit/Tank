@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.hibernate.HibernateException;
 
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
@@ -123,12 +125,14 @@ public class ProjectDao extends OwnableDao<Project> {
         try {
             begin();
             project = getEntityManager().find(Project.class, id);
-            Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
-            Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
+            if (project != null && !project.getWorkloads().isEmpty()) {
+                Hibernate.initialize(project.getWorkloads().get(0).getJobConfiguration());
+                Hibernate.initialize(project.getWorkloads().get(0).getTestPlans());
+            }
             commit();
         } catch (Exception e) {
             rollback();
-            LOG.info("No entities for Project id " + id);
+            LOG.info("No entities for Project id {}", id);
         } finally {
             cleanup();
         }
@@ -154,7 +158,7 @@ public class ProjectDao extends OwnableDao<Project> {
             Root<Project> root = query.from(Project.class);
             Fetch<Project, Workload> wl = root.fetch(Project.PROPERTY_WORKLOADS);
             wl.fetch(Workload.PROPERTY_JOB_CONFIGURATION);
-            query.select(root);
+            query.select(root).distinct(true);
             results = em.createQuery(query).getResultList();
             commit();
         } catch (Exception e) {
@@ -198,15 +202,16 @@ public class ProjectDao extends OwnableDao<Project> {
     @Nullable
     public Project loadScripts(Integer ProjectId) {
         Project project = findByIdEager(ProjectId);
-        if (project != null) {
-            ScriptDao dao = new ScriptDao();
+        if (project != null && !project.getWorkloads().isEmpty()) {
+            List<Script> scripts = new ArrayList<>();
             for (TestPlan testPlan : project.getWorkloads().get(0).getTestPlans()) {
                 for (ScriptGroup scriptGroup : testPlan.getScriptGroups()) {
                     for (ScriptGroupStep scriptGroupStep : scriptGroup.getScriptGroupSteps()) {
-                        dao.loadScriptSteps(scriptGroupStep.getScript());
+                        scripts.add(scriptGroupStep.getScript());
                     }
                 }
             }
+            new ScriptDao().loadScriptStepsBulk(scripts);
         }
         return project;
     }

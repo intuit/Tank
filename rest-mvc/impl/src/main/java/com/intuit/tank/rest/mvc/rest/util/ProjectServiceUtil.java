@@ -14,7 +14,6 @@ import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.projects.models.*;
@@ -24,9 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class ProjectServiceUtil {
@@ -36,8 +33,37 @@ public class ProjectServiceUtil {
     private ProjectServiceUtil() { }
 
     public static ProjectTO projectToTransferObject(Project p) {
-        JobConfiguration config = p.getWorkloads().get(0).getJobConfiguration();
-        ProjectTO.ProjectTOBuilder ret = ProjectTO.builder()
+        Workload workload = p.getWorkloads().get(0);
+        JobConfiguration config = workload.getJobConfiguration();
+
+        List<AutomationTestPlan> testPlans = workload.getTestPlans().stream()
+                .map(testPlan -> AutomationTestPlan.builder()
+                        .withName(testPlan.getName())
+                        .withUserPercentage(testPlan.getUserPercentage())
+                        .withPosition(testPlan.getPosition())
+                        .withScriptGroups(testPlan.getScriptGroups().stream()
+                                .map(sg -> AutomationScriptGroup.builder()
+                                        .withName(sg.getName())
+                                        .withLoop(sg.getLoop())
+                                        .withPosition(sg.getPosition())
+                                        .withScripts(sg.getScriptGroupSteps().stream()
+                                                .map(step -> AutomationScriptGroupStep.builder()
+                                                        .withScriptId(step.getScript().getId())
+                                                        .withName(step.getScript().getName())
+                                                        .withLoop(step.getLoop())
+                                                        .withPosition(step.getPosition())
+                                                        .build())
+                                                .collect(Collectors.toList()))
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .build())
+                .collect(Collectors.toList());
+
+        List<KeyPair> variables = config.getVariables().entrySet().stream()
+                .map(e -> new KeyPair(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        return ProjectTO.builder()
                 .withComments(p.getComments())
                 .withCreated(p.getCreated())
                 .withModified(p.getModified())
@@ -57,41 +83,11 @@ public class ProjectServiceUtil {
                                 .withRegion(jobRegion.getRegion())
                                 .withUsers(jobRegion.getUsers())
                                 .build())
-                        .collect(Collectors.toSet()));
-
-        for(TestPlan testPlan : p.getWorkloads().get(0).getTestPlans()) {
-            List<AutomationScriptGroup> retScriptGroups = new ArrayList<>();
-            for(ScriptGroup sg : testPlan.getScriptGroups()) {
-                List<AutomationScriptGroupStep> retScripts = sg.getScriptGroupSteps().stream()
-                        .map(script -> AutomationScriptGroupStep.builder()
-                                .withScriptId(script.getScript().getId())
-                                .withName(script.getScript().getName())
-                                .withLoop(script.getLoop())
-                                .withPosition(script.getPosition())
-                                .build())
-                        .collect(Collectors.toList());
-                retScriptGroups.add(AutomationScriptGroup.builder()
-                        .withName(sg.getName())
-                        .withLoop(sg.getLoop())
-                        .withPosition(sg.getPosition())
-                        .withScripts(retScripts)
-                        .build());
-            }
-            ret.withTestPlan(AutomationTestPlan.builder()
-                    .withName(testPlan.getName())
-                    .withUserPercentage(testPlan.getUserPercentage())
-                    .withPosition(testPlan.getPosition())
-                    .withScriptGroups(retScriptGroups)
-                    .build());
-        }
-
-        for (Entry<String, String> entry : config.getVariables().entrySet()) {
-            ret.withVariable(new KeyPair(entry.getKey(), entry.getValue()));
-        }
-        for (Integer dataFileId : config.getDataFileIds()) {
-            ret.withDataFileId(dataFileId);
-        }
-        return ret.build();
+                        .collect(Collectors.toSet()))
+                .withTestPlans(testPlans)
+                .withVariables(variables)
+                .withDataFileIds(config.getDataFileIds())
+                .build();
     }
 
     /**

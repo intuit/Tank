@@ -20,6 +20,10 @@ import java.util.List;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +33,7 @@ import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+
 
 /**
  * ProductDao
@@ -40,9 +45,8 @@ public class WorkloadDao extends BaseDao<Workload> {
     @SuppressWarnings("unused")
     private static final Logger LOG = LogManager.getLogger(WorkloadDao.class);
 
-    /**
-     * @param entityClass
-     */
+    private final ScriptDao scriptDao = new ScriptDao();
+
     public WorkloadDao() {
         super();
         setReloadEntities(true);
@@ -63,13 +67,19 @@ public class WorkloadDao extends BaseDao<Workload> {
     	try {
    		begin();
     		workload = getEntityManager().find(Workload.class, id);
-    		if(workload != null) {
+    		if (workload != null) {
     			workload.getJobConfiguration();
-    			for ( TestPlan tp : workload.getTestPlans() ) {
-    				for (ScriptGroup sg : tp.getScriptGroups() ) {
-    					sg.getScriptGroupSteps();
-    				}
-    			}
+    			// Force-initialize testPlans (LAZY) and its eagerly-loaded children
+    			// in one query to avoid N+1 lazy-load round-trips per TestPlan
+    			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+    			CriteriaQuery<Workload> query = cb.createQuery(Workload.class);
+    			Root<Workload> root = query.from(Workload.class);
+    			root.fetch(Workload.PROPERTY_TEST_PLANS, JoinType.LEFT)
+    			    .fetch("scriptGroups", JoinType.LEFT)
+    			    .fetch("steps", JoinType.LEFT);
+    			query.select(root).distinct(true)
+    			     .where(cb.equal(root.get("id"), id));
+    			getEntityManager().createQuery(query).getSingleResult();
     		}
     		commit();
         } catch (Exception e) {
@@ -83,14 +93,13 @@ public class WorkloadDao extends BaseDao<Workload> {
     }
 
     public Workload loadScriptsForWorkload(Workload workload) {
-        ScriptDao sd = new ScriptDao();
         for (TestPlan testPlan : workload.getTestPlans()) {
             List<ScriptGroup> scriptGroups = testPlan.getScriptGroups();
             for (ScriptGroup scriptGroup : scriptGroups) {
                 List<ScriptGroupStep> scriptGroupSteps = scriptGroup.getScriptGroupSteps();
                 for (ScriptGroupStep scriptGroupStep : scriptGroupSteps) {
                     Script script = scriptGroupStep.getScript();
-                    sd.loadScriptSteps(script);
+                    scriptDao.loadScriptSteps(script);
                 }
             }
         }

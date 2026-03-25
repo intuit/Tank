@@ -53,14 +53,14 @@
       <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
 
-      <!-- JDBC connection pool (use the built-in) -->
-      <property name="hibernate.connection.pool_size" value="10" />
-
       <!-- Enable Hibernate's automatic session context management -->
       <property name="hibernate.current_session_context_class" value="thread" />
-      <property name="hibernate.hibernate.cache.use_query_cache" value="true" />
       <property name="hibernate.cache.use_second_level_cache" value="false" />
-      <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider" />
+      <property name="hibernate.cache.use_query_cache" value="true" />
+
+      <!-- JDBC batching for UPDATE/DELETE (INSERT batching disabled by GenerationType.IDENTITY) -->
+      <property name="hibernate.jdbc.batch_size" value="50" />
+      <property name="hibernate.order_updates" value="true" />
       <property name="hibernate.transaction.flush_before_completion" value="true" />
       <property name="hibernate.connection.autocommit" value="false" />
       <property name="hibernate.connection.release_mode" value="on_close" />
