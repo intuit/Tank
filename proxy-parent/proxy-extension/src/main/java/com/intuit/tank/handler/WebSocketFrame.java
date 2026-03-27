@@ -106,8 +106,7 @@ public class WebSocketFrame {
      * Check if this is a TEXT frame
      */
     public boolean isText() {
-        return opcode == Opcode.TEXT || 
-               (opcode == Opcode.CONTINUATION && payload.length > 0);
+        return opcode == Opcode.TEXT;
     }
 
     /**

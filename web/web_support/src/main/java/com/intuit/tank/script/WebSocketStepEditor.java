@@ -41,13 +41,13 @@ public class WebSocketStepEditor implements Serializable {
     private static final String ACTION_ASSERT = "ASSERT";
     private static final String ACTION_DISCONNECT = "DISCONNECT";
 
-    // WebSocket constants
-    private static final String WEBSOCKET = "websocket";
-    private static final String WEBSOCKET_ACTION = "ws-action";
-    private static final String WEBSOCKET_URL = "ws-url";
-    private static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
-    private static final String WEBSOCKET_PAYLOAD = "ws-payload";
-    private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
+    // WebSocket constants from ScriptConstants
+    private static final String WEBSOCKET = ScriptConstants.WEBSOCKET;
+    private static final String WEBSOCKET_ACTION = ScriptConstants.WEBSOCKET_ACTION;
+    private static final String WEBSOCKET_URL = ScriptConstants.WEBSOCKET_URL;
+    private static final String WEBSOCKET_CONNECTION_ID = ScriptConstants.WEBSOCKET_CONNECTION_ID;
+    private static final String WEBSOCKET_PAYLOAD = ScriptConstants.WEBSOCKET_PAYLOAD;
+    private static final String WEBSOCKET_TIMEOUT_MS = ScriptConstants.WEBSOCKET_TIMEOUT_MS;
     private static final String WEBSOCKET_FAIL_ON_PREFIX = "ws-fail-on.";
     private static final String WEBSOCKET_ASSERT_EXPECT_PREFIX = "ws-assert-expect.";
     private static final String WEBSOCKET_ASSERT_SAVE_PREFIX = "ws-assert-save.";
@@ -225,6 +225,10 @@ public class WebSocketStepEditor implements Serializable {
         if (ACTION_SEND.equals(action)) {
             if (StringUtils.isBlank(url)) {
                 messages.error("WebSocket URL is required for SEND");
+                return false;
+            }
+            if (getConnectionIdForUrl(url) == null) {
+                messages.error("No active WebSocket connection found for this URL. Add a CONNECT step first.");
                 return false;
             }
             return true;
@@ -644,12 +648,13 @@ public class WebSocketStepEditor implements Serializable {
 
     private Map<String, String> getActiveConnectionsById() {
         Map<String, String> connectedUrlsById = new HashMap<>();
-        Set<String> disconnectedIds = new HashSet<>();
 
         if (scriptEditor == null || scriptEditor.getSteps() == null) {
             return connectedUrlsById;
         }
 
+        // Single sequential pass: CONNECT adds, DISCONNECT removes.
+        // This correctly handles reconnect sequences (CONNECT -> DISCONNECT -> CONNECT).
         for (ScriptStep scriptStep : scriptEditor.getSteps()) {
             if (!"websocket".equals(scriptStep.getType())) {
                 continue;
@@ -667,12 +672,8 @@ public class WebSocketStepEditor implements Serializable {
                     connectedUrlsById.put(connectionId, urlData.getValue());
                 }
             } else if ("WS_DISCONNECT".equals(method)) {
-                disconnectedIds.add(connectionId);
+                connectedUrlsById.remove(connectionId);
             }
-        }
-
-        for (String disconnectedId : disconnectedIds) {
-            connectedUrlsById.remove(disconnectedId);
         }
 
         return connectedUrlsById;

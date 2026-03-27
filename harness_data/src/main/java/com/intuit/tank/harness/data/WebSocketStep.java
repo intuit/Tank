@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * WebSocketStep represents a WebSocket operation in a Tank script.
  */
-@XmlType(name = "webSocketStep", propOrder = { 
-    "name", "scriptGroupName", "comments", "onFail", "action", "connectionId", 
+@XmlType(name = "webSocketStep", propOrder = {
     "request", "failOnPatterns", "assertions"
 }, namespace = HarnessDataNamespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -150,12 +149,18 @@ public class WebSocketStep extends TestStep implements FailableStep {
      * @param connectionId the connectionId to set
      */
     public void setConnectionId(String connectionId) {
-        String previousConnectionId = this.connectionId;
         this.connectionId = connectionId;
-        if (StringUtils.isBlank(this.comments)
-                || StringUtils.equals(this.comments, previousConnectionId)
-                || StringUtils.equals(this.comments, "Connection: " + previousConnectionId)) {
-            this.comments = StringUtils.isNotBlank(connectionId) ? connectionId : null;
+    }
+
+    /**
+     * Updates comments to reflect the connectionId, for UI display purposes.
+     * Call this explicitly from the UI layer — NOT from JAXB deserialization.
+     * JAXB calls setters in arbitrary order, so a side effect in setConnectionId()
+     * would corrupt any pre-existing comments value.
+     */
+    public void updateCommentsFromConnectionId() {
+        if (StringUtils.isBlank(this.comments) || StringUtils.equals(this.comments, this.connectionId)) {
+            this.comments = StringUtils.isNotBlank(this.connectionId) ? this.connectionId : null;
         }
     }
 

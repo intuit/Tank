@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import java.net.URI;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -27,30 +28,34 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Zak Kofiro
  */
 public class TankWebSocketClient {
-    
+
     private static final Logger LOG = LogManager.getLogger(TankWebSocketClient.class);
-    
+
+    // P1 #16: Static shared EventLoopGroup for convenience constructor clients
+    private static volatile EventLoopGroup sharedGroup;
+    private static final Object SHARED_GROUP_LOCK = new Object();
+
     private final EventLoopGroup workerGroup;
     private final boolean shutdownGroupOnDisconnect;
-    
+
     // Connection state
     private final AtomicBoolean connected = new AtomicBoolean(false);
     private final AtomicReference<Channel> channel = new AtomicReference<>();
-    
+
     // Session-based message collection
     private volatile MessageStream messageStream;
-    
+
     // Configuration
     private final URI uri;
     private final boolean ssl;
     private final String host;
     private final int port;
     private final String path;
-    
-    // Performance monitoring
+
+    // Performance monitoring (P0 #4: AtomicLong for thread-safe increment)
     private volatile long connectionStartTime;
-    private volatile long messagesReceived = 0;
-    private volatile long messagesSent = 0;
+    private final AtomicLong messagesReceived = new AtomicLong(0);
+    private final AtomicLong messagesSent = new AtomicLong(0);
     
     /**
      * Constructor with dependency injection for EventLoopGroup
@@ -76,11 +81,42 @@ public class TankWebSocketClient {
     }
     
     /**
-     * Convenience constructor that creates its own EventLoopGroup
+     * Convenience constructor that uses a shared static EventLoopGroup.
+     * Suitable for production use where many clients share the same thread pool.
+     * For testing or single-client use, prefer the injected-group constructor.
      * @param url WebSocket URL
      */
     public TankWebSocketClient(String url) {
-        this(url, new NioEventLoopGroup(Math.max(1, Runtime.getRuntime().availableProcessors() * 2)), true);
+        this(url, getOrCreateSharedGroup(), false);
+    }
+
+    /**
+     * Lazily initialize the shared EventLoopGroup (double-checked locking).
+     */
+    private static EventLoopGroup getOrCreateSharedGroup() {
+        if (sharedGroup == null || sharedGroup.isShutdown()) {
+            synchronized (SHARED_GROUP_LOCK) {
+                if (sharedGroup == null || sharedGroup.isShutdown()) {
+                    int threads = Runtime.getRuntime().availableProcessors() * 2;
+                    sharedGroup = new NioEventLoopGroup(Math.max(1, threads));
+                    LOG.info("Created shared NioEventLoopGroup with {} threads", threads);
+                }
+            }
+        }
+        return sharedGroup;
+    }
+
+    /**
+     * Shutdown the shared static EventLoopGroup. Call during application shutdown.
+     */
+    public static void shutdownSharedGroup() {
+        synchronized (SHARED_GROUP_LOCK) {
+            if (sharedGroup != null && !sharedGroup.isShutdown()) {
+                LOG.info("Shutting down shared NioEventLoopGroup");
+                sharedGroup.shutdownGracefully();
+                sharedGroup = null;
+            }
+        }
     }
     
     /**
@@ -144,7 +180,7 @@ public class TankWebSocketClient {
                         
                         // HTTP codec
                         pipeline.addLast(new HttpClientCodec());
-                        pipeline.addLast(new HttpObjectAggregator(8192));
+                        pipeline.addLast(new HttpObjectAggregator(65536));
                         
                         // Idle state handler for connection health
                         pipeline.addLast(new IdleStateHandler(60, 30, 0)); // Read: 60s, Write: 30s
@@ -192,9 +228,8 @@ public class TankWebSocketClient {
             WebSocketFrame frame = new TextWebSocketFrame(message);
             ch.writeAndFlush(frame).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
-                    messagesSent++;
+                    messagesSent.incrementAndGet();
                     LOG.info("[WebSocket SENT]: \"{}\"", message);
-                    LOG.debug("Sent message: {}", message);  // Keep for backward compatibility
                     sendFuture.complete(null);
                 } else {
                     LOG.error("Failed to send message: {}", message, future.cause());
@@ -212,19 +247,24 @@ public class TankWebSocketClient {
     /**
      * Disconnect from WebSocket server
      */
-        public void disconnect() {
-            Channel ch = channel.get();
-            if (ch != null && ch.isActive()) {
-                LOG.info("Disconnecting WebSocket...");
-                ch.writeAndFlush(new CloseWebSocketFrame()).addListener(ChannelFutureListener.CLOSE);
-            }
-            connected.set(false);
-            
-            // Shutdown EventLoopGroup if this client owns it
-            if (shutdownGroupOnDisconnect) {
-                workerGroup.shutdownGracefully();
-            }
+    public void disconnect() {
+        connected.set(false);
+        Channel ch = channel.get();
+        if (ch != null && ch.isActive()) {
+            LOG.info("Disconnecting WebSocket...");
+            ch.writeAndFlush(new CloseWebSocketFrame())
+                .addListener(future -> {
+                    ch.close().addListener(closeFuture -> {
+                        if (shutdownGroupOnDisconnect) {
+                            workerGroup.shutdownGracefully();
+                        }
+                    });
+                });
+        } else if (shutdownGroupOnDisconnect) {
+            // Channel already inactive, just shutdown the group
+            workerGroup.shutdownGracefully();
         }
+    }
     
     /**
      * Check if WebSocket is connected
@@ -245,7 +285,7 @@ public class TankWebSocketClient {
         
         return String.format("WebSocket Stats: Connected=%s, ConnectionTime=%dms, " +
                            "MessagesSent=%d, MessagesReceived=%d, Channel=%s",
-            connected.get(), connectionTime, messagesSent, messagesReceived,
+            connected.get(), connectionTime, messagesSent.get(), messagesReceived.get(),
             channel.get() != null ? "Active" : "Inactive");
     }
     
@@ -312,7 +352,7 @@ public class TankWebSocketClient {
                 
                 if (frame instanceof TextWebSocketFrame) {
                     String text = ((TextWebSocketFrame) frame).text();
-                    messagesReceived++;
+                    messagesReceived.incrementAndGet();
                     
                     // Log prominently for Tank Debugger visibility
                     LOG.info("[WebSocket RECEIVED]: \"{}\"", text);
@@ -398,12 +438,16 @@ public class TankWebSocketClient {
                 messageStream.addMessage(text);
                 LOG.debug("Message collected: {}", MessageStream.truncateForLog(text));
             } catch (WebSocketException e) {
+                // P0 #5: Do NOT re-throw into Netty pipeline. MessageStream.addMessage()
+                // already sets the failed flag and stores failure details. The runner thread
+                // will check hasFailed() on the next ASSERT action. Re-throwing here would
+                // propagate into channelRead0 -> exceptionCaught -> ctx.close(), killing
+                // the connection and losing the failure info for the runner.
                 LOG.error("[WebSocket] Connection {} failed on pattern '{}': {}",
                     messageStream.getConnectionId(), e.getPattern(), e.getFailedMessage());
-                throw e;
             }
         } else {
-            LOG.warn("Message received but no MessageStream attached - message ignored: {}", 
+            LOG.warn("Message received but no MessageStream attached - message ignored: {}",
                 MessageStream.truncateForLog(text));
         }
     }

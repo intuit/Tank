@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -166,9 +167,10 @@ public class WebSocketRunner implements Runner {
 
         int timeoutMs = request.getTimeoutMs() != null ? request.getTimeoutMs() : DEFAULT_TIMEOUT_MS;
         CompletableFuture<Boolean> connectFuture = client.connect(timeoutMs);
-        
+
         try {
-            Boolean connected = connectFuture.get(timeoutMs, TimeUnit.MILLISECONDS);
+            // Safety net timeout is larger so internal Netty timeout fires first with a better error
+            Boolean connected = connectFuture.get(timeoutMs + 5000, TimeUnit.MILLISECONDS);
             if (connected) {
                 LOG.info(LogUtil.getLogMessage(
                     "WebSocket connected to: " + url,
@@ -227,14 +229,20 @@ public class WebSocketRunner implements Runner {
 
         String payload = variables.evaluate(request.getPayload());
 
+        int timeoutMs = (request != null && request.getTimeoutMs() != null) ? request.getTimeoutMs() : DEFAULT_TIMEOUT_MS;
+
         try {
-            // Fire-and-forget send - messages collected in MessageStream for end-of-session assertions
-            client.sendMessage(payload).get();
+            client.sendMessage(payload).get(timeoutMs, TimeUnit.MILLISECONDS);
 
             LOG.info(LogUtil.getLogMessage(
                 "WebSocket SEND successful on connection: " + connectionId,
                 LogEventType.Informational, LoggingProfile.STANDARD));
             return TankConstants.HTTP_CASE_PASS;
+        } catch (TimeoutException e) {
+            LOG.error(LogUtil.getLogMessage(
+                "WebSocket SEND timed out after " + timeoutMs + "ms on connection: " + connectionId,
+                LogEventType.Informational, LoggingProfile.STANDARD));
+            return TankConstants.HTTP_CASE_FAIL;
         } catch (Exception e) {
             LOG.error(LogUtil.getLogMessage(
                 "Failed to send WebSocket message: " + e.getMessage(),
@@ -303,12 +311,11 @@ public class WebSocketRunner implements Runner {
             // Get MessageStream for assertions and summary
             MessageStream stream = client.getMessageStream();
 
-            // Debug: Log fail state before checking
-            LOG.info(LogUtil.getLogMessage(
+            LOG.debug(LogUtil.getLogMessage(
                 "DISCONNECT checking fail state for " + connectionId + ": hasFailed=" + client.hasFailed() +
                 ", streamFailed=" + (stream != null ? stream.hasFailed() : "null") +
                 ", failPattern=" + (stream != null ? stream.getFailurePattern() : "null"),
-                LogEventType.Informational, LoggingProfile.STANDARD));
+                LogEventType.Informational, LoggingProfile.VERBOSE));
 
             // Check if connection failed due to fail-on pattern
             if (client.hasFailed()) {
@@ -339,7 +346,6 @@ public class WebSocketRunner implements Runner {
 
             // Disconnect and cleanup
             client.disconnect();
-            tsc.removeWebSocketClient(connectionId);
 
             LOG.info(LogUtil.getLogMessage(
                 "WebSocket disconnected: " + connectionId + " (result: " + result + ")",
@@ -352,6 +358,8 @@ public class WebSocketRunner implements Runner {
                 "Failed to disconnect WebSocket: " + e.getMessage(),
                 LogEventType.Informational, LoggingProfile.STANDARD), e);
             return TankConstants.HTTP_CASE_FAIL;
+        } finally {
+            tsc.removeWebSocketClient(connectionId);
         }
     }
 

@@ -54,6 +54,9 @@ public class TransactionTableModel extends DefaultTableModel {
     // WebSocket session tracking - maps row index to session
     private Map<Integer, WebSocketSession> webSocketSessions = new HashMap<>();
 
+    // Loaded WebSocket transactions from saved recordings (preserves messages)
+    private List<WebSocketTransaction> loadedWebSocketTransactions = new ArrayList<>();
+
     private static final String[] COLUMN_NAMES = new String[] {
             "#",
             "Method",
@@ -157,6 +160,7 @@ public class TransactionTableModel extends DefaultTableModel {
         dataList.clear();
         hostSet.clear();
         webSocketSessions.clear();
+        loadedWebSocketTransactions.clear();
         this.getDataVector().clear();
         this.fireTableDataChanged();
     }
@@ -228,23 +232,40 @@ public class TransactionTableModel extends DefaultTableModel {
     }
 
     /**
-     * Get WebSocket transactions from all tracked sessions.
+     * Get WebSocket transactions from all tracked sessions and loaded recordings.
+     * Merges active sessions (converted to transactions) with loaded transactions.
      */
     public List<WebSocketTransaction> getWebSocketTransactions() {
         List<WebSocketTransaction> result = new ArrayList<>();
+        // Active sessions (from live recording)
         for (WebSocketSession session : webSocketSessions.values()) {
             result.add(session.toTransaction());
         }
+        // Loaded transactions (from saved recordings — preserves original messages)
+        result.addAll(loadedWebSocketTransactions);
         return result;
     }
 
     /**
      * Load WebSocket transactions into the model (used when opening a saved recording).
+     * Stores the original transactions to preserve their messages.
      */
     public void addWebSocketTransactions(List<WebSocketTransaction> wsTxns) {
         for (WebSocketTransaction wsTx : wsTxns) {
-            WebSocketSession session = new WebSocketSession(wsTx.getUrl(), null);
-            addWebSocketSession(session);
+            loadedWebSocketTransactions.add(wsTx);
+            // Add a display row for the UI table
+            int rowIndex = dataList.size();
+            Vector<Object> rowData = new Vector<>(COLUMN_NAMES.length + 1);
+            rowData.add(rowIndex + 1);
+            rowData.add("WS");
+            rowData.add(extractPath(wsTx.getUrl()));
+            rowData.add(wsTx.getUrl());
+            rowData.add("websocket");
+            rowData.add(wsTx.getMessageCount());
+            rowData.add(Boolean.FALSE);
+            rowData.add(Boolean.FALSE);
+            dataList.add(NULL_TRANSACTION);
+            this.addRow(rowData);
         }
     }
 

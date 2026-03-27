@@ -1,5 +1,6 @@
 Cookie
 Header
+HeaderMapAdapter
 MethodType
 Protocol
 Request

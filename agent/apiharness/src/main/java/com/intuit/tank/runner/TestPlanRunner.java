@@ -26,6 +26,7 @@ import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.FlowController;
 import com.intuit.tank.harness.data.FailableStep;
 import com.intuit.tank.harness.data.HDScript;
+import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.harness.data.HDScriptGroup;
 import com.intuit.tank.harness.data.HDScriptUseCase;
 import com.intuit.tank.harness.data.HDTestPlan;
@@ -44,7 +45,6 @@ import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.http.TankHttpClient;
-import com.intuit.tank.httpclientjdk.TankWebSocketClient;
 import com.intuit.tank.runner.method.TestStepRunner;
 import com.intuit.tank.runner.method.TimerMap;
 import com.intuit.tank.script.ScriptConstants;
@@ -68,9 +68,7 @@ public class TestPlanRunner implements Runnable {
     private BaseResponse previousResponse = null;
     private boolean finished = false;
     private Map<String, String> headerMap;
-
-    // WebSocket clients - stored at TestPlanRunner level to persist across test steps
-    private Map<String, TankWebSocketClient> webSocketClients = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, TankWebSocketClient> webSocketClients = new ConcurrentHashMap<>();
 
     public TestPlanRunner(Object httpClient, HDTestPlan testPlan, int threadNumber, String httpClientClass) {
         headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
@@ -92,6 +90,13 @@ public class TestPlanRunner implements Runnable {
      */
     public Map<String, String> getHeaderMap() {
         return headerMap;
+    }
+
+    /**
+     * @return the shared WebSocket client map for this runner's session
+     */
+    public ConcurrentHashMap<String, TankWebSocketClient> getWebSocketClients() {
+        return webSocketClients;
     }
 
     public void setHttpClient(TankHttpClient httpClient) {
@@ -166,6 +171,15 @@ public class TestPlanRunner implements Runnable {
         } catch (Throwable e) {
             LOG.error(LogUtil.getLogMessage("Unexpected exception in test: " + e.toString()), e);
         } finally {
+            // Disconnect all open WebSocket clients to prevent connection leaks
+            for (Map.Entry<String, TankWebSocketClient> entry : webSocketClients.entrySet()) {
+                try {
+                    entry.getValue().disconnect();
+                } catch (Exception e) {
+                    LOG.warn(LogUtil.getLogMessage("Error disconnecting WS client " + entry.getKey() + ": " + e.getMessage()));
+                }
+            }
+            webSocketClients.clear();
             APITestHarness.getInstance().threadComplete();
             LOG.info(LogUtil.getLogMessage(mt.getNaturalTimeMessage() + " Test complete. Exiting..."));
         }
@@ -332,7 +346,10 @@ public class TestPlanRunner implements Runnable {
             if (validation.equals(TankConstants.HTTP_CASE_FAIL)) {
                 FailableStep rs = (FailableStep) tsc.getTestStep();
                 String onFail = rs.getOnFail();
-                if (onFail.equalsIgnoreCase(TankConstants.HTTP_CASE_SKIP)) {
+                if (StringUtils.isEmpty(onFail)) {
+                    // No onFail action configured — continue to next step
+                    LOG.debug(LogUtil.getLogMessage("Step failed but onFail is not set, continuing"));
+                } else if (onFail.equalsIgnoreCase(TankConstants.HTTP_CASE_SKIP)) {
                     APITestHarness.getInstance().addSkip();
                     String groupNameToSkip = rs.getScriptGroupName();
                     for (int j = i + 1; j < scriptSteps.size(); j++) {
@@ -397,32 +414,5 @@ public class TestPlanRunner implements Runnable {
             LOG.error(LogUtil.getLogMessage("TankHttpClient specified incorrectly: " + e),e);
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Get WebSocket client by connection ID
-     * @param connectionId the connection identifier
-     * @return the WebSocket client or null if not found
-     */
-    public TankWebSocketClient getWebSocketClient(String connectionId) {
-        return webSocketClients.get(connectionId);
-    }
-
-    /**
-     * Set WebSocket client for a connection ID
-     * @param connectionId the connection identifier
-     * @param client the WebSocket client
-     */
-    public void setWebSocketClient(String connectionId, TankWebSocketClient client) {
-        webSocketClients.put(connectionId, client);
-    }
-
-    /**
-     * Remove WebSocket client for a connection ID
-     * @param connectionId the connection identifier
-     * @return the removed client or null if not found
-     */
-    public TankWebSocketClient removeWebSocketClient(String connectionId) {
-        return webSocketClients.remove(connectionId);
     }
 }

@@ -1053,17 +1053,47 @@ public class AgentDebuggerFrame extends JFrame {
         if (context == null) {
             return snapshots;
         }
+        Map<String, String> variableValues = context.getVariables() != null
+                ? context.getVariables().getVariableValues()
+                : new HashMap<String, String>();
         for (String connectionId : getKnownWebSocketConnectionIds()) {
             if (StringUtils.isBlank(connectionId)) {
                 continue;
             }
-            TankWebSocketClient client = context.getWebSocketClient(connectionId);
+            // Resolve variable templates in connectionId (e.g., "#{connectionId}" -> "echo-123").
+            // Connections are registered under the resolved value at runtime,
+            // but the step XML may contain the unresolved template.
+            String resolvedId = resolveConnectionId(connectionId, variableValues);
+            TankWebSocketClient client = context.getWebSocketClient(resolvedId);
+            if (client == null && !resolvedId.equals(connectionId)) {
+                // Fall back to literal connectionId if resolved lookup missed
+                client = context.getWebSocketClient(connectionId);
+            }
             if (client == null) {
                 continue;
             }
-            snapshots.put(connectionId, createSnapshot(connectionId, client));
+            snapshots.put(resolvedId, createSnapshot(resolvedId, client));
         }
         return snapshots;
+    }
+
+    /**
+     * Resolves a connectionId that may contain #{variable} templates using the
+     * current variables map. Returns the original value if no variables are found.
+     */
+    static String resolveConnectionId(String connectionId, Map<String, String> variables) {
+        if (connectionId == null || !connectionId.contains("#{") || variables == null) {
+            return connectionId;
+        }
+        String resolved = connectionId;
+        // Simple resolution: replace all #{varName} occurrences
+        for (Map.Entry<String, String> entry : variables.entrySet()) {
+            String placeholder = "#{" + entry.getKey() + "}";
+            if (resolved.contains(placeholder) && entry.getValue() != null) {
+                resolved = resolved.replace(placeholder, entry.getValue());
+            }
+        }
+        return resolved;
     }
 
     private Set<String> getKnownWebSocketConnectionIds() {

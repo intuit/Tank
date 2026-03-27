@@ -290,6 +290,42 @@ public class WebSocketStepJaxbTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void testRoundTripPreservesCustomCommentsWhenConnectionIdIsSet() throws Exception {
+        // P0 #12: setConnectionId() side effect was overwriting comments during JAXB deserialization.
+        // JAXB calls setters in arbitrary order, so if setConnectionId fires before setComments,
+        // the custom comment was lost. The fix makes setConnectionId a pure setter.
+        WebSocketStep step = new WebSocketStep();
+        step.setName("Test Step");
+        step.setAction(WebSocketAction.CONNECT);
+        step.setConnectionId("conn-1");
+        step.setComments("My custom comment");
+        step.setStepIndex(1);
+
+        WebSocketRequest request = new WebSocketRequest();
+        request.setUrl("ws://localhost:8080/ws");
+        step.setRequest(request);
+
+        // Verify pre-marshal state
+        assertEquals("My custom comment", step.getComments());
+        assertEquals("conn-1", step.getConnectionId());
+
+        // Marshal to XML
+        String xml = JaxbUtil.marshall(step);
+        assertNotNull(xml);
+        assertTrue(xml.contains("My custom comment"), "XML should contain the custom comment");
+        assertTrue(xml.contains("conn-1"), "XML should contain the connectionId");
+
+        // Unmarshal back
+        WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
+
+        // Assert: comments must survive the round trip, not be overwritten by connectionId
+        assertEquals("My custom comment", roundTrip.getComments(),
+                "Comments must not be overwritten by setConnectionId() side effect during JAXB deserialization");
+        assertEquals("conn-1", roundTrip.getConnectionId());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testMarshallUnmarshallAssertAction() throws Exception {
         // Given: A WebSocket ASSERT step
         WebSocketStep step = new WebSocketStep();

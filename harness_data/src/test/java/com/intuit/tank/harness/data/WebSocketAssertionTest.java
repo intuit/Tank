@@ -36,19 +36,45 @@ public class WebSocketAssertionTest {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testSetPatternNull() {
+        // P1 #23: setPattern is now a pure setter (no validation) for JAXB compatibility.
+        // Null is accepted without throwing.
         WebSocketAssertion assertion = new WebSocketAssertion();
-        assertThrows(IllegalArgumentException.class, () -> {
-            assertion.setPattern(null);
-        });
+        assertion.setPattern(null);
+        assertNull(assertion.getPattern());
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testSetPatternEmpty() {
+        // P1 #23: setPattern is now a pure setter (no validation) for JAXB compatibility.
+        // Empty/blank is accepted without throwing.
         WebSocketAssertion assertion = new WebSocketAssertion();
-        assertThrows(IllegalArgumentException.class, () -> {
-            assertion.setPattern("   ");
-        });
+        assertion.setPattern("   ");
+        assertEquals("   ", assertion.getPattern());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateRejectsNullPattern() {
+        // Explicit validation moved to validate() method
+        WebSocketAssertion assertion = new WebSocketAssertion();
+        assertFalse(assertion.validate(), "validate() should return false for null pattern");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateRejectsEmptyPattern() {
+        WebSocketAssertion assertion = new WebSocketAssertion();
+        assertion.setPattern("   ");
+        assertFalse(assertion.validate(), "validate() should return false for blank pattern");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateAcceptsValidPattern() {
+        WebSocketAssertion assertion = new WebSocketAssertion();
+        assertion.setPattern("test");
+        assertTrue(assertion.validate(), "validate() should return true for valid pattern");
     }
 
     @Test

@@ -20,8 +20,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import jakarta.xml.bind.JAXBContext;
@@ -61,6 +64,8 @@ public final class Application {
 
     // WebSocket recording
     private final List<WebSocketRelay> activeWebSocketRelays = new CopyOnWriteArrayList<>();
+    // Dedup completed WS transactions by unique session UUID to prevent dual-write
+    private final Set<String> completedSessionIds = ConcurrentHashMap.newKeySet();
     private final List<WebSocketTransaction> completedWebSocketTransactions = new CopyOnWriteArrayList<>();
 
     public Application(ProxyConfiguration proxyConfiguration) {
@@ -97,7 +102,7 @@ public final class Application {
             sessionStarted = true;
             paused = false;
         } catch (JAXBException | IOException e) {
-            e.printStackTrace();
+            LOG.error("Failed to start recording session", e);
             System.exit(1);
         }
     }
@@ -195,8 +200,8 @@ public final class Application {
             if (proxyConfiguration.isFollowRedirects() && statusCode == 302) { // redirect
                 String location = hp.getRedirectLocation();
 
-                System.out.println("Pushing redirect location " + location + "\n\twith transaction firstline "
-                        + transaction.getRequest().getFirstLine());
+                LOG.debug("Pushing redirect location {} with transaction firstline {}",
+                        location, transaction.getRequest().getFirstLine());
 
                 if (!transaction.getRequest().getHeaders().contains(REDIRECT_MARKER)) {
                     transaction.getRequest().addHeader(REDIRECT_MARKER);
@@ -233,21 +238,35 @@ public final class Application {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-                completedWebSocketTransactions.add(relay.getSession().toTransaction());
+                // Guard against dual-write — only add if not already completed
+                String sessionId = relay.getSession().getSessionId();
+                synchronized (completedWebSocketTransactions) {
+                    if (completedSessionIds.add(sessionId)) {
+                        completedWebSocketTransactions.add(relay.getSession().toTransaction());
+                    }
+                }
             }
             activeWebSocketRelays.clear();
 
-            // Serialize WebSocket transactions
-            for (WebSocketTransaction wsTx : completedWebSocketTransactions) {
+            // Snapshot and clear atomically — prevents late relay completions from
+            // adding transactions between marshal and clear
+            List<WebSocketTransaction> toSerialize;
+            synchronized (completedWebSocketTransactions) {
+                toSerialize = new java.util.ArrayList<>(completedWebSocketTransactions);
+                completedWebSocketTransactions.clear();
+                completedSessionIds.clear();
+            }
+
+            // Serialize the snapshot (safe — no concurrent modification possible)
+            for (WebSocketTransaction wsTx : toSerialize) {
                 try {
                     marshaller.marshal(wsTx, osw);
-                    LOG.info("Serialized WebSocket transaction: {} ({} messages)", 
+                    LOG.info("Serialized WebSocket transaction: {} ({} messages)",
                             wsTx.getUrl(), wsTx.getMessageCount());
                 } catch (JAXBException e) {
                     LOG.error("Failed to serialize WebSocket transaction: {}", e.getMessage());
                 }
             }
-            completedWebSocketTransactions.clear();
 
             osw.write("\n");
             osw.write("</sns:session>");
@@ -255,18 +274,20 @@ public final class Application {
             osw.close();
         }
         sessionStarted = false;
-        System.out.println("Finishing up");
+        LOG.info("Finishing up");
     }
 
     /**
      * Handle a WebSocket connection - start relay and record messages.
      * Called from HttpProxyConnectionHandler after 101 upgrade.
-     * 
+     *
      * @param clientSocket Socket connected to client (browser)
      * @param serverSocket Socket connected to server (origin)
      * @param wsUrl WebSocket URL (ws:// or wss://)
+     * @param headers Handshake headers from the upgrade request
      */
-    public void handleWebSocketConnection(Socket clientSocket, Socket serverSocket, String wsUrl) {
+    public void handleWebSocketConnection(Socket clientSocket, Socket serverSocket,
+                                          String wsUrl, Map<String, String> headers) {
         if (!sessionStarted || paused) {
             LOG.debug("WebSocket connection ignored (session not active): {}", wsUrl);
             return;
@@ -274,16 +295,17 @@ public final class Application {
 
         LOG.info("Starting WebSocket relay for: {}", wsUrl);
 
-        // Create session and relay
-        WebSocketSession session = new WebSocketSession(wsUrl, null);
-        
+        // P0 #9: Pass headers through to the session instead of null
+        WebSocketSession session = new WebSocketSession(wsUrl,
+                headers != null ? headers : Collections.emptyMap());
+
         // Set up message callback to notify UI
         session.setMessageCallback(() -> {
             if (listener != null) {
                 listener.webSocketMessageReceived(session);
             }
         });
-        
+
         WebSocketRelay relay = new WebSocketRelay(clientSocket, serverSocket, session);
 
         // Track active relay
@@ -306,10 +328,16 @@ public final class Application {
         }
 
         // Relay done — move to completed transactions
+        // P1 #26: Guard with completedSessionIds to prevent dual-write with endSession()
         if (activeWebSocketRelays.remove(relay)) {
-            completedWebSocketTransactions.add(session.toTransaction());
-            LOG.info("WebSocket session completed: {} ({} messages)",
-                    wsUrl, session.getMessageCount());
+            String sessionId = session.getSessionId();
+            synchronized (completedWebSocketTransactions) {
+                if (completedSessionIds.add(sessionId)) {
+                    completedWebSocketTransactions.add(session.toTransaction());
+                    LOG.info("WebSocket session completed: {} ({} messages)",
+                            wsUrl, session.getMessageCount());
+                }
+            }
             if (listener != null) {
                 listener.webSocketSessionClosed(session);
             }

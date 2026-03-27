@@ -528,4 +528,131 @@ class MessageStreamTest {
         // The message with null content can't be added, so we test via empty stream
         assertFalse(stream.hasMatching("test", false));
     }
+
+    // ==================== P1 #17 - Message buffer cap ====================
+
+    @Test
+    @DisplayName("P1 #17: Constructor with maxMessages should set buffer cap")
+    void testConstructorWithMaxMessages() {
+        MessageStream capped = new MessageStream("capped-conn", 10);
+        assertEquals("capped-conn", capped.getConnectionId());
+        assertEquals(0, capped.getMessageCount());
+    }
+
+    @Test
+    @DisplayName("P1 #17: Buffer should not exceed maxMessages capacity")
+    void testBufferCapEnforced() {
+        int maxMessages = 5;
+        MessageStream capped = new MessageStream("capped-conn", maxMessages);
+
+        // Add more messages than the cap
+        for (int i = 0; i < 10; i++) {
+            capped.addMessage("message-" + i);
+        }
+
+        // Should be capped at maxMessages
+        assertEquals(maxMessages, capped.getMessageCount());
+    }
+
+    @Test
+    @DisplayName("P1 #17: Buffer cap should drop oldest messages")
+    void testBufferCapDropsOldest() {
+        int maxMessages = 3;
+        MessageStream capped = new MessageStream("capped-conn", maxMessages);
+
+        capped.addMessage("oldest");
+        capped.addMessage("middle");
+        capped.addMessage("newer");
+        capped.addMessage("newest");
+
+        // 'oldest' should have been dropped
+        List<MessageStream.TimestampedMessage> msgs = capped.getAllMessages();
+        assertEquals(3, msgs.size());
+        assertEquals("middle", msgs.get(0).content());
+        assertEquals("newer", msgs.get(1).content());
+        assertEquals("newest", msgs.get(2).content());
+    }
+
+    @Test
+    @DisplayName("P1 #17: isAtCapacity should return true when buffer is full")
+    void testIsAtCapacity() {
+        MessageStream capped = new MessageStream("capped-conn", 2);
+
+        assertFalse(capped.isAtCapacity());
+        capped.addMessage("msg1");
+        assertFalse(capped.isAtCapacity());
+        capped.addMessage("msg2");
+        assertTrue(capped.isAtCapacity());
+    }
+
+    @Test
+    @DisplayName("P1 #17: Default constructor should use default max (100000)")
+    void testDefaultMaxMessages() {
+        // Default constructor should allow at least 100 messages without hitting cap
+        MessageStream defaultStream = new MessageStream("default-conn");
+        for (int i = 0; i < 100; i++) {
+            defaultStream.addMessage("msg-" + i);
+        }
+        assertEquals(100, defaultStream.getMessageCount());
+        assertFalse(defaultStream.isAtCapacity());
+    }
+
+    // ==================== P1 #18 - No CopyOnWriteArrayList for messages ====================
+
+    @Test
+    @DisplayName("P1 #18: Concurrent add and read should not throw ConcurrentModificationException")
+    void testConcurrentAddAndRead() throws InterruptedException {
+        // This test verifies thread safety without CopyOnWriteArrayList.
+        // It hammers concurrent writes and reads to detect race conditions.
+        int writerCount = 4;
+        int readerCount = 2;
+        int messagesPerWriter = 500;
+        ExecutorService executor = Executors.newFixedThreadPool(writerCount + readerCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch doneLatch = new CountDownLatch(writerCount + readerCount);
+        java.util.concurrent.atomic.AtomicBoolean readError = new java.util.concurrent.atomic.AtomicBoolean(false);
+
+        // Writers
+        for (int t = 0; t < writerCount; t++) {
+            final int threadId = t;
+            executor.submit(() -> {
+                try {
+                    startLatch.await();
+                    for (int i = 0; i < messagesPerWriter; i++) {
+                        stream.addMessage("W" + threadId + "-M" + i);
+                    }
+                } catch (Exception e) {
+                    readError.set(true);
+                } finally {
+                    doneLatch.countDown();
+                }
+            });
+        }
+
+        // Readers (snapshot via getAllMessages and countMatching)
+        for (int t = 0; t < readerCount; t++) {
+            executor.submit(() -> {
+                try {
+                    startLatch.await();
+                    for (int i = 0; i < 100; i++) {
+                        stream.getAllMessages(); // snapshot read
+                        stream.getMessageCount();
+                        stream.countMatching("W0", false);
+                        Thread.yield();
+                    }
+                } catch (Exception e) {
+                    readError.set(true);
+                } finally {
+                    doneLatch.countDown();
+                }
+            });
+        }
+
+        startLatch.countDown();
+        assertTrue(doneLatch.await(10, TimeUnit.SECONDS));
+        executor.shutdown();
+
+        assertFalse(readError.get(), "No exceptions should occur during concurrent read/write");
+        assertEquals(writerCount * messagesPerWriter, stream.getMessageCount());
+    }
 }

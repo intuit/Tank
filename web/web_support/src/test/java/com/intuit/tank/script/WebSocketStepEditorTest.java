@@ -174,6 +174,61 @@ public class WebSocketStepEditorTest {
         assertTrue(getDataValue(inserted, "ws-connection-id").length() > 0);
     }
 
+    @Test
+    public void testGetActiveConnections_ReconnectSequenceShowsActive() {
+        // P0 #15: CONNECT(A) -> DISCONNECT(A) -> CONNECT(A) should show A as active.
+        // The two-pass algorithm incorrectly marks A as disconnected because it
+        // collects all DISCONNECTs in a second pass and removes them regardless of order.
+        String url = "ws://localhost/reconnect";
+        ScriptStep connect1 = createWebSocketStep("WS_CONNECT", url, "A", "note1");
+        ScriptStep disconnect = createWebSocketStep("WS_DISCONNECT", url, "A", "note2");
+        ScriptStep connect2 = createWebSocketStep("WS_CONNECT", url, "A", "note3");
+
+        List<ScriptStep> steps = new ArrayList<>();
+        steps.add(connect1);
+        steps.add(disconnect);
+        steps.add(connect2);
+        when(scriptEditor.getSteps()).thenReturn(steps);
+
+        List<String> available = editor.getAvailableConnections();
+
+        // A should be active because the last action for A is a CONNECT
+        assertTrue(available.contains(url),
+                "Connection A should be active after CONNECT->DISCONNECT->CONNECT sequence");
+    }
+
+    @Test
+    public void testGetActiveConnections_DisconnectedNotShown() {
+        // Simple case: CONNECT(A) -> DISCONNECT(A) should show nothing
+        String url = "ws://localhost/simple";
+        ScriptStep connect = createWebSocketStep("WS_CONNECT", url, "A", "note1");
+        ScriptStep disconnect = createWebSocketStep("WS_DISCONNECT", url, "A", "note2");
+
+        List<ScriptStep> steps = new ArrayList<>();
+        steps.add(connect);
+        steps.add(disconnect);
+        when(scriptEditor.getSteps()).thenReturn(steps);
+
+        List<String> available = editor.getAvailableConnections();
+        assertFalse(available.contains(url),
+                "Connection A should not be active after CONNECT->DISCONNECT");
+    }
+
+    @Test
+    public void testAddSendStep_FailsWithoutPriorConnect() {
+        // P1 #29: SEND with no prior CONNECT should produce an error, not a broken step.
+        when(scriptEditor.getSteps()).thenReturn(new ArrayList<>());
+
+        editor.setAction("SEND");
+        editor.setUrl("ws://localhost/no-connection");
+        editor.setPayload("test");
+
+        editor.addToScript();
+
+        verify(messages).error("No active WebSocket connection found for this URL. Add a CONNECT step first.");
+        verify(scriptEditor, never()).insert(Mockito.any(ScriptStep.class));
+    }
+
     private ScriptStep createWebSocketStep(String method, String url, String connectionId, String comments) {
         ScriptStep step = new ScriptStep();
         step.setType("websocket");

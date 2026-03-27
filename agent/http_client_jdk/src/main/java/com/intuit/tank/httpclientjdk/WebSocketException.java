@@ -6,12 +6,12 @@ package com.intuit.tank.httpclientjdk;
 public class WebSocketException extends RuntimeException {
 
     private final String pattern;
-    private final String message;
+    private final String failedMessage;
 
-    public WebSocketException(String pattern, String message) {
-        super("Fail-on pattern matched: '" + pattern + "' in message: " + (message != null ? message : "(null)"));
+    public WebSocketException(String pattern, String failedMessage) {
+        super("Fail-on pattern matched: '" + pattern + "' in message: " + (failedMessage != null ? failedMessage : "(null)"));
         this.pattern = pattern;
-        this.message = message;
+        this.failedMessage = failedMessage;
     }
 
     public String getPattern() {
@@ -19,6 +19,6 @@ public class WebSocketException extends RuntimeException {
     }
 
     public String getFailedMessage() {
-        return message;
+        return failedMessage;
     }
 }

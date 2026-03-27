@@ -116,9 +116,17 @@ public class WebSocketRelay {
                     // Client→Server frames stay masked, Server→Client frames stay unmasked
                     codec.writeFramePreserveMask(out, frame);
 
-                    // Stop on CLOSE frame
+                    // Stop on CLOSE frame — echo CLOSE back to sender per RFC 6455 §5.5.1
                     if (frame.getOpcode() == WebSocketFrame.Opcode.CLOSE) {
-                        LOG.info("[WebSocket Relay] CLOSE received from {}, stopping relay", direction);
+                        LOG.info("[WebSocket Relay] CLOSE received from {}, echoing and stopping relay", direction);
+                        try {
+                            // Echo the CLOSE frame back to the sender (readSocket's output)
+                            OutputStream echoOut = readSocket.getOutputStream();
+                            // Echo with opposite masking: if sender was client (masked), echo unmasked
+                            codec.writeFrame(echoOut, frame, !clientToServer);
+                        } catch (IOException echoEx) {
+                            LOG.debug("[WebSocket {}] Could not echo CLOSE frame: {}", direction, echoEx.getMessage());
+                        }
                         stop();
                         break;
                     }

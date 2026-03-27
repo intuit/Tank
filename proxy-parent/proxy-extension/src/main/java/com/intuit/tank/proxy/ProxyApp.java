@@ -97,13 +97,18 @@ import com.intuit.tank.proxy.table.TransactionTableModel;
 import com.intuit.tank.handler.WebSocketSession;
 import com.intuit.tank.util.WebConversationJaxbParseXML;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * ProxyApp
- * 
+ *
  * @author dangleton
- * 
+ *
  */
 public class ProxyApp extends JFrame implements TransactionRecordedListener {
+
+    private static final Logger LOG = LogManager.getLogger(ProxyApp.class);
 
     private static final long serialVersionUID = 1L;
     private Application application;
@@ -288,8 +293,20 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             hpch.setConnectHandler(tch);
             
             // Register WebSocket handler for recording WS connections
+            // P0 #9: Extract headers from the upgrade request and pass them through
             hpch.setWebSocketHandler((clientSocket, serverSocket, wsUrl, request) -> {
-                application.handleWebSocketConnection(clientSocket, serverSocket, wsUrl);
+                java.util.Map<String, String> headers = new java.util.HashMap<>();
+                try {
+                    org.owasp.proxy.http.NamedValue[] requestHeaders = request.getHeaders();
+                    if (requestHeaders != null) {
+                        for (org.owasp.proxy.http.NamedValue nv : requestHeaders) {
+                            headers.put(nv.getName(), nv.getValue());
+                        }
+                    }
+                } catch (org.owasp.proxy.http.MessageFormatException e) {
+                    LOG.warn("Failed to extract headers from WebSocket upgrade request: {}", e.getMessage());
+                }
+                application.handleWebSocketConnection(clientSocket, serverSocket, wsUrl, headers);
             });
             
             TargetedConnectionHandler socks = new SocksConnectionHandler(tch, true);
@@ -297,7 +314,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             p = new Proxy(listen, socks, null);
             p.setSocketTimeout(0);
             p.start();
-            System.out.println("Listener started on " + listen);
+            LOG.info("Listener started on {}", listen);
         }
         startAction.setEnabled(false);
         stopAction.setEnabled(true);
@@ -379,7 +396,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 List<WebSocketTransaction> wsTxns = model.getWebSocketTransactions();
                 Session session = new Session(model.getTransactions(), wsTxns,
                         configDialog.getConfiguration().isFollowRedirects());
-                System.out.println("outputting to : " + currentFile.getCanonicalPath());
+                LOG.info("Outputting to: {}", currentFile.getCanonicalPath());
                 marshaller.marshal(session, currentFile);
             } catch (JAXBException | IOException e) {
                 JOptionPane.showMessageDialog(this, "Error saving recording: " + e, "Error", JOptionPane.ERROR_MESSAGE);
@@ -521,7 +538,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                         sorter.setRowFilter(RowFilter.regexFilter(text));
                         countLabel.setText(" Count: " + sorter.getViewRowCount() + " ");
                     } catch (PatternSyntaxException pse) {
-                        System.err.println("Bad regex pattern");
+                        LOG.debug("Bad regex pattern");
                     }
                 }
             }

@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,13 +28,16 @@ public class MessageStream {
     private static final int LOG_TRUNCATE_LENGTH = 500;  // Enough to see most JSON/errors
     private static final String TRUNCATE_SUFFIX = "...";
     public static final int DEFAULT_MIN_COUNT = 1;
+    public static final int DEFAULT_MAX_MESSAGES = 100_000;
 
     private final String connectionId;
-    private final CopyOnWriteArrayList<TimestampedMessage> messages = new CopyOnWriteArrayList<>();
+    private final List<TimestampedMessage> messages = Collections.synchronizedList(new ArrayList<>());
     private final CopyOnWriteArrayList<FailOnMatcher> failOnMatchers = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<String, Pattern> patternCache = new ConcurrentHashMap<>();
     private final AtomicInteger messageCounter = new AtomicInteger(0);
     private final long startTime;
+    private final int maxMessages;
+    private final AtomicBoolean capacityWarningLogged = new AtomicBoolean(false);
 
     // Failure state
     private final AtomicBoolean failed = new AtomicBoolean(false);
@@ -63,9 +67,14 @@ public class MessageStream {
     }
 
     public MessageStream(String connectionId) {
+        this(connectionId, DEFAULT_MAX_MESSAGES);
+    }
+
+    public MessageStream(String connectionId, int maxMessages) {
         this.connectionId = connectionId;
+        this.maxMessages = maxMessages;
         this.startTime = System.currentTimeMillis();
-        LOG.debug("Created MessageStream for connection: {}", connectionId);
+        LOG.debug("Created MessageStream for connection: {} (maxMessages={})", connectionId, maxMessages);
     }
 
     /**
@@ -117,11 +126,21 @@ public class MessageStream {
             }
         }
 
-        // Add to collection
+        // Add to collection with capacity enforcement
         long now = System.currentTimeMillis();
         int index = messageCounter.getAndIncrement();
         TimestampedMessage msg = new TimestampedMessage(content, now, index, now - startTime);
-        messages.add(msg);
+
+        synchronized (messages) {
+            if (messages.size() >= maxMessages) {
+                messages.remove(0);
+                if (capacityWarningLogged.compareAndSet(false, true)) {
+                    LOG.warn("MessageStream [{}] hit capacity limit of {} messages, dropping oldest",
+                        connectionId, maxMessages);
+                }
+            }
+            messages.add(msg);
+        }
 
         LOG.debug("Collected message #{} for {} ({}ms): {}",
             index, connectionId, msg.relativeTimeMs(), truncateForLog(content));
@@ -191,9 +210,11 @@ public class MessageStream {
     public int countMatching(String pattern, boolean isRegex) {
         Pattern compiled = isRegex ? getOrCompilePattern(pattern) : null;
         int count = 0;
-        for (TimestampedMessage msg : messages) {
-            if (matchesPattern(msg.content(), pattern, isRegex, compiled)) {
-                count++;
+        synchronized (messages) {
+            for (TimestampedMessage msg : messages) {
+                if (matchesPattern(msg.content(), pattern, isRegex, compiled)) {
+                    count++;
+                }
             }
         }
         return count;
@@ -205,9 +226,11 @@ public class MessageStream {
     public List<TimestampedMessage> getMatching(String pattern, boolean isRegex) {
         Pattern compiled = isRegex ? getOrCompilePattern(pattern) : null;
         List<TimestampedMessage> result = new ArrayList<>();
-        for (TimestampedMessage msg : messages) {
-            if (matchesPattern(msg.content(), pattern, isRegex, compiled)) {
-                result.add(msg);
+        synchronized (messages) {
+            for (TimestampedMessage msg : messages) {
+                if (matchesPattern(msg.content(), pattern, isRegex, compiled)) {
+                    result.add(msg);
+                }
             }
         }
         return result;
@@ -218,10 +241,12 @@ public class MessageStream {
      */
     public Optional<String> extractFirst(String regexPattern) {
         Pattern compiled = getOrCompilePattern(regexPattern);
-        for (TimestampedMessage msg : messages) {
-            Matcher matcher = compiled.matcher(msg.content());
-            if (matcher.find()) {
-                return Optional.of(extractCaptureGroup(matcher));
+        synchronized (messages) {
+            for (TimestampedMessage msg : messages) {
+                Matcher matcher = compiled.matcher(msg.content());
+                if (matcher.find()) {
+                    return Optional.of(extractCaptureGroup(matcher));
+                }
             }
         }
         return Optional.empty();
@@ -233,10 +258,12 @@ public class MessageStream {
     public Optional<String> extractLast(String regexPattern) {
         Pattern compiled = getOrCompilePattern(regexPattern);
         String lastMatch = null;
-        for (TimestampedMessage msg : messages) {
-            Matcher matcher = compiled.matcher(msg.content());
-            if (matcher.find()) {
-                lastMatch = extractCaptureGroup(matcher);
+        synchronized (messages) {
+            for (TimestampedMessage msg : messages) {
+                Matcher matcher = compiled.matcher(msg.content());
+                if (matcher.find()) {
+                    lastMatch = extractCaptureGroup(matcher);
+                }
             }
         }
         return Optional.ofNullable(lastMatch);
@@ -257,11 +284,25 @@ public class MessageStream {
     }
 
     public int getMessageCount() {
-        return messages.size();
+        synchronized (messages) {
+            return messages.size();
+        }
     }
 
     public List<TimestampedMessage> getAllMessages() {
-        return new ArrayList<>(messages);
+        synchronized (messages) {
+            return new ArrayList<>(messages);
+        }
+    }
+
+    /**
+     * Check if the message buffer is at capacity
+     * @return true if the buffer has reached maxMessages
+     */
+    public boolean isAtCapacity() {
+        synchronized (messages) {
+            return messages.size() >= maxMessages;
+        }
     }
 
     public String getConnectionId() {
@@ -277,6 +318,6 @@ public class MessageStream {
      */
     public String getSummary() {
         return String.format("MessageStream[%s]: %d messages collected over %dms, failed=%s",
-            connectionId, messages.size(), getElapsedTimeMs(), failed.get());
+            connectionId, getMessageCount(), getElapsedTimeMs(), failed.get());
     }
 }

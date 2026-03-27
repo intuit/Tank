@@ -25,13 +25,13 @@ import com.intuit.tank.project.ScriptStep;
 
 public class ScriptStepFactory {
 
-    // WebSocket constants (local definitions)
-    private static final String WEBSOCKET = "websocket";
-    private static final String WEBSOCKET_ACTION = "ws-action";
-    private static final String WEBSOCKET_URL = "ws-url";
-    private static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
-    private static final String WEBSOCKET_PAYLOAD = "ws-payload";
-    private static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
+    // WebSocket constants from ScriptConstants
+    private static final String WEBSOCKET = ScriptConstants.WEBSOCKET;
+    private static final String WEBSOCKET_ACTION = ScriptConstants.WEBSOCKET_ACTION;
+    private static final String WEBSOCKET_URL = ScriptConstants.WEBSOCKET_URL;
+    private static final String WEBSOCKET_CONNECTION_ID = ScriptConstants.WEBSOCKET_CONNECTION_ID;
+    private static final String WEBSOCKET_PAYLOAD = ScriptConstants.WEBSOCKET_PAYLOAD;
+    private static final String WEBSOCKET_TIMEOUT_MS = ScriptConstants.WEBSOCKET_TIMEOUT_MS;
 
     public static ScriptStep createVariable(String key, String value) {
         ScriptStep step = new ScriptStep();

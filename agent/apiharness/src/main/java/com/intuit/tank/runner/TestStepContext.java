@@ -15,6 +15,7 @@ package com.intuit.tank.runner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.annotation.Nonnull;
 
@@ -39,7 +40,6 @@ public class TestStepContext {
     private BaseResponse response;
     private String result;
     private List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
-    // WebSocket clients are now stored in TestPlanRunner for persistence across steps
 
     public TestStepContext(@Nonnull TestStep testStep,
             @Nonnull Variables variables, @Nonnull String testPlanName,
@@ -173,34 +173,31 @@ public class TestStepContext {
     }
 
     /**
-     * Get WebSocket client by connection ID
-     * Delegates to TestPlanRunner to ensure persistence across test steps
-     * @param connectionId the connection identifier
-     * @return the WebSocket client or null if not found
+     * @return the shared WebSocket client map from the parent TestPlanRunner
+     */
+    public ConcurrentHashMap<String, TankWebSocketClient> getWebSocketClients() {
+        return parent.getWebSocketClients();
+    }
+
+    /**
+     * Get WebSocket client by connection ID.
      */
     public TankWebSocketClient getWebSocketClient(String connectionId) {
-        return parent.getWebSocketClient(connectionId);
+        return parent.getWebSocketClients().get(connectionId);
     }
 
     /**
-     * Set WebSocket client for a connection ID
-     * Delegates to TestPlanRunner to ensure persistence across test steps
-     * @param connectionId the connection identifier
-     * @param client the WebSocket client
+     * Set WebSocket client for a connection ID.
      */
     public void setWebSocketClient(String connectionId, TankWebSocketClient client) {
-        parent.setWebSocketClient(connectionId, client);
+        parent.getWebSocketClients().put(connectionId, client);
     }
 
     /**
-     * Remove WebSocket client for a connection ID
-     * Delegates to TestPlanRunner to ensure persistence across test steps
-     * @param connectionId the connection identifier
-     * @return the removed client or null if not found
+     * Remove a WebSocket client from the shared map.
      */
     public TankWebSocketClient removeWebSocketClient(String connectionId) {
-        return parent.removeWebSocketClient(connectionId);
+        return parent.getWebSocketClients().remove(connectionId);
     }
-
 
 }

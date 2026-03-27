@@ -7,6 +7,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -36,8 +37,8 @@ public class WebSocketTransaction {
     @XmlAttribute(name = "protocol")
     private Protocol protocol;
 
-    @XmlElement(name = "handshakeHeader", namespace = Namespace.NAMESPACE_V1)
-    @XmlElementWrapper(name = "handshakeHeaders", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "handshakeHeaders", namespace = Namespace.NAMESPACE_V1)
+    @XmlJavaTypeAdapter(HeaderMapAdapter.class)
     private Map<String, String> handshakeHeaders;
 
     @XmlElement(name = "message", namespace = Namespace.NAMESPACE_V1)

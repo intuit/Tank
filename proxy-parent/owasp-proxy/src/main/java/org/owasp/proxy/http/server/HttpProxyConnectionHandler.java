@@ -492,26 +492,38 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
 
     /**
      * Try to extract server socket from handler chain.
+     * Traverses using getWrappedHandler() on BufferingHttpRequestHandler (direct instanceof),
+     * with a reflection fallback for cross-package wrappers that expose the same method.
      */
     private Socket getServerSocket(HttpRequestHandler handler) {
-        // Unwrap handler chain to find DefaultHttpRequestHandler
         HttpRequestHandler current = handler;
         for (int i = 0; i < 10 && current != null; i++) {
             if (current instanceof DefaultHttpRequestHandler) {
                 return ((DefaultHttpRequestHandler) current).getHttpClient().getSocket();
             }
-            // Unwrap via reflection (handler chains use a 'next' field)
-            try {
-                java.lang.reflect.Field nextField = current.getClass().getDeclaredField("next");
-                nextField.setAccessible(true);
-                Object next = nextField.get(current);
-                if (next instanceof HttpRequestHandler) {
-                    current = (HttpRequestHandler) next;
-                } else {
+            // Traverse chain using the public getWrappedHandler() API
+            // Check both the owasp and proxy-extension BufferingHttpRequestHandler classes
+            if (current instanceof BufferingHttpRequestHandler) {
+                current = ((BufferingHttpRequestHandler) current).getWrappedHandler();
+            } else {
+                // Try to call getWrappedHandler() via reflection as a fallback for subclasses
+                // in other packages (e.g., com.intuit.tank.handler.BufferingHttpRequestHandler)
+                try {
+                    java.lang.reflect.Method m = current.getClass().getMethod("getWrappedHandler");
+                    Object result = m.invoke(current);
+                    if (result instanceof HttpRequestHandler) {
+                        current = (HttpRequestHandler) result;
+                    } else {
+                        logger.fine("getWrappedHandler() returned non-handler: " + current.getClass().getName());
+                        break;
+                    }
+                } catch (NoSuchMethodException e) {
+                    logger.fine("Unknown handler type in chain (no getWrappedHandler): " + current.getClass().getName());
+                    break;
+                } catch (Exception e) {
+                    logger.fine("Error unwrapping handler: " + e.getMessage());
                     break;
                 }
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                break;
             }
         }
         logger.warning("Could not unwrap handler chain to find server socket: " + handler.getClass().getName());

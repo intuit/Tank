@@ -15,6 +15,9 @@
 
   <url>http://www.owasp.org/index.php/Category:OWASP_Proxy</url>
   <inceptionYear>2008</inceptionYear>
+  <properties>
+    <owasp.proxy.skipTests>true</owasp.proxy.skipTests>
+  </properties>
   <build>
     <plugins>
       <plugin>
@@ -22,7 +25,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.21.0</version>
         <configuration>
-          <skipTests>true</skipTests>
+          <skipTests>${owasp.proxy.skipTests}</skipTests>
         </configuration>
       </plugin>
     </plugins>

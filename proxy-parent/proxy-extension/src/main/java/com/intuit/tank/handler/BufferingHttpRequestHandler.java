@@ -97,9 +97,19 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
         this.max = max;
     }
 
+    /**
+     * Get the wrapped (next) handler in the chain.
+     * Used for traversing the handler chain without reflection.
+     *
+     * @return the wrapped HttpRequestHandler
+     */
+    public HttpRequestHandler getWrappedHandler() {
+        return next;
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.owasp.proxy.daemon.HttpRequestHandler#dispose()
      */
     public final void dispose() throws IOException {

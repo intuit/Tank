@@ -30,6 +30,7 @@ public class WebSocketSession {
 
     private final String url;
     private final String connectionId;
+    private final String sessionId; // unique per session, used for deduplication
     private final Map<String, String> handshakeHeaders;
     private final long startTime;
     private volatile long endTime;
@@ -41,8 +42,8 @@ public class WebSocketSession {
     // For handling fragmented messages (ByteArrayOutputStream preserves binary fidelity)
     private final ByteArrayOutputStream clientFragmentBuffer = new ByteArrayOutputStream();
     private final ByteArrayOutputStream serverFragmentBuffer = new ByteArrayOutputStream();
-    private WebSocketFrame.Opcode clientFragmentOpcode = null;
-    private WebSocketFrame.Opcode serverFragmentOpcode = null;
+    private volatile WebSocketFrame.Opcode clientFragmentOpcode = null;
+    private volatile WebSocketFrame.Opcode serverFragmentOpcode = null;
 
     // Callback for UI updates when messages are added
     private volatile Runnable messageCallback;
@@ -81,6 +82,7 @@ public class WebSocketSession {
     public WebSocketSession(String url, Map<String, String> handshakeHeaders) {
         this.url = url;
         this.connectionId = generateConnectionId(url);
+        this.sessionId = java.util.UUID.randomUUID().toString();
         this.handshakeHeaders = handshakeHeaders != null ? handshakeHeaders : Collections.emptyMap();
         this.startTime = System.currentTimeMillis();
         this.closed = false;
@@ -217,6 +219,10 @@ public class WebSocketSession {
 
     public String getConnectionId() {
         return connectionId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
     }
 
     public long getStartTime() {

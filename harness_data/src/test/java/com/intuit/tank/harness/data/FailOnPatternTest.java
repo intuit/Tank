@@ -48,19 +48,43 @@ public class FailOnPatternTest {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testSetPatternNull() {
+        // P1 #23: setPattern is now a pure setter (no validation) for JAXB compatibility.
+        // Null is accepted without throwing.
         FailOnPattern pattern = new FailOnPattern();
-        assertThrows(IllegalArgumentException.class, () -> {
-            pattern.setPattern(null);
-        });
+        pattern.setPattern(null);
+        assertNull(pattern.getPattern());
     }
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testSetPatternEmpty() {
+        // P1 #23: setPattern is now a pure setter (no validation) for JAXB compatibility.
+        // Empty/blank is accepted without throwing.
         FailOnPattern pattern = new FailOnPattern();
-        assertThrows(IllegalArgumentException.class, () -> {
-            pattern.setPattern("   ");
-        });
+        pattern.setPattern("   ");
+        assertEquals("   ", pattern.getPattern());
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateRejectsNullPattern() {
+        FailOnPattern pattern = new FailOnPattern();
+        assertFalse(pattern.validate(), "validate() should return false for null pattern");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateRejectsEmptyPattern() {
+        FailOnPattern pattern = new FailOnPattern();
+        pattern.setPattern("   ");
+        assertFalse(pattern.validate(), "validate() should return false for blank pattern");
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testValidateAcceptsValidPattern() {
+        FailOnPattern pattern = new FailOnPattern("error");
+        assertTrue(pattern.validate(), "validate() should return true for valid pattern");
     }
 
     @Test

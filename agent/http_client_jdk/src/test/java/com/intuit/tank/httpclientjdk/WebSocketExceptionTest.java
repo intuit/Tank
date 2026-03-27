@@ -2,6 +2,8 @@ package com.intuit.tank.httpclientjdk;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -55,5 +57,28 @@ class WebSocketExceptionTest {
     void testIsRuntimeException() {
         WebSocketException ex = new WebSocketException("test", "message");
         assertTrue(ex instanceof RuntimeException);
+    }
+
+    // ==================== P2 #33 - Field should not shadow Throwable.detailMessage ====================
+
+    @Test
+    @DisplayName("P2 #33: failedMessage field should not shadow Throwable.detailMessage")
+    void testFieldDoesNotShadowThrowable() throws Exception {
+        // The field storing the failed message content should be named 'failedMessage',
+        // not 'message', to avoid shadowing Throwable.detailMessage
+        WebSocketException ex = new WebSocketException("pattern", "the failed content");
+
+        // Verify the field is named 'failedMessage' (not 'message')
+        Field failedMessageField = WebSocketException.class.getDeclaredField("failedMessage");
+        assertNotNull(failedMessageField, "Field should be named 'failedMessage'");
+        failedMessageField.setAccessible(true);
+        assertEquals("the failed content", failedMessageField.get(ex));
+
+        // Verify getMessage() (from Throwable) returns the super message, not the field
+        String superMessage = ex.getMessage();
+        assertTrue(superMessage.contains("Fail-on pattern matched"));
+
+        // Verify getFailedMessage() returns the actual failed message content
+        assertEquals("the failed content", ex.getFailedMessage());
     }
 }

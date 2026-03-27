@@ -310,15 +310,15 @@ public class ScriptUtil {
 
             label.append(name).append(":").append(timerAction);
 
-        } else if (step.getType().equalsIgnoreCase("websocket")) {
+        } else if (step.getType().equalsIgnoreCase(ScriptConstants.WEBSOCKET)) {
             // Handle WebSocket steps - show action and URL
             String action = "WebSocket";
             String url = "";
-            
+
             for (RequestData rd : step.getData()) {
-                if ("ws-action".equals(rd.getKey())) {
+                if (ScriptConstants.WEBSOCKET_ACTION.equals(rd.getKey())) {
                     action = "WS " + rd.getValue().toUpperCase();
-                } else if ("ws-url".equals(rd.getKey())) {
+                } else if (ScriptConstants.WEBSOCKET_URL.equals(rd.getKey())) {
                     url = rd.getValue();
                 }
             }

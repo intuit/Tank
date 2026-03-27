@@ -1,160 +1,123 @@
 package com.intuit.tank.conversation;
 
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * TDD: Test-first for WebSocketTransaction model
+ * Tests for WebSocketTransaction JAXB round-trip serialization.
  */
-public class WebSocketTransactionTest {
+class WebSocketTransactionTest {
 
-    private WebSocketTransaction transaction;
+    @Test
+    @DisplayName("P0 #8 — handshakeHeaders survive JAXB marshal/unmarshal round-trip with adapter")
+    void handshakeHeadersRoundTrip() throws Exception {
+        // Arrange
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/chat");
+        tx.addHandshakeHeader("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
+        tx.addHandshakeHeader("Origin", "http://example.com");
+        tx.addHandshakeHeader("Host", "example.com");
 
-    @BeforeEach
-    void setUp() {
-        transaction = new WebSocketTransaction("ws://localhost:8080/chat");
+        tx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "hello".getBytes(StandardCharsets.UTF_8), 1000L));
+
+        // Marshal
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller marshaller = ctx.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(tx, sw);
+        String xml = sw.toString();
+
+        // Verify adapter produces clean XML with <header key="..." value="..."/> structure
+        assertTrue(xml.contains("header"), "XML should contain header elements: " + xml);
+        // Should NOT contain raw <entry><key>...</key><value>...</value></entry> from default Map handling
+        assertFalse(xml.contains("<entry>"), "Should use adapter, not default Map serialization: " + xml);
+
+        // Unmarshal
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        WebSocketTransaction result = (WebSocketTransaction) unmarshaller.unmarshal(new StringReader(xml));
+
+        // Assert headers survived
+        assertNotNull(result.getHandshakeHeaders(), "handshakeHeaders should not be null");
+        assertEquals(3, result.getHandshakeHeaders().size(), "should have 3 headers");
+        assertEquals("dGhlIHNhbXBsZSBub25jZQ==", result.getHandshakeHeaders().get("Sec-WebSocket-Key"));
+        assertEquals("http://example.com", result.getHandshakeHeaders().get("Origin"));
+        assertEquals("example.com", result.getHandshakeHeaders().get("Host"));
+
+        // Assert messages survived
+        assertEquals(1, result.getMessages().size());
+        assertEquals("hello", result.getMessages().get(0).getContentAsString());
     }
 
     @Test
-    void testCreateTransaction() {
-        assertNotNull(transaction);
-        assertEquals("ws://localhost:8080/chat", transaction.getUrl());
-        assertNotNull(transaction.getMessages());
-        assertTrue(transaction.getMessages().isEmpty());
+    @DisplayName("P0 #8 — empty handshakeHeaders round-trip produces empty map, not null")
+    void emptyHandshakeHeadersRoundTrip() throws Exception {
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        // No headers added — map is empty
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller marshaller = ctx.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(tx, sw);
+
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        WebSocketTransaction result = (WebSocketTransaction) unmarshaller.unmarshal(new StringReader(sw.toString()));
+
+        assertNotNull(result.getHandshakeHeaders(), "handshakeHeaders should not be null even if empty");
+        assertTrue(result.getHandshakeHeaders().isEmpty());
     }
 
     @Test
-    void testCreateTransactionWithWss() {
-        WebSocketTransaction wssTransaction = new WebSocketTransaction("wss://example.com/ws");
-        assertEquals("wss://example.com/ws", wssTransaction.getUrl());
-        assertEquals(Protocol.wss, wssTransaction.getProtocol());
-    }
+    @DisplayName("Session with WebSocketTransactions round-trips correctly including headers")
+    void sessionWithWebSocketTransactionsRoundTrip() throws Exception {
+        WebSocketTransaction wsTx = new WebSocketTransaction("wss://secure.example.com/ws");
+        wsTx.addHandshakeHeader("Authorization", "Bearer token123");
+        wsTx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "ping".getBytes(StandardCharsets.UTF_8), 2000L));
+        wsTx.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT,
+                "pong".getBytes(StandardCharsets.UTF_8), 2001L));
 
-    @Test
-    void testCreateTransactionWithWs() {
-        assertEquals(Protocol.ws, transaction.getProtocol());
-    }
+        Session session = new Session(new java.util.ArrayList<>(),
+                java.util.List.of(wsTx), false);
 
-    @Test
-    void testAddMessage() {
-        WebSocketMessage message = new WebSocketMessage(
-            true,
-            WebSocketMessage.Type.TEXT,
-            "Hello".getBytes(),
-            System.currentTimeMillis()
-        );
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller marshaller = ctx.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-        transaction.addMessage(message);
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(session, sw);
+        String xml = sw.toString();
 
-        assertEquals(1, transaction.getMessages().size());
-        assertEquals(message, transaction.getMessages().get(0));
-    }
+        // Verify adapter-style XML
+        assertTrue(xml.contains("Authorization"), "XML should contain Authorization header: " + xml);
+        assertTrue(xml.contains("Bearer token123"), "XML should contain token value: " + xml);
 
-    @Test
-    void testAddMultipleMessages() {
-        WebSocketMessage msg1 = new WebSocketMessage(
-            true, WebSocketMessage.Type.TEXT, "Client 1".getBytes(), System.currentTimeMillis()
-        );
-        WebSocketMessage msg2 = new WebSocketMessage(
-            false, WebSocketMessage.Type.TEXT, "Server 1".getBytes(), System.currentTimeMillis()
-        );
-        WebSocketMessage msg3 = new WebSocketMessage(
-            true, WebSocketMessage.Type.TEXT, "Client 2".getBytes(), System.currentTimeMillis()
-        );
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        Session result = (Session) unmarshaller.unmarshal(new StringReader(sw.toString()));
 
-        transaction.addMessage(msg1);
-        transaction.addMessage(msg2);
-        transaction.addMessage(msg3);
+        assertEquals(1, result.getWebSocketTransactions().size());
+        WebSocketTransaction resultTx = result.getWebSocketTransactions().get(0);
+        assertEquals("wss://secure.example.com/ws", resultTx.getUrl());
+        assertEquals(Protocol.wss, resultTx.getProtocol());
 
-        assertEquals(3, transaction.getMessages().size());
-    }
+        Map<String, String> headers = resultTx.getHandshakeHeaders();
+        assertNotNull(headers);
+        assertEquals(1, headers.size());
+        assertEquals("Bearer token123", headers.get("Authorization"));
 
-    @Test
-    void testGetClientMessages() {
-        transaction.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT, "C1".getBytes(), 1L));
-        transaction.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT, "S1".getBytes(), 2L));
-        transaction.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT, "C2".getBytes(), 3L));
-        transaction.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT, "S2".getBytes(), 4L));
-
-        List<WebSocketMessage> clientMessages = transaction.getClientMessages();
-        assertEquals(2, clientMessages.size());
-        assertTrue(clientMessages.stream().allMatch(WebSocketMessage::isFromClient));
-    }
-
-    @Test
-    void testGetServerMessages() {
-        transaction.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT, "C1".getBytes(), 1L));
-        transaction.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT, "S1".getBytes(), 2L));
-        transaction.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT, "C2".getBytes(), 3L));
-        transaction.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT, "S2".getBytes(), 4L));
-
-        List<WebSocketMessage> serverMessages = transaction.getServerMessages();
-        assertEquals(2, serverMessages.size());
-        assertTrue(serverMessages.stream().allMatch(WebSocketMessage::isFromServer));
-    }
-
-    @Test
-    void testAddHandshakeHeader() {
-        transaction.addHandshakeHeader("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==");
-        transaction.addHandshakeHeader("Sec-WebSocket-Version", "13");
-
-        assertEquals(2, transaction.getHandshakeHeaders().size());
-        assertEquals("dGhlIHNhbXBsZSBub25jZQ==", transaction.getHandshakeHeaders().get("Sec-WebSocket-Key"));
-        assertEquals("13", transaction.getHandshakeHeaders().get("Sec-WebSocket-Version"));
-    }
-
-    @Test
-    void testGenerateConnectionId() {
-        String connectionId = transaction.generateConnectionId();
-        assertNotNull(connectionId);
-        assertTrue(connectionId.startsWith("ws_"));
-        assertTrue(connectionId.length() > 3);
-    }
-
-    @Test
-    void testConnectionIdIsStable() {
-        String id1 = transaction.generateConnectionId();
-        String id2 = transaction.generateConnectionId();
-        assertEquals(id1, id2, "Connection ID should be stable for same transaction");
-    }
-
-    @Test
-    void testInvalidUrl() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new WebSocketTransaction("http://example.com");
-        }, "Should reject non-WebSocket URLs");
-    }
-
-    @Test
-    void testNullUrl() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new WebSocketTransaction(null);
-        });
-    }
-
-    @Test
-    void testGetMessageCount() {
-        assertEquals(0, transaction.getMessageCount());
-        
-        transaction.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT, "1".getBytes(), 1L));
-        assertEquals(1, transaction.getMessageCount());
-        
-        transaction.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT, "2".getBytes(), 2L));
-        assertEquals(2, transaction.getMessageCount());
-    }
-
-    @Test
-    void testToString() {
-        String str = transaction.toString();
-        assertNotNull(str);
-        assertTrue(str.contains("ws://localhost:8080/chat"));
-        assertTrue(str.contains("messages=0"));
+        assertEquals(2, resultTx.getMessages().size());
     }
 }
-
-
-

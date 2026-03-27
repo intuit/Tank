@@ -1,64 +1,79 @@
 package com.intuit.tank.proxy.table;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.intuit.tank.conversation.WebSocketMessage;
+import com.intuit.tank.conversation.WebSocketTransaction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.conversation.WebSocketMessage;
-import com.intuit.tank.conversation.WebSocketTransaction;
-import com.intuit.tank.handler.WebSocketSession;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TransactionTableModelTest {
+class TransactionTableModelTest {
 
     @Test
-    @DisplayName("getWebSocketTransactions returns transactions from added sessions")
-    public void testGetWebSocketTransactions() {
+    @DisplayName("P1 #24 — loaded WebSocketTransactions are returned with messages intact")
+    void loadedWebSocketTransactionsRetainMessages() {
         TransactionTableModel model = new TransactionTableModel();
 
-        WebSocketSession session1 = new WebSocketSession("ws://example.com/chat", null);
-        WebSocketSession session2 = new WebSocketSession("ws://example.com/feed", null);
-
-        model.addWebSocketSession(session1);
-        model.addWebSocketSession(session2);
-
-        List<WebSocketTransaction> wsTxns = model.getWebSocketTransactions();
-        assertEquals(2, wsTxns.size());
-        assertEquals("ws://example.com/chat", wsTxns.get(0).getUrl());
-        assertEquals("ws://example.com/feed", wsTxns.get(1).getUrl());
-    }
-
-    @Test
-    @DisplayName("addWebSocketTransactions loads WS transactions into model")
-    public void testAddWebSocketTransactions() {
-        TransactionTableModel model = new TransactionTableModel();
-
-        List<WebSocketTransaction> wsTxns = new ArrayList<>();
-        WebSocketTransaction wsTx = new WebSocketTransaction("ws://example.com/chat");
-        wsTx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+        // Create a loaded transaction with messages (as if from XML deserialization)
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        tx.addHandshakeHeader("Host", "example.com");
+        tx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
                 "hello".getBytes(StandardCharsets.UTF_8), 1000L));
-        wsTxns.add(wsTx);
+        tx.addMessage(new WebSocketMessage(false, WebSocketMessage.Type.TEXT,
+                "world".getBytes(StandardCharsets.UTF_8), 1001L));
 
-        model.addWebSocketTransactions(wsTxns);
+        // Load transactions (simulates opening a saved recording)
+        model.addWebSocketTransactions(List.of(tx));
 
-        List<WebSocketTransaction> retrieved = model.getWebSocketTransactions();
-        assertEquals(1, retrieved.size());
-        assertEquals("ws://example.com/chat", retrieved.get(0).getUrl());
+        // getWebSocketTransactions should return the loaded data with messages intact
+        List<WebSocketTransaction> result = model.getWebSocketTransactions();
+        assertEquals(1, result.size(), "should have 1 transaction");
+
+        WebSocketTransaction resultTx = result.get(0);
+        assertEquals("ws://example.com/ws", resultTx.getUrl());
+        assertEquals(2, resultTx.getMessageCount(),
+                "loaded transaction should retain its 2 messages, not be an empty shell");
+        assertEquals("hello", resultTx.getMessages().get(0).getContentAsString());
+        assertEquals("world", resultTx.getMessages().get(1).getContentAsString());
     }
 
     @Test
-    @DisplayName("clear removes WebSocket sessions")
-    public void testClearRemovesWebSocketSessions() {
+    @DisplayName("P1 #24 — loaded and active transactions are both returned by getWebSocketTransactions")
+    void mergesLoadedAndActiveTransactions() {
         TransactionTableModel model = new TransactionTableModel();
-        model.addWebSocketSession(new WebSocketSession("ws://example.com/chat", null));
+
+        // Load a transaction from file
+        WebSocketTransaction loaded = new WebSocketTransaction("ws://example.com/loaded");
+        loaded.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "from-file".getBytes(StandardCharsets.UTF_8), 1000L));
+        model.addWebSocketTransactions(List.of(loaded));
+
+        // getWebSocketTransactions should include the loaded one
+        List<WebSocketTransaction> result = model.getWebSocketTransactions();
+        assertTrue(result.size() >= 1, "should include loaded transaction");
+
+        boolean foundLoaded = result.stream()
+                .anyMatch(tx -> "ws://example.com/loaded".equals(tx.getUrl())
+                        && tx.getMessageCount() == 1);
+        assertTrue(foundLoaded, "loaded transaction should be in results with messages intact");
+    }
+
+    @Test
+    @DisplayName("clear removes loaded WebSocket transactions")
+    void clearRemovesLoadedTransactions() {
+        TransactionTableModel model = new TransactionTableModel();
+
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        tx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "test".getBytes(StandardCharsets.UTF_8), 1000L));
+        model.addWebSocketTransactions(List.of(tx));
 
         model.clear();
 
-        List<WebSocketTransaction> wsTxns = model.getWebSocketTransactions();
-        assertEquals(0, wsTxns.size());
+        List<WebSocketTransaction> result = model.getWebSocketTransactions();
+        assertEquals(0, result.size(), "clear should remove loaded transactions");
     }
 }

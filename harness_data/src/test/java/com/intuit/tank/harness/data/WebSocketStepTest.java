@@ -35,7 +35,9 @@ public class WebSocketStepTest {
         assertEquals("Connect WS", roundTrip.getName());
         assertEquals(WebSocketAction.CONNECT, roundTrip.getAction());
         assertEquals("conn-1", roundTrip.getConnectionId());
-        assertEquals("conn-1", roundTrip.getComments());
+        // P0 #12: setConnectionId() is now a pure setter, no longer auto-populates comments.
+        // Comments is null here because we never set it explicitly.
+        assertNull(roundTrip.getComments());
         assertNotNull(roundTrip.getRequest());
         assertEquals("wss://echo.example/ws", roundTrip.getRequest().getUrl());
         assertEquals(Integer.valueOf(5000), roundTrip.getRequest().getTimeoutMs());
@@ -55,7 +57,8 @@ public class WebSocketStepTest {
         WebSocketStep roundTrip = JaxbUtil.unmarshall(xml, WebSocketStep.class);
         assertEquals(WebSocketAction.DISCONNECT, roundTrip.getAction());
         assertEquals("conn-1", roundTrip.getConnectionId());
-        assertEquals("conn-1", roundTrip.getComments());
+        // P0 #12: setConnectionId() no longer auto-populates comments
+        assertNull(roundTrip.getComments());
         assertNull(roundTrip.getRequest());
     }
 }

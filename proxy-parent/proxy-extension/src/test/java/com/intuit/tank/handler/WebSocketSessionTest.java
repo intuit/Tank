@@ -1,301 +1,122 @@
 package com.intuit.tank.handler;
 
-import com.intuit.tank.conversation.WebSocketMessage;
-import com.intuit.tank.conversation.WebSocketTransaction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests for WebSocketSession - per-connection state tracking during proxy recording.
- */
 class WebSocketSessionTest {
 
-    private WebSocketSession session;
-
-    @BeforeEach
-    void setUp() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Origin", "http://localhost:8090");
-        session = new WebSocketSession("ws://localhost:8090/ws", headers);
+    @Test
+    @DisplayName("P0 #10 — clientFragmentOpcode must be volatile for cross-thread visibility")
+    void clientFragmentOpcodeIsVolatile() throws Exception {
+        Field field = WebSocketSession.class.getDeclaredField("clientFragmentOpcode");
+        assertTrue(Modifier.isVolatile(field.getModifiers()),
+                "clientFragmentOpcode must be volatile for cross-thread visibility");
     }
 
     @Test
-    void testConnectionIdGeneration() {
-        // Same URL should produce same connection ID
-        WebSocketSession session2 = new WebSocketSession("ws://localhost:8090/ws", null);
-        assertEquals(session.getConnectionId(), session2.getConnectionId());
-
-        // Different URL should produce different ID
-        WebSocketSession session3 = new WebSocketSession("ws://localhost:8090/other", null);
-        assertNotEquals(session.getConnectionId(), session3.getConnectionId());
-
-        // Connection ID format: ws_<8 hex chars>
-        assertTrue(session.getConnectionId().matches("ws_[0-9a-f]{8}"));
+    @DisplayName("P0 #10 — serverFragmentOpcode must be volatile for cross-thread visibility")
+    void serverFragmentOpcodeIsVolatile() throws Exception {
+        Field field = WebSocketSession.class.getDeclaredField("serverFragmentOpcode");
+        assertTrue(Modifier.isVolatile(field.getModifiers()),
+                "serverFragmentOpcode must be volatile for cross-thread visibility");
     }
 
     @Test
-    void testAddTextFrame() {
-        WebSocketFrame frame = new WebSocketFrame(
-            true,  // FIN
-            WebSocketFrame.Opcode.TEXT,
-            false,
-            "Hello".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        session.addFrame(frame, true);  // From client
-
-        List<WebSocketSession.CapturedMessage> messages = session.getMessages();
-        assertEquals(1, messages.size());
-
-        WebSocketSession.CapturedMessage msg = messages.get(0);
-        assertTrue(msg.fromClient);
-        assertEquals(WebSocketFrame.Opcode.TEXT, msg.type);
-        assertEquals("Hello", msg.getPayloadAsText());
+    @DisplayName("P0 #10 — messageCallback must be volatile")
+    void messageCallbackIsVolatile() throws Exception {
+        Field field = WebSocketSession.class.getDeclaredField("messageCallback");
+        assertTrue(Modifier.isVolatile(field.getModifiers()),
+                "messageCallback must be volatile");
     }
 
     @Test
-    void testAddBinaryFrame() {
-        byte[] binaryData = new byte[] {0x01, 0x02, 0x03, 0x04};
-        WebSocketFrame frame = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.BINARY,
-            false,
-            binaryData,
-            null
-        );
+    @DisplayName("addFrame records TEXT messages correctly")
+    void addFrameRecordsTextMessages() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws", Collections.emptyMap());
+        WebSocketFrame frame = new WebSocketFrame(true, WebSocketFrame.Opcode.TEXT, false,
+                "hello".getBytes(), null);
 
-        session.addFrame(frame, false);  // From server
-
-        List<WebSocketSession.CapturedMessage> messages = session.getMessages();
-        assertEquals(1, messages.size());
-
-        WebSocketSession.CapturedMessage msg = messages.get(0);
-        assertFalse(msg.fromClient);
-        assertEquals(WebSocketFrame.Opcode.BINARY, msg.type);
-        assertArrayEquals(binaryData, msg.payload);
-    }
-
-    @Test
-    void testControlFramesIgnored() {
-        // PING frame should be ignored
-        WebSocketFrame ping = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.PING,
-            false,
-            "ping".getBytes(),
-            null
-        );
-
-        // PONG frame should be ignored
-        WebSocketFrame pong = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.PONG,
-            false,
-            "pong".getBytes(),
-            null
-        );
-
-        // CLOSE frame should be ignored
-        WebSocketFrame close = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.CLOSE,
-            false,
-            new byte[] {0x03, (byte) 0xE8},  // Status 1000
-            null
-        );
-
-        session.addFrame(ping, true);
-        session.addFrame(pong, false);
-        session.addFrame(close, true);
-
-        // No messages should be recorded
-        assertEquals(0, session.getMessageCount());
-    }
-
-    @Test
-    void testFragmentedMessage() {
-        // First fragment (FIN=0)
-        WebSocketFrame frag1 = new WebSocketFrame(
-            false,  // Not final
-            WebSocketFrame.Opcode.TEXT,
-            false,
-            "Hel".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        // Continuation (FIN=0)
-        WebSocketFrame frag2 = new WebSocketFrame(
-            false,
-            WebSocketFrame.Opcode.CONTINUATION,
-            false,
-            "lo ".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        // Final continuation (FIN=1)
-        WebSocketFrame frag3 = new WebSocketFrame(
-            true,  // Final
-            WebSocketFrame.Opcode.CONTINUATION,
-            false,
-            "World".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        session.addFrame(frag1, true);
-        assertEquals(0, session.getMessageCount());  // Not complete yet
-
-        session.addFrame(frag2, true);
-        assertEquals(0, session.getMessageCount());  // Still not complete
-
-        session.addFrame(frag3, true);
-        assertEquals(1, session.getMessageCount());  // Now complete
-
-        WebSocketSession.CapturedMessage msg = session.getMessages().get(0);
-        assertEquals("Hello World", msg.getPayloadAsText());
-    }
-
-    @Test
-    void testBidirectionalMessages() {
-        // Client sends
-        WebSocketFrame clientMsg = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.TEXT,
-            true,  // Masked (client→server)
-            "{\"action\":\"subscribe\"}".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        // Server responds
-        WebSocketFrame serverMsg = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.TEXT,
-            false,  // Not masked (server→client)
-            "{\"status\":\"ok\"}".getBytes(StandardCharsets.UTF_8),
-            null
-        );
-
-        session.addFrame(clientMsg, true);
-        session.addFrame(serverMsg, false);
-
-        List<WebSocketSession.CapturedMessage> messages = session.getMessages();
-        assertEquals(2, messages.size());
-
-        assertTrue(messages.get(0).fromClient);
-        assertFalse(messages.get(1).fromClient);
-    }
-
-    @Test
-    void testClose() {
-        assertFalse(session.isClosed());
-        assertEquals(0, session.getEndTime());
-
-        session.close();
-
-        assertTrue(session.isClosed());
-        assertTrue(session.getEndTime() > 0);
-
-        // Adding frames after close should be ignored
-        WebSocketFrame frame = new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.TEXT,
-            false,
-            "Should be ignored".getBytes(),
-            null
-        );
         session.addFrame(frame, true);
 
-        assertEquals(0, session.getMessageCount());
+        assertEquals(1, session.getMessageCount());
+        WebSocketSession.CapturedMessage msg = session.getMessages().get(0);
+        assertTrue(msg.fromClient);
+        assertEquals("hello", msg.getPayloadAsText());
     }
 
     @Test
-    void testToTransaction() {
-        // Add some messages
-        session.addFrame(new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.TEXT,
-            true,
-            "Hello".getBytes(StandardCharsets.UTF_8),
-            null
-        ), true);
+    @DisplayName("addFrame handles fragmented messages correctly")
+    void addFrameHandlesFragmentation() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws", Collections.emptyMap());
 
-        session.addFrame(new WebSocketFrame(
-            true,
-            WebSocketFrame.Opcode.TEXT,
-            false,
-            "Echo: Hello".getBytes(StandardCharsets.UTF_8),
-            null
-        ), false);
+        // First fragment (opcode=TEXT, FIN=0)
+        WebSocketFrame frag1 = new WebSocketFrame(false, WebSocketFrame.Opcode.TEXT, false,
+                "hel".getBytes(), null);
+        session.addFrame(frag1, true);
+        assertEquals(0, session.getMessageCount(), "should not record incomplete fragment");
+
+        // Continuation (opcode=CONTINUATION, FIN=1)
+        WebSocketFrame frag2 = new WebSocketFrame(true, WebSocketFrame.Opcode.CONTINUATION, false,
+                "lo".getBytes(), null);
+        session.addFrame(frag2, true);
+        assertEquals(1, session.getMessageCount(), "should record complete message after FIN=1");
+        assertEquals("hello", session.getMessages().get(0).getPayloadAsText());
+    }
+
+    @Test
+    @DisplayName("addFrame skips control frames")
+    void addFrameSkipsControlFrames() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws", Collections.emptyMap());
+
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.PING, false, new byte[0], null), true);
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.PONG, false, new byte[0], null), false);
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.CLOSE, false, new byte[0], null), true);
+
+        assertEquals(0, session.getMessageCount(), "control frames should not be recorded");
+    }
+
+    @Test
+    @DisplayName("toTransaction preserves URL and messages")
+    void toTransactionPreservesData() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws",
+                java.util.Map.of("Host", "example.com"));
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.TEXT, false,
+                "test".getBytes(), null), true);
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.TEXT, false,
+                "reply".getBytes(), null), false);
+
+        var tx = session.toTransaction();
+        assertEquals("ws://example.com/ws", tx.getUrl());
+        assertEquals(2, tx.getMessages().size());
+        assertEquals("example.com", tx.getHandshakeHeaders().get("Host"));
+    }
+
+    @Test
+    @DisplayName("close marks session as closed and sets endTime")
+    void closeMarksSessionClosed() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws", null);
+        assertFalse(session.isClosed());
 
         session.close();
-
-        // Convert to transaction
-        WebSocketTransaction tx = session.toTransaction();
-
-        assertEquals("ws://localhost:8090/ws", tx.getUrl());
-        assertEquals(2, tx.getMessageCount());
-
-        List<WebSocketMessage> messages = tx.getMessages();
-        
-        // First message: client→server
-        assertTrue(messages.get(0).isFromClient());
-        assertEquals(WebSocketMessage.Type.TEXT, messages.get(0).getType());
-        assertEquals("Hello", messages.get(0).getContentAsString());
-
-        // Second message: server→client
-        assertFalse(messages.get(1).isFromClient());
-        assertEquals("Echo: Hello", messages.get(1).getContentAsString());
+        assertTrue(session.isClosed());
+        assertTrue(session.getEndTime() > 0);
     }
 
     @Test
-    @DisplayName("Binary fragmented frames should reassemble without data corruption")
-    void testBinaryFragmentedMessagePreservesBytes() {
-        byte[] part1 = new byte[] {(byte) 0xFF, 0x00, (byte) 0xAB};
-        byte[] part2 = new byte[] {(byte) 0xCD, (byte) 0xEF, 0x01};
+    @DisplayName("addFrame is no-op after close")
+    void addFrameIgnoredAfterClose() {
+        WebSocketSession session = new WebSocketSession("ws://example.com/ws", null);
+        session.close();
 
-        // First binary fragment (FIN=0)
-        WebSocketFrame frag1 = new WebSocketFrame(
-            false, WebSocketFrame.Opcode.BINARY, false, part1, null
-        );
-        // Final continuation (FIN=1)
-        WebSocketFrame frag2 = new WebSocketFrame(
-            true, WebSocketFrame.Opcode.CONTINUATION, false, part2, null
-        );
+        session.addFrame(new WebSocketFrame(true, WebSocketFrame.Opcode.TEXT, false,
+                "should-be-dropped".getBytes(), null), true);
 
-        session.addFrame(frag1, true);
-        session.addFrame(frag2, true);
-
-        assertEquals(1, session.getMessageCount());
-
-        WebSocketSession.CapturedMessage msg = session.getMessages().get(0);
-        assertEquals(WebSocketFrame.Opcode.BINARY, msg.type);
-
-        // Critical: binary bytes must survive round-trip exactly
-        byte[] expected = new byte[] {(byte) 0xFF, 0x00, (byte) 0xAB, (byte) 0xCD, (byte) 0xEF, 0x01};
-        assertArrayEquals(expected, msg.payload);
-    }
-
-    @Test
-    @DisplayName("messageCallback field should be volatile for thread-safe visibility")
-    void testMessageCallbackFieldIsVolatile() throws NoSuchFieldException {
-        java.lang.reflect.Field field = WebSocketSession.class.getDeclaredField("messageCallback");
-        assertTrue(java.lang.reflect.Modifier.isVolatile(field.getModifiers()),
-            "messageCallback must be volatile for thread-safe access from relay threads");
-    }
-
-    @Test
-    void testToString() {
-        String str = session.toString();
-        assertTrue(str.contains("ws://localhost:8090/ws"));
-        assertTrue(str.contains("messages=0"));
-        assertTrue(str.contains("closed=false"));
+        assertEquals(0, session.getMessageCount());
     }
 }

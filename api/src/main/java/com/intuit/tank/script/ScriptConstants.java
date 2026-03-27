@@ -73,4 +73,12 @@ public class ScriptConstants {
     public static final String COOKIE_DOMAIN = "cookie-domain";
     public static final String COOKIE_PATH = "cookie-path";
 
+    // WebSocket step type and request data keys
+    public static final String WEBSOCKET = "websocket";
+    public static final String WEBSOCKET_ACTION = "ws-action";
+    public static final String WEBSOCKET_URL = "ws-url";
+    public static final String WEBSOCKET_CONNECTION_ID = "ws-connection-id";
+    public static final String WEBSOCKET_PAYLOAD = "ws-payload";
+    public static final String WEBSOCKET_TIMEOUT_MS = "ws-timeout-ms";
+
 }

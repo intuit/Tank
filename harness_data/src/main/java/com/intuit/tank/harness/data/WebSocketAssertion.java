@@ -60,10 +60,18 @@ public class WebSocketAssertion {
     }
 
     public void setPattern(String pattern) {
-        if (pattern == null || pattern.trim().isEmpty()) {
-            throw new IllegalArgumentException("Pattern cannot be null or empty");
-        }
         this.pattern = pattern;
+    }
+
+    /**
+     * Validates that this assertion has a valid pattern.
+     * Call explicitly when validation is needed (e.g., before test execution).
+     * Not called from JAXB setters to avoid crashes during deserialization.
+     *
+     * @return true if the pattern is non-null and non-blank
+     */
+    public boolean validate() {
+        return pattern != null && !pattern.trim().isEmpty();
     }
 
     public boolean isRegex() {
