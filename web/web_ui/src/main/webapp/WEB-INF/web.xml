@@ -47,6 +47,10 @@
     <url-pattern>/favicon.ico</url-pattern>
     <url-pattern>/TankLogo.png</url-pattern>
     <url-pattern>/TankLogo16x16.png</url-pattern>
+    <!-- React app static assets (JS, CSS, fonts) -->
+    <url-pattern>/app/assets/*</url-pattern>
+    <url-pattern>/app/index.html</url-pattern>
+    <url-pattern>/app/favicon.png</url-pattern>
   </servlet-mapping>
 
 
