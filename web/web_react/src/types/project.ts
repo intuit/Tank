@@ -41,3 +41,19 @@ export interface KeyValuePair {
   key: string;
   value: string;
 }
+
+export interface AutomationRequest {
+  name: string;
+  productName?: string;
+  comments?: string;
+  rampTime?: string;
+  simulationTime?: string;
+  userIntervalIncrement?: number;
+  location?: string;
+  stopBehavior?: string;
+  workloadType?: string;
+  terminationPolicy?: string;
+  dataFileIds?: number[];
+  jobRegions?: JobRegionTO[];
+  variables?: Record<string, string>;
+}

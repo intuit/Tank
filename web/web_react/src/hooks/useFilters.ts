@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { filtersApi } from '../api/filters';
 
 export const filterKeys = {
@@ -19,5 +19,21 @@ export function useFilterGroups() {
   return useQuery({
     queryKey: filterKeys.groups,
     queryFn: () => filtersApi.getGroups().then((r) => r.data.filterGroups ?? []),
+  });
+}
+
+export function useDeleteFilter() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => filtersApi.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: filterKeys.all }),
+  });
+}
+
+export function useDeleteFilterGroup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => filtersApi.deleteGroup(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: filterKeys.groups }),
   });
 }

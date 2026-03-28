@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { datafilesApi } from '../api/datafiles';
 
 export const datafileKeys = {
@@ -28,5 +28,21 @@ export function useDataFileContent(id: number, offset?: number, lines = 50) {
     queryKey: datafileKeys.content(id, offset, lines),
     queryFn: () => datafilesApi.getContent(id, offset, lines).then((r) => r.data),
     enabled: !!id,
+  });
+}
+
+export function useUploadDataFile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => datafilesApi.upload(formData),
+    onSuccess: () => qc.invalidateQueries({ queryKey: datafileKeys.all }),
+  });
+}
+
+export function useDeleteDataFile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => datafilesApi.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: datafileKeys.all }),
   });
 }
