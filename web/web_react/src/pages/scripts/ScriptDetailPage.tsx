@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -46,14 +46,10 @@ export function ScriptDetailPage() {
       </Card>
 
       <div className="flex gap-2">
+        <Link to={`/scripts/${scriptId}/edit`}>
+          <Button label="Edit Script" icon="pi pi-pencil" />
+        </Link>
         <Button label="Download XML" icon="pi pi-download" severity="secondary" onClick={handleDownload} />
-        <a
-          href={`/scripts/script-edit-view.jsf?entityId=${scriptId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button label="Edit in Classic UI" icon="pi pi-external-link" severity="secondary" outlined />
-        </a>
       </div>
     </div>
   );

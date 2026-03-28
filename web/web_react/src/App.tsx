@@ -11,6 +11,7 @@ import { ProjectsListPage } from './pages/projects/ProjectsListPage';
 import { ProjectDetailPage } from './pages/projects/ProjectDetailPage';
 import { ScriptsListPage } from './pages/scripts/ScriptsListPage';
 import { ScriptDetailPage } from './pages/scripts/ScriptDetailPage';
+import { ScriptEditPage } from './pages/scripts/ScriptEditPage';
 import { FiltersListPage } from './pages/filters/FiltersListPage';
 import { AgentTrackerPage } from './pages/agents/AgentTrackerPage';
 import { DataFilesListPage } from './pages/datafiles/DataFilesListPage';
@@ -42,6 +43,7 @@ export default function App() {
                   <Route path="/projects/:id" element={<ProjectDetailPage />} />
                   <Route path="/scripts" element={<ScriptsListPage />} />
                   <Route path="/scripts/:id" element={<ScriptDetailPage />} />
+                  <Route path="/scripts/:id/edit" element={<ScriptEditPage />} />
                   <Route path="/filters" element={<FiltersListPage />} />
                   <Route path="/agents" element={<AgentTrackerPage />} />
                   <Route path="/datafiles" element={<DataFilesListPage />} />
