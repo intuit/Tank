@@ -18,6 +18,8 @@ import { DataFilesListPage } from './pages/datafiles/DataFilesListPage';
 import { DataFileDetailPage } from './pages/datafiles/DataFileDetailPage';
 import { ToolsPage } from './pages/tools/ToolsPage';
 import { AdminPage } from './pages/admin/AdminPage';
+import { UsersListPage } from './pages/admin/UsersListPage';
+import { UserEditPage } from './pages/admin/UserEditPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +52,9 @@ export default function App() {
                   <Route path="/datafiles/:id" element={<DataFileDetailPage />} />
                   <Route path="/tools" element={<ToolsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/admin/users" element={<UsersListPage />} />
+                  <Route path="/admin/users/new" element={<UserEditPage />} />
+                  <Route path="/admin/users/:id/edit" element={<UserEditPage />} />
                   <Route path="*" element={<Navigate to="/projects" replace />} />
                 </Route>
               </Route>
