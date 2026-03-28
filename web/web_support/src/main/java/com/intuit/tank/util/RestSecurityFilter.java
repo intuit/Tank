@@ -49,6 +49,12 @@ public class RestSecurityFilter extends HttpFilter {
     @Override
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        // Auth endpoint is always public (it IS the login mechanism)
+        String uri = request.getRequestURI();
+        if (uri != null && uri.endsWith("/v2/auth/token")) {
+            chain.doFilter(request, response);
+            return;
+        }
         if (tankConfig.isRestSecurityEnabled()) {
             // check bearer token
             String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
