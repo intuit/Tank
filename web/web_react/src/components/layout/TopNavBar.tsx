@@ -3,6 +3,7 @@ import { Menubar } from 'primereact/menubar';
 import { Button } from 'primereact/button';
 import { useAuth } from '../../context/AuthContext';
 import type { MenuItem } from 'primereact/menuitem';
+import tankLogo from '../../assets/TankLogo.svg';
 
 export function TopNavBar() {
   const { user, logout, isLoggedIn } = useAuth();
@@ -26,11 +27,9 @@ export function TopNavBar() {
   ];
 
   const start = (
-    <span className="font-bold text-xl mr-4" style={{ color: '#333' }}>
-      <NavLink to="/projects" style={{ textDecoration: 'none', color: 'inherit' }}>
-        Intuit Tank
-      </NavLink>
-    </span>
+    <NavLink to="/projects" style={{ textDecoration: 'none' }}>
+      <img src={tankLogo} alt="Intuit Tank" style={{ height: '32px', display: 'block' }} />
+    </NavLink>
   );
 
   const end = isLoggedIn ? (

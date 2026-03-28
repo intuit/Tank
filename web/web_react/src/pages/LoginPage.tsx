@@ -7,6 +7,7 @@ import { Card } from 'primereact/card';
 import { Message } from 'primereact/message';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
+import tankLogo from '../assets/TankLogo.svg';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -34,7 +35,10 @@ export function LoginPage() {
 
   return (
     <div className="flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
-      <Card title="Intuit Tank" style={{ width: '360px' }}>
+      <Card
+        header={<img src={tankLogo} alt="Intuit Tank" style={{ height: '48px', margin: '1.5rem auto 0', display: 'block' }} />}
+        style={{ width: '360px' }}
+      >
         <form onSubmit={handleSubmit} className="flex flex-column gap-3">
           {error && <Message severity="error" text={error} />}
           <div className="flex flex-column gap-1">
