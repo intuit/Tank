@@ -106,7 +106,7 @@ export function UsersListPage() {
     <div>
       <Toast ref={toast} />
       <ConfirmDialog />
-      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3" />
+      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3 ui-tank-theme" />
       <DataTable
         value={users}
         dataKey="id"

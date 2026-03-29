@@ -8,6 +8,7 @@ import { Message } from 'primereact/message';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/auth';
 import tankLogo from '../assets/TankLogo.svg';
+import '../assets/TankOverides.css';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -34,7 +35,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+    <div className="flex justify-content-center align-items-center ui-tank-theme" style={{ minHeight: '80vh' }}>
       <Card
         header={<img src={tankLogo} alt="Intuit Tank" style={{ height: '48px', margin: '1.5rem auto 0', display: 'block' }} />}
         style={{ width: '360px' }}

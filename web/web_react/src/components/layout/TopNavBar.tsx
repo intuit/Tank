@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { useAuth } from '../../context/AuthContext';
 import type { MenuItem } from 'primereact/menuitem';
 import tankLogo from '../../assets/TankLogo.svg';
+import '../../assets/TankOverides.css';
 
 export function TopNavBar() {
   const { user, logout, isLoggedIn } = useAuth();
@@ -46,5 +47,5 @@ export function TopNavBar() {
     </div>
   ) : null;
 
-  return <Menubar model={navItems} start={start} end={end} />;
+  return <Menubar model={navItems} start={start} end={end} className="ui-tank-theme" />;
 }

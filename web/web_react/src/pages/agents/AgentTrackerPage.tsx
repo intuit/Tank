@@ -81,7 +81,7 @@ export function AgentTrackerPage() {
 
   return (
     <div>
-      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3" />
+      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3 ui-tank-theme" />
       <DataTable
         value={jobs}
         dataKey="id"

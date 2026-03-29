@@ -110,7 +110,7 @@ export function FiltersListPage() {
       <ConfirmDialog />
       <TabView>
         <TabPanel header="Filters">
-          <Toolbar start={filtersToolbar} className="mb-3" />
+          <Toolbar start={filtersToolbar} className="mb-3 ui-tank-theme" />
           <DataTable
             value={filters}
             dataKey="id"
@@ -130,7 +130,7 @@ export function FiltersListPage() {
           </DataTable>
         </TabPanel>
         <TabPanel header="Filter Groups">
-          <Toolbar start={groupsToolbar} className="mb-3" />
+          <Toolbar start={groupsToolbar} className="mb-3 ui-tank-theme" />
           <DataTable
             value={groups}
             dataKey="id"

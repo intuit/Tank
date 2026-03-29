@@ -118,7 +118,7 @@ export function DataFilesListPage() {
     <div>
       <Toast ref={toast} />
       <ConfirmDialog />
-      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3" />
+      <Toolbar start={leftToolbar} end={rightToolbar} className="mb-3 ui-tank-theme" />
       <DataTable
         value={files}
         dataKey="id"
