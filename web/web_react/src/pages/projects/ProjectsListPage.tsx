@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -77,14 +78,24 @@ export function ProjectsListPage() {
   );
 
   const actionsBody = (row: ProjectTO) => (
-    <Button
-      icon="pi pi-trash"
-      size="small"
-      text
-      severity="danger"
-      tooltip="Delete"
-      onClick={() => handleDelete(row)}
-    />
+    <div className="flex gap-1">
+      <Button
+        icon="pi pi-file-edit"
+        size="small"
+        text
+        severity="info"
+        tooltip="Edit"
+        onClick={() => navigate(`/projects/${row.id}`)}
+      />
+      <Button
+        icon="pi pi-trash"
+        size="small"
+        text
+        severity="danger"
+        tooltip="Delete"
+        onClick={() => handleDelete(row)}
+      />
+    </div>
   );
 
   const leftToolbar = (
@@ -139,7 +150,8 @@ export function ProjectsListPage() {
         <Column field="name" header="Name" sortable body={nameBody} />
         <Column field="productName" header="Product" sortable />
         <Column field="creator" header="Owner" sortable />
-        <Column field="modified" header="Modified" sortable />
+        <Column field="created" header="Created" sortable body={(row) => formatDate(row.created)} />
+        <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
         <Column header="" body={actionsBody} style={{ width: '60px' }} />
       </DataTable>
 

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -125,7 +126,7 @@ export function FiltersListPage() {
             <Column field="name" header="Name" sortable />
             <Column field="productName" header="Product" sortable />
             <Column field="creator" header="Owner" sortable />
-            <Column field="modified" header="Modified" sortable />
+            <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
             <Column header="" body={filterActionsBody} style={{ width: '60px' }} />
           </DataTable>
         </TabPanel>
@@ -145,7 +146,7 @@ export function FiltersListPage() {
             <Column field="name" header="Name" sortable />
             <Column field="productName" header="Product" sortable />
             <Column field="creator" header="Owner" sortable />
-            <Column field="modified" header="Modified" sortable />
+            <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
             <Column header="" body={groupActionsBody} style={{ width: '60px' }} />
           </DataTable>
         </TabPanel>

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -133,7 +134,7 @@ export function DataFilesListPage() {
         <Column field="name" header="Name" sortable body={nameBody} />
         <Column field="path" header="Path" sortable />
         <Column field="creator" header="Owner" sortable />
-        <Column field="modified" header="Modified" sortable />
+        <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
         <Column header="" body={actionsBody} style={{ width: '90px' }} />
       </DataTable>
     </div>

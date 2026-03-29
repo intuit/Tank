@@ -10,6 +10,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { Message } from 'primereact/message';
 import { Divider } from 'primereact/divider';
 import { useUser, useAllGroups, useCreateUser, useUpdateUser, useGenerateToken, useDeleteToken } from '../../hooks/useUsers';
+import { formatDate } from '../../utils/formatDate';
 
 export function UserEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -213,7 +214,7 @@ export function UserEditPage() {
                 <div className="field">
                   <label className="font-semibold">Last Login</label>
                   <InputText
-                    value={lastLoginTs ? new Date(lastLoginTs).toLocaleString() : '—'}
+                    value={formatDate(lastLoginTs)}
                     readOnly
                   />
                 </div>

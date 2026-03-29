@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -126,7 +127,7 @@ export function UsersListPage() {
           field="lastLoginTs"
           header="Last Login"
           sortable
-          body={(row: UserTO) => row.lastLoginTs ? new Date(row.lastLoginTs).toLocaleString() : '—'}
+          body={(row: UserTO) => formatDate(row.lastLoginTs)}
         />
         <Column header="" body={actionsBody} style={{ width: '80px' }} />
       </DataTable>

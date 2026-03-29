@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { formatDate } from '../../utils/formatDate';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -64,11 +65,19 @@ export function ScriptsListPage() {
   const actionsBody = (row: ScriptDescription) => (
     <div className="flex gap-1">
       <Button
+        icon="pi pi-file-edit"
+        size="small"
+        text
+        severity="info"
+        tooltip="Edit"
+        onClick={() => navigate(`/scripts/${row.id}`)}
+      />
+      <Button
         icon="pi pi-download"
         size="small"
         text
         severity="secondary"
-        tooltip="Download"
+        tooltip="Download Harness XML"
         onClick={async () => {
           const res = await scriptsApi.download(row.id);
           const url = URL.createObjectURL(new Blob([res.data as BlobPart]));
@@ -135,7 +144,8 @@ export function ScriptsListPage() {
         <Column field="productName" header="Product" sortable />
         <Column field="runtime" header="Runtime (ms)" sortable />
         <Column field="creator" header="Owner" sortable />
-        <Column field="modified" header="Modified" sortable />
+        <Column field="created" header="Created" sortable body={(row) => formatDate(row.created)} />
+        <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
         <Column header="" body={actionsBody} style={{ width: '90px' }} />
       </DataTable>
     </div>
