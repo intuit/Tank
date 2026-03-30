@@ -13,6 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { useProject, useUpdateProject, useDeleteProject } from '../../hooks/useProjects';
 import { useJobsByProject } from '../../hooks/useJobs';
+import { WorkloadScriptsPanel } from './WorkloadScriptsPanel';
 import type { JobTO } from '../../types/job';
 import type { AutomationRequest } from '../../types/project';
 
@@ -138,16 +139,8 @@ export function ProjectDetailPage() {
         </div>
 
         <div className="col-12 md:col-6">
-          <Card title="Script Groups">
-            {project.scriptGroupList?.length ? (
-              <ul className="m-0 pl-3">
-                {project.scriptGroupList.map((sg, i) => (
-                  <li key={i}>{sg.name ?? `Group ${i + 1}`} (loop: {sg.loop ?? 1})</li>
-                ))}
-              </ul>
-            ) : (
-              <span className="text-color-secondary">No script groups configured.</span>
-            )}
+          <Card title="Workload Scripts">
+            <WorkloadScriptsPanel projectId={projectId} />
           </Card>
         </div>
       </div>

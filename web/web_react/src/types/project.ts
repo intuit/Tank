@@ -1,3 +1,24 @@
+export interface AutomationTestPlan {
+  name: string;
+  userPercentage: number;
+  position?: number;
+  scriptGroups?: AutomationScriptGroup[];
+}
+
+export interface AutomationScriptGroup {
+  name: string;
+  loop: number;
+  position?: number;
+  scripts?: AutomationScriptGroupStep[];
+}
+
+export interface AutomationScriptGroupStep {
+  scriptId?: number;
+  scriptName?: string;
+  loop?: number;
+  position?: number;
+}
+
 export interface ProjectTO {
   id: number;
   name: string;
@@ -6,9 +27,11 @@ export interface ProjectTO {
   creator?: string;
   created?: string;
   modified?: string;
-  scriptGroupList?: ScriptGroupTO[];
+  testPlans?: AutomationTestPlan[];
   jobRegions?: JobRegionTO[];
   rampTime?: string;
+  location?: string;
+  stopBehavior?: string;
   simulationTime?: number;
   userIntervalIncrement?: number;
   variables?: KeyValuePair[];
@@ -17,18 +40,6 @@ export interface ProjectTO {
 
 export interface ProjectContainer {
   projects: ProjectTO[];
-}
-
-export interface ScriptGroupTO {
-  name?: string;
-  scriptGroupSteps?: ScriptGroupStepTO[];
-  loop?: number;
-}
-
-export interface ScriptGroupStepTO {
-  scriptId?: number;
-  scriptName?: string;
-  loop?: number;
 }
 
 export interface JobRegionTO {
@@ -56,4 +67,5 @@ export interface AutomationRequest {
   dataFileIds?: number[];
   jobRegions?: JobRegionTO[];
   variables?: Record<string, string>;
+  testPlans?: AutomationTestPlan[];
 }
