@@ -123,6 +123,8 @@ export function DataFilesListPage() {
       <DataTable
         value={files}
         dataKey="id"
+        showGridlines
+        stripedRows
         paginator
         rows={25}
         globalFilter={globalFilter}

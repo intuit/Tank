@@ -149,6 +149,8 @@ export function ProjectDetailPage() {
         <DataTable
           value={jobs ?? []}
           dataKey="id"
+          showGridlines
+          stripedRows
           paginator
           rows={10}
           emptyMessage="No jobs."

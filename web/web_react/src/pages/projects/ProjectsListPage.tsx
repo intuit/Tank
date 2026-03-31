@@ -139,6 +139,8 @@ export function ProjectsListPage() {
       <DataTable
         value={projects}
         dataKey="id"
+        showGridlines
+        stripedRows
         paginator
         rows={20}
         globalFilter={globalFilter}

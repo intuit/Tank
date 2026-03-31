@@ -7,7 +7,7 @@ import tankLogo from '../../assets/TankLogo.svg';
 import '../../assets/TankOverides.css';
 
 export function TopNavBar() {
-  const { user, logout, isLoggedIn } = useAuth();
+  const { user, logout, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -22,7 +22,7 @@ export function TopNavBar() {
     { label: 'Agent Tracker', icon: 'pi pi-desktop', command: () => navigate('/agents') },
     { label: 'Data Files', icon: 'pi pi-database', command: () => navigate('/datafiles') },
     { label: 'Tools', icon: 'pi pi-wrench', command: () => navigate('/tools') },
-    ...(user?.role?.includes('admin')
+    ...(isAdmin
       ? [{ label: 'Admin', icon: 'pi pi-shield', command: () => navigate('/admin') }]
       : []),
   ];
@@ -33,9 +33,9 @@ export function TopNavBar() {
     </NavLink>
   );
 
-  const end = isLoggedIn ? (
+  const end = !loading ? (
     <div className="flex align-items-center gap-2">
-      <span className="text-sm text-color-secondary">{user?.name}</span>
+      <span className="text-sm text-color-secondary">{user?.username}</span>
       <Button
         label="Logout"
         icon="pi pi-sign-out"

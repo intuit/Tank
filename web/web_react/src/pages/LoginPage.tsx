@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
@@ -6,7 +6,6 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Message } from 'primereact/message';
 import { useAuth } from '../context/AuthContext';
-import { authApi } from '../api/auth';
 import tankLogo from '../assets/TankLogo.svg';
 import '../assets/TankOverides.css';
 
@@ -18,14 +17,13 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!username || !password) return;
     setLoading(true);
     setError('');
     try {
-      const res = await authApi.login({ username, password });
-      login(res.data);
+      await login({ username, password });
       navigate('/projects');
     } catch {
       setError('Invalid username or password.');

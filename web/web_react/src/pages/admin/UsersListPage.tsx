@@ -111,6 +111,8 @@ export function UsersListPage() {
       <DataTable
         value={users}
         dataKey="id"
+        showGridlines
+        stripedRows
         paginator
         rows={25}
         globalFilter={globalFilter}

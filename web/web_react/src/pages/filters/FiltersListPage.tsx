@@ -115,6 +115,8 @@ export function FiltersListPage() {
           <DataTable
             value={filters}
             dataKey="id"
+            showGridlines
+            stripedRows
             paginator
             rows={25}
             globalFilter={filterSearch}
@@ -135,6 +137,8 @@ export function FiltersListPage() {
           <DataTable
             value={groups}
             dataKey="id"
+            showGridlines
+            stripedRows
             paginator
             rows={25}
             globalFilter={groupSearch}

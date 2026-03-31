@@ -85,6 +85,8 @@ export function AgentTrackerPage() {
       <DataTable
         value={jobs}
         dataKey="id"
+        showGridlines
+        stripedRows
         paginator
         rows={25}
         emptyMessage="No jobs."
