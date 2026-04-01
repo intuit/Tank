@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobsApi } from '../api/jobs';
+import type { CreateJobRequest } from '../types/job';
 
 export const jobKeys = {
   all: ['jobs'] as const,
@@ -39,5 +40,24 @@ export function useJobInstanceStatuses(jobId: number, pollingEnabled = false) {
     queryFn: () => jobsApi.getInstanceStatuses(jobId).then((r) => r.data.statuses ?? []),
     enabled: !!jobId,
     refetchInterval: pollingEnabled ? 5000 : false,
+  });
+}
+
+export function useJobById(jobId: number) {
+  return useQuery({
+    queryKey: jobKeys.byId(jobId),
+    queryFn: () => jobsApi.getById(jobId).then((r) => r.data),
+    enabled: !!jobId,
+  });
+}
+
+export function useCreateJob() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: CreateJobRequest) => jobsApi.create(request).then((r) => r.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: jobKeys.all });
+      queryClient.invalidateQueries({ queryKey: jobKeys.byProject(variables.projectId) });
+    },
   });
 }

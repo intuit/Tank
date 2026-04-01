@@ -38,3 +38,12 @@ export interface CloudVmStatus {
 export interface CloudVmStatusContainer {
   statuses: CloudVmStatus[];
 }
+
+export interface CreateJobRequest {
+  projectId: number;
+  totalVirtualUsers?: number;
+  rampTime?: string;
+  simulationTime?: string;
+  location?: string;
+  stopBehavior?: string;
+}

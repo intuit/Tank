@@ -5,7 +5,9 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Message } from 'primereact/message';
+import { Divider } from 'primereact/divider';
 import { useAuth } from '../context/AuthContext';
+import { getSsoRedirectUrl } from '../api/auth';
 import tankLogo from '../assets/TankLogo.svg';
 import '../assets/TankOverides.css';
 
@@ -14,8 +16,20 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleSsoLogin = async () => {
+    setSsoLoading(true);
+    try {
+      const redirectUrl = await getSsoRedirectUrl();
+      window.location.href = redirectUrl;
+    } catch {
+      setError('SSO is not configured on this server.');
+      setSsoLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -40,6 +54,16 @@ export function LoginPage() {
       >
         <form onSubmit={handleSubmit} className="flex flex-column gap-3">
           {error && <Message severity="error" text={error} />}
+          <Button
+              type="button"
+              label={ssoLoading ? 'Redirecting…' : 'Login with SSO'}
+              icon="pi pi-shield"
+              severity="secondary"
+              outlined
+              disabled={ssoLoading}
+              onClick={handleSsoLogin}
+          />
+          <Divider align="center"><span className="text-color-secondary text-sm">or</span></Divider>
           <div className="flex flex-column gap-1">
             <label htmlFor="username">Username</label>
             <InputText

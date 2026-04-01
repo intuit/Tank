@@ -292,3 +292,87 @@ export function AggregatorEditor({ step, onChange }: Props) {
     </div>
   );
 }
+
+// ── Assignment ────────────────────────────────────────────────────────────────
+export function AssignmentEditor({ step, onChange }: Props) {
+  return (
+    <div className="flex flex-column gap-3">
+      <Row label="Variable Key *">
+        <InputText
+          value={step.assignmentKey ?? ''}
+          onChange={e => onChange({ ...step, assignmentKey: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '320px' }}
+        />
+      </Row>
+      <Row label="Expression / Value">
+        <InputText
+          value={step.assignmentValue ?? ''}
+          onChange={e => onChange({ ...step, assignmentValue: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '320px' }}
+          placeholder="e.g. #{response.body} or literal value"
+        />
+      </Row>
+      <Row label="Group">
+        <InputText
+          value={step.scriptGroupName ?? ''}
+          onChange={e => onChange({ ...step, scriptGroupName: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '280px' }}
+        />
+      </Row>
+    </div>
+  );
+}
+
+// ── Validation ────────────────────────────────────────────────────────────────
+const VALIDATION_CONDITIONS = ['equals', 'not-equals', 'contains', 'not-contains', 'matches', 'not-matches', 'exists', 'not-exists'];
+
+export function ValidationEditor({ step, onChange }: Props) {
+  return (
+    <div className="flex flex-column gap-3">
+      <Row label="Key / Expression *">
+        <InputText
+          value={step.validationKey ?? ''}
+          onChange={e => onChange({ ...step, validationKey: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '320px' }}
+          placeholder="e.g. #{response.status} or header name"
+        />
+      </Row>
+      <Row label="Condition">
+        <Dropdown
+          value={step.validationCondition ?? 'equals'}
+          options={VALIDATION_CONDITIONS}
+          onChange={e => onChange({ ...step, validationCondition: e.value })}
+          style={{ width: '180px' }}
+        />
+      </Row>
+      <Row label="Expected Value">
+        <InputText
+          value={step.validationValue ?? ''}
+          onChange={e => onChange({ ...step, validationValue: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '320px' }}
+        />
+      </Row>
+      <Row label="On Failure">
+        <Dropdown
+          value={step.onFail ?? 'continue'}
+          options={['continue', 'abort', 'skipGroup']}
+          onChange={e => onChange({ ...step, onFail: e.value })}
+          style={{ width: '160px' }}
+        />
+      </Row>
+      <Row label="Group">
+        <InputText
+          value={step.scriptGroupName ?? ''}
+          onChange={e => onChange({ ...step, scriptGroupName: e.target.value })}
+          className="p-inputtext-sm"
+          style={{ width: '280px' }}
+        />
+      </Row>
+    </div>
+  );
+}

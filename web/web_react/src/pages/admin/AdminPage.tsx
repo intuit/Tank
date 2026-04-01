@@ -19,11 +19,24 @@ export function AdminPage() {
           </Card>
         </div>
         <div className="col-12 md:col-4">
+          <Card title="User Groups">
+            <p>View groups and their members.</p>
+            <Button
+              label="Manage Groups"
+              icon="pi pi-sitemap"
+              severity="secondary"
+              onClick={() => navigate('/admin/groups')}
+            />
+          </Card>
+        </div>
+        <div className="col-12 md:col-4">
           <Card title="Server Logs">
             <p>View server logs.</p>
-            <a href="/admin/logs.jsf">
-              <Button label="Open in Classic UI" icon="pi pi-external-link" severity="secondary" outlined />
-            </a>
+            <Button
+              label="View Server Logs"
+              icon="pi pi-file-edit"
+              onClick={() => navigate('/admin/logs')}
+            />
           </Card>
         </div>
       </div>

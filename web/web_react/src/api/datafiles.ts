@@ -17,4 +17,7 @@ export const datafilesApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   delete: (id: number) => apiClient.delete(`/v2/datafiles/${id}`),
+  // TODO: backend PUT /v2/datafiles/{id} endpoint needs to be created
+  update: (id: number, data: { comments?: string }) =>
+    apiClient.put<DataFileDescriptor>(`/v2/datafiles/${id}`, data),
 };

@@ -37,3 +37,11 @@ export function useDeleteFilterGroup() {
     onSuccess: () => qc.invalidateQueries({ queryKey: filterKeys.groups }),
   });
 }
+
+export function useCreateFilterGroup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (group: { name: string; productName?: string }) => filtersApi.createGroup(group),
+    onSuccess: () => qc.invalidateQueries({ queryKey: filterKeys.groups }),
+  });
+}

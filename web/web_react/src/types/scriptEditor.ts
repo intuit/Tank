@@ -9,7 +9,9 @@ export type StepType =
   | 'cookie'
   | 'authentication'
   | 'clear'
-  | 'AGGREGATE';
+  | 'AGGREGATE'
+  | 'assignment'
+  | 'validation';
 
 export interface StepData {
   key: string;
@@ -59,6 +61,13 @@ export interface ScriptStep {
   authHost?: string;
   authPort?: string;
   authRealm?: string;
+  // For assignment
+  assignmentKey?: string;
+  assignmentValue?: string;
+  // For validation
+  validationKey?: string;
+  validationValue?: string;
+  validationCondition?: string;
   // Collections (request type)
   requestheaders: StepData[];
   responseheaders: StepData[];
@@ -121,6 +130,10 @@ export function stepLabel(step: ScriptStep): string {
       return 'Clear Session';
     case 'AGGREGATE':
       return `Timer Group: ${step.loggingKey ?? ''}`;
+    case 'assignment':
+      return `Assign: ${step.assignmentKey ?? ''} = ${step.assignmentValue ?? ''}`;
+    case 'validation':
+      return `Validate: ${step.validationKey ?? ''} ${step.validationCondition ?? 'equals'} ${step.validationValue ?? ''}`;
     default:
       return step.type;
   }

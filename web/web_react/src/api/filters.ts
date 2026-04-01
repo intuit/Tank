@@ -9,4 +9,7 @@ export const filtersApi = {
   getGroups: () => apiClient.get<FilterGroupContainer>('/v2/filters/groups'),
   getGroupById: (id: number) => apiClient.get<FilterGroupTO>(`/v2/filters/groups/${id}`),
   deleteGroup: (id: number) => apiClient.delete(`/v2/filters/groups/${id}`),
+  // TODO: backend endpoint POST /v2/filters/groups needs to be created
+  createGroup: (group: { name: string; productName?: string }) =>
+    apiClient.post<FilterGroupTO>('/v2/filters/groups', group),
 };

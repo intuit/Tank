@@ -6,6 +6,8 @@ export const scriptsApi = {
   getNames: () => apiClient.get<Record<number, string>>('/v2/scripts/names'),
   getById: (id: number) => apiClient.get<ScriptDescription>(`/v2/scripts/${id}`),
   delete: (id: number) => apiClient.delete(`/v2/scripts/${id}`),
+  update: (id: number, data: { productName?: string; comments?: string }) =>
+    apiClient.put<ScriptDescription>(`/v2/scripts/${id}`, data),
   download: (id: number) =>
     apiClient.get(`/v2/scripts/download/${id}`, { responseType: 'blob' }),
   downloadHarness: (id: number) =>

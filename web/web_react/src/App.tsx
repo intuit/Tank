@@ -14,12 +14,16 @@ import { ScriptDetailPage } from './pages/scripts/ScriptDetailPage';
 import { ScriptEditPage } from './pages/scripts/ScriptEditPage';
 import { FiltersListPage } from './pages/filters/FiltersListPage';
 import { AgentTrackerPage } from './pages/agents/AgentTrackerPage';
+import { JobDetailPage } from './pages/agents/JobDetailPage';
 import { DataFilesListPage } from './pages/datafiles/DataFilesListPage';
 import { DataFileDetailPage } from './pages/datafiles/DataFileDetailPage';
 import { ToolsPage } from './pages/tools/ToolsPage';
 import { AdminPage } from './pages/admin/AdminPage';
 import { UsersListPage } from './pages/admin/UsersListPage';
 import { UserEditPage } from './pages/admin/UserEditPage';
+import { ServerLogsPage } from './pages/admin/ServerLogsPage';
+import { UserGroupsPage } from './pages/admin/UserGroupsPage';
+import { AccountPage } from './pages/tools/AccountPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,10 +52,14 @@ export default function App() {
                   <Route path="/scripts/:id/edit" element={<ScriptEditPage />} />
                   <Route path="/filters" element={<FiltersListPage />} />
                   <Route path="/agents" element={<AgentTrackerPage />} />
+                  <Route path="/jobs/:id" element={<JobDetailPage />} />
                   <Route path="/datafiles" element={<DataFilesListPage />} />
                   <Route path="/datafiles/:id" element={<DataFileDetailPage />} />
                   <Route path="/tools" element={<ToolsPage />} />
+                  <Route path="/tools/account" element={<AccountPage />} />
                   <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/admin/logs" element={<ServerLogsPage />} />
+                  <Route path="/admin/groups" element={<UserGroupsPage />} />
                   <Route path="/admin/users" element={<UsersListPage />} />
                   <Route path="/admin/users/new" element={<UserEditPage />} />
                   <Route path="/admin/users/:id/edit" element={<UserEditPage />} />

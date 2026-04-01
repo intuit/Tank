@@ -13,6 +13,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Splitter, SplitterPanel } from 'primereact/splitter';
 import { Card } from 'primereact/card';
+import { Dialog } from 'primereact/dialog';
 import { useScriptEditor } from '../../hooks/useScriptEditor';
 import { blankStep, stepLabel, type ScriptStep, type StepType } from '../../types/scriptEditor';
 import { RequestStepEditor } from './editor/RequestStepEditor';
@@ -25,6 +26,8 @@ import {
   AuthEditor,
   ClearEditor,
   AggregatorEditor,
+  AssignmentEditor,
+  ValidationEditor,
 } from './editor/SimpleStepEditors';
 
 // ── Step-type badge colours ───────────────────────────────────────────────────
@@ -38,6 +41,8 @@ const TYPE_SEVERITY: Record<string, 'success' | 'info' | 'warning' | 'danger' | 
   authentication: 'secondary',
   clear:          'secondary',
   AGGREGATE:      'warning',
+  assignment:     'warning',
+  validation:     'danger',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -50,6 +55,8 @@ const TYPE_LABELS: Record<string, string> = {
   authentication: 'Auth',
   clear:          'Clear',
   AGGREGATE:      'Timer',
+  assignment:     'Assign',
+  validation:     'Validate',
 };
 
 const INSERT_TYPES: { label: string; type: StepType }[] = [
@@ -57,6 +64,8 @@ const INSERT_TYPES: { label: string; type: StepType }[] = [
   { label: 'Think Time',     type: 'thinkTime' },
   { label: 'Sleep',          type: 'sleep' },
   { label: 'Variable',       type: 'variable' },
+  { label: 'Assignment',     type: 'assignment' },
+  { label: 'Validation',     type: 'validation' },
   { label: 'Logic',          type: 'logic' },
   { label: 'Cookie',         type: 'cookie' },
   { label: 'Authentication', type: 'authentication' },
@@ -76,6 +85,9 @@ export function ScriptEditPage() {
 
   const [selectedStep, setSelectedStep] = useState<ScriptStep | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [showReplace, setShowReplace] = useState(false);
+  const [replaceFind, setReplaceFind] = useState('');
+  const [replaceWith, setReplaceWith] = useState('');
 
   useEffect(() => { load(); }, [load]);
 
@@ -148,6 +160,17 @@ export function ScriptEditPage() {
     });
   };
 
+  // ── Step duplicate ──────────────────────────────────────────────────────────
+  const duplicateStep = (step: ScriptStep) => {
+    update(prev => {
+      const idx = prev.steps.findIndex(s => s.uuid === step.uuid);
+      const clone: ScriptStep = { ...step, uuid: crypto.randomUUID() };
+      const steps = [...prev.steps];
+      steps.splice(idx + 1, 0, clone);
+      return { ...prev, steps: steps.map((s, i) => ({ ...s, stepIndex: i })) };
+    });
+  };
+
   // ── Step update ─────────────────────────────────────────────────────────────
   const updateStep = (updated: ScriptStep) => {
     update(prev => ({
@@ -155,6 +178,33 @@ export function ScriptEditPage() {
       steps: prev.steps.map(s => s.uuid === updated.uuid ? updated : s),
     }));
     setSelectedStep(updated);
+  };
+
+  // ── Replace All ─────────────────────────────────────────────────────────────
+  const handleReplaceAll = () => {
+    if (!replaceFind) return;
+    let count = 0;
+    update(prev => ({
+      ...prev,
+      steps: prev.steps.map(step => {
+        const updated: ScriptStep = { ...step };
+        const stringFields: (keyof ScriptStep)[] = [
+          'name', 'label', 'hostname', 'simplePath', 'url', 'payload', 'response',
+          'varKey', 'varValue', 'script', 'cookieName', 'cookieValue', 'cookiePath',
+          'cookieDomain', 'authUser', 'authHost', 'authRealm', 'loggingKey',
+          'assignmentKey', 'assignmentValue', 'validationKey', 'validationValue',
+        ];
+        for (const field of stringFields) {
+          const val = updated[field] as string | undefined;
+          if (val && val.includes(replaceFind)) {
+            (updated as unknown as Record<string, unknown>)[field] = val.split(replaceFind).join(replaceWith);
+            count++;
+          }
+        }
+        return updated;
+      }),
+    }));
+    toast.current?.show({ severity: 'success', summary: `Replaced ${count} occurrence(s)` });
   };
 
   // ── Save with toast ─────────────────────────────────────────────────────────
@@ -216,6 +266,12 @@ export function ScriptEditPage() {
         tooltip="Move down"
       />
       <Button
+        icon="pi pi-copy"
+        size="small" text severity="secondary"
+        onClick={() => duplicateStep(row)}
+        tooltip="Duplicate"
+      />
+      <Button
         icon="pi pi-trash"
         size="small" text severity="danger"
         onClick={() => deleteStep(row)}
@@ -247,6 +303,8 @@ export function ScriptEditPage() {
       case 'authentication': editor = <AuthEditor         {...editorProps} />; break;
       case 'clear':          editor = <ClearEditor />; break;
       case 'AGGREGATE':      editor = <AggregatorEditor   {...editorProps} />; break;
+      case 'assignment':     editor = <AssignmentEditor   {...editorProps} />; break;
+      case 'validation':     editor = <ValidationEditor   {...editorProps} />; break;
       default:               editor = <Message severity="warn" text={`Unknown step type: ${selectedStep.type}`} />;
     }
 
@@ -296,6 +354,13 @@ export function ScriptEditPage() {
         className="p-inputtext-sm"
         style={{ width: '200px' }}
       />
+      <Button
+        label="Replace"
+        icon="pi pi-search"
+        size="small"
+        severity="secondary"
+        onClick={() => setShowReplace(true)}
+      />
       <Menu model={insertMenuItems} popup ref={insertMenuRef} />
       <Button
         label="Insert Step"
@@ -318,6 +383,39 @@ export function ScriptEditPage() {
     <div className="flex flex-column gap-2" style={{ height: 'calc(100vh - 80px)' }}>
       <Toast ref={toast} />
       <ConfirmDialog />
+      <Dialog
+        header="Search & Replace"
+        visible={showReplace}
+        style={{ width: '420px' }}
+        onHide={() => setShowReplace(false)}
+        footer={
+          <div className="flex gap-2 justify-content-end">
+            <Button label="Cancel" text onClick={() => setShowReplace(false)} />
+            <Button label="Replace All" icon="pi pi-sync" onClick={handleReplaceAll} disabled={!replaceFind} />
+          </div>
+        }
+      >
+        <div className="flex flex-column gap-3 pt-2">
+          <div className="flex flex-column gap-1">
+            <label className="font-semibold text-sm">Find</label>
+            <InputText
+              value={replaceFind}
+              onChange={e => setReplaceFind(e.target.value)}
+              className="p-inputtext-sm w-full"
+              placeholder="Text to find…"
+            />
+          </div>
+          <div className="flex flex-column gap-1">
+            <label className="font-semibold text-sm">Replace with</label>
+            <InputText
+              value={replaceWith}
+              onChange={e => setReplaceWith(e.target.value)}
+              className="p-inputtext-sm w-full"
+              placeholder="Replacement text…"
+            />
+          </div>
+        </div>
+      </Dialog>
       <Toolbar start={leftToolbar} end={rightToolbar} />
 
       <Splitter style={{ flex: 1, overflow: 'hidden' }}>

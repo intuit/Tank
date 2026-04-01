@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { JobContainer, JobTO, CloudVmStatusContainer } from '../types/job';
+import type { JobContainer, JobTO, CloudVmStatusContainer, CreateJobRequest } from '../types/job';
 
 export const jobsApi = {
   getAll: () => apiClient.get<JobContainer>('/v2/jobs'),
@@ -13,9 +13,15 @@ export const jobsApi = {
   getAllStatuses: () => apiClient.get<Array<Record<string, string>>>('/v2/jobs/status'),
   getInstanceStatuses: (jobId: number) =>
     apiClient.get<CloudVmStatusContainer>(`/v2/jobs/instance-status/${jobId}`),
+  create: (request: CreateJobRequest) =>
+    apiClient.post<JobTO>('/v2/jobs', request),
   start: (jobId: number) => apiClient.get(`/v2/jobs/start/${jobId}`),
   stop: (jobId: number) => apiClient.get(`/v2/jobs/stop/${jobId}`),
   pause: (jobId: number) => apiClient.get(`/v2/jobs/pause/${jobId}`),
   resume: (jobId: number) => apiClient.get(`/v2/jobs/resume/${jobId}`),
   kill: (jobId: number) => apiClient.get(`/v2/jobs/kill/${jobId}`),
+  downloadScript: (jobId: number) =>
+    apiClient.get(`/v2/jobs/script/${jobId}`, { responseType: 'blob' }),
+  downloadJob: (jobId: number) =>
+    apiClient.get(`/v2/jobs/download/${jobId}`, { responseType: 'blob' }),
 };

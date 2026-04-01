@@ -46,3 +46,14 @@ export function useDeleteDataFile() {
     onSuccess: () => qc.invalidateQueries({ queryKey: datafileKeys.all }),
   });
 }
+
+export function useUpdateDataFile(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { comments?: string }) => datafilesApi.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: datafileKeys.all });
+      qc.invalidateQueries({ queryKey: datafileKeys.byId(id) });
+    },
+  });
+}

@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 
 export function ToolsPage() {
+  const navigate = useNavigate();
   return (
     <div>
       <h2>Tools</h2>
@@ -25,9 +27,11 @@ export function ToolsPage() {
         <div className="col-12 md:col-4">
           <Card title="Account Settings">
             <p>Manage your Tank account settings and API token.</p>
-            <a href="/tools/account.jsf">
-              <Button label="Open Account Settings" icon="pi pi-external-link" severity="secondary" outlined />
-            </a>
+            <Button
+              label="Account Settings"
+              icon="pi pi-user-edit"
+              onClick={() => navigate('/tools/account')}
+            />
           </Card>
         </div>
       </div>

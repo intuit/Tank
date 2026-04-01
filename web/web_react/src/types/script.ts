@@ -3,6 +3,7 @@ export interface ScriptDescription {
   name: string;
   runtime?: number;
   productName?: string;
+  comments?: string;
   creator?: string;
   created?: string;
   modified?: string;
