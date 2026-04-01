@@ -25,6 +25,9 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
@@ -381,6 +384,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         JobInstanceDao jobInstanceDao = new JobInstanceDao();
 
         Workload workload = project.getWorkloads().get(0);
+        Workload loadedWorkload = workload;
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
         JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
@@ -422,8 +426,40 @@ public class JobServiceV2Impl implements JobServiceV2 {
         jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
         jobQueueDao.saveOrUpdate(queue);
 
-        ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
-        return jobInstance;
+        try {
+            ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
+            return jobInstance;
+        } finally {
+            clearLoadedScriptSteps(loadedWorkload);
+            if (workload != loadedWorkload) {
+                clearLoadedScriptSteps(workload);
+            }
+        }
+    }
+
+    private static void clearLoadedScriptSteps(Workload workload) {
+        if (workload == null || workload.getTestPlans() == null) {
+            return;
+        }
+        for (TestPlan plan : workload.getTestPlans()) {
+            if (plan == null || plan.getScriptGroups() == null) {
+                continue;
+            }
+            for (ScriptGroup group : plan.getScriptGroups()) {
+                if (group == null || group.getScriptGroupSteps() == null) {
+                    continue;
+                }
+                for (ScriptGroupStep groupStep : group.getScriptGroupSteps()) {
+                    if (groupStep == null) {
+                        continue;
+                    }
+                    Script script = groupStep.getScript();
+                    if (script != null && script.getScriptSteps() != null) {
+                        script.getScriptSteps().clear();
+                    }
+                }
+            }
+        }
     }
 
     private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
