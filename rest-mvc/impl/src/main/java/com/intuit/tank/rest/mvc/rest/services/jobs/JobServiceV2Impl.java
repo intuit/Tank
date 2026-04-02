@@ -429,28 +429,12 @@ public class JobServiceV2Impl implements JobServiceV2 {
     }
 
     private static void clearLoadedScriptSteps(Workload workload) {
-        if (workload == null || workload.getTestPlans() == null) {
-            return;
-        }
-        for (TestPlan plan : workload.getTestPlans()) {
-            if (plan == null || plan.getScriptGroups() == null) {
-                continue;
-            }
-            for (ScriptGroup group : plan.getScriptGroups()) {
-                if (group == null || group.getScriptGroupSteps() == null) {
-                    continue;
-                }
-                for (ScriptGroupStep groupStep : group.getScriptGroupSteps()) {
-                    if (groupStep == null) {
-                        continue;
-                    }
-                    Script script = groupStep.getScript();
-                    if (script != null && script.getScriptSteps() != null) {
-                        script.getScriptSteps().clear();
-                    }
-                }
-            }
-        }
+        workload.getTestPlans().stream()
+                .flatMap(plan -> plan.getScriptGroups().stream())
+                .flatMap(group -> group.getScriptGroupSteps().stream())
+                .map(ScriptGroupStep::getScript)
+                .filter(script -> script != null && script.getScriptSteps() != null)
+                .forEach(script -> script.getScriptSteps().clear());
     }
 
     private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
