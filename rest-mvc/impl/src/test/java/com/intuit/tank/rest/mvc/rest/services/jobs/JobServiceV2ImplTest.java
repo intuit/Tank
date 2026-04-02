@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -43,11 +43,9 @@ import static org.mockito.Mockito.when;
 class JobServiceV2ImplTest {
 
     @Test
-    void addJobToQueue_clearsLoadedScriptSteps_evenWhenStoreScriptThrows() throws Exception {
+    void addJobToQueue_doesNotCallStoreScript() throws Exception {
         Script loadedScript = createScript("loaded-script", 11);
-        Script savedScript = createScript("saved-script", 22);
         Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
-        Workload savedWorkload = createWorkload("saved-workload", 222, savedScript);
         Project project = createProject(loadedWorkload);
         CreateJobRequest request = createRequest();
         JobQueue queue = new JobQueue(project.getId());
@@ -63,7 +61,7 @@ class JobServiceV2ImplTest {
                          when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
                      });
              MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenReturn(savedWorkload));
+                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
              MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
                          JobInstance savedJob = invocation.getArgument(0);
@@ -77,15 +75,61 @@ class JobServiceV2ImplTest {
                     .thenReturn("job-details");
             testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
                     .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
-            responseUtil.when(() -> ResponseUtil.storeScript(anyString(), any(Workload.class), any(JobInstance.class)))
-                    .thenThrow(new RuntimeException("boom"));
 
-            RuntimeException thrown = assertThrows(RuntimeException.class,
-                    () -> JobServiceV2Impl.addJobToQueue(project, request));
+            JobInstance createdJob = JobServiceV2Impl.addJobToQueue(project, request);
 
-            assertEquals("boom", thrown.getMessage());
+            assertEquals(123, createdJob.getId());
             assertTrue(loadedScript.getScriptSteps().isEmpty());
-            assertTrue(savedScript.getScriptSteps().isEmpty());
+            responseUtil.verifyNoInteractions();
+        }
+    }
+
+    @Test
+    void addJobToQueue_clearsScriptStepsAfterJobDetails() throws Exception {
+        Script loadedScript = createScript("loaded-script", 11);
+        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
+        Project project = createProject(loadedWorkload);
+        CreateJobRequest request = createRequest();
+        JobQueue queue = new JobQueue(project.getId());
+
+        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
+             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
+             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
+             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
+                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
+             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
+                     (mock, context) -> {
+                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
+                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
+                     });
+             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
+                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> {
+                         Workload persistedWorkload = invocation.getArgument(0);
+                         assertTrue(getOnlyScript(persistedWorkload).getScriptSteps().isEmpty());
+                         return persistedWorkload;
+                     }));
+             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
+                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
+                         JobInstance savedJob = invocation.getArgument(0);
+                         savedJob.setId(123);
+                         return savedJob;
+                     }));
+             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
+             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+
+            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
+                    .thenAnswer(invocation -> {
+                        Workload formatterWorkload = invocation.getArgument(1);
+                        assertFalse(getOnlyScript(formatterWorkload).getScriptSteps().isEmpty());
+                        return "job-details";
+                    });
+            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
+                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
+
+            JobServiceV2Impl.addJobToQueue(project, request);
+
+            assertTrue(loadedScript.getScriptSteps().isEmpty());
+            responseUtil.verifyNoInteractions();
         }
     }
 
@@ -134,6 +178,10 @@ class JobServiceV2ImplTest {
         script.setName(name);
         script.setScriptSteps(new ArrayList<>(List.of(new ScriptStep(), new ScriptStep())));
         return script;
+    }
+
+    private static Script getOnlyScript(Workload workload) {
+        return workload.getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).getScript();
     }
 
     private static CreateJobRequest createRequest() throws Exception {

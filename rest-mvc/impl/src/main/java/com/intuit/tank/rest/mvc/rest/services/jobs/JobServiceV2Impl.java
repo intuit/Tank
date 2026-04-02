@@ -384,7 +384,6 @@ public class JobServiceV2Impl implements JobServiceV2 {
         JobInstanceDao jobInstanceDao = new JobInstanceDao();
 
         Workload workload = project.getWorkloads().get(0);
-        Workload loadedWorkload = workload;
         JobConfiguration jc = workload.getJobConfiguration();
         JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
         JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
@@ -420,21 +419,13 @@ public class JobServiceV2Impl implements JobServiceV2 {
         }
         jobInstance.setTotalVirtualUsers(totalVirtualUsers);
         queue.addJob(jobInstance);
-        workload = new WorkloadDao().saveOrUpdate(workload);
         String jobDetails = JobDetailFormatter.createJobDetails(validator, workload, jobInstance);
         jobInstance.setJobDetails(jobDetails);
+        clearLoadedScriptSteps(workload);
+        workload = new WorkloadDao().saveOrUpdate(workload);
         jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
         jobQueueDao.saveOrUpdate(queue);
-
-        try {
-            ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
-            return jobInstance;
-        } finally {
-            clearLoadedScriptSteps(loadedWorkload);
-            if (workload != loadedWorkload) {
-                clearLoadedScriptSteps(workload);
-            }
-        }
+        return jobInstance;
     }
 
     private static void clearLoadedScriptSteps(Workload workload) {
