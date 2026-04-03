@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.models.*;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
@@ -158,9 +159,19 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     public void deleteJobInstance(JobNodeBean bean) {
-        if (bean.isDeleteable()) {
+        if (bean.isDeletable()) {
             try {
-                JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
+                JobInstanceDao jobInstanceDao = new JobInstanceDao();
+                JobInstance jobInstance = jobInstanceDao.findById(Integer.valueOf(bean.getId()));
+                if (jobInstance == null) {
+                    messages.warn("Job not found.");
+                    return;
+                }
+                // Soft-delete: set status to Deleted
+                jobInstance.setStatus(JobQueueStatus.Deleted);
+                jobInstanceDao.saveOrUpdate(jobInstance);
+
+                // Also remove from queue for UI consistency
                 Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
                 JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
                 JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
@@ -553,6 +564,9 @@ public abstract class JobTreeTableBean implements Serializable {
             for (JobInstance jobInstance : jobs) {
 
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
+                if (jobInstance.getStatus() == JobQueueStatus.Deleted) {
+                    continue; // never show deleted jobs in the tree
+                }
                 if (!filterFinished || jobInstance.getEndTime() == null) {
                     ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
                     pnb.addJob(jobInstanceNode);

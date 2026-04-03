@@ -22,10 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -263,5 +262,27 @@ public class JobControllerTest {
         assertEquals("Completed", result.getBody());
         assertEquals(200, result.getStatusCode().value());
         verify(jobService).killJob(482937134);
+    }
+
+    @Test
+    public void testDeleteJob_success() {
+        Map<String, String> response = new HashMap<>();
+        response.put("jobId", "123");
+        response.put("status", "Deleted");
+        when(jobService.deleteJob(123)).thenReturn(response);
+
+        ResponseEntity<Map<String, String>> result = jobController.deleteJob(123);
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals("Deleted", result.getBody().get("status"));
+        verify(jobService).deleteJob(123);
+    }
+
+    @Test
+    public void testDeleteJob_conflict() {
+        when(jobService.deleteJob(456)).thenThrow(
+                new GenericServiceConflictException("jobs", "job", "Cannot delete job 456 in Running status"));
+
+        assertThrows(GenericServiceConflictException.class, () -> jobController.deleteJob(456));
+        verify(jobService).deleteJob(456);
     }
 }

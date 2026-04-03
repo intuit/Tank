@@ -30,9 +30,11 @@ import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.rest.mvc.rest.cloud.JobLockManager;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.JobContainer;
@@ -67,6 +69,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 @Service
 public class JobServiceV2Impl implements JobServiceV2 {
@@ -104,6 +107,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             if (prj != null) {
                 JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
                 List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
+                jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
                 return JobContainer.builder().withJobs(list).build();
@@ -121,6 +125,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         try {
             JobInstanceDao dao = new JobInstanceDao();
             List<JobInstance> jobs = dao.findAll();
+            jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
             if (!jobs.isEmpty()) {
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
@@ -309,6 +314,46 @@ public class JobServiceV2Impl implements JobServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error killing job: " + e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
+        }
+    }
+
+    @Override
+    public Map<String, String> deleteJob(Integer jobId) {
+        String jobIdStr = Integer.toString(jobId);
+        try {
+            synchronized (JobLockManager.getLock(jobIdStr)) {
+                JobInstanceDao dao = new JobInstanceDao();
+                JobInstance job = dao.findById(jobId);
+                if (job == null) {
+                    throw new GenericServiceResourceNotFoundException("jobs", "job", null);
+                }
+                JobQueueStatus status = job.getStatus();
+                Set<JobQueueStatus> activeStatuses = Set.of(
+                        JobQueueStatus.Starting, JobQueueStatus.Running,
+                        JobQueueStatus.Paused, JobQueueStatus.RampPaused);
+                if (activeStatuses.contains(status)) {
+                    throw new GenericServiceConflictException("jobs", "job",
+                            "Cannot delete job " + jobId + " in " + status + " status — stop or kill the job first");
+                }
+                if (status == JobQueueStatus.Deleted) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("jobId", jobIdStr);
+                    response.put("status", "Deleted");
+                    return response; // already deleted — idempotent
+                }
+                job.setStatus(JobQueueStatus.Deleted);
+                dao.saveOrUpdate(job);
+
+                Map<String, String> response = new HashMap<>();
+                response.put("jobId", jobIdStr);
+                response.put("status", "Deleted");
+                return response;
+            }
+        } catch (GenericServiceResourceNotFoundException | GenericServiceConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("Error deleting job: " + e.getMessage(), e);
+            throw new GenericServiceInternalServerException("jobs", "deleting job", e);
         }
     }
 

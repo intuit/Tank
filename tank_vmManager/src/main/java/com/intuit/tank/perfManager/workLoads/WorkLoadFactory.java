@@ -61,6 +61,9 @@ public class WorkLoadFactory {
      */
     public IncreasingWorkLoad getModelRunner(int jobInstanceId) {
         JobInstance job = jobInstanceDao.findById(jobInstanceId);
+        if (job == null) {
+            throw new IllegalStateException("Cannot start workload — JobInstance id=" + jobInstanceId + " not found (may have been deleted)");
+        }
         JobRequest request = jobToJobRequest(job);
         return new IncreasingWorkLoad(channel, agentDispatcher, request);
     }

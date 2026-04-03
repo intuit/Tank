@@ -172,11 +172,16 @@ public class VMTrackerImpl implements VMTracker {
                 jobMap.put(jobId, cloudVmStatusContainer);
                 JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
                 if (job != null) {
-                    JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
-                    cloudVmStatusContainer.setStatus(newStatus);
-                    if (newStatus != job.getStatus()) {
-                        job.setStatus(newStatus);
-                        new JobInstanceDao().saveOrUpdate(job);
+                    if (job.getStatus() == JobQueueStatus.Deleted) {
+                        LOG.warn("Skipping status update for deleted job {}", jobId);
+                        cloudVmStatusContainer.setStatus(JobQueueStatus.Deleted);
+                    } else {
+                        JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
+                        cloudVmStatusContainer.setStatus(newStatus);
+                        if (newStatus != job.getStatus()) {
+                            job.setStatus(newStatus);
+                            new JobInstanceDao().saveOrUpdate(job);
+                        }
                     }
                 } else {
                     JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
@@ -371,6 +376,11 @@ public class VMTrackerImpl implements VMTracker {
             cloudVmStatusContainer.setEndTime(new Date());
         }
         if (job != null) {
+            // Never overwrite Deleted status — the job was intentionally soft-deleted
+            if (job.getStatus() == JobQueueStatus.Deleted) {
+                LOG.warn("Skipping status calc for deleted job {} — agent reports are stale", status.getJobId());
+                return;
+            }
             job.setEndTime(cloudVmStatusContainer.getEndTime());
             JobQueueStatus oldStatus = job.getStatus();
             JobQueueStatus newStatus = job.getStatus();
