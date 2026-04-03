@@ -140,4 +140,11 @@ public interface FilterServiceV2 {
      */
     public String deleteFilterGroup(Integer filterGroupId);
 
+    /**
+     * Upgrades legacy filter action values to use the current variable expression syntax.
+     *
+     * @return confirmation message
+     */
+    public String upgradeFilters();
+
 }

@@ -170,4 +170,14 @@ public class FilterController {
         }
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @RequestMapping(value = "/upgrade-filters", method = RequestMethod.POST, produces = { MediaType.TEXT_PLAIN_VALUE })
+    @Operation(description = "Upgrades legacy filter action variable expressions to current syntax", summary = "Upgrade filter expressions")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Filters upgraded successfully", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error during upgrade", content = @Content)
+    })
+    public ResponseEntity<String> upgradeFilters() {
+        return ResponseEntity.ok(filterService.upgradeFilters());
+    }
 }

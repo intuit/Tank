@@ -121,6 +121,9 @@ export function ScriptDetailPage() {
         <Link to={`/scripts/${scriptId}/edit`}>
           <Button label="Edit Script" icon="pi pi-pencil" />
         </Link>
+        <Link to={`/scripts/${scriptId}/filters`}>
+          <Button label="Apply Filters" icon="pi pi-filter" severity="secondary" />
+        </Link>
         <Button label="Edit Details" icon="pi pi-sliders-h" severity="secondary" onClick={openEdit} />
         <Button label="Download XML" icon="pi pi-download" severity="secondary" onClick={handleDownload} />
       </div>

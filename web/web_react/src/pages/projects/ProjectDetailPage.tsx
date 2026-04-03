@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -14,9 +14,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { useProject, useUpdateProject, useDeleteProject } from '../../hooks/useProjects';
-import { useJobsByProject, useCreateJob } from '../../hooks/useJobs';
+import { useJobsByProject, useCreateJob, useStartJob, useStopJob, useKillJob } from '../../hooks/useJobs';
 import { useDataFiles } from '../../hooks/useDataFiles';
 import { WorkloadScriptsPanel } from './WorkloadScriptsPanel';
+import { UsersAndTimesDialog } from '../../components/projects/UsersAndTimesDialog';
 import { projectsApi } from '../../api/projects';
 import type { JobTO, CreateJobRequest } from '../../types/job';
 import type { AutomationRequest, KeyValuePair } from '../../types/project';
@@ -31,6 +32,9 @@ export function ProjectDetailPage() {
   const updateProject = useUpdateProject(projectId);
   const deleteProject = useDeleteProject();
   const createJob = useCreateJob();
+  const startJob  = useStartJob();
+  const stopJob   = useStopJob();
+  const killJob   = useKillJob();
   const toast = useRef<Toast>(null);
 
   // New Job dialog
@@ -55,6 +59,9 @@ export function ProjectDetailPage() {
   const [showAddVar, setShowAddVar] = useState(false);
   const [newVarKey, setNewVarKey] = useState('');
   const [newVarValue, setNewVarValue] = useState('');
+
+  // Users & Times dialog
+  const [showUsersAndTimes, setShowUsersAndTimes] = useState(false);
 
   // Data files association
   const [dataFileIds, setDataFileIds] = useState<number[]>([]);
@@ -190,6 +197,24 @@ export function ProjectDetailPage() {
     }
   };
 
+  // ── Users & Times ─────────────────────────────────────────────────────────
+  const handleSaveUsersAndTimes = async (patch: Partial<AutomationRequest>) => {
+    try {
+      await updateProject.mutateAsync({
+        name: project.name,
+        location: project.location ?? 'us-east-1',
+        stopBehavior: project.stopBehavior ?? 'END_OF_SCRIPT_GROUP',
+        variables: Object.fromEntries(variables.map(({ key, value }) => [key, value])),
+        dataFileIds: project.dataFileIds,
+        ...patch,
+      });
+      toast.current?.show({ severity: 'success', summary: 'Workload configuration saved' });
+      setShowUsersAndTimes(false);
+    } catch {
+      toast.current?.show({ severity: 'error', summary: 'Failed to save workload configuration' });
+    }
+  };
+
   // ── Task 3: Data Files ────────────────────────────────────────────────────
   // Initialise dataFileIds state from project on first render (lazy)
   if (!dfDirty && dataFileIds.length === 0 && (project.dataFileIds?.length ?? 0) > 0) {
@@ -237,9 +262,29 @@ export function ProjectDetailPage() {
   const statusBody = (row: JobTO) => {
     const severity =
       row.status === 'Running' ? 'success' :
-      row.status === 'Failed' ? 'danger' :
+      row.status === 'Failed'  ? 'danger'  :
       'info';
     return <span className={`p-tag p-tag-${severity}`}>{row.status ?? '—'}</span>;
+  };
+
+  const jobActionsBody = (row: JobTO) => {
+    const terminal = new Set(['Completed', 'Stopped', 'Killed', 'Failed']);
+    const pending  = row.status === 'Created' || row.status === 'Queued';
+    return (
+      <div className="flex gap-1">
+        <Button icon="pi pi-play"  size="small" text severity="success" tooltip="Start"
+          disabled={!pending} onClick={() => startJob.mutateAsync(row.id).catch(() => {})} />
+        <Button icon="pi pi-stop"  size="small" text severity="warning" tooltip="Stop"
+          disabled={terminal.has(row.status ?? '') || pending}
+          onClick={() => stopJob.mutateAsync(row.id).catch(() => {})} />
+        <Button icon="pi pi-times-circle" size="small" text severity="danger" tooltip="Kill"
+          disabled={terminal.has(row.status ?? '')}
+          onClick={() => killJob.mutateAsync(row.id).catch(() => {})} />
+        <Link to={`/jobs/${row.id}`}>
+          <Button icon="pi pi-eye" size="small" text tooltip="View Details" />
+        </Link>
+      </div>
+    );
   };
 
   const editFooter = (
@@ -307,17 +352,51 @@ export function ProjectDetailPage() {
         </div>
       </div>
 
+      {/* Workload Configuration */}
+      <Card
+        header={
+          <div className="flex align-items-center justify-content-between px-3 pt-3">
+            <span className="font-bold text-lg">Workload Configuration</span>
+            <Button label="Edit" icon="pi pi-pencil" size="small" severity="secondary"
+              onClick={() => setShowUsersAndTimes(true)} />
+          </div>
+        }
+      >
+        <div className="grid">
+          <div className="col-4 font-bold">Workload Type</div>
+          <div className="col-8 capitalize">{(project as any).workloadType === 'standard' ? 'Nonlinear (Standard)' : 'Linear (Increasing)'}</div>
+          <div className="col-4 font-bold">Ramp Time</div>
+          <div className="col-8">{project.rampTime ?? '—'}</div>
+          <div className="col-4 font-bold">Simulation Time</div>
+          <div className="col-8">{project.simulationTime != null ? `${project.simulationTime / 1000}s` : '—'}</div>
+          <div className="col-4 font-bold">User Increment</div>
+          <div className="col-8">{project.userIntervalIncrement ?? '—'}</div>
+          <div className="col-4 font-bold">Termination Policy</div>
+          <div className="col-8">{(project as any).terminationPolicy === 'script' ? 'Script Loops Completed' : 'Simulation Time Reached'}</div>
+          {(project.jobRegions ?? []).length > 0 && (
+            <>
+              <div className="col-4 font-bold">Regions</div>
+              <div className="col-8">
+                {(project.jobRegions ?? []).map((r, i) => (
+                  <div key={i}>{r.region}: {r.users ?? r.percentage ?? '—'}</div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </Card>
+
       {/* Job Queue */}
       <Card
         header={
           <div className="flex align-items-center justify-content-between px-3 pt-3">
             <span className="font-bold text-lg">Job Queue</span>
-            <Button
-              label="New Job"
-              icon="pi pi-plus"
-              size="small"
-              onClick={openNewJob}
-            />
+            <div className="flex gap-2">
+              <Link to={`/projects/${projectId}/queue`}>
+                <Button label="Full Queue" icon="pi pi-list" size="small" severity="secondary" />
+              </Link>
+              <Button label="New Job" icon="pi pi-plus" size="small" onClick={openNewJob} />
+            </div>
           </div>
         }
       >
@@ -329,15 +408,16 @@ export function ProjectDetailPage() {
           paginator
           rows={10}
           emptyMessage="No jobs."
-          sortField="created"
+          sortField="id"
           sortOrder={-1}
         >
           <Column field="id" header="Job ID" sortable style={{ width: '80px' }} />
-          <Column field="status" header="Status" body={statusBody} sortable />
-          <Column field="totalVirtualUsers" header="Users" sortable />
+          <Column field="status" header="Status" body={statusBody} sortable style={{ width: '120px' }} />
+          <Column field="totalVirtualUsers" header="Users" sortable style={{ width: '80px' }} />
           <Column field="startTime" header="Start" sortable />
           <Column field="endTime" header="End" sortable />
           <Column field="creator" header="Owner" sortable />
+          <Column header="Actions" body={jobActionsBody} style={{ width: '160px' }} />
         </DataTable>
       </Card>
 
@@ -593,6 +673,15 @@ export function ProjectDetailPage() {
           </div>
         </div>
       </Dialog>
+
+      {/* Users & Times Dialog */}
+      <UsersAndTimesDialog
+        visible={showUsersAndTimes}
+        project={project}
+        saving={updateProject.isPending}
+        onHide={() => setShowUsersAndTimes(false)}
+        onSave={handleSaveUsersAndTimes}
+      />
 
       {/* Add Data File Dialog */}
       <Dialog

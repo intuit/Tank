@@ -1,13 +1,19 @@
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
 
 export function ToolsPage() {
   const navigate = useNavigate();
+  const toast = useRef<Toast>(null);
+
   return (
     <div>
+      <Toast ref={toast} />
       <h2>Tools</h2>
       <div className="grid">
+
         <div className="col-12 md:col-4">
           <Card title="Script Debugger">
             <p>Download the Tank Debugger JAR to run scripts locally.</p>
@@ -16,6 +22,7 @@ export function ToolsPage() {
             </a>
           </Card>
         </div>
+
         <div className="col-12 md:col-4">
           <Card title="Script Runner">
             <p>Download the Tank Script Runner tool.</p>
@@ -24,6 +31,7 @@ export function ToolsPage() {
             </a>
           </Card>
         </div>
+
         <div className="col-12 md:col-4">
           <Card title="Account Settings">
             <p>Manage your Tank account settings and API token.</p>
@@ -34,6 +42,7 @@ export function ToolsPage() {
             />
           </Card>
         </div>
+
       </div>
     </div>
   );

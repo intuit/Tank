@@ -16,8 +16,8 @@ export const scriptsApi = {
     apiClient.post<Record<string, string>>('/v2/scripts', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
-  applyFilters: (scriptId: number, filterIds: number[]) =>
-    apiClient.post(`/v2/filters/apply-filters/${scriptId}`, { filterIds }),
+  applyFilters: (scriptId: number, filterIds: number[], filterGroupIds: number[] = []) =>
+    apiClient.post(`/v2/filters/apply-filters/${scriptId}`, { filterIds, filterGroupIds }),
 
   // External scripts
   getExternalAll: () => apiClient.get<ExternalScriptContainer>('/v2/scripts/external'),

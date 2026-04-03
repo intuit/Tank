@@ -61,3 +61,22 @@ export function useCreateJob() {
     },
   });
 }
+
+function makeJobControlMutation(apiFn: (id: number) => Promise<unknown>) {
+  return function useJobControl() {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: apiFn,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: jobKeys.all });
+        queryClient.invalidateQueries({ queryKey: jobKeys.allStatuses });
+      },
+    });
+  };
+}
+
+export const useStartJob  = makeJobControlMutation((id) => jobsApi.start(id));
+export const useStopJob   = makeJobControlMutation((id) => jobsApi.stop(id));
+export const usePauseJob  = makeJobControlMutation((id) => jobsApi.pause(id));
+export const useResumeJob = makeJobControlMutation((id) => jobsApi.resume(id));
+export const useKillJob   = makeJobControlMutation((id) => jobsApi.kill(id));

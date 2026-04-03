@@ -4,14 +4,20 @@ import { PrimeReactProvider } from 'primereact/api';
 
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/layout/PrivateRoute';
+import { AdminRoute } from './components/layout/AdminRoute';
 import { AppLayout } from './components/layout/AppLayout';
 
 import { LoginPage } from './pages/LoginPage';
+import { NotFoundPage } from './pages/errors/NotFoundPage';
+import { AccessDeniedPage } from './pages/errors/AccessDeniedPage';
+import { SessionExpiredPage } from './pages/errors/SessionExpiredPage';
 import { ProjectsListPage } from './pages/projects/ProjectsListPage';
 import { ProjectDetailPage } from './pages/projects/ProjectDetailPage';
+import { ProjectJobQueuePage } from './pages/projects/ProjectJobQueuePage';
 import { ScriptsListPage } from './pages/scripts/ScriptsListPage';
 import { ScriptDetailPage } from './pages/scripts/ScriptDetailPage';
 import { ScriptEditPage } from './pages/scripts/ScriptEditPage';
+import { ScriptFiltersPage } from './pages/scripts/ScriptFiltersPage';
 import { FiltersListPage } from './pages/filters/FiltersListPage';
 import { FilterEditPage } from './pages/filters/FilterEditPage';
 import { AgentTrackerPage } from './pages/agents/AgentTrackerPage';
@@ -43,14 +49,18 @@ export default function App() {
           <BrowserRouter basename="/app">
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/session-expired" element={<SessionExpiredPage />} />
+              <Route path="/denied" element={<AccessDeniedPage />} />
               <Route element={<PrivateRoute />}>
                 <Route element={<AppLayout />}>
                   <Route index element={<Navigate to="/projects" replace />} />
                   <Route path="/projects" element={<ProjectsListPage />} />
                   <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                  <Route path="/projects/:id/queue" element={<ProjectJobQueuePage />} />
                   <Route path="/scripts" element={<ScriptsListPage />} />
                   <Route path="/scripts/:id" element={<ScriptDetailPage />} />
                   <Route path="/scripts/:id/edit" element={<ScriptEditPage />} />
+                  <Route path="/scripts/:id/filters" element={<ScriptFiltersPage />} />
                   <Route path="/filters" element={<FiltersListPage />} />
                   <Route path="/filters/new" element={<FilterEditPage />} />
                   <Route path="/filters/:id/edit" element={<FilterEditPage />} />
@@ -60,13 +70,15 @@ export default function App() {
                   <Route path="/datafiles/:id" element={<DataFileDetailPage />} />
                   <Route path="/tools" element={<ToolsPage />} />
                   <Route path="/tools/account" element={<AccountPage />} />
-                  <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/admin/logs" element={<ServerLogsPage />} />
-                  <Route path="/admin/groups" element={<UserGroupsPage />} />
-                  <Route path="/admin/users" element={<UsersListPage />} />
-                  <Route path="/admin/users/new" element={<UserEditPage />} />
-                  <Route path="/admin/users/:id/edit" element={<UserEditPage />} />
-                  <Route path="*" element={<Navigate to="/projects" replace />} />
+                  <Route element={<AdminRoute />}>
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/admin/logs" element={<ServerLogsPage />} />
+                    <Route path="/admin/groups" element={<UserGroupsPage />} />
+                    <Route path="/admin/users" element={<UsersListPage />} />
+                    <Route path="/admin/users/new" element={<UserEditPage />} />
+                    <Route path="/admin/users/:id/edit" element={<UserEditPage />} />
+                  </Route>
+                  <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Route>
             </Routes>

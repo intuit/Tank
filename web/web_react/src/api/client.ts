@@ -19,7 +19,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('tank_token');
       localStorage.removeItem('tank_user');
-      window.location.href = '/app/login';
+      window.location.href = '/app/session-expired';
     }
     return Promise.reject(error);
   }
