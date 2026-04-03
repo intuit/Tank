@@ -2,8 +2,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.JobInstance;
@@ -40,6 +39,8 @@ import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 import jakarta.annotation.Nonnull;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -52,6 +53,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     protected static String REQUEST_LIMIT_EXCEEDED = "RequestLimitExceeded";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     private Ec2AsyncClient ec2AsyncClient;
     private VMRegion vmRegion;
@@ -621,9 +623,9 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     private String buildUserData(@Nonnull Map<String, String> userDataMap) {
         try {
-            String sb = new ObjectMapper().writeValueAsString(userDataMap);
+            String sb = JSON_MAPPER.writeValueAsString(userDataMap);
             return Base64.getEncoder().encodeToString(sb.getBytes());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOG.error("Failed to convert userDataMap to Json: {}", e.getMessage());
         }
         return "";
