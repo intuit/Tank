@@ -26,7 +26,7 @@ import java.util.Set;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import javax.script.ScriptEngineManager;
+import com.intuit.tank.tools.script.JsEngineFactory;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -184,7 +184,7 @@ public class LogicStepEditor implements Serializable {
             logMap("Variables", vars.getVariableValues(), outputLogger);
             outputLogger.logLine(DASHES + " script " + DASHES);
             ScriptIOBean ioBean = new ScriptRunner().runScript(name, scriptToRun,
-                    new ScriptEngineManager().getEngineByExtension("js"), inputs, outputLogger);
+                    JsEngineFactory.createJsEngine(), inputs, outputLogger);
             logMap("Outputs", ioBean.getOutputs(), outputLogger);
             logMap("Variables", vars.getVariableValues(), outputLogger);
         } catch (Exception e) {
