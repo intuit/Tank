@@ -25,6 +25,9 @@ import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
+import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
@@ -416,14 +419,22 @@ public class JobServiceV2Impl implements JobServiceV2 {
         }
         jobInstance.setTotalVirtualUsers(totalVirtualUsers);
         queue.addJob(jobInstance);
-        workload = new WorkloadDao().saveOrUpdate(workload);
         String jobDetails = JobDetailFormatter.createJobDetails(validator, workload, jobInstance);
         jobInstance.setJobDetails(jobDetails);
+        clearLoadedScriptSteps(workload);
+        workload = new WorkloadDao().saveOrUpdate(workload);
         jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
         jobQueueDao.saveOrUpdate(queue);
-
-        ResponseUtil.storeScript(Integer.toString(jobInstance.getId()), workload, jobInstance);
         return jobInstance;
+    }
+
+    private static void clearLoadedScriptSteps(Workload workload) {
+        workload.getTestPlans().stream()
+                .flatMap(plan -> plan.getScriptGroups().stream())
+                .flatMap(group -> group.getScriptGroupSteps().stream())
+                .map(ScriptGroupStep::getScript)
+                .filter(script -> script != null && script.getScriptSteps() != null)
+                .forEach(script -> script.getScriptSteps().clear());
     }
 
     private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
