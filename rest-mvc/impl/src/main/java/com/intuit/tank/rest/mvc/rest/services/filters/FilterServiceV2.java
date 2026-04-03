@@ -16,6 +16,8 @@ import com.intuit.tank.filters.models.FilterContainer;
 import com.intuit.tank.filters.models.FilterTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 
+import java.util.Map;
+
 public interface FilterServiceV2 {
 
     /**
@@ -70,6 +72,31 @@ public interface FilterServiceV2 {
      * @return list of filter groups
      */
     public FilterGroupContainer getFilterGroups();
+
+    /**
+     * Creates a new filter
+     *
+     * @param filterTO filter data
+     * @return map with "filterId" of the created filter
+     */
+    public Map<String, Integer> createFilter(FilterTO filterTO);
+
+    /**
+     * Updates an existing filter
+     *
+     * @param filterId filter id to update
+     * @param filterTO updated filter data
+     * @return the updated FilterTO
+     */
+    public FilterTO updateFilter(Integer filterId, FilterTO filterTO);
+
+    /**
+     * Creates a new filter group
+     *
+     * @param filterGroupTO filter group data
+     * @return map with "filterGroupId" of the created group
+     */
+    public Map<String, Integer> createFilterGroup(FilterGroupTO filterGroupTO);
 
     /**
      * Applies filters to an existing script

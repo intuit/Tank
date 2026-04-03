@@ -13,6 +13,7 @@ import { ScriptsListPage } from './pages/scripts/ScriptsListPage';
 import { ScriptDetailPage } from './pages/scripts/ScriptDetailPage';
 import { ScriptEditPage } from './pages/scripts/ScriptEditPage';
 import { FiltersListPage } from './pages/filters/FiltersListPage';
+import { FilterEditPage } from './pages/filters/FilterEditPage';
 import { AgentTrackerPage } from './pages/agents/AgentTrackerPage';
 import { JobDetailPage } from './pages/agents/JobDetailPage';
 import { DataFilesListPage } from './pages/datafiles/DataFilesListPage';
@@ -51,6 +52,8 @@ export default function App() {
                   <Route path="/scripts/:id" element={<ScriptDetailPage />} />
                   <Route path="/scripts/:id/edit" element={<ScriptEditPage />} />
                   <Route path="/filters" element={<FiltersListPage />} />
+                  <Route path="/filters/new" element={<FilterEditPage />} />
+                  <Route path="/filters/:id/edit" element={<FilterEditPage />} />
                   <Route path="/agents" element={<AgentTrackerPage />} />
                   <Route path="/jobs/:id" element={<JobDetailPage />} />
                   <Route path="/datafiles" element={<DataFilesListPage />} />

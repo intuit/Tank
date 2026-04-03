@@ -24,8 +24,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 import jakarta.annotation.Resource;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -83,6 +87,44 @@ public class FilterController {
     })
     public ResponseEntity<FilterGroupTO> getFilterGroup(@PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId) {
         return new ResponseEntity<>(filterService.getFilterGroup(filterGroupId), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Creates a new script filter", summary = "Create a new filter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Filter created successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+    })
+    public ResponseEntity<Map<String, Integer>> createFilter(@RequestBody @Parameter(description = "Filter to create", required = true) FilterTO filterTO) {
+        Map<String, Integer> result = filterService.createFilter(filterTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(result.get("filterId")).toUri();
+        return ResponseEntity.created(location).body(result);
+    }
+
+    @RequestMapping(value = "/{filterId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Updates an existing script filter", summary = "Update a filter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Filter updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Filter not found", content = @Content)
+    })
+    public ResponseEntity<FilterTO> updateFilter(
+            @PathVariable @Parameter(description = "The filter ID", required = true) Integer filterId,
+            @RequestBody @Parameter(description = "Updated filter", required = true) FilterTO filterTO) {
+        return ResponseEntity.ok(filterService.updateFilter(filterId, filterTO));
+    }
+
+    @RequestMapping(value = "/groups", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Creates a new filter group", summary = "Create a new filter group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Filter group created successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+    })
+    public ResponseEntity<Map<String, Integer>> createFilterGroup(@RequestBody @Parameter(description = "Filter group to create", required = true) FilterGroupTO filterGroupTO) {
+        Map<String, Integer> result = filterService.createFilterGroup(filterGroupTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(result.get("filterGroupId")).toUri();
+        return ResponseEntity.created(location).body(result);
     }
 
     @RequestMapping(value = "/apply-filters/{scriptId}", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.TEXT_PLAIN_VALUE })

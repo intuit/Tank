@@ -12,6 +12,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "filter", namespace = Namespace.NAMESPACE_V1)
@@ -19,7 +21,12 @@ import java.io.Serializable;
 @XmlType(name = "Filter", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "id",
         "name",
-        "productName"
+        "productName",
+        "filterType",
+        "allConditionsMustPass",
+        "externalScriptId",
+        "conditions",
+        "actions"
 })
 public class FilterTO implements Serializable {
 
@@ -34,57 +41,50 @@ public class FilterTO implements Serializable {
     @XmlElement(name = "productName", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String productName;
 
-    /**
-     * @return the id
-     */
-    public Integer getId() {
-        return id;
-    }
+    /** INTERNAL or EXTERNAL */
+    @XmlElement(name = "filterType", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private String filterType;
 
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @XmlElement(name = "allConditionsMustPass", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private Boolean allConditionsMustPass;
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
+    @XmlElement(name = "externalScriptId", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private Integer externalScriptId;
 
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+    @XmlElementWrapper(name = "conditions", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "condition", namespace = Namespace.NAMESPACE_V1)
+    private List<FilterConditionTO> conditions = new ArrayList<>();
 
-    /**
-     * @return the productName
-     */
-    public String getProductName() {
-        return productName;
-    }
+    @XmlElementWrapper(name = "actions", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "action", namespace = Namespace.NAMESPACE_V1)
+    private List<FilterActionTO> actions = new ArrayList<>();
 
-    /**
-     * @param productName
-     *            the productName to set
-     */
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    /**
-     * {@inheritDoc}
-     */
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+
+    public String getFilterType() { return filterType; }
+    public void setFilterType(String filterType) { this.filterType = filterType; }
+
+    public Boolean getAllConditionsMustPass() { return allConditionsMustPass; }
+    public void setAllConditionsMustPass(Boolean allConditionsMustPass) { this.allConditionsMustPass = allConditionsMustPass; }
+
+    public Integer getExternalScriptId() { return externalScriptId; }
+    public void setExternalScriptId(Integer externalScriptId) { this.externalScriptId = externalScriptId; }
+
+    public List<FilterConditionTO> getConditions() { return conditions; }
+    public void setConditions(List<FilterConditionTO> conditions) { this.conditions = conditions; }
+
+    public List<FilterActionTO> getActions() { return actions; }
+    public void setActions(List<FilterActionTO> actions) { this.actions = actions; }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
-
 }

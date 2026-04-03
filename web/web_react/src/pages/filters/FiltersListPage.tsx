@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDate';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -17,6 +18,7 @@ import { scriptsApi } from '../../api/scripts';
 import type { FilterTO, FilterGroupTO } from '../../types/filter';
 
 export function FiltersListPage() {
+  const navigate = useNavigate();
   const { data: filters, isLoading: loadingFilters, error: filterError } = useFilters();
   const { data: groups, isLoading: loadingGroups } = useFilterGroups();
   const deleteFilter = useDeleteFilter();
@@ -103,14 +105,23 @@ export function FiltersListPage() {
   };
 
   const filterActionsBody = (row: FilterTO) => (
-    <Button
-      icon="pi pi-trash"
-      size="small"
-      text
-      severity="danger"
-      tooltip="Delete"
-      onClick={() => handleDeleteFilter(row)}
-    />
+    <div className="flex gap-1">
+      <Button
+        icon="pi pi-pencil"
+        size="small"
+        text
+        tooltip="Edit"
+        onClick={() => navigate(`/filters/${row.id}/edit`)}
+      />
+      <Button
+        icon="pi pi-trash"
+        size="small"
+        text
+        severity="danger"
+        tooltip="Delete"
+        onClick={() => handleDeleteFilter(row)}
+      />
+    </div>
   );
 
   const groupActionsBody = (row: FilterGroupTO) => (
@@ -132,6 +143,13 @@ export function FiltersListPage() {
         value={filterSearch}
         onChange={(e) => setFilterSearch(e.target.value)}
         className="p-inputtext-sm ml-3"
+      />
+      <Button
+        label="New Filter"
+        icon="pi pi-plus"
+        size="small"
+        className="ml-3"
+        onClick={() => navigate('/filters/new')}
       />
       <Button
         label="Apply Filters to Script"
@@ -274,7 +292,7 @@ export function FiltersListPage() {
             <Column field="productName" header="Product" sortable />
             <Column field="creator" header="Owner" sortable />
             <Column field="modified" header="Modified" sortable body={(row) => formatDate(row.modified)} />
-            <Column header="" body={filterActionsBody} style={{ width: '60px' }} />
+            <Column header="" body={filterActionsBody} style={{ width: '100px' }} />
           </DataTable>
         </TabPanel>
         <TabPanel header="Filter Groups">
