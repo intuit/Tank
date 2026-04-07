@@ -41,6 +41,7 @@ reports:
     base-directory: '.'
 
 artifacts:
+  name: $PROJECT_VERSION
   files:
     - '**/*'
   base-directory: artifacts
