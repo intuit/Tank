@@ -37,7 +37,7 @@ reports:
     base-directory: '.'
 
 artifacts:
-  name: TANK/$PROJECT_VERSION
+  name: TANK/$PROJECT_VERSION/TankZip.zip
   files:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip
