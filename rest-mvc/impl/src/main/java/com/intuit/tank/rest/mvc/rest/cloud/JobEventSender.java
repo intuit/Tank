@@ -274,6 +274,10 @@ public class JobEventSender {
     }
 
     public void setVmStatus(final String instanceId, final CloudVmStatus status) {
+        // Normalize: completed/terminated agents always have zero users
+        if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
+            status.setCurrentUsers(0);
+        }
         vmTracker.setStatus(status);
         if (status.getJobStatus() == JobStatus.Completed
                 || status.getVmStatus() == VMStatus.terminated

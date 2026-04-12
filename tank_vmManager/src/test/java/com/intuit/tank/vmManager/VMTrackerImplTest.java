@@ -14,10 +14,12 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +27,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
+import com.intuit.tank.vm.event.JobEvent;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.Instance;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for VMTrackerImpl, focusing on the bug fix for terminated agents
@@ -126,19 +136,24 @@ public class VMTrackerImplTest {
 
     /**
      * Use reflection to test the private shouldUpdateStatus method.
+     * Takes current status and incoming status (transition-aware guard).
      */
-    private boolean invokeShouldUpdateStatus(CloudVmStatus status) throws Exception {
-        Method method = VMTrackerImpl.class.getDeclaredMethod("shouldUpdateStatus", CloudVmStatus.class);
+    private boolean invokeShouldUpdateStatus(CloudVmStatus currentStatus, CloudVmStatus incomingStatus) throws Exception {
+        Method method = VMTrackerImpl.class.getDeclaredMethod("shouldUpdateStatus", CloudVmStatus.class, CloudVmStatus.class);
         method.setAccessible(true);
-        return (boolean) method.invoke(vmTracker, status);
+        return (boolean) method.invoke(vmTracker, currentStatus, incomingStatus);
     }
 
     private CloudVmStatus createStatus(String instanceId, VMStatus vmStatus) {
+        return createStatusWithVmAndJob(instanceId, vmStatus, JobStatus.Starting);
+    }
+
+    private CloudVmStatus createStatusWithVmAndJob(String instanceId, VMStatus vmStatus, JobStatus jobStatus) {
         return new CloudVmStatus(
                 instanceId,
                 "123",
                 "sg-test",
-                JobStatus.Starting,
+                jobStatus,
                 VMImageType.AGENT,
                 VMRegion.US_WEST_2,
                 vmStatus,
@@ -153,37 +168,74 @@ public class VMTrackerImplTest {
     @Test
     @DisplayName("shouldUpdateStatus returns true for null current status")
     void shouldUpdateStatus_nullCurrentStatus_returnsTrue() throws Exception {
-        assertTrue(invokeShouldUpdateStatus(null));
+        CloudVmStatus incoming = createStatus("i-123", VMStatus.running);
+        assertTrue(invokeShouldUpdateStatus(null, incoming));
+    }
+
+    @Test
+    @DisplayName("shouldUpdateStatus rejects non-terminal incoming when current is terminated")
+    void shouldUpdateStatus_terminated_rejectsNonTerminalIncoming() throws Exception {
+        CloudVmStatus current = createStatus("i-123", VMStatus.terminated);
+        CloudVmStatus incoming = createStatus("i-123", VMStatus.running);
+        assertFalse(invokeShouldUpdateStatus(current, incoming),
+            "Should reject non-terminal incoming when current is terminated");
+    }
+
+    @Test
+    @DisplayName("shouldUpdateStatus rejects terminated→terminated (idempotent, already final)")
+    void shouldUpdateStatus_terminated_rejectsTerminatedIncoming() throws Exception {
+        CloudVmStatus current = createStatusWithVmAndJob("i-123", VMStatus.terminated, JobStatus.Completed);
+        CloudVmStatus incoming = createStatusWithVmAndJob("i-123", VMStatus.terminated, JobStatus.Completed);
+        assertFalse(invokeShouldUpdateStatus(current, incoming),
+            "Should reject terminated→terminated (already in final state)");
     }
 
     @ParameterizedTest
-    @EnumSource(value = VMStatus.class, names = {"terminated", "stopped", "stopping", "shutting_down"})
-    @DisplayName("shouldUpdateStatus returns false for terminal states")
-    void shouldUpdateStatus_terminalStates_returnsFalse(VMStatus terminalStatus) throws Exception {
-        CloudVmStatus status = createStatus("i-123", terminalStatus);
-        assertFalse(invokeShouldUpdateStatus(status), 
-            "Should reject updates for terminal state: " + terminalStatus);
+    @EnumSource(value = VMStatus.class, names = {"stopped", "stopping", "shutting_down"})
+    @DisplayName("shouldUpdateStatus rejects non-terminal incoming for stopping/stopped/shutting_down")
+    void shouldUpdateStatus_terminalStates_rejectNonTerminalIncoming(VMStatus terminalStatus) throws Exception {
+        CloudVmStatus current = createStatus("i-123", terminalStatus);
+        CloudVmStatus incoming = createStatus("i-123", VMStatus.running);
+        assertFalse(invokeShouldUpdateStatus(current, incoming),
+            "Should reject non-terminal incoming for state: " + terminalStatus);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = VMStatus.class, names = {"stopped", "stopping", "shutting_down"})
+    @DisplayName("shouldUpdateStatus allows terminated incoming for stopping/stopped/shutting_down (killInstances flow)")
+    void shouldUpdateStatus_terminalStates_allowTerminatedIncoming(VMStatus terminalStatus) throws Exception {
+        CloudVmStatus current = createStatus("i-123", terminalStatus);
+        CloudVmStatus incoming = createStatusWithVmAndJob("i-123", VMStatus.terminated, JobStatus.Completed);
+        assertTrue(invokeShouldUpdateStatus(current, incoming),
+            "Should allow terminated incoming for killInstances flow from state: " + terminalStatus);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = VMStatus.class, names = {"stopped", "stopping", "shutting_down"})
+    @DisplayName("shouldUpdateStatus allows Completed incoming for stopping/stopped/shutting_down")
+    void shouldUpdateStatus_terminalStates_allowCompletedIncoming(VMStatus terminalStatus) throws Exception {
+        CloudVmStatus current = createStatus("i-123", terminalStatus);
+        CloudVmStatus incoming = createStatusWithVmAndJob("i-123", VMStatus.running, JobStatus.Completed);
+        assertTrue(invokeShouldUpdateStatus(current, incoming),
+            "Should allow Completed job status incoming from state: " + terminalStatus);
     }
 
     @ParameterizedTest
     @EnumSource(value = VMStatus.class, names = {"unknown", "starting", "pending", "ready", "running", "rampPaused", "rebooting"})
     @DisplayName("shouldUpdateStatus returns true for active states")
     void shouldUpdateStatus_activeStates_returnsTrue(VMStatus activeStatus) throws Exception {
-        CloudVmStatus status = createStatus("i-123", activeStatus);
-        assertTrue(invokeShouldUpdateStatus(status), 
+        CloudVmStatus current = createStatus("i-123", activeStatus);
+        CloudVmStatus incoming = createStatus("i-123", VMStatus.running);
+        assertTrue(invokeShouldUpdateStatus(current, incoming),
             "Should allow updates for active state: " + activeStatus);
     }
 
     @Test
     @DisplayName("shouldUpdateStatus allows updates for replaced instances (protection handled in AgentWatchdog)")
     void shouldUpdateStatus_replacedInstance_allowsUpdate() throws Exception {
-        // Given: An instance that was replaced by AgentWatchdog
         CloudVmStatus replacedStatus = createStatus("i-replaced", VMStatus.replaced);
-        
-        // When/Then: Updates should be allowed - protection is handled by removing
-        // instances from tracking lists in AgentWatchdog before marking as replaced,
-        // NOT by blocking in shouldUpdateStatus (which would break killJobDirectly)
-        assertTrue(invokeShouldUpdateStatus(replacedStatus),
+        CloudVmStatus incoming = createStatus("i-replaced", VMStatus.running);
+        assertTrue(invokeShouldUpdateStatus(replacedStatus, incoming),
             "Replaced instances should allow updates (e.g., replaced -> terminated for killJobDirectly)");
     }
 
@@ -488,6 +540,238 @@ public class VMTrackerImplTest {
         for (int j = 0; j < numJobs; j++) {
             assertNull(vmTracker.getVmStatusForJob(prefix + j), "Job " + prefix + j + " should be removed");
         }
+    }
+
+    // ============ currentUsers normalization tests (Fix 2: completed/terminated → 0 users) ============
+
+    private CloudVmStatus createStatusWithUsers(String instanceId, String jobId, VMStatus vmStatus,
+            JobStatus jobStatus, int currentUsers) {
+        CloudVmStatus status = new CloudVmStatus(
+                instanceId,
+                jobId,
+                "sg-test",
+                jobStatus,
+                VMImageType.AGENT,
+                VMRegion.US_WEST_2,
+                vmStatus,
+                new ValidationStatus(),
+                100,
+                currentUsers,
+                new Date(),
+                null
+        );
+        status.setReportTime(new Date());
+        return status;
+    }
+
+    /**
+     * Inject mock CDI dependencies into vmTracker so addStatusToJobContainer can run.
+     * Returns a mock JobInstanceDao for test verification.
+     */
+    @SuppressWarnings("unchecked")
+    private JobInstanceDao injectMockDependencies() throws Exception {
+        // Mock jobInstanceDao (Instance<JobInstanceDao>)
+        JobInstanceDao mockDao = mock(JobInstanceDao.class);
+        Instance<JobInstanceDao> mockDaoInstance = mock(Instance.class);
+        when(mockDaoInstance.get()).thenReturn(mockDao);
+        Field jobInstanceDaoField = VMTrackerImpl.class.getDeclaredField("jobInstanceDao");
+        jobInstanceDaoField.setAccessible(true);
+        jobInstanceDaoField.set(vmTracker, mockDaoInstance);
+
+        // Mock jobEventProducer (Event<JobEvent>)
+        Event<JobEvent> mockEventProducer = mock(Event.class);
+        Field jobEventField = VMTrackerImpl.class.getDeclaredField("jobEventProducer");
+        jobEventField.setAccessible(true);
+        jobEventField.set(vmTracker, mockEventProducer);
+
+        return mockDao;
+    }
+
+    /**
+     * Set lastSeenMap entry for staleness detection tests.
+     */
+    @SuppressWarnings("unchecked")
+    private void setLastSeen(String instanceId, long timestampMs) throws Exception {
+        Field lastSeenField = VMTrackerImpl.class.getDeclaredField("lastSeenMap");
+        lastSeenField.setAccessible(true);
+        Map<String, Long> lastSeenMap = (Map<String, Long>) lastSeenField.get(vmTracker);
+        lastSeenMap.put(instanceId, timestampMs);
+    }
+
+    /**
+     * Invoke addStatusToJobContainer via reflection. Requires a pre-existing container in jobMap.
+     */
+    private void invokeAddStatusToJobContainer(CloudVmStatus status, CloudVmStatusContainer container) throws Exception {
+        Method method = VMTrackerImpl.class.getDeclaredMethod("addStatusToJobContainer",
+            CloudVmStatus.class, CloudVmStatusContainer.class);
+        method.setAccessible(true);
+        method.invoke(vmTracker, status, container);
+    }
+
+    /**
+     * Create a container with pre-populated statuses, wire it into the vmTracker's jobMap,
+     * and inject mock CDI dependencies. Returns the mock JobInstanceDao.
+     */
+    @SuppressWarnings("unchecked")
+    private JobInstanceDao createAndRegisterContainerWithMocks(String jobId,
+            CloudVmStatusContainer[] containerOut, CloudVmStatus... statuses) throws Exception {
+        JobInstanceDao mockDao = injectMockDependencies();
+
+        // Create a mock JobInstance for the DB lookup
+        JobInstance mockJob = mock(JobInstance.class);
+        when(mockJob.getStatus()).thenReturn(JobQueueStatus.Running);
+        when(mockJob.getId()).thenReturn(Integer.parseInt(jobId));
+        when(mockDao.findById(Integer.parseInt(jobId))).thenReturn(mockJob);
+        when(mockDao.saveOrUpdate(any())).thenReturn(mockJob);
+
+        java.lang.reflect.Field jobMapField = VMTrackerImpl.class.getDeclaredField("jobMap");
+        jobMapField.setAccessible(true);
+        Map<String, CloudVmStatusContainer> jobMap =
+            (Map<String, CloudVmStatusContainer>) jobMapField.get(vmTracker);
+
+        CloudVmStatusContainer container = new CloudVmStatusContainer();
+        container.setJobId(jobId);
+        container.setStartTime(new Date());
+        for (CloudVmStatus s : statuses) {
+            container.getStatuses().add(s);
+        }
+        jobMap.put(jobId, container);
+        containerOut[0] = container;
+        return mockDao;
+    }
+
+    @Test
+    @DisplayName("addStatusToJobContainer normalizes currentUsers to 0 for Completed agent")
+    void addStatusToJobContainer_completedAgent_normalizesCurrentUsersToZero() throws Exception {
+        // Given: An agent reports Completed but still has currentUsers=10 (threads haven't exited)
+        String jobId = "100";
+        CloudVmStatus completedWithUsers = createStatusWithUsers("i-agent1", jobId,
+            VMStatus.running, JobStatus.Completed, 10);
+        CloudVmStatusContainer[] containerOut = new CloudVmStatusContainer[1];
+        createAndRegisterContainerWithMocks(jobId, containerOut);
+
+        // When: addStatusToJobContainer processes this status
+        invokeAddStatusToJobContainer(completedWithUsers, containerOut[0]);
+
+        // Then: currentUsers should be normalized to 0
+        CloudVmStatus storedStatus = containerOut[0].getStatuses().stream()
+            .filter(s -> s.getInstanceId().equals("i-agent1"))
+            .findFirst().orElseThrow();
+        assertEquals(0, storedStatus.getCurrentUsers(),
+            "Completed agent should have currentUsers normalized to 0");
+    }
+
+    @Test
+    @DisplayName("addStatusToJobContainer normalizes currentUsers to 0 for terminated agent")
+    void addStatusToJobContainer_terminatedAgent_normalizesCurrentUsersToZero() throws Exception {
+        // Given: An agent reports terminated but still has currentUsers=5
+        String jobId = "101";
+        CloudVmStatus terminatedWithUsers = createStatusWithUsers("i-agent1", jobId,
+            VMStatus.terminated, JobStatus.Completed, 5);
+        CloudVmStatusContainer[] containerOut = new CloudVmStatusContainer[1];
+        createAndRegisterContainerWithMocks(jobId, containerOut);
+
+        // When
+        invokeAddStatusToJobContainer(terminatedWithUsers, containerOut[0]);
+
+        // Then
+        CloudVmStatus storedStatus = containerOut[0].getStatuses().stream()
+            .filter(s -> s.getInstanceId().equals("i-agent1"))
+            .findFirst().orElseThrow();
+        assertEquals(0, storedStatus.getCurrentUsers(),
+            "Terminated agent should have currentUsers normalized to 0");
+    }
+
+    @Test
+    @DisplayName("addStatusToJobContainer does NOT normalize currentUsers for Running agent")
+    void addStatusToJobContainer_runningAgent_preservesCurrentUsers() throws Exception {
+        // Given: A Running agent with 50 currentUsers
+        String jobId = "102";
+        CloudVmStatus runningStatus = createStatusWithUsers("i-agent1", jobId,
+            VMStatus.running, JobStatus.Running, 50);
+        CloudVmStatusContainer[] containerOut = new CloudVmStatusContainer[1];
+        createAndRegisterContainerWithMocks(jobId, containerOut);
+
+        // When
+        invokeAddStatusToJobContainer(runningStatus, containerOut[0]);
+
+        // Then: currentUsers should remain 50
+        CloudVmStatus storedStatus = containerOut[0].getStatuses().stream()
+            .filter(s -> s.getInstanceId().equals("i-agent1"))
+            .findFirst().orElseThrow();
+        assertEquals(50, storedStatus.getCurrentUsers(),
+            "Running agent should keep its currentUsers unchanged");
+    }
+
+    // ============ Staleness detection tests (Fix 3: auto-complete stale agents) ============
+
+    @Test
+    @DisplayName("Stale agent (no report in 45s) with one Completed agent triggers isFinished")
+    void addStatusToJobContainer_staleAgent_triggersJobFinished() throws Exception {
+        // Given: Two agents — one Completed, one stale (reportTime 60s ago, still Running)
+        String jobId = "103";
+        CloudVmStatus completedAgent = createStatusWithUsers("i-completed", jobId,
+            VMStatus.running, JobStatus.Completed, 0);
+        completedAgent.setReportTime(new Date());
+
+        CloudVmStatus staleAgent = createStatusWithUsers("i-stale", jobId,
+            VMStatus.running, JobStatus.Running, 10);
+        staleAgent.setReportTime(new Date(System.currentTimeMillis() - 120_000));
+
+        CloudVmStatusContainer[] containerOut = new CloudVmStatusContainer[1];
+        createAndRegisterContainerWithMocks(jobId, containerOut, staleAgent);
+
+        // Populate lastSeenMap — staleness uses this instead of reportTime
+        // Must exceed 3× configured report interval (settings.xml has 30s → threshold=90s)
+        setLastSeen("i-completed", System.currentTimeMillis());
+        setLastSeen("i-stale", System.currentTimeMillis() - 120_000); // 120s ago
+
+        // When: The completed agent reports
+        invokeAddStatusToJobContainer(completedAgent, containerOut[0]);
+
+        // Then: Stale agent should be force-completed and job should have endTime set
+        CloudVmStatus staleInContainer = containerOut[0].getStatuses().stream()
+            .filter(s -> s.getInstanceId().equals("i-stale"))
+            .findFirst().orElseThrow();
+        assertEquals(JobStatus.Completed, staleInContainer.getJobStatus(),
+            "Stale agent should be force-completed");
+        assertEquals(0, staleInContainer.getCurrentUsers(),
+            "Stale agent should have currentUsers forced to 0");
+        assertNotNull(containerOut[0].getEndTime(),
+            "Job container should have endTime set (job is finished)");
+    }
+
+    @Test
+    @DisplayName("Recently-reporting agent prevents staleness detection from firing")
+    void addStatusToJobContainer_recentAgent_noStalenessTriggered() throws Exception {
+        // Given: Two agents — one Completed, one still Running with recent report
+        String jobId = "104";
+        CloudVmStatus completedAgent = createStatusWithUsers("i-completed", jobId,
+            VMStatus.running, JobStatus.Completed, 0);
+        completedAgent.setReportTime(new Date());
+
+        CloudVmStatus recentAgent = createStatusWithUsers("i-recent", jobId,
+            VMStatus.running, JobStatus.Running, 50);
+        recentAgent.setReportTime(new Date()); // just reported
+
+        CloudVmStatusContainer[] containerOut = new CloudVmStatusContainer[1];
+        createAndRegisterContainerWithMocks(jobId, containerOut, recentAgent);
+
+        // Populate lastSeenMap — recent agent was just seen
+        setLastSeen("i-completed", System.currentTimeMillis());
+        setLastSeen("i-recent", System.currentTimeMillis()); // just seen
+
+        // When: The completed agent reports
+        invokeAddStatusToJobContainer(completedAgent, containerOut[0]);
+
+        // Then: Recent agent should NOT be force-completed
+        CloudVmStatus recentInContainer = containerOut[0].getStatuses().stream()
+            .filter(s -> s.getInstanceId().equals("i-recent"))
+            .findFirst().orElseThrow();
+        assertEquals(JobStatus.Running, recentInContainer.getJobStatus(),
+            "Recently-reporting agent should stay Running");
+        assertNull(containerOut[0].getEndTime(),
+            "Job should NOT be finished — one agent is still actively running");
     }
 
     // ============ removeStatusForInstance tests ============

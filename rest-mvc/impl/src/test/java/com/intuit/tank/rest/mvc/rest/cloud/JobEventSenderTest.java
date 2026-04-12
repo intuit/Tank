@@ -1,5 +1,6 @@
 package com.intuit.tank.rest.mvc.rest.cloud;
 
+import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
@@ -31,6 +32,9 @@ public class JobEventSenderTest {
 
     @Mock
     private VMTracker vmTracker;
+
+    @Mock
+    private VMTerminator terminator;
 
     @InjectMocks
     private JobEventSender jobEventSender;
@@ -262,6 +266,61 @@ public class JobEventSenderTest {
         assertFalse(instances.contains("i-terminated"));
         assertFalse(instances.contains("i-replaced"));
     }
+
+    // ============ setVmStatus normalization tests (Fix 2) ============
+
+    @Test
+    @DisplayName("setVmStatus normalizes currentUsers to 0 for Completed agent before passing to vmTracker")
+    void setVmStatus_completedAgent_normalizesCurrentUsersToZero() {
+        // Given: An agent reports Completed but still has currentUsers=10
+        CloudVmStatus status = createStatus("i-agent1", JobStatus.Completed, VMStatus.running);
+        // Manually set currentUsers to simulate stale count
+        status.setCurrentUsers(10);
+
+        // When
+        jobEventSender.setVmStatus("i-agent1", status);
+
+        // Then: The status passed to vmTracker.setStatus should have currentUsers=0
+        assertEquals(0, status.getCurrentUsers(),
+            "Completed agent should have currentUsers normalized to 0 before reaching vmTracker");
+        verify(vmTracker).setStatus(status);
+        verify(terminator).terminate("i-agent1");
+    }
+
+    @Test
+    @DisplayName("setVmStatus normalizes currentUsers to 0 for terminated agent")
+    void setVmStatus_terminatedAgent_normalizesCurrentUsersToZero() {
+        // Given: An agent reports terminated but still has currentUsers=5
+        CloudVmStatus status = createStatus("i-agent1", JobStatus.Completed, VMStatus.terminated);
+        status.setCurrentUsers(5);
+
+        // When
+        jobEventSender.setVmStatus("i-agent1", status);
+
+        // Then
+        assertEquals(0, status.getCurrentUsers(),
+            "Terminated agent should have currentUsers normalized to 0");
+        verify(vmTracker).setStatus(status);
+        verify(terminator).terminate("i-agent1");
+    }
+
+    @Test
+    @DisplayName("setVmStatus does NOT normalize currentUsers for Running agent")
+    void setVmStatus_runningAgent_preservesCurrentUsers() {
+        // Given: A Running agent with 50 currentUsers
+        CloudVmStatus status = createStatus("i-agent1", JobStatus.Running, VMStatus.running);
+        status.setCurrentUsers(50);
+
+        // When
+        jobEventSender.setVmStatus("i-agent1", status);
+
+        // Then: currentUsers should remain 50
+        assertEquals(50, status.getCurrentUsers(),
+            "Running agent should keep its currentUsers unchanged");
+        verify(vmTracker).setStatus(status);
+    }
+
+    // ============ getVmStatus delegation tests ============
 
     @Test
     @DisplayName("getVmStatus delegates to vmTracker")

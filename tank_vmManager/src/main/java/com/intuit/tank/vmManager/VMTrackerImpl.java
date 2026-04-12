@@ -28,6 +28,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +93,9 @@ public class VMTrackerImpl implements VMTracker {
     private Map<String, CloudVmStatus> statusMap = new ConcurrentHashMap<String, CloudVmStatus>();
     private Map<String, CloudVmStatusContainer> jobMap = new ConcurrentHashMap<String, CloudVmStatusContainer>();
     private Set<String> stoppedJobs = new HashSet<String>();
+    // Tracks when we last received ANY report from an instance (set before executor enqueue).
+    // Used for staleness detection — immune to DiscardOldestPolicy dropping the task.
+    private Map<String, Long> lastSeenMap = new ConcurrentHashMap<>();
 
     private static final ThreadPoolExecutor EXECUTOR =
             new ThreadPoolExecutor(10, 50, 60, TimeUnit.SECONDS,
@@ -103,12 +107,41 @@ public class VMTrackerImpl implements VMTracker {
                     },
                     new ThreadPoolExecutor.DiscardOldestPolicy());
 
+    // Dedicated executor for terminal status updates — small queue + CallerRunsPolicy
+    // guarantees delivery without silently dropping, and avoids blocking the REST thread
+    // for extended periods when killInstances loops over many instances.
+    private static final ThreadPoolExecutor TERMINAL_EXECUTOR =
+            new ThreadPoolExecutor(2, 10, 60, TimeUnit.SECONDS,
+                    new ArrayBlockingQueue<Runnable>(20),
+                    threadFactoryRunnable -> {
+                        Thread t = Executors.defaultThreadFactory().newThread(threadFactoryRunnable);
+                        t.setDaemon(true);
+                        t.setName("terminal-status-" + t.getId());
+                        return t;
+                    },
+                    (r, executor) -> {
+                        // CallerRunsPolicy with logging — runs on caller thread when queue is full
+                        LOG.warn("Terminal executor queue full (size={}), running on caller thread: {}",
+                            executor.getQueue().size(), Thread.currentThread().getName());
+                        if (!executor.isShutdown()) {
+                            r.run();
+                        }
+                    });
+
+    private ScheduledExecutorService stalenessSweeper;
+
     /**
      * 
      */
     @PostConstruct
     public void init() {
         devMode = new TankConfig().getStandalone();
+        stalenessSweeper = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "staleness-sweeper");
+            t.setDaemon(true);
+            return t;
+        });
+        stalenessSweeper.scheduleAtFixedRate(this::sweepStaleJobs, 30, 30, TimeUnit.SECONDS);
     }
 
     /**
@@ -140,62 +173,79 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Runnable task = () -> setStatusThread(status);
-        EXECUTOR.execute(task);
+        // Record ingest time BEFORE enqueue — immune to DiscardOldestPolicy drops.
+        // Used by staleness detection instead of reportTime (which is set inside the executor).
+        lastSeenMap.put(status.getInstanceId(), System.currentTimeMillis());
+
+        boolean isTerminal = status.getJobStatus() == JobStatus.Completed
+            || status.getJobStatus() == JobStatus.Stopped
+            || status.getVmStatus() == VMStatus.terminated;
+        if (isTerminal) {
+            // Terminal updates use a dedicated executor with CallerRunsPolicy —
+            // guarantees delivery (never drops), falls back to caller thread if queue is full
+            TERMINAL_EXECUTOR.execute(() -> setStatusThread(status));
+        } else {
+            EXECUTOR.execute(() -> setStatusThread(status));
+        }
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
-        synchronized (getCacheSyncObject(status.getJobId())) {
-            status.setReportTime(new Date());
-            CloudVmStatus currentStatus = getStatus(status.getInstanceId());
-            
-            if (shouldUpdateStatus(currentStatus)) {
+        AWSXRay.getGlobalRecorder().beginNoOpSegment();
+        try {
+            synchronized (getCacheSyncObject(status.getJobId())) {
+                status.setReportTime(new Date());
+                CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+
+                if (!shouldUpdateStatus(currentStatus, status)) {
+                    LOG.debug(new ObjectMessage(Map.of("Message",
+                        "Skipping full status update for instance " + status.getInstanceId() +
+                        " - current status is terminal: " + (currentStatus != null ? currentStatus.getVmStatus() : "null"))));
+                    return;
+                }
+
                 statusMap.put(status.getInstanceId(), status);
                 if (status.getVmStatus() == VMStatus.running
-                		&& (status.getJobStatus() == JobStatus.Completed)
-                		&& !isDevMode()) {
-	                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
-	                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
+                        && (status.getJobStatus() == JobStatus.Completed)
+                        && !isDevMode()) {
+                    AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
+                    amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
                 }
-            } else {
-                LOG.debug(new ObjectMessage(Map.of("Message",
-                    "Skipping status update for instance " + status.getInstanceId() +
-                    " - current status is " + (currentStatus != null ? currentStatus.getVmStatus() : "null"))));
-            }
-            String jobId = status.getJobId();
-            CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
-            if (cloudVmStatusContainer == null) {
-                cloudVmStatusContainer = new CloudVmStatusContainer();
-                cloudVmStatusContainer.setJobId(jobId);
 
-                jobMap.put(jobId, cloudVmStatusContainer);
-                JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
-                if (job != null) {
-                    JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
-                    cloudVmStatusContainer.setStatus(newStatus);
-                    if (newStatus != job.getStatus()) {
-                        job.setStatus(newStatus);
-                        new JobInstanceDao().saveOrUpdate(job);
+                String jobId = status.getJobId();
+                CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
+                if (cloudVmStatusContainer == null) {
+                    cloudVmStatusContainer = new CloudVmStatusContainer();
+                    cloudVmStatusContainer.setJobId(jobId);
+
+                    jobMap.put(jobId, cloudVmStatusContainer);
+                    JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
+                    if (job != null) {
+                        JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
+                        cloudVmStatusContainer.setStatus(newStatus);
+                        if (newStatus != job.getStatus()) {
+                            job.setStatus(newStatus);
+                            new JobInstanceDao().saveOrUpdate(job);
+                        }
+                    } else {
+                        JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
+                        cloudVmStatusContainer.setStatus(newStatus);
                     }
-                } else {
-                    JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
-                    cloudVmStatusContainer.setStatus(newStatus);
+                }
+                cloudVmStatusContainer.setReportTime(status.getReportTime());
+                addStatusToJobContainer(status, cloudVmStatusContainer);
+                String projectId = getProjectForJobId(jobId);
+                if (projectId != null) {
+                    ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
+                    if (projectStatusContainer == null) {
+                        projectStatusContainer = new ProjectStatusContainer();
+                        projectContainerMap.put(projectId, projectStatusContainer);
+                    }
+                    projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
                 }
             }
-            cloudVmStatusContainer.setReportTime(status.getReportTime());
-            addStatusToJobContainer(status, cloudVmStatusContainer);
-            String projectId = getProjectForJobId(jobId);
-            if (projectId != null) {
-                ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
-                if (projectStatusContainer == null) {
-                    projectStatusContainer = new ProjectStatusContainer();
-                    projectContainerMap.put(projectId, projectStatusContainer);
-                }
-                projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
-            }
+        } finally {
+            AWSXRay.endSegment();
         }
-        AWSXRay.endSegment();
     }
 
     private String getProjectForJobId(String jobId) {
@@ -228,13 +278,24 @@ public class VMTrackerImpl implements VMTracker {
         return oldStatus;
     }
 
-    private boolean shouldUpdateStatus(CloudVmStatus currentStatus) {
-        if (currentStatus != null) {
-            VMStatus status = currentStatus.getVmStatus();
-            return (status != VMStatus.shutting_down
-                    && status != VMStatus.stopped
-                    && status != VMStatus.stopping
-                    && status != VMStatus.terminated);
+    /**
+     * Determines whether an incoming status update should be applied.
+     * Rejects updates when the current status is terminal, UNLESS the incoming
+     * status is a valid forward transition (e.g., stopping → terminated from killInstances).
+     */
+    private boolean shouldUpdateStatus(CloudVmStatus currentStatus, CloudVmStatus incomingStatus) {
+        if (currentStatus == null) {
+            return true;
+        }
+        VMStatus currentVm = currentStatus.getVmStatus();
+        // Already fully terminated — no further updates
+        if (currentVm == VMStatus.terminated) {
+            return false;
+        }
+        // For stopping/stopped/shutting_down, only allow forward transition to terminated/Completed
+        if (currentVm == VMStatus.shutting_down || currentVm == VMStatus.stopped || currentVm == VMStatus.stopping) {
+            return incomingStatus.getVmStatus() == VMStatus.terminated
+                || incomingStatus.getJobStatus() == JobStatus.Completed;
         }
         return true;
     }
@@ -246,6 +307,7 @@ public class VMTrackerImpl implements VMTracker {
     @Override
     public void removeStatusForInstance(String instanceId) {
         statusMap.remove(instanceId);
+        lastSeenMap.remove(instanceId);
     }
 
     /**
@@ -303,6 +365,12 @@ public class VMTrackerImpl implements VMTracker {
      **/
     private void addStatusToJobContainer(CloudVmStatus status, CloudVmStatusContainer cloudVmStatusContainer) {
         ControllerLoggingConfig.setupThreadContext();
+        // Normalize completed/terminated agents to zero users — agent may report stale currentUsers
+        // if threads haven't fully exited before the final status report
+        if (status.getJobStatus() == JobStatus.Completed || status.getVmStatus() == VMStatus.terminated) {
+            status.setCurrentUsers(0);
+            status.setUserDetails(Collections.emptyList());
+        }
         cloudVmStatusContainer.getStatuses().remove(status);
         cloudVmStatusContainer.getStatuses().add(status);
         cloudVmStatusContainer.calculateUserDetails();
@@ -356,11 +424,51 @@ public class VMTrackerImpl implements VMTracker {
             return;
         }
         
+        // Staleness detection: if all non-replaced agents are either Completed or stale
+        // (no report in 3× the configured report interval), treat the job as finished.
+        // This catches the case where an agent's final Completed report was lost.
+        if (!isFinished && activeInstanceCount > 0) {
+            long reportIntervalMs = Math.max(new TankConfig().getAgentConfig().getStatusReportIntervalMilis(15_000), 15_000);
+            long staleThresholdMs = reportIntervalMs * 3;
+            Date now = new Date();
+            long nowMs = now.getTime();
+            boolean allCompletedOrStale = true;
+            for (CloudVmStatus s : statusesSnapshot) {
+                if (s.getVmStatus() == VMStatus.replaced) continue;
+                boolean isCompleted = s.getJobStatus() == JobStatus.Completed;
+                // Use lastSeenMap (set before executor enqueue) for staleness — immune to
+                // DiscardOldestPolicy dropping updates, which would leave reportTime stale
+                Long lastSeen = lastSeenMap.get(s.getInstanceId());
+                boolean isStale = lastSeen != null && (nowMs - lastSeen) > staleThresholdMs;
+                if (!isCompleted && !isStale) {
+                    allCompletedOrStale = false;
+                    break;
+                }
+            }
+            if (allCompletedOrStale) {
+                LOG.warn("Job {} — all agents are either Completed or stale (no report in {}ms). Treating as finished.",
+                    status.getJobId(), staleThresholdMs);
+                isFinished = true;
+                // Force stale agents to Completed in the container
+                for (CloudVmStatus s : statusesSnapshot) {
+                    if (s.getVmStatus() == VMStatus.replaced) continue;
+                    if (s.getJobStatus() != JobStatus.Completed) {
+                        s.setJobStatus(JobStatus.Completed);
+                        s.setCurrentUsers(0);
+                        s.setUserDetails(Collections.emptyList());
+                        s.setEndTime(now);
+                    }
+                }
+                // Recalculate aggregated user details after force-completing stale agents
+                cloudVmStatusContainer.calculateUserDetails();
+            }
+        }
+
         LOG.debug(new ObjectMessage(Map.of("Message",
-            "Status calc complete for job " + status.getJobId() + 
-            " - isFinished=" + isFinished + ", paused=" + paused + 
+            "Status calc complete for job " + status.getJobId() +
+            " - isFinished=" + isFinished + ", paused=" + paused +
             ", rampPaused=" + rampPaused + ", stopped=" + stopped + ", running=" + running)));
-        
+
         if (isFinished) {
             LOG.info(new ObjectMessage(Map.of("Message","Setting end time on container " + cloudVmStatusContainer.getJobId())));
             if (cloudVmStatusContainer.getEndTime() == null) {
@@ -410,6 +518,73 @@ public class VMTrackerImpl implements VMTracker {
         }
     }
 
+    /**
+     * Periodic sweep over all tracked jobs to detect stale agents when no inbound
+     * reports arrive (e.g., all agents died simultaneously). For each unfinished job
+     * (endTime == null), checks if all agents are Completed or stale and forces completion.
+     */
+    private void sweepStaleJobs() {
+        long reportIntervalMs;
+        try {
+            reportIntervalMs = Math.max(new TankConfig().getAgentConfig().getStatusReportIntervalMilis(15_000), 15_000);
+        } catch (Exception e) {
+            LOG.error("Error reading config in staleness sweep, using default 15s: " + e.getMessage(), e);
+            reportIntervalMs = 15_000;
+        }
+        long staleThresholdMs = reportIntervalMs * 3;
+        Date now = new Date();
+        long nowMs = now.getTime();
+
+        for (Map.Entry<String, CloudVmStatusContainer> entry : jobMap.entrySet()) {
+            String jobId = entry.getKey();
+            try {
+                CloudVmStatusContainer container = entry.getValue();
+                if (container.getEndTime() != null) {
+                    continue; // already finished
+                }
+                synchronized (getCacheSyncObject(jobId)) {
+                    // Re-check after acquiring lock
+                    if (container.getEndTime() != null) {
+                        continue;
+                    }
+                    Set<CloudVmStatus> statuses = container.getStatuses();
+                    if (statuses.isEmpty()) {
+                        continue;
+                    }
+                    boolean allCompletedOrStale = true;
+                    CloudVmStatus latestStatus = null;
+                    for (CloudVmStatus s : statuses) {
+                        if (s.getVmStatus() == VMStatus.replaced) continue;
+                        if (latestStatus == null) latestStatus = s;
+                        boolean isCompleted = s.getJobStatus() == JobStatus.Completed;
+                        Long lastSeen = lastSeenMap.get(s.getInstanceId());
+                        boolean isStale = lastSeen != null && (nowMs - lastSeen) > staleThresholdMs;
+                        if (!isCompleted && !isStale) {
+                            allCompletedOrStale = false;
+                            break;
+                        }
+                    }
+                    if (allCompletedOrStale && latestStatus != null) {
+                        LOG.warn("Staleness sweep: job {} — all agents Completed or stale. Triggering finish via addStatusToJobContainer.",
+                            jobId);
+                        for (CloudVmStatus s : statuses) {
+                            if (s.getVmStatus() == VMStatus.replaced) continue;
+                            if (s.getJobStatus() != JobStatus.Completed) {
+                                s.setJobStatus(JobStatus.Completed);
+                                s.setCurrentUsers(0);
+                                s.setUserDetails(Collections.emptyList());
+                                s.setEndTime(now);
+                            }
+                        }
+                        addStatusToJobContainer(latestStatus, container);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("Error in staleness sweep for job " + jobId + ": " + e.getMessage(), e);
+            }
+        }
+    }
+
     private Object getCacheSyncObject(final String id) {
         locks.putIfAbsent(id, id);
         return locks.get(id);
@@ -418,5 +593,9 @@ public class VMTrackerImpl implements VMTracker {
     @PreDestroy
     private void destroy() {
         EXECUTOR.shutdown();
+        TERMINAL_EXECUTOR.shutdown();
+        if (stalenessSweeper != null) {
+            stalenessSweeper.shutdown();
+        }
     }
 }

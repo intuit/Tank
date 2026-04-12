@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -144,43 +145,98 @@ public class APIMonitor implements Runnable {
         doMonitor = monitor;
     }
 
-    public synchronized static void setJobStatus(JobStatus jobStatus) {
+    public static void setJobStatus(JobStatus jobStatus) {
         LOG.debug(LogUtil.getLogMessage("Setting job status to: " + jobStatus));
-        if (status != null && status.getJobStatus() != JobStatus.Completed) {
+        // Capture immutable status snapshot inside lock, send outside to avoid
+        // blocking the synchronized section on network I/O (terminal retry can take ~6s)
+        String instanceId;
+        CloudVmStatus statusToSend;
+        synchronized (APIMonitor.class) {
+            if (status == null || status.getJobStatus() == JobStatus.Completed) {
+                return;
+            }
             try {
-            	VMStatus vmStatus =  jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
+                VMStatus vmStatus = jobStatus.equals(JobStatus.Stopped) ? VMStatus.stopping
                         : jobStatus.equals(JobStatus.RampPaused) ? VMStatus.rampPaused
                         : jobStatus.equals(JobStatus.Running) ? VMStatus.running
                         : jobStatus.equals(JobStatus.Completed) ? VMStatus.terminated : status.getVmStatus();
                 WatsAgentStatusResponse stats = APITestHarness.getInstance().getStatus();
-                Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status
-                        .getEndTime();
-                status = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
+                Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status.getEndTime();
+                // Build into local — only assign to static 'status' after full success
+                CloudVmStatus newStatus = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
                         jobStatus, status.getRole(), status.getVmRegion(), vmStatus,
                         new ValidationStatus(stats.getKills(), stats.getAborts(),
                                 stats.getGotos(), stats.getSkips(), stats.getSkipGroups(), stats.getRestarts()),
                         stats.getMaxVirtualUsers(),
                         stats.getCurrentNumberUsers(), status.getStartTime(), endTime);
-                status.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                setInstanceStatus(status.getInstanceId(), status);
+                newStatus.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
+                status = newStatus;
+                instanceId = status.getInstanceId();
+                statusToSend = status;
             } catch (Exception e) {
-                LOG.error("Error sending status to controller: {}", e.toString(), e);
+                LOG.error("Error building status snapshot in setJobStatus: {}", e.toString(), e);
+                return;
             }
+        }
+        // Network send is outside the lock — terminal retry won't block other threads
+        try {
+            setInstanceStatus(instanceId, statusToSend);
+        } catch (Exception e) {
+            LOG.error("Error sending status to controller: {}", e.toString(), e);
         }
     }
 
-    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
-        String json = objectWriter.writeValueAsString(VmStatus);
+    protected static void setInstanceStatus(String instanceId, CloudVmStatus vmStatus) throws URISyntaxException, JsonProcessingException {
+        // Force currentUsers=0 on terminal statuses — agent threads may not have fully exited
+        boolean isTerminal = vmStatus.getJobStatus() == JobStatus.Completed
+            || vmStatus.getJobStatus() == JobStatus.Stopped
+            || vmStatus.getVmStatus() == VMStatus.terminated;
+        if (isTerminal) {
+            vmStatus.setCurrentUsers(0);
+        }
+
+        String json = objectWriter.writeValueAsString(vmStatus);
         String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
+                .timeout(Duration.ofSeconds(10))
                 .PUT(HttpRequest.BodyPublishers.ofString(json))
                 .build();
 
         LOG.debug(LogUtil.getLogMessage("Sending instance status update for instance: " + instanceId + ", Status: " + json));
-        client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
+
+        if (isTerminal) {
+            // Terminal statuses use synchronous send with retry — losing the final Completed
+            // report causes the controller to show stale "Running" status indefinitely
+            for (int attempt = 1; attempt <= 3; attempt++) {
+                try {
+                    HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
+                    if (response.statusCode() == 200 || response.statusCode() == 202 || response.statusCode() == 204) {
+                        LOG.info(LogUtil.getLogMessage("Terminal status delivered on attempt " + attempt));
+                        return;
+                    }
+                    LOG.warn(LogUtil.getLogMessage("Terminal status delivery got " + response.statusCode() + " on attempt " + attempt));
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    LOG.warn(LogUtil.getLogMessage("Terminal status delivery interrupted on attempt " + attempt));
+                    return;
+                } catch (Exception e) {
+                    LOG.warn(LogUtil.getLogMessage("Terminal status delivery failed on attempt " + attempt + ": " + e.getMessage()));
+                }
+                if (attempt < 3) {
+                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+            LOG.error(LogUtil.getLogMessage("Failed to deliver terminal status after 3 attempts for instance " + instanceId));
+        } else {
+            // Non-terminal statuses remain async (fire-and-forget is fine for periodic updates)
+            client.sendAsync(request, HttpResponse.BodyHandlers.discarding());
+        }
     }
 }
