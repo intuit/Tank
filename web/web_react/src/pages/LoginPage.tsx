@@ -74,7 +74,7 @@ export function LoginPage() {
                   autoComplete="username"
                 />
               </div>
-              <div className="flex flex-column gap-1">
+              <div className="flex flex-column gap-1 p-fluid">
                 <label htmlFor="password">Password</label>
                 <Password
                   inputId="password"
@@ -83,6 +83,7 @@ export function LoginPage() {
                   feedback={false}
                   toggleMask
                   autoComplete="current-password"
+                  inputClassName="w-full"
                 />
               </div>
               <Button
