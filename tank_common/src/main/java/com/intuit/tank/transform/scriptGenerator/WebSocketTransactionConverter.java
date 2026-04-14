@@ -98,6 +98,8 @@ public class WebSocketTransactionConverter {
         step.setName("WS " + action + " " + url);
         step.setScriptGroupName("WebSocket " + connectionId);
 
+        step.setMethod("WS_" + action);
+
         Set<RequestData> data = new HashSet<>();
         data.add(new RequestData(KEY_ACTION, action, WS_TYPE));
         data.add(new RequestData(KEY_URL, url, WS_TYPE));

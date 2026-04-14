@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -61,6 +62,12 @@ public final class Application {
     public static final Header REDIRECT_MARKER = new Header("X-PROXY-APP", "redirectCollapse");
 
     private ProxyConfiguration proxyConfiguration;
+
+    // Monotonically increasing sequence counter — assigns capture order to HTTP and WS entries
+    private final AtomicInteger sequenceCounter = new AtomicInteger(0);
+
+    // Maps WS session ID -> sequence number allocated at connect time
+    private final Map<String, Integer> wsSessionSequenceNumbers = new ConcurrentHashMap<>();
 
     // WebSocket recording
     private final List<WebSocketRelay> activeWebSocketRelays = new CopyOnWriteArrayList<>();
@@ -101,6 +108,8 @@ public final class Application {
                     " followRedirects=\"" + proxyConfiguration.isFollowRedirects() + "\">\n");
             sessionStarted = true;
             paused = false;
+            sequenceCounter.set(0);
+            wsSessionSequenceNumbers.clear();
         } catch (JAXBException | IOException e) {
             LOG.error("Failed to start recording session", e);
             System.exit(1);
@@ -219,6 +228,7 @@ public final class Application {
             }
             if (shouldInclude(transaction, proxyConfiguration.getInclusions(),
                     proxyConfiguration.getExclusions(), false)) {
+                transaction.setSequenceNumber(sequenceCounter.getAndIncrement());
                 marshaller.marshal(transaction, osw);
                 filtered = false;
             }
@@ -242,7 +252,12 @@ public final class Application {
                 String sessionId = relay.getSession().getSessionId();
                 synchronized (completedWebSocketTransactions) {
                     if (completedSessionIds.add(sessionId)) {
-                        completedWebSocketTransactions.add(relay.getSession().toTransaction());
+                        WebSocketTransaction wsTx = relay.getSession().toTransaction();
+                        Integer seq = wsSessionSequenceNumbers.remove(sessionId);
+                        if (seq != null) {
+                            wsTx.setSequenceNumber(seq);
+                        }
+                        completedWebSocketTransactions.add(wsTx);
                     }
                 }
             }
@@ -308,6 +323,11 @@ public final class Application {
 
         WebSocketRelay relay = new WebSocketRelay(clientSocket, serverSocket, session);
 
+        // Allocate sequence number for this WS session at connect time,
+        // so it sorts correctly relative to HTTP transactions that precede/follow it.
+        int wsSeq = sequenceCounter.getAndIncrement();
+        wsSessionSequenceNumbers.put(session.getSessionId(), wsSeq);
+
         // Track active relay
         activeWebSocketRelays.add(relay);
 
@@ -333,7 +353,12 @@ public final class Application {
             String sessionId = session.getSessionId();
             synchronized (completedWebSocketTransactions) {
                 if (completedSessionIds.add(sessionId)) {
-                    completedWebSocketTransactions.add(session.toTransaction());
+                    WebSocketTransaction wsTx = session.toTransaction();
+                    Integer seq = wsSessionSequenceNumbers.remove(sessionId);
+                    if (seq != null) {
+                        wsTx.setSequenceNumber(seq);
+                    }
+                    completedWebSocketTransactions.add(wsTx);
                     LOG.info("WebSocket session completed: {} ({} messages)",
                             wsUrl, session.getMessageCount());
                 }

@@ -309,7 +309,7 @@ public class HttpProxyConnectionHandler implements ConnectionHandler,
                 if ("CONNECT".equals(request.getMethod())) {
                     doConnect(socket, request);
                     return;
-                } else if (!request.getResource().startsWith("/")) {
+                } else if (request.getResource() != null && !request.getResource().startsWith("/")) {
                     extractTargetFromResource(request);
                 } else if (target != null) {
                     request.setTarget(target);

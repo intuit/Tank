@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
@@ -15,13 +16,25 @@ import jakarta.xml.bind.annotation.XmlType;
 public class Transaction {
 
     /**
-     * 
+     *
      */
     private static final char NEWLINE = '\n';
+
+    @XmlAttribute(name = "seq")
+    private Integer sequenceNumber;
+
     @XmlElement(namespace = Namespace.NAMESPACE_V1)
     private Request request;
     @XmlElement(namespace = Namespace.NAMESPACE_V1)
     private Response response;
+
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(Integer sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
+    }
 
     /**
      * @return the request

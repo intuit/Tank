@@ -209,6 +209,33 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
     }
 
     /**
+     * Format a loaded WebSocketTransaction for display in the details dialog.
+     */
+    private String formatWebSocketTransaction(WebSocketTransaction tx) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== WebSocket Session ===\n");
+        sb.append("URL: ").append(tx.getUrl()).append("\n");
+        sb.append("Status: Loaded\n");
+        sb.append("Messages: ").append(tx.getMessageCount()).append("\n");
+        sb.append("\n=== Messages ===\n\n");
+
+        for (com.intuit.tank.conversation.WebSocketMessage msg : tx.getMessages()) {
+            String direction = msg.isFromClient() ? "→ CLIENT" : "← SERVER";
+            String type = msg.getType() != null ? msg.getType().name() : "TEXT";
+            sb.append(direction).append(" [").append(type).append("] ");
+            sb.append(new java.text.SimpleDateFormat("HH:mm:ss.SSS").format(new java.util.Date(msg.getTimestamp())));
+            sb.append("\n");
+            sb.append(msg.getContentAsString()).append("\n\n");
+        }
+
+        if (tx.getMessageCount() == 0) {
+            sb.append("(No messages captured)\n");
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * Format WebSocket session messages for display in details dialog.
      */
     private String formatWebSocketMessages(WebSocketSession session) {
@@ -369,8 +396,15 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
             try {
                 Session session = new WebConversationJaxbParseXML().parseSession(new FileReader(fileChooser
                         .getSelectedFile()));
-                model.setTransactions(session.getTransactions());
-                model.addWebSocketTransactions(session.getWebSocketTransactions());
+                // Load entries in capture order (seq-sorted for new recordings, HTTP-first for legacy)
+                model.clear();
+                for (Object entry : session.getOrderedEntries()) {
+                    if (entry instanceof Transaction) {
+                        model.addTransaction((Transaction) entry, false);
+                    } else if (entry instanceof WebSocketTransaction) {
+                        model.addWebSocketTransactions(java.util.List.of((WebSocketTransaction) entry));
+                    }
+                }
                 saveAction.setEnabled(false);
                 filterAction.setEnabled(true);
                 currentFile = fileChooser.getSelectedFile();
@@ -393,8 +427,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
                 Marshaller marshaller = ctx.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                List<WebSocketTransaction> wsTxns = model.getWebSocketTransactions();
-                Session session = new Session(model.getTransactions(), wsTxns,
+                Session session = model.buildOrderedSession(
                         configDialog.getConfiguration().isFollowRedirects());
                 LOG.info("Outputting to: {}", currentFile.getCanonicalPath());
                 marshaller.marshal(session, currentFile);
@@ -472,11 +505,18 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                     int row = table.rowAtPoint(p);
                     int index = (Integer) table.getValueAt(row, 0) - 1;
                     
-                    // Check if it's a WebSocket session
+                    // Check if it's a live WebSocket session
                     if (model.isWebSocketSession(index)) {
                         WebSocketSession session = model.getWebSocketSessionForIndex(index);
                         if (session != null) {
                             detailsTF.setText(formatWebSocketMessages(session));
+                            detailsTF.setCaretPosition(0);
+                            detailsDialog.setVisible(true);
+                        }
+                    } else if (model.isLoadedWebSocketTransaction(index)) {
+                        WebSocketTransaction wsTx = model.getLoadedWebSocketTransactionForIndex(index);
+                        if (wsTx != null) {
+                            detailsTF.setText(formatWebSocketTransaction(wsTx));
                             detailsTF.setCaretPosition(0);
                             detailsDialog.setVisible(true);
                         }

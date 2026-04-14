@@ -104,27 +104,33 @@ public class TransactionTable extends JTable {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Component prepareRenderer(TableCellRenderer renderer,
             int rowIndex, int vColIndex) {
-        Component c = super.prepareRenderer(renderer, rowIndex, vColIndex);
-        if (rowIndex % 2 == 0 && !isCellSelected(rowIndex, vColIndex)) {
-            c.setBackground(TransactionTable.LIGHT_BLUE);
-        } else if (!isCellSelected(rowIndex, vColIndex)) {
-            // If not shaded, match the table's background
-            c.setBackground(getBackground());
+        try {
+            Component c = super.prepareRenderer(renderer, rowIndex, vColIndex);
+            if (rowIndex % 2 == 0 && !isCellSelected(rowIndex, vColIndex)) {
+                c.setBackground(TransactionTable.LIGHT_BLUE);
+            } else if (!isCellSelected(rowIndex, vColIndex)) {
+                // If not shaded, match the table's background
+                c.setBackground(getBackground());
+            }
+            int realIndex = this.convertRowIndexToModel(rowIndex);
+            Map map = c.getFont().getAttributes();
+            if (((TransactionTableModel) getModel()).isRowFiltered(realIndex)) {
+                map.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
+                map.put(TextAttribute.FOREGROUND, Color.LIGHT_GRAY);
+            } else if (((TransactionTableModel) getModel()).getStatus(realIndex) >= 400) {
+                map.put(TextAttribute.FOREGROUND, Color.RED);
+            } else if (((TransactionTableModel) getModel()).getStatus(realIndex) >= 300) {
+                map.put(TextAttribute.FOREGROUND, Color.BLUE);
+            } else if (((TransactionTableModel) getModel()).isRedirected(realIndex)) {
+                map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+            }
+            c.setFont(new Font(map));
+            return c;
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
+            // RowSorter viewToModel can go stale when model updates from background
+            // threads during AWT paint. Safe to skip — next repaint will render correctly.
+            return renderer.getTableCellRendererComponent(this, "", false, false, 0, vColIndex);
         }
-        int realIndex = this.convertRowIndexToModel(rowIndex);
-        Map map = c.getFont().getAttributes();
-        if (((TransactionTableModel) getModel()).isRowFiltered(realIndex)) {
-            map.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
-            map.put(TextAttribute.FOREGROUND, Color.LIGHT_GRAY);
-        } else if (((TransactionTableModel) getModel()).getStatus(realIndex) >= 400) {
-            map.put(TextAttribute.FOREGROUND, Color.RED);
-        } else if (((TransactionTableModel) getModel()).getStatus(realIndex) >= 300) {
-            map.put(TextAttribute.FOREGROUND, Color.BLUE);
-        } else if (((TransactionTableModel) getModel()).isRedirected(realIndex)) {
-            map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-        }
-        c.setFont(new Font(map));
-        return c;
     }
 
     public JToolTip createToolTip() {

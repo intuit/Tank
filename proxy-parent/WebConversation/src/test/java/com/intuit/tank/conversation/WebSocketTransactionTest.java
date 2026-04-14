@@ -81,6 +81,70 @@ class WebSocketTransactionTest {
     }
 
     @Test
+    @DisplayName("WebSocketTransaction default sequenceNumber is null (unset)")
+    void defaultSequenceNumberIsNull() {
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        assertNull(tx.getSequenceNumber());
+    }
+
+    @Test
+    @DisplayName("WebSocketTransaction get/set sequenceNumber roundtrip")
+    void setGetSequenceNumber() {
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        tx.setSequenceNumber(99);
+        assertEquals(99, tx.getSequenceNumber());
+    }
+
+    @Test
+    @DisplayName("WebSocketTransaction seq attribute survives JAXB marshal/unmarshal")
+    void jaxbRoundTripPreservesSeq() throws Exception {
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+        tx.setSequenceNumber(5);
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller marshaller = ctx.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(tx, sw);
+        String xml = sw.toString();
+
+        assertTrue(xml.contains("seq=\"5\""), "XML should contain seq attribute: " + xml);
+
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        WebSocketTransaction result = (WebSocketTransaction) unmarshaller.unmarshal(new StringReader(xml));
+        assertEquals(5, result.getSequenceNumber());
+    }
+
+    @Test
+    @DisplayName("Legacy WebSocketTransaction XML without seq deserializes to null")
+    void legacyXmlWithoutSeqDeserializesToNull() throws Exception {
+        String legacyXml = "<sns:webSocketTransaction xmlns:sns=\"urn:proxy/conversation/v1\" url=\"ws://example.com/ws\" protocol=\"ws\"/>";
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        WebSocketTransaction result = (WebSocketTransaction) unmarshaller.unmarshal(new StringReader(legacyXml));
+
+        assertNull(result.getSequenceNumber(), "Legacy WS transaction without seq should deserialize to null");
+    }
+
+    @Test
+    @DisplayName("Unset WebSocketTransaction does not emit seq attribute in XML")
+    void unsetSeqNotSerializedToXml() throws Exception {
+        WebSocketTransaction tx = new WebSocketTransaction("ws://example.com/ws");
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller marshaller = ctx.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(tx, sw);
+        String xml = sw.toString();
+
+        assertFalse(xml.contains("seq="), "Unset seq should not appear in XML: " + xml);
+    }
+
+    @Test
     @DisplayName("Session with WebSocketTransactions round-trips correctly including headers")
     void sessionWithWebSocketTransactionsRoundTrip() throws Exception {
         WebSocketTransaction wsTx = new WebSocketTransaction("wss://secure.example.com/ws");

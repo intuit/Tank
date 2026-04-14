@@ -25,8 +25,10 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
+import com.intuit.tank.conversation.Session;
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.conversation.WebSocketTransaction;
 import com.intuit.tank.entity.Application;
@@ -56,6 +58,9 @@ public class TransactionTableModel extends DefaultTableModel {
 
     // Loaded WebSocket transactions from saved recordings (preserves messages)
     private List<WebSocketTransaction> loadedWebSocketTransactions = new ArrayList<>();
+
+    // Maps row index -> loaded WebSocketTransaction (for detail view lookup)
+    private Map<Integer, WebSocketTransaction> loadedWebSocketTransactionsByIndex = new HashMap<>();
 
     private static final String[] COLUMN_NAMES = new String[] {
             "#",
@@ -161,6 +166,7 @@ public class TransactionTableModel extends DefaultTableModel {
         hostSet.clear();
         webSocketSessions.clear();
         loadedWebSocketTransactions.clear();
+        loadedWebSocketTransactionsByIndex.clear();
         this.getDataVector().clear();
         this.fireTableDataChanged();
     }
@@ -169,38 +175,52 @@ public class TransactionTableModel extends DefaultTableModel {
      * Add a WebSocket session to the table.
      */
     public void addWebSocketSession(WebSocketSession session) {
-        int rowIndex = dataList.size();
-        Vector<Object> rowData = new Vector<Object>(COLUMN_NAMES.length + 1);
-        rowData.add(rowIndex + 1);
-        rowData.add("WS");  // Method column
-        rowData.add(extractPath(session.getUrl()));  // Path
-        rowData.add(session.getUrl());  // URL
-        rowData.add("websocket");  // Content-Type
-        rowData.add(session.getMessageCount());  // Status = message count
-        rowData.add(Boolean.FALSE);  // Not filtered
-        rowData.add(Boolean.FALSE);  // Not redirected
-        
-        dataList.add(NULL_TRANSACTION);  // Placeholder in transaction list
-        webSocketSessions.put(rowIndex, session);
-        this.addRow(rowData);
+        Runnable task = () -> {
+            int rowIndex = dataList.size();
+            Vector<Object> rowData = new Vector<Object>(COLUMN_NAMES.length + 1);
+            rowData.add(rowIndex + 1);
+            rowData.add("WS");  // Method column
+            rowData.add(extractPath(session.getUrl()));  // Path
+            rowData.add(session.getUrl());  // URL
+            rowData.add("websocket");  // Content-Type
+            rowData.add(session.getMessageCount());  // Status = message count
+            rowData.add(Boolean.FALSE);  // Not filtered
+            rowData.add(Boolean.FALSE);  // Not redirected
+
+            dataList.add(NULL_TRANSACTION);  // Placeholder in transaction list
+            webSocketSessions.put(rowIndex, session);
+            this.addRow(rowData);
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
+        }
     }
 
     /**
      * Update an existing WebSocket session row (message count changed).
      */
     public void updateWebSocketSession(WebSocketSession session) {
-        for (Map.Entry<Integer, WebSocketSession> entry : webSocketSessions.entrySet()) {
-            if (entry.getValue() == session) {
-                int rowIndex = entry.getKey();
-                // Find the actual table row for this data index
-                for (int i = 0; i < getRowCount(); i++) {
-                    if ((Integer) getValueAt(i, 0) - 1 == rowIndex) {
-                        setValueAt(session.getMessageCount(), i, STATUS_INDEX);
-                        break;
+        Runnable task = () -> {
+            for (Map.Entry<Integer, WebSocketSession> entry : webSocketSessions.entrySet()) {
+                if (entry.getValue() == session) {
+                    int rowIndex = entry.getKey();
+                    // Find the actual table row for this data index
+                    for (int i = 0; i < getRowCount(); i++) {
+                        if ((Integer) getValueAt(i, 0) - 1 == rowIndex) {
+                            setValueAt(session.getMessageCount(), i, STATUS_INDEX);
+                            break;
+                        }
                     }
+                    break;
                 }
-                break;
             }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
         }
     }
 
@@ -265,8 +285,60 @@ public class TransactionTableModel extends DefaultTableModel {
             rowData.add(Boolean.FALSE);
             rowData.add(Boolean.FALSE);
             dataList.add(NULL_TRANSACTION);
+            loadedWebSocketTransactionsByIndex.put(rowIndex, wsTx);
             this.addRow(rowData);
         }
+    }
+
+    /**
+     * Check if a row index corresponds to a loaded WebSocket transaction (from file).
+     */
+    public boolean isLoadedWebSocketTransaction(int index) {
+        return loadedWebSocketTransactionsByIndex.containsKey(index);
+    }
+
+    /**
+     * Get the loaded WebSocketTransaction for a given row index, or null if not found.
+     */
+    public WebSocketTransaction getLoadedWebSocketTransactionForIndex(int index) {
+        return loadedWebSocketTransactionsByIndex.get(index);
+    }
+
+    public int getDataListSize() {
+        return dataList.size();
+    }
+
+    /**
+     * Builds a Session from the current table model state, assigning sequence numbers
+     * based on insertion order so that HTTP and WS steps interleave correctly on import.
+     */
+    public Session buildOrderedSession(boolean collapseRedirects) {
+        List<Transaction> httpList = new ArrayList<>();
+        List<WebSocketTransaction> wsList = new ArrayList<>();
+        int seq = 0;
+        for (int i = 0; i < dataList.size(); i++) {
+            if (isWebSocketSession(i)) {
+                WebSocketSession session = webSocketSessions.get(i);
+                if (session != null) {
+                    WebSocketTransaction wsTx = session.toTransaction();
+                    wsTx.setSequenceNumber(seq++);
+                    wsList.add(wsTx);
+                }
+            } else if (isLoadedWebSocketTransaction(i)) {
+                WebSocketTransaction wsTx = loadedWebSocketTransactionsByIndex.get(i);
+                if (wsTx != null) {
+                    wsTx.setSequenceNumber(seq++);
+                    wsList.add(wsTx);
+                }
+            } else {
+                Transaction t = dataList.get(i);
+                if (t != NULL_TRANSACTION && !isRowFiltered(i)) {
+                    t.setSequenceNumber(seq++);
+                    httpList.add(t);
+                }
+            }
+        }
+        return new Session(httpList, wsList, collapseRedirects);
     }
 
     /**

@@ -198,6 +198,20 @@ class WebSocketTransactionConverterTest {
         }
     }
 
+    @Test
+    @DisplayName("Steps have correct method set (WS_CONNECT, WS_SEND, WS_DISCONNECT)")
+    void convertTransaction_steps_haveCorrectMethodSet() {
+        WebSocketTransaction tx = new WebSocketTransaction(TEST_URL);
+        tx.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "hello".getBytes(StandardCharsets.UTF_8), 1000L));
+
+        List<ScriptStep> steps = WebSocketTransactionConverter.convert(tx, 0);
+
+        assertEquals("WS_CONNECT",    steps.get(0).getMethod(), "CONNECT step should have method WS_CONNECT");
+        assertEquals("WS_SEND",       steps.get(1).getMethod(), "SEND step should have method WS_SEND");
+        assertEquals("WS_DISCONNECT", steps.get(2).getMethod(), "DISCONNECT step should have method WS_DISCONNECT");
+    }
+
     // --- Helper methods ---
 
     private void assertRequestDataValue(ScriptStep step, String key, String expectedValue) {

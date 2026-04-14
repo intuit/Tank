@@ -76,16 +76,19 @@ public class OwaspReader implements RecordedScriptReader {
         WebConversationJaxbParseXML parser = new WebConversationJaxbParseXML();
         Session session = parser.parseSession(reader);
 
-        // Convert HTTP transactions
-        List<ScriptStep> result = transactionsToRequest(session.getTransactions());
-
-        // Convert WebSocket transactions (appended after HTTP steps)
-        List<WebSocketTransaction> wsTransactions = session.getWebSocketTransactions();
-        if (wsTransactions != null && !wsTransactions.isEmpty()) {
-            int nextIndex = result.size() + 1;
-            result.addAll(WebSocketTransactionConverter.convertAll(wsTransactions, nextIndex));
+        List<Object> ordered = session.getOrderedEntries();
+        List<ScriptStep> result = new ArrayList<>();
+        int index = 1;
+        for (Object entry : ordered) {
+            if (entry instanceof Transaction) {
+                result.add(transactionToResult((Transaction) entry, index++));
+            } else if (entry instanceof WebSocketTransaction) {
+                List<ScriptStep> wsSteps = WebSocketTransactionConverter.convert(
+                        (WebSocketTransaction) entry, index);
+                result.addAll(wsSteps);
+                index += wsSteps.size();
+            }
         }
-
         return result;
     }
 

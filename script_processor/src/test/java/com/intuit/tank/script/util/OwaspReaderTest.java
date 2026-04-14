@@ -218,4 +218,116 @@ public class OwaspReaderTest {
         }
         return null;
     }
+
+    private com.intuit.tank.conversation.Request makeRequest() {
+        com.intuit.tank.conversation.Request req = new com.intuit.tank.conversation.Request();
+        req.setProtocol(com.intuit.tank.conversation.Protocol.http);
+        req.setFirstLine("GET /index.html HTTP/1.1");
+        req.addHeader(new com.intuit.tank.conversation.Header("Host", "example.com"));
+        return req;
+    }
+
+    private com.intuit.tank.conversation.Response makeResponse() {
+        com.intuit.tank.conversation.Response resp = new com.intuit.tank.conversation.Response();
+        resp.setFirstLine("HTTP/1.1 200 OK");
+        resp.addHeader(new com.intuit.tank.conversation.Header("Content-Type", "text/html"));
+        return resp;
+    }
+
+    @Test
+    @DisplayName("read() — seq=0 HTTP, seq=1 WS, seq=2 HTTP → steps in that order")
+    public void testReadInterleaved() throws Exception {
+        com.intuit.tank.conversation.Transaction http0 = new com.intuit.tank.conversation.Transaction();
+        http0.setRequest(makeRequest());
+        http0.setResponse(makeResponse());
+        http0.setSequenceNumber(0);
+
+        WebSocketTransaction ws1 = new WebSocketTransaction("ws://example.com/ws");
+        ws1.setSequenceNumber(1);
+        ws1.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "ping".getBytes(StandardCharsets.UTF_8), 1000L));
+
+        com.intuit.tank.conversation.Transaction http2 = new com.intuit.tank.conversation.Transaction();
+        http2.setRequest(makeRequest());
+        http2.setResponse(makeResponse());
+        http2.setSequenceNumber(2);
+
+        Session session = new Session(
+                new java.util.ArrayList<>(java.util.List.of(http0, http2)),
+                java.util.List.of(ws1),
+                false);
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller m = ctx.createMarshaller();
+        StringWriter sw = new StringWriter();
+        m.marshal(session, sw);
+
+        OwaspReader reader = new OwaspReader();
+        List<ScriptStep> steps = reader.read(new StringReader(sw.toString()));
+
+        // Expected: HTTP step, then CONNECT/SEND/DISCONNECT for WS, then HTTP step
+        // = 1 + 3 + 1 = 5 steps
+        assertEquals(5, steps.size(), "Expected 5 steps: HTTP, WS(CONNECT/SEND/DISCONNECT), HTTP");
+        assertEquals("request", steps.get(0).getType());
+        assertEquals("websocket", steps.get(1).getType());
+        assertEquals("websocket", steps.get(2).getType());
+        assertEquals("websocket", steps.get(3).getType());
+        assertEquals("request", steps.get(4).getType());
+
+        assertEquals("CONNECT", getRequestDataValue(steps.get(1), "ws-action"));
+        assertEquals("SEND", getRequestDataValue(steps.get(2), "ws-action"));
+        assertEquals("DISCONNECT", getRequestDataValue(steps.get(3), "ws-action"));
+    }
+
+    @Test
+    @DisplayName("read() — legacy session (no seq) → HTTP steps before WS steps (regression)")
+    public void testReadLegacyNoSeqHttpFirst() throws Exception {
+        com.intuit.tank.conversation.Transaction http = new com.intuit.tank.conversation.Transaction();
+        http.setRequest(makeRequest());
+        http.setResponse(makeResponse());
+        // No seq set — default -1
+
+        WebSocketTransaction ws = new WebSocketTransaction("ws://example.com/ws");
+        // No seq set — default -1
+        ws.addMessage(new WebSocketMessage(true, WebSocketMessage.Type.TEXT,
+                "hello".getBytes(StandardCharsets.UTF_8), 1000L));
+
+        Session session = new Session(java.util.List.of(http), java.util.List.of(ws), false);
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller m = ctx.createMarshaller();
+        StringWriter sw = new StringWriter();
+        m.marshal(session, sw);
+
+        OwaspReader reader = new OwaspReader();
+        List<ScriptStep> steps = reader.read(new StringReader(sw.toString()));
+
+        // Legacy: HTTP first, then WS steps
+        // = 1 + 3 = 4 steps
+        assertEquals(4, steps.size(), "Legacy session: HTTP first then WS");
+        assertEquals("request", steps.get(0).getType());
+        assertEquals("websocket", steps.get(1).getType());
+        assertEquals("CONNECT", getRequestDataValue(steps.get(1), "ws-action"));
+    }
+
+    @Test
+    @DisplayName("read() — HTTP-only session produces no WS steps (regression)")
+    public void testReadHttpOnlyNoWs() throws Exception {
+        com.intuit.tank.conversation.Transaction http = new com.intuit.tank.conversation.Transaction();
+        http.setRequest(makeRequest());
+        http.setResponse(makeResponse());
+
+        Session session = new Session(java.util.List.of(http), new java.util.ArrayList<>(), false);
+
+        JAXBContext ctx = JAXBContext.newInstance(Session.class.getPackage().getName());
+        Marshaller m = ctx.createMarshaller();
+        StringWriter sw = new StringWriter();
+        m.marshal(session, sw);
+
+        OwaspReader reader = new OwaspReader();
+        List<ScriptStep> steps = reader.read(new StringReader(sw.toString()));
+
+        assertEquals(1, steps.size());
+        assertEquals("request", steps.get(0).getType());
+    }
 }

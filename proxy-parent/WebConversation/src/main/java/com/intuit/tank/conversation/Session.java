@@ -1,6 +1,7 @@
 package com.intuit.tank.conversation;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -70,6 +71,46 @@ public class Session {
      */
     public boolean isCollapseRedirects() {
         return collapseRedirects;
+    }
+
+    /**
+     * Returns all HTTP and WebSocket entries in capture order.
+     * <p>
+     * If any entry has a valid sequence number (non-null and >= 0), the full list is merged
+     * and sorted by seq. Entries with null or negative seq (unset, or written by the old
+     * primitive-int implementation before the Integer migration) sort to the end.
+     * <p>
+     * Falls back to HTTP-first ordering for legacy recordings where no seq was ever assigned.
+     */
+    public List<Object> getOrderedEntries() {
+        boolean hasSeq = transactions.stream().anyMatch(t -> isValidSeq(t.getSequenceNumber()))
+                      || webSocketTransactions.stream().anyMatch(w -> isValidSeq(w.getSequenceNumber()));
+        if (!hasSeq) {
+            List<Object> result = new ArrayList<>(transactions);
+            result.addAll(webSocketTransactions);
+            return result;
+        }
+        List<Object> all = new ArrayList<>();
+        all.addAll(transactions);
+        all.addAll(webSocketTransactions);
+        all.sort(Comparator.comparingInt(e -> {
+            if (e instanceof Transaction) {
+                return seqOrMax(((Transaction) e).getSequenceNumber());
+            }
+            if (e instanceof WebSocketTransaction) {
+                return seqOrMax(((WebSocketTransaction) e).getSequenceNumber());
+            }
+            return Integer.MAX_VALUE;
+        }));
+        return all;
+    }
+
+    private static boolean isValidSeq(Integer seq) {
+        return seq != null && seq >= 0;
+    }
+
+    private static int seqOrMax(Integer seq) {
+        return isValidSeq(seq) ? seq : Integer.MAX_VALUE;
     }
 
 }

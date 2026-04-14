@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 @XmlType(name = "webSocketTransaction", namespace = Namespace.NAMESPACE_V1)
 public class WebSocketTransaction {
 
+    @XmlAttribute(name = "seq")
+    private Integer sequenceNumber;
+
     @XmlAttribute(name = "url")
     private String url;
 
@@ -71,6 +74,14 @@ public class WebSocketTransaction {
         
         this.url = url;
         this.protocol = url.startsWith("wss://") ? Protocol.wss : Protocol.ws;
+    }
+
+    public Integer getSequenceNumber() {
+        return sequenceNumber;
+    }
+
+    public void setSequenceNumber(Integer sequenceNumber) {
+        this.sequenceNumber = sequenceNumber;
     }
 
     public String getUrl() {

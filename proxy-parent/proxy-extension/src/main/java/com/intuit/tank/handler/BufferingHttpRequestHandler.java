@@ -167,8 +167,10 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
         request.setProtocol(brq.isSsl() ? Protocol.https : Protocol.http);
 
         NamedValue[] headers = brq.getHeaders();
-        for (NamedValue namedValue : headers) {
-            request.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
+        if (headers != null) {
+            for (NamedValue namedValue : headers) {
+                request.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
+            }
         }
 
         return application.setRequestForCurrentTransaction(request);
@@ -236,8 +238,10 @@ public class BufferingHttpRequestHandler implements HttpRequestHandler {
         response.setBody(brs.getDecodedContent());
         response.setFirstLine(brs.getStartLine());
         NamedValue[] headers = brs.getHeaders();
-        for (NamedValue namedValue : headers) {
-            response.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
+        if (headers != null) {
+            for (NamedValue namedValue : headers) {
+                response.getHeaders().add(new Header(namedValue.getName(), namedValue.getValue()));
+            }
         }
         try {
             if (transaction != null) {
