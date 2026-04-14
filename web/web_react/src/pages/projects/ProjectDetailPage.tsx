@@ -13,6 +13,8 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { Toolbar } from 'primereact/toolbar';
 import { useProject, useUpdateProject, useDeleteProject } from '../../hooks/useProjects';
 import { useJobsByProject, useCreateJob, useStartJob, useStopJob, useKillJob } from '../../hooks/useJobs';
 import { useDataFiles } from '../../hooks/useDataFiles';
@@ -37,8 +39,7 @@ export function ProjectDetailPage() {
   const killJob   = useKillJob();
   const toast = useRef<Toast>(null);
 
-  // New Job dialog
-  const [showNewJob, setShowNewJob] = useState(false);
+  // Create Job tab
   const [jobUsers, setJobUsers] = useState<number>(10);
   const [jobRampTime, setJobRampTime] = useState('5m');
   const [jobSimTime, setJobSimTime] = useState('30m');
@@ -128,16 +129,7 @@ export function ProjectDetailPage() {
     });
   };
 
-  // ── New Job ───────────────────────────────────────────────────────────────
-  const openNewJob = () => {
-    setJobUsers(10);
-    setJobRampTime(project.rampTime ?? '5m');
-    setJobSimTime(project.simulationTime != null ? `${project.simulationTime}s` : '30m');
-    setJobLocation(project.location ?? 'us-east-1');
-    setJobStopBehavior(project.stopBehavior ?? 'END_OF_SCRIPT_GROUP');
-    setShowNewJob(true);
-  };
-
+  // ── Create Job ────────────────────────────────────────────────────────────
   const handleCreateJob = async () => {
     const req: CreateJobRequest = {
       projectId,
@@ -149,8 +141,7 @@ export function ProjectDetailPage() {
     };
     try {
       await createJob.mutateAsync(req);
-      toast.current?.show({ severity: 'success', summary: 'Job created' });
-      setShowNewJob(false);
+      toast.current?.show({ severity: 'success', summary: 'Job created and added to queue' });
     } catch {
       toast.current?.show({ severity: 'error', summary: 'Failed to create job' });
     }
@@ -299,223 +290,271 @@ export function ProjectDetailPage() {
     </div>
   );
 
+  const toolbarStart = (
+    <div className="flex align-items-center gap-2">
+      <Button icon="pi pi-arrow-left" rounded text onClick={() => navigate('/projects')} />
+      <span className="font-bold text-xl">Project: {project.name}</span>
+    </div>
+  );
+
+  const toolbarEnd = (
+    <div className="flex gap-2">
+      <Button
+        icon="pi pi-download"
+        label="Download XML"
+        size="small"
+        severity="secondary"
+        onClick={handleDownload}
+      />
+      <Button icon="pi pi-pencil" label="Edit" size="small" onClick={openEdit} />
+      <Button
+        icon="pi pi-trash"
+        label="Delete"
+        size="small"
+        severity="danger"
+        text
+        onClick={handleDelete}
+      />
+    </div>
+  );
+
   return (
     <div className="flex flex-column gap-3">
       <Toast ref={toast} />
       <ConfirmDialog />
 
-      {/* Header row */}
-      <div className="flex align-items-center gap-2">
-        <Button icon="pi pi-arrow-left" rounded text onClick={() => navigate('/projects')} />
-        <h2 className="m-0 flex-1">{project.name}</h2>
-        <Button
-          icon="pi pi-download"
-          label="Download XML"
-          size="small"
-          severity="secondary"
-          onClick={handleDownload}
-        />
-        <Button icon="pi pi-pencil" label="Edit" size="small" onClick={openEdit} />
-        <Button
-          icon="pi pi-trash"
-          label="Delete"
-          size="small"
-          severity="danger"
-          text
-          onClick={handleDelete}
-        />
-      </div>
+      <Toolbar start={toolbarStart} end={toolbarEnd} />
 
-      {/* Details + Workload Scripts */}
-      <div className="grid">
-        <div className="col-12 md:col-6">
-          <Card title="Details">
-            <div className="grid">
-              <div className="col-4 font-bold">Product</div>
-              <div className="col-8">{project.productName ?? '—'}</div>
-              <div className="col-4 font-bold">Owner</div>
-              <div className="col-8">{project.creator ?? '—'}</div>
-              <div className="col-4 font-bold">Simulation Time</div>
-              <div className="col-8">{project.simulationTime != null ? `${project.simulationTime}s` : '—'}</div>
-              <div className="col-4 font-bold">Ramp Time</div>
-              <div className="col-8">{project.rampTime ?? '—'}</div>
-              <div className="col-4 font-bold">Comments</div>
-              <div className="col-8">{project.comments ?? '—'}</div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="col-12 md:col-6">
-          <Card title="Workload Scripts">
-            <WorkloadScriptsPanel projectId={projectId} />
-          </Card>
-        </div>
-      </div>
-
-      {/* Workload Configuration */}
-      <Card
-        header={
-          <div className="flex align-items-center justify-content-between px-3 pt-3">
-            <span className="font-bold text-lg">Workload Configuration</span>
-            <Button label="Edit" icon="pi pi-pencil" size="small" severity="secondary"
-              onClick={() => setShowUsersAndTimes(true)} />
-          </div>
-        }
-      >
-        <div className="grid">
-          <div className="col-4 font-bold">Workload Type</div>
-          <div className="col-8 capitalize">{(project as any).workloadType === 'standard' ? 'Nonlinear (Standard)' : 'Linear (Increasing)'}</div>
-          <div className="col-4 font-bold">Ramp Time</div>
-          <div className="col-8">{project.rampTime ?? '—'}</div>
-          <div className="col-4 font-bold">Simulation Time</div>
-          <div className="col-8">{project.simulationTime != null ? `${project.simulationTime / 1000}s` : '—'}</div>
-          <div className="col-4 font-bold">User Increment</div>
-          <div className="col-8">{project.userIntervalIncrement ?? '—'}</div>
-          <div className="col-4 font-bold">Termination Policy</div>
-          <div className="col-8">{(project as any).terminationPolicy === 'script' ? 'Script Loops Completed' : 'Simulation Time Reached'}</div>
-          {(project.jobRegions ?? []).length > 0 && (
-            <>
-              <div className="col-4 font-bold">Regions</div>
-              <div className="col-8">
-                {(project.jobRegions ?? []).map((r, i) => (
-                  <div key={i}>{r.region}: {r.users ?? r.percentage ?? '—'}</div>
-                ))}
+      <TabView>
+        {/* ── Users and Times ─────────────────────────────────────────────── */}
+        <TabPanel header="Users and Times" leftIcon="pi pi-users mr-2">
+          <div className="flex flex-column gap-3">
+            <Card>
+              <div className="grid">
+                <div className="col-4 font-bold">Product</div>
+                <div className="col-8">{project.productName ?? '—'}</div>
+                <div className="col-4 font-bold">Owner</div>
+                <div className="col-8">{project.creator ?? '—'}</div>
+                <div className="col-4 font-bold">Workload Type</div>
+                <div className="col-8">{(project as any).workloadType === 'standard' ? 'Nonlinear (Standard)' : 'Linear (Increasing)'}</div>
+                <div className="col-4 font-bold">Ramp Time</div>
+                <div className="col-8">{project.rampTime ?? '—'}</div>
+                <div className="col-4 font-bold">Simulation Time</div>
+                <div className="col-8">{project.simulationTime != null ? `${project.simulationTime / 1000}s` : '—'}</div>
+                <div className="col-4 font-bold">User Increment</div>
+                <div className="col-8">{project.userIntervalIncrement ?? '—'}</div>
+                <div className="col-4 font-bold">Termination Policy</div>
+                <div className="col-8">{(project as any).terminationPolicy === 'script' ? 'Script Loops Completed' : 'Simulation Time Reached'}</div>
+                {(project.jobRegions ?? []).length > 0 && (
+                  <>
+                    <div className="col-4 font-bold">Regions</div>
+                    <div className="col-8">
+                      {(project.jobRegions ?? []).map((r, i) => (
+                        <div key={i}>{r.region}: {r.users ?? r.percentage ?? '—'}</div>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <div className="col-4 font-bold">Comments</div>
+                <div className="col-8">{project.comments ?? '—'}</div>
               </div>
-            </>
-          )}
-        </div>
-      </Card>
-
-      {/* Job Queue */}
-      <Card
-        header={
-          <div className="flex align-items-center justify-content-between px-3 pt-3">
-            <span className="font-bold text-lg">Job Queue</span>
-            <div className="flex gap-2">
-              <Link to={`/projects/${projectId}/queue`}>
-                <Button label="Full Queue" icon="pi pi-list" size="small" severity="secondary" />
-              </Link>
-              <Button label="New Job" icon="pi pi-plus" size="small" onClick={openNewJob} />
+            </Card>
+            <div className="flex justify-content-end">
+              <Button
+                label="Edit Workload Configuration"
+                icon="pi pi-pencil"
+                size="small"
+                onClick={() => setShowUsersAndTimes(true)}
+              />
             </div>
           </div>
-        }
-      >
-        <DataTable
-          value={jobs ?? []}
-          dataKey="id"
-          showGridlines
-          stripedRows
-          paginator
-          rows={10}
-          emptyMessage="No jobs."
-          sortField="id"
-          sortOrder={-1}
-        >
-          <Column field="id" header="Job ID" sortable style={{ width: '80px' }} />
-          <Column field="status" header="Status" body={statusBody} sortable style={{ width: '120px' }} />
-          <Column field="totalVirtualUsers" header="Users" sortable style={{ width: '80px' }} />
-          <Column field="startTime" header="Start" sortable />
-          <Column field="endTime" header="End" sortable />
-          <Column field="creator" header="Owner" sortable />
-          <Column header="Actions" body={jobActionsBody} style={{ width: '160px' }} />
-        </DataTable>
-      </Card>
+        </TabPanel>
 
-      {/* Task 2: Variables */}
-      <Card
-        title="Variables"
-        subTitle="Key/value pairs passed to test scripts at runtime"
-      >
-        <div className="flex flex-column gap-2">
-          <DataTable
-            value={variables}
-            dataKey="key"
-            showGridlines
-            stripedRows
-            emptyMessage="No variables defined."
-          >
-            <Column field="key" header="Key" />
-            <Column field="value" header="Value" />
-            <Column
-              header=""
-              style={{ width: '60px' }}
-              body={(_row: KeyValuePair, opts) => (
-                <Button
-                  icon="pi pi-trash"
-                  rounded
-                  text
-                  severity="danger"
-                  size="small"
-                  onClick={() => removeVariable(opts.rowIndex)}
-                />
-              )}
-            />
-          </DataTable>
-          <div className="flex gap-2 justify-content-end">
-            <Button
-              label="Add Variable"
-              icon="pi pi-plus"
-              size="small"
-              severity="secondary"
-              onClick={openAddVar}
-            />
-            <Button
-              label="Save Variables"
-              icon="pi pi-save"
-              size="small"
-              loading={updateProject.isPending}
-              onClick={saveVariables}
-            />
-          </div>
-        </div>
-      </Card>
+        {/* ── Scripts ─────────────────────────────────────────────────────── */}
+        <TabPanel header="Scripts" leftIcon="pi pi-file mr-2">
+          <WorkloadScriptsPanel projectId={projectId} />
+        </TabPanel>
 
-      {/* Task 3: Data Files */}
-      <Card title="Data Files" subTitle="Data files associated with this project's workload">
-        <div className="flex flex-column gap-2">
-          <DataTable
-            value={currentDfIds.map((dfId) => ({ id: dfId, name: dfNameMap.get(dfId) ?? String(dfId) }))}
-            dataKey="id"
-            showGridlines
-            stripedRows
-            emptyMessage="No data files associated."
-          >
-            <Column field="id" header="ID" style={{ width: '80px' }} />
-            <Column field="name" header="Name" />
-            <Column
-              header=""
-              style={{ width: '60px' }}
-              body={(row: { id: number }) => (
-                <Button
-                  icon="pi pi-trash"
-                  rounded
-                  text
-                  severity="danger"
-                  size="small"
-                  onClick={() => removeDataFile(row.id)}
-                />
-              )}
-            />
-          </DataTable>
-          <div className="flex gap-2 justify-content-end">
-            <Button
-              label="Add Data File"
-              icon="pi pi-plus"
-              size="small"
-              severity="secondary"
-              onClick={openAddDf}
-            />
-            <Button
-              label="Save"
-              icon="pi pi-save"
-              size="small"
-              loading={updateProject.isPending}
-              onClick={saveDataFiles}
-              disabled={!dfDirty}
-            />
+        {/* ── Data Files ──────────────────────────────────────────────────── */}
+        <TabPanel header="Data Files" leftIcon="pi pi-database mr-2">
+          <div className="flex flex-column gap-2">
+            <DataTable
+              value={currentDfIds.map((dfId) => ({ id: dfId, name: dfNameMap.get(dfId) ?? String(dfId) }))}
+              dataKey="id"
+              showGridlines
+              stripedRows
+              emptyMessage="No data files associated."
+            >
+              <Column field="id" header="ID" style={{ width: '80px' }} />
+              <Column field="name" header="Name" />
+              <Column
+                header=""
+                style={{ width: '60px' }}
+                body={(row: { id: number }) => (
+                  <Button
+                    icon="pi pi-trash"
+                    rounded
+                    text
+                    severity="danger"
+                    size="small"
+                    onClick={() => removeDataFile(row.id)}
+                  />
+                )}
+              />
+            </DataTable>
+            <div className="flex gap-2 justify-content-end">
+              <Button
+                label="Add Data File"
+                icon="pi pi-plus"
+                size="small"
+                severity="secondary"
+                onClick={openAddDf}
+              />
+              <Button
+                label="Save"
+                icon="pi pi-save"
+                size="small"
+                loading={updateProject.isPending}
+                onClick={saveDataFiles}
+                disabled={!dfDirty}
+              />
+            </div>
           </div>
-        </div>
-      </Card>
+        </TabPanel>
+
+        {/* ── Variables ───────────────────────────────────────────────────── */}
+        <TabPanel header="Variables" leftIcon="pi pi-tag mr-2">
+          <div className="flex flex-column gap-2">
+            <DataTable
+              value={variables}
+              dataKey="key"
+              showGridlines
+              stripedRows
+              emptyMessage="No variables defined."
+            >
+              <Column field="key" header="Key" />
+              <Column field="value" header="Value" />
+              <Column
+                header=""
+                style={{ width: '60px' }}
+                body={(_row: KeyValuePair, opts) => (
+                  <Button
+                    icon="pi pi-trash"
+                    rounded
+                    text
+                    severity="danger"
+                    size="small"
+                    onClick={() => removeVariable(opts.rowIndex)}
+                  />
+                )}
+              />
+            </DataTable>
+            <div className="flex gap-2 justify-content-end">
+              <Button
+                label="Add Variable"
+                icon="pi pi-plus"
+                size="small"
+                severity="secondary"
+                onClick={openAddVar}
+              />
+              <Button
+                label="Save Variables"
+                icon="pi pi-save"
+                size="small"
+                loading={updateProject.isPending}
+                onClick={saveVariables}
+              />
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* ── Create Job ──────────────────────────────────────────────────── */}
+        <TabPanel header="Create Job" leftIcon="pi pi-plus-circle mr-2">
+          <div className="flex flex-column gap-3" style={{ maxWidth: '480px' }}>
+            <div className="flex flex-column gap-1">
+              <label className="font-semibold">Total Virtual Users *</label>
+              <InputNumber
+                value={jobUsers}
+                onValueChange={(e) => setJobUsers(e.value ?? 1)}
+                min={1}
+                showButtons
+              />
+            </div>
+            <div className="flex flex-column gap-1">
+              <label className="font-semibold">Ramp Time (e.g. 5m, 60s)</label>
+              <InputText
+                value={jobRampTime}
+                onChange={(e) => setJobRampTime(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-column gap-1">
+              <label className="font-semibold">Simulation Time (e.g. 30m, 1h)</label>
+              <InputText
+                value={jobSimTime}
+                onChange={(e) => setJobSimTime(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-column gap-1">
+              <label className="font-semibold">Location / Region</label>
+              <InputText
+                value={jobLocation}
+                onChange={(e) => setJobLocation(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-column gap-1">
+              <label className="font-semibold">Stop Behavior</label>
+              <Dropdown
+                value={jobStopBehavior}
+                onChange={(e) => setJobStopBehavior(e.value)}
+                options={[
+                  { label: 'End of Script Group', value: 'END_OF_SCRIPT_GROUP' },
+                  { label: 'End of Period', value: 'END_OF_PERIOD' },
+                  { label: 'End of Unique Users', value: 'END_OF_UNIQUE_USERS' },
+                ]}
+              />
+            </div>
+            <div className="flex justify-content-end">
+              <Button
+                label="Add to Job Queue"
+                icon="pi pi-plus"
+                onClick={handleCreateJob}
+                loading={createJob.isPending}
+                disabled={!jobUsers}
+              />
+            </div>
+          </div>
+        </TabPanel>
+
+        {/* ── Job Queue ───────────────────────────────────────────────────── */}
+        <TabPanel header="Job Queue" leftIcon="pi pi-list mr-2">
+          <div className="flex flex-column gap-2">
+            <div className="flex justify-content-end">
+              <Link to={`/projects/${projectId}/queue`}>
+                <Button label="Full Queue" icon="pi pi-external-link" size="small" severity="secondary" />
+              </Link>
+            </div>
+            <DataTable
+              value={jobs ?? []}
+              dataKey="id"
+              showGridlines
+              stripedRows
+              paginator
+              rows={10}
+              emptyMessage="No jobs."
+              sortField="id"
+              sortOrder={-1}
+            >
+              <Column field="id" header="Job ID" sortable style={{ width: '80px' }} />
+              <Column field="status" header="Status" body={statusBody} sortable style={{ width: '120px' }} />
+              <Column field="totalVirtualUsers" header="Users" sortable style={{ width: '80px' }} />
+              <Column field="startTime" header="Start" sortable />
+              <Column field="endTime" header="End" sortable />
+              <Column field="creator" header="Owner" sortable />
+              <Column header="Actions" body={jobActionsBody} style={{ width: '160px' }} />
+            </DataTable>
+          </div>
+        </TabPanel>
+      </TabView>
 
       {/* Edit Project Dialog */}
       <Dialog
@@ -599,76 +638,6 @@ export function ProjectDetailPage() {
               id="var-value"
               value={newVarValue}
               onChange={(e) => setNewVarValue(e.target.value)}
-            />
-          </div>
-        </div>
-      </Dialog>
-
-      {/* New Job Dialog */}
-      <Dialog
-        header="New Job"
-        visible={showNewJob}
-        style={{ width: '450px' }}
-        onHide={() => setShowNewJob(false)}
-        footer={
-          <div className="flex gap-2 justify-content-end">
-            <Button label="Cancel" text onClick={() => setShowNewJob(false)} />
-            <Button
-              label="Create"
-              icon="pi pi-plus"
-              onClick={handleCreateJob}
-              loading={createJob.isPending}
-              disabled={!jobUsers}
-            />
-          </div>
-        }
-      >
-        <div className="flex flex-column gap-3">
-          <div className="flex flex-column gap-1">
-            <label htmlFor="job-users" className="font-semibold">Total Virtual Users *</label>
-            <InputNumber
-              id="job-users"
-              value={jobUsers}
-              onValueChange={(e) => setJobUsers(e.value ?? 1)}
-              min={1}
-              showButtons
-            />
-          </div>
-          <div className="flex flex-column gap-1">
-            <label htmlFor="job-ramp" className="font-semibold">Ramp Time (e.g. 5m, 60s)</label>
-            <InputText
-              id="job-ramp"
-              value={jobRampTime}
-              onChange={(e) => setJobRampTime(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-column gap-1">
-            <label htmlFor="job-sim" className="font-semibold">Simulation Time (e.g. 30m, 1h)</label>
-            <InputText
-              id="job-sim"
-              value={jobSimTime}
-              onChange={(e) => setJobSimTime(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-column gap-1">
-            <label htmlFor="job-location" className="font-semibold">Location / Region</label>
-            <InputText
-              id="job-location"
-              value={jobLocation}
-              onChange={(e) => setJobLocation(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-column gap-1">
-            <label htmlFor="job-stop" className="font-semibold">Stop Behavior</label>
-            <Dropdown
-              id="job-stop"
-              value={jobStopBehavior}
-              onChange={(e) => setJobStopBehavior(e.value)}
-              options={[
-                { label: 'End of Script Group', value: 'END_OF_SCRIPT_GROUP' },
-                { label: 'End of Period', value: 'END_OF_PERIOD' },
-                { label: 'End of Unique Users', value: 'END_OF_UNIQUE_USERS' },
-              ]}
             />
           </div>
         </div>

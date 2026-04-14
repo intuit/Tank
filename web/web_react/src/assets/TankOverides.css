@@ -4,3 +4,9 @@
     color: #fff;
     font-weight: bold
 }
+
+.ui-tank-theme .p-menubar-item-label,
+.ui-tank-theme .p-menuitem-text,
+.ui-tank-theme .p-menuitem-icon {
+    color: #fff !important;
+}

@@ -225,6 +225,8 @@ export function ScriptsListPage() {
           <DataTable
             value={scripts}
             dataKey="id"
+            showGridlines
+            stripedRows
             paginator
             rows={25}
             globalFilter={globalFilter}

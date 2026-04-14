@@ -296,5 +296,29 @@ export function useScriptEditor(scriptId: number) {
     }
   }, [script]);
 
-  return { script, loading, loadError, saveState, dirty, load, update, save };
+  const saveAs = useCallback(async (newName: string): Promise<number | null> => {
+    if (!script) return null;
+    setSaveState('saving');
+    try {
+      const clone: EditableScript = { ...script, id: 0, name: newName };
+      const xml = scriptToXml(clone);
+      const blob = new Blob([xml], { type: 'application/xml' });
+      const formData = new FormData();
+      formData.append('file', blob, `${newName}.xml`);
+      const res = await apiClient.post<Record<string, string>>('/v2/scripts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setSaveState('saved');
+      setTimeout(() => setSaveState('idle'), 2000);
+      // Response is a map of filename → script id
+      const newId = Number(Object.values(res.data)[0]);
+      return isNaN(newId) ? null : newId;
+    } catch {
+      setSaveState('error');
+      setTimeout(() => setSaveState('idle'), 3000);
+      return null;
+    }
+  }, [script]);
+
+  return { script, loading, loadError, saveState, dirty, load, update, save, saveAs };
 }
