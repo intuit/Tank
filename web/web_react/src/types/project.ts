@@ -14,7 +14,7 @@ export interface AutomationScriptGroup {
 
 export interface AutomationScriptGroupStep {
   scriptId?: number;
-  scriptName?: string;
+  name?: string;
   loop?: number;
   position?: number;
 }

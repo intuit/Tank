@@ -187,8 +187,8 @@ export function WorkloadScriptsPanel({ projectId }: Props) {
     save(updated);
   }
 
-  function handleAddScriptFromPicker(scriptId: number, scriptName: string) {
-    setEditGroupScripts([...editGroupScripts, { scriptId, scriptName, loop: 1 }]);
+  function handleAddScriptFromPicker(scriptId: number, name: string) {
+    setEditGroupScripts([...editGroupScripts, { scriptId, name, loop: 1 }]);
     setShowScriptPicker(false);
     setScriptFilter('');
   }
@@ -416,7 +416,7 @@ export function WorkloadScriptsPanel({ projectId }: Props) {
               <Button icon="pi pi-plus" label="Add Script" size="small" onClick={() => setShowScriptPicker(true)} />
             </div>
             <DataTable value={editGroupScripts} emptyMessage="No scripts." size="small">
-              <Column field="scriptName" header="Script" />
+              <Column field="name" header="Script" />
               <Column
                 header="Loop"
                 style={{ width: '100px' }}
