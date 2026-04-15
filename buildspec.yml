@@ -15,6 +15,14 @@ phases:
       - java -version
       # Run the complete build with both unit and integration tests
       - mvn clean install surefire-report:report -P release
+      - export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+      - |
+        if [[ "$PROJECT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          aws ssm put-parameter --name /tank/latest-version --value "$PROJECT_VERSION" --type String --overwrite
+          echo "Published version $PROJECT_VERSION to SSM /tank/latest-version"
+        else
+          echo "Skipping SSM update for SNAPSHOT version $PROJECT_VERSION"
+        fi
 
 reports:
   UnitTestReports:
@@ -29,6 +37,7 @@ reports:
     base-directory: '.'
 
 artifacts:
+  name: TANK/$PROJECT_VERSION/TankZip.zip
   files:
     - web/web_ui/target/tank.war
     - agent/agent_startup_pkg/target/agent-startup-pkg.zip
