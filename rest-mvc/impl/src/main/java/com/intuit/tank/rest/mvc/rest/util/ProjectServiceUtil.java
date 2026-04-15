@@ -47,7 +47,7 @@ public class ProjectServiceUtil {
                 .withProductName(p.getProductName())
                 .withRampTime(config.getRampTimeExpression())
                 .withStopBehavior(config.getStopBehavior())
-                .withSimulationTime(config.getSimulationTime())
+                .withSimulationTime(config.getSimulationTimeExpression())
                 .withTerminationPolicy(config.getTerminationPolicy())
                 .withWorkloadType(config.getIncrementStrategy())
                 .withLocation(config.getLocation())

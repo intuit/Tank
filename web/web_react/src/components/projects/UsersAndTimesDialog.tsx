@@ -19,13 +19,8 @@ const TERMINATION_POLICY_OPTIONS = [
 ];
 
 const REGION_OPTIONS = [
-  { label: 'US East 1 (N. Virginia)', value: 'US_EAST_1' },
   { label: 'US East 2 (Ohio)', value: 'US_EAST_2' },
-  { label: 'US West 1 (N. California)', value: 'US_WEST_1' },
   { label: 'US West 2 (Oregon)', value: 'US_WEST_2' },
-  { label: 'EU West 1 (Ireland)', value: 'EU_WEST_1' },
-  { label: 'AP Southeast 1 (Singapore)', value: 'AP_SOUTHEAST_1' },
-  { label: 'Standalone', value: 'STANDALONE' },
 ];
 
 interface Props {
@@ -60,22 +55,20 @@ export function UsersAndTimesDialog({ visible, project, saving, onHide, onSave }
   useEffect(() => {
     if (visible) {
       setRampTime(project.rampTime ?? msToExpr(undefined));
-      setSimulationTime(
-        project.simulationTime != null ? msToExpr(project.simulationTime) : ''
-      );
+      setSimulationTime(project.simulationTime ?? msToExpr(undefined));
       setUserIntervalIncrement(project.userIntervalIncrement ?? 1);
       setWorkloadType((project as any).workloadType ?? 'increasing');
       setTerminationPolicy((project as any).terminationPolicy ?? 'time');
       setJobRegions(
         project.jobRegions && project.jobRegions.length > 0
           ? project.jobRegions.map((r) => ({ ...r }))
-          : [{ region: 'US_EAST_1', users: '100', percentage: '100' }]
+          : [{ region: 'US_EAST_2', users: '100', percentage: '100' }]
       );
     }
   }, [visible, project]);
 
   const addRegion = () =>
-    setJobRegions((prev) => [...prev, { region: 'US_EAST_1', users: '0', percentage: '0' }]);
+    setJobRegions((prev) => [...prev, { region: 'US_EAST_2', users: '0', percentage: '0' }]);
 
   const removeRegion = (idx: number) =>
     setJobRegions((prev) => prev.filter((_, i) => i !== idx));

@@ -32,7 +32,7 @@ export interface ProjectTO {
   rampTime?: string;
   location?: string;
   stopBehavior?: string;
-  simulationTime?: number;
+  simulationTime?: string;
   userIntervalIncrement?: number;
   variables?: KeyValuePair[];
   dataFileIds?: number[];

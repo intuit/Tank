@@ -75,7 +75,7 @@ public class ProjectTO implements Serializable {
     private String stopBehavior;
 
     @XmlElement(name = "simulationTime", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
-    private Long simulationTime;
+    private String simulationTime;
 
     @XmlElement(name = "userIntervalIncrement", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private int userIntervalIncrement;
@@ -216,7 +216,7 @@ public class ProjectTO implements Serializable {
     /**
      * @return the simulationTime
      */
-    public Long getSimulationTime() {
+    public String getSimulationTime() {
         return simulationTime;
     }
 
@@ -281,7 +281,7 @@ public class ProjectTO implements Serializable {
      * @param simulationTime
      *            the simulationTime to set
      */
-    public void setSimulationTime(Long simulationTime) {
+    public void setSimulationTime(String simulationTime) {
         this.simulationTime = simulationTime;
     }
 

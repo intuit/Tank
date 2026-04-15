@@ -43,7 +43,7 @@ export function ProjectDetailPage() {
   const [jobUsers, setJobUsers] = useState<number>(10);
   const [jobRampTime, setJobRampTime] = useState('5m');
   const [jobSimTime, setJobSimTime] = useState('30m');
-  const [jobLocation, setJobLocation] = useState('us-east-1');
+  const [jobLocation, setJobLocation] = useState('San Diego, CA');
   const [jobStopBehavior, setJobStopBehavior] = useState('END_OF_SCRIPT_GROUP');
 
   // Edit project dialog
@@ -89,7 +89,7 @@ export function ProjectDetailPage() {
     setEditProduct(project.productName ?? '');
     setEditComments(project.comments ?? '');
     setEditRampTime(project.rampTime ?? '');
-    setEditSimTime(project.simulationTime != null ? String(project.simulationTime) : '');
+    setEditSimTime(project.simulationTime ?? '');
     setShowEdit(true);
   };
 
@@ -100,8 +100,6 @@ export function ProjectDetailPage() {
       comments: editComments.trim() || undefined,
       rampTime: editRampTime.trim() || undefined,
       simulationTime: editSimTime.trim() || undefined,
-      location: 'us-east-1',
-      stopBehavior: 'END_OF_SCRIPT_GROUP',
     };
     try {
       await updateProject.mutateAsync(req);
@@ -340,7 +338,7 @@ export function ProjectDetailPage() {
                 <div className="col-4 font-bold">Ramp Time</div>
                 <div className="col-8">{project.rampTime ?? '—'}</div>
                 <div className="col-4 font-bold">Simulation Time</div>
-                <div className="col-8">{project.simulationTime != null ? `${project.simulationTime / 1000}s` : '—'}</div>
+                <div className="col-8">{project.simulationTime ?? '—'}</div>
                 <div className="col-4 font-bold">User Increment</div>
                 <div className="col-8">{project.userIntervalIncrement ?? '—'}</div>
                 <div className="col-4 font-bold">Termination Policy</div>
