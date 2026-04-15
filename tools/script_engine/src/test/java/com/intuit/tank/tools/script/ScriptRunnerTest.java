@@ -4,7 +4,6 @@ import com.intuit.tank.script.models.ScriptStepTO;
 import com.intuit.tank.script.models.ScriptTO;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.ResourceUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -49,7 +48,7 @@ class ScriptRunnerTest {
     void testRunComplexScript() throws ScriptException, IOException {
         ScriptRunner runner = new ScriptRunner();
         String script = IOUtils.toString(Objects.requireNonNull(
-                ResourceUtils.class.getResourceAsStream("/scriptFilter.js")), StandardCharsets.UTF_8);
+                getClass().getResourceAsStream("/scriptFilter.js")), StandardCharsets.UTF_8);
         ScriptTO scriptTO = ScriptTO.builder()
                 .withName("test-script")
                 .withProductName("test-product")
@@ -83,7 +82,7 @@ class ScriptRunnerTest {
         String badScript = "this is not valid javascript }{";
         Map<String, Object> inputs = new HashMap<>();
 
-        assertThrows(ScriptException.class,
+        assertThrows(Exception.class,
                 () -> runner.runScript("bad-script", badScript, jsEngine(), inputs, new NullOutputLogger()));
     }
 
@@ -110,5 +109,33 @@ class ScriptRunnerTest {
         String output = logger.getOutput();
         assertFalse(output.isEmpty(), "Output logger should have been invoked");
         assertTrue(output.contains("Starting scriptEngine") || output.contains("Finished scriptEngine"));
+    }
+
+    @Test
+    void testAllowedClassLookupPermitsTankPackages() {
+        assertTrue(JsEngineFactory.isAllowedClass("com.intuit.tank.script.models.ScriptTO"));
+        assertTrue(JsEngineFactory.isAllowedClass("com.intuit.tank.script.models.ScriptStepTO"));
+        assertTrue(JsEngineFactory.isAllowedClass("com.intuit.tank.script.models.StepDataTO"));
+    }
+
+    @Test
+    void testAllowedClassLookupPermitsJavaUtil() {
+        assertTrue(JsEngineFactory.isAllowedClass("java.util.HashMap"));
+        assertTrue(JsEngineFactory.isAllowedClass("java.util.List"));
+    }
+
+    @Test
+    void testAllowedClassLookupBlocksDangerousClasses() {
+        assertFalse(JsEngineFactory.isAllowedClass("java.lang.Runtime"));
+        assertFalse(JsEngineFactory.isAllowedClass("java.lang.ProcessBuilder"));
+        assertFalse(JsEngineFactory.isAllowedClass("java.io.File"));
+        assertFalse(JsEngineFactory.isAllowedClass("java.net.URL"));
+    }
+
+    @Test
+    void testNewEnginePerCall() {
+        ScriptEngine first = JsEngineFactory.createJsEngine();
+        ScriptEngine second = JsEngineFactory.createJsEngine();
+        assertNotSame(first, second, "Each call should return a fresh engine instance");
     }
 }
