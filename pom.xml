@@ -51,7 +51,7 @@
     <version.jaxb>4.0.2</version.jaxb>
     <version.spring-webmvc>6.2.17</version.spring-webmvc>
     <version.wiremock>3.13.2</version.wiremock>
-    <version.jackson>2.19.4</version.jackson>
+    <version.jackson>2.21.1</version.jackson>
     <version.log4j>2.25.4</version.log4j>
 
     <!-- maven-compiler-plugin -->
@@ -614,11 +614,6 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${version.jackson}</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20240205</version>
@@ -783,12 +778,14 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${version.jackson}</version>
+        <version>2.21</version>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
         <version>${version.jackson}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>
