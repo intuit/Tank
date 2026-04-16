@@ -63,11 +63,21 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     @Override
     public ProjectContainer getAllProjects(){
         try {
-            List<Project> all = new ProjectDao().findAll();
-            List<ProjectTO> projects = all.stream().map(ProjectServiceUtil::projectToTransferObject).collect(Collectors.toList());
+            List<Project> all = new ProjectDao().findAllFast();
+            List<ProjectTO> projects = all.stream().map(p ->
+                    ProjectTO.builder()
+                            .withId(p.getId())
+                            .withName(p.getName())
+                            .withProductName(p.getProductName())
+                            .withComments(p.getComments())
+                            .withCreator(p.getCreator())
+                            .withCreated(p.getCreated())
+                            .withModified(p.getModified())
+                            .build())
+                    .collect(Collectors.toList());
             return ProjectContainer.builder().withProjects(projects).build();
         } catch (Exception e) {
-            LOGGER.error("Error returning all projects: " + e.getMessage(), e);
+            LOGGER.error("Error returning all projects: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project", e);
         }
     }

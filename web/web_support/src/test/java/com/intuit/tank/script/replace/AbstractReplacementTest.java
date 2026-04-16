@@ -609,4 +609,142 @@ public class AbstractReplacementTest {
         fixture.setType(type);
 
     }
+
+    @Test
+    public void testGetReplacementInValue_WithMatchingTypeAndValue_ReturnsMatch() {
+        AbstractReplacement fixture = new HostReplacement();
+        // HostReplacement type is "request"
+        List<ReplaceEntity> result = fixture.getReplacementInValue("somehost", "newhost", "somehost", "request");
+        assertEquals(1, result.size());
+        assertEquals("somehost", result.get(0).getValue());
+        assertEquals("newhost", result.get(0).getAfter());
+    }
+
+    @Test
+    public void testGetReplacementInValue_WithNonMatchingType_ReturnsEmpty() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInValue("somehost", "newhost", "somehost", "response");
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testGetReplacementInValue_WithNonMatchingValue_ReturnsEmpty() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInValue("somehost", "newhost", "otherhost", "request");
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testGetReplacementInValue_WithWildcardPattern_ReturnsMatch() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInValue("some*", "newhost", "somehost.com", "request");
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetReplacementInValue_WithKey_ReturnsMatchWithKey() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInValue("somehost", "newhost", "somehost", "request", "mykey");
+        assertEquals(1, result.size());
+        assertEquals("mykey", result.get(0).getKey());
+    }
+
+    @Test
+    public void testGetReplacementInKey_WithMatchingKey_ReturnsMatch() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInKey("mykey", "newkey", "somevalue", "request", "mykey");
+        assertEquals(1, result.size());
+        assertEquals("somevalue", result.get(0).getValue());
+    }
+
+    @Test
+    public void testGetReplacementInKey_WithNonMatchingKey_ReturnsEmpty() {
+        AbstractReplacement fixture = new HostReplacement();
+        List<ReplaceEntity> result = fixture.getReplacementInKey("mykey", "newkey", "somevalue", "request", "otherkey");
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testGetReplacementsInRequestData_KeyOnly_FindsKeyMatches() {
+        AbstractReplacement fixture = new HostReplacement();
+        ScriptStep step = new ScriptStep();
+        step.setType("request");
+        RequestData rd = new RequestData("mykey", "myvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        List<ReplaceEntity> result = fixture.getReplacementsInRequestData(step, "mykey", "newkey", requestDatas, SearchMode.keyOnly);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetReplacementsInRequestData_ValueOnly_FindsValueMatches() {
+        AbstractReplacement fixture = new HostReplacement();
+        ScriptStep step = new ScriptStep();
+        step.setType("request");
+        RequestData rd = new RequestData("mykey", "myvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        List<ReplaceEntity> result = fixture.getReplacementsInRequestData(step, "myvalue", "newvalue", requestDatas, SearchMode.valueOnly);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testGetReplacementsInRequestData_All_ChecksBothKeyAndValue() {
+        AbstractReplacement fixture = new HostReplacement();
+        ScriptStep step = new ScriptStep();
+        step.setType("request");
+        RequestData rd = new RequestData("mykey", "myvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        // Neither key nor value match "nomatch"
+        List<ReplaceEntity> result = fixture.getReplacementsInRequestData(step, "nomatch", "replacement", requestDatas, SearchMode.all);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void testReplaceInRequestDatas_WithMatchingKey_UpdatesValue() {
+        AbstractReplacement fixture = new HostReplacement();
+        RequestData rd = new RequestData("mykey", "oldvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        fixture.replaceInRequestDatas(requestDatas, "newvalue", "mykey");
+        assertEquals("newvalue", rd.getValue());
+    }
+
+    @Test
+    public void testReplaceInRequestDatas_WithNonMatchingKey_DoesNotUpdate() {
+        AbstractReplacement fixture = new HostReplacement();
+        RequestData rd = new RequestData("mykey", "oldvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        fixture.replaceInRequestDatas(requestDatas, "newvalue", "otherkey");
+        assertEquals("oldvalue", rd.getValue());
+    }
+
+    @Test
+    public void testReplaceInRequestDatas_ReplaceMode_KEY_UpdatesKey() {
+        AbstractReplacement fixture = new HostReplacement();
+        RequestData rd = new RequestData("mykey", "oldvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        fixture.replaceInRequestDatas(requestDatas, "newkey", "mykey", ReplaceMode.KEY);
+        assertEquals("newkey", rd.getKey());
+    }
+
+    @Test
+    public void testReplaceInRequestDatas_ReplaceMode_VALUE_UpdatesValue() {
+        AbstractReplacement fixture = new HostReplacement();
+        RequestData rd = new RequestData("mykey", "oldvalue", "request");
+        Set<RequestData> requestDatas = new HashSet<>();
+        requestDatas.add(rd);
+
+        fixture.replaceInRequestDatas(requestDatas, "newvalue", "mykey", ReplaceMode.VALUE);
+        assertEquals("newvalue", rd.getValue());
+    }
 }

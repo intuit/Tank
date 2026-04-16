@@ -25,4 +25,44 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 12/15/14 3:54 PM
  */
 public class DefaultTableColumnUtilTest {
+
+    @Test
+    public void testProjectColPrefsNotNull() {
+        assertNotNull(DefaultTableColumnUtil.PROJECT_COL_PREFS);
+        assertFalse(DefaultTableColumnUtil.PROJECT_COL_PREFS.isEmpty());
+    }
+
+    @Test
+    public void testScriptsColPrefsNotNull() {
+        assertNotNull(DefaultTableColumnUtil.SCRIPTS_COL_PREFS);
+        assertFalse(DefaultTableColumnUtil.SCRIPTS_COL_PREFS.isEmpty());
+    }
+
+    @Test
+    public void testDataFilesColPrefsNotNull() {
+        assertNotNull(DefaultTableColumnUtil.DATA_FILES_COL_PREFS);
+        assertFalse(DefaultTableColumnUtil.DATA_FILES_COL_PREFS.isEmpty());
+    }
+
+    @Test
+    public void testJobsColPrefsNotNull() {
+        assertNotNull(DefaultTableColumnUtil.JOBS_COL_PREFS);
+        assertFalse(DefaultTableColumnUtil.JOBS_COL_PREFS.isEmpty());
+    }
+
+    @Test
+    public void testScriptStepsColPrefsNotNull() {
+        assertNotNull(DefaultTableColumnUtil.SCRIPT_STEPS_COL_PREFS);
+        assertFalse(DefaultTableColumnUtil.SCRIPT_STEPS_COL_PREFS.isEmpty());
+    }
+
+    @Test
+    public void testProjectColPrefsSize() {
+        assertEquals(9, DefaultTableColumnUtil.PROJECT_COL_PREFS.size());
+    }
+
+    @Test
+    public void testJobsColPrefsSize() {
+        assertEquals(12, DefaultTableColumnUtil.JOBS_COL_PREFS.size());
+    }
 }
