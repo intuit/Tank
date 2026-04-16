@@ -614,11 +614,6 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${version.jackson}</version>
-      </dependency>
-      <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20240205</version>
@@ -779,6 +774,11 @@
         <artifactId>wiremock</artifactId>
         <version>${version.wiremock}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.21</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
