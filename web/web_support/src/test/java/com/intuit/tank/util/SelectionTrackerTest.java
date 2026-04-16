@@ -13,190 +13,123 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import org.junit.jupiter.api.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.intuit.tank.wrapper.SelectableWrapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.DataFileBrowser;
-import com.intuit.tank.util.Multiselectable;
-import com.intuit.tank.util.SelectionTracker;
-
-/**
- * The class <code>SelectionTrackerTest</code> contains tests for the class <code>{@link SelectionTracker}</code>.
- *
- * @generatedBy CodePro at 12/15/14 3:52 PM
- */
-@Disabled
 public class SelectionTrackerTest {
-    /**
-     * Run the SelectionTracker(Multiselectable<T>) constructor test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSelectionTracker_1()
-        throws Exception {
-        Multiselectable<DataFile> selectable = new DataFileBrowser();
 
-        SelectionTracker result = new SelectionTracker(selectable);
+    // Concrete Multiselectable implementation for testing
+    private static class SimpleMultiselectable implements Multiselectable<String> {
+        private List<SelectableWrapper<String>> list;
+        private List<SelectableWrapper<String>> filtered;
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+        SimpleMultiselectable(String... items) {
+            list = new ArrayList<>();
+            for (String item : items) {
+                list.add(new SelectableWrapper<>(item));
+            }
+            filtered = new ArrayList<>(list);
+        }
+
+        @Override
+        public List<SelectableWrapper<String>> getSelectionList() {
+            return list;
+        }
+
+        @Override
+        public List<SelectableWrapper<String>> getFilteredData() {
+            return filtered;
+        }
+
+        @Override
+        public void deleteSelected() {}
+
+        @Override
+        public void selectAll() {}
+
+        @Override
+        public void unselectAll() {}
+
+        @Override
+        public boolean hasSelected() {
+            return list.stream().anyMatch(SelectableWrapper::isSelected);
+        }
+
+        public void setFilteredItems(List<SelectableWrapper<String>> filteredData) {
+            this.filtered = filteredData;
+        }
     }
 
-    /**
-     * Run the boolean hasSelected() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testHasSelected_1()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
+    private SimpleMultiselectable selectable;
+    private SelectionTracker<String> tracker;
 
-        boolean result = fixture.hasSelected();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertTrue(!result);
+    @BeforeEach
+    void setUp() {
+        selectable = new SimpleMultiselectable("a", "b", "c");
+        tracker = new SelectionTracker<>(selectable);
     }
 
-
-    /**
-     * Run the void selectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testSelectAll_1()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
-
-        fixture.selectAll();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testConstructor_NotNull() {
+        assertNotNull(tracker);
     }
 
-    /**
-     * Run the void selectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testSelectAll_2()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
-
-        fixture.selectAll();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testHasSelected_Initially_ReturnsFalse() {
+        assertFalse(tracker.hasSelected());
     }
 
-    /**
-     * Run the void selectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testSelectAll_3()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
-
-        fixture.selectAll();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testSelectAll_SelectsAllInFilteredData() {
+        tracker.selectAll();
+        assertTrue(tracker.hasSelected());
+        selectable.getSelectionList().forEach(w -> assertTrue(w.isSelected()));
     }
 
-    /**
-     * Run the void unselectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testUnselectAll_1()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
-
-        fixture.unselectAll();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+    public void testUnselectAll_UnselectsAll() {
+        tracker.selectAll();
+        tracker.unselectAll();
+        assertFalse(tracker.hasSelected());
     }
 
-    /**
-     * Run the void unselectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testUnselectAll_2()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
+    public void testSelectAll_OnlySelectsFilteredItems() {
+        // Filter to just first item
+        List<SelectableWrapper<String>> filtered = List.of(selectable.getSelectionList().get(0));
+        selectable.setFilteredItems(filtered);
 
-        fixture.unselectAll();
+        tracker.selectAll();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+        assertTrue(selectable.getSelectionList().get(0).isSelected());
+        assertFalse(selectable.getSelectionList().get(1).isSelected());
+        assertFalse(selectable.getSelectionList().get(2).isSelected());
     }
 
-    /**
-     * Run the void unselectAll() method test.
-     *
-     * @throws Exception
-     *
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testUnselectAll_3()
-        throws Exception {
-        SelectionTracker fixture = new SelectionTracker(new DataFileBrowser());
+    public void testUnselectAll_OnlyUnselectsFilteredItems() {
+        // Select all manually
+        selectable.getSelectionList().forEach(w -> w.setSelected(true));
 
-        fixture.unselectAll();
+        // Filter to just first item
+        List<SelectableWrapper<String>> filtered = List.of(selectable.getSelectionList().get(0));
+        selectable.setFilteredItems(filtered);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        //       at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        //       at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        //       at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
+        tracker.unselectAll();
+
+        assertFalse(selectable.getSelectionList().get(0).isSelected());
+        assertTrue(selectable.getSelectionList().get(1).isSelected()); // not in filter
+    }
+
+    @Test
+    public void testHasSelected_AfterSelecting_ReturnsTrue() {
+        selectable.getSelectionList().get(0).setSelected(true);
+        assertTrue(tracker.hasSelected());
     }
 }

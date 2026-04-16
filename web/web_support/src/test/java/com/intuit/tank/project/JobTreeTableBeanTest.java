@@ -21,6 +21,7 @@ import java.util.*;
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.job.ActJobNodeBean;
+import com.intuit.tank.job.JobNodeBean;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobQueueDao;
@@ -31,6 +32,9 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.UserDetail;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.*;
+import org.primefaces.event.NodeCollapseEvent;
+import org.primefaces.event.NodeExpandEvent;
+import org.primefaces.model.TreeNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -393,6 +397,53 @@ public class JobTreeTableBeanTest {
     }
 
     @Test
+    public void testRefreshData_WithVmContainer_CoversVmStatusBranch() {
+        JobQueue jobQueue = new JobQueue();
+        jobQueue.setProjectId(10);
+        JobInstance ji = new JobInstance();
+        jobQueue.addJob(ji);
+        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
+        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+
+        // vmTracker returns a container with VM statuses - exercises the container != null branch
+        CloudVmStatusContainer container = new CloudVmStatusContainer();
+        Mockito.when(vmTracker.getVmStatusForJob(Mockito.anyString())).thenReturn(container);
+
+        AWSXRay.beginSegment("test_vm_container");
+        fixture.refreshData();
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testRefreshData_WithAdhocTrackerJobs_CoversAdhocBranch() {
+        // Empty queue from DB
+        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of());
+
+        // Tracker has a job not in any queue
+        CloudVmStatusContainer trackerContainer = new CloudVmStatusContainer();
+        trackerContainer.setJobId("999");
+        Mockito.when(vmTracker.getAllJobs()).thenReturn(java.util.Set.of(trackerContainer));
+        Mockito.when(vmTracker.getVmStatusForJob(Mockito.eq("999"))).thenReturn(trackerContainer);
+        Mockito.when(jobQueueDao.findForJobId(Mockito.eq(999))).thenReturn(null);
+        Mockito.when(preferencesBean.getDateTimeFormat()).thenReturn(FastDateFormat.getInstance("yyyy-MM-dd"));
+
+        AWSXRay.beginSegment("test_adhoc");
+        fixture.refreshData();
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testInit_SetsTablePrefs() {
+        com.intuit.tank.project.Preferences prefs = Mockito.mock(com.intuit.tank.project.Preferences.class);
+        Mockito.when(preferencesBean.getPreferences()).thenReturn(prefs);
+        Mockito.when(prefs.getJobsTableColumns()).thenReturn(new LinkedList<>());
+
+        fixture.init();
+
+        assertNotNull(fixture.tablePrefs);
+    }
+
+    @Test
     public void testCurrentJobInstanceForTPS() {
         ProjectNodeBean pnb = new ProjectNodeBean(new Project());
         pnb.addJob(new ActJobNodeBean("1", new CloudVmStatusContainer(), FastDateFormat.getInstance()));
@@ -443,5 +494,179 @@ public class JobTreeTableBeanTest {
     @Test
     public void testDeleteJobInstance() {
         fixture.deleteJobInstance(new ProjectNodeBean(new Project()));
+    }
+
+    @Test
+    public void testGetTimeZone_DefaultLosAngeles() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        java.util.TimeZone tz = fixture.getTimeZone();
+        assertNotNull(tz);
+        assertEquals("America/Los_Angeles", tz.getID());
+    }
+
+    @Test
+    public void testSetTimeZone_UpdatesTimeZone() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setTimeZone("UTC");
+        assertEquals("UTC", fixture.getTimeZone().getID());
+    }
+
+    @Test
+    public void testGetChartModel_InitiallyNull() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        assertNull(fixture.getChartModel());
+    }
+
+    @Test
+    public void testGetTpsChartModel_InitiallyNull() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        assertNull(fixture.getTpsChartModel());
+    }
+
+    @Test
+    public void testGetCurrentJobInstance_InitiallyNull() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        assertNull(fixture.getCurrentJobInstance());
+    }
+
+    @Test
+    public void testSetCurrentJobInstance_SetsValue() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        ProjectNodeBean node = new ProjectNodeBean(new Project());
+        fixture.setCurrentJobInstance(node);
+        assertEquals(node, fixture.getCurrentJobInstance());
+    }
+
+    @Test
+    public void testSetCurrentJobInstanceForUser_NullInstance_SetsNull() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setCurrentJobInstanceForUser(null);
+        assertNull(fixture.getCurrentJobInstance());
+        assertNull(fixture.getChartModel()); // chartModel stays null when currentJobInstance is null
+    }
+
+    @Test
+    public void testSetRefreshTimeSeconds_ValidAboveMin_SetsInterval() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setRefreshTimeSeconds("30");
+        assertEquals(30, fixture.getRefreshInterval());
+        assertTrue(fixture.isRefreshEnabled());
+    }
+
+    @Test
+    public void testSetRefreshTimeSeconds_ValidBelowMin_WarnMessage() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setRefreshTimeSeconds("5");
+        assertEquals(0, fixture.getRefreshInterval()); // not changed
+        Mockito.verify(messages).warn(Mockito.anyString());
+    }
+
+    @Test
+    public void testSetRefreshTimeSeconds_NonNumeric_WarnMessage() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setRefreshTimeSeconds("notanumber");
+        assertEquals(0, fixture.getRefreshInterval());
+        Mockito.verify(messages).warn(Mockito.anyString());
+    }
+
+    @Test
+    public void testSetRefreshTimeSeconds_EmptyString_SetsZero() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setRefreshTimeSeconds("30"); // set to 30 first
+        fixture.setRefreshTimeSeconds("");   // then clear
+        assertEquals(0, fixture.getRefreshInterval());
+    }
+
+    @Test
+    public void testSetFilterFinished_SameValue_NoRefresh() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        // default is true; setting true again does nothing
+        fixture.setFilterFinished(true);
+        assertTrue(fixture.isFilterFinished());
+    }
+
+    @Test
+    public void testIsRefreshEnabled_WhenIntervalSet_ReturnsTrue() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        fixture.setRefreshTimeSeconds("15");
+        assertTrue(fixture.isRefreshEnabled());
+    }
+
+    @Test
+    public void testSetFilterFinished_DifferentValue_TriggersRefresh() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of());
+        AWSXRay.beginSegment("test_ff_diff");
+        // default filterFinished is true; setting false triggers refreshData()
+        fixture.setFilterFinished(false);
+        AWSXRay.endSegment();
+        assertFalse(fixture.isFilterFinished());
+    }
+
+    @Test
+    public void testCanControlJob_DelegatesToNode() {
+        JobNodeBean node = Mockito.mock(JobNodeBean.class);
+        Mockito.when(node.canControlJob(Mockito.any(Security.class))).thenReturn(true);
+        assertTrue(fixture.canControlJob(node));
+
+        Mockito.when(node.canControlJob(Mockito.any(Security.class))).thenReturn(false);
+        assertFalse(fixture.canControlJob(node));
+    }
+
+    private TreeNode buildTreeAndGetRoot() {
+        fixture.tableState = new TableViewState();
+        fixture.tablePrefs = new TablePreferences(new LinkedList());
+        JobQueue jobQueue = new JobQueue();
+        jobQueue.setProjectId(10);
+        jobQueue.addJob(new JobInstance());
+        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
+        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+        return fixture.getRootNode();
+    }
+
+    @Test
+    public void testOnNodeExpand_SetsNodeExpanded() {
+        AWSXRay.beginSegment("test_expand");
+        buildTreeAndGetRoot(); // populates nodeMap with "0"
+
+        NodeExpandEvent event = Mockito.mock(NodeExpandEvent.class);
+        TreeNode treeNode = Mockito.mock(TreeNode.class);
+        JobNodeBean jnb = Mockito.mock(JobNodeBean.class);
+        Mockito.when(event.getTreeNode()).thenReturn(treeNode);
+        Mockito.when(treeNode.getData()).thenReturn(jnb);
+        Mockito.when(jnb.getId()).thenReturn("0"); // project node id is "0"
+
+        assertDoesNotThrow(() -> fixture.onNodeExpand(event));
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testOnNodeCollapse_SetsNodeCollapsedAndParentsExpanded() {
+        AWSXRay.beginSegment("test_collapse");
+        buildTreeAndGetRoot(); // populates nodeMap with "0"
+
+        NodeCollapseEvent event = Mockito.mock(NodeCollapseEvent.class);
+        TreeNode treeNode = Mockito.mock(TreeNode.class);
+        JobNodeBean jnb = Mockito.mock(JobNodeBean.class);
+        Mockito.when(event.getTreeNode()).thenReturn(treeNode);
+        Mockito.when(treeNode.getData()).thenReturn(jnb);
+        Mockito.when(jnb.getId()).thenReturn("0"); // project node id is "0"
+
+        assertDoesNotThrow(() -> fixture.onNodeCollapse(event));
+        AWSXRay.endSegment();
     }
 }

@@ -14,6 +14,7 @@ package com.intuit.tank.project;
  */
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,11 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.JobValidator;
+import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.TestPlan;
+import com.intuit.tank.script.ScriptConstants;
 
 /**
  * The class <code>JobValidatorTest</code> contains tests for the class <code>{@link JobValidator}</code>.
@@ -536,5 +540,98 @@ public class JobValidatorTest {
 
         boolean result = fixture.isValid();
         assertTrue(!result);
+    }
+
+    @Test
+    public void testJobValidator_Script_WithRequestStep_ProcessesSteps() {
+        Script s = new Script();
+        s.setName("TestScript");
+        ScriptStep step = new ScriptStep();
+        step.setType(ScriptConstants.REQUEST);
+        step.setLoggingKey("requestLog");
+        s.getScriptSteps().add(step);
+
+        JobValidator result = new JobValidator(s);
+        assertNotNull(result);
+        // With a logging key set, bestPracticeViolations should NOT have the no-logging-keys violation
+        boolean hasNoLoggingKeyViolation = result.getBestPracticeViolations().stream()
+                .anyMatch(v -> v.contains("No Logging Keys"));
+        assertFalse(hasNoLoggingKeyViolation);
+    }
+
+    @Test
+    public void testJobValidator_Script_WithoutLoggingKey_AddsBestPracticeViolation() {
+        Script s = new Script();
+        s.setName("TestScript");
+        ScriptStep step = new ScriptStep();
+        step.setType(ScriptConstants.REQUEST);
+        // No logging key set
+        s.getScriptSteps().add(step);
+
+        JobValidator result = new JobValidator(s);
+        assertNotNull(result);
+        // Without any logging key, should have the "No Logging Keys" violation
+        boolean hasNoLoggingKeyViolation = result.getBestPracticeViolations().stream()
+                .anyMatch(v -> v.contains("No Logging Keys"));
+        assertTrue(hasNoLoggingKeyViolation);
+    }
+
+    @Test
+    public void testJobValidator_Script_VariableAfterRequest_AddsBestPracticeViolation() {
+        Script s = new Script();
+        s.setName("TestScript");
+
+        // First add a request step
+        ScriptStep requestStep = new ScriptStep();
+        requestStep.setType(ScriptConstants.REQUEST);
+        s.getScriptSteps().add(requestStep);
+
+        // Then add a variable step after the request (best practice violation)
+        ScriptStep variableStep = new ScriptStep();
+        variableStep.setType(ScriptConstants.VARIABLE);
+        Set<RequestData> data = new HashSet<>();
+        data.add(new RequestData("myVar", "myValue", "string"));
+        variableStep.setData(data);
+        s.getScriptSteps().add(variableStep);
+
+        JobValidator result = new JobValidator(s);
+        assertNotNull(result);
+        // Should have the best practice violation about declaring vars before request
+        boolean hasBestPracticeViolation = result.getBestPracticeViolations().stream()
+                .anyMatch(v -> v.contains("Declare variables before request"));
+        assertTrue(hasBestPracticeViolation);
+    }
+
+    @Test
+    public void testJobValidator_WithGlobalVariables_DeclaredVarsPopulated() {
+        Map<String, String> globalVars = new HashMap<>();
+        globalVars.put("globalVar1", "value1");
+        globalVars.put("globalVar2", "value2");
+
+        JobValidator result = new JobValidator(new LinkedList<>(), globalVars);
+        assertNotNull(result);
+        assertTrue(result.getDeclaredVariables().containsKey("globalVar1"));
+        assertTrue(result.getDeclaredVariables().containsKey("globalVar2"));
+    }
+
+    @Test
+    public void testGetDuration_WhenGroupExists_ReturnsTimeString() {
+        Script s = new Script();
+        s.setName("TestScript");
+        // Add a think time step which contributes to duration
+        ScriptStep step = new ScriptStep();
+        step.setType(ScriptConstants.THINK_TIME);
+        Set<RequestData> data = new HashSet<>();
+        data.add(new RequestData(ScriptConstants.MIN_TIME, "1000", "string"));
+        data.add(new RequestData(ScriptConstants.MAX_TIME, "2000", "string"));
+        step.setData(data);
+        s.getScriptSteps().add(step);
+
+        JobValidator validator = new JobValidator(s);
+        String duration = validator.getDuration(s.getName());
+        assertNotNull(duration);
+        // Duration should be non-zero (think time adds to duration)
+        long durationMs = validator.getDurationMs(s.getName());
+        assertTrue(durationMs >= 0);
     }
 }

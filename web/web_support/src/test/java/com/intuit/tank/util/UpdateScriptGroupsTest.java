@@ -53,13 +53,6 @@ public class UpdateScriptGroupsTest {
         assertTrue(!result);
     }
 
-    /**
-     * Run the boolean isDisabled() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:54 PM
-     */
     @Test
     public void testIsDisabled_2()
             throws Exception {
@@ -68,4 +61,11 @@ public class UpdateScriptGroupsTest {
         boolean result = fixture.isDisabled();
         assertTrue(!result);
     }
+
+    @Test
+    public void testIsDisabled_Initially_ReturnsFalse() {
+        UpdateScriptGroups fixture = new UpdateScriptGroups();
+        assertFalse(fixture.isDisabled());
+    }
+
 }

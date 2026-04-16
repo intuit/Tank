@@ -86,7 +86,7 @@ public class JobManager implements Serializable {
     @Inject
     private Instance<WorkLoadFactory> workLoadFactoryInstance;
 
-    private Map<String, JobInfo> jobInfoMapLocalCache = new HashMap<String, JobInfo>();
+    private Map<String, JobInfo> jobInfoMapLocalCache = new ConcurrentHashMap<>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
@@ -97,7 +97,7 @@ public class JobManager implements Serializable {
      * @param id
      * @throws Exception
      */
-    public synchronized void startJob(int id) {
+    public void startJob(int id) {
         IncreasingWorkLoad project = workLoadFactoryInstance.get().getModelRunner(id);
         JobRequest jobRequest = project.getJob();
         jobInfoMapLocalCache.put(Integer.toString(id), new JobInfo(jobRequest));

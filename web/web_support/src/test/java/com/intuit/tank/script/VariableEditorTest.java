@@ -14,11 +14,16 @@ package com.intuit.tank.script;
  */
 
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.VariableEditor;
+import com.intuit.tank.util.Messages;
 
 /**
  * The class <code>VariableEditorTest</code> contains tests for the class <code>{@link VariableEditor}</code>.
@@ -369,5 +374,70 @@ public class VariableEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.VariableEditor.setButtonLabel(VariableEditor.java:70)
+    }
+
+    // Mockito-based tests to cover addToScript() and validate() paths
+
+    @InjectMocks
+    private VariableEditor variableEditor;
+
+    @Mock
+    private ScriptEditor scriptEditor;
+
+    @Mock
+    private Messages messages;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initMocks() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeMocks() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testAddToScript_WithEmptyKey_ShowsError() {
+        variableEditor.setKey("");
+        variableEditor.setValue("someValue");
+        variableEditor.addToScript();
+        verify(messages).error("Key cannot be empty");
+    }
+
+    @Test
+    public void testAddToScript_WithEmptyValue_ShowsError() {
+        variableEditor.setKey("someKey");
+        variableEditor.setValue("");
+        variableEditor.addToScript();
+        verify(messages).error("Value cannot be empty");
+    }
+
+    @Test
+    public void testAddToScript_InInsertMode_CallsScriptEditorInsert() {
+        variableEditor.insertVariable();
+        variableEditor.setKey("myKey");
+        variableEditor.setValue("myValue");
+        variableEditor.addToScript();
+        verify(scriptEditor).insert(any(ScriptStep.class));
+    }
+
+    @Test
+    public void testAddToScript_InEditMode_CallsDone() {
+        ScriptStep step = ScriptStepFactory.createVariable("oldKey", "oldValue");
+        variableEditor.editVariable(step);
+        variableEditor.setKey("newKey");
+        variableEditor.setValue("newValue");
+        variableEditor.addToScript();
+        // done() updates the step data — no scriptEditor.insert()
+        verify(scriptEditor, never()).insert(any());
+    }
+
+    @Test
+    public void testInsertVariable_SetsAddLabel() {
+        variableEditor.insertVariable();
+        assertEquals("Add", variableEditor.getButtonLabel());
     }
 }
