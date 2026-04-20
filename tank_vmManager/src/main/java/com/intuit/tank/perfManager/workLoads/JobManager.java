@@ -57,6 +57,7 @@ import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
+import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
@@ -92,6 +93,9 @@ public class JobManager implements Serializable {
 
     @Inject
     private TankConfig tankConfig;
+
+    @Inject
+    private jakarta.enterprise.inject.Instance<com.intuit.tank.vm.agent.messages.AgentWsCommandSender> wsCommandSenderInstance;
 
     /**
      * @param id
@@ -214,17 +218,37 @@ public class JobManager implements Serializable {
             LOG.info(new ObjectMessage(Map.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                     info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         }
-        LOG.info(new ObjectMessage(Map.of("Message", "Sending START commands to " + info.agentData.size() + 
+        LOG.info(new ObjectMessage(Map.of("Message", "Sending START commands to " + info.agentData.size() +
             " agents for job " + jobId)));
+
+        AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
+        boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
+        boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
+        long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
+        com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
+
         info.agentData.parallelStream()
-                .map(agentData -> {
+                .forEach(agentData -> {
+                    String instanceId = agentData.getInstanceId();
+
+                    // Try WS first if enabled
+                    if (wsEnabled && wsSender != null && wsSender.hasSession(instanceId)) {
+                        boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
+                        if (acked) {
+                            LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
+                            return;
+                        }
+                        LOG.warn(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed, " +
+                                (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                        if (!httpFallback) {
+                            return;
+                        }
+                    }
+
+                    // HTTP fallback
                     String url = agentData.getInstanceUrl() + AgentCommand.start.getPath();
                     LOG.info(new ObjectMessage(Map.of("Message", "Sending command to url " + url)));
-                    return url;
-                })
-                .map(URI::create)
-                .map(uri -> sendCommand(uri, MAX_RETRIES))
-                .forEach(future -> {
+                    CompletableFuture<?> future = sendCommand(URI.create(url), MAX_RETRIES);
                     HttpResponse response = (HttpResponse) future.join();
                     if (response != null && Set.of(HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED).contains(response.statusCode())) {
                         LOG.info(new ObjectMessage(Map.of(
@@ -246,16 +270,75 @@ public class JobManager implements Serializable {
 
     /**
      * Convert the List of instanceIds to instanceUrls to instanceUris and pass it to sendCommand(List<URI>, retry) to send asynchttp commands.
+     * Uses WS transport when available and enabled, falls back to HTTP.
      * @param instanceIds
      * @param cmd
      * @return Array of CompletableFuture that will probably never be looked at.
      */
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
+        AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
+        boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
+        boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
+        long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
+
+        com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
+
+        // Resolve instanceId -> jobId mapping for WS commands
+        Map<String, String> instanceJobMap = new HashMap<>();
+        if (wsEnabled && wsSender != null) {
+            for (String instanceId : instanceIds) {
+                for (JobInfo info : jobInfoMapLocalCache.values()) {
+                    for (AgentData data : info.agentData) {
+                        if (instanceId.equals(data.getInstanceId())) {
+                            instanceJobMap.put(instanceId, info.jobRequest.getId());
+                        }
+                    }
+                }
+            }
+        }
+
         List<String> instanceUrls = getInstanceUrl(instanceIds);
+
+        // Build a parallel list of instanceId -> instanceUrl for fallback
+        List<String> orderedInstanceIds = new ArrayList<>(instanceIds);
+
         return instanceUrls.parallelStream()
-                .map(instanceUrl -> instanceUrl + cmd.getPath())
-                .map(URI::create)
-                .map(uri -> sendCommand(uri, 0))
+                .map(instanceUrl -> {
+                    // Find matching instanceId for this URL
+                    String matchedInstanceId = null;
+                    for (int i = 0; i < orderedInstanceIds.size(); i++) {
+                        String candidateId = orderedInstanceIds.get(i);
+                        // Match by checking if this URL belongs to this instanceId
+                        for (JobInfo info : jobInfoMapLocalCache.values()) {
+                            for (AgentData data : info.agentData) {
+                                if (candidateId.equals(data.getInstanceId()) && instanceUrl.equals(data.getInstanceUrl())) {
+                                    matchedInstanceId = candidateId;
+                                }
+                            }
+                        }
+                    }
+
+                    // Try WS first if enabled
+                    if (wsEnabled && wsSender != null && matchedInstanceId != null) {
+                        String jobId = instanceJobMap.get(matchedInstanceId);
+                        if (jobId != null && wsSender.hasSession(matchedInstanceId)) {
+                            boolean acked = wsSender.sendCommand(matchedInstanceId, jobId, cmd.name(), ackTimeout);
+                            if (acked) {
+                                LOG.info(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " succeeded")));
+                                return CompletableFuture.completedFuture(null);
+                            }
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " failed, " +
+                                    (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                            if (!httpFallback) {
+                                return CompletableFuture.completedFuture(null);
+                            }
+                        }
+                    }
+
+                    // HTTP fallback (or WS not enabled/available)
+                    URI uri = URI.create(instanceUrl + cmd.getPath());
+                    return sendCommand(uri, 0);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -362,6 +445,13 @@ public class JobManager implements Serializable {
             }
         }
         return ret;
+    }
+
+    private com.intuit.tank.vm.agent.messages.AgentWsCommandSender getWsCommandSender() {
+        if (wsCommandSenderInstance != null && wsCommandSenderInstance.isResolvable()) {
+            return wsCommandSenderInstance.get();
+        }
+        return null;
     }
 
     public void startAgents(String jobId){

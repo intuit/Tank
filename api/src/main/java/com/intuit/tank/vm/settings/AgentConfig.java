@@ -64,6 +64,11 @@ public class AgentConfig implements Serializable {
     private static final String KEY_LOG_VARIABLES = "log-variables";
     private static final String KEY_CONNECTION_TIMEOUT = "connection-timeout";
 
+    private static final String KEY_COMMAND_WS_ENABLED = "command-ws-enabled";
+    private static final String KEY_COMMAND_WS_HTTP_FALLBACK_ENABLED = "command-ws-http-fallback-enabled";
+    private static final String KEY_COMMAND_WS_ACK_TIMEOUT_MILLIS = "command-ws-ack-timeout-millis";
+    private static final String KEY_COMMAND_WS_PATH = "command-ws-path";
+
     private static final String KEY_REQUEST_HEADERS = "request-headers/header";
     // private static final String KEY_RESULT_PROVIDERS =
     // "result-providers/provider";
@@ -334,6 +339,22 @@ public class AgentConfig implements Serializable {
      */
     public long getStatusReportIntervalMilis(long pollTime) {
         return config.getLong(KEY_POLL_TIME_MILIS, pollTime);
+    }
+
+    public boolean isCommandWsEnabled() {
+        return config.getBoolean(KEY_COMMAND_WS_ENABLED, false);
+    }
+
+    public boolean isCommandWsHttpFallbackEnabled() {
+        return config.getBoolean(KEY_COMMAND_WS_HTTP_FALLBACK_ENABLED, true);
+    }
+
+    public long getCommandWsAckTimeoutMillis() {
+        return config.getLong(KEY_COMMAND_WS_ACK_TIMEOUT_MILLIS, 3000L);
+    }
+
+    public String getCommandWsPath() {
+        return config.getString(KEY_COMMAND_WS_PATH, "/v2/agent/ws/control");
     }
 
 }

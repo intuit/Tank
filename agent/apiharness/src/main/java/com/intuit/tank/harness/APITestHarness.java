@@ -340,6 +340,15 @@ public class APITestHarness {
                     saveDataFile(dfRequest, token);
                 }
             }
+            // Start WS control channel if enabled
+            if (tankConfig.getAgentConfig().isCommandWsEnabled()) {
+                String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
+                LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control channel to " + baseUrl + wsPath)));
+                AgentCommandWebSocketClient wsClient = new AgentCommandWebSocketClient(
+                        baseUrl, wsPath, token, instanceId, agentRunData.getJobId());
+                wsClient.connect();
+            }
+
             Thread thread = new Thread(new StartedChecker());
             thread.setName("StartedChecker");
             thread.setDaemon(false);

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
+import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 
@@ -100,5 +101,33 @@ public class JobManagerTest {
         List<String> result = fixture.getInstanceUrl(instanceId);
 
         assertTrue(result.isEmpty());
+    }
+
+    /**
+     * When WS sender is not injected (null), sendCommand should use HTTP path only.
+     * Uses empty string instanceId (same pattern as existing tests) to avoid
+     * hitting findAgent which requires tankConfig.
+     */
+    @Test
+    public void testSendCommandWithNoWsSender() {
+        JobManager fixture = new JobManager();
+        // wsCommandSenderInstance is null (not injected) — should fall through to HTTP
+        // Empty string is filtered out by StringUtils.isNotEmpty in getInstanceUrl
+        List<String> instanceIds = Collections.singletonList("");
+        AgentCommand cmd = AgentCommand.stop;
+
+        // Should not throw, should return empty (no resolvable URL)
+        List<CompletableFuture<?>> result = fixture.sendCommand(instanceIds, cmd);
+        assertEquals(0, result.size());
+    }
+
+    /**
+     * When WS sender is not injected, empty instanceId list should return empty results.
+     */
+    @Test
+    public void testSendCommandEmptyListWithNoWsSender() {
+        JobManager fixture = new JobManager();
+        List<CompletableFuture<?>> result = fixture.sendCommand(Collections.emptyList(), AgentCommand.start);
+        assertEquals(0, result.size());
     }
 }
