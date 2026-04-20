@@ -197,4 +197,45 @@ public class AgentCommandWebSocketHandlerTest {
 
         assertFalse(handler.hasSession("i-123"));
     }
+
+    @Test
+    void testFrameBeforeHelloRejected() throws Exception {
+        // Send pong without hello first
+        AgentWsEnvelope pong = AgentWsEnvelope.pong("i-123", "sess-1", "ping-1", null);
+        handler.handleTextMessage(session, new TextMessage(pong.toJson()));
+
+        verify(session).close(CloseStatus.POLICY_VIOLATION);
+    }
+
+    @Test
+    void testIdentityRebindRejected() throws Exception {
+        // Register with one instanceId
+        AgentWsEnvelope hello1 = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello1.toJson()));
+        assertTrue(handler.hasSession("i-123"));
+
+        // Try to rebind same session to different instanceId
+        AgentWsEnvelope hello2 = AgentWsEnvelope.hello("i-999", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello2.toJson()));
+
+        // Session should be closed due to policy violation
+        verify(session).close(CloseStatus.POLICY_VIOLATION);
+        // Original identity should NOT be replaced
+        assertFalse(handler.hasSession("i-999"));
+    }
+
+    @Test
+    void testSameIdentityReHelloAllowed() throws Exception {
+        // Register
+        AgentWsEnvelope hello1 = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello1.toJson()));
+
+        // Re-hello with same instanceId on same session (e.g., agent restart detection)
+        AgentWsEnvelope hello2 = AgentWsEnvelope.hello("i-123", "job-1", "sess-2", null);
+        handler.handleTextMessage(session, new TextMessage(hello2.toJson()));
+
+        assertTrue(handler.hasSession("i-123"));
+        // Should NOT have been closed with policy violation
+        verify(session, never()).close(CloseStatus.POLICY_VIOLATION);
+    }
 }

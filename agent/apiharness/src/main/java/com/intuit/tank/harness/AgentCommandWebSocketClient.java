@@ -35,8 +35,11 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     private final String agentSessionId;
     private final HttpClient httpClient;
 
+    private static final int MAX_APPLIED_COMMAND_IDS = 10_000;
+
     private final AtomicReference<WebSocket> webSocketRef = new AtomicReference<>();
     private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean reconnecting = new AtomicBoolean(false);
     private final Set<String> appliedCommandIds = ConcurrentHashMap.newKeySet();
     private volatile String lastAppliedCommandId = null;
 
@@ -144,12 +147,7 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
         LOG.info(new ObjectMessage(Map.of("Message", "WS closed: code=" + statusCode + " reason=" + reason)));
         webSocketRef.set(null);
-        if (running.get()) {
-            // Reconnect
-            Thread reconnect = new Thread(this::connectWithRetry, "WS-Reconnect-" + instanceId);
-            reconnect.setDaemon(true);
-            reconnect.start();
-        }
+        scheduleReconnect();
         return null;
     }
 
@@ -157,8 +155,18 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     public void onError(WebSocket webSocket, Throwable error) {
         LOG.error(new ObjectMessage(Map.of("Message", "WS error for agent " + instanceId + ": " + error.getMessage())), error);
         webSocketRef.set(null);
-        if (running.get()) {
-            Thread reconnect = new Thread(this::connectWithRetry, "WS-Reconnect-" + instanceId);
+        scheduleReconnect();
+    }
+
+    private void scheduleReconnect() {
+        if (running.get() && reconnecting.compareAndSet(false, true)) {
+            Thread reconnect = new Thread(() -> {
+                try {
+                    connectWithRetry();
+                } finally {
+                    reconnecting.set(false);
+                }
+            }, "WS-Reconnect-" + instanceId);
             reconnect.setDaemon(true);
             reconnect.start();
         }
@@ -186,6 +194,12 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     private void handleCommand(WebSocket webSocket, AgentWsEnvelope envelope) {
         String commandId = envelope.getCommandId();
         String command = envelope.getCommand();
+
+        // Bound the dedup set to prevent unbounded growth
+        if (appliedCommandIds.size() > MAX_APPLIED_COMMAND_IDS) {
+            appliedCommandIds.clear();
+            LOG.info(new ObjectMessage(Map.of("Message", "Cleared appliedCommandIds set (exceeded " + MAX_APPLIED_COMMAND_IDS + ")")));
+        }
 
         // Deduplicate
         if (commandId != null && !appliedCommandIds.add(commandId)) {
@@ -218,7 +232,7 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
             case "pause" -> APITestHarness.getInstance().setCommand(AgentCommand.pause);
             case "pause_ramp" -> APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
             case "resume_ramp" -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
-            default -> LOG.warn(new ObjectMessage(Map.of("Message", "Unknown WS command: " + command)));
+            default -> throw new UnsupportedOperationException("Unknown WS command: " + command);
         }
     }
 

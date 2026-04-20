@@ -19,7 +19,9 @@ public class AgentCommandWebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         String path = new TankConfig().getAgentConfig().getCommandWsPath();
+        // Agents connect via JDK HttpClient (no Origin header), not browsers.
+        // Allow all origins since auth is handled via bearer token in handshake.
         registry.addHandler(agentCommandWebSocketHandler(), path)
-                .setAllowedOrigins("*");
+                .setAllowedOriginPatterns("*");
     }
 }

@@ -26,6 +26,9 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     // instanceId -> active WS session
     private final ConcurrentHashMap<String, WebSocketSession> agentSessions = new ConcurrentHashMap<>();
 
+    // sessionId -> bound instanceId (one identity per session, immutable after hello)
+    private final ConcurrentHashMap<String, String> sessionIdentity = new ConcurrentHashMap<>();
+
     // instanceId -> last seen timestamp
     private final ConcurrentHashMap<String, Long> agentLastSeen = new ConcurrentHashMap<>();
 
@@ -54,10 +57,17 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             return;
         }
 
+        // Require hello before any other frame type
+        if (envelope.getType() != Type.hello && !sessionIdentity.containsKey(session.getId())) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "WS frame received before hello, closing session")));
+            session.close(CloseStatus.POLICY_VIOLATION);
+            return;
+        }
+
         switch (envelope.getType()) {
             case hello -> handleHello(session, envelope);
-            case ack -> handleAck(envelope);
-            case pong -> handlePong(envelope);
+            case ack -> handleAck(session, envelope);
+            case pong -> handlePong(session, envelope);
             case close -> handleClose(session, envelope);
             default -> {
                 LOG.warn(new ObjectMessage(Map.of("Message", "Unexpected WS frame type from agent: " + envelope.getType())));
@@ -74,10 +84,23 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             return;
         }
 
-        // Replace old session if agent reconnects
+        // Check if this session already has a bound identity — reject rebind
+        String existingIdentity = sessionIdentity.get(session.getId());
+        if (existingIdentity != null && !existingIdentity.equals(instanceId)) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Session " + session.getId() + " already bound to " + existingIdentity
+                    + ", rejecting rebind to " + instanceId)));
+            session.close(CloseStatus.POLICY_VIOLATION);
+            return;
+        }
+
+        // Bind identity to session
+        sessionIdentity.put(session.getId(), instanceId);
+
+        // Replace old session if agent reconnects from a different connection
         WebSocketSession oldSession = agentSessions.put(instanceId, session);
-        if (oldSession != null && oldSession.isOpen()) {
+        if (oldSession != null && oldSession.isOpen() && !oldSession.getId().equals(session.getId())) {
             LOG.info(new ObjectMessage(Map.of("Message", "Replacing old WS session for agent " + instanceId)));
+            sessionIdentity.remove(oldSession.getId());
             try { oldSession.close(CloseStatus.GOING_AWAY); } catch (IOException ignored) {}
         }
 
@@ -88,7 +111,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         sendAck(session, instanceId, "hello", envelope.getAgentSessionId(), AckStatus.ok);
     }
 
-    private void handleAck(AgentWsEnvelope envelope) {
+    private void handleAck(WebSocketSession session, AgentWsEnvelope envelope) {
         String ackForId = envelope.getAckForId();
         if (ackForId != null) {
             CompletableFuture<AgentWsEnvelope> future = pendingAcks.remove(ackForId);
@@ -96,38 +119,45 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                 future.complete(envelope);
             }
         }
-        if (envelope.getInstanceId() != null) {
-            agentLastSeen.put(envelope.getInstanceId(), System.currentTimeMillis());
+        String boundId = sessionIdentity.get(session.getId());
+        if (boundId != null) {
+            agentLastSeen.put(boundId, System.currentTimeMillis());
         }
     }
 
-    private void handlePong(AgentWsEnvelope envelope) {
-        if (envelope.getInstanceId() != null) {
-            agentLastSeen.put(envelope.getInstanceId(), System.currentTimeMillis());
+    private void handlePong(WebSocketSession session, AgentWsEnvelope envelope) {
+        String boundId = sessionIdentity.get(session.getId());
+        if (boundId != null) {
+            agentLastSeen.put(boundId, System.currentTimeMillis());
         }
     }
 
     private void handleClose(WebSocketSession session, AgentWsEnvelope envelope) throws IOException {
-        String instanceId = envelope.getInstanceId();
-        LOG.info(new ObjectMessage(Map.of("Message", "Agent " + instanceId + " sent close: " + envelope.getReason())));
-        if (instanceId != null) {
-            agentSessions.remove(instanceId, session);
-            agentLastSeen.remove(instanceId);
+        String boundId = sessionIdentity.remove(session.getId());
+        if (boundId != null) {
+            LOG.info(new ObjectMessage(Map.of("Message", "Agent " + boundId + " sent close: " + envelope.getReason())));
+            agentSessions.remove(boundId, session);
+            agentLastSeen.remove(boundId);
         }
         session.close(CloseStatus.NORMAL);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        // Remove session from registry
-        agentSessions.entrySet().removeIf(entry -> entry.getValue().equals(session));
+        String boundId = sessionIdentity.remove(session.getId());
+        if (boundId != null) {
+            agentSessions.remove(boundId, session);
+        }
         LOG.info(new ObjectMessage(Map.of("Message", "WS session closed: " + session.getId() + " status=" + status)));
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
         LOG.error(new ObjectMessage(Map.of("Message", "WS transport error for session " + session.getId() + ": " + exception.getMessage())), exception);
-        agentSessions.entrySet().removeIf(entry -> entry.getValue().equals(session));
+        String boundId = sessionIdentity.remove(session.getId());
+        if (boundId != null) {
+            agentSessions.remove(boundId, session);
+        }
     }
 
     @Override

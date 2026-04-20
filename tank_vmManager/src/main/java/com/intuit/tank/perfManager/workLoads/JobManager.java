@@ -232,20 +232,25 @@ public class JobManager implements Serializable {
                     String instanceId = agentData.getInstanceId();
 
                     // Try WS first if enabled
-                    if (wsEnabled && wsSender != null && wsSender.hasSession(instanceId)) {
-                        boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
-                        if (acked) {
-                            LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
-                            return;
-                        }
-                        LOG.warn(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed, " +
-                                (httpFallback ? "falling back to HTTP" : "no fallback"))));
-                        if (!httpFallback) {
+                    if (wsEnabled && wsSender != null) {
+                        if (wsSender.hasSession(instanceId)) {
+                            boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
+                            if (acked) {
+                                LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
+                                return;
+                            }
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed, " +
+                                    (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                            if (!httpFallback) {
+                                return;
+                            }
+                        } else if (!httpFallback) {
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + instanceId + " and fallback disabled, skipping")));
                             return;
                         }
                     }
 
-                    // HTTP fallback
+                    // HTTP fallback (or WS not enabled)
                     String url = agentData.getInstanceUrl() + AgentCommand.start.getPath();
                     LOG.info(new ObjectMessage(Map.of("Message", "Sending command to url " + url)));
                     CompletableFuture<?> future = sendCommand(URI.create(url), MAX_RETRIES);
@@ -332,10 +337,14 @@ public class JobManager implements Serializable {
                             if (!httpFallback) {
                                 return CompletableFuture.completedFuture(null);
                             }
+                        } else if (!httpFallback) {
+                            // WS enabled, no session, no fallback — skip this agent
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + matchedInstanceId + " and fallback disabled, skipping")));
+                            return CompletableFuture.completedFuture(null);
                         }
                     }
 
-                    // HTTP fallback (or WS not enabled/available)
+                    // HTTP fallback (or WS not enabled)
                     URI uri = URI.create(instanceUrl + cmd.getPath());
                     return sendCommand(uri, 0);
                 })
