@@ -147,6 +147,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         String boundId = sessionIdentity.remove(session.getId());
         if (boundId != null) {
             agentSessions.remove(boundId, session);
+            agentLastSeen.remove(boundId);
         }
         LOG.info(new ObjectMessage(Map.of("Message", "WS session closed: " + session.getId() + " status=" + status)));
     }
@@ -157,6 +158,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         String boundId = sessionIdentity.remove(session.getId());
         if (boundId != null) {
             agentSessions.remove(boundId, session);
+            agentLastSeen.remove(boundId);
         }
     }
 

@@ -232,8 +232,8 @@ public class JobManager implements Serializable {
                     String instanceId = agentData.getInstanceId();
 
                     // Try WS first if enabled
-                    if (wsEnabled && wsSender != null) {
-                        if (wsSender.hasSession(instanceId)) {
+                    if (wsEnabled) {
+                        if (wsSender != null && wsSender.hasSession(instanceId)) {
                             boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
                             if (acked) {
                                 LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
@@ -245,7 +245,9 @@ public class JobManager implements Serializable {
                                 return;
                             }
                         } else if (!httpFallback) {
-                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + instanceId + " and fallback disabled, skipping")));
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but " +
+                                    (wsSender == null ? "sender unavailable" : "no session") +
+                                    " for agent " + instanceId + " and fallback disabled, skipping")));
                             return;
                         }
                     }
@@ -324,22 +326,28 @@ public class JobManager implements Serializable {
                     }
 
                     // Try WS first if enabled
-                    if (wsEnabled && wsSender != null && matchedInstanceId != null) {
-                        String jobId = instanceJobMap.get(matchedInstanceId);
-                        if (jobId != null && wsSender.hasSession(matchedInstanceId)) {
-                            boolean acked = wsSender.sendCommand(matchedInstanceId, jobId, cmd.name(), ackTimeout);
-                            if (acked) {
-                                LOG.info(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " succeeded")));
-                                return CompletableFuture.completedFuture(null);
-                            }
-                            LOG.warn(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " failed, " +
-                                    (httpFallback ? "falling back to HTTP" : "no fallback"))));
-                            if (!httpFallback) {
+                    if (wsEnabled) {
+                        if (wsSender != null && matchedInstanceId != null) {
+                            String jobId = instanceJobMap.get(matchedInstanceId);
+                            if (jobId != null && wsSender.hasSession(matchedInstanceId)) {
+                                boolean acked = wsSender.sendCommand(matchedInstanceId, jobId, cmd.name(), ackTimeout);
+                                if (acked) {
+                                    LOG.info(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " succeeded")));
+                                    return CompletableFuture.completedFuture(null);
+                                }
+                                LOG.warn(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " failed, " +
+                                        (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                                if (!httpFallback) {
+                                    return CompletableFuture.completedFuture(null);
+                                }
+                            } else if (!httpFallback) {
+                                LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + matchedInstanceId + " and fallback disabled, skipping")));
                                 return CompletableFuture.completedFuture(null);
                             }
                         } else if (!httpFallback) {
-                            // WS enabled, no session, no fallback — skip this agent
-                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + matchedInstanceId + " and fallback disabled, skipping")));
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but " +
+                                    (wsSender == null ? "sender unavailable" : "no matched instanceId") +
+                                    " and fallback disabled, skipping")));
                             return CompletableFuture.completedFuture(null);
                         }
                     }
