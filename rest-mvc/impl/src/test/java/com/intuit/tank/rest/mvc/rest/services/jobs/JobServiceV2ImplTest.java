@@ -883,171 +883,45 @@ class JobServiceV2ImplTest {
 
     @Test
     void addJobToQueue_customJobInstanceName_usesCustomName() throws Exception {
-        Script loadedScript = createScript("loaded-script", 11);
-        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
-        Project project = createProject(loadedWorkload);
         CreateJobRequest request = createRequest();
         setField(request, "jobInstanceName", "my-custom-job-name");
-        JobQueue queue = new JobQueue(project.getId());
 
-        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
-             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
-             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
-             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
-                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
-             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
-                     (mock, context) -> {
-                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
-                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
-                     });
-             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
-             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
-                         JobInstance savedJob = invocation.getArgument(0);
-                         savedJob.setId(123);
-                         return savedJob;
-                     }));
-             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
-             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+        JobInstance createdJob = runAddJobToQueue(request);
 
-            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
-                    .thenReturn("job-details");
-            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
-                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
-
-            JobInstance createdJob = JobServiceV2Impl.addJobToQueue(project, request);
-
-            assertEquals("my-custom-job-name", createdJob.getName());
-        }
+        assertEquals("my-custom-job-name", createdJob.getName());
     }
 
     @Test
     void addJobToQueue_increasingWorkloadType_usesUsersInName() throws Exception {
-        Script loadedScript = createScript("loaded-script", 11);
-        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
-        Project project = createProject(loadedWorkload);
         CreateJobRequest request = createRequest();
         setField(request, "workloadType", IncrementStrategy.increasing);
-        // no custom jobInstanceName - use generated
-        JobQueue queue = new JobQueue(project.getId());
 
-        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
-             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
-             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
-             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
-                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
-             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
-                     (mock, context) -> {
-                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
-                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
-                     });
-             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
-             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
-                         JobInstance savedJob = invocation.getArgument(0);
-                         savedJob.setId(124);
-                         return savedJob;
-                     }));
-             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
-             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+        JobInstance createdJob = runAddJobToQueue(request);
 
-            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
-                    .thenReturn("job-details");
-            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
-                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
-
-            JobInstance createdJob = JobServiceV2Impl.addJobToQueue(project, request);
-
-            // Name should contain "_users_" for increasing workload type
-            assertTrue(createdJob.getName().contains("_users_"));
-            assertTrue(createdJob.getName().startsWith("project-name"));
-        }
+        assertTrue(createdJob.getName().contains("_users_"));
+        assertTrue(createdJob.getName().startsWith("project-name"));
     }
 
     @Test
     void addJobToQueue_standardWorkloadType_usesNonlinearInName() throws Exception {
-        Script loadedScript = createScript("loaded-script", 11);
-        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
-        Project project = createProject(loadedWorkload);
         CreateJobRequest request = createRequest();
         setField(request, "workloadType", IncrementStrategy.standard);
-        setField(request, "projectName", null); // use project's own name
-        JobQueue queue = new JobQueue(project.getId());
+        setField(request, "projectName", null);
 
-        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
-             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
-             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
-             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
-                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
-             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
-                     (mock, context) -> {
-                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
-                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
-                     });
-             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
-             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
-                         JobInstance savedJob = invocation.getArgument(0);
-                         savedJob.setId(125);
-                         return savedJob;
-                     }));
-             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
-             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+        JobInstance createdJob = runAddJobToQueue(request);
 
-            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
-                    .thenReturn("job-details");
-            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
-                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
-
-            JobInstance createdJob = JobServiceV2Impl.addJobToQueue(project, request);
-
-            assertTrue(createdJob.getName().contains("_nonlinear_"));
-            assertTrue(createdJob.getName().startsWith("project-name"));
-        }
+        assertTrue(createdJob.getName().contains("_nonlinear_"));
+        assertTrue(createdJob.getName().startsWith("project-name"));
     }
 
     @Test
     void addJobToQueue_requestProjectName_overridesProjectName() throws Exception {
-        Script loadedScript = createScript("loaded-script", 11);
-        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
-        Project project = createProject(loadedWorkload);
         CreateJobRequest request = new CreateJobRequest("custom-project-name");
         setField(request, "workloadType", IncrementStrategy.standard);
-        JobQueue queue = new JobQueue(project.getId());
 
-        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
-             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
-             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
-             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
-                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
-             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
-                     (mock, context) -> {
-                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
-                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
-                     });
-             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
-             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
-                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
-                         JobInstance savedJob = invocation.getArgument(0);
-                         savedJob.setId(126);
-                         return savedJob;
-                     }));
-             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
-             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+        JobInstance createdJob = runAddJobToQueue(request);
 
-            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
-                    .thenReturn("job-details");
-            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
-                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
-
-            JobInstance createdJob = JobServiceV2Impl.addJobToQueue(project, request);
-
-            assertTrue(createdJob.getName().startsWith("custom-project-name"));
-        }
+        assertTrue(createdJob.getName().startsWith("custom-project-name"));
     }
 
     // =====================================================================
@@ -1231,6 +1105,42 @@ class JobServiceV2ImplTest {
 
     private static Script getOnlyScript(Workload workload) {
         return workload.getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).getScript();
+    }
+
+    private static JobInstance runAddJobToQueue(CreateJobRequest request) {
+        Script loadedScript = createScript("loaded-script", 11);
+        Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
+        Project project = createProject(loadedWorkload);
+        JobQueue queue = new JobQueue(project.getId());
+
+        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
+             MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
+             MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
+             MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,
+                     (mock, context) -> when(mock.getDurationMs(anyString())).thenReturn(0L));
+             MockedConstruction<JobQueueDao> ignoredJobQueueDao = Mockito.mockConstruction(JobQueueDao.class,
+                     (mock, context) -> {
+                         when(mock.findOrCreateForProjectId(anyInt())).thenReturn(queue);
+                         when(mock.saveOrUpdate(any(JobQueue.class))).thenReturn(queue);
+                     });
+             MockedConstruction<WorkloadDao> ignoredWorkloadDao = Mockito.mockConstruction(WorkloadDao.class,
+                     (mock, context) -> when(mock.saveOrUpdate(any(Workload.class))).thenAnswer(invocation -> invocation.getArgument(0)));
+             MockedConstruction<JobInstanceDao> ignoredJobInstanceDao = Mockito.mockConstruction(JobInstanceDao.class,
+                     (mock, context) -> when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(invocation -> {
+                         JobInstance savedJob = invocation.getArgument(0);
+                         savedJob.setId(123);
+                         return savedJob;
+                     }));
+             MockedConstruction<DataFileDao> ignoredDataFileDao = Mockito.mockConstruction(DataFileDao.class);
+             MockedConstruction<JobNotificationDao> ignoredJobNotificationDao = Mockito.mockConstruction(JobNotificationDao.class)) {
+
+            jobDetailFormatter.when(() -> JobDetailFormatter.createJobDetails(any(JobValidator.class), any(Workload.class), any(JobInstance.class)))
+                    .thenReturn("job-details");
+            testParamUtil.when(() -> TestParamUtil.evaluateTestTimes(anyLong(), anyString(), anyString()))
+                    .thenReturn(TestParameterContainer.builder().withRampTime(0L).withSimulationTime(0L).build());
+
+            return JobServiceV2Impl.addJobToQueue(project, request);
+        }
     }
 
     private static CreateJobRequest createRequest() throws Exception {

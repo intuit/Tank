@@ -41,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("unchecked")
 class AgentServiceV2ImplTest {
 
     @InjectMocks
@@ -212,7 +211,7 @@ class AgentServiceV2ImplTest {
         JobManager mockJobManager = mock(JobManager.class);
         when(mockJobManager.registerAgentForJob(agentData)).thenReturn(startData);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobManager.class))).thenReturn(mockJobManager))) {
 
             AgentTestStartData result = service.agentReady(agentData);
@@ -225,7 +224,7 @@ class AgentServiceV2ImplTest {
     void agentReady_throwsOnRegistrationError() {
         AgentData agentData = new AgentData();
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobManager.class)))
                         .thenThrow(new RuntimeException("CDI error")))) {
 
@@ -242,7 +241,7 @@ class AgentServiceV2ImplTest {
         AgentAvailability availability = mock(AgentAvailability.class);
         StandaloneAgentTracker tracker = mock(StandaloneAgentTracker.class);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(StandaloneAgentTracker.class)))
                         .thenReturn(tracker))) {
 
@@ -256,7 +255,7 @@ class AgentServiceV2ImplTest {
     void setStandaloneAgentAvailability_throwsOnError() {
         AgentAvailability availability = mock(AgentAvailability.class);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(StandaloneAgentTracker.class)))
                         .thenThrow(new RuntimeException("CDI error")))) {
 
@@ -277,7 +276,7 @@ class AgentServiceV2ImplTest {
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -291,7 +290,7 @@ class AgentServiceV2ImplTest {
 
     @Test
     void getInstanceStatus_throwsOnError() {
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenThrow(new RuntimeException("not found")))) {
 
@@ -310,7 +309,7 @@ class AgentServiceV2ImplTest {
                 VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -325,7 +324,7 @@ class AgentServiceV2ImplTest {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
                 VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenThrow(new RuntimeException("error")))) {
 
@@ -345,7 +344,7 @@ class AgentServiceV2ImplTest {
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -358,7 +357,7 @@ class AgentServiceV2ImplTest {
 
     @Test
     void stopInstance_throwsOnError() {
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenThrow(new RuntimeException("error")))) {
 
@@ -378,7 +377,7 @@ class AgentServiceV2ImplTest {
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -400,7 +399,7 @@ class AgentServiceV2ImplTest {
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -422,7 +421,7 @@ class AgentServiceV2ImplTest {
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenReturn(mockSender))) {
 
@@ -435,7 +434,7 @@ class AgentServiceV2ImplTest {
 
     @Test
     void killInstance_throwsOnError() {
-        try (@SuppressWarnings("rawtypes") MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
                         .thenThrow(new RuntimeException("error")))) {
 

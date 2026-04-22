@@ -439,10 +439,7 @@ class UserAutoDeletionServiceTest {
 
     @Test
     void performStartupUserDeletion_retentionDaysFromSystemProperty() {
-        String originalProp = System.getProperty("tank.user.auto-deletion.retention-days");
-        try {
-            System.setProperty("tank.user.auto-deletion.retention-days", "365");
-
+        withSystemProperty("tank.user.auto-deletion.retention-days", "365", () -> {
             try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
                          (mock, ctx) -> {
                              when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
@@ -451,35 +448,24 @@ class UserAutoDeletionServiceTest {
                          });
                  MockedConstruction<UserDao> userDaoMock = Mockito.mockConstruction(UserDao.class,
                          (mock, ctx) -> {
-                             // The service should use 365 (from sys prop), not 730 (from TankConfig)
                              when(mock.countUsersEligibleForDeletion(365)).thenReturn(0L);
                          })) {
 
                 UserAutoDeletionService service = new UserAutoDeletionService();
                 service.performStartupUserDeletion();
 
-                // Verify the DAO was queried with the system property value (365)
                 for (UserDao dao : userDaoMock.constructed()) {
                     verify(dao, atMost(1)).countUsersEligibleForDeletion(365);
                 }
             }
-        } finally {
-            if (originalProp == null) {
-                System.clearProperty("tank.user.auto-deletion.retention-days");
-            } else {
-                System.setProperty("tank.user.auto-deletion.retention-days", originalProp);
-            }
-        }
+        });
     }
 
     @Test
     void performStartupUserDeletion_enabledViaSystemProperty() {
-        String originalProp = System.getProperty("tank.user.auto-deletion.enabled");
-        try {
-            System.setProperty("tank.user.auto-deletion.enabled", "true");
+        User user = createUser(1, "testUser", false);
 
-            User user = createUser(1, "testUser", false);
-
+        withSystemProperty("tank.user.auto-deletion.enabled", "true", () -> {
             try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
                          (mock, ctx) -> {
                              when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
@@ -499,7 +485,6 @@ class UserAutoDeletionServiceTest {
                 UserAutoDeletionService service = new UserAutoDeletionService();
                 service.performStartupUserDeletion();
 
-                // Should have attempted deletion since enabled via system property
                 boolean deleteWasCalled = false;
                 for (UserDao dao : userDaoMock.constructed()) {
                     try {
@@ -511,21 +496,12 @@ class UserAutoDeletionServiceTest {
                 }
                 assertTrue(deleteWasCalled, "Deletion should proceed when enabled via system property");
             }
-        } finally {
-            if (originalProp == null) {
-                System.clearProperty("tank.user.auto-deletion.enabled");
-            } else {
-                System.setProperty("tank.user.auto-deletion.enabled", originalProp);
-            }
-        }
+        });
     }
 
     @Test
     void performStartupUserDeletion_invalidRetentionDaysSysProp_fallsBackToTankConfig() {
-        String originalProp = System.getProperty("tank.user.auto-deletion.retention-days");
-        try {
-            System.setProperty("tank.user.auto-deletion.retention-days", "not-a-number");
-
+        withSystemProperty("tank.user.auto-deletion.retention-days", "not-a-number", () -> {
             try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
                          (mock, ctx) -> {
                              when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
@@ -534,20 +510,13 @@ class UserAutoDeletionServiceTest {
                          });
                  MockedConstruction<UserDao> userDaoMock = Mockito.mockConstruction(UserDao.class,
                          (mock, ctx) -> {
-                             // Should fall back to TankConfig value of 730
                              when(mock.countUsersEligibleForDeletion(730)).thenReturn(0L);
                          })) {
 
                 UserAutoDeletionService service = new UserAutoDeletionService();
                 assertDoesNotThrow(() -> service.performStartupUserDeletion());
             }
-        } finally {
-            if (originalProp == null) {
-                System.clearProperty("tank.user.auto-deletion.retention-days");
-            } else {
-                System.setProperty("tank.user.auto-deletion.retention-days", originalProp);
-            }
-        }
+        });
     }
 
     // =====================================================================
@@ -583,6 +552,20 @@ class UserAutoDeletionServiceTest {
     // =====================================================================
     // Helper methods
     // =====================================================================
+
+    private static void withSystemProperty(String key, String value, Runnable action) {
+        String original = System.getProperty(key);
+        System.setProperty(key, value);
+        try {
+            action.run();
+        } finally {
+            if (original == null) {
+                System.clearProperty(key);
+            } else {
+                System.setProperty(key, original);
+            }
+        }
+    }
 
     private static User createUser(int id, String name, boolean neverLoggedIn) {
         Instant now = Instant.now();

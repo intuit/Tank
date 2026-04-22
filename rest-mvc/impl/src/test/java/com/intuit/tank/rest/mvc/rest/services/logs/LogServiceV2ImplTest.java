@@ -1,6 +1,7 @@
 package com.intuit.tank.rest.mvc.rest.services.logs;
 
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,15 +19,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LogServiceV2ImplTest {
 
+    private static final String TEST_LOG_FILENAME = "test-log-for-coverage.log";
+
     @InjectMocks
     private LogServiceV2Impl service;
 
     @Mock
     private ServletContext servletContext;
 
+    private File testFile;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (testFile != null && testFile.exists()) {
+            testFile.delete();
+        }
     }
 
     @Test
@@ -49,29 +61,24 @@ class LogServiceV2ImplTest {
 
     @Test
     void getFile_handlesNullStart() {
-        // Should default start to "0" and throw because file doesn't exist
         assertThrows(GenericServiceResourceNotFoundException.class,
                 () -> service.getFile("nonexistent.log", null));
     }
 
     @Test
     void getFile_readsExistingFile() throws IOException {
-        // Create a real "logs" directory with a test file
         File logsDir = new File("logs");
         logsDir.mkdirs();
-        File testFile = new File(logsDir, "test-log-for-coverage.log");
-        try {
-            Files.writeString(testFile.toPath(), "log line 1\nlog line 2\n");
+        testFile = new File(logsDir, TEST_LOG_FILENAME);
+        Files.writeString(testFile.toPath(), "log line 1\nlog line 2\n");
 
-            StreamingResponseBody body = service.getFile("test-log-for-coverage.log", "0");
-            assertNotNull(body);
+        StreamingResponseBody body = service.getFile(TEST_LOG_FILENAME, "0");
+        assertNotNull(body);
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            body.writeTo(out);
-            String content = out.toString();
-            assertTrue(content.contains("log line"));
-        } finally {
-            testFile.delete();
-        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        body.writeTo(out);
+        String content = out.toString();
+        assertTrue(content.contains("log line 1"));
+        assertTrue(content.contains("log line 2"));
     }
 }
