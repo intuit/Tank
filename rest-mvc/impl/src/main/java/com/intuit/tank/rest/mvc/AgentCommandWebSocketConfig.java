@@ -13,7 +13,9 @@ public class AgentCommandWebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public AgentCommandWebSocketHandler agentCommandWebSocketHandler() {
-        return new AgentCommandWebSocketHandler();
+        AgentCommandWebSocketHandler handler = new AgentCommandWebSocketHandler();
+        AgentWsCommandSenderHolder.set(handler);
+        return handler;
     }
 
     @Override
