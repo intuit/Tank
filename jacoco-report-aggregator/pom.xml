@@ -72,6 +72,13 @@
 
     <dependency>
       <groupId>com.intuit.tank</groupId>
+      <artifactId>tank-rest-api-impl</artifactId>
+      <scope>compile</scope>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.intuit.tank</groupId>
       <artifactId>tank-script-processor</artifactId>
       <scope>compile</scope>
       <version>${project.version}</version>
