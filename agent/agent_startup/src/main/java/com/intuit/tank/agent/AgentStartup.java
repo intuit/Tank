@@ -54,42 +54,48 @@ public class AgentStartup implements Runnable {
         logger.info("Starting up...");
         HttpClient client = HttpClient.newHttpClient();
         try {
+            boolean controllerInitiatedWsEnabled = Boolean.parseBoolean(
+                    AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_CONTROLLER_INITIATED_WS_ENABLED, "false"));
             logger.info("Starting up: ControllerBaseUrl={}", controllerBaseUrl);
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
-                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
-                    .header("Authorization", "bearer "+token).build();
-            logger.info("Starting up: making call to tank service url to get settings.xml {} {} {}",
-                    controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
-            client.send(request, BodyHandlers.ofFile(Paths.get(TANK_AGENT_DIR, "settings.xml")));
-            logger.info("got settings file...");
-            // Download Support Files
-            request = HttpRequest.newBuilder().uri(URI.create(
-                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
-                    .header("Authorization", "bearer "+token).build();
-            logger.info("Making call to tank service url to get support files {} {} {}",
-                    controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
-            int retryCount = 0;
-            while (true) {
-                try (ZipInputStream zip = new ZipInputStream(
-                        client.send(request, BodyHandlers.ofInputStream()).body())) {
-                    ZipEntry entry = zip.getNextEntry();
-                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
-                    while (entry != null) {
-                        String filename = entry.getName();
-                        logger.info("Got file from controller: {}", filename);
-                        Path targetPath = agentDirPath.resolve(filename).normalize();
-                        if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
-                            throw new ZipException("Bad zip entry");
-                        Files.write(targetPath, zip.readAllBytes());
-                        entry = zip.getNextEntry();
+            if (!controllerInitiatedWsEnabled) {
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
+                        controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
+                        .header("Authorization", "bearer "+token).build();
+                logger.info("Starting up: making call to tank service url to get settings.xml {} {} {}",
+                        controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
+                client.send(request, BodyHandlers.ofFile(Paths.get(TANK_AGENT_DIR, "settings.xml")));
+                logger.info("got settings file...");
+                // Download Support Files
+                request = HttpRequest.newBuilder().uri(URI.create(
+                        controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
+                        .header("Authorization", "bearer "+token).build();
+                logger.info("Making call to tank service url to get support files {} {} {}",
+                        controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
+                int retryCount = 0;
+                while (true) {
+                    try (ZipInputStream zip = new ZipInputStream(
+                            client.send(request, BodyHandlers.ofInputStream()).body())) {
+                        ZipEntry entry = zip.getNextEntry();
+                        Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
+                        while (entry != null) {
+                            String filename = entry.getName();
+                            logger.info("Got file from controller: {}", filename);
+                            Path targetPath = agentDirPath.resolve(filename).normalize();
+                            if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
+                                throw new ZipException("Bad zip entry");
+                            Files.write(targetPath, zip.readAllBytes());
+                            entry = zip.getNextEntry();
+                        }
+                        break;
+                    } catch (EOFException | ZipException e) {
+                        logger.error("Error unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
+                        if (retryCount < FIBONACCI.length) {
+                            Thread.sleep( FIBONACCI[retryCount++] * 1000 );
+                        } else throw e;
                     }
-                    break;
-                } catch (EOFException | ZipException e) {
-                    logger.error("Error unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
-                    if (retryCount < FIBONACCI.length) {
-                        Thread.sleep( FIBONACCI[retryCount++] * 1000 );
-                    } else throw e;
                 }
+            } else {
+                logger.info("Controller-initiated WS mode enabled - skipping settings/support download from controller.");
             }
             // now start the harness
             String controllerArg = " -http=" + controllerBaseUrl;

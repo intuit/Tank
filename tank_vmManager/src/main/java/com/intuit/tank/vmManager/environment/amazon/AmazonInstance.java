@@ -184,6 +184,12 @@ public class AmazonInstance implements IEnvironmentInstance {
                 instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
                 instanceRequest.addUserData(TankConstants.KEY_AGENT_TOKEN, config.getAgentConfig().getAgentToken());
                 instanceRequest.addUserData(TankConstants.KEY_NUM_USERS_PER_AGENT, Integer.toString(instanceRequest.getNumUsersPerAgent()));
+                instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_INITIATED_WS_ENABLED,
+                        Boolean.toString(config.getAgentConfig().isControllerInitiatedWsEnabled()));
+                instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP,
+                        Boolean.toString(config.getAgentConfig().isControllerInitiatedWsDisableAgentHttp()));
+                instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH,
+                        config.getAgentConfig().getControllerInitiatedWsScriptPath());
 
                 if (instanceRequest.isUseEips()) {
                     instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());

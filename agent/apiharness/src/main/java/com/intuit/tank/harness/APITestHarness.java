@@ -105,6 +105,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+    private AgentCommandWebSocketServer controllerInitiatedWsServer;
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -226,6 +227,39 @@ public class APITestHarness {
         }
     }
 
+    public boolean isControllerInitiatedWsModeEnabled() {
+        try {
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_ENABLED);
+            if (StringUtils.isNotBlank(value)) {
+                return Boolean.parseBoolean(value);
+            }
+        } catch (Exception ignored) {
+        }
+        return tankConfig.getAgentConfig().isControllerInitiatedWsEnabled();
+    }
+
+    private boolean isControllerInitiatedWsDisableAgentHttpEnabled() {
+        try {
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP);
+            if (StringUtils.isNotBlank(value)) {
+                return Boolean.parseBoolean(value);
+            }
+        } catch (Exception ignored) {
+        }
+        return tankConfig.getAgentConfig().isControllerInitiatedWsDisableAgentHttp();
+    }
+
+    private String getControllerInitiatedWsScriptPath() {
+        try {
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH);
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
+        } catch (Exception ignored) {
+        }
+        return tankConfig.getAgentConfig().getControllerInitiatedWsScriptPath();
+    }
+
     private String getLocalInstanceId() {
         isLocal = true;
         try {
@@ -255,7 +289,12 @@ public class APITestHarness {
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
-        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        boolean controllerInitiatedWsMode = isControllerInitiatedWsModeEnabled();
+        boolean controllerInitiatedWsDisableAgentHttp = isControllerInitiatedWsDisableAgentHttpEnabled();
+
+        if (!controllerInitiatedWsMode || !controllerInitiatedWsDisableAgentHttp) {
+            CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        }
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
         String instanceUrl = null;
@@ -290,6 +329,42 @@ public class APITestHarness {
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
+
+        if (controllerInitiatedWsMode && controllerInitiatedWsDisableAgentHttp) {
+            try {
+                if (controllerInitiatedWsServer == null) {
+                    controllerInitiatedWsServer = new AgentCommandWebSocketServer(
+                            tankConfig.getAgentConfig().getAgentPort(),
+                            instanceId,
+                            agentRunData.getJobId(),
+                            capacity);
+                    controllerInitiatedWsServer.start();
+                }
+
+                String scriptPath = getControllerInitiatedWsScriptPath();
+                if (StringUtils.isNotBlank(scriptPath) && new File(scriptPath).exists()) {
+                    LOG.info(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode loading script from " + scriptPath)));
+                    TestPlanSingleton.getInstance().setTestPlans(scriptPath);
+                } else if (StringUtils.isNotBlank(testPlans) && AgentUtil.validateTestPlans(testPlans)) {
+                    LOG.info(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode loading script from args " + testPlans)));
+                    TestPlanSingleton.getInstance().setTestPlans(testPlans);
+                } else {
+                    LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode has no valid local script path configured. Awaiting controller command anyway.")));
+                }
+
+                Thread thread = new Thread(new StartedChecker());
+                thread.setName("StartedChecker");
+                thread.setDaemon(false);
+                thread.start();
+                return;
+            } catch (Exception e) {
+                LOG.error("Error starting controller-initiated WS mode: " + e, e);
+                System.exit(0);
+            }
+        } else if (controllerInitiatedWsMode) {
+            LOG.warn(new ObjectMessage(Map.of("Message",
+                    "Controller-initiated WS is enabled but HTTP disable flag is false; running legacy HTTP lifecycle path")));
+        }
 
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 AmazonUtil.getVMRegion(), AmazonUtil.getZone());

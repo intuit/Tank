@@ -58,6 +58,9 @@ public class TankConstants {
     public static final String KEY_JVM_ARGS = "jvmArgs";
     public static final String KEY_AWS_SECRET_KEY_ID = "AWS_SECRET_KEY_ID";
     public static final String KEY_AWS_SECRET_KEY = "AWS_SECRET_KEY";
+    public static final String KEY_CONTROLLER_INITIATED_WS_ENABLED = "controllerInitiatedWsEnabled";
+    public static final String KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP = "controllerInitiatedWsDisableAgentHttp";
+    public static final String KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH = "controllerInitiatedWsScriptPath";
 
     public static final String HTTP_CASE_SKIP = "SKIP";
     public static final String HTTP_CASE_SKIPGROUP = "SKIPGROUP";

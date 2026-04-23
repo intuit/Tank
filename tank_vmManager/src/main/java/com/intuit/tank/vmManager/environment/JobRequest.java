@@ -15,11 +15,13 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
@@ -29,6 +31,12 @@ import com.intuit.tank.dao.VMImageDao;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.agent.messages.AgentData;
+import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
+import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient;
+import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMInstanceRequest;
@@ -43,10 +51,24 @@ public class JobRequest implements Runnable {
 
     private VMJobRequest request = null;
     private VMTracker vmTracker;
+    private ControllerInitiatedAgentWsClient controllerInitiatedAgentWsClient;
+    private JobManager jobManager;
+    private TankConfig tankConfig;
 
     public JobRequest(VMJobRequest request, VMTracker tracker) {
+        this(request, tracker, null, null, new TankConfig());
+    }
+
+    public JobRequest(VMJobRequest request,
+                      VMTracker tracker,
+                      ControllerInitiatedAgentWsClient controllerInitiatedAgentWsClient,
+                      JobManager jobManager,
+                      TankConfig tankConfig) {
         this.request = request;
         this.vmTracker = tracker;
+        this.controllerInitiatedAgentWsClient = controllerInitiatedAgentWsClient;
+        this.jobManager = jobManager;
+        this.tankConfig = tankConfig;
     }
 
     @Override
@@ -95,6 +117,7 @@ public class JobRequest implements Runnable {
                     "publicIp", info.getPublicIp() != null ? info.getPublicIp() : "N/A",
                     "privateIp", info.getPrivateIp() != null ? info.getPrivateIp() : "N/A"
                 )));
+                registerReadyViaControllerInitiatedWs(instanceRequest, info);
             } catch (Exception e) {
                 logger.warn(new ObjectMessage(Map.of("Message", "Error persisting VM Image: " + e)), e);
             }
@@ -102,6 +125,88 @@ public class JobRequest implements Runnable {
         Thread thread = new Thread(watchDog);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void registerReadyViaControllerInitiatedWs(VMInstanceRequest instanceRequest, VMInformation info) {
+        if (controllerInitiatedAgentWsClient == null || jobManager == null || tankConfig == null) {
+            return;
+        }
+        if (!tankConfig.getAgentConfig().isControllerInitiatedWsEnabled()) {
+            return;
+        }
+
+        String wsUrl = buildWsUrl(instanceRequest, info);
+        if (StringUtils.isBlank(wsUrl)) {
+            logger.warn("Unable to build controller-initiated WS URL for {}", info.getInstanceId());
+            return;
+        }
+
+        Optional<AgentWsEnvelope> hello = Optional.empty();
+        int attempts = 0;
+        while (hello.isEmpty() && attempts < 8) {
+            attempts++;
+            hello = controllerInitiatedAgentWsClient.connect(
+                    info.getInstanceId(),
+                    wsUrl,
+                    tankConfig.getAgentConfig().getAgentToken(),
+                    10000L);
+            if (hello.isPresent()) {
+                break;
+            }
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        if (hello.isEmpty()) {
+            logger.warn("Controller-initiated WS hello not received for {}", info.getInstanceId());
+            return;
+        }
+
+        int capacity = hello.get().getCapacity() != null ? hello.get().getCapacity() : instanceRequest.getNumUsersPerAgent();
+        String instanceUrl = buildHttpUrl(instanceRequest, info);
+        AgentData agentData = new AgentData(instanceRequest.getJobId(), info.getInstanceId(), instanceUrl,
+                capacity, instanceRequest.getRegion(), "unknown");
+        jobManager.registerAgentForJob(agentData);
+    }
+
+    private String buildWsUrl(VMInstanceRequest instanceRequest, VMInformation info) {
+        String host = selectHostForRegion(instanceRequest.getRegion(), info);
+        if (StringUtils.isBlank(host)) {
+            return null;
+        }
+        String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
+        if (!wsPath.startsWith("/")) {
+            wsPath = "/" + wsPath;
+        }
+        return "ws://" + host + ":" + tankConfig.getAgentConfig().getAgentPort() + wsPath;
+    }
+
+    private String buildHttpUrl(VMInstanceRequest instanceRequest, VMInformation info) {
+        String host = selectHostForRegion(instanceRequest.getRegion(), info);
+        if (StringUtils.isBlank(host)) {
+            host = "localhost";
+        }
+        return "http://" + host + ":" + tankConfig.getAgentConfig().getAgentPort();
+    }
+
+    private String selectHostForRegion(VMRegion region, VMInformation info) {
+        if (region == VMRegion.US_EAST || region == VMRegion.US_EAST_2) {
+            return firstNonBlank(info.getPrivateIp(), info.getPrivateDNS(), info.getPublicIp(), info.getPublicDNS());
+        }
+        return firstNonBlank(info.getPublicDNS(), info.getPublicIp(), info.getPrivateIp(), info.getPrivateDNS());
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**

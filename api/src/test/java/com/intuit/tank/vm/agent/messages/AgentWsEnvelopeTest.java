@@ -24,6 +24,22 @@ public class AgentWsEnvelopeTest {
     }
 
     @Test
+    public void testHelloFactoryWithCapacity() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", "cmd-99", 4000);
+
+        assertEquals(Type.hello, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals("sess-1", env.getAgentSessionId());
+        assertEquals("cmd-99", env.getLastAppliedCommandId());
+        assertEquals(4000, env.getCapacity());
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+        assertEquals(4000, parsed.getCapacity());
+    }
+
+    @Test
     public void testCommandFactory() throws IOException {
         AgentWsEnvelope env = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "start");
 

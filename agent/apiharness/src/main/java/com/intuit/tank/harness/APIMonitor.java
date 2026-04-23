@@ -84,7 +84,7 @@ public class APIMonitor implements Runnable {
                 sendTps(tpsInfo);
             }
             
-            if (!isLocal) {
+            if (!isLocal && !APITestHarness.getInstance().isControllerInitiatedWsModeEnabled()) {
                 setInstanceStatus(newStatus.getInstanceId(), newStatus);
             }
             APITestHarness.getInstance().checkAgentThreads();
@@ -162,7 +162,9 @@ public class APIMonitor implements Runnable {
                         stats.getMaxVirtualUsers(),
                         stats.getCurrentNumberUsers(), status.getStartTime(), endTime);
                 status.setUserDetails(APITestHarness.getInstance().getUserTracker().getSnapshot());
-                setInstanceStatus(status.getInstanceId(), status);
+                if (!APITestHarness.getInstance().isControllerInitiatedWsModeEnabled()) {
+                    setInstanceStatus(status.getInstanceId(), status);
+                }
             } catch (Exception e) {
                 LOG.error("Error sending status to controller: {}", e.toString(), e);
             }

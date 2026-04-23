@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,6 +82,15 @@ public class APITestHarnessTest {
             assertEquals("Script Group", instance.getAgentRunData().getStopBehavior().getDisplay());
             assertEquals(300000L, instance.getAgentRunData().getSimulationTimeMillis());
             assertEquals(tankHttpClientClass, instance.getTankHttpClientClass());
+        }
+    }
+
+    @Test
+    public void testControllerInitiatedWsModeEnabledFromUserData() {
+        try (MockedStatic<AmazonUtil> amazonUtil = Mockito.mockStatic(AmazonUtil.class)) {
+            amazonUtil.when(AmazonUtil::getUserDataAsMap).thenReturn(
+                    Map.of("controllerInitiatedWsEnabled", "true"));
+            assertTrue(APITestHarness.getInstance().isControllerInitiatedWsModeEnabled());
         }
     }
 

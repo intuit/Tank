@@ -42,6 +42,9 @@ public class AgentWsEnvelope {
     @JsonProperty("agentSessionId")
     private String agentSessionId;
 
+    @JsonProperty("capacity")
+    private Integer capacity;
+
     // command fields
     @JsonProperty("commandId")
     private String commandId;
@@ -96,6 +99,9 @@ public class AgentWsEnvelope {
     public String getAgentSessionId() { return agentSessionId; }
     public void setAgentSessionId(String agentSessionId) { this.agentSessionId = agentSessionId; }
 
+    public Integer getCapacity() { return capacity; }
+    public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
     public String getCommandId() { return commandId; }
     public void setCommandId(String commandId) { this.commandId = commandId; }
 
@@ -137,12 +143,18 @@ public class AgentWsEnvelope {
     // Factory methods for common frame types
 
     public static AgentWsEnvelope hello(String instanceId, String jobId, String agentSessionId, String lastAppliedCommandId) {
+        return hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, null);
+    }
+
+    public static AgentWsEnvelope hello(String instanceId, String jobId, String agentSessionId,
+                                        String lastAppliedCommandId, Integer capacity) {
         AgentWsEnvelope env = new AgentWsEnvelope();
         env.setType(Type.hello);
         env.setInstanceId(instanceId);
         env.setJobId(jobId);
         env.setAgentSessionId(agentSessionId);
         env.setLastAppliedCommandId(lastAppliedCommandId);
+        env.setCapacity(capacity);
         env.setSentAtMs(System.currentTimeMillis());
         return env;
     }

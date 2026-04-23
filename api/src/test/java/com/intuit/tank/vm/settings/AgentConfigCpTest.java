@@ -489,5 +489,8 @@ public class AgentConfigCpTest {
         assertTrue(fixture.isCommandWsHttpFallbackEnabled());
         assertEquals(3000L, fixture.getCommandWsAckTimeoutMillis());
         assertEquals("/v2/agent/ws/control", fixture.getCommandWsPath());
+        assertFalse(fixture.isControllerInitiatedWsEnabled());
+        assertTrue(fixture.isControllerInitiatedWsDisableAgentHttp());
+        assertEquals("script.xml", fixture.getControllerInitiatedWsScriptPath());
     }
 }

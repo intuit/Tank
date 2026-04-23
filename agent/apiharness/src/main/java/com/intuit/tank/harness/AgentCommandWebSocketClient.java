@@ -2,7 +2,6 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
-import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -221,19 +220,7 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     }
 
     private void applyCommand(String command) {
-        // Map WS command names to the same behaviors as CommandListener
-        switch (command) {
-            case "start", "run" -> {
-                LOG.info(new ObjectMessage(Map.of("Message", "WS: Received START command - launching test threads")));
-                CommandListener.startTest();
-            }
-            case "stop" -> APITestHarness.getInstance().setCommand(AgentCommand.stop);
-            case "kill" -> System.exit(0);
-            case "pause" -> APITestHarness.getInstance().setCommand(AgentCommand.pause);
-            case "pause_ramp" -> APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
-            case "resume_ramp" -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
-            default -> throw new UnsupportedOperationException("Unknown WS command: " + command);
-        }
+        CommandListener.applyCommand(command);
     }
 
     private void handlePing(WebSocket webSocket, AgentWsEnvelope envelope) {

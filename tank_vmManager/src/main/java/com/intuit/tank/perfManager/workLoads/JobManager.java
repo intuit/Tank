@@ -97,6 +97,9 @@ public class JobManager implements Serializable {
     @Inject
     private jakarta.enterprise.inject.Instance<com.intuit.tank.vm.agent.messages.AgentWsCommandSender> wsCommandSenderInstance;
 
+    @Inject
+    private jakarta.enterprise.inject.Instance<ControllerInitiatedAgentWsClient> controllerInitiatedWsClientInstance;
+
     /**
      * @param id
      * @throws Exception
@@ -223,13 +226,34 @@ public class JobManager implements Serializable {
 
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
+        boolean controllerInitiatedWsEnabled = agentConfig != null && agentConfig.isControllerInitiatedWsEnabled();
         boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
         long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
+        ControllerInitiatedAgentWsClient controllerWsClient = getControllerInitiatedWsClient();
 
         info.agentData.parallelStream()
                 .forEach(agentData -> {
                     String instanceId = agentData.getInstanceId();
+
+                    if (controllerInitiatedWsEnabled && controllerWsClient != null
+                            && controllerWsClient.hasSession(instanceId)) {
+                        boolean acked = controllerWsClient.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
+                        if (acked) {
+                            LOG.info(new ObjectMessage(Map.of("Message",
+                                    "Controller-initiated WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
+                            return;
+                        }
+                        LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS START command to agent "
+                                + instanceId + " failed, " + (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                        if (!httpFallback) {
+                            return;
+                        }
+                    } else if (controllerInitiatedWsEnabled && !httpFallback) {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS enabled but no session for agent "
+                                + instanceId + " and fallback disabled, skipping")));
+                        return;
+                    }
 
                     // Try WS first if enabled
                     if (wsEnabled) {
@@ -285,14 +309,16 @@ public class JobManager implements Serializable {
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
+        boolean controllerInitiatedWsEnabled = agentConfig != null && agentConfig.isControllerInitiatedWsEnabled();
         boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
         long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
 
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
+        ControllerInitiatedAgentWsClient controllerWsClient = getControllerInitiatedWsClient();
 
         // Resolve instanceId -> jobId mapping for WS commands
         Map<String, String> instanceJobMap = new HashMap<>();
-        if (wsEnabled && wsSender != null) {
+        if ((wsEnabled && wsSender != null) || controllerInitiatedWsEnabled) {
             for (String instanceId : instanceIds) {
                 for (JobInfo info : jobInfoMapLocalCache.values()) {
                     for (AgentData data : info.agentData) {
@@ -326,6 +352,29 @@ public class JobManager implements Serializable {
                     }
 
                     // Try WS first if enabled
+                    if (controllerInitiatedWsEnabled && controllerWsClient != null && matchedInstanceId != null) {
+                        String jobId = instanceJobMap.get(matchedInstanceId);
+                        if (jobId != null && controllerWsClient.hasSession(matchedInstanceId)) {
+                            boolean acked = controllerWsClient.sendCommand(matchedInstanceId, jobId, cmd.name(), ackTimeout);
+                            if (acked) {
+                                LOG.info(new ObjectMessage(Map.of("Message", "Controller-initiated WS command " + cmd + " to agent " + matchedInstanceId + " succeeded")));
+                                return CompletableFuture.completedFuture(null);
+                            }
+                            LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS command " + cmd + " to agent " + matchedInstanceId + " failed, " +
+                                    (httpFallback ? "falling back to HTTP" : "no fallback"))));
+                            if (!httpFallback) {
+                                return CompletableFuture.completedFuture(null);
+                            }
+                        } else if (!httpFallback) {
+                            LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS enabled but no session for agent "
+                                    + matchedInstanceId + " and fallback disabled, skipping")));
+                            return CompletableFuture.completedFuture(null);
+                        }
+                    } else if (controllerInitiatedWsEnabled && !httpFallback) {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS enabled but no matched instanceId and fallback disabled, skipping")));
+                        return CompletableFuture.completedFuture(null);
+                    }
+
                     if (wsEnabled) {
                         if (wsSender != null && matchedInstanceId != null) {
                             String jobId = instanceJobMap.get(matchedInstanceId);
@@ -467,6 +516,13 @@ public class JobManager implements Serializable {
     private com.intuit.tank.vm.agent.messages.AgentWsCommandSender getWsCommandSender() {
         if (wsCommandSenderInstance != null && wsCommandSenderInstance.isResolvable()) {
             return wsCommandSenderInstance.get();
+        }
+        return null;
+    }
+
+    private ControllerInitiatedAgentWsClient getControllerInitiatedWsClient() {
+        if (controllerInitiatedWsClientInstance != null && controllerInitiatedWsClientInstance.isResolvable()) {
+            return controllerInitiatedWsClientInstance.get();
         }
         return null;
     }
