@@ -20,7 +20,12 @@ public class AgentCommandWebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        String path = new TankConfig().getAgentConfig().getCommandWsPath();
+        String path = "/v2/agent/ws/control";
+        try {
+            path = new TankConfig().getAgentConfig().getCommandWsPath();
+        } catch (Exception e) {
+            // Fall back to default path if config not available during Spring init
+        }
         // Agents connect via JDK HttpClient (no Origin header), not browsers.
         // Allow all origins since auth is handled via bearer token in handshake.
         registry.addHandler(agentCommandWebSocketHandler(), path)
