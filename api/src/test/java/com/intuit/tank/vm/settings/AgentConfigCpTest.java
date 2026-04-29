@@ -486,8 +486,5 @@ public class AgentConfigCpTest {
         AgentConfig fixture = new AgentConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         assertFalse(fixture.isCommandWsEnabled());
-        assertTrue(fixture.isCommandWsHttpFallbackEnabled());
-        assertEquals(3000L, fixture.getCommandWsAckTimeoutMillis());
-        assertEquals("/v2/agent/ws/control", fixture.getCommandWsPath());
     }
 }

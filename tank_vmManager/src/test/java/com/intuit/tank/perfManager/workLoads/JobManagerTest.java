@@ -142,7 +142,7 @@ public class JobManagerTest {
     }
 
     @Test
-    public void testSendCommandStartSkippedWhenFileTransferNotReadyAndNoFallback() throws Exception {
+    public void testSendCommandStartSkippedWhenFileTransferNotReady() throws Exception {
         JobManager fixture = new JobManager();
         String jobId = "job-3";
         String instanceId = "i-22222";
@@ -151,10 +151,6 @@ public class JobManagerTest {
 
         AgentConfig agentConfig = mock(AgentConfig.class);
         when(agentConfig.isCommandWsEnabled()).thenReturn(true);
-        when(agentConfig.isCommandWsHttpFallbackEnabled()).thenReturn(false);
-        when(agentConfig.isCommandWsFileTransferEnabled()).thenReturn(true);
-        when(agentConfig.isCommandWsFileTransferHttpFallbackEnabled()).thenReturn(false);
-        when(agentConfig.getCommandWsAckTimeoutMillis()).thenReturn(1000L);
 
         TankConfig tankConfig = mock(TankConfig.class);
         when(tankConfig.getAgentConfig()).thenReturn(agentConfig);

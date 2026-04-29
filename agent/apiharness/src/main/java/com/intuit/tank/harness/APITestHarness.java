@@ -105,6 +105,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+    private volatile AgentCommandWebSocketClient commandWebSocketClient;
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -226,34 +227,23 @@ public class APITestHarness {
         }
     }
 
-    private boolean isCommandWsFileTransferEnabled() {
-        try {
-            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_FILE_TRANSFER_ENABLED);
-            if (StringUtils.isNotBlank(value)) {
-                return Boolean.parseBoolean(value);
-            }
-        } catch (Exception ignored) {
-        }
-        return tankConfig.getAgentConfig().isCommandWsFileTransferEnabled();
-    }
-
-    private boolean isCommandWsFileTransferHttpFallbackEnabled() {
-        try {
-            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_FILE_TRANSFER_HTTP_FALLBACK_ENABLED);
-            if (StringUtils.isNotBlank(value)) {
-                return Boolean.parseBoolean(value);
-            }
-        } catch (Exception ignored) {
-        }
-        return tankConfig.getAgentConfig().isCommandWsFileTransferHttpFallbackEnabled();
-    }
-
     private String getLocalInstanceId() {
         isLocal = true;
         try {
             return InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException ignored) {}
         return "local-instance";
+    }
+
+    private boolean isCommandWsEnabled() {
+        try {
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_ENABLED);
+            if (StringUtils.isNotBlank(value)) {
+                return Boolean.parseBoolean(value);
+            }
+        } catch (Exception ignored) {
+        }
+        return tankConfig.getAgentConfig().isCommandWsEnabled();
     }
 
     /**
@@ -276,51 +266,20 @@ public class APITestHarness {
 
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
-        HostInfo hostInfo = new HostInfo();
-        boolean wsCommandEnabled = tankConfig.getAgentConfig().isCommandWsEnabled();
-        boolean wsFileTransferEnabled = wsCommandEnabled && isCommandWsFileTransferEnabled();
-        boolean wsFileTransferHttpFallbackEnabled = isCommandWsFileTransferHttpFallbackEnabled();
-
-        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        boolean wsEnabled = isCommandWsEnabled();
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
-        String instanceUrl = null;
-        int retryCount = 0;
-        while (instanceUrl == null) {
-            try {
-                instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
-                        + tankConfig.getAgentConfig().getAgentPort();
-            } catch (IOException e) {
-                if (retryCount < FIBONACCI.length) {
-                    try {
-                        Thread.sleep(FIBONACCI[retryCount++] * 100);
-                    } catch ( InterruptedException ie) { /*Ignore*/ }
-                } else {
-                    LOG.error("Error getting amazon host. maybe local.");
-                    String publicIp = hostInfo.getPublicIp();
-                    
-                    if (!publicIp.equals(HostInfo.UNKNOWN)) {
-                        instanceUrl = "http://" + publicIp + ":"
-                                + tankConfig.getAgentConfig().getAgentPort();
-                        LOG.info(LogUtil.getLogMessage("MyInstanceURL from hostinfo  = " + instanceUrl));
-                    } else {
-                        instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
-                    }
-                }
-            }
-        }
-        LOG.info(new ObjectMessage(Map.of("Message", "MyInstanceURL = " + instanceUrl)));
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        AgentCommandWebSocketClient wsClient = null;
+        AgentCommandWebSocketClient wsClient = commandWebSocketClient;
 
-        if (wsFileTransferEnabled) {
+        if (wsEnabled) {
             try {
-                String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
+                String wsPath = "/v2/agent/ws/control";
                 LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control+file transfer channel to " + baseUrl + wsPath)));
                 wsClient = new AgentCommandWebSocketClient(
                         baseUrl,
@@ -330,6 +289,7 @@ public class APITestHarness {
                         agentRunData.getJobId(),
                         capacity,
                         true);
+                commandWebSocketClient = wsClient;
                 wsClient.connect();
 
                 long transferTimeoutMs = Math.max(60_000L, tankConfig.getAgentConfig().getMaxAgentWaitTime());
@@ -353,17 +313,42 @@ public class APITestHarness {
                 return;
             } catch (Exception e) {
                 LOG.error("Error in WS file transfer startup path: " + e, e);
-                if (!wsFileTransferHttpFallbackEnabled) {
-                    System.exit(0);
-                }
                 if (wsClient != null) {
                     wsClient.close();
-                    wsClient = null;
+                    commandWebSocketClient = null;
                 }
-                LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer failed, falling back to HTTP artifact flow")));
+                System.exit(0);
             }
         }
 
+        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        HostInfo hostInfo = new HostInfo();
+        String instanceUrl = null;
+        int retryCount = 0;
+        while (instanceUrl == null) {
+            try {
+                instanceUrl = "http://" + AmazonUtil.getPublicHostName() + ":"
+                        + tankConfig.getAgentConfig().getAgentPort();
+            } catch (IOException e) {
+                if (retryCount < FIBONACCI.length) {
+                    try {
+                        Thread.sleep(FIBONACCI[retryCount++] * 100);
+                    } catch ( InterruptedException ie) { /*Ignore*/ }
+                } else {
+                    LOG.error("Error getting amazon host. maybe local.");
+                    String publicIp = hostInfo.getPublicIp();
+
+                    if (!publicIp.equals(HostInfo.UNKNOWN)) {
+                        instanceUrl = "http://" + publicIp + ":"
+                                + tankConfig.getAgentConfig().getAgentPort();
+                        LOG.info(LogUtil.getLogMessage("MyInstanceURL from hostinfo  = " + instanceUrl));
+                    } else {
+                        instanceUrl = "http://localhost:" + tankConfig.getAgentConfig().getAgentPort();
+                    }
+                }
+            }
+        }
+        LOG.info(new ObjectMessage(Map.of("Message", "MyInstanceURL = " + instanceUrl)));
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 AmazonUtil.getVMRegion(), AmazonUtil.getZone());
         try {
@@ -402,14 +387,6 @@ public class APITestHarness {
                 for (DataFileRequest dfRequest : startData.getDataFiles()) {
                     saveDataFile(dfRequest, token);
                 }
-            }
-            // Start WS control channel if enabled
-            if (wsCommandEnabled && wsClient == null) {
-                String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
-                LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control channel to " + baseUrl + wsPath)));
-                wsClient = new AgentCommandWebSocketClient(
-                        baseUrl, wsPath, token, instanceId, agentRunData.getJobId());
-                wsClient.connect();
             }
 
             Thread thread = new Thread(new StartedChecker());
@@ -975,6 +952,10 @@ public class APITestHarness {
      */
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
+    }
+
+    public AgentCommandWebSocketClient getCommandWebSocketClient() {
+        return commandWebSocketClient;
     }
 
     /**

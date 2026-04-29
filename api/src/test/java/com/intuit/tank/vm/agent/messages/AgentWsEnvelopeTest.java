@@ -2,9 +2,16 @@ package com.intuit.tank.vm.agent.messages;
 
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.Type;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -139,6 +146,60 @@ public class AgentWsEnvelopeTest {
     }
 
     @Test
+    public void testStatusUpdateFactory() {
+        CloudVmStatus vmStatus = new CloudVmStatus(
+                "i-123",
+                "job-1",
+                "sg-1",
+                JobStatus.Running,
+                VMImageType.AGENT,
+                VMRegion.US_EAST,
+                VMStatus.running,
+                new ValidationStatus(),
+                50,
+                10,
+                new Date(),
+                null);
+
+        AgentWsEnvelope env = AgentWsEnvelope.statusUpdate("i-123", "job-1", vmStatus);
+
+        assertEquals(Type.status_update, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertNotNull(env.getInstanceStatus());
+        assertEquals("i-123", env.getInstanceStatus().getInstanceId());
+    }
+
+    @Test
+    public void testStatusUpdateRoundTrip() throws IOException {
+        CloudVmStatus vmStatus = new CloudVmStatus(
+                "i-321",
+                "job-9",
+                "sg-9",
+                JobStatus.Paused,
+                VMImageType.AGENT,
+                VMRegion.US_WEST_1,
+                VMStatus.rampPaused,
+                new ValidationStatus(),
+                80,
+                40,
+                new Date(),
+                null);
+
+        AgentWsEnvelope env = AgentWsEnvelope.statusUpdate("i-321", "job-9", vmStatus);
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(env.toJson());
+
+        assertEquals(Type.status_update, parsed.getType());
+        assertNotNull(parsed.getInstanceStatus());
+        assertEquals("i-321", parsed.getInstanceStatus().getInstanceId());
+        assertEquals("job-9", parsed.getInstanceStatus().getJobId());
+        assertEquals(VMStatus.rampPaused, parsed.getInstanceStatus().getVmStatus());
+        assertEquals(JobStatus.Paused, parsed.getInstanceStatus().getJobStatus());
+        assertEquals(80, parsed.getInstanceStatus().getTotalUsers());
+        assertEquals(40, parsed.getInstanceStatus().getCurrentUsers());
+    }
+
+    @Test
     public void testJsonRoundTrip() throws IOException {
         AgentWsEnvelope original = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "stop");
         String json = original.toJson();
@@ -209,7 +270,7 @@ public class AgentWsEnvelopeTest {
 
     @Test
     public void testTypeValues() {
-        assertEquals(10, Type.values().length);
+        assertEquals(11, Type.values().length);
         assertNotNull(Type.valueOf("hello"));
         assertNotNull(Type.valueOf("command"));
         assertNotNull(Type.valueOf("ack"));
@@ -220,6 +281,7 @@ public class AgentWsEnvelopeTest {
         assertNotNull(Type.valueOf("file_offer"));
         assertNotNull(Type.valueOf("file_chunk"));
         assertNotNull(Type.valueOf("file_ack"));
+        assertNotNull(Type.valueOf("status_update"));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -534,6 +535,25 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
 
     public AgentTestStartData getReceivedJobConfig() {
         return receivedJobConfig;
+    }
+
+    public boolean sendStatusUpdate(CloudVmStatus instanceStatus) {
+        WebSocket ws = webSocketRef.get();
+        if (!running.get() || ws == null) {
+            return false;
+        }
+
+        try {
+            String statusJobId = instanceStatus != null && instanceStatus.getJobId() != null
+                    ? instanceStatus.getJobId()
+                    : jobId;
+            AgentWsEnvelope update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus);
+            ws.sendText(update.toJson(), true);
+            return true;
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed sending WS status update: " + e.getMessage())));
+            return false;
+        }
     }
 
     private void checkIdleConnection() {

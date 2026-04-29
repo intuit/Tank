@@ -9,8 +9,10 @@ import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.Type;
+import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -112,6 +114,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             case hello -> handleHello(session, envelope);
             case ack -> handleAck(session, envelope);
             case file_ack -> handleFileAck(session, envelope);
+            case status_update -> handleStatusUpdate(session, envelope);
             case pong -> handlePong(session, envelope);
             case close -> handleClose(session, envelope);
             default -> {
@@ -155,7 +158,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
         sendAck(session, instanceId, "hello", envelope.getAgentSessionId(), AckStatus.ok);
 
-        if (isWsFileTransferEnabled()) {
+        if (isWsEnabled()) {
             fileTransferReady.put(instanceId, false);
             String authorization = session.getHandshakeHeaders() != null
                     ? session.getHandshakeHeaders().getFirst("Authorization")
@@ -207,6 +210,34 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         }
     }
 
+    private void handleStatusUpdate(WebSocketSession session, AgentWsEnvelope envelope) {
+        String boundId = sessionIdentity.get(session.getId());
+        if (boundId == null) {
+            return;
+        }
+        agentLastSeen.put(boundId, System.currentTimeMillis());
+
+        CloudVmStatus status = envelope.getInstanceStatus();
+        if (status == null) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Missing status payload in status_update frame from " + boundId)));
+            return;
+        }
+
+        status.setInstanceId(boundId);
+
+        VMTracker tracker = resolveVMTracker();
+        if (tracker == null) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Unable to resolve VMTracker for WS status update from " + boundId)));
+            return;
+        }
+
+        try {
+            tracker.setStatus(status);
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed WS status update from " + boundId + ": " + e.getMessage())));
+        }
+    }
+
     private void handleClose(WebSocketSession session, AgentWsEnvelope envelope) throws IOException {
         String boundId = sessionIdentity.remove(session.getId());
         if (boundId != null) {
@@ -254,6 +285,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
     @Override
     public boolean sendCommand(String instanceId, String jobId, String command, long ackTimeoutMillis) {
+        ackTimeoutMillis = 3000L;
         WebSocketSession session = agentSessions.get(instanceId);
         if (session == null || !session.isOpen()) {
             return false;
@@ -281,7 +313,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
     @Override
     public boolean isFileTransferReady(String instanceId) {
-        if (!isWsFileTransferEnabled()) {
+        if (!isWsEnabled()) {
             return true;
         }
         return Boolean.TRUE.equals(fileTransferReady.get(instanceId));
@@ -322,8 +354,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                     files.size());
             sendEnvelope(session, jobConfig);
 
-            AgentConfig config = resolveAgentConfig();
-            int chunkBytes = config != null ? config.getCommandWsFileTransferChunkBytes() : 49152;
+            int chunkBytes = 49152;
             fileTransferService.sendFiles(session, hello.getInstanceId(), hello.getJobId(), files, chunkBytes);
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "WS file transfer failed for " + hello.getInstanceId() + ": " + e.getMessage())), e);
@@ -395,9 +426,9 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         }
     }
 
-    private boolean isWsFileTransferEnabled() {
+    private boolean isWsEnabled() {
         AgentConfig config = resolveAgentConfig();
-        return config != null && config.isCommandWsFileTransferEnabled();
+        return config != null && config.isCommandWsEnabled();
     }
 
     private JobManager resolveJobManager() {
@@ -408,6 +439,18 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             return new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "Error resolving JobManager: " + e.getMessage())), e);
+            return null;
+        }
+    }
+
+    private VMTracker resolveVMTracker() {
+        if (servletContext == null) {
+            return null;
+        }
+        try {
+            return new ServletInjector<VMTracker>().getManagedBean(servletContext, VMTracker.class);
+        } catch (Exception e) {
+            LOG.error(new ObjectMessage(Map.of("Message", "Error resolving VMTracker: " + e.getMessage())), e);
             return null;
         }
     }

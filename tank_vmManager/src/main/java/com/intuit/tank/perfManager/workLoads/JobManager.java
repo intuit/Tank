@@ -271,46 +271,33 @@ public class JobManager implements Serializable {
 
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
-        boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
-        boolean wsFileTransferEnabled = wsEnabled && agentConfig != null && agentConfig.isCommandWsFileTransferEnabled();
-        boolean wsFileTransferHttpFallback = agentConfig == null || agentConfig.isCommandWsFileTransferHttpFallbackEnabled();
-        long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
+        long ackTimeout = 3000L;
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
 
         info.agentData.parallelStream()
                 .forEach(agentData -> {
                     String instanceId = agentData.getInstanceId();
 
-                    // Try WS first if enabled
                     if (wsEnabled) {
                         if (wsSender != null && wsSender.hasSession(instanceId)) {
-                            if (wsFileTransferEnabled && !wsSender.isFileTransferReady(instanceId)) {
-                                LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer not complete for agent " + instanceId
-                                        + ", " + ((httpFallback && wsFileTransferHttpFallback) ? "falling back to HTTP" : "no fallback"))));
-                                if (!(httpFallback && wsFileTransferHttpFallback)) {
-                                    return;
-                                }
-                            } else {
-                                boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
-                                if (acked) {
-                                    LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
-                                    return;
-                                }
-                                LOG.warn(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed, " +
-                                        (httpFallback ? "falling back to HTTP" : "no fallback"))));
-                                if (!httpFallback) {
-                                    return;
-                                }
+                            if (!wsSender.isFileTransferReady(instanceId)) {
+                                LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer not complete for agent " + instanceId)));
+                                return;
                             }
-                        } else if (!httpFallback) {
-                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but " +
-                                    (wsSender == null ? "sender unavailable" : "no session") +
-                                    " for agent " + instanceId + " and fallback disabled, skipping")));
+                            boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
+                            if (acked) {
+                                LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
+                            } else {
+                                LOG.error(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed for job " + jobId)));
+                            }
                             return;
                         }
+                        LOG.error(new ObjectMessage(Map.of("Message", "WS enabled but " +
+                                (wsSender == null ? "sender unavailable" : "no session") +
+                                " for agent " + instanceId)));
+                        return;
                     }
 
-                    // HTTP fallback (or WS not enabled)
                     String url = agentData.getInstanceUrl() + AgentCommand.start.getPath();
                     LOG.info(new ObjectMessage(Map.of("Message", "Sending command to url " + url)));
                     CompletableFuture<?> future = sendCommand(URI.create(url), MAX_RETRIES);
@@ -343,14 +330,10 @@ public class JobManager implements Serializable {
     public List<CompletableFuture<?>> sendCommand(List<String> instanceIds, AgentCommand cmd) {
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
-        boolean httpFallback = agentConfig == null || agentConfig.isCommandWsHttpFallbackEnabled();
-        boolean wsFileTransferEnabled = wsEnabled && agentConfig != null && agentConfig.isCommandWsFileTransferEnabled();
-        boolean wsFileTransferHttpFallback = agentConfig == null || agentConfig.isCommandWsFileTransferHttpFallbackEnabled();
-        long ackTimeout = agentConfig != null ? agentConfig.getCommandWsAckTimeoutMillis() : 3000L;
+        long ackTimeout = 3000L;
 
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
 
-        // Resolve instanceId -> jobId mapping for WS commands
         Map<String, String> instanceJobMap = new HashMap<>();
         if (wsEnabled && wsSender != null) {
             for (String instanceId : instanceIds) {
@@ -364,64 +347,38 @@ public class JobManager implements Serializable {
             }
         }
 
-        List<String> instanceUrls = getInstanceUrl(instanceIds);
+        if (wsEnabled) {
+            List<String> orderedInstanceIds = new ArrayList<>(instanceIds);
+            return orderedInstanceIds.parallelStream()
+                    .map(instanceId -> {
+                        if (wsSender == null) {
+                            LOG.error(new ObjectMessage(Map.of("Message", "WS enabled but sender unavailable for command " + cmd)));
+                            return CompletableFuture.completedFuture(null);
+                        }
+                        String jobId = instanceJobMap.get(instanceId);
+                        if (jobId == null || !wsSender.hasSession(instanceId)) {
+                            LOG.error(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + instanceId)));
+                            return CompletableFuture.completedFuture(null);
+                        }
+                        if (cmd == AgentCommand.start && !wsSender.isFileTransferReady(instanceId)) {
+                            LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer not complete for agent " + instanceId)));
+                            return CompletableFuture.completedFuture(null);
+                        }
+                        boolean acked = wsSender.sendCommand(instanceId, jobId, cmd.name(), ackTimeout);
+                        if (acked) {
+                            LOG.info(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + instanceId + " succeeded")));
+                        } else {
+                            LOG.error(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + instanceId + " failed")));
+                        }
+                        return CompletableFuture.completedFuture(null);
+                    })
+                    .collect(Collectors.toList());
+        }
 
-        // Build a parallel list of instanceId -> instanceUrl for fallback
-        List<String> orderedInstanceIds = new ArrayList<>(instanceIds);
+        List<String> instanceUrls = getInstanceUrl(instanceIds);
 
         return instanceUrls.parallelStream()
                 .map(instanceUrl -> {
-                    // Find matching instanceId for this URL
-                    String matchedInstanceId = null;
-                    for (int i = 0; i < orderedInstanceIds.size(); i++) {
-                        String candidateId = orderedInstanceIds.get(i);
-                        // Match by checking if this URL belongs to this instanceId
-                        for (JobInfo info : jobInfoMapLocalCache.values()) {
-                            for (AgentData data : info.agentData) {
-                                if (candidateId.equals(data.getInstanceId()) && instanceUrl.equals(data.getInstanceUrl())) {
-                                    matchedInstanceId = candidateId;
-                                }
-                            }
-                        }
-                    }
-
-                    // Try WS first if enabled
-                    if (wsEnabled) {
-                        if (wsSender != null && matchedInstanceId != null) {
-                            String jobId = instanceJobMap.get(matchedInstanceId);
-                            if (jobId != null && wsSender.hasSession(matchedInstanceId)) {
-                                if (cmd == AgentCommand.start && wsFileTransferEnabled
-                                        && !wsSender.isFileTransferReady(matchedInstanceId)) {
-                                    LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer not complete for agent " + matchedInstanceId
-                                            + ", " + ((httpFallback && wsFileTransferHttpFallback) ? "falling back to HTTP" : "no fallback"))));
-                                    if (!(httpFallback && wsFileTransferHttpFallback)) {
-                                        return CompletableFuture.completedFuture(null);
-                                    }
-                                } else {
-                                    boolean acked = wsSender.sendCommand(matchedInstanceId, jobId, cmd.name(), ackTimeout);
-                                    if (acked) {
-                                        LOG.info(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " succeeded")));
-                                        return CompletableFuture.completedFuture(null);
-                                    }
-                                    LOG.warn(new ObjectMessage(Map.of("Message", "WS command " + cmd + " to agent " + matchedInstanceId + " failed, " +
-                                            (httpFallback ? "falling back to HTTP" : "no fallback"))));
-                                    if (!httpFallback) {
-                                        return CompletableFuture.completedFuture(null);
-                                    }
-                                }
-                            } else if (!httpFallback) {
-                                LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but no session for agent " + matchedInstanceId + " and fallback disabled, skipping")));
-                                return CompletableFuture.completedFuture(null);
-                            }
-                        } else if (!httpFallback) {
-                            LOG.warn(new ObjectMessage(Map.of("Message", "WS enabled but " +
-                                    (wsSender == null ? "sender unavailable" : "no matched instanceId") +
-                                    " and fallback disabled, skipping")));
-                            return CompletableFuture.completedFuture(null);
-                        }
-                    }
-
-                    // HTTP fallback (or WS not enabled)
                     URI uri = URI.create(instanceUrl + cmd.getPath());
                     return sendCommand(uri, 0);
                 })

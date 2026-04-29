@@ -170,10 +170,27 @@ public class APIMonitor implements Runnable {
     }
 
     protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JsonProcessingException {
+        APITestHarness harness = APITestHarness.getInstance();
+        boolean wsEnabled = harness.getTankConfig().getAgentConfig().isCommandWsEnabled();
+
+        AgentCommandWebSocketClient wsClient = harness.getCommandWebSocketClient();
+        if (wsEnabled) {
+            if (wsClient != null) {
+                if (wsClient.sendStatusUpdate(VmStatus)) {
+                    LOG.debug(LogUtil.getLogMessage("Sent WS instance status update for instance: " + instanceId));
+                    return;
+                }
+                LOG.warn(LogUtil.getLogMessage("WS status update failed for instance: " + instanceId));
+            } else {
+                LOG.warn(LogUtil.getLogMessage("WS enabled but client unavailable for instance: " + instanceId));
+            }
+            return;
+        }
+
         String json = objectWriter.writeValueAsString(VmStatus);
-        String token = APITestHarness.getInstance().getTankConfig().getAgentConfig().getAgentToken();
+        String token = harness.getTankConfig().getAgentConfig().getAgentToken();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(APITestHarness.getInstance().getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
+                .uri(new URI(harness.getTankConfig().getControllerBase() + "/v2/agent/instance/status/" + instanceId))
                 .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
                 .header(HttpHeaders.AUTHORIZATION, "bearer " + token)

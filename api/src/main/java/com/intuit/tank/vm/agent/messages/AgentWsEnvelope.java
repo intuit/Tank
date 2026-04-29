@@ -3,7 +3,9 @@ package com.intuit.tank.vm.agent.messages;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 
 import java.io.IOException;
 
@@ -11,13 +13,15 @@ import java.io.IOException;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AgentWsEnvelope {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static final int PROTOCOL_VERSION = 1;
 
     public enum Type {
         hello, command, ack, ping, pong, close,
-        job_config, file_offer, file_chunk, file_ack
+        job_config, file_offer, file_chunk, file_ack,
+        status_update
     }
 
     public enum AckStatus {
@@ -113,6 +117,10 @@ public class AgentWsEnvelope {
     @JsonProperty("reason")
     private String reason;
 
+    // status update fields
+    @JsonProperty("instanceStatus")
+    private CloudVmStatus instanceStatus;
+
     public AgentWsEnvelope() {}
 
     public Type getType() { return type; }
@@ -195,6 +203,9 @@ public class AgentWsEnvelope {
 
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }
+
+    public CloudVmStatus getInstanceStatus() { return instanceStatus; }
+    public void setInstanceStatus(CloudVmStatus instanceStatus) { this.instanceStatus = instanceStatus; }
 
     public String toJson() throws IOException {
         return MAPPER.writeValueAsString(this);
@@ -323,6 +334,16 @@ public class AgentWsEnvelope {
         env.setChunkIndex(chunkIndex);
         env.setStatus(status);
         env.setError(error);
+        env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope statusUpdate(String instanceId, String jobId, CloudVmStatus instanceStatus) {
+        AgentWsEnvelope env = new AgentWsEnvelope();
+        env.setType(Type.status_update);
+        env.setInstanceId(instanceId);
+        env.setJobId(jobId);
+        env.setInstanceStatus(instanceStatus);
         env.setSentAtMs(System.currentTimeMillis());
         return env;
     }

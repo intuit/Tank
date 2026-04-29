@@ -3,6 +3,12 @@ package com.intuit.tank.harness;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
@@ -17,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -282,6 +289,63 @@ public class AgentCommandWebSocketClientTest {
         }
     }
 
+    @Test
+    void testSendStatusUpdateSuccess() throws Exception {
+        AgentCommandWebSocketClient client = newClient(true);
+        List<String> sentFrames = new ArrayList<>();
+        WebSocket webSocket = mockWebSocket(sentFrames);
+
+        try {
+            AtomicReference<WebSocket> ref = getField(client, "webSocketRef");
+            ref.set(webSocket);
+
+            CloudVmStatus status = buildStatusPayload();
+            boolean sent = client.sendStatusUpdate(status);
+
+            assertTrue(sent);
+            assertEquals(1, sentFrames.size());
+            AgentWsEnvelope update = AgentWsEnvelope.fromJson(sentFrames.get(0));
+            assertEquals(AgentWsEnvelope.Type.status_update, update.getType());
+            assertNotNull(update.getInstanceStatus());
+            assertEquals("i-1", update.getInstanceStatus().getInstanceId());
+            assertEquals("6579", update.getInstanceStatus().getJobId());
+            assertEquals(JobStatus.Running, update.getInstanceStatus().getJobStatus());
+        } finally {
+            client.close();
+        }
+    }
+
+    @Test
+    void testSendStatusUpdateFailureWhenDisconnected() {
+        AgentCommandWebSocketClient client = newClient(true);
+        try {
+            CloudVmStatus status = buildStatusPayload();
+            boolean sent = client.sendStatusUpdate(status);
+            assertFalse(sent);
+        } finally {
+            client.close();
+        }
+    }
+
+    @Test
+    void testSendStatusUpdateFailureOnSendException() throws Exception {
+        AgentCommandWebSocketClient client = newClient(true);
+        WebSocket webSocket = mock(WebSocket.class);
+        when(webSocket.sendText(any(CharSequence.class), eq(true))).thenThrow(new RuntimeException("send failed"));
+        AtomicReference<WebSocket> ref = getField(client, "webSocketRef");
+
+        try {
+            ref.set(webSocket);
+
+            CloudVmStatus status = buildStatusPayload();
+            boolean sent = client.sendStatusUpdate(status);
+            assertFalse(sent);
+        } finally {
+            ref.set(null);
+            client.close();
+        }
+    }
+
     private AgentCommandWebSocketClient newClient(boolean fileTransferEnabled) {
         return new AgentCommandWebSocketClient(
                 "http://127.0.0.1:1",
@@ -297,6 +361,22 @@ public class AgentCommandWebSocketClientTest {
         AgentTestStartData startData = new AgentTestStartData("script.xml", 1, 1L);
         startData.setDataFiles(new DataFileRequest[0]);
         return startData;
+    }
+
+    private CloudVmStatus buildStatusPayload() {
+        return new CloudVmStatus(
+                "i-1",
+                "6579",
+                "sg-123",
+                JobStatus.Running,
+                VMImageType.AGENT,
+                VMRegion.US_EAST_2,
+                VMStatus.running,
+                new ValidationStatus(),
+                100,
+                50,
+                new Date(),
+                null);
     }
 
     private WebSocket mockWebSocket(List<String> sentFrames) {

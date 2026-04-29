@@ -3,13 +3,29 @@ package com.intuit.tank.rest.mvc;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.Type;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.vmManager.VMTracker;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.lang.reflect.Field;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -237,5 +253,54 @@ public class AgentCommandWebSocketHandlerTest {
         assertTrue(handler.hasSession("i-123"));
         // Should NOT have been closed with policy violation
         verify(session, never()).close(CloseStatus.POLICY_VIOLATION);
+    }
+
+    @Test
+    void testStatusUpdateDelegatesToVmTrackerAndEnforcesBoundIdentity() throws Exception {
+        AgentWsEnvelope hello = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello.toJson()));
+
+        ServletContext servletContext = mock(ServletContext.class);
+        BeanManager beanManager = mock(BeanManager.class);
+        @SuppressWarnings("unchecked")
+        Bean<VMTracker> bean = (Bean<VMTracker>) mock(Bean.class);
+        @SuppressWarnings("unchecked")
+        CreationalContext<VMTracker> creationalContext = (CreationalContext<VMTracker>) mock(CreationalContext.class);
+        VMTracker vmTracker = mock(VMTracker.class);
+
+        when(servletContext.getAttribute("org.jboss.weld.environment.servlet.jakarta.enterprise.inject.spi.BeanManager"))
+                .thenReturn(beanManager);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Set<Bean<?>> beans = (Set) Collections.singleton(bean);
+        when(beanManager.getBeans(VMTracker.class)).thenReturn(beans);
+        when(beanManager.createCreationalContext(bean)).thenReturn(creationalContext);
+        when(beanManager.getReference(bean, VMTracker.class, creationalContext)).thenReturn(vmTracker);
+
+        Field servletContextField = AgentCommandWebSocketHandler.class.getDeclaredField("servletContext");
+        servletContextField.setAccessible(true);
+        servletContextField.set(handler, servletContext);
+
+        CloudVmStatus status = new CloudVmStatus(
+                "i-spoofed",
+                "job-1",
+                "sg-1",
+                JobStatus.Running,
+                VMImageType.AGENT,
+                VMRegion.US_EAST,
+                VMStatus.running,
+                new ValidationStatus(),
+                5,
+                1,
+                new Date(),
+                null);
+
+        AgentWsEnvelope statusUpdate = AgentWsEnvelope.statusUpdate("i-123", "job-1", status);
+        handler.handleTextMessage(session, new TextMessage(statusUpdate.toJson()));
+
+        ArgumentCaptor<CloudVmStatus> statusCaptor = ArgumentCaptor.forClass(CloudVmStatus.class);
+        verify(vmTracker).setStatus(statusCaptor.capture());
+        assertEquals("i-123", statusCaptor.getValue().getInstanceId());
+        assertEquals("job-1", statusCaptor.getValue().getJobId());
+        assertEquals(JobStatus.Running, statusCaptor.getValue().getJobStatus());
     }
 }
