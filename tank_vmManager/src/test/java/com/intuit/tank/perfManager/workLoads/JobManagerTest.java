@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.FutureTask;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
@@ -28,7 +27,6 @@ import jakarta.enterprise.inject.Instance;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -144,74 +142,40 @@ public class JobManagerTest {
     }
 
     @Test
-    public void testSendCommandUsesControllerInitiatedWsWhenEnabled() throws Exception {
+    public void testSendCommandStartSkippedWhenFileTransferNotReadyAndNoFallback() throws Exception {
         JobManager fixture = new JobManager();
-        String jobId = "job-1";
-        String instanceId = "i-12345";
+        String jobId = "job-3";
+        String instanceId = "i-22222";
         String instanceUrl = "http://127.0.0.1:8090";
         seedJobInfoCache(fixture, jobId, instanceId, instanceUrl);
 
         AgentConfig agentConfig = mock(AgentConfig.class);
-        when(agentConfig.isCommandWsEnabled()).thenReturn(false);
-        when(agentConfig.isControllerInitiatedWsEnabled()).thenReturn(true);
+        when(agentConfig.isCommandWsEnabled()).thenReturn(true);
         when(agentConfig.isCommandWsHttpFallbackEnabled()).thenReturn(false);
+        when(agentConfig.isCommandWsFileTransferEnabled()).thenReturn(true);
+        when(agentConfig.isCommandWsFileTransferHttpFallbackEnabled()).thenReturn(false);
         when(agentConfig.getCommandWsAckTimeoutMillis()).thenReturn(1000L);
 
         TankConfig tankConfig = mock(TankConfig.class);
         when(tankConfig.getAgentConfig()).thenReturn(agentConfig);
         setField(fixture, "tankConfig", tankConfig);
 
-        ControllerInitiatedAgentWsClient wsClient = mock(ControllerInitiatedAgentWsClient.class);
-        when(wsClient.hasSession(instanceId)).thenReturn(true);
-        when(wsClient.sendCommand(instanceId, jobId, AgentCommand.stop.name(), 1000L)).thenReturn(true);
+        AgentWsCommandSender wsSender = mock(AgentWsCommandSender.class);
+        when(wsSender.hasSession(instanceId)).thenReturn(true);
+        when(wsSender.isFileTransferReady(instanceId)).thenReturn(false);
 
         @SuppressWarnings("unchecked")
-        Instance<ControllerInitiatedAgentWsClient> wsClientInstance = mock(Instance.class);
-        when(wsClientInstance.isResolvable()).thenReturn(true);
-        when(wsClientInstance.get()).thenReturn(wsClient);
-        setField(fixture, "controllerInitiatedWsClientInstance", wsClientInstance);
+        Instance<AgentWsCommandSender> wsSenderInstance = mock(Instance.class);
+        when(wsSenderInstance.isResolvable()).thenReturn(true);
+        when(wsSenderInstance.get()).thenReturn(wsSender);
+        setField(fixture, "wsCommandSenderInstance", wsSenderInstance);
 
-        List<CompletableFuture<?>> result = fixture.sendCommand(Collections.singletonList(instanceId), AgentCommand.stop);
+        List<CompletableFuture<?>> result = fixture.sendCommand(Collections.singletonList(instanceId), AgentCommand.start);
 
         assertEquals(1, result.size());
         assertTrue(result.get(0).isDone());
         assertNull(result.get(0).join());
-        verify(wsClient).sendCommand(eq(instanceId), eq(jobId), eq(AgentCommand.stop.name()), eq(1000L));
-    }
-
-    @Test
-    public void testSendCommandSkipsWhenNoControllerWsSessionAndNoFallback() throws Exception {
-        JobManager fixture = new JobManager();
-        String jobId = "job-2";
-        String instanceId = "i-54321";
-        String instanceUrl = "http://127.0.0.1:8090";
-        seedJobInfoCache(fixture, jobId, instanceId, instanceUrl);
-
-        AgentConfig agentConfig = mock(AgentConfig.class);
-        when(agentConfig.isCommandWsEnabled()).thenReturn(false);
-        when(agentConfig.isControllerInitiatedWsEnabled()).thenReturn(true);
-        when(agentConfig.isCommandWsHttpFallbackEnabled()).thenReturn(false);
-        when(agentConfig.getCommandWsAckTimeoutMillis()).thenReturn(1000L);
-
-        TankConfig tankConfig = mock(TankConfig.class);
-        when(tankConfig.getAgentConfig()).thenReturn(agentConfig);
-        setField(fixture, "tankConfig", tankConfig);
-
-        ControllerInitiatedAgentWsClient wsClient = mock(ControllerInitiatedAgentWsClient.class);
-        when(wsClient.hasSession(instanceId)).thenReturn(false);
-
-        @SuppressWarnings("unchecked")
-        Instance<ControllerInitiatedAgentWsClient> wsClientInstance = mock(Instance.class);
-        when(wsClientInstance.isResolvable()).thenReturn(true);
-        when(wsClientInstance.get()).thenReturn(wsClient);
-        setField(fixture, "controllerInitiatedWsClientInstance", wsClientInstance);
-
-        List<CompletableFuture<?>> result = fixture.sendCommand(Collections.singletonList(instanceId), AgentCommand.stop);
-
-        assertEquals(1, result.size());
-        assertTrue(result.get(0).isDone());
-        assertNull(result.get(0).join());
-        verify(wsClient, never()).sendCommand(anyString(), anyString(), anyString(), anyLong());
+        verify(wsSender, never()).sendCommand(anyString(), anyString(), anyString(), anyLong());
     }
 
     private void seedJobInfoCache(JobManager fixture, String jobId, String instanceId, String instanceUrl) throws Exception {

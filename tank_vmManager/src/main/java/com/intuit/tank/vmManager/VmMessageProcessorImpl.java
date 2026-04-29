@@ -17,9 +17,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import com.amazonaws.xray.AWSXRay;
-import com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient;
-import com.intuit.tank.perfManager.workLoads.JobManager;
-import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,15 +42,6 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
     @Inject
     private VMTracker vmTracker;
 
-    @Inject
-    private ControllerInitiatedAgentWsClient controllerInitiatedAgentWsClient;
-
-    @Inject
-    private JobManager jobManager;
-
-    @Inject
-    private TankConfig tankConfig;
-
     /**
      * @param messageObject
      */
@@ -64,8 +52,7 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
             CreateInstance instance = new CreateInstance((VMInstanceRequest) messageObject, vmTracker);
             Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
         } else if (messageObject instanceof VMJobRequest) {
-            JobRequest instance = new JobRequest((VMJobRequest) messageObject, vmTracker,
-                    controllerInitiatedAgentWsClient, jobManager, tankConfig);
+            JobRequest instance = new JobRequest((VMJobRequest) messageObject, vmTracker);
             Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
         } else if (messageObject instanceof VMKillRequest) {
             logger.debug("vmManager received VMKillRequest");

@@ -54,10 +54,10 @@ public class AgentStartup implements Runnable {
         logger.info("Starting up...");
         HttpClient client = HttpClient.newHttpClient();
         try {
-            boolean controllerInitiatedWsEnabled = Boolean.parseBoolean(
-                    AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_CONTROLLER_INITIATED_WS_ENABLED, "false"));
+            boolean commandWsFileTransferEnabled = Boolean.parseBoolean(
+                    AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_COMMAND_WS_FILE_TRANSFER_ENABLED, "false"));
             logger.info("Starting up: ControllerBaseUrl={}", controllerBaseUrl);
-            if (!controllerInitiatedWsEnabled) {
+            if (!commandWsFileTransferEnabled) {
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
                         controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
                         .header("Authorization", "bearer "+token).build();
@@ -95,7 +95,7 @@ public class AgentStartup implements Runnable {
                     }
                 }
             } else {
-                logger.info("Controller-initiated WS mode enabled - skipping settings/support download from controller.");
+                logger.info("Command WS file transfer enabled - skipping settings/support download from controller.");
             }
             // now start the harness
             String controllerArg = " -http=" + controllerBaseUrl;

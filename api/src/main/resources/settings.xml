@@ -142,9 +142,9 @@
 		<command-ws-http-fallback-enabled>true</command-ws-http-fallback-enabled>
 		<command-ws-ack-timeout-millis>3000</command-ws-ack-timeout-millis>
 		<command-ws-path>/v2/agent/ws/control</command-ws-path>
-		<controller-initiated-ws-enabled>false</controller-initiated-ws-enabled>
-		<controller-initiated-ws-disable-agent-http>true</controller-initiated-ws-disable-agent-http>
-		<controller-initiated-ws-script-path>script.xml</controller-initiated-ws-script-path>
+		<command-ws-file-transfer-enabled>false</command-ws-file-transfer-enabled>
+		<command-ws-file-transfer-chunk-bytes>49152</command-ws-file-transfer-chunk-bytes>
+		<command-ws-file-transfer-http-fallback-enabled>true</command-ws-file-transfer-http-fallback-enabled>
 
 	</agent-config>
 

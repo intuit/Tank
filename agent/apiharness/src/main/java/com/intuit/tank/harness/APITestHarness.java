@@ -105,7 +105,6 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
-    private AgentCommandWebSocketServer controllerInitiatedWsServer;
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -227,37 +226,26 @@ public class APITestHarness {
         }
     }
 
-    public boolean isControllerInitiatedWsModeEnabled() {
+    private boolean isCommandWsFileTransferEnabled() {
         try {
-            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_ENABLED);
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_FILE_TRANSFER_ENABLED);
             if (StringUtils.isNotBlank(value)) {
                 return Boolean.parseBoolean(value);
             }
         } catch (Exception ignored) {
         }
-        return tankConfig.getAgentConfig().isControllerInitiatedWsEnabled();
+        return tankConfig.getAgentConfig().isCommandWsFileTransferEnabled();
     }
 
-    private boolean isControllerInitiatedWsDisableAgentHttpEnabled() {
+    private boolean isCommandWsFileTransferHttpFallbackEnabled() {
         try {
-            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP);
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_FILE_TRANSFER_HTTP_FALLBACK_ENABLED);
             if (StringUtils.isNotBlank(value)) {
                 return Boolean.parseBoolean(value);
             }
         } catch (Exception ignored) {
         }
-        return tankConfig.getAgentConfig().isControllerInitiatedWsDisableAgentHttp();
-    }
-
-    private String getControllerInitiatedWsScriptPath() {
-        try {
-            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH);
-            if (StringUtils.isNotBlank(value)) {
-                return value;
-            }
-        } catch (Exception ignored) {
-        }
-        return tankConfig.getAgentConfig().getControllerInitiatedWsScriptPath();
+        return tankConfig.getAgentConfig().isCommandWsFileTransferHttpFallbackEnabled();
     }
 
     private String getLocalInstanceId() {
@@ -289,12 +277,11 @@ public class APITestHarness {
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
         HostInfo hostInfo = new HostInfo();
-        boolean controllerInitiatedWsMode = isControllerInitiatedWsModeEnabled();
-        boolean controllerInitiatedWsDisableAgentHttp = isControllerInitiatedWsDisableAgentHttpEnabled();
+        boolean wsCommandEnabled = tankConfig.getAgentConfig().isCommandWsEnabled();
+        boolean wsFileTransferEnabled = wsCommandEnabled && isCommandWsFileTransferEnabled();
+        boolean wsFileTransferHttpFallbackEnabled = isCommandWsFileTransferHttpFallbackEnabled();
 
-        if (!controllerInitiatedWsMode || !controllerInitiatedWsDisableAgentHttp) {
-            CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
-        }
+        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
         String instanceUrl = null;
@@ -329,28 +316,35 @@ public class APITestHarness {
         agentRunData.setJobId(AmazonUtil.getJobId());
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
+        AgentCommandWebSocketClient wsClient = null;
 
-        if (controllerInitiatedWsMode && controllerInitiatedWsDisableAgentHttp) {
+        if (wsFileTransferEnabled) {
             try {
-                if (controllerInitiatedWsServer == null) {
-                    controllerInitiatedWsServer = new AgentCommandWebSocketServer(
-                            tankConfig.getAgentConfig().getAgentPort(),
-                            instanceId,
-                            agentRunData.getJobId(),
-                            capacity);
-                    controllerInitiatedWsServer.start();
+                String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
+                LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control+file transfer channel to " + baseUrl + wsPath)));
+                wsClient = new AgentCommandWebSocketClient(
+                        baseUrl,
+                        wsPath,
+                        token,
+                        instanceId,
+                        agentRunData.getJobId(),
+                        capacity,
+                        true);
+                wsClient.connect();
+
+                long transferTimeoutMs = Math.max(60_000L, tankConfig.getAgentConfig().getMaxAgentWaitTime());
+                if (!wsClient.awaitInitialTransfer(transferTimeoutMs)) {
+                    throw new RuntimeException("Timed out waiting for WS job config/file transfer");
                 }
 
-                String scriptPath = getControllerInitiatedWsScriptPath();
-                if (StringUtils.isNotBlank(scriptPath) && new File(scriptPath).exists()) {
-                    LOG.info(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode loading script from " + scriptPath)));
-                    TestPlanSingleton.getInstance().setTestPlans(scriptPath);
-                } else if (StringUtils.isNotBlank(testPlans) && AgentUtil.validateTestPlans(testPlans)) {
-                    LOG.info(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode loading script from args " + testPlans)));
-                    TestPlanSingleton.getInstance().setTestPlans(testPlans);
-                } else {
-                    LOG.warn(new ObjectMessage(Map.of("Message", "Controller-initiated WS mode has no valid local script path configured. Awaiting controller command anyway.")));
+                AgentTestStartData startData = wsClient.getReceivedJobConfig();
+                if (startData == null) {
+                    throw new RuntimeException("Missing WS job_config payload");
                 }
+
+                applyStartData(startData);
+                ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+                loadScriptFromLocalFile("script.xml");
 
                 Thread thread = new Thread(new StartedChecker());
                 thread.setName("StartedChecker");
@@ -358,12 +352,16 @@ public class APITestHarness {
                 thread.start();
                 return;
             } catch (Exception e) {
-                LOG.error("Error starting controller-initiated WS mode: " + e, e);
-                System.exit(0);
+                LOG.error("Error in WS file transfer startup path: " + e, e);
+                if (!wsFileTransferHttpFallbackEnabled) {
+                    System.exit(0);
+                }
+                if (wsClient != null) {
+                    wsClient.close();
+                    wsClient = null;
+                }
+                LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer failed, falling back to HTTP artifact flow")));
             }
-        } else if (controllerInitiatedWsMode) {
-            LOG.warn(new ObjectMessage(Map.of("Message",
-                    "Controller-initiated WS is enabled but HTTP disable flag is false; running legacy HTTP lifecycle path")));
         }
 
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
@@ -395,17 +393,7 @@ public class APITestHarness {
                 }
             }
             writeXmlToFile(startData.getScriptUrl(), token);
-
-            agentRunData.setNumUsers(startData.getConcurrentUsers());
-            agentRunData.setNumStartUsers(startData.getStartUsers());
-            agentRunData.setRampTimeMillis(startData.getRampTime());
-            agentRunData.setJobId(startData.getJobId());
-            agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
-            agentRunData.setUserInterval(startData.getUserIntervalIncrement());
-            agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
-            agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
-            agentRunData.setTotalAgents(startData.getTotalAgents());
-            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent
+            applyStartData(startData);
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
@@ -416,10 +404,10 @@ public class APITestHarness {
                 }
             }
             // Start WS control channel if enabled
-            if (tankConfig.getAgentConfig().isCommandWsEnabled()) {
+            if (wsCommandEnabled && wsClient == null) {
                 String wsPath = tankConfig.getAgentConfig().getCommandWsPath();
                 LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control channel to " + baseUrl + wsPath)));
-                AgentCommandWebSocketClient wsClient = new AgentCommandWebSocketClient(
+                wsClient = new AgentCommandWebSocketClient(
                         baseUrl, wsPath, token, instanceId, agentRunData.getJobId());
                 wsClient.connect();
             }
@@ -431,6 +419,32 @@ public class APITestHarness {
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
+        }
+    }
+
+    private void applyStartData(AgentTestStartData startData) {
+        agentRunData.setNumUsers(startData.getConcurrentUsers());
+        agentRunData.setNumStartUsers(startData.getStartUsers());
+        agentRunData.setRampTimeMillis(startData.getRampTime());
+        agentRunData.setJobId(startData.getJobId());
+        agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
+        agentRunData.setUserInterval(startData.getUserIntervalIncrement());
+        agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
+        agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
+        agentRunData.setTotalAgents(startData.getTotalAgents());
+        agentRunData.setTargetRampRate(startData.getTargetRampRate());
+    }
+
+    private void loadScriptFromLocalFile(String path) {
+        try {
+            File script = new File(path);
+            if (!script.exists()) {
+                throw new IOException("Script file not found: " + path);
+            }
+            String scriptXML = FileUtils.readFileToString(script, "UTF-8");
+            TestPlanSingleton.getInstance().setTestPlanXML(scriptXML);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load local script " + path, e);
         }
     }
 

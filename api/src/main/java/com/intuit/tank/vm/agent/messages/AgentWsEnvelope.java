@@ -16,11 +16,13 @@ public class AgentWsEnvelope {
     public static final int PROTOCOL_VERSION = 1;
 
     public enum Type {
-        hello, command, ack, ping, pong, close
+        hello, command, ack, ping, pong, close,
+        job_config, file_offer, file_chunk, file_ack
     }
 
     public enum AckStatus {
-        ok, duplicate, failed, unsupported
+        ok, duplicate, failed, unsupported,
+        chunk_received, complete, all_files_complete
     }
 
     @JsonProperty("type")
@@ -71,6 +73,38 @@ public class AgentWsEnvelope {
 
     @JsonProperty("lastAppliedCommandId")
     private String lastAppliedCommandId;
+
+    // job_config fields
+    @JsonProperty("jobConfig")
+    private AgentTestStartData jobConfig;
+
+    @JsonProperty("expectedFiles")
+    private Integer expectedFiles;
+
+    // file transfer fields
+    @JsonProperty("fileId")
+    private String fileId;
+
+    @JsonProperty("fileType")
+    private String fileType;
+
+    @JsonProperty("fileName")
+    private String fileName;
+
+    @JsonProperty("totalBytes")
+    private Long totalBytes;
+
+    @JsonProperty("totalChunks")
+    private Integer totalChunks;
+
+    @JsonProperty("isDefaultDataFile")
+    private Boolean defaultDataFile;
+
+    @JsonProperty("chunkIndex")
+    private Integer chunkIndex;
+
+    @JsonProperty("chunkData")
+    private String chunkData;
 
     // close fields
     @JsonProperty("reasonCode")
@@ -125,6 +159,36 @@ public class AgentWsEnvelope {
 
     public String getLastAppliedCommandId() { return lastAppliedCommandId; }
     public void setLastAppliedCommandId(String lastAppliedCommandId) { this.lastAppliedCommandId = lastAppliedCommandId; }
+
+    public AgentTestStartData getJobConfig() { return jobConfig; }
+    public void setJobConfig(AgentTestStartData jobConfig) { this.jobConfig = jobConfig; }
+
+    public Integer getExpectedFiles() { return expectedFiles; }
+    public void setExpectedFiles(Integer expectedFiles) { this.expectedFiles = expectedFiles; }
+
+    public String getFileId() { return fileId; }
+    public void setFileId(String fileId) { this.fileId = fileId; }
+
+    public String getFileType() { return fileType; }
+    public void setFileType(String fileType) { this.fileType = fileType; }
+
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+
+    public Long getTotalBytes() { return totalBytes; }
+    public void setTotalBytes(Long totalBytes) { this.totalBytes = totalBytes; }
+
+    public Integer getTotalChunks() { return totalChunks; }
+    public void setTotalChunks(Integer totalChunks) { this.totalChunks = totalChunks; }
+
+    public Boolean getDefaultDataFile() { return defaultDataFile; }
+    public void setDefaultDataFile(Boolean defaultDataFile) { this.defaultDataFile = defaultDataFile; }
+
+    public Integer getChunkIndex() { return chunkIndex; }
+    public void setChunkIndex(Integer chunkIndex) { this.chunkIndex = chunkIndex; }
+
+    public String getChunkData() { return chunkData; }
+    public void setChunkData(String chunkData) { this.chunkData = chunkData; }
 
     public String getReasonCode() { return reasonCode; }
     public void setReasonCode(String reasonCode) { this.reasonCode = reasonCode; }
@@ -206,6 +270,59 @@ public class AgentWsEnvelope {
         env.setInstanceId(instanceId);
         env.setReasonCode(reasonCode);
         env.setReason(reason);
+        env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope jobConfig(String instanceId, String jobId, AgentTestStartData jobConfig, Integer expectedFiles) {
+        AgentWsEnvelope env = new AgentWsEnvelope();
+        env.setType(Type.job_config);
+        env.setInstanceId(instanceId);
+        env.setJobId(jobId);
+        env.setJobConfig(jobConfig);
+        env.setExpectedFiles(expectedFiles);
+        env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope fileOffer(String instanceId, String jobId, String fileId, String fileType,
+                                            String fileName, long totalBytes, int totalChunks, Boolean defaultDataFile) {
+        AgentWsEnvelope env = new AgentWsEnvelope();
+        env.setType(Type.file_offer);
+        env.setInstanceId(instanceId);
+        env.setJobId(jobId);
+        env.setFileId(fileId);
+        env.setFileType(fileType);
+        env.setFileName(fileName);
+        env.setTotalBytes(totalBytes);
+        env.setTotalChunks(totalChunks);
+        env.setDefaultDataFile(defaultDataFile);
+        env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope fileChunk(String instanceId, String jobId, String fileId, int chunkIndex, String chunkData) {
+        AgentWsEnvelope env = new AgentWsEnvelope();
+        env.setType(Type.file_chunk);
+        env.setInstanceId(instanceId);
+        env.setJobId(jobId);
+        env.setFileId(fileId);
+        env.setChunkIndex(chunkIndex);
+        env.setChunkData(chunkData);
+        env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope fileAck(String instanceId, String jobId, String fileId, Integer chunkIndex,
+                                          AckStatus status, String error) {
+        AgentWsEnvelope env = new AgentWsEnvelope();
+        env.setType(Type.file_ack);
+        env.setInstanceId(instanceId);
+        env.setJobId(jobId);
+        env.setFileId(fileId);
+        env.setChunkIndex(chunkIndex);
+        env.setStatus(status);
+        env.setError(error);
         env.setSentAtMs(System.currentTimeMillis());
         return env;
     }

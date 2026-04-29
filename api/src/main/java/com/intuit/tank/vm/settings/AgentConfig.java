@@ -68,9 +68,9 @@ public class AgentConfig implements Serializable {
     private static final String KEY_COMMAND_WS_HTTP_FALLBACK_ENABLED = "command-ws-http-fallback-enabled";
     private static final String KEY_COMMAND_WS_ACK_TIMEOUT_MILLIS = "command-ws-ack-timeout-millis";
     private static final String KEY_COMMAND_WS_PATH = "command-ws-path";
-    private static final String KEY_CONTROLLER_INITIATED_WS_ENABLED = "controller-initiated-ws-enabled";
-    private static final String KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP = "controller-initiated-ws-disable-agent-http";
-    private static final String KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH = "controller-initiated-ws-script-path";
+    private static final String KEY_COMMAND_WS_FILE_TRANSFER_ENABLED = "command-ws-file-transfer-enabled";
+    private static final String KEY_COMMAND_WS_FILE_TRANSFER_CHUNK_BYTES = "command-ws-file-transfer-chunk-bytes";
+    private static final String KEY_COMMAND_WS_FILE_TRANSFER_HTTP_FALLBACK_ENABLED = "command-ws-file-transfer-http-fallback-enabled";
 
     private static final String KEY_REQUEST_HEADERS = "request-headers/header";
     // private static final String KEY_RESULT_PROVIDERS =
@@ -360,16 +360,16 @@ public class AgentConfig implements Serializable {
         return config.getString(KEY_COMMAND_WS_PATH, "/v2/agent/ws/control");
     }
 
-    public boolean isControllerInitiatedWsEnabled() {
-        return config.getBoolean(KEY_CONTROLLER_INITIATED_WS_ENABLED, false);
+    public boolean isCommandWsFileTransferEnabled() {
+        return config.getBoolean(KEY_COMMAND_WS_FILE_TRANSFER_ENABLED, false);
     }
 
-    public boolean isControllerInitiatedWsDisableAgentHttp() {
-        return config.getBoolean(KEY_CONTROLLER_INITIATED_WS_DISABLE_AGENT_HTTP, true);
+    public int getCommandWsFileTransferChunkBytes() {
+        return config.getInt(KEY_COMMAND_WS_FILE_TRANSFER_CHUNK_BYTES, 49152);
     }
 
-    public String getControllerInitiatedWsScriptPath() {
-        return config.getString(KEY_CONTROLLER_INITIATED_WS_SCRIPT_PATH, "script.xml");
+    public boolean isCommandWsFileTransferHttpFallbackEnabled() {
+        return config.getBoolean(KEY_COMMAND_WS_FILE_TRANSFER_HTTP_FALLBACK_ENABLED, true);
     }
 
 }

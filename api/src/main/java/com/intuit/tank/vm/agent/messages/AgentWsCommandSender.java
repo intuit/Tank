@@ -16,4 +16,12 @@ public interface AgentWsCommandSender {
      * @return true if command was acked successfully within timeout
      */
     boolean sendCommand(String instanceId, String jobId, String command, long ackTimeoutMillis);
+
+    /**
+     * Check whether initial WS file transfer is complete for the agent.
+     * Defaults to true so non-transfer implementations remain compatible.
+     */
+    default boolean isFileTransferReady(String instanceId) {
+        return true;
+    }
 }

@@ -91,6 +91,54 @@ public class AgentWsEnvelopeTest {
     }
 
     @Test
+    public void testJobConfigFactory() {
+        AgentTestStartData startData = new AgentTestStartData("https://controller/v2/jobs/1/script", 25, 120000);
+        startData.setJobId("job-1");
+        AgentWsEnvelope env = AgentWsEnvelope.jobConfig("i-123", "job-1", startData, 4);
+
+        assertEquals(Type.job_config, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals(startData, env.getJobConfig());
+        assertEquals(4, env.getExpectedFiles());
+    }
+
+    @Test
+    public void testFileOfferFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileOffer("i-123", "job-1", "file-1", "script",
+                "script.xml", 1024L, 3, false);
+
+        assertEquals(Type.file_offer, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals("script", env.getFileType());
+        assertEquals("script.xml", env.getFileName());
+        assertEquals(1024L, env.getTotalBytes());
+        assertEquals(3, env.getTotalChunks());
+        assertEquals(false, env.getDefaultDataFile());
+    }
+
+    @Test
+    public void testFileChunkFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileChunk("i-123", "job-1", "file-1", 2, "YWJj");
+
+        assertEquals(Type.file_chunk, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals(2, env.getChunkIndex());
+        assertEquals("YWJj", env.getChunkData());
+    }
+
+    @Test
+    public void testFileAckFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileAck("i-123", "job-1", "file-1", 2,
+                AckStatus.chunk_received, null);
+
+        assertEquals(Type.file_ack, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals(2, env.getChunkIndex());
+        assertEquals(AckStatus.chunk_received, env.getStatus());
+    }
+
+    @Test
     public void testJsonRoundTrip() throws IOException {
         AgentWsEnvelope original = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "stop");
         String json = original.toJson();
@@ -149,22 +197,29 @@ public class AgentWsEnvelopeTest {
 
     @Test
     public void testAckStatusValues() {
-        assertEquals(4, AckStatus.values().length);
+        assertEquals(7, AckStatus.values().length);
         assertNotNull(AckStatus.valueOf("ok"));
         assertNotNull(AckStatus.valueOf("duplicate"));
         assertNotNull(AckStatus.valueOf("failed"));
         assertNotNull(AckStatus.valueOf("unsupported"));
+        assertNotNull(AckStatus.valueOf("chunk_received"));
+        assertNotNull(AckStatus.valueOf("complete"));
+        assertNotNull(AckStatus.valueOf("all_files_complete"));
     }
 
     @Test
     public void testTypeValues() {
-        assertEquals(6, Type.values().length);
+        assertEquals(10, Type.values().length);
         assertNotNull(Type.valueOf("hello"));
         assertNotNull(Type.valueOf("command"));
         assertNotNull(Type.valueOf("ack"));
         assertNotNull(Type.valueOf("ping"));
         assertNotNull(Type.valueOf("pong"));
         assertNotNull(Type.valueOf("close"));
+        assertNotNull(Type.valueOf("job_config"));
+        assertNotNull(Type.valueOf("file_offer"));
+        assertNotNull(Type.valueOf("file_chunk"));
+        assertNotNull(Type.valueOf("file_ack"));
     }
 
     @Test
