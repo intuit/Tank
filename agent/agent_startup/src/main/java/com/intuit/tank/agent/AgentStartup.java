@@ -53,7 +53,7 @@ public class AgentStartup implements Runnable {
 
     public void run() {
         logger.info("Starting up...");
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
         try {
             boolean wsEnabled = Boolean.parseBoolean(
                     AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_COMMAND_WS_ENABLED, "false"));
@@ -78,32 +78,34 @@ public class AgentStartup implements Runnable {
                         controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
                 int retryCount = 0;
                 while (true) {
-                    HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
-                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                        throw new IOException("Support files download failed: HTTP " + response.statusCode());
-                    }
-                    try (ZipInputStream zip = new ZipInputStream(response.body())) {
-                        ZipEntry entry = zip.getNextEntry();
-                        Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
-                        boolean extractedEntry = false;
-                        while (entry != null) {
-                            String filename = entry.getName();
-                            logger.info("Got file from controller: {}", filename);
-                            Path targetPath = agentDirPath.resolve(filename).normalize();
-                            if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
-                                throw new ZipException("Bad zip entry");
-                            if (!entry.isDirectory()) {
-                                Files.write(targetPath, zip.readAllBytes());
-                                extractedEntry = true;
+                    try {
+                        HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+                        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                            throw new IOException("Support files download failed: HTTP " + response.statusCode());
+                        }
+                        try (ZipInputStream zip = new ZipInputStream(response.body())) {
+                            ZipEntry entry = zip.getNextEntry();
+                            Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
+                            boolean extractedEntry = false;
+                            while (entry != null) {
+                                String filename = entry.getName();
+                                logger.info("Got file from controller: {}", filename);
+                                Path targetPath = agentDirPath.resolve(filename).normalize();
+                                if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
+                                    throw new ZipException("Bad zip entry");
+                                if (!entry.isDirectory()) {
+                                    Files.write(targetPath, zip.readAllBytes());
+                                    extractedEntry = true;
+                                }
+                                entry = zip.getNextEntry();
                             }
-                            entry = zip.getNextEntry();
+                            if (!extractedEntry) {
+                                throw new ZipException("Support files archive contained no files");
+                            }
+                            break;
                         }
-                        if (!extractedEntry) {
-                            throw new ZipException("Support files archive contained no files");
-                        }
-                        break;
-                    } catch (EOFException | ZipException e) {
-                        logger.error("Error unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
+                    } catch (IOException e) {
+                        logger.error("Error downloading/unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
                         if (retryCount < FIBONACCI.length) {
                             Thread.sleep( FIBONACCI[retryCount++] * 1000 );
                         } else throw e;
@@ -127,7 +129,24 @@ public class AgentStartup implements Runnable {
             logger.error("Error creating connection to {} : this is normal during the bake : {}",
                     controllerBaseUrl, ce.getMessage());
         } catch (IOException e) {
-            logger.error("Error Executing API Harness Command: {} : {}", API_HARNESS_COMMAND, e, e);
+            logger.error("Error in AgentStartup: {} : {}", API_HARNESS_COMMAND, e, e);
+            // If harness JAR exists on disk (baked into AMI), try launching anyway
+            File fallbackJar = new File(TANK_AGENT_DIR, "apiharness-1.0-all.jar");
+            if (fallbackJar.exists()) {
+                logger.info("Harness JAR found on disk despite download failure — launching anyway");
+                try {
+                    String controllerArg = " -http=" + controllerBaseUrl;
+                    String jvmArgs = AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_JVM_ARGS, "");
+                    String command = API_HARNESS_COMMAND + controllerArg;
+                    if (jvmArgs != null && !jvmArgs.isBlank()) {
+                        command += " " + jvmArgs;
+                    }
+                    logger.info("Starting apiharness with fallback command: {}", command);
+                    Runtime.getRuntime().exec(command);
+                } catch (IOException ex) {
+                    logger.error("Fallback harness launch also failed: {}", ex.getMessage(), ex);
+                }
+            }
         } catch (InterruptedException ignored) {
         } catch (Exception e) {
             logger.error("Error in AgentStartup {}", e, e);

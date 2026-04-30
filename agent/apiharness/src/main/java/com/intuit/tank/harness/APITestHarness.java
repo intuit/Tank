@@ -310,6 +310,7 @@ public class APITestHarness {
                 applyStartData(startData);
                 ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
                 loadScriptFromLocalFile("script.xml");
+                wsClient.markInitialBootstrapReady();
 
                 Thread thread = new Thread(new StartedChecker());
                 thread.setName("StartedChecker");
