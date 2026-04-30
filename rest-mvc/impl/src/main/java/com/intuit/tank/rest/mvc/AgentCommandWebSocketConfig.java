@@ -22,6 +22,7 @@ public class AgentCommandWebSocketConfig implements WebSocketConfigurer {
     public AgentCommandWebSocketHandler agentCommandWebSocketHandler() {
         AgentCommandWebSocketHandler handler = new AgentCommandWebSocketHandler();
         AgentWsCommandSenderHolder.set(handler);
+        com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(handler);
         return handler;
     }
 

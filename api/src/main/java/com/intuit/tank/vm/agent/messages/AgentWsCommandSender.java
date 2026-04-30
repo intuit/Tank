@@ -6,6 +6,17 @@ package com.intuit.tank.vm.agent.messages;
  */
 public interface AgentWsCommandSender {
 
+    // Static holder for Spring-CDI bridge fallback
+    java.util.concurrent.atomic.AtomicReference<AgentWsCommandSender> STATIC_INSTANCE = new java.util.concurrent.atomic.AtomicReference<>();
+
+    static void setStaticInstance(AgentWsCommandSender sender) {
+        STATIC_INSTANCE.set(sender);
+    }
+
+    static AgentWsCommandSender getStaticInstance() {
+        return STATIC_INSTANCE.get();
+    }
+
     /**
      * Check if an agent has an active WS session.
      */

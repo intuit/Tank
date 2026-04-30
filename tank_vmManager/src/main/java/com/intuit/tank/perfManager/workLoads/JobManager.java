@@ -279,28 +279,33 @@ public class JobManager implements Serializable {
                     String instanceId = agentData.getInstanceId();
 
                     if (wsEnabled) {
-                        if (wsSender != null && wsSender.hasSession(instanceId)) {
-                            long waitStart = System.currentTimeMillis();
-                            long maxWait = 120_000L;
-                            while (!wsSender.isFileTransferReady(instanceId) && (System.currentTimeMillis() - waitStart) < maxWait) {
-                                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                            }
-                            if (!wsSender.isFileTransferReady(instanceId)) {
-                                LOG.error(new ObjectMessage(Map.of("Message",
-                                        "[WS] ✗ File transfer not complete for " + instanceId + " after " + maxWait + "ms — skipping START")));
-                                return;
-                            }
-                            boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
-                            if (acked) {
-                                LOG.info(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " was SUCCESSFUL for job " + jobId)));
-                            } else {
-                                LOG.error(new ObjectMessage(Map.of("Message", "WS START command to agent " + instanceId + " failed for job " + jobId)));
-                            }
+                        if (wsSender == null) {
+                            LOG.error(new ObjectMessage(Map.of("Message", "[WS] ✗ sender unavailable for agent " + instanceId)));
                             return;
                         }
-                        LOG.error(new ObjectMessage(Map.of("Message", "WS enabled but " +
-                                (wsSender == null ? "sender unavailable" : "no session") +
-                                " for agent " + instanceId)));
+                        // Wait for WS session + file transfer readiness
+                        long waitStart = System.currentTimeMillis();
+                        long maxWait = 120_000L;
+                        while ((!wsSender.hasSession(instanceId) || !wsSender.isFileTransferReady(instanceId))
+                                && (System.currentTimeMillis() - waitStart) < maxWait) {
+                            try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                        }
+                        if (!wsSender.hasSession(instanceId)) {
+                            LOG.error(new ObjectMessage(Map.of("Message",
+                                    "[WS] ✗ No session for " + instanceId + " after " + maxWait + "ms — skipping START")));
+                            return;
+                        }
+                        if (!wsSender.isFileTransferReady(instanceId)) {
+                            LOG.error(new ObjectMessage(Map.of("Message",
+                                    "[WS] ✗ File transfer not complete for " + instanceId + " after " + maxWait + "ms — skipping START")));
+                            return;
+                        }
+                        boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);
+                        if (acked) {
+                            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ START to " + instanceId + " SUCCESSFUL for job " + jobId)));
+                        } else {
+                            LOG.error(new ObjectMessage(Map.of("Message", "[WS] ✗ START to " + instanceId + " FAILED for job " + jobId)));
+                        }
                         return;
                     }
 
@@ -497,10 +502,19 @@ public class JobManager implements Serializable {
     }
 
     private com.intuit.tank.vm.agent.messages.AgentWsCommandSender getWsCommandSender() {
-        if (wsCommandSenderInstance != null && wsCommandSenderInstance.isResolvable()) {
-            return wsCommandSenderInstance.get();
+        // Try CDI injection first
+        try {
+            if (wsCommandSenderInstance != null && wsCommandSenderInstance.isResolvable()) {
+                com.intuit.tank.vm.agent.messages.AgentWsCommandSender sender = wsCommandSenderInstance.get();
+                if (sender != null) {
+                    return sender;
+                }
+            }
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "CDI WsCommandSender resolution failed: " + e.getMessage())));
         }
-        return null;
+        // Fall back to static holder (Spring-CDI bridge)
+        return com.intuit.tank.vm.agent.messages.AgentWsCommandSender.getStaticInstance();
     }
 
     public void startAgents(String jobId){
