@@ -2,7 +2,6 @@ package com.intuit.tank.rest.mvc;
 
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
-import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
@@ -23,18 +22,20 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class AgentCommandWebSocketHandler extends TextWebSocketHandler implements AgentWsCommandSender {
@@ -59,6 +60,10 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     // heartbeat state
     private final ConcurrentHashMap<String, PendingPing> pendingPings = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Integer> missedPongs = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, PendingChunkAck> pendingChunkAcks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> agentJobs = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> jobExpectedAgents = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Set<String>> jobTransferCompleteAgents = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "AgentWsHeartbeat");
@@ -66,8 +71,14 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         return t;
     });
 
-    private final ExecutorService transferExecutor = Executors.newCachedThreadPool(r -> {
-        Thread t = new Thread(r, "AgentWsTransfer");
+    private final ExecutorService transferExecutor = new ThreadPoolExecutor(
+            8, 16, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(500),
+            r -> { Thread t = new Thread(r, "AgentWsTransfer"); t.setDaemon(true); return t; },
+            new ThreadPoolExecutor.CallerRunsPolicy());
+
+    private final ExecutorService heartbeatSendExecutor = Executors.newFixedThreadPool(4, r -> {
+        Thread t = new Thread(r, "AgentWsHeartbeatSend");
         t.setDaemon(true);
         return t;
     });
@@ -77,13 +88,18 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     @Autowired
     private ServletContext servletContext;
 
+    private volatile JobManager cachedJobManager;
+    private volatile VMTracker cachedVMTracker;
+    private volatile AgentConfig cachedAgentConfig;
+
     public AgentCommandWebSocketHandler() {
         heartbeatScheduler.scheduleAtFixedRate(this::heartbeatTick, 30L, 30L, TimeUnit.SECONDS);
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        LOG.info(new ObjectMessage(Map.of("Message", "WS connection established: " + session.getId())));
+        String remote = session.getRemoteAddress() != null ? session.getRemoteAddress().toString() : "unknown";
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] === CONNECTION OPENED === session=" + session.getId() + " remote=" + remote)));
     }
 
     @Override
@@ -92,20 +108,24 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         try {
             envelope = AgentWsEnvelope.fromJson(message.getPayload());
         } catch (IOException e) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "Invalid WS frame, closing session: " + e.getMessage())));
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Invalid frame, closing session: " + e.getMessage())));
             session.close(CloseStatus.BAD_DATA);
             return;
         }
 
         if (envelope.getType() == null) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "WS frame missing type, closing session")));
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Frame missing type, closing session")));
             session.close(CloseStatus.BAD_DATA);
             return;
         }
 
+        String boundId = sessionIdentity.getOrDefault(session.getId(), "?");
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── RECV " + envelope.getType() + " from " + boundId
+                + (envelope.getInstanceId() != null ? " (instanceId=" + envelope.getInstanceId() + ")" : ""))));
+
         // Require hello before any other frame type
         if (envelope.getType() != Type.hello && !sessionIdentity.containsKey(session.getId())) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "WS frame received before hello, closing session")));
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Frame before hello, closing session")));
             session.close(CloseStatus.POLICY_VIOLATION);
             return;
         }
@@ -118,7 +138,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             case pong -> handlePong(session, envelope);
             case close -> handleClose(session, envelope);
             default -> {
-                LOG.warn(new ObjectMessage(Map.of("Message", "Unexpected WS frame type from agent: " + envelope.getType())));
+                LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Unexpected frame type: " + envelope.getType())));
                 sendAck(session, envelope.getInstanceId(), "hello", session.getId(), AckStatus.unsupported);
             }
         }
@@ -153,19 +173,22 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         }
 
         agentLastSeen.put(instanceId, System.currentTimeMillis());
-        LOG.info(new ObjectMessage(Map.of("Message", "Agent " + instanceId + " registered via WS for job " + envelope.getJobId()
-                + " (agentSession=" + envelope.getAgentSessionId() + ")")));
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── HELLO from " + instanceId + " job=" + envelope.getJobId()
+                + " agentSession=" + envelope.getAgentSessionId() + " capacity=" + envelope.getCapacity())));
 
         sendAck(session, instanceId, "hello", envelope.getAgentSessionId(), AckStatus.ok);
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] ──► ACK(hello) to " + instanceId)));
 
         if (isWsEnabled()) {
             fileTransferReady.put(instanceId, false);
             String authorization = session.getHandshakeHeaders() != null
                     ? session.getHandshakeHeaders().getFirst("Authorization")
                     : null;
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ Starting file transfer pipeline for " + instanceId)));
             transferExecutor.submit(() -> registerAndPushFiles(session, envelope, authorization));
         } else {
             fileTransferReady.put(instanceId, true);
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ WS disabled — skipping file transfer for " + instanceId)));
         }
     }
 
@@ -203,10 +226,35 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         agentLastSeen.put(boundId, System.currentTimeMillis());
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(boundId, true);
-            LOG.info(new ObjectMessage(Map.of("Message", "Agent " + boundId + " completed WS file transfer")));
+            PendingChunkAck pending = pendingChunkAcks.get(boundId);
+            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
+                pendingChunkAcks.remove(boundId, pending);
+                pending.future.complete(null);
+            }
+            handleJobTransferComplete(boundId);
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── FILE_ACK from " + boundId + " | ✓ ALL FILES COMPLETE — agent ready for start")));
+        } else if (envelope.getStatus() == AckStatus.complete) {
+            PendingChunkAck pending = pendingChunkAcks.get(boundId);
+            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
+                pendingChunkAcks.remove(boundId, pending);
+                pending.future.complete(null);
+            }
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── FILE_ACK from " + boundId + " | file complete (fileId=" + envelope.getFileId() + ")")));
+        } else if (envelope.getStatus() == AckStatus.chunk_received) {
+            PendingChunkAck pending = pendingChunkAcks.get(boundId);
+            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
+                pendingChunkAcks.remove(boundId, pending);
+                pending.future.complete(null);
+            }
+            // don't log every chunk ack — too noisy
         } else if (envelope.getStatus() == AckStatus.failed) {
             fileTransferReady.put(boundId, false);
-            LOG.warn(new ObjectMessage(Map.of("Message", "Agent " + boundId + " reported WS transfer failure: " + envelope.getError())));
+            PendingChunkAck pending = pendingChunkAcks.get(boundId);
+            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
+                pendingChunkAcks.remove(boundId, pending);
+                pending.future.completeExceptionally(new IOException(envelope.getError()));
+            }
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ◄── FILE_ACK from " + boundId + " | ✗ FAILED: " + envelope.getError())));
         }
     }
 
@@ -216,6 +264,9 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             return;
         }
         agentLastSeen.put(boundId, System.currentTimeMillis());
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── STATUS from " + boundId
+                + " | vm=" + (envelope.getInstanceStatus() != null ? envelope.getInstanceStatus().getVmStatus() : "null")
+                + " job=" + (envelope.getInstanceStatus() != null ? envelope.getInstanceStatus().getJobStatus() : "null"))));
 
         CloudVmStatus status = envelope.getInstanceStatus();
         if (status == null) {
@@ -247,6 +298,8 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
+            pendingChunkAcks.remove(boundId);
+            agentJobs.remove(boundId);
         }
         session.close(CloseStatus.NORMAL);
     }
@@ -260,8 +313,10 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
+            pendingChunkAcks.remove(boundId);
+            agentJobs.remove(boundId);
         }
-        LOG.info(new ObjectMessage(Map.of("Message", "WS session closed: " + session.getId() + " status=" + status)));
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] === CONNECTION CLOSED === agent=" + (boundId != null ? boundId : "unbound") + " session=" + session.getId() + " status=" + status)));
     }
 
     @Override
@@ -274,6 +329,8 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
+            pendingChunkAcks.remove(boundId);
+            agentJobs.remove(boundId);
         }
     }
 
@@ -300,12 +357,14 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             synchronized (session) {
                 session.sendMessage(new TextMessage(cmdEnvelope.toJson()));
             }
-            LOG.info(new ObjectMessage(Map.of("Message", "Sent WS command " + command + " (id=" + commandId + ") to agent " + instanceId)));
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ──► COMMAND to " + instanceId + " | " + command + " (id=" + commandId + ")")));
 
             AgentWsEnvelope ack = ackFuture.get(ackTimeoutMillis, TimeUnit.MILLISECONDS);
-            return ack != null && ack.getStatus() == AckStatus.ok;
+            boolean success = ack != null && ack.getStatus() == AckStatus.ok;
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── ACK(command) from " + instanceId + " | " + command + " = " + (success ? "✓ OK" : "✗ FAILED"))));
+            return success;
         } catch (Exception e) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "WS command " + command + " to agent " + instanceId + " failed: " + e.getMessage())));
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ COMMAND " + command + " to " + instanceId + " FAILED: " + e.getMessage())));
             pendingAcks.remove(commandId);
             return false;
         }
@@ -320,44 +379,63 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     }
 
     private void registerAndPushFiles(WebSocketSession session, AgentWsEnvelope hello, String authorizationHeader) {
+        String agentId = hello.getInstanceId();
+        String jobId = hello.getJobId();
         try {
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Resolving JobManager...")));
             JobManager jobManager = resolveJobManager();
             if (jobManager == null) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "Unable to resolve JobManager for WS transfer")));
+                LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | Failed to resolve JobManager — cannot transfer files")));
+                try {
+                    sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "JobManager unavailable"));
+                    session.close(CloseStatus.SERVER_ERROR);
+                } catch (IOException ignored) {}
                 return;
             }
 
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Registering agent for job " + jobId)));
             AgentData agentData = jobManager.buildAgentDataForWsHello(
-                    hello.getJobId(),
-                    hello.getInstanceId(),
-                    resolveInstanceUrl(session),
-                    hello.getCapacity());
+                    jobId, agentId, resolveInstanceUrl(session), hello.getCapacity());
 
             AgentTestStartData startData = jobManager.registerAgentForJob(agentData);
             if (startData == null) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "No job start data available for WS transfer: job=" + hello.getJobId())));
+                LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | registerAgentForJob returned null — job " + jobId + " not in cache?")));
+                try {
+                    sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Job " + jobId + " not found in cache"));
+                    session.close(CloseStatus.SERVER_ERROR);
+                } catch (IOException ignored) {}
                 return;
             }
+            agentJobs.put(agentId, jobId);
+            if (startData.getTotalAgents() > 0) {
+                jobExpectedAgents.put(jobId, startData.getTotalAgents());
+            }
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | Registered for job " + jobId
+                    + " users=" + startData.getConcurrentUsers() + " ramp=" + startData.getRampTime()
+                    + " scriptUrl=" + startData.getScriptUrl())));
 
-            File supportFilesArchive = null;
-            AgentServiceV2 agentService = resolveAgentService();
-            if (agentService != null) {
-                supportFilesArchive = agentService.getSupportFiles();
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Building transfer files...")));
+            List<AgentWsFileTransferService.TransferFile> files =
+                    fileTransferService.buildTransferFiles(startData, authorizationHeader);
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Built " + files.size() + " files to transfer")));
+
+            for (AgentWsFileTransferService.TransferFile f : files) {
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS]   • " + f.getFileType() + " | " + f.getFileName() + " | " + (f.getContent() != null ? f.getContent().length : 0) + " bytes")));
             }
 
-            List<AgentWsFileTransferService.TransferFile> files =
-                    fileTransferService.buildTransferFiles(startData, authorizationHeader, supportFilesArchive);
-            AgentWsEnvelope jobConfig = AgentWsEnvelope.jobConfig(
-                    hello.getInstanceId(),
-                    hello.getJobId(),
-                    startData,
-                    files.size());
+            AgentWsEnvelope jobConfig = AgentWsEnvelope.jobConfig(agentId, jobId, startData, files.size());
             sendEnvelope(session, jobConfig);
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ──► JOB_CONFIG to " + agentId + " | expectedFiles=" + files.size())));
 
             int chunkBytes = 49152;
-            fileTransferService.sendFiles(session, hello.getInstanceId(), hello.getJobId(), files, chunkBytes);
+            fileTransferService.sendFiles(session, agentId, jobId, files, chunkBytes, this::prepareChunkAckGate);
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | All files sent — waiting for agent ack")));
         } catch (Exception e) {
-            LOG.error(new ObjectMessage(Map.of("Message", "WS file transfer failed for " + hello.getInstanceId() + ": " + e.getMessage())), e);
+            LOG.error(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | File transfer FAILED: " + e.getMessage())), e);
+            try {
+                sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Transfer error: " + e.getMessage()));
+                session.close(CloseStatus.SERVER_ERROR);
+            } catch (IOException ignored) {}
         }
     }
 
@@ -390,12 +468,14 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             if (!pendingPings.containsKey(instanceId)) {
                 String pingId = UUID.randomUUID().toString();
                 AgentWsEnvelope ping = AgentWsEnvelope.ping(pingId);
-                try {
-                    sendEnvelope(session, ping);
-                    pendingPings.put(instanceId, new PendingPing(pingId, now));
-                } catch (Exception e) {
-                    LOG.warn(new ObjectMessage(Map.of("Message", "Failed heartbeat ping for " + instanceId + ": " + e.getMessage())));
-                }
+                heartbeatSendExecutor.submit(() -> {
+                    try {
+                        sendEnvelope(session, ping);
+                        pendingPings.put(instanceId, new PendingPing(pingId, now));
+                    } catch (Exception e) {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Failed heartbeat ping for " + instanceId + ": " + e.getMessage())));
+                    }
+                });
             }
         }
     }
@@ -407,24 +487,20 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     }
 
     private AgentConfig resolveAgentConfig() {
+        AgentConfig config = cachedAgentConfig;
+        if (config != null) {
+            return config;
+        }
         try {
-            return new TankConfig().getAgentConfig();
+            config = new TankConfig().getAgentConfig();
+            cachedAgentConfig = config;
+            return config;
         } catch (Exception e) {
             return null;
         }
     }
 
-    private AgentServiceV2 resolveAgentService() {
-        if (servletContext == null) {
-            return null;
-        }
-        try {
-            return new ServletInjector<AgentServiceV2>().getManagedBean(servletContext, AgentServiceV2.class);
-        } catch (Exception e) {
-            LOG.error(new ObjectMessage(Map.of("Message", "Error resolving AgentServiceV2: " + e.getMessage())), e);
-            return null;
-        }
-    }
+
 
     private boolean isWsEnabled() {
         AgentConfig config = resolveAgentConfig();
@@ -432,11 +508,17 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     }
 
     private JobManager resolveJobManager() {
+        JobManager jobManager = cachedJobManager;
+        if (jobManager != null) {
+            return jobManager;
+        }
         if (servletContext == null) {
             return null;
         }
         try {
-            return new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
+            jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
+            cachedJobManager = jobManager;
+            return jobManager;
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "Error resolving JobManager: " + e.getMessage())), e);
             return null;
@@ -444,11 +526,17 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     }
 
     private VMTracker resolveVMTracker() {
+        VMTracker tracker = cachedVMTracker;
+        if (tracker != null) {
+            return tracker;
+        }
         if (servletContext == null) {
             return null;
         }
         try {
-            return new ServletInjector<VMTracker>().getManagedBean(servletContext, VMTracker.class);
+            tracker = new ServletInjector<VMTracker>().getManagedBean(servletContext, VMTracker.class);
+            cachedVMTracker = tracker;
+            return tracker;
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "Error resolving VMTracker: " + e.getMessage())), e);
             return null;
@@ -474,6 +562,27 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         return "http://" + host + ":" + agentPort;
     }
 
+    private CompletableFuture<Void> prepareChunkAckGate(String instanceId, String fileId, int chunkIndex) {
+        CompletableFuture<Void> gate = new CompletableFuture<>();
+        pendingChunkAcks.put(instanceId, new PendingChunkAck(fileId, chunkIndex, gate));
+        return gate;
+    }
+
+    private void handleJobTransferComplete(String instanceId) {
+        String jobId = agentJobs.get(instanceId);
+        if (jobId == null) {
+            return;
+        }
+        Set<String> completedAgents = jobTransferCompleteAgents.computeIfAbsent(jobId, key -> ConcurrentHashMap.newKeySet());
+        completedAgents.add(instanceId);
+        Integer expectedAgents = jobExpectedAgents.get(jobId);
+        if (expectedAgents != null && expectedAgents > 0 && completedAgents.size() >= expectedAgents) {
+            fileTransferService.clearJobCache(jobId);
+            jobExpectedAgents.remove(jobId);
+            jobTransferCompleteAgents.remove(jobId);
+        }
+    }
+
     private void sendAck(WebSocketSession session, String instanceId, String ackForType, String ackForId, AckStatus status) throws IOException {
         AgentWsEnvelope ack = AgentWsEnvelope.ack(instanceId, ackForType, ackForId, status);
         synchronized (session) {
@@ -488,6 +597,22 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         private PendingPing(String pingId, long sentAtMs) {
             this.pingId = pingId;
             this.sentAtMs = sentAtMs;
+        }
+    }
+
+    private static class PendingChunkAck {
+        private final String fileId;
+        private final int chunkIndex;
+        private final CompletableFuture<Void> future;
+
+        private PendingChunkAck(String fileId, int chunkIndex, CompletableFuture<Void> future) {
+            this.fileId = fileId;
+            this.chunkIndex = chunkIndex;
+            this.future = future;
+        }
+
+        private boolean matches(String fileId, Integer chunkIndex) {
+            return Objects.equals(this.fileId, fileId) && chunkIndex != null && this.chunkIndex == chunkIndex;
         }
     }
 }

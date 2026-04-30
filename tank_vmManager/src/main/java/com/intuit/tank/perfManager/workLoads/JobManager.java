@@ -280,8 +280,14 @@ public class JobManager implements Serializable {
 
                     if (wsEnabled) {
                         if (wsSender != null && wsSender.hasSession(instanceId)) {
+                            long waitStart = System.currentTimeMillis();
+                            long maxWait = 120_000L;
+                            while (!wsSender.isFileTransferReady(instanceId) && (System.currentTimeMillis() - waitStart) < maxWait) {
+                                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                            }
                             if (!wsSender.isFileTransferReady(instanceId)) {
-                                LOG.warn(new ObjectMessage(Map.of("Message", "WS file transfer not complete for agent " + instanceId)));
+                                LOG.error(new ObjectMessage(Map.of("Message",
+                                        "[WS] ✗ File transfer not complete for " + instanceId + " after " + maxWait + "ms — skipping START")));
                                 return;
                             }
                             boolean acked = wsSender.sendCommand(instanceId, jobId, AgentCommand.start.name(), ackTimeout);

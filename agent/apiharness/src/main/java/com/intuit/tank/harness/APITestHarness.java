@@ -273,6 +273,10 @@ public class APITestHarness {
             capacity = AmazonUtil.getCapacity();
         }
         agentRunData.setJobId(AmazonUtil.getJobId());
+        if (agentRunData.getJobId() == null || "unknown".equals(agentRunData.getJobId()) || agentRunData.getJobId().isBlank()) {
+            LOG.error("Missing jobId in userdata — cannot start WS agent. Exiting.");
+            System.exit(1);
+        }
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
         AgentCommandWebSocketClient wsClient = commandWebSocketClient;
@@ -302,6 +306,7 @@ public class APITestHarness {
                     throw new RuntimeException("Missing WS job_config payload");
                 }
 
+                tankConfig = new TankConfig();
                 applyStartData(startData);
                 ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
                 loadScriptFromLocalFile("script.xml");

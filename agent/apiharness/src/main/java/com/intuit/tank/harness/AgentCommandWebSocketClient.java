@@ -14,6 +14,7 @@ import org.apache.logging.log4j.message.ObjectMessage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -387,13 +388,26 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
                     ? new byte[0]
                     : Base64.getDecoder().decode(envelope.getChunkData());
 
+            if (state.totalChunks < 0 && payload.length == 0) {
+                finalizeFile(state);
+                incomingFiles.remove(fileId);
+                sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.complete, null);
+                int done = completedFiles.incrementAndGet();
+                CompletableFuture<Void> currentTransferCompleteFuture = transferCompleteFuture;
+                if (expectedFiles > 0 && done >= expectedFiles && !currentTransferCompleteFuture.isDone()) {
+                    currentTransferCompleteFuture.complete(null);
+                    sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.all_files_complete, null);
+                }
+                return;
+            }
+
             state.outputStream.write(payload);
             state.receivedBytes += payload.length;
             state.receivedChunks++;
 
             sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.chunk_received, null);
 
-            if (state.receivedChunks >= state.totalChunks) {
+            if (state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks) {
                 finalizeFile(state);
                 incomingFiles.remove(fileId);
                 sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.complete, null);
@@ -415,7 +429,7 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     private void finalizeFile(IncomingFileState state) throws IOException {
         state.closeQuietly();
 
-        if (state.totalBytes != state.receivedBytes) {
+        if (state.totalBytes >= 0 && state.totalBytes != state.receivedBytes) {
             throw new IOException("file size mismatch expected=" + state.totalBytes + " actual=" + state.receivedBytes);
         }
 
@@ -455,7 +469,13 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
                     if (parent != null) {
                         Files.createDirectories(parent);
                     }
-                    Files.write(targetPath, zip.readAllBytes());
+                    try (OutputStream out = Files.newOutputStream(targetPath)) {
+                        byte[] buf = new byte[8192];
+                        int len;
+                        while ((len = zip.read(buf)) != -1) {
+                            out.write(buf, 0, len);
+                        }
+                    }
                 }
                 zip.closeEntry();
                 entry = zip.getNextEntry();
