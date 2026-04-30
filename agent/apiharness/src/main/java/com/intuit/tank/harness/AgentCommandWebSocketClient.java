@@ -75,8 +75,13 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
     private volatile CompletableFuture<Void> transferCompleteFuture = new CompletableFuture<>();
     private final ConcurrentHashMap<String, IncomingFileState> incomingFiles = new ConcurrentHashMap<>();
     private final AtomicInteger completedFiles = new AtomicInteger(0);
+    private final AtomicBoolean initialBootstrapReady = new AtomicBoolean(false);
+    private final AtomicBoolean transferCompleteAckSent = new AtomicBoolean(false);
     private volatile int expectedFiles = -1;
     private volatile AgentTestStartData receivedJobConfig;
+    private volatile WebSocket transferCompleteAckWebSocket;
+    private volatile String transferCompleteAckFileId;
+    private volatile Integer transferCompleteAckChunkIndex;
 
     // Buffer for accumulating partial text frames
     private final StringBuilder messageBuffer = new StringBuilder();
@@ -97,6 +102,7 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
         this.agentSessionId = UUID.randomUUID().toString();
         this.helloCapacity = capacity;
         this.fileTransferEnabled = fileTransferEnabled;
+        this.initialBootstrapReady.set(!fileTransferEnabled);
         this.httpClient = HttpClient.newHttpClient();
         this.idleMonitor = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "WS-IdleMonitor-" + instanceId);
@@ -160,6 +166,11 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
         completedFiles.set(0);
         expectedFiles = -1;
         receivedJobConfig = null;
+        initialBootstrapReady.set(!fileTransferEnabled);
+        transferCompleteAckSent.set(false);
+        transferCompleteAckWebSocket = null;
+        transferCompleteAckFileId = null;
+        transferCompleteAckChunkIndex = null;
         jobConfigFuture = new CompletableFuture<>();
         transferCompleteFuture = new CompletableFuture<>();
     }
@@ -276,6 +287,12 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
             LOG.info(new ObjectMessage(Map.of("Message", "Cleared appliedCommandIds set (exceeded " + MAX_APPLIED_COMMAND_IDS + ")")));
         }
 
+        if (fileTransferEnabled && isStartCommand(command) && !initialBootstrapReady.get()) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Rejecting WS start command before bootstrap ready")));
+            sendAck(webSocket, commandId, AckStatus.failed);
+            return;
+        }
+
         // Deduplicate
         if (commandId != null && !appliedCommandIds.add(commandId)) {
             LOG.info(new ObjectMessage(Map.of("Message", "Duplicate WS command " + commandId + " ignored")));
@@ -297,6 +314,10 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
 
     private void applyCommand(String command) {
         CommandListener.applyCommand(command);
+    }
+
+    private boolean isStartCommand(String command) {
+        return "start".equalsIgnoreCase(command) || "run".equalsIgnoreCase(command);
     }
 
     private void handlePing(WebSocket webSocket, AgentWsEnvelope envelope) {
@@ -395,8 +416,9 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
                 int done = completedFiles.incrementAndGet();
                 CompletableFuture<Void> currentTransferCompleteFuture = transferCompleteFuture;
                 if (expectedFiles > 0 && done >= expectedFiles && !currentTransferCompleteFuture.isDone()) {
+                    prepareTransferCompleteAck(webSocket, fileId, envelope.getChunkIndex());
                     currentTransferCompleteFuture.complete(null);
-                    sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.all_files_complete, null);
+                    sendTransferCompleteAckIfReady();
                 }
                 return;
             }
@@ -415,8 +437,9 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
                 int done = completedFiles.incrementAndGet();
                 CompletableFuture<Void> currentTransferCompleteFuture = transferCompleteFuture;
                 if (expectedFiles > 0 && done >= expectedFiles && !currentTransferCompleteFuture.isDone()) {
+                    prepareTransferCompleteAck(webSocket, fileId, envelope.getChunkIndex());
                     currentTransferCompleteFuture.complete(null);
-                    sendFileAck(webSocket, fileId, envelope.getChunkIndex(), AckStatus.all_files_complete, null);
+                    sendTransferCompleteAckIfReady();
                 }
             }
         } catch (Exception e) {
@@ -515,6 +538,22 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
         }
     }
 
+    private void prepareTransferCompleteAck(WebSocket webSocket, String fileId, Integer chunkIndex) {
+        transferCompleteAckWebSocket = webSocket;
+        transferCompleteAckFileId = fileId;
+        transferCompleteAckChunkIndex = chunkIndex;
+    }
+
+    private void sendTransferCompleteAckIfReady() {
+        WebSocket webSocket = transferCompleteAckWebSocket;
+        if (!initialBootstrapReady.get() || webSocket == null) {
+            return;
+        }
+        if (transferCompleteAckSent.compareAndSet(false, true)) {
+            sendFileAck(webSocket, transferCompleteAckFileId, transferCompleteAckChunkIndex, AckStatus.all_files_complete, null);
+        }
+    }
+
     private void sendAck(WebSocket webSocket, String commandId, AckStatus status) {
         try {
             AgentWsEnvelope ack = AgentWsEnvelope.ack(instanceId, "command", commandId, status);
@@ -555,6 +594,11 @@ public class AgentCommandWebSocketClient implements WebSocket.Listener {
 
     public AgentTestStartData getReceivedJobConfig() {
         return receivedJobConfig;
+    }
+
+    public void markInitialBootstrapReady() {
+        initialBootstrapReady.set(true);
+        sendTransferCompleteAckIfReady();
     }
 
     public boolean sendStatusUpdate(CloudVmStatus instanceStatus) {

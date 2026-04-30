@@ -39,6 +39,9 @@ public abstract class JobNodeBean implements Serializable {
     private String id;
     private String reportMode;
     private String status;
+    private String wsState;
+    private String transferProgress;
+    private String lastSeen;
     private String region;
     private String activeUsers;
     private String incrementStrategy;
@@ -198,6 +201,95 @@ public abstract class JobNodeBean implements Serializable {
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getWsState() {
+        return wsState;
+    }
+
+    public void setWsState(String wsState) {
+        this.wsState = wsState;
+    }
+
+    public String getTransferProgress() {
+        return transferProgress;
+    }
+
+    public void setTransferProgress(String transferProgress) {
+        this.transferProgress = transferProgress;
+    }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(String lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getWsStateDisplay() {
+        if (wsState == null || wsState.isEmpty()) {
+            return "";
+        }
+        if ("transferring".equals(wsState) && transferProgress != null && !transferProgress.isEmpty()) {
+            return wsState + " (" + transferProgress + ")";
+        }
+        return wsState;
+    }
+
+    public String getWsStateStyle() {
+        if ("disconnected".equals(wsState)) {
+            return "color: red; font-weight: bold;";
+        }
+        if ("running".equals(wsState)) {
+            return "color: green; font-weight: bold;";
+        }
+        if ("ready".equals(wsState)) {
+            return "color: green;";
+        }
+        return "color: #666;";
+    }
+
+    public String getStatusBadgeClass() {
+        String status = getStatus();
+        if (status == null || status.isBlank()) {
+            return "status-badge status-badge-unknown";
+        }
+        String firstWord = status.split("[\\s(]")[0].toLowerCase().replaceAll("[^a-z]", "");
+        return getBadgeClass(firstWord);
+    }
+
+    public String getWsStateBadgeClass() {
+        String state = getWsState();
+        if (state == null || state.isBlank()) {
+            return "";
+        }
+        String normalized = state.toLowerCase().split("[\\s(]")[0].replaceAll("[^a-z]", "");
+        return switch (normalized) {
+            case "connected", "registered" -> "status-badge status-badge-pending";
+            case "transferring" -> "status-badge status-badge-transferring";
+            case "ready" -> "status-badge status-badge-ready";
+            case "running" -> "status-badge status-badge-running";
+            case "disconnected" -> "status-badge status-badge-disconnected";
+            default -> "status-badge status-badge-unknown";
+        };
+    }
+
+    protected String getBadgeClass(String normalized) {
+        return switch (normalized) {
+            case "running" -> "status-badge status-badge-running";
+            case "starting" -> "status-badge status-badge-starting";
+            case "pending" -> "status-badge status-badge-pending";
+            case "ready" -> "status-badge status-badge-ready";
+            case "paused", "ramppaused" -> "status-badge status-badge-paused";
+            case "stopped" -> "status-badge status-badge-stopped";
+            case "completed" -> "status-badge status-badge-completed";
+            case "successful" -> "status-badge status-badge-successful";
+            case "disconnected" -> "status-badge status-badge-disconnected";
+            case "terminated" -> "status-badge status-badge-terminated";
+            case "replaced" -> "status-badge status-badge-replaced";
+            default -> "status-badge status-badge-unknown";
+        };
     }
 
     /**
@@ -371,6 +463,10 @@ public abstract class JobNodeBean implements Serializable {
     public abstract String getTotalSubNodesReady();
 
     public abstract String getTotalSubNodesRunning();
+
+    public String getTotalSubNodesConnected() {
+        return "";
+    }
 
     public abstract boolean allSubNodesCompleted();
 

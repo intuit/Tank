@@ -179,6 +179,14 @@ public class AgentCommandWebSocketClientTest {
             List<AgentWsEnvelope.AckStatus> statuses = parseFileAckStatuses(sentFrames);
             assertEquals(List.of(
                     AgentWsEnvelope.AckStatus.chunk_received,
+                    AgentWsEnvelope.AckStatus.complete
+            ), statuses);
+
+            client.markInitialBootstrapReady();
+
+            statuses = parseFileAckStatuses(sentFrames);
+            assertEquals(List.of(
+                    AgentWsEnvelope.AckStatus.chunk_received,
                     AgentWsEnvelope.AckStatus.complete,
                     AgentWsEnvelope.AckStatus.all_files_complete
             ), statuses);

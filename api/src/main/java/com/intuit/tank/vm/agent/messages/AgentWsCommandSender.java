@@ -35,4 +35,16 @@ public interface AgentWsCommandSender {
     default boolean isFileTransferReady(String instanceId) {
         return true;
     }
+
+    default String getWsState(String instanceId) {
+        return null;
+    }
+
+    default String getTransferProgress(String instanceId) {
+        return null;
+    }
+
+    default Long getLastSeen(String instanceId) {
+        return null;
+    }
 }

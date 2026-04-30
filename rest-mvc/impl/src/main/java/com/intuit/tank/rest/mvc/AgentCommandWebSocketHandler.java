@@ -12,6 +12,7 @@ import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
 import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +43,16 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
     private static final Logger LOG = LogManager.getLogger(AgentCommandWebSocketHandler.class);
 
+    public enum AgentWsState {
+        LAUNCHED,
+        CONNECTED,
+        REGISTERED,
+        TRANSFERRING,
+        READY,
+        RUNNING,
+        DISCONNECTED
+    }
+
     // instanceId -> active WS session
     private final ConcurrentHashMap<String, WebSocketSession> agentSessions = new ConcurrentHashMap<>();
 
@@ -64,6 +75,10 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     private final ConcurrentHashMap<String, String> agentJobs = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Integer> jobExpectedAgents = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Set<String>> jobTransferCompleteAgents = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AgentWsState> agentWsState = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> agentExpectedFiles = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> agentCompletedFiles = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "AgentWsHeartbeat");
@@ -173,6 +188,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         }
 
         agentLastSeen.put(instanceId, System.currentTimeMillis());
+        agentWsState.put(instanceId, AgentWsState.REGISTERED);
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── HELLO from " + instanceId + " job=" + envelope.getJobId()
                 + " agentSession=" + envelope.getAgentSessionId() + " capacity=" + envelope.getCapacity())));
 
@@ -188,6 +204,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             transferExecutor.submit(() -> registerAndPushFiles(session, envelope, authorization));
         } else {
             fileTransferReady.put(instanceId, true);
+            agentWsState.put(instanceId, AgentWsState.READY);
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ WS disabled — skipping file transfer for " + instanceId)));
         }
     }
@@ -226,6 +243,12 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         agentLastSeen.put(boundId, System.currentTimeMillis());
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(boundId, true);
+            agentWsState.put(boundId, AgentWsState.READY);
+            Integer expected = agentExpectedFiles.get(boundId);
+            if (expected != null) {
+                agentCompletedFiles.put(boundId, expected);
+                agentTransferProgress.put(boundId, expected + "/" + expected + " files");
+            }
             PendingChunkAck pending = pendingChunkAcks.get(boundId);
             if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
                 pendingChunkAcks.remove(boundId, pending);
@@ -239,6 +262,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                 pendingChunkAcks.remove(boundId, pending);
                 pending.future.complete(null);
             }
+            updateTransferProgress(boundId);
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── FILE_ACK from " + boundId + " | file complete (fileId=" + envelope.getFileId() + ")")));
         } else if (envelope.getStatus() == AckStatus.chunk_received) {
             PendingChunkAck pending = pendingChunkAcks.get(boundId);
@@ -249,6 +273,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             // don't log every chunk ack — too noisy
         } else if (envelope.getStatus() == AckStatus.failed) {
             fileTransferReady.put(boundId, false);
+            agentTransferProgress.put(boundId, "failed");
             PendingChunkAck pending = pendingChunkAcks.get(boundId);
             if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
                 pendingChunkAcks.remove(boundId, pending);
@@ -294,12 +319,12 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         if (boundId != null) {
             LOG.info(new ObjectMessage(Map.of("Message", "Agent " + boundId + " sent close: " + envelope.getReason())));
             agentSessions.remove(boundId, session);
-            agentLastSeen.remove(boundId);
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
             pendingChunkAcks.remove(boundId);
             agentJobs.remove(boundId);
+            agentWsState.put(boundId, AgentWsState.DISCONNECTED);
         }
         session.close(CloseStatus.NORMAL);
     }
@@ -309,12 +334,13 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         String boundId = sessionIdentity.remove(session.getId());
         if (boundId != null) {
             agentSessions.remove(boundId, session);
-            agentLastSeen.remove(boundId);
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
             pendingChunkAcks.remove(boundId);
             agentJobs.remove(boundId);
+            agentWsState.put(boundId, AgentWsState.DISCONNECTED);
+            markDisconnectedIfActive(boundId);
         }
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] === CONNECTION CLOSED === agent=" + (boundId != null ? boundId : "unbound") + " session=" + session.getId() + " status=" + status)));
     }
@@ -325,12 +351,13 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         String boundId = sessionIdentity.remove(session.getId());
         if (boundId != null) {
             agentSessions.remove(boundId, session);
-            agentLastSeen.remove(boundId);
             fileTransferReady.remove(boundId);
             pendingPings.remove(boundId);
             missedPongs.remove(boundId);
             pendingChunkAcks.remove(boundId);
             agentJobs.remove(boundId);
+            agentWsState.put(boundId, AgentWsState.DISCONNECTED);
+            markDisconnectedIfActive(boundId);
         }
     }
 
@@ -361,6 +388,9 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
             AgentWsEnvelope ack = ackFuture.get(ackTimeoutMillis, TimeUnit.MILLISECONDS);
             boolean success = ack != null && ack.getStatus() == AckStatus.ok;
+            if (success && "start".equalsIgnoreCase(command)) {
+                agentWsState.put(instanceId, AgentWsState.RUNNING);
+            }
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ◄── ACK(command) from " + instanceId + " | " + command + " = " + (success ? "✓ OK" : "✗ FAILED"))));
             return success;
         } catch (Exception e) {
@@ -378,10 +408,27 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         return Boolean.TRUE.equals(fileTransferReady.get(instanceId));
     }
 
+    @Override
+    public String getWsState(String instanceId) {
+        AgentWsState state = agentWsState.get(instanceId);
+        return state != null ? state.name().toLowerCase() : null;
+    }
+
+    @Override
+    public String getTransferProgress(String instanceId) {
+        return agentTransferProgress.get(instanceId);
+    }
+
+    @Override
+    public Long getLastSeen(String instanceId) {
+        return agentLastSeen.get(instanceId);
+    }
+
     private void registerAndPushFiles(WebSocketSession session, AgentWsEnvelope hello, String authorizationHeader) {
         String agentId = hello.getInstanceId();
         String jobId = hello.getJobId();
         try {
+            agentWsState.put(agentId, AgentWsState.TRANSFERRING);
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Resolving JobManager...")));
             JobManager jobManager = resolveJobManager();
             if (jobManager == null) {
@@ -417,6 +464,9 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Building transfer files...")));
             List<AgentWsFileTransferService.TransferFile> files =
                     fileTransferService.buildTransferFiles(startData, authorizationHeader);
+            agentExpectedFiles.put(agentId, files.size());
+            agentCompletedFiles.put(agentId, 0);
+            agentTransferProgress.put(agentId, "0/" + files.size() + " files");
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Built " + files.size() + " files to transfer")));
 
             for (AgentWsFileTransferService.TransferFile f : files) {
@@ -566,6 +616,39 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         CompletableFuture<Void> gate = new CompletableFuture<>();
         pendingChunkAcks.put(instanceId, new PendingChunkAck(fileId, chunkIndex, gate));
         return gate;
+    }
+
+    private void updateTransferProgress(String instanceId) {
+        Integer expected = agentExpectedFiles.get(instanceId);
+        int completed = agentCompletedFiles.merge(instanceId, 1, Integer::sum);
+        if (expected != null) {
+            int visibleCompleted = Math.min(completed, expected);
+            agentTransferProgress.put(instanceId, visibleCompleted + "/" + expected + " files");
+        }
+    }
+
+    private void markDisconnectedIfActive(String instanceId) {
+        VMTracker tracker = resolveVMTracker();
+        if (tracker == null) {
+            return;
+        }
+        CloudVmStatus current = tracker.getStatus(instanceId);
+        if (current == null || current.getVmStatus() == null || isTerminalVmStatus(current.getVmStatus())) {
+            return;
+        }
+        CloudVmStatus disconnected = new CloudVmStatus(current);
+        disconnected.setUserDetails(current.getUserDetails());
+        disconnected.setVmStatus(VMStatus.disconnected);
+        tracker.setStatus(disconnected);
+    }
+
+    private boolean isTerminalVmStatus(VMStatus status) {
+        return status == VMStatus.shutting_down
+                || status == VMStatus.stopped
+                || status == VMStatus.stopping
+                || status == VMStatus.terminated
+                || status == VMStatus.replaced
+                || status == VMStatus.disconnected;
     }
 
     private void handleJobTransferComplete(String instanceId) {

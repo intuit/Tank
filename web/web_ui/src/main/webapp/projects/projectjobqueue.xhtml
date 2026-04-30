@@ -113,9 +113,22 @@
         style="width:#{projectJobQueueManager.tablePrefs.getSize('statusColumn')}px;"
         rendered="#{projectJobQueueManager.tablePrefs.isVisible('statusColumn')}">
         <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes()}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes()} and not node.useTwoStep}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
-        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and not node.useTwoStep}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesConnected()}/#{node.getSubNodes().size()} Connected, #{node.getTotalSubNodesReady()}/#{node.getSubNodes().size()} Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
+        <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting' and node.useTwoStep}" />
+      </p:column>
+
+      <p:column id="wsStateColumn" headerText="WS State" styleClass="ellipsis min-column-size"
+        style="width:120px;">
+        <h:outputText value="#{node.wsStateDisplay}" title="#{node.wsStateDisplay}"
+          rendered="#{node.type eq 'vm' and node.wsStateDisplay ne ''}"
+          style="#{node.wsStateStyle}" />
+      </p:column>
+
+      <p:column id="lastSeenColumn" headerText="Last Seen" styleClass="ellipsis min-column-size"
+        style="width:90px;">
+        <h:outputText value="#{node.lastSeen}" title="#{node.lastSeen}"
+          rendered="#{node.type eq 'vm' and node.lastSeen ne ''}" />
       </p:column>
 
       <p:column id="regionColumn" headerText="Region" styleClass="ellipsis min-column-size"

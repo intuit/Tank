@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.intuit.tank.vm.vmManager.models.*;
+import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -667,13 +668,38 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private List<VMNodeBean> getVMStatus(@Nonnull CloudVmStatusContainer container, boolean hasRights) {
         List<VMNodeBean> vmNodes = new ArrayList<VMNodeBean>();
+        AgentWsCommandSender wsSender = AgentWsCommandSender.getStaticInstance();
         for (CloudVmStatus cloudVmStatus : container.getStatuses()) {
             VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights, preferencesBean.getDateTimeFormat());
             vmNode.setStatusDetailMap(container.getDetailMap());
             vmNode.setTps(cloudVmStatus.getTotalTps());
+            if (wsSender != null) {
+                String instanceId = cloudVmStatus.getInstanceId();
+                vmNode.setWsState(wsSender.getWsState(instanceId));
+                vmNode.setTransferProgress(wsSender.getTransferProgress(instanceId));
+                vmNode.setLastSeen(formatLastSeen(wsSender.getLastSeen(instanceId)));
+            }
             vmNodes.add(vmNode);
         }
         return vmNodes;
+    }
+
+    private String formatLastSeen(Long lastSeen) {
+        if (lastSeen == null) {
+            return "";
+        }
+        long ageSeconds = Math.max(0L, (System.currentTimeMillis() - lastSeen) / 1000L);
+        if (ageSeconds < 2L) {
+            return "now";
+        }
+        if (ageSeconds < 60L) {
+            return ageSeconds + "s ago";
+        }
+        long ageMinutes = ageSeconds / 60L;
+        if (ageMinutes < 60L) {
+            return ageMinutes + "m ago";
+        }
+        return (ageMinutes / 60L) + "h ago";
     }
 
     public void onNodeExpand(NodeExpandEvent event) {

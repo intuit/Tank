@@ -266,11 +266,10 @@ public class JobManager implements Serializable {
             LOG.info(new ObjectMessage(Map.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                     info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         }
-        LOG.info(new ObjectMessage(Map.of("Message", "Sending START commands to " + info.agentData.size() +
-            " agents for job " + jobId)));
-
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] === TRANSPORT MODE: " + (wsEnabled ? "WEBSOCKET" : "HTTP (command-ws-enabled=false)") +
+            " === Sending START to " + info.agentData.size() + " agents for job " + jobId)));
         long ackTimeout = 3000L;
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
 
@@ -342,6 +341,8 @@ public class JobManager implements Serializable {
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
         long ackTimeout = 3000L;
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] === TRANSPORT MODE: " + (wsEnabled ? "WEBSOCKET" : "HTTP (command-ws-enabled=false)") +
+            " === Sending " + cmd + " to " + instanceIds.size() + " agents")));
 
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
 
