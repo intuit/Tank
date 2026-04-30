@@ -97,6 +97,8 @@ public class JobManager implements Serializable {
     @Inject
     private jakarta.enterprise.inject.Instance<com.intuit.tank.vm.agent.messages.AgentWsCommandSender> wsCommandSenderInstance;
 
+    private final ControllerInitiatedAgentWsClient controllerInitiatedAgentWsClient = new ControllerInitiatedAgentWsClient();
+
     /**
      * @param id
      * @throws Exception
@@ -503,6 +505,11 @@ public class JobManager implements Serializable {
     }
 
     private com.intuit.tank.vm.agent.messages.AgentWsCommandSender getWsCommandSender() {
+        com.intuit.tank.vm.agent.messages.AgentWsCommandSender staticSender =
+                com.intuit.tank.vm.agent.messages.AgentWsCommandSender.getStaticInstance();
+        if (staticSender instanceof ControllerInitiatedAgentWsClient) {
+            return staticSender;
+        }
         // Try CDI injection first
         try {
             if (wsCommandSenderInstance != null && wsCommandSenderInstance.isResolvable()) {
@@ -515,7 +522,13 @@ public class JobManager implements Serializable {
             LOG.warn(new ObjectMessage(Map.of("Message", "CDI WsCommandSender resolution failed: " + e.getMessage())));
         }
         // Fall back to static holder (Spring-CDI bridge)
-        return com.intuit.tank.vm.agent.messages.AgentWsCommandSender.getStaticInstance();
+        return staticSender;
+    }
+
+    public ControllerInitiatedAgentWsClient getControllerInitiatedAgentWsClient() {
+        controllerInitiatedAgentWsClient.setVmTracker(vmTracker);
+        com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(controllerInitiatedAgentWsClient);
+        return controllerInitiatedAgentWsClient;
     }
 
     public void startAgents(String jobId){

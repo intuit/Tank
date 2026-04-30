@@ -23,6 +23,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -41,6 +42,8 @@ public class AgentStartup implements Runnable {
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
     private static final String METHOD_SUPPORT = "/support-files";
     private static final String TANK_AGENT_DIR = "/opt/tank_agent";
+    private static final String TANK_APP_DIR = "/tmp/tankApp";
+    private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;
@@ -69,10 +72,13 @@ public class AgentStartup implements Runnable {
             } else {
                 logger.info("Command WS enabled - skipping settings download (will receive over WS).");
             }
-            // Always download support files (harness JAR) - required before harness can start
-            {
+            File harnessJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+            if (wsEnabled && !harnessJar.exists()) {
+                copyBakedHarnessJar(harnessJar);
+            }
+            if (!wsEnabled && !harnessJar.exists()) {
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
-                        controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
+                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
                         .header("Authorization", "bearer "+token).build();
                 logger.info("Making call to tank service url to get support files {} {} {}",
                         controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
@@ -111,46 +117,70 @@ public class AgentStartup implements Runnable {
                         } else throw e;
                     }
                 }
-                File harnessJar = new File(TANK_AGENT_DIR, "apiharness-1.0-all.jar");
-                if (!harnessJar.exists()) {
-                    throw new IOException("apiharness-1.0-all.jar not found after support files extraction");
-                }
             }
-            // now start the harness
-            String controllerArg = " -http=" + controllerBaseUrl;
-            String jvmArgs = AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_JVM_ARGS, "");
-            String command = API_HARNESS_COMMAND + controllerArg;
-            if (jvmArgs != null && !jvmArgs.isBlank()) {
-                command += " " + jvmArgs;
+            if (!harnessJar.exists()) {
+                throw new IOException(API_HARNESS_JAR + " not found after support files preparation");
             }
-            logger.info("Starting apiharness with command: {}", command);
-            Runtime.getRuntime().exec(command);
+            launchHarness("Starting apiharness with command: {}");
         } catch (ConnectException ce) {
             logger.error("Error creating connection to {} : this is normal during the bake : {}",
                     controllerBaseUrl, ce.getMessage());
+            launchIfHarnessExists();
         } catch (IOException e) {
             logger.error("Error in AgentStartup: {} : {}", API_HARNESS_COMMAND, e, e);
-            // If harness JAR exists on disk (baked into AMI), try launching anyway
-            File fallbackJar = new File(TANK_AGENT_DIR, "apiharness-1.0-all.jar");
-            if (fallbackJar.exists()) {
-                logger.info("Harness JAR found on disk despite download failure — launching anyway");
-                try {
-                    String controllerArg = " -http=" + controllerBaseUrl;
-                    String jvmArgs = AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_JVM_ARGS, "");
-                    String command = API_HARNESS_COMMAND + controllerArg;
-                    if (jvmArgs != null && !jvmArgs.isBlank()) {
-                        command += " " + jvmArgs;
-                    }
-                    logger.info("Starting apiharness with fallback command: {}", command);
-                    Runtime.getRuntime().exec(command);
-                } catch (IOException ex) {
-                    logger.error("Fallback harness launch also failed: {}", ex.getMessage(), ex);
-                }
-            }
+            launchIfHarnessExists();
         } catch (InterruptedException ignored) {
         } catch (Exception e) {
             logger.error("Error in AgentStartup {}", e, e);
         }
+    }
+
+    private void copyBakedHarnessJar(File harnessJar) {
+        File[] sources = new File[] {
+                new File(TANK_APP_DIR, API_HARNESS_JAR),
+                new File("/opt", API_HARNESS_JAR),
+                new File("/tmp", API_HARNESS_JAR)
+        };
+        for (File source : sources) {
+            if (!source.exists()) {
+                logger.info("No baked harness jar found at {}", source.getAbsolutePath());
+                continue;
+            }
+            try {
+                File parent = harnessJar.getParentFile();
+                if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                    throw new IOException("Unable to create " + parent.getAbsolutePath());
+                }
+                Files.copy(source.toPath(), harnessJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                logger.info("Copied baked harness jar from {} to {}", source.getAbsolutePath(), harnessJar.getAbsolutePath());
+                return;
+            } catch (IOException e) {
+                logger.warn("Unable to copy baked harness jar from {} : {}", source.getAbsolutePath(), e.getMessage());
+            }
+        }
+    }
+
+    private void launchIfHarnessExists() {
+        File fallbackJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+        if (fallbackJar.exists()) {
+            logger.info("Harness JAR found on disk despite download failure — launching anyway");
+            try {
+                launchHarness("Starting apiharness with fallback command: {}");
+            } catch (IOException ex) {
+                logger.error("Fallback harness launch also failed: {}", ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void launchHarness(String message) throws IOException {
+        String controllerArg = " -http=" + controllerBaseUrl;
+        String jvmArgs = AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_JVM_ARGS, "");
+        String command = API_HARNESS_COMMAND + controllerArg;
+        if (jvmArgs != null && !jvmArgs.isBlank()) {
+            command += " " + jvmArgs;
+        }
+        logger.info(message, command);
+        Runtime.getRuntime().exec(command);
     }
 
     public static void main(String[] args) {

@@ -16,8 +16,13 @@ package com.intuit.tank.vmManager.environment;
 import java.util.List;
 import java.util.Map;
 
+import com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient;
+import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.logging.ControllerLoggingConfig;
+import com.intuit.tank.vm.settings.AgentConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,10 +48,16 @@ public class JobRequest implements Runnable {
 
     private VMJobRequest request = null;
     private VMTracker vmTracker;
+    private JobManager jobManager;
 
     public JobRequest(VMJobRequest request, VMTracker tracker) {
+        this(request, tracker, null);
+    }
+
+    public JobRequest(VMJobRequest request, VMTracker tracker, JobManager jobManager) {
         this.request = request;
         this.vmTracker = tracker;
+        this.jobManager = jobManager;
     }
 
     @Override
@@ -68,6 +79,7 @@ public class JobRequest implements Runnable {
             instanceRequest.setSize(request.getVmInstanceType());
             List<VMInformation> response = this.getEnvironment().create(instanceRequest);
             persistInstances(instanceRequest, response);
+            startControllerInitiatedWs(instanceRequest, response);
         } catch (Exception ex) {
             logger.error(new ObjectMessage(Map.of("Message", "Error : " + ex)), ex);
         }
@@ -102,6 +114,92 @@ public class JobRequest implements Runnable {
         Thread thread = new Thread(watchDog);
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void startControllerInitiatedWs(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo) {
+        AgentConfig agentConfig = new TankConfig().getAgentConfig();
+        if (!agentConfig.isCommandWsEnabled() || jobManager == null || vmInfo == null || vmInfo.isEmpty()) {
+            return;
+        }
+
+        ControllerInitiatedAgentWsClient wsClient = jobManager.getControllerInitiatedAgentWsClient();
+        String token = agentConfig.getAgentToken();
+        int port = agentConfig.getAgentPort();
+        long helloTimeoutMillis = Math.max(30_000L, agentConfig.getMaxAgentResponseTime());
+        long transferTimeoutMillis = Math.max(120_000L, agentConfig.getMaxAgentWaitTime());
+        long maxConnectWaitMillis = Math.max(transferTimeoutMillis, 180_000L);
+
+        for (VMInformation info : vmInfo) {
+            Thread thread = new Thread(() -> {
+                ControllerLoggingConfig.setupThreadContext();
+                connectAndBootstrapAgent(wsClient, instanceRequest, info, token, port,
+                        helloTimeoutMillis, transferTimeoutMillis, maxConnectWaitMillis);
+            });
+            thread.setName("ControllerInitiatedWsBootstrap-" + info.getInstanceId());
+            thread.setDaemon(true);
+            thread.start();
+        }
+    }
+
+    private void connectAndBootstrapAgent(ControllerInitiatedAgentWsClient wsClient, VMInstanceRequest instanceRequest,
+                                          VMInformation info, String token, int port, long helloTimeoutMillis,
+                                          long transferTimeoutMillis, long maxConnectWaitMillis) {
+        String host = resolveWsHost(info);
+        if (host == null || host.isBlank()) {
+            logger.warn(new ObjectMessage(Map.of("Message", "[WS] No reachable host found for " + info.getInstanceId())));
+            return;
+        }
+
+        String instanceUrl = "http://" + host + ":" + port;
+        String wsUrl = "ws://" + host + ":" + port + "/ws/control";
+        long start = System.currentTimeMillis();
+        int attempt = 1;
+        while (System.currentTimeMillis() - start < maxConnectWaitMillis) {
+            try {
+                if (wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
+                        token, helloTimeoutMillis, transferTimeoutMillis)) {
+                    return;
+                }
+            } catch (Exception e) {
+                logger.warn(new ObjectMessage(Map.of("Message",
+                        "[WS] Controller initiated connect attempt " + attempt + " failed for "
+                                + info.getInstanceId() + " at " + wsUrl + ": " + e.getMessage())));
+            }
+            try {
+                Thread.sleep(Math.min(30_000L, 2_000L * attempt));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            attempt++;
+        }
+        logger.error(new ObjectMessage(Map.of("Message",
+                "[WS] Timed out connecting controller-initiated WS to " + info.getInstanceId()
+                        + " for job " + instanceRequest.getJobId())));
+    }
+
+    private String resolveWsHost(VMInformation info) {
+        if ((request.getRegion() == VMRegion.US_EAST || request.getRegion() == VMRegion.US_EAST_2)
+                && isNotBlank(info.getPrivateIp())) {
+            return info.getPrivateIp();
+        }
+        if (isNotBlank(info.getPublicIp())) {
+            return info.getPublicIp();
+        }
+        if (isNotBlank(info.getPublicDNS())) {
+            return info.getPublicDNS();
+        }
+        if (isNotBlank(info.getPrivateIp())) {
+            return info.getPrivateIp();
+        }
+        if (isNotBlank(info.getPrivateDNS())) {
+            return info.getPrivateDNS();
+        }
+        return null;
+    }
+
+    private boolean isNotBlank(String value) {
+        return value != null && !value.isBlank();
     }
 
     /**

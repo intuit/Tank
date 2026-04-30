@@ -106,6 +106,7 @@ public class APITestHarness {
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
     private volatile AgentCommandWebSocketClient commandWebSocketClient;
+    private volatile AgentCommandWebSocketServer commandWebSocketServer;
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -283,25 +284,22 @@ public class APITestHarness {
 
         if (wsEnabled) {
             try {
-                String wsPath = "/v2/agent/ws/control";
-                LOG.info(new ObjectMessage(Map.of("Message", "Starting WS control+file transfer channel to " + baseUrl + wsPath)));
-                wsClient = new AgentCommandWebSocketClient(
-                        baseUrl,
-                        wsPath,
-                        token,
+                int wsPort = tankConfig.getAgentConfig().getAgentPort();
+                LOG.info(new ObjectMessage(Map.of("Message", "Starting controller-initiated WS server on port " + wsPort)));
+                AgentCommandWebSocketServer wsServer = new AgentCommandWebSocketServer(
+                        wsPort,
                         instanceId,
                         agentRunData.getJobId(),
-                        capacity,
-                        true);
-                commandWebSocketClient = wsClient;
-                wsClient.connect();
+                        capacity);
+                commandWebSocketServer = wsServer;
+                wsServer.start();
 
                 long transferTimeoutMs = Math.max(60_000L, tankConfig.getAgentConfig().getMaxAgentWaitTime());
-                if (!wsClient.awaitInitialTransfer(transferTimeoutMs)) {
-                    throw new RuntimeException("Timed out waiting for WS job config/file transfer");
+                if (!wsServer.awaitInitialTransfer(transferTimeoutMs)) {
+                    throw new RuntimeException("Timed out waiting for controller-initiated WS job config/file transfer");
                 }
 
-                AgentTestStartData startData = wsClient.getReceivedJobConfig();
+                AgentTestStartData startData = wsServer.getReceivedJobConfig();
                 if (startData == null) {
                     throw new RuntimeException("Missing WS job_config payload");
                 }
@@ -310,7 +308,7 @@ public class APITestHarness {
                 applyStartData(startData);
                 ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
                 loadScriptFromLocalFile("script.xml");
-                wsClient.markInitialBootstrapReady();
+                wsServer.markInitialBootstrapReady();
 
                 Thread thread = new Thread(new StartedChecker());
                 thread.setName("StartedChecker");
@@ -322,6 +320,10 @@ public class APITestHarness {
                 if (wsClient != null) {
                     wsClient.close();
                     commandWebSocketClient = null;
+                }
+                if (commandWebSocketServer != null) {
+                    commandWebSocketServer.closeServer();
+                    commandWebSocketServer = null;
                 }
                 System.exit(0);
             }
@@ -962,6 +964,10 @@ public class APITestHarness {
 
     public AgentCommandWebSocketClient getCommandWebSocketClient() {
         return commandWebSocketClient;
+    }
+
+    public AgentCommandWebSocketServer getCommandWebSocketServer() {
+        return commandWebSocketServer;
     }
 
     /**

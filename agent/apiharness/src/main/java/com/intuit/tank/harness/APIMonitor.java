@@ -175,6 +175,14 @@ public class APIMonitor implements Runnable {
 
         AgentCommandWebSocketClient wsClient = harness.getCommandWebSocketClient();
         if (wsEnabled) {
+            AgentCommandWebSocketServer wsServer = harness.getCommandWebSocketServer();
+            if (wsServer != null) {
+                if (wsServer.sendStatusUpdate(VmStatus)) {
+                    LOG.debug(LogUtil.getLogMessage("Sent WS instance status update for instance: " + instanceId));
+                    return;
+                }
+                LOG.warn(LogUtil.getLogMessage("WS server status update failed for instance: " + instanceId));
+            }
             if (wsClient != null) {
                 if (wsClient.sendStatusUpdate(VmStatus)) {
                     LOG.debug(LogUtil.getLogMessage("Sent WS instance status update for instance: " + instanceId));
