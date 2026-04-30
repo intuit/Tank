@@ -47,6 +47,29 @@ public class AgentWsEnvelopeTest {
     }
 
     @Test
+    public void testHelloFactoryWithNeedsBootstrap() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null, 4000, true);
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertTrue(json.contains("\"needsBootstrap\":true"));
+        assertEquals(Boolean.TRUE, parsed.getNeedsBootstrap());
+        assertEquals(4000, parsed.getCapacity());
+    }
+
+    @Test
+    public void testHelloFactoryWithoutNeedsBootstrapOmitsField() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", "cmd-99", 4000);
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertFalse(json.contains("\"needsBootstrap\""));
+        assertFalse(Boolean.TRUE.equals(parsed.getNeedsBootstrap()));
+    }
+
+    @Test
     public void testCommandFactory() throws IOException {
         AgentWsEnvelope env = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "start");
 

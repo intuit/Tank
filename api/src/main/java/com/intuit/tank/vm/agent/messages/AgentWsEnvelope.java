@@ -51,6 +51,9 @@ public class AgentWsEnvelope {
     @JsonProperty("capacity")
     private Integer capacity;
 
+    @JsonProperty("needsBootstrap")
+    private Boolean needsBootstrap;
+
     // command fields
     @JsonProperty("commandId")
     private String commandId;
@@ -144,6 +147,9 @@ public class AgentWsEnvelope {
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
 
+    public Boolean getNeedsBootstrap() { return needsBootstrap; }
+    public void setNeedsBootstrap(Boolean needsBootstrap) { this.needsBootstrap = needsBootstrap; }
+
     public String getCommandId() { return commandId; }
     public void setCommandId(String commandId) { this.commandId = commandId; }
 
@@ -231,6 +237,13 @@ public class AgentWsEnvelope {
         env.setLastAppliedCommandId(lastAppliedCommandId);
         env.setCapacity(capacity);
         env.setSentAtMs(System.currentTimeMillis());
+        return env;
+    }
+
+    public static AgentWsEnvelope hello(String instanceId, String jobId, String agentSessionId,
+                                        String lastAppliedCommandId, Integer capacity, Boolean needsBootstrap) {
+        AgentWsEnvelope env = hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, capacity);
+        env.setNeedsBootstrap(needsBootstrap);
         return env;
     }
 

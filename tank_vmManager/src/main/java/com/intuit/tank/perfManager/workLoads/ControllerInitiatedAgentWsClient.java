@@ -44,6 +44,7 @@ import java.util.zip.GZIPInputStream;
 public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private static final Logger LOG = LogManager.getLogger(ControllerInitiatedAgentWsClient.class);
+    private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
@@ -129,6 +130,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         try {
+            if (Boolean.TRUE.equals(hello.getNeedsBootstrap())) {
+                return pushStartupBootstrapJar(agentId, context, transferTimeoutMillis);
+            }
+
             agentWsState.put(agentId, "registered");
             AgentData agentData = jobManager.buildAgentDataForWsHello(
                     hello.getJobId(), agentId, instanceUrl, hello.getCapacity());
@@ -248,6 +253,52 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
         }
         return files;
+    }
+
+    private boolean pushStartupBootstrapJar(String agentId, SessionContext context, long transferTimeoutMillis)
+            throws Exception {
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId + " needs startup bootstrap — pushing harness JAR")));
+        File harnessJar = findHarnessJar();
+        if (harnessJar == null || !harnessJar.exists() || !harnessJar.isFile()) {
+            LOG.error(new ObjectMessage(Map.of("Message", "[WS] Harness JAR not found on controller for startup bootstrap")));
+            context.close();
+            return false;
+        }
+
+        context.jobId = "bootstrap";
+        context.expectedFiles = 1;
+        context.bootstrapTransfer = true;
+        fileTransferReady.put(agentId, false);
+        agentWsState.put(agentId, "bootstrap_transferring");
+        agentTransferProgress.put(agentId, "0/1 files");
+
+        List<TransferFile> bootstrapFiles = new ArrayList<>();
+        bootstrapFiles.add(new TransferFile("support_jar", API_HARNESS_JAR, Files.readAllBytes(harnessJar.toPath()), false));
+        sendFiles(context, agentId, "bootstrap", bootstrapFiles, DEFAULT_CHUNK_BYTES);
+        context.transferCompleteFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
+        agentTransferProgress.put(agentId, "1/1 files");
+        agentWsState.put(agentId, "bootstrap_sent");
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Bootstrap JAR sent to " + agentId + " — waiting for harness to start")));
+        context.close();
+        return false;
+    }
+
+    private File findHarnessJar() {
+        List<String> searchPaths = new ArrayList<>();
+        String catalinaHome = System.getProperty("catalina.home");
+        if (catalinaHome != null && !catalinaHome.isBlank()) {
+            searchPaths.add(catalinaHome + "/webapps/ROOT/tools/" + API_HARNESS_JAR);
+        }
+        searchPaths.add("/opt/apache-tomcat-11.0.21/webapps/ROOT/tools/" + API_HARNESS_JAR);
+        searchPaths.add("/etc/tank/jars/" + API_HARNESS_JAR);
+
+        for (String path : searchPaths) {
+            File file = new File(path);
+            if (file.exists() && file.isFile()) {
+                return file;
+            }
+        }
+        return null;
     }
 
     private byte[] loadSettingsFile() throws IOException {
@@ -423,6 +474,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             if (context != null) {
                 int completed = context.completedFiles.merge(instanceId, 1, Integer::sum);
                 agentTransferProgress.put(instanceId, completed + "/" + context.expectedFiles + " files");
+                if (context.bootstrapTransfer && completed >= context.expectedFiles) {
+                    context.transferCompleteFuture.complete(null);
+                }
             }
         }
 
@@ -523,6 +577,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private volatile String instanceId;
         private volatile String jobId;
         private volatile int expectedFiles;
+        private volatile boolean bootstrapTransfer;
         private volatile AgentWsEnvelope hello;
 
         private SessionContext(WebSocket webSocket, CompletableFuture<AgentWsEnvelope> helloFuture) {
