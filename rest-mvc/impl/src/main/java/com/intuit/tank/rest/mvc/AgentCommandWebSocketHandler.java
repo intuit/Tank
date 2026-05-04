@@ -44,8 +44,6 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     private static final Logger LOG = LogManager.getLogger(AgentCommandWebSocketHandler.class);
 
     public enum AgentWsState {
-        LAUNCHED,
-        CONNECTED,
         REGISTERED,
         TRANSFERRING,
         READY,

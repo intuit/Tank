@@ -45,7 +45,6 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
-import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.DataFile;
@@ -325,11 +324,6 @@ public class JobManager implements Serializable {
                                 "Message","Start Command to returned null response for job " + jobId)));
                     }
                 });
-    }
-
-    private CloudVmStatus createFailureStatus(AgentData data) {
-        return new CloudVmStatus(data.getInstanceId(), data.getJobId(), null, JobStatus.Unknown, VMImageType.AGENT,
-                data.getRegion(), VMStatus.stopped, new ValidationStatus(), data.getUsers(), 0, null, null);
     }
 
     /**

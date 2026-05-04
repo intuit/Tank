@@ -68,10 +68,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     public ControllerInitiatedAgentWsClient() {
     }
 
-    public ControllerInitiatedAgentWsClient(VMTracker vmTracker) {
-        this.vmTracker = vmTracker;
-    }
-
     public void setVmTracker(VMTracker vmTracker) {
         this.vmTracker = vmTracker;
     }

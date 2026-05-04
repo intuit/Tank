@@ -36,8 +36,6 @@ public class AgentWsFileTransferService {
     private static final Logger LOG = LogManager.getLogger(AgentWsFileTransferService.class);
 
     private static final String SETTINGS_FILE_NAME = "settings.xml";
-    private static final String SUPPORT_ARCHIVE_FILE_TYPE = "support_archive";
-    private static final String DEFAULT_SUPPORT_ARCHIVE_NAME = "agent-support-files.zip";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final int CHUNK_ACK_WINDOW = 8;
 

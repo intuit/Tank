@@ -162,8 +162,7 @@ width:10%;
 }
 
 /* Starting / Transferring — blue animated stripes (Gatling-style "Injecting") */
-.status-badge-starting,
-.status-badge-transferring {
+.status-badge-starting {
     background: repeating-linear-gradient(
         -45deg,
         #1976D2, #1976D2 10px,
@@ -190,8 +189,7 @@ width:10%;
 }
 
 /* Paused — orange pulsing */
-.status-badge-paused,
-.status-badge-ramppaused {
+.status-badge-paused {
     background: #FFF3E0;
     color: #E65100;
     border: 1px solid #FFCC80;
