@@ -231,10 +231,20 @@ public abstract class JobNodeBean implements Serializable {
         if (wsState == null || wsState.isEmpty()) {
             return "";
         }
-        if ("transferring".equals(wsState) && transferProgress != null && !transferProgress.isEmpty()) {
-            return wsState + " (" + transferProgress + ")";
-        }
-        return wsState;
+        return switch (wsState) {
+            case "connected" -> "Connected";
+            case "registered" -> "Registered";
+            case "bootstrap_transferring", "bootstrap_sent", "transferring" -> {
+                if (transferProgress != null && !transferProgress.isEmpty()) {
+                    yield "Setting Up (" + transferProgress + ")";
+                }
+                yield "Setting Up";
+            }
+            case "ready" -> "Ready";
+            case "running" -> "Connected";
+            case "disconnected" -> isTerminalStatus() ? "Closed" : "Disconnected";
+            default -> wsState;
+        };
     }
 
     public String getWsStateStyle() {
@@ -260,17 +270,18 @@ public abstract class JobNodeBean implements Serializable {
     }
 
     public String getWsStateBadgeClass() {
-        String state = getWsState();
-        if (state == null || state.isBlank()) {
+        if (wsState == null || wsState.isBlank()) {
             return "";
         }
-        String normalized = state.toLowerCase().split("[\\s(]")[0].replaceAll("[^a-z]", "");
-        return switch (normalized) {
-            case "connected", "registered" -> "status-badge status-badge-pending";
-            case "transferring" -> "status-badge status-badge-transferring";
+        return switch (wsState) {
+            case "connected" -> "status-badge status-badge-connected";
+            case "registered" -> "status-badge status-badge-registered";
+            case "bootstrap_transferring", "bootstrap_sent", "transferring" -> "status-badge status-badge-settingup";
             case "ready" -> "status-badge status-badge-ready";
-            case "running" -> "status-badge status-badge-running";
-            case "disconnected" -> "status-badge status-badge-disconnected";
+            case "running" -> "status-badge status-badge-ws-connected";
+            case "disconnected" -> isTerminalStatus()
+                    ? "status-badge status-badge-closed"
+                    : "status-badge status-badge-disconnected";
             default -> "status-badge status-badge-unknown";
         };
     }
@@ -289,6 +300,18 @@ public abstract class JobNodeBean implements Serializable {
             case "terminated" -> "status-badge status-badge-terminated";
             case "replaced" -> "status-badge status-badge-replaced";
             default -> "status-badge status-badge-unknown";
+        };
+    }
+
+    private boolean isTerminalStatus() {
+        String s = getStatus();
+        if (s == null || s.isBlank()) {
+            return false;
+        }
+        String normalized = s.split("[\\s(]")[0].toLowerCase().replaceAll("[^a-z]", "");
+        return switch (normalized) {
+            case "completed", "stopped", "terminated", "replaced", "successful" -> true;
+            default -> false;
         };
     }
 

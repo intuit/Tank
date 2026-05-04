@@ -68,6 +68,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
 
     public AgentCommandWebSocketServer(int port, String instanceId, String jobId, int capacity) {
         super(new InetSocketAddress(port));
+        setReuseAddr(true);
         this.instanceId = instanceId;
         this.jobId = jobId;
         this.capacity = capacity;
