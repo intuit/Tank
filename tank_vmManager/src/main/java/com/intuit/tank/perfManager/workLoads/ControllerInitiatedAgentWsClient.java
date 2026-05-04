@@ -61,6 +61,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final ConcurrentHashMap<String, Long> agentLastSeen = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentWsState = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
+    private volatile byte[] cachedHarnessJarBytes;
 
     private volatile VMTracker vmTracker;
 
@@ -278,8 +279,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentWsState.put(agentId, "bootstrap_transferring");
         agentTransferProgress.put(agentId, "0/1 files");
 
+        byte[] jarBytes = cachedHarnessJarBytes;
+        if (jarBytes == null) {
+            synchronized (this) {
+                jarBytes = cachedHarnessJarBytes;
+                if (jarBytes == null) {
+                    jarBytes = Files.readAllBytes(harnessJar.toPath());
+                    cachedHarnessJarBytes = jarBytes;
+                    LOG.info(new ObjectMessage(Map.of("Message",
+                            "[WS] Cached harness JAR bytes: " + jarBytes.length + " bytes")));
+                }
+            }
+        }
         List<TransferFile> bootstrapFiles = new ArrayList<>();
-        bootstrapFiles.add(new TransferFile("support_jar", API_HARNESS_JAR, Files.readAllBytes(harnessJar.toPath()), false));
+        bootstrapFiles.add(new TransferFile("support_jar", API_HARNESS_JAR, jarBytes, false));
 
         long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
         boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
