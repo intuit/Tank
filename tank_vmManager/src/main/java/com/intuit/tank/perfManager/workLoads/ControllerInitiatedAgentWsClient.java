@@ -48,8 +48,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
-    private static final int DEFAULT_CHUNK_BYTES = 49152;
-    private static final int CHUNK_ACK_WINDOW = 8;
+    private static final int DEFAULT_CHUNK_BYTES = 524288;
+    private static final int CHUNK_ACK_WINDOW = 4;
 
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
@@ -436,7 +436,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 case file_ack -> handleFileAck(agentId, envelope);
                 case status_update -> handleStatusUpdate(agentId, envelope);
                 case pong -> LOG.debug(new ObjectMessage(Map.of("Message", "[WS] Pong from " + agentId)));
-                case close -> onClosed(agentId);
+                case close -> {
+                    SessionContext ctx = sessions.get(agentId);
+                    onClosed(agentId, ctx != null ? ctx.webSocket : null);
+                }
                 default -> {
                 }
             }
@@ -511,13 +514,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private void onClosed(String instanceId) {
-        SessionContext context = sessions.remove(instanceId);
-        if (context != null) {
+    private void onClosed(String instanceId, WebSocket webSocket) {
+        SessionContext context = sessions.get(instanceId);
+        if (context != null && webSocket != null && context.webSocket != webSocket) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring stale close from previous session for " + instanceId)));
+            return;
+        }
+        if (context != null && sessions.remove(instanceId, context)) {
             context.markClosed();
         }
         fileTransferReady.remove(instanceId);
-        pendingChunkAcks.remove(instanceId);
+        PendingChunkAck pending = pendingChunkAcks.remove(instanceId);
+        if (pending != null) {
+            pending.future.completeExceptionally(new IOException("WS connection closed for " + instanceId));
+        }
         agentWsState.put(instanceId, "disconnected");
     }
 
@@ -556,7 +567,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         @Override
         public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-            onClosed(instanceId);
+            onClosed(instanceId, webSocket);
             return null;
         }
 
@@ -564,7 +575,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         public void onError(WebSocket webSocket, Throwable error) {
             LOG.warn(new ObjectMessage(Map.of("Message",
                     "[WS] Controller initiated WS listener error for " + instanceId + ": " + error.getMessage())));
-            onClosed(instanceId);
+            onClosed(instanceId, webSocket);
         }
     }
 

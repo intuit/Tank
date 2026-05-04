@@ -33,6 +33,7 @@ public class StartupWebSocketServer extends WebSocketServer {
     private final String agentSessionId = UUID.randomUUID().toString();
     private final CompletableFuture<File> harnessJarFuture = new CompletableFuture<>();
 
+    private WebSocket currentFileConnection;
     private FileOutputStream currentFileStream;
     private File currentTempFile;
     private File targetFile;
@@ -85,16 +86,25 @@ public class StartupWebSocketServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         logger.info("Startup WS connection closed code={} reason={} remote={}", code, reason, remote);
-        closeCurrentFileQuietly();
+        resetFileStateForRetry(conn);
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
         logger.warn("Startup WS error: {}", ex.getMessage(), ex);
-        closeCurrentFileQuietly();
-        if (!harnessJarFuture.isDone()) {
-            harnessJarFuture.completeExceptionally(ex);
+        if (conn == null) {
+            logger.error("Startup WS server-level error — completing future exceptionally");
+            closeCurrentFileQuietly();
+            if (currentTempFile != null && currentTempFile.exists()) {
+                logger.info("Deleting partial bootstrap file {} after fatal error", currentTempFile.getAbsolutePath());
+                currentTempFile.delete();
+            }
+            if (!harnessJarFuture.isDone()) {
+                harnessJarFuture.completeExceptionally(ex);
+            }
+            return;
         }
+        resetFileStateForRetry(conn);
     }
 
     @Override
@@ -125,6 +135,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             if (!agentDir.exists() && !agentDir.mkdirs()) {
                 throw new IOException("Unable to create " + agentDir.getAbsolutePath());
             }
+            currentFileConnection = conn;
             targetFile = new File(agentDir, API_HARNESS_JAR);
             currentTempFile = new File(targetFile.getAbsolutePath() + ".part");
             currentFileStream = new FileOutputStream(currentTempFile);
@@ -211,5 +222,29 @@ public class StartupWebSocketServer extends WebSocketServer {
             }
             currentFileStream = null;
         }
+    }
+
+    private synchronized void resetFileStateForRetry(WebSocket conn) {
+        if (currentFileConnection != null && conn != null && conn != currentFileConnection) {
+            logger.info("Ignoring stale startup WS reset from previous connection");
+            return;
+        }
+        closeCurrentFileQuietly();
+        if (currentTempFile != null && currentTempFile.exists()) {
+            logger.info("Deleting partial bootstrap file {} chunks={}/{} bytes={}/{}",
+                    currentTempFile.getAbsolutePath(), receivedChunks, expectedChunks, receivedBytes, expectedBytes);
+            if (!currentTempFile.delete()) {
+                logger.warn("Failed to delete partial bootstrap file {}", currentTempFile.getAbsolutePath());
+            }
+        }
+        currentFileConnection = null;
+        currentTempFile = null;
+        targetFile = null;
+        currentFileId = null;
+        receivedChunks = 0;
+        expectedChunks = 0;
+        receivedBytes = 0;
+        expectedBytes = 0;
+        logger.info("Startup WS file state reset — ready for retry");
     }
 }
