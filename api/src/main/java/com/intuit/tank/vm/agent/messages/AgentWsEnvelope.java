@@ -26,7 +26,7 @@ public class AgentWsEnvelope {
 
     public enum AckStatus {
         ok, duplicate, failed, unsupported,
-        chunk_received, complete, all_files_complete
+        chunk_received, complete, all_files_complete, resume
     }
 
     @JsonProperty("type")
@@ -104,6 +104,9 @@ public class AgentWsEnvelope {
     @JsonProperty("totalChunks")
     private Integer totalChunks;
 
+    @JsonProperty("chunkBytes")
+    private Integer chunkBytes;
+
     @JsonProperty("isDefaultDataFile")
     private Boolean defaultDataFile;
 
@@ -112,6 +115,9 @@ public class AgentWsEnvelope {
 
     @JsonProperty("chunkData")
     private String chunkData;
+
+    @JsonProperty("resumeOffset")
+    private Long resumeOffset;
 
     // close fields
     @JsonProperty("reasonCode")
@@ -195,6 +201,9 @@ public class AgentWsEnvelope {
     public Integer getTotalChunks() { return totalChunks; }
     public void setTotalChunks(Integer totalChunks) { this.totalChunks = totalChunks; }
 
+    public Integer getChunkBytes() { return chunkBytes; }
+    public void setChunkBytes(Integer chunkBytes) { this.chunkBytes = chunkBytes; }
+
     public Boolean getDefaultDataFile() { return defaultDataFile; }
     public void setDefaultDataFile(Boolean defaultDataFile) { this.defaultDataFile = defaultDataFile; }
 
@@ -203,6 +212,9 @@ public class AgentWsEnvelope {
 
     public String getChunkData() { return chunkData; }
     public void setChunkData(String chunkData) { this.chunkData = chunkData; }
+
+    public Long getResumeOffset() { return resumeOffset; }
+    public void setResumeOffset(Long resumeOffset) { this.resumeOffset = resumeOffset; }
 
     public String getReasonCode() { return reasonCode; }
     public void setReasonCode(String reasonCode) { this.reasonCode = reasonCode; }
@@ -310,7 +322,8 @@ public class AgentWsEnvelope {
     }
 
     public static AgentWsEnvelope fileOffer(String instanceId, String jobId, String fileId, String fileType,
-                                            String fileName, long totalBytes, int totalChunks, Boolean defaultDataFile) {
+                                            String fileName, long totalBytes, int totalChunks, int chunkBytes,
+                                            Boolean defaultDataFile) {
         AgentWsEnvelope env = new AgentWsEnvelope();
         env.setType(Type.file_offer);
         env.setInstanceId(instanceId);
@@ -318,6 +331,7 @@ public class AgentWsEnvelope {
         env.setFileId(fileId);
         env.setFileType(fileType);
         env.setFileName(fileName);
+        env.setChunkBytes(chunkBytes);
         env.setTotalBytes(totalBytes);
         env.setTotalChunks(totalChunks);
         env.setDefaultDataFile(defaultDataFile);

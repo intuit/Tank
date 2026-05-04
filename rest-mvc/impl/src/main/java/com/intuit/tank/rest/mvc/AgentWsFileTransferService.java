@@ -184,6 +184,7 @@ public class AgentWsFileTransferService {
                 file.getFileName(),
                 totalBytes,
                 totalChunks,
+                chunkBytes,
                 file.isDefaultDataFile());
         sendEnvelope(session, offer);
 

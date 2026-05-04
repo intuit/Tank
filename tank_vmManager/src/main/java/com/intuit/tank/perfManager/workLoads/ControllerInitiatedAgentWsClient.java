@@ -371,6 +371,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         int totalChunks = Math.max(1, (int) Math.ceil((double) totalBytes / chunkBytes));
         String fileId = UUID.randomUUID().toString();
 
+        // Send offer and wait for ack (may include resume offset)
+        CompletableFuture<AgentWsEnvelope> offerAckFuture = new CompletableFuture<>();
+        pendingAcks.put(fileId, offerAckFuture);
         sendEnvelope(context, AgentWsEnvelope.fileOffer(
                 instanceId,
                 jobId,
@@ -379,15 +382,45 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 file.fileName(),
                 totalBytes,
                 totalChunks,
+                chunkBytes,
                 file.defaultDataFile()));
 
         if (content == null || content.length == 0) {
+            pendingAcks.remove(fileId);
             sendChunk(context, instanceId, jobId, fileId, 0, new byte[0], 0);
             return;
         }
 
-        int chunkIndex = 0;
-        for (int offset = 0; offset < content.length; offset += chunkBytes) {
+        // Check for offer ack (ok, resume, or failed)
+        int startOffset = 0;
+        int startChunk = 0;
+        try {
+            AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
+            if (offerAck != null) {
+                if (offerAck.getStatus() == AckStatus.failed) {
+                    throw new IOException("File offer rejected by agent: " + offerAck.getError());
+                }
+                if (offerAck.getStatus() == AckStatus.resume
+                        && offerAck.getResumeOffset() != null && offerAck.getResumeOffset() > 0) {
+                    startOffset = offerAck.getResumeOffset().intValue();
+                    startChunk = offerAck.getChunkIndex() != null ? offerAck.getChunkIndex() : 0;
+                    LOG.info(new ObjectMessage(Map.of("Message",
+                            "[WS] Resuming file transfer for " + instanceId + " from offset=" + startOffset
+                                    + " chunk=" + startChunk + " (" + startOffset + "/" + totalBytes + " bytes)")));
+                }
+            }
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            // No ack or timeout — start from beginning (backward compatible)
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] No file offer ack from " + instanceId + " — starting transfer from beginning")));
+        } finally {
+            pendingAcks.remove(fileId);
+        }
+
+        int chunkIndex = startChunk;
+        for (int offset = startOffset; offset < content.length; offset += chunkBytes) {
             int len = Math.min(chunkBytes, content.length - offset);
             sendChunk(context, instanceId, jobId, fileId, chunkIndex,
                     Arrays.copyOfRange(content, offset, offset + len), len);
@@ -458,6 +491,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     }
 
     private void handleFileAck(String instanceId, AgentWsEnvelope envelope) {
+        // Route offer-level acks (ok, resume, failed) to the pending offer future
+        if (envelope.getFileId() != null && (envelope.getStatus() == AckStatus.ok
+                || envelope.getStatus() == AckStatus.resume
+                || envelope.getStatus() == AckStatus.failed)) {
+            CompletableFuture<AgentWsEnvelope> offerFuture = pendingAcks.remove(envelope.getFileId());
+            if (offerFuture != null) {
+                offerFuture.complete(envelope);
+                return;
+            }
+        }
+
         SessionContext context = sessions.get(instanceId);
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(instanceId, true);

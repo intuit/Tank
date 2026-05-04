@@ -167,7 +167,7 @@ public class AgentCommandWebSocketClientTest {
             client.onText(webSocket, AgentWsEnvelope.jobConfig("i-1", "job-1", startData, 1).toJson(), true);
             client.onText(webSocket,
                     AgentWsEnvelope.fileOffer("i-1", "job-1", fileId, "custom", filePath,
-                            payloadBytes.length, 1, false).toJson(), true);
+                            payloadBytes.length, 1, payloadBytes.length, false).toJson(), true);
             client.onText(webSocket,
                     AgentWsEnvelope.fileChunk("i-1", "job-1", fileId, 0,
                             Base64.getEncoder().encodeToString(payloadBytes)).toJson(), true);
@@ -207,7 +207,7 @@ public class AgentCommandWebSocketClientTest {
             client.onText(webSocket, AgentWsEnvelope.jobConfig("i-1", "job-1", startData, 10).toJson(), true);
             client.onText(webSocket,
                     AgentWsEnvelope.fileOffer("i-1", "job-1", "stale-file", "custom", filePath,
-                            4, 1, false).toJson(), true);
+                            4, 1, 4, false).toJson(), true);
 
             CompletableFuture<AgentTestStartData> oldJobConfigFuture = getField(client, "jobConfigFuture");
             CompletableFuture<Void> oldTransferFuture = getField(client, "transferCompleteFuture");

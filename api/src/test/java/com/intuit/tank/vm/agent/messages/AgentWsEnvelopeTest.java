@@ -136,7 +136,7 @@ public class AgentWsEnvelopeTest {
     @Test
     public void testFileOfferFactory() {
         AgentWsEnvelope env = AgentWsEnvelope.fileOffer("i-123", "job-1", "file-1", "script",
-                "script.xml", 1024L, 3, false);
+                "script.xml", 1024L, 3, 512, false);
 
         assertEquals(Type.file_offer, env.getType());
         assertEquals("file-1", env.getFileId());
@@ -144,6 +144,7 @@ public class AgentWsEnvelopeTest {
         assertEquals("script.xml", env.getFileName());
         assertEquals(1024L, env.getTotalBytes());
         assertEquals(3, env.getTotalChunks());
+        assertEquals(512, env.getChunkBytes());
         assertEquals(false, env.getDefaultDataFile());
     }
 
@@ -281,7 +282,7 @@ public class AgentWsEnvelopeTest {
 
     @Test
     public void testAckStatusValues() {
-        assertEquals(7, AckStatus.values().length);
+        assertEquals(8, AckStatus.values().length);
         assertNotNull(AckStatus.valueOf("ok"));
         assertNotNull(AckStatus.valueOf("duplicate"));
         assertNotNull(AckStatus.valueOf("failed"));
@@ -289,6 +290,7 @@ public class AgentWsEnvelopeTest {
         assertNotNull(AckStatus.valueOf("chunk_received"));
         assertNotNull(AckStatus.valueOf("complete"));
         assertNotNull(AckStatus.valueOf("all_files_complete"));
+        assertNotNull(AckStatus.valueOf("resume"));
     }
 
     @Test

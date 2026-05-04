@@ -94,14 +94,7 @@ public class StartupWebSocketServer extends WebSocketServer {
         logger.warn("Startup WS error: {}", ex.getMessage(), ex);
         if (conn == null) {
             logger.error("Startup WS server-level error — completing future exceptionally");
-            closeCurrentFileQuietly();
-            if (currentTempFile != null && currentTempFile.exists()) {
-                logger.info("Deleting partial bootstrap file {} after fatal error", currentTempFile.getAbsolutePath());
-                currentTempFile.delete();
-            }
-            if (!harnessJarFuture.isDone()) {
-                harnessJarFuture.completeExceptionally(ex);
-            }
+            handleFatalError(ex);
             return;
         }
         resetFileStateForRetry(conn);
@@ -130,6 +123,9 @@ public class StartupWebSocketServer extends WebSocketServer {
         }
 
         closeCurrentFileQuietly();
+        long offerTotalBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L;
+        int offerTotalChunks = envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0;
+        int offerChunkBytes = envelope.getChunkBytes() != null ? envelope.getChunkBytes() : 0;
         try {
             File agentDir = new File(TANK_AGENT_DIR);
             if (!agentDir.exists() && !agentDir.mkdirs()) {
@@ -138,12 +134,46 @@ public class StartupWebSocketServer extends WebSocketServer {
             currentFileConnection = conn;
             targetFile = new File(agentDir, API_HARNESS_JAR);
             currentTempFile = new File(targetFile.getAbsolutePath() + ".part");
+
+            // Check for resumable partial file from a previous failed transfer
+            if (currentTempFile.exists() && offerTotalBytes > 0 && offerChunkBytes > 0
+                    && currentTempFile.length() > 0 && currentTempFile.length() < offerTotalBytes) {
+                long partialBytes = currentTempFile.length();
+                // Truncate to safe chunk boundary
+                long safeResumeOffset = partialBytes - (partialBytes % offerChunkBytes);
+                if (safeResumeOffset != partialBytes) {
+                    logger.info("Truncating .part from {} to {} (chunk boundary alignment, chunkBytes={})",
+                            partialBytes, safeResumeOffset, offerChunkBytes);
+                    try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(currentTempFile, "rw")) {
+                        raf.setLength(safeResumeOffset);
+                    }
+                    partialBytes = safeResumeOffset;
+                }
+                int resumeChunk = (int) (partialBytes / offerChunkBytes);
+                logger.info("Resumable .part file found: {} bytes={}/{} resumeChunk={} chunkBytes={}",
+                        currentTempFile.getAbsolutePath(), partialBytes, offerTotalBytes, resumeChunk, offerChunkBytes);
+                currentFileStream = new FileOutputStream(currentTempFile, true); // append
+                currentFileId = envelope.getFileId();
+                receivedChunks = resumeChunk;
+                expectedChunks = offerTotalChunks;
+                receivedBytes = partialBytes;
+                expectedBytes = offerTotalBytes;
+                sendFileAckWithResume(conn, envelope.getFileId(), AckStatus.resume, partialBytes, resumeChunk);
+                return;
+            }
+
+            // Fresh transfer — delete stale .part if any
+            if (currentTempFile.exists()) {
+                currentTempFile.delete();
+            }
             currentFileStream = new FileOutputStream(currentTempFile);
             currentFileId = envelope.getFileId();
             receivedChunks = 0;
-            expectedChunks = envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0;
+            expectedChunks = offerTotalChunks;
             receivedBytes = 0;
-            expectedBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L;
+            expectedBytes = offerTotalBytes;
+            // Send explicit ok ack so controller doesn't wait 10s
+            sendFileAck(conn, envelope.getFileId(), 0, AckStatus.ok, null);
         } catch (IOException e) {
             closeCurrentFileQuietly();
             sendFileAck(conn, envelope.getFileId(), null, AckStatus.failed, e.getMessage());
@@ -165,7 +195,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             receivedChunks++;
             sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.chunk_received, null);
 
-            if (expectedChunks > 0 && receivedChunks >= expectedChunks) {
+            if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
                 File completedFile = finalizeHarnessJar();
                 sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.complete, null);
                 harnessJarFuture.complete(completedFile);
@@ -214,6 +244,30 @@ public class StartupWebSocketServer extends WebSocketServer {
         }
     }
 
+    private void sendFileAckWithResume(WebSocket conn, String fileId, AckStatus status, long resumeOffset, int resumeChunk) {
+        try {
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, resumeChunk, status, null);
+            ack.setResumeOffset(resumeOffset);
+            conn.send(ack.toJson());
+        } catch (IOException e) {
+            logger.warn("Failed to send startup WS resume ack for {}: {}", fileId, e.getMessage());
+        }
+    }
+
+    private synchronized void handleFatalError(Exception ex) {
+        closeCurrentFileQuietly();
+        if (currentTempFile != null && currentTempFile.exists()) {
+            logger.info("Deleting partial bootstrap file {} after fatal error", currentTempFile.getAbsolutePath());
+            currentTempFile.delete();
+        }
+        currentTempFile = null;
+        targetFile = null;
+        currentFileId = null;
+        if (!harnessJarFuture.isDone()) {
+            harnessJarFuture.completeExceptionally(ex);
+        }
+    }
+
     private synchronized void closeCurrentFileQuietly() {
         if (currentFileStream != null) {
             try {
@@ -231,20 +285,13 @@ public class StartupWebSocketServer extends WebSocketServer {
         }
         closeCurrentFileQuietly();
         if (currentTempFile != null && currentTempFile.exists()) {
-            logger.info("Deleting partial bootstrap file {} chunks={}/{} bytes={}/{}",
+            logger.info("Keeping partial bootstrap file for resume {} chunks={}/{} bytes={}/{}",
                     currentTempFile.getAbsolutePath(), receivedChunks, expectedChunks, receivedBytes, expectedBytes);
-            if (!currentTempFile.delete()) {
-                logger.warn("Failed to delete partial bootstrap file {}", currentTempFile.getAbsolutePath());
-            }
         }
         currentFileConnection = null;
-        currentTempFile = null;
-        targetFile = null;
+        // Keep currentTempFile, targetFile, receivedBytes, expectedBytes for resume
+        // Reset only the stream and connection-specific state
         currentFileId = null;
-        receivedChunks = 0;
-        expectedChunks = 0;
-        receivedBytes = 0;
-        expectedBytes = 0;
-        logger.info("Startup WS file state reset — ready for retry");
+        logger.info("Startup WS connection state reset — .part file preserved for resume");
     }
 }
