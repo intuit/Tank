@@ -247,18 +247,7 @@ public abstract class JobNodeBean implements Serializable {
         };
     }
 
-    public String getWsStateStyle() {
-        if ("disconnected".equals(wsState)) {
-            return "color: red; font-weight: bold;";
-        }
-        if ("running".equals(wsState)) {
-            return "color: green; font-weight: bold;";
-        }
-        if ("ready".equals(wsState)) {
-            return "color: green;";
-        }
-        return "color: #666;";
-    }
+
 
     public String getStatusBadgeClass() {
         String status = getStatus();
