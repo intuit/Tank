@@ -127,7 +127,7 @@ public class JobRequest implements Runnable {
         int port = agentConfig.getAgentPort();
         long helloTimeoutMillis = Math.max(30_000L, agentConfig.getMaxAgentResponseTime());
         long transferTimeoutMillis = Math.max(120_000L, agentConfig.getMaxAgentWaitTime());
-        long maxConnectWaitMillis = Math.max(transferTimeoutMillis, 180_000L);
+        long maxConnectWaitMillis = Math.max(transferTimeoutMillis, 600_000L);
 
         for (VMInformation info : vmInfo) {
             Thread thread = new Thread(() -> {
@@ -156,17 +156,21 @@ public class JobRequest implements Runnable {
         int attempt = 1;
         while (System.currentTimeMillis() - start < maxConnectWaitMillis) {
             try {
-                if (wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
-                        token, helloTimeoutMillis, transferTimeoutMillis)) {
+                boolean complete = wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
+                        token, helloTimeoutMillis, transferTimeoutMillis);
+                if (complete) {
                     return;
                 }
+                logger.info(new ObjectMessage(Map.of("Message",
+                        "[WS] Controller initiated connect attempt " + attempt + " incomplete for "
+                                + info.getInstanceId() + " at " + wsUrl + " — will retry")));
             } catch (Exception e) {
                 logger.warn(new ObjectMessage(Map.of("Message",
                         "[WS] Controller initiated connect attempt " + attempt + " failed for "
                                 + info.getInstanceId() + " at " + wsUrl + ": " + e.getMessage())));
             }
             try {
-                Thread.sleep(Math.min(30_000L, 2_000L * attempt));
+                Thread.sleep(Math.min(10_000L, 2_000L * attempt));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;

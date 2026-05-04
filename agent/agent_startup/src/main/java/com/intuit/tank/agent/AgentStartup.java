@@ -45,7 +45,8 @@ public class AgentStartup implements Runnable {
     private static final String TANK_APP_DIR = "/tmp/tankApp";
     private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
     private static final int DEFAULT_AGENT_WS_PORT = 8090;
-    private static final long STARTUP_WS_BOOTSTRAP_WAIT_MS = 300_000L;
+    private static final long STARTUP_WS_BOOTSTRAP_WAIT_MS =
+            Long.getLong("tank.ws.startupBootstrapWaitMs", 600_000L);
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;

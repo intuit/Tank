@@ -50,6 +50,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final int DEFAULT_CHUNK_BYTES = 524288;
     private static final int CHUNK_ACK_WINDOW = 4;
+    private static final long MAX_BOOTSTRAP_CONNECTION_MS =
+            Long.getLong("tank.ws.bootstrap.maxConnectionMs", 30_000L);
 
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
@@ -83,7 +85,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             CompletableFuture<AgentWsEnvelope> helloFuture = new CompletableFuture<>();
             Listener listener = new Listener(instanceId, helloFuture);
 
-            WebSocket webSocket = httpClient.newWebSocketBuilder()
+            HttpClient wsHttpClient = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .connectTimeout(java.time.Duration.ofSeconds(10))
+                    .build();
+            WebSocket webSocket = wsHttpClient.newWebSocketBuilder()
                     .header("Authorization", "bearer " + token)
                     .buildAsync(URI.create(wsUrl), listener)
                     .join();
@@ -163,7 +169,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Controller initiated bootstrap failed for " + agentId + ": " + e.getMessage())), e);
             agentWsState.put(agentId, "disconnected");
-            context.close();
+            context.abort();
             return false;
         }
     }
@@ -274,7 +280,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         List<TransferFile> bootstrapFiles = new ArrayList<>();
         bootstrapFiles.add(new TransferFile("support_jar", API_HARNESS_JAR, Files.readAllBytes(harnessJar.toPath()), false));
-        sendFiles(context, agentId, "bootstrap", bootstrapFiles, DEFAULT_CHUNK_BYTES);
+
+        long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
+        boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
+                DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+
+        if (!sentAllChunks) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Bootstrap connection budget reached for " + agentId
+                            + " — closing cleanly to resume on next connection")));
+            agentWsState.put(agentId, "bootstrap_transferring");
+            sessions.remove(agentId, context);
+            context.closeGracefully("bootstrap_connection_budget_reached");
+            return false;
+        }
+
         context.transferCompleteFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
         agentTransferProgress.put(agentId, "1/1 files");
         agentWsState.put(agentId, "bootstrap_sent");
@@ -360,11 +380,31 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private void sendFiles(SessionContext context, String instanceId, String jobId, List<TransferFile> files, int chunkBytes)
             throws IOException, InterruptedException {
         for (TransferFile file : files) {
-            sendFile(context, instanceId, jobId, file, chunkBytes);
+            sendFile(context, instanceId, jobId, file, chunkBytes, 0L);
         }
     }
 
-    private void sendFile(SessionContext context, String instanceId, String jobId, TransferFile file, int chunkBytes)
+    private boolean sendFilesWithBudget(SessionContext context, String instanceId, String jobId,
+                                        List<TransferFile> files, int chunkBytes, long connectionDeadlineMs)
+            throws IOException, InterruptedException {
+        try {
+            for (TransferFile file : files) {
+                if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (BootstrapBudgetExceededException e) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Bootstrap transfer budget reached for " + instanceId
+                            + " during ack wait — closing cleanly to resume")));
+            pendingChunkAcks.remove(instanceId);
+            return false;
+        }
+    }
+
+    private boolean sendFile(SessionContext context, String instanceId, String jobId, TransferFile file,
+                             int chunkBytes, long connectionDeadlineMs)
             throws IOException, InterruptedException {
         byte[] content = file.content();
         long totalBytes = content != null ? content.length : 0L;
@@ -387,8 +427,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         if (content == null || content.length == 0) {
             pendingAcks.remove(fileId);
-            sendChunk(context, instanceId, jobId, fileId, 0, new byte[0], 0);
-            return;
+            sendChunk(context, instanceId, jobId, fileId, 0, new byte[0], 0, connectionDeadlineMs);
+            return true;
         }
 
         // Check for offer ack (ok, resume, or failed)
@@ -421,15 +461,24 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         int chunkIndex = startChunk;
         for (int offset = startOffset; offset < content.length; offset += chunkBytes) {
+            if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
+                LOG.info(new ObjectMessage(Map.of("Message",
+                        "[WS] Bootstrap transfer budget reached for " + instanceId
+                                + " at chunk=" + chunkIndex + " offset=" + offset
+                                + "/" + totalBytes + " — will reconnect and resume")));
+                return false;
+            }
             int len = Math.min(chunkBytes, content.length - offset);
             sendChunk(context, instanceId, jobId, fileId, chunkIndex,
-                    Arrays.copyOfRange(content, offset, offset + len), len);
+                    Arrays.copyOfRange(content, offset, offset + len), len, connectionDeadlineMs);
             chunkIndex++;
         }
+        return true;
     }
 
     private void sendChunk(SessionContext context, String instanceId, String jobId, String fileId,
-                           int chunkIndex, byte[] bytes, int len) throws IOException, InterruptedException {
+                           int chunkIndex, byte[] bytes, int len, long connectionDeadlineMs)
+            throws IOException, InterruptedException {
         CompletableFuture<Void> gate = null;
         if ((chunkIndex + 1) % CHUNK_ACK_WINDOW == 0) {
             gate = new CompletableFuture<>();
@@ -439,10 +488,27 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         sendEnvelope(context, AgentWsEnvelope.fileChunk(instanceId, jobId, fileId, chunkIndex, base64));
         if (gate != null) {
             try {
-                gate.get(30, TimeUnit.SECONDS);
+                long ackTimeoutMs = 30_000L;
+                if (connectionDeadlineMs > 0) {
+                    long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
+                    if (remainingMs <= 0) {
+                        throw new BootstrapBudgetExceededException(
+                                "Bootstrap connection budget reached during chunk ack wait");
+                    }
+                    ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
+                }
+                gate.get(ackTimeoutMs, TimeUnit.MILLISECONDS);
+            } catch (BootstrapBudgetExceededException e) {
+                throw e;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw e;
+            } catch (java.util.concurrent.TimeoutException e) {
+                if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
+                    throw new BootstrapBudgetExceededException(
+                            "Bootstrap connection budget reached while waiting for chunk ack");
+                }
+                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
             } catch (Exception e) {
                 throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
             }
@@ -560,12 +626,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private void onClosed(String instanceId, WebSocket webSocket) {
         SessionContext context = sessions.get(instanceId);
-        if (context != null && webSocket != null && context.webSocket != webSocket) {
+        if (context == null) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring close for non-active session " + instanceId)));
+            return;
+        }
+        if (webSocket != null && context.webSocket != webSocket) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring stale close from previous session for " + instanceId)));
             return;
         }
-        if (context != null && sessions.remove(instanceId, context)) {
+        if (sessions.remove(instanceId, context)) {
             context.markClosed();
         }
         fileTransferReady.remove(instanceId);
@@ -629,6 +700,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private final CompletableFuture<Void> transferCompleteFuture = new CompletableFuture<>();
         private final ConcurrentHashMap<String, Integer> completedFiles = new ConcurrentHashMap<>();
         private final AtomicBoolean closed = new AtomicBoolean(false);
+        private final long openedAtMs;
         private volatile String instanceId;
         private volatile String jobId;
         private volatile int expectedFiles;
@@ -638,6 +710,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private SessionContext(WebSocket webSocket, CompletableFuture<AgentWsEnvelope> helloFuture) {
             this.webSocket = webSocket;
             this.helloFuture = helloFuture;
+            this.openedAtMs = System.currentTimeMillis();
         }
 
         private boolean isOpen() {
@@ -645,13 +718,32 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         private void close() {
+            closeGracefully("Closing session");
+        }
+
+        private void closeGracefully(String reason) {
             if (closed.compareAndSet(false, true)) {
                 try {
-                    webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "Closing session");
-                } catch (Exception ignored) {
+                    webSocket.sendClose(WebSocket.NORMAL_CLOSURE, reason)
+                            .orTimeout(2, TimeUnit.SECONDS)
+                            .exceptionally(t -> {
+                                webSocket.abort();
+                                return webSocket;
+                            })
+                            .join();
+                } catch (Exception e) {
+                    try { webSocket.abort(); } catch (Exception ignored) {}
                 }
-                helloFuture.completeExceptionally(new IllegalStateException("Closed"));
-                transferCompleteFuture.completeExceptionally(new IllegalStateException("Closed"));
+                helloFuture.completeExceptionally(new IllegalStateException(reason));
+                transferCompleteFuture.completeExceptionally(new IllegalStateException(reason));
+            }
+        }
+
+        private void abort() {
+            if (closed.compareAndSet(false, true)) {
+                try { webSocket.abort(); } catch (Exception ignored) {}
+                helloFuture.completeExceptionally(new IllegalStateException("Aborted"));
+                transferCompleteFuture.completeExceptionally(new IllegalStateException("Aborted"));
             }
         }
 
@@ -678,6 +770,12 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         private boolean matches(String fileId, Integer chunkIndex) {
             return this.fileId.equals(fileId) && chunkIndex != null && this.chunkIndex == chunkIndex;
+        }
+    }
+
+    private static class BootstrapBudgetExceededException extends IOException {
+        private BootstrapBudgetExceededException(String message) {
+            super(message);
         }
     }
 }
