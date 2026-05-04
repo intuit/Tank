@@ -47,6 +47,8 @@ public class AgentStartup implements Runnable {
     private static final int DEFAULT_AGENT_WS_PORT = 8090;
     private static final long STARTUP_WS_BOOTSTRAP_WAIT_MS =
             Long.getLong("tank.ws.startupBootstrapWaitMs", 600_000L);
+    private static final long STARTUP_WS_RESTART_SLEEP_MS =
+            Long.getLong("tank.ws.startupWsRestartSleepMs", 1_000L);
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;
@@ -163,39 +165,54 @@ public class AgentStartup implements Runnable {
     }
 
     private File receiveHarnessJarOverWs() throws IOException, InterruptedException {
-        StartupWebSocketServer wsServer = new StartupWebSocketServer(
-                DEFAULT_AGENT_WS_PORT,
-                AmazonUtil.getInstanceId(),
-                AmazonUtil.getJobId(),
-                AmazonUtil.getCapacity());
-        wsServer.setReuseAddr(true);
-        try {
-            wsServer.start();
-            logger.info("Startup WS server listening on port {} — waiting for controller to push harness JAR",
-                    DEFAULT_AGENT_WS_PORT);
-            File harnessJar = wsServer.awaitHarnessJar(STARTUP_WS_BOOTSTRAP_WAIT_MS);
-            if (harnessJar != null && harnessJar.exists()) {
-                return harnessJar;
-            }
-
-            harnessJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
-            if (!harnessJar.exists()) {
-                copyBakedHarnessJar(harnessJar);
-            }
-            if (harnessJar.exists()) {
-                logger.info("Using pre-existing harness JAR from disk");
-                return harnessJar;
-            }
-            throw new IOException("Harness JAR not received from controller and not found on disk");
-        } finally {
+        long deadlineMs = System.currentTimeMillis() + STARTUP_WS_BOOTSTRAP_WAIT_MS;
+        int restartCount = 0;
+        while (System.currentTimeMillis() < deadlineMs) {
+            StartupWebSocketServer wsServer = new StartupWebSocketServer(
+                    DEFAULT_AGENT_WS_PORT,
+                    AmazonUtil.getInstanceId(),
+                    AmazonUtil.getJobId(),
+                    AmazonUtil.getCapacity());
+            wsServer.setReuseAddr(true);
             try {
-                wsServer.stop(1000);
-                logger.info("Startup WS server stopped — launching harness");
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw e;
+                wsServer.start();
+                long remainingMs = Math.max(1L, deadlineMs - System.currentTimeMillis());
+                logger.info("Startup WS server listening on port {} — waiting for controller to push harness JAR restartCount={} remainingMs={}",
+                        DEFAULT_AGENT_WS_PORT, restartCount, remainingMs);
+                File harnessJar = wsServer.awaitHarnessJarOrServerStop(remainingMs);
+                if (harnessJar != null && harnessJar.exists()) {
+                    return harnessJar;
+                }
+                if (!wsServer.hasServerStopped()) {
+                    break;
+                }
+                restartCount++;
+                logger.warn("Startup WS server stopped before harness JAR was received — restarting restartCount={} remainingMs={}",
+                        restartCount, Math.max(0L, deadlineMs - System.currentTimeMillis()));
+            } finally {
+                try {
+                    wsServer.stop(1000);
+                    logger.info("Startup WS server stopped");
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+            }
+            long remainingMs = deadlineMs - System.currentTimeMillis();
+            if (remainingMs > 0) {
+                Thread.sleep(Math.min(STARTUP_WS_RESTART_SLEEP_MS, remainingMs));
             }
         }
+
+        File harnessJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+        if (!harnessJar.exists()) {
+            copyBakedHarnessJar(harnessJar);
+        }
+        if (harnessJar.exists()) {
+            logger.info("Using pre-existing harness JAR from disk");
+            return harnessJar;
+        }
+        throw new IOException("Harness JAR not received from controller and not found on disk");
     }
 
     private void launchIfHarnessExists() {

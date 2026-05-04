@@ -32,6 +32,7 @@ public class StartupWebSocketServer extends WebSocketServer {
     private final int capacity;
     private final String agentSessionId = UUID.randomUUID().toString();
     private final CompletableFuture<File> harnessJarFuture = new CompletableFuture<>();
+    private final CompletableFuture<Void> serverStoppedFuture = new CompletableFuture<>();
 
     private WebSocket currentFileConnection;
     private FileOutputStream currentFileStream;
@@ -51,12 +52,30 @@ public class StartupWebSocketServer extends WebSocketServer {
     }
 
     @Override
+    public void run() {
+        try {
+            super.run();
+        } catch (Throwable t) {
+            logger.error("Startup WS server thread crashed", t);
+            serverStoppedFuture.completeExceptionally(t);
+        } finally {
+            if (!harnessJarFuture.isDone()) {
+                resetFileStateForRetry(null);
+                logger.warn("Startup WS server thread exited before harness JAR was received");
+            } else {
+                logger.info("Startup WS server thread exited");
+            }
+            serverStoppedFuture.complete(null);
+        }
+    }
+
+    @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         logger.info("Controller connected to startup WS server from {}", conn.getRemoteSocketAddress());
         try {
             AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, null, capacity, true);
             conn.send(hello.toJson());
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to send startup WS hello: {}", e.getMessage());
             conn.close();
         }
@@ -78,8 +97,8 @@ public class StartupWebSocketServer extends WebSocketServer {
                 case close -> conn.close();
                 default -> logger.info("Startup WS ignoring frame type: {}", envelope.getType());
             }
-        } catch (IOException e) {
-            logger.warn("Failed parsing startup WS message: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Failed handling startup WS message: {}", e.getMessage(), e);
         }
     }
 
@@ -93,7 +112,7 @@ public class StartupWebSocketServer extends WebSocketServer {
     public void onError(WebSocket conn, Exception ex) {
         logger.warn("Startup WS error: {}", ex.getMessage(), ex);
         if (conn == null) {
-            logger.error("Startup WS server-level error — completing future exceptionally");
+            logger.error("Startup WS server-level error — preserving partial file for restart");
             handleFatalError(ex);
             return;
         }
@@ -112,6 +131,34 @@ public class StartupWebSocketServer extends WebSocketServer {
             logger.error("Timed out waiting for harness JAR: {}", e.getMessage());
             return null;
         }
+    }
+
+    public File awaitHarnessJarOrServerStop(long timeoutMillis) {
+        try {
+            Object result = CompletableFuture.anyOf(harnessJarFuture, serverStoppedFuture)
+                    .get(timeoutMillis, TimeUnit.MILLISECONDS);
+            if (result instanceof File) {
+                return (File) result;
+            }
+            if (serverStoppedFuture.isDone() && !harnessJarFuture.isDone()) {
+                logger.warn("Startup WS server stopped before harness JAR was received");
+            }
+            return null;
+        } catch (java.util.concurrent.TimeoutException e) {
+            logger.error("Timed out waiting for harness JAR: {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
+            if (serverStoppedFuture.isDone() && !harnessJarFuture.isDone()) {
+                logger.warn("Startup WS server stopped before harness JAR was received: {}", e.getMessage());
+            } else {
+                logger.error("Error waiting for harness JAR: {}", e.getMessage(), e);
+            }
+            return null;
+        }
+    }
+
+    public boolean hasServerStopped() {
+        return serverStoppedFuture.isDone();
     }
 
     private synchronized void handleFileOffer(WebSocket conn, AgentWsEnvelope envelope) {
@@ -211,7 +258,7 @@ public class StartupWebSocketServer extends WebSocketServer {
         try {
             AgentWsEnvelope pong = AgentWsEnvelope.pong(instanceId, agentSessionId, envelope.getPingId(), null);
             conn.send(pong.toJson());
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to send startup WS pong: {}", e.getMessage());
         }
     }
@@ -239,7 +286,7 @@ public class StartupWebSocketServer extends WebSocketServer {
         try {
             AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
             conn.send(ack.toJson());
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to send startup WS file ack for {}: {}", fileId, e.getMessage());
         }
     }
@@ -249,7 +296,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, resumeChunk, status, null);
             ack.setResumeOffset(resumeOffset);
             conn.send(ack.toJson());
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.warn("Failed to send startup WS resume ack for {}: {}", fileId, e.getMessage());
         }
     }
@@ -257,15 +304,12 @@ public class StartupWebSocketServer extends WebSocketServer {
     private synchronized void handleFatalError(Exception ex) {
         closeCurrentFileQuietly();
         if (currentTempFile != null && currentTempFile.exists()) {
-            logger.info("Deleting partial bootstrap file {} after fatal error", currentTempFile.getAbsolutePath());
-            currentTempFile.delete();
+            logger.info("Keeping partial bootstrap file after startup WS server error {} chunks={}/{} bytes={}/{}",
+                    currentTempFile.getAbsolutePath(), receivedChunks, expectedChunks, receivedBytes, expectedBytes);
         }
-        currentTempFile = null;
-        targetFile = null;
+        currentFileConnection = null;
         currentFileId = null;
-        if (!harnessJarFuture.isDone()) {
-            harnessJarFuture.completeExceptionally(ex);
-        }
+        serverStoppedFuture.completeExceptionally(ex);
     }
 
     private synchronized void closeCurrentFileQuietly() {
