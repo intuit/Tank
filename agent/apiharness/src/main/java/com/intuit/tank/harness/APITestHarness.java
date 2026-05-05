@@ -105,7 +105,6 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
-    private volatile AgentCommandWebSocketClient commandWebSocketClient;
     private volatile AgentCommandWebSocketServer commandWebSocketServer;
 
     private Date send = new Date();
@@ -280,8 +279,6 @@ public class APITestHarness {
         }
         agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-        AgentCommandWebSocketClient wsClient = commandWebSocketClient;
-
         if (wsEnabled) {
             try {
                 int wsPort = tankConfig.getAgentConfig().getAgentPort();
@@ -317,10 +314,6 @@ public class APITestHarness {
                 return;
             } catch (Exception e) {
                 LOG.error("Error in WS file transfer startup path: " + e, e);
-                if (wsClient != null) {
-                    wsClient.close();
-                    commandWebSocketClient = null;
-                }
                 if (commandWebSocketServer != null) {
                     commandWebSocketServer.closeServer();
                     commandWebSocketServer = null;
@@ -960,10 +953,6 @@ public class APITestHarness {
      */
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
-    }
-
-    public AgentCommandWebSocketClient getCommandWebSocketClient() {
-        return commandWebSocketClient;
     }
 
     public AgentCommandWebSocketServer getCommandWebSocketServer() {

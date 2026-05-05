@@ -58,7 +58,7 @@ class APIMonitorTest {
     @Mock private UserTracker mockUserTracker;
     @Mock private List<UserDetail> mockUserSnapshot;
     @Mock private TPSMonitor mockTpsMonitor;
-    @Mock private AgentCommandWebSocketClient mockWsClient;
+    @Mock private AgentCommandWebSocketServer mockWsServer;
 
 
     private MockedStatic<APITestHarness> mockedApiHarness;
@@ -695,47 +695,47 @@ class APIMonitorTest {
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
-            when(mockApiTestHarnessInstance.getCommandWebSocketClient()).thenReturn(mockWsClient);
-            when(mockWsClient.sendStatusUpdate(statusToSend)).thenReturn(true);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(mockWsServer);
+            when(mockWsServer.sendStatusUpdate(statusToSend)).thenReturn(true);
 
             invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
 
-            verify(mockWsClient).sendStatusUpdate(statusToSend);
+            verify(mockWsServer).sendStatusUpdate(statusToSend);
             verify(mockAgentConfig, never()).getAgentToken();
             verify(mockTankConfig, never()).getControllerBase();
         }
 
         @Test
-        @DisplayName("Should skip HTTP when WS send fails")
-        void setInstanceStatus_WsSendFails_SkipsHttp() throws Exception {
+        @DisplayName("Should skip HTTP when WS server send fails")
+        void setInstanceStatus_WsServerSendFails_SkipsHttp() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
                     JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
-            when(mockApiTestHarnessInstance.getCommandWebSocketClient()).thenReturn(mockWsClient);
-            when(mockWsClient.sendStatusUpdate(statusToSend)).thenReturn(false);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(mockWsServer);
+            when(mockWsServer.sendStatusUpdate(statusToSend)).thenReturn(false);
 
             invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
 
-            verify(mockWsClient).sendStatusUpdate(statusToSend);
+            verify(mockWsServer).sendStatusUpdate(statusToSend);
             verify(mockAgentConfig, never()).getAgentToken();
             verify(mockTankConfig, never()).getControllerBase();
         }
 
         @Test
-        @DisplayName("Should skip HTTP when WS client is unavailable")
-        void setInstanceStatus_WsClientUnavailable_SkipsHttp() throws Exception {
+        @DisplayName("Should skip HTTP when WS server is unavailable")
+        void setInstanceStatus_WsServerUnavailable_SkipsHttp() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
                     JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
-            when(mockApiTestHarnessInstance.getCommandWebSocketClient()).thenReturn(null);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(null);
 
             invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
 
-            verify(mockWsClient, never()).sendStatusUpdate(statusToSend);
+            verify(mockWsServer, never()).sendStatusUpdate(statusToSend);
             verify(mockAgentConfig, never()).getAgentToken();
             verify(mockTankConfig, never()).getControllerBase();
         }

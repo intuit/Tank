@@ -173,7 +173,6 @@ public class APIMonitor implements Runnable {
         APITestHarness harness = APITestHarness.getInstance();
         boolean wsEnabled = harness.getTankConfig().getAgentConfig().isCommandWsEnabled();
 
-        AgentCommandWebSocketClient wsClient = harness.getCommandWebSocketClient();
         if (wsEnabled) {
             AgentCommandWebSocketServer wsServer = harness.getCommandWebSocketServer();
             if (wsServer != null) {
@@ -182,15 +181,8 @@ public class APIMonitor implements Runnable {
                     return;
                 }
                 LOG.warn(LogUtil.getLogMessage("WS server status update failed for instance: " + instanceId));
-            }
-            if (wsClient != null) {
-                if (wsClient.sendStatusUpdate(VmStatus)) {
-                    LOG.debug(LogUtil.getLogMessage("Sent WS instance status update for instance: " + instanceId));
-                    return;
-                }
-                LOG.warn(LogUtil.getLogMessage("WS status update failed for instance: " + instanceId));
             } else {
-                LOG.warn(LogUtil.getLogMessage("WS enabled but client unavailable for instance: " + instanceId));
+                LOG.warn(LogUtil.getLogMessage("WS enabled but server unavailable for instance: " + instanceId));
             }
             return;
         }
