@@ -95,7 +95,8 @@ public class JobRequest implements Runnable {
         logger.info(new ObjectMessage(Map.of("Message","Created " + vmInfo.size() + " Amazon instances.")));
         VMImageDao dao = new VMImageDao();
         // create a watchdog to monitor these instances
-        AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
+        AgentWatchdog watchDog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker,
+                (req, vms) -> startControllerInitiatedWs(req, vms));
         // persist the VMImages to database:
         for (VMInformation info : vmInfo) {
             try {

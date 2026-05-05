@@ -1,5 +1,6 @@
 package com.intuit.tank.vmManager;
 
+import com.intuit.tank.dao.VMImageDao;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
@@ -14,6 +15,7 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,7 +46,7 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
         List<VMInformation> vmInfo = new ArrayList<>();
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker, null);
 
         String result = agentWatchdog.toString();
 
@@ -66,7 +69,8 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000, null);
         agentWatchdog.run();
 
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
@@ -92,7 +96,8 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000, null);
         agentWatchdog.run();
 
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
@@ -120,7 +125,7 @@ public class AgentWatchdogTest {
         instanceRequest.setRegion(VMRegion.STANDALONE);
         List<VMInformation> vmInfo = new ArrayList<>();
         
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker, null);
         
         // Use reflection to access private createCloudStatus method
         Method createCloudStatus = AgentWatchdog.class.getDeclaredMethod(
@@ -206,7 +211,7 @@ public class AgentWatchdogTest {
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
         AgentWatchdog agentWatchdog = new AgentWatchdog(
-            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50);
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50, null);
 
         setField(agentWatchdog, "startedInstances", new ArrayList<>(vmInfo));
         setField(agentWatchdog, "reportedInstances", new ArrayList<VMInformation>());
@@ -224,6 +229,55 @@ public class AgentWatchdogTest {
         assertEquals(Set.of("i-still-starting"), instanceIds(startedInstances));
         assertEquals(Set.of("i-reported", "i-ready", "i-running"), instanceIds(reportedInstances));
         verify(cloudVmStatusContainerMock, times(1)).getStatuses();
+    }
+
+    @Test
+    public void relaunch_invokesWsBootstrapCallbackWithNewVms(@Mock VMTracker vmTrackerMock) throws Exception {
+        VMInformation oldVm = new VMInformation();
+        oldVm.setInstanceId("i-old");
+
+        VMInformation newVm = new VMInformation();
+        newVm.setInstanceId("i-new");
+
+        ArrayList<VMInformation> vmInfo = new ArrayList<>();
+        vmInfo.add(oldVm);
+        ArrayList<VMInformation> startedInstances = new ArrayList<>();
+        startedInstances.add(oldVm);
+        ArrayList<VMInformation> reportedInstances = new ArrayList<>();
+        List<VMInformation> newVms = Collections.singletonList(newVm);
+
+        VMInstanceRequest instanceRequest = new VMInstanceRequest();
+        instanceRequest.setJobId("123");
+        instanceRequest.setRegion(VMRegion.STANDALONE);
+        when(amazonInstanceMock.create(instanceRequest)).thenReturn(newVms);
+
+        AtomicReference<VMInstanceRequest> callbackRequest = new AtomicReference<>();
+        AtomicReference<List<VMInformation>> callbackVms = new AtomicReference<>();
+        AgentWatchdog.WsBootstrapCallback callback = (req, vms) -> {
+            callbackRequest.set(req);
+            callbackVms.set(vms);
+        };
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50, callback);
+
+        setField(agentWatchdog, "startedInstances", startedInstances);
+        setField(agentWatchdog, "reportedInstances", reportedInstances);
+
+        try (MockedConstruction<VMImageDao> daoMock = Mockito.mockConstruction(VMImageDao.class)) {
+            Method relaunch = AgentWatchdog.class.getDeclaredMethod("relaunch", ArrayList.class);
+            relaunch.setAccessible(true);
+            relaunch.invoke(agentWatchdog, startedInstances);
+
+            assertEquals(1, daoMock.constructed().size());
+        }
+
+        assertSame(instanceRequest, callbackRequest.get());
+        assertSame(newVms, callbackVms.get());
+        assertEquals(Set.of("i-new"), instanceIds(vmInfo));
+        assertEquals(Set.of("i-new"), instanceIds(startedInstances));
+        verify(amazonInstanceMock).killInstances(Collections.singletonList("i-old"));
+        verify(amazonInstanceMock).create(instanceRequest);
     }
 
     private static Set<String> instanceIds(List<VMInformation> instances) {
