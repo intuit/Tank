@@ -182,7 +182,8 @@ public class AgentWatchdog implements Runnable {
         }
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             // Checks the state of Tank job.
-            if (status.getVmStatus().equals(VMStatus.pending)) { // agent reported back ready, only relaunch "starting" agents
+            VMStatus s = status.getVmStatus();
+            if (s == VMStatus.pending || s == VMStatus.ready || s == VMStatus.running) { // agent reported back ready, only relaunch "starting" agents
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {
                     addInstance(reportedInstances, removedInstance);

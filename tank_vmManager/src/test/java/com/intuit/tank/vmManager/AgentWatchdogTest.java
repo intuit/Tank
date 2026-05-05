@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -143,16 +144,11 @@ public class AgentWatchdogTest {
         assertEquals(JobStatus.Starting, result.getJobStatus());
     }
     
-    /**
-     * Verifies the checkForReportingInstances() logic only considers 'pending' agents as reported.
-     * This test ensures that 'starting' agents are NOT moved to reportedInstances.
-     */
     @Test
-    public void checkForReportingInstances_onlyMovesPendingAgents(
+    public void checkForReportingInstances_movesPendingReadyAndRunningAgents(
             @Mock VMTracker vmTrackerMock, 
-            @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
+            @Mock CloudVmStatusContainer cloudVmStatusContainerMock) throws Exception {
         
-        // Setup: Two agents - one starting (should wait), one pending (should be reported)
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
         
         CloudVmStatus vmstatusStarting = new CloudVmStatus(
@@ -164,14 +160,25 @@ public class AgentWatchdogTest {
             "i-reported", "123", "sg-123456", 
             JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, 
             VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+
+        CloudVmStatus vmstatusReady = new CloudVmStatus(
+            "i-ready", "123", "sg-123456",
+            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE,
+            VMStatus.ready, new ValidationStatus(), 1, 1, new Date(), new Date());
+
+        CloudVmStatus vmstatusRunning = new CloudVmStatus(
+            "i-running", "123", "sg-123456",
+            JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE,
+            VMStatus.running, new ValidationStatus(), 1, 1, new Date(), new Date());
         
         Set<CloudVmStatus> statuses = new HashSet<>();
         statuses.add(vmstatusStarting);
         statuses.add(vmstatusPending);
+        statuses.add(vmstatusReady);
+        statuses.add(vmstatusRunning);
         when(cloudVmStatusContainerMock.getStatuses()).thenReturn(statuses);
-        when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
+        when(vmTrackerMock.getVmStatusForJob("123")).thenReturn(cloudVmStatusContainerMock);
 
-        // Create VMInformation for both agents
         VMInformation vmInfoStarting = new VMInformation();
         vmInfoStarting.setState("pending");
         vmInfoStarting.setInstanceId("i-still-starting");
@@ -179,37 +186,59 @@ public class AgentWatchdogTest {
         VMInformation vmInfoPending = new VMInformation();
         vmInfoPending.setState("pending");
         vmInfoPending.setInstanceId("i-reported");
+
+        VMInformation vmInfoReady = new VMInformation();
+        vmInfoReady.setState("pending");
+        vmInfoReady.setInstanceId("i-ready");
+
+        VMInformation vmInfoRunning = new VMInformation();
+        vmInfoRunning.setState("pending");
+        vmInfoRunning.setInstanceId("i-running");
         
         List<VMInformation> vmInfo = new ArrayList<>();
         vmInfo.add(vmInfoStarting);
         vmInfo.add(vmInfoPending);
+        vmInfo.add(vmInfoReady);
+        vmInfo.add(vmInfoRunning);
         
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
+        instanceRequest.setJobId("123");
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        // Short timeout to let it check once then timeout waiting for i-still-starting
-        // maxWaitForResponse=1 means it will immediately try to relaunch
-        // But since we're not mocking amazonInstance.create, it should fail
-        // and we just verify the initial check behavior
         AgentWatchdog agentWatchdog = new AgentWatchdog(
             instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50);
-        
-        // Run in a way that only checks once - the job will "appear stopped" after first check
-        when(cloudVmStatusContainerMock.getEndTime())
-            .thenReturn(null)  // First check
-            .thenReturn(new Date());  // Second check - job appears stopped, exit
-        
-        try {
-            agentWatchdog.run();
-        } catch (RuntimeException e) {
-            // Expected - job appears stopped
-        }
 
-        // After ONE check:
-        // - i-reported (pending) should be in reportedInstances
-        // - i-still-starting (starting) should still be in startedInstances
-        // The key assertion is that the watchdog did NOT immediately exit
-        // because i-still-starting is still 'starting' not 'pending'
-        verify(cloudVmStatusContainerMock, atLeast(1)).getStatuses();
+        setField(agentWatchdog, "startedInstances", new ArrayList<>(vmInfo));
+        setField(agentWatchdog, "reportedInstances", new ArrayList<VMInformation>());
+        setField(agentWatchdog, "startTime", System.currentTimeMillis());
+
+        Method checkForReportingInstances = AgentWatchdog.class.getDeclaredMethod("checkForReportingInstances");
+        checkForReportingInstances.setAccessible(true);
+        checkForReportingInstances.invoke(agentWatchdog);
+
+        @SuppressWarnings("unchecked")
+        ArrayList<VMInformation> startedInstances = (ArrayList<VMInformation>) getField(agentWatchdog, "startedInstances");
+        @SuppressWarnings("unchecked")
+        ArrayList<VMInformation> reportedInstances = (ArrayList<VMInformation>) getField(agentWatchdog, "reportedInstances");
+
+        assertEquals(Set.of("i-still-starting"), instanceIds(startedInstances));
+        assertEquals(Set.of("i-reported", "i-ready", "i-running"), instanceIds(reportedInstances));
+        verify(cloudVmStatusContainerMock, times(1)).getStatuses();
+    }
+
+    private static Set<String> instanceIds(List<VMInformation> instances) {
+        return instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toSet());
+    }
+
+    private static Object getField(Object target, String fieldName) throws Exception {
+        Field field = AgentWatchdog.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
+    }
+
+    private static void setField(Object target, String fieldName, Object value) throws Exception {
+        Field field = AgentWatchdog.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 }
