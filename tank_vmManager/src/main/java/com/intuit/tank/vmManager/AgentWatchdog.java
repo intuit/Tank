@@ -58,6 +58,11 @@ import org.apache.logging.log4j.message.ObjectMessage;
  */
 public class AgentWatchdog implements Runnable {
 
+    @FunctionalInterface
+    public interface WsBootstrapCallback {
+        void bootstrap(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo);
+    }
+
     private static final Logger LOG = LogManager.getLogger(AgentWatchdog.class);
     private static final VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
 
@@ -74,6 +79,7 @@ public class AgentWatchdog implements Runnable {
     private int restartCount;
     private AmazonInstance amazonInstance;
     private int expectedInstanceCount;
+    private WsBootstrapCallback wsBootstrapCallback;
 
     /**
      * Constructor
@@ -83,10 +89,15 @@ public class AgentWatchdog implements Runnable {
      * @param vmTracker
      */
     public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker) {
+        this(instanceRequest, vmInfo, vmTracker, null);
+    }
+
+    public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker, WsBootstrapCallback wsBootstrapCallback) {
         this(instanceRequest, vmInfo, vmTracker,
                 new AmazonInstance(instanceRequest.getRegion()),
                 vmManagerConfig.getWatchdogSleepTime(30 * 1000),  // 30 seconds
-                vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 3) // 3 minutes
+                1000 * 60 * 3, // 3 minutes
+                wsBootstrapCallback
         );
     }
 
@@ -100,20 +111,25 @@ public class AgentWatchdog implements Runnable {
      * @param maxWaitForResponse
      */
     public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker, AmazonInstance amazonInstance, long sleepTime, long maxWaitForResponse) {
+        this(instanceRequest, vmInfo, vmTracker, amazonInstance, sleepTime, maxWaitForResponse, null);
+    }
+
+    public AgentWatchdog(VMInstanceRequest instanceRequest, List<VMInformation> vmInfo, VMTracker vmTracker, AmazonInstance amazonInstance, long sleepTime, long maxWaitForResponse, WsBootstrapCallback wsBootstrapCallback) {
         this.instanceRequest = instanceRequest;
         this.vmInfo = vmInfo;
         this.vmTracker = vmTracker;
         this.startTime = System.currentTimeMillis();
         this.amazonInstance = amazonInstance;
+        this.wsBootstrapCallback = wsBootstrapCallback;
 
         VmManagerConfig vmManagerConfig = new TankConfig().getVmManagerConfig();
-        this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMills(1000 * 60 * 3); // 3 minutes
+        this.maxWaitForResponse = vmManagerConfig.getMaxAgentReportMillsForRegion(instanceRequest.getRegion(), maxWaitForResponse);
         this.maxRestarts = vmManagerConfig.getMaxRestarts(3);
         this.sleepTime = sleepTime;
         this.expectedInstanceCount = vmInfo.size();
 
         LOG.info(new ObjectMessage(Map.of("Message","AgentWatchdog settings: { "
-                + "maxWaitForResponse: " + maxWaitForResponse
+                + "maxWaitForResponse: " + this.maxWaitForResponse
                 + ", maxRestarts: " + maxRestarts
                 + ", sleepTime: " + sleepTime + " }")));
     }
@@ -182,7 +198,8 @@ public class AgentWatchdog implements Runnable {
         }
         for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
             // Checks the state of Tank job.
-            if (status.getVmStatus().equals(VMStatus.pending)) { // agent reported back ready, only relaunch "starting" agents
+            VMStatus s = status.getVmStatus();
+            if (s == VMStatus.pending || s == VMStatus.ready || s == VMStatus.running) { // agent reported back ready, only relaunch "starting" agents
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {
                     addInstance(reportedInstances, removedInstance);
@@ -279,6 +296,14 @@ public class AgentWatchdog implements Runnable {
                         instanceRequest.getRegion());
             } catch (Exception e) {
                 LOG.warn("Error persisting VM Image: " + e);
+            }
+        }
+        if (wsBootstrapCallback != null) {
+            try {
+                wsBootstrapCallback.bootstrap(instanceRequest, newVms);
+            } catch (Exception e) {
+                LOG.warn(new ObjectMessage(Map.of("Message",
+                        "Failed to start WS bootstrap for replacement agents for job " + jobId + ": " + e.getMessage())), e);
             }
         }
         LOG.info(new ObjectMessage(Map.of("Message","At end of relaunch for job " + jobId

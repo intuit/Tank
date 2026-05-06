@@ -76,29 +76,10 @@ public class CommandListener {
         try {
             String response = "Not Found";
             String path = exchange.getRequestURI().getPath();
-            if (path.equals(AgentCommand.start.getPath()) || path.equals(AgentCommand.run.getPath())) {
-                response = "Received command " + path + ", Starting Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                LOG.info(LogUtil.getLogMessage("Received START command - launching test threads for job " + 
-                    APITestHarness.getInstance().getAgentRunData().getJobId()));
-                startTest();
-            } else if (path.startsWith(AgentCommand.stop.getPath())) {
-                response = "Received command " + path + ", Stopping Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(AgentCommand.stop);
-            } else if (path.startsWith(AgentCommand.kill.getPath())) {
-                response = "Received command " + path + ", Killing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                System.exit(0);
-            } else if (path.startsWith(AgentCommand.pause.getPath())) {
-                response = "Received command " + path + ", Pausing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(AgentCommand.pause);
-            } else if (path.startsWith(AgentCommand.pause_ramp.getPath())) {
-                response = "Received command " + path + ", Pausing Ramp for Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
-            } else if (path.startsWith(AgentCommand.resume_ramp.getPath())) {
-                response = "Received command " + path + ", Resume Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
-                APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
-            } else if (path.startsWith(AgentCommand.status.getPath())) {
-                response = APITestHarness.getInstance().getStatus().toString();
-                APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
+            try {
+                response = applyHttpPathCommand(path);
+            } catch (UnsupportedOperationException ignored) {
+                response = "Not Found";
             }
             LOG.info(LogUtil.getLogMessage(response));
 
@@ -115,6 +96,68 @@ public class CommandListener {
             exchange.close();
         } catch (IOException e) {
             LOG.info(LogUtil.getLogMessage("Failed to handle controller command"), e);
+        }
+    }
+
+    private static String applyHttpPathCommand(String path) {
+        if (path.equals(AgentCommand.start.getPath()) || path.equals(AgentCommand.run.getPath())) {
+            LOG.info(LogUtil.getLogMessage("Received START command - launching test threads for job " +
+                    APITestHarness.getInstance().getAgentRunData().getJobId()));
+            executeCommand(AgentCommand.start);
+            return "Received command " + path + ", Starting Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.stop.getPath())) {
+            executeCommand(AgentCommand.stop);
+            return "Received command " + path + ", Stopping Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.kill.getPath())) {
+            executeCommand(AgentCommand.kill);
+            return "Received command " + path + ", Killing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.pause.getPath())) {
+            executeCommand(AgentCommand.pause);
+            return "Received command " + path + ", Pausing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.pause_ramp.getPath())) {
+            executeCommand(AgentCommand.pause_ramp);
+            return "Received command " + path + ", Pausing Ramp for Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.resume_ramp.getPath())) {
+            executeCommand(AgentCommand.resume_ramp);
+            return "Received command " + path + ", Resume Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
+        }
+        if (path.startsWith(AgentCommand.status.getPath())) {
+            executeCommand(AgentCommand.status);
+            return APITestHarness.getInstance().getStatus().toString();
+        }
+        throw new UnsupportedOperationException("Unknown command path: " + path);
+    }
+
+    public static void applyCommand(String command) {
+        if (command == null) {
+            throw new UnsupportedOperationException("Unknown command: null");
+        }
+        switch (command) {
+            case "start", "run" -> executeCommand(AgentCommand.start);
+            case "stop" -> executeCommand(AgentCommand.stop);
+            case "kill" -> executeCommand(AgentCommand.kill);
+            case "pause" -> executeCommand(AgentCommand.pause);
+            case "pause_ramp" -> executeCommand(AgentCommand.pause_ramp);
+            case "resume_ramp", "resume" -> executeCommand(AgentCommand.resume_ramp);
+            case "status" -> executeCommand(AgentCommand.status);
+            default -> throw new UnsupportedOperationException("Unknown command: " + command);
+        }
+    }
+
+    private static void executeCommand(AgentCommand command) {
+        switch (command) {
+            case start, run -> startTest();
+            case stop -> APITestHarness.getInstance().setCommand(AgentCommand.stop);
+            case kill -> System.exit(0);
+            case pause -> APITestHarness.getInstance().setCommand(AgentCommand.pause);
+            case pause_ramp -> APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
+            case resume_ramp, status -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
+            default -> throw new UnsupportedOperationException("Unknown command: " + command);
         }
     }
 

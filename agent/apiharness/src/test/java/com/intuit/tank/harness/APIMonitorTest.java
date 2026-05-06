@@ -58,6 +58,7 @@ class APIMonitorTest {
     @Mock private UserTracker mockUserTracker;
     @Mock private List<UserDetail> mockUserSnapshot;
     @Mock private TPSMonitor mockTpsMonitor;
+    @Mock private AgentCommandWebSocketServer mockWsServer;
 
 
     private MockedStatic<APITestHarness> mockedApiHarness;
@@ -684,6 +685,59 @@ class APIMonitorTest {
 
             assertTrue(cause.getMessage().contains("Illegal character in authority") || cause.getMessage().contains("Illegal character in URL"),
                     "Cause message should indicate the syntax error. Actual: " + cause.getMessage());
+        }
+
+        @Test
+        @DisplayName("Should send over WS and skip HTTP when WS send succeeds")
+        void setInstanceStatus_WsSendSuccess_SkipsHttp() throws Exception {
+            CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
+
+            when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(mockWsServer);
+            when(mockWsServer.sendStatusUpdate(statusToSend)).thenReturn(true);
+
+            invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
+
+            verify(mockWsServer).sendStatusUpdate(statusToSend);
+            verify(mockAgentConfig, never()).getAgentToken();
+            verify(mockTankConfig, never()).getControllerBase();
+        }
+
+        @Test
+        @DisplayName("Should skip HTTP when WS server send fails")
+        void setInstanceStatus_WsServerSendFails_SkipsHttp() throws Exception {
+            CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
+
+            when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(mockWsServer);
+            when(mockWsServer.sendStatusUpdate(statusToSend)).thenReturn(false);
+
+            invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
+
+            verify(mockWsServer).sendStatusUpdate(statusToSend);
+            verify(mockAgentConfig, never()).getAgentToken();
+            verify(mockTankConfig, never()).getControllerBase();
+        }
+
+        @Test
+        @DisplayName("Should skip HTTP when WS server is unavailable")
+        void setInstanceStatus_WsServerUnavailable_SkipsHttp() throws Exception {
+            CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
+
+            when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
+            when(mockApiTestHarnessInstance.getCommandWebSocketServer()).thenReturn(null);
+
+            invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
+
+            verify(mockWsServer, never()).sendStatusUpdate(statusToSend);
+            verify(mockAgentConfig, never()).getAgentToken();
+            verify(mockTankConfig, never()).getControllerBase();
         }
     }
 

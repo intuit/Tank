@@ -480,4 +480,11 @@ public class AgentConfigCpTest {
         fixture.setResultsTypeMap(resultsTypeMap);
 
     }
+
+    @Test
+    public void testWsConfigDefaults() throws Exception {
+        AgentConfig fixture = new AgentConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
+
+        assertFalse(fixture.isCommandWsEnabled());
+    }
 }

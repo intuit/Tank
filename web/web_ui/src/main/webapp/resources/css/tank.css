@@ -126,3 +126,147 @@ width:10%;
 .error {
 	color: red;
 }
+
+/* === Agent Status Badges === */
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+/* Active animated stripe — used for running, transferring, starting */
+@keyframes stripe-slide {
+    0% { background-position: 0 0; }
+    100% { background-position: 28px 0; }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Running — green animated stripes */
+.status-badge-running {
+    background: repeating-linear-gradient(
+        -45deg,
+        #43A047, #43A047 10px,
+        #66BB6A 10px, #66BB6A 20px
+    );
+    background-size: 200% 100%;
+    animation: stripe-slide 1s linear infinite;
+    color: white;
+}
+
+/* Starting / Transferring — blue animated stripes (Gatling-style "Injecting") */
+.status-badge-starting {
+    background: repeating-linear-gradient(
+        -45deg,
+        #1976D2, #1976D2 10px,
+        #42A5F5 10px, #42A5F5 20px
+    );
+    background-size: 200% 100%;
+    animation: stripe-slide 1s linear infinite;
+    color: white;
+}
+
+/* Pending / Registered — blue static */
+.status-badge-pending,
+.status-badge-registered {
+    background: #E3F2FD;
+    color: #1565C0;
+    border: 1px solid #90CAF9;
+}
+
+/* Ready — green static */
+.status-badge-ready {
+    background: #E8F5E9;
+    color: #2E7D32;
+    border: 1px solid #A5D6A7;
+}
+
+/* Paused — orange pulsing */
+.status-badge-paused {
+    background: #FFF3E0;
+    color: #E65100;
+    border: 1px solid #FFCC80;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Stopped — gray */
+.status-badge-stopped,
+.status-badge-completed {
+    background: #F5F5F5;
+    color: #616161;
+    border: 1px solid #E0E0E0;
+}
+
+/* Disconnected — red blinking */
+.status-badge-disconnected {
+    background: #FFEBEE;
+    color: #C62828;
+    border: 1px solid #EF9A9A;
+    animation: pulse-glow 1s ease-in-out infinite;
+}
+
+/* Terminated / Replaced — muted */
+.status-badge-terminated,
+.status-badge-replaced {
+    background: #ECEFF1;
+    color: #90A4AE;
+}
+
+/* Unknown / default */
+.status-badge-unknown {
+    background: #F5F5F5;
+    color: #9E9E9E;
+}
+
+/* Successful (for job-level completion) */
+.status-badge-successful {
+    background: #E8F5E9;
+    color: #2E7D32;
+    border: 1px solid #A5D6A7;
+}
+
+/* Setting Up — animated blue (bootstrap_transferring, bootstrap_sent, transferring) */
+.status-badge-settingup {
+    background: repeating-linear-gradient(
+        -45deg,
+        #1976D2, #1976D2 10px,
+        #42A5F5 10px, #42A5F5 20px
+    );
+    background-size: 200% 100%;
+    animation: stripe-slide 1s linear infinite;
+    color: white;
+}
+
+/* WS Connected — static green (running backend state, no animation) */
+.status-badge-ws-connected {
+    background: #43A047;
+    color: white;
+    border: 1px solid #2E7D32;
+}
+
+/* Closed — gray (terminal job disconnected, not an error) */
+.status-badge-closed {
+    background: #F5F5F5;
+    color: #616161;
+    border: 1px solid #E0E0E0;
+}
+
+/* Connected — light blue info (initial WS connection) */
+.status-badge-connected {
+    background: #E3F2FD;
+    color: #1565C0;
+    border: 1px solid #90CAF9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-badge {
+        animation: none !important;
+    }
+}
