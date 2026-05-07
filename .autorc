@@ -1,0 +1,7 @@
+{
+  "plugins": ["maven"],
+  "owner": "intuit",
+  "repo": "Tank",
+  "name": "Kevin McGoldrick",
+  "email": "kevin_mcgoldrick@intuit.com"
+}
