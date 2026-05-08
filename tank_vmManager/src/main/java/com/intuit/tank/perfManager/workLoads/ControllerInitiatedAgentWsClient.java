@@ -27,8 +27,6 @@ import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,8 +46,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
-    private static final int DEFAULT_CHUNK_BYTES = 524288;
-    private static final int CHUNK_ACK_WINDOW = 4;
+    private static final int DEFAULT_CHUNK_BYTES =
+            Math.max(1, Integer.getInteger("tank.ws.chunkBytes", 2 * 1024 * 1024));
+    private static final int CHUNK_ACK_WINDOW =
+            Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 32));
     private static final long MAX_BOOTSTRAP_CONNECTION_MS =
             Long.getLong("tank.ws.bootstrap.maxConnectionMs", 30_000L);
 
@@ -436,7 +436,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         if (content == null || content.length == 0) {
             pendingAcks.remove(fileId);
-            sendChunk(context, instanceId, jobId, fileId, 0, new byte[0], 0, connectionDeadlineMs);
+            sendChunk(context, instanceId, fileId, 0, new byte[0], 0, 0, connectionDeadlineMs);
             return true;
         }
 
@@ -478,23 +478,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 return false;
             }
             int len = Math.min(chunkBytes, content.length - offset);
-            sendChunk(context, instanceId, jobId, fileId, chunkIndex,
-                    Arrays.copyOfRange(content, offset, offset + len), len, connectionDeadlineMs);
+            sendChunk(context, instanceId, fileId, chunkIndex, content, offset, len, connectionDeadlineMs);
             chunkIndex++;
         }
         return true;
     }
 
-    private void sendChunk(SessionContext context, String instanceId, String jobId, String fileId,
-                           int chunkIndex, byte[] bytes, int len, long connectionDeadlineMs)
+    private void sendChunk(SessionContext context, String instanceId, String fileId,
+                           int chunkIndex, byte[] bytes, int offset, int len, long connectionDeadlineMs)
             throws IOException, InterruptedException {
         CompletableFuture<Void> gate = null;
         if ((chunkIndex + 1) % CHUNK_ACK_WINDOW == 0) {
             gate = new CompletableFuture<>();
             pendingChunkAcks.put(instanceId, new PendingChunkAck(fileId, chunkIndex, gate));
         }
-        String base64 = len == 0 ? "" : Base64.getEncoder().encodeToString(bytes);
-        sendEnvelope(context, AgentWsEnvelope.fileChunk(instanceId, jobId, fileId, chunkIndex, base64));
+        sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
         if (gate != null) {
             try {
                 long ackTimeoutMs = 30_000L;
@@ -524,13 +522,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
+    private void sendBinaryChunk(SessionContext context, ByteBuffer payload) {
+        synchronized (context.webSocket) {
+            context.webSocket.sendBinary(payload, true).join();
+        }
+    }
+
     private void sendEnvelope(SessionContext context, AgentWsEnvelope envelope) throws IOException {
         synchronized (context.webSocket) {
             context.webSocket.sendText(envelope.toJson(), true).join();
         }
     }
 
-    private void handleText(String instanceId, String text, CompletableFuture<AgentWsEnvelope> helloFuture) {
+    private void handleText(String instanceId, WebSocket webSocket, String text,
+                            CompletableFuture<AgentWsEnvelope> helloFuture) {
         try {
             AgentWsEnvelope envelope = AgentWsEnvelope.fromJson(text);
             if (envelope.getType() == null) {
@@ -541,13 +546,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             switch (envelope.getType()) {
                 case hello -> helloFuture.complete(envelope);
                 case ack -> handleAck(envelope);
-                case file_ack -> handleFileAck(agentId, envelope);
+                case file_ack -> handleFileAck(agentId, webSocket, envelope);
                 case status_update -> handleStatusUpdate(agentId, envelope);
                 case pong -> LOG.debug(new ObjectMessage(Map.of("Message", "[WS] Pong from " + agentId)));
-                case close -> {
-                    SessionContext ctx = sessions.get(agentId);
-                    onClosed(agentId, ctx != null ? ctx.webSocket : null);
-                }
+                case close -> onClosed(agentId, webSocket);
                 default -> {
                 }
             }
@@ -565,7 +567,24 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private void handleFileAck(String instanceId, AgentWsEnvelope envelope) {
+    private void handleFileAck(String instanceId, WebSocket webSocket, AgentWsEnvelope envelope) {
+        SessionContext context = sessions.get(instanceId);
+        if (context == null) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring file_ack for non-active session " + instanceId)));
+            return;
+        }
+        if (webSocket == null) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring file_ack without WebSocket identity for " + instanceId)));
+            return;
+        }
+        if (context.webSocket != webSocket) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring stale file_ack from previous session for " + instanceId)));
+            return;
+        }
+
         // Route offer-level acks (ok, resume, failed) to the pending offer future
         if (envelope.getFileId() != null && (envelope.getStatus() == AckStatus.ok
                 || envelope.getStatus() == AckStatus.resume
@@ -577,7 +596,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
         }
 
-        SessionContext context = sessions.get(instanceId);
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(instanceId, true);
             agentWsState.put(instanceId, "ready");
@@ -586,19 +604,15 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 pendingChunkAcks.remove(instanceId, pending);
                 pending.future.complete(null);
             }
-            if (context != null) {
-                context.transferCompleteFuture.complete(null);
-            }
+            context.transferCompleteFuture.complete(null);
             return;
         }
 
         if (envelope.getStatus() == AckStatus.complete) {
-            if (context != null) {
-                int completed = context.completedFiles.merge(instanceId, 1, Integer::sum);
-                agentTransferProgress.put(instanceId, completed + "/" + context.expectedFiles + " files");
-                if (context.bootstrapTransfer && completed >= context.expectedFiles) {
-                    context.transferCompleteFuture.complete(null);
-                }
+            int completed = context.completedFiles.merge(instanceId, 1, Integer::sum);
+            agentTransferProgress.put(instanceId, completed + "/" + context.expectedFiles + " files");
+            if (context.bootstrapTransfer && completed >= context.expectedFiles) {
+                context.transferCompleteFuture.complete(null);
             }
         }
 
@@ -614,9 +628,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 pendingChunkAcks.remove(instanceId, pending);
                 pending.future.completeExceptionally(new IOException(envelope.getError()));
             }
-            if (context != null) {
-                context.transferCompleteFuture.completeExceptionally(new IOException(envelope.getError()));
-            }
+            context.transferCompleteFuture.completeExceptionally(new IOException(envelope.getError()));
         }
     }
 
@@ -640,14 +652,22 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                     "[WS] Ignoring close for non-active session " + instanceId)));
             return;
         }
-        if (webSocket != null && context.webSocket != webSocket) {
+        if (webSocket == null) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring close without WebSocket identity for " + instanceId)));
+            return;
+        }
+        if (context.webSocket != webSocket) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring stale close from previous session for " + instanceId)));
             return;
         }
-        if (sessions.remove(instanceId, context)) {
-            context.markClosed();
+        if (!sessions.remove(instanceId, context)) {
+            LOG.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Ignoring close for replaced session " + instanceId)));
+            return;
         }
+        context.markClosed();
         fileTransferReady.remove(instanceId);
         PendingChunkAck pending = pendingChunkAcks.remove(instanceId);
         if (pending != null) {
@@ -677,7 +697,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             if (last) {
                 String fullMessage = messageBuffer.toString();
                 messageBuffer.setLength(0);
-                handleText(instanceId, fullMessage, helloFuture);
+                handleText(instanceId, webSocket, fullMessage, helloFuture);
             }
             webSocket.request(1);
             return null;
