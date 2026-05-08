@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,6 +19,7 @@ public class AgentWsEnvelope {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static final int PROTOCOL_VERSION = 1;
+    private static final int BINARY_FILE_CHUNK_MAGIC = 0x54574331;
 
     public enum Type {
         hello, command, ack, ping, pong, close,
@@ -231,6 +234,55 @@ public class AgentWsEnvelope {
 
     public static AgentWsEnvelope fromJson(String json) throws IOException {
         return MAPPER.readValue(json, AgentWsEnvelope.class);
+    }
+
+    public static ByteBuffer binaryFileChunk(String fileId, int chunkIndex, byte[] bytes, int offset, int len)
+            throws IOException {
+        if (fileId == null || fileId.isBlank()) {
+            throw new IOException("fileId is required for binary file chunk");
+        }
+        if (bytes == null) {
+            bytes = new byte[0];
+        }
+        if (offset < 0 || len < 0 || offset + len > bytes.length) {
+            throw new IOException("Invalid binary file chunk range");
+        }
+        byte[] fileIdBytes = fileId.getBytes(StandardCharsets.UTF_8);
+        if (fileIdBytes.length > 0xFFFF) {
+            throw new IOException("fileId too long for binary file chunk");
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES + Integer.BYTES + Short.BYTES + fileIdBytes.length + len);
+        buffer.putInt(BINARY_FILE_CHUNK_MAGIC);
+        buffer.putInt(chunkIndex);
+        buffer.putShort((short) fileIdBytes.length);
+        buffer.put(fileIdBytes);
+        buffer.put(bytes, offset, len);
+        buffer.flip();
+        return buffer;
+    }
+
+    public static BinaryFileChunk fromBinaryFileChunk(ByteBuffer message) throws IOException {
+        ByteBuffer buffer = message.slice();
+        if (buffer.remaining() < Integer.BYTES + Integer.BYTES + Short.BYTES) {
+            throw new IOException("Invalid binary file chunk header");
+        }
+        int magic = buffer.getInt();
+        if (magic != BINARY_FILE_CHUNK_MAGIC) {
+            throw new IOException("Unsupported binary file chunk frame");
+        }
+        int chunkIndex = buffer.getInt();
+        int fileIdLength = Short.toUnsignedInt(buffer.getShort());
+        if (fileIdLength <= 0 || fileIdLength > buffer.remaining()) {
+            throw new IOException("Invalid binary file chunk fileId length");
+        }
+        byte[] fileIdBytes = new byte[fileIdLength];
+        buffer.get(fileIdBytes);
+        byte[] payload = new byte[buffer.remaining()];
+        buffer.get(payload);
+        return new BinaryFileChunk(new String(fileIdBytes, StandardCharsets.UTF_8), chunkIndex, payload);
+    }
+
+    public record BinaryFileChunk(String fileId, int chunkIndex, byte[] payload) {
     }
 
     // Factory methods for common frame types

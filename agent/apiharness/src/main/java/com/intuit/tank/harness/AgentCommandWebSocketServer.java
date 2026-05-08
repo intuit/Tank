@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,7 +106,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
                 case command -> handleCommand(connection, envelope);
                 case ping -> handlePing(connection, envelope);
                 case job_config -> handleJobConfig(envelope);
-                case file_offer -> handleFileOffer(envelope);
+                case file_offer -> handleFileOffer(connection, envelope);
                 case file_chunk -> handleFileChunk(connection, envelope);
                 case ack -> LOG.info(new ObjectMessage(Map.of("Message", "Received WS ack: " + envelope.getAckForType())));
                 case close -> {
@@ -116,6 +117,16 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             }
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS message: " + e.getMessage())));
+        }
+    }
+
+    @Override
+    public void onMessage(WebSocket connection, ByteBuffer message) {
+        try {
+            AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(message);
+            handleFileChunk(connection, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+        } catch (IOException e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
         }
     }
 
@@ -182,7 +193,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void handleFileOffer(AgentWsEnvelope envelope) {
+    private void handleFileOffer(WebSocket connection, AgentWsEnvelope envelope) {
         String fileId = envelope.getFileId();
         if (fileId == null || envelope.getFileName() == null) {
             return;
@@ -212,29 +223,40 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
                     new FileOutputStream(tempFile)
             );
             incomingFiles.put(fileId, state);
+            sendFileAck(connection, fileId, 0, AckStatus.ok, null);
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed handling file_offer " + envelope.getFileName() + ": " + e.getMessage())));
+            sendFileAck(connection, fileId, 0, AckStatus.failed, e.getMessage());
         }
     }
 
     private void handleFileChunk(WebSocket connection, AgentWsEnvelope envelope) {
         String fileId = envelope.getFileId();
+        byte[] payload;
+        try {
+            payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
+                    ? new byte[0]
+                    : Base64.getDecoder().decode(envelope.getChunkData());
+        } catch (Exception e) {
+            sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            return;
+        }
+        handleFileChunk(connection, fileId, envelope.getChunkIndex(), payload);
+    }
+
+    private void handleFileChunk(WebSocket connection, String fileId, Integer chunkIndex, byte[] payload) {
         IncomingFileState state = fileId != null ? incomingFiles.get(fileId) : null;
         if (state == null) {
-            sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.failed, "file_offer_not_found");
+            sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
             return;
         }
 
         try {
-            byte[] payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
-                    ? new byte[0]
-                    : Base64.getDecoder().decode(envelope.getChunkData());
-
             if (state.totalChunks < 0 && payload.length == 0) {
                 finalizeFile(state);
                 incomingFiles.remove(fileId);
-                sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.complete, null);
-                markFileComplete(connection, fileId, envelope.getChunkIndex());
+                sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
+                markFileComplete(connection, fileId, chunkIndex);
                 return;
             }
 
@@ -242,18 +264,18 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             state.receivedBytes += payload.length;
             state.receivedChunks++;
 
-            sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.chunk_received, null);
+            sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
 
             if (state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks) {
                 finalizeFile(state);
                 incomingFiles.remove(fileId);
-                sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.complete, null);
-                markFileComplete(connection, fileId, envelope.getChunkIndex());
+                sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
+                markFileComplete(connection, fileId, chunkIndex);
             }
         } catch (Exception e) {
             incomingFiles.remove(fileId);
             state.closeQuietly();
-            sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, e.getMessage());
         }
     }
 

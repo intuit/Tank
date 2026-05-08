@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -99,6 +100,16 @@ public class StartupWebSocketServer extends WebSocketServer {
             }
         } catch (Exception e) {
             logger.warn("Failed handling startup WS message: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, ByteBuffer message) {
+        try {
+            AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(message);
+            handleFileChunk(conn, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+        } catch (Exception e) {
+            logger.warn("Failed handling startup WS binary message: {}", e.getMessage(), e);
         }
     }
 
@@ -228,28 +239,38 @@ public class StartupWebSocketServer extends WebSocketServer {
     }
 
     private synchronized void handleFileChunk(WebSocket conn, AgentWsEnvelope envelope) {
-        if (currentFileStream == null || currentFileId == null || !currentFileId.equals(envelope.getFileId())) {
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, "file_offer_not_found");
-            return;
-        }
-
         try {
             byte[] payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
                     ? new byte[0]
                     : Base64.getDecoder().decode(envelope.getChunkData());
+            handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
+        } catch (Exception e) {
+            closeCurrentFileQuietly();
+            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            harnessJarFuture.completeExceptionally(e);
+        }
+    }
+
+    private synchronized void handleFileChunk(WebSocket conn, String fileId, Integer chunkIndex, byte[] payload) {
+        if (currentFileStream == null || currentFileId == null || !currentFileId.equals(fileId)) {
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
+            return;
+        }
+
+        try {
             currentFileStream.write(payload);
             receivedBytes += payload.length;
             receivedChunks++;
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.chunk_received, null);
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
 
             if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
                 File completedFile = finalizeHarnessJar();
-                sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.complete, null);
+                sendFileAck(conn, fileId, chunkIndex, AckStatus.complete, null);
                 harnessJarFuture.complete(completedFile);
             }
         } catch (Exception e) {
             closeCurrentFileQuietly();
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, e.getMessage());
             harnessJarFuture.completeExceptionally(e);
         }
     }
