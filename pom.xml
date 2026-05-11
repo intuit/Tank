@@ -30,7 +30,7 @@
     <cert.p12>self_signed_tank.p12</cert.p12>
 
     <version.hibernate>6.6.41.Final</version.hibernate>
-    <version.software.amazon.awssdk>2.42.37</version.software.amazon.awssdk>
+    <version.software.amazon.awssdk>2.44.4</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.20.0</version.aws-xray-sdk-bom>
 
     <version.tomcat>11.0.21</version.tomcat>
@@ -741,7 +741,7 @@
       <dependency>
         <groupId>org.jruby</groupId>
         <artifactId>jruby</artifactId>
-        <version>10.0.2.0</version>
+        <version>10.1.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.openjdk.nashorn</groupId>
