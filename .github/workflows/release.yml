@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install auto and plugins
+        run: npm install auto @auto-it/maven
+
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
