@@ -1,5 +1,7 @@
 {
-  "plugins": ["maven"],
+  "plugins": [
+    ["maven", { "mavenReleaseGoals": ["--version"] }]
+  ],
   "noVersionPrefix": true,
   "owner": "intuit",
   "repo": "Tank",
