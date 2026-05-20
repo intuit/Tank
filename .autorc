@@ -1,6 +1,6 @@
 {
   "plugins": [
-    ["maven", { "mavenReleaseGoals": ["--version"] }]
+    ["maven", { "mavenReleaseGoals": ["--version"],"mavenOptions": ["-DprocessAllModules=true"] }]
   ],
   "noVersionPrefix": true,
   "owner": "intuit",
