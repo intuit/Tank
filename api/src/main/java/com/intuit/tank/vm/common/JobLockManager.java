@@ -1,10 +1,9 @@
-package com.intuit.tank.rest.mvc.rest.cloud;
+package com.intuit.tank.vm.common;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Shared per-job lock manager used by both JobEventSender (CDI @RequestScoped)
- * and JobServiceV2Impl (Spring @Service) to prevent start/delete races.
+ * Shared per-job lock manager for preventing start/delete races.
  *
  * The lock map is static so it's shared across all instances regardless of
  * injection framework. Entries are never evicted — this is intentional.

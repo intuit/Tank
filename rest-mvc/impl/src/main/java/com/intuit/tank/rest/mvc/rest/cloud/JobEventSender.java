@@ -22,6 +22,7 @@ import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.common.JobLockManager;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.perfManager.AgentChannel;
 import com.intuit.tank.vm.settings.TankConfig;

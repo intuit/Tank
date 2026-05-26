@@ -34,7 +34,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictEx
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.rest.mvc.rest.cloud.JobLockManager;
+import com.intuit.tank.vm.common.JobLockManager;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.JobContainer;

@@ -380,7 +380,7 @@ public class AgentWatchdog implements Runnable {
         try {
             JobInstanceDao dao = new JobInstanceDao();
             JobInstance job = dao.findById(Integer.parseInt(jobId));
-            if (job != null) {
+            if (job != null && job.getStatus() != JobQueueStatus.Deleted) {
                 job.setStatus(JobQueueStatus.Completed);
                 job.setEndTime(new Date());
                 dao.saveOrUpdate(job);
