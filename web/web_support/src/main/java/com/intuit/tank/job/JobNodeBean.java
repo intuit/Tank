@@ -39,6 +39,9 @@ public abstract class JobNodeBean implements Serializable {
     private String id;
     private String reportMode;
     private String status;
+    private String wsState;
+    private String transferProgress;
+    private String lastSeen;
     private String region;
     private String activeUsers;
     private String incrementStrategy;
@@ -198,6 +201,107 @@ public abstract class JobNodeBean implements Serializable {
      */
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getWsState() {
+        return wsState;
+    }
+
+    public void setWsState(String wsState) {
+        this.wsState = wsState;
+    }
+
+    public String getTransferProgress() {
+        return transferProgress;
+    }
+
+    public void setTransferProgress(String transferProgress) {
+        this.transferProgress = transferProgress;
+    }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(String lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getWsStateDisplay() {
+        if (wsState == null || wsState.isEmpty()) {
+            return "";
+        }
+        return switch (wsState) {
+            case "connected" -> "Connected";
+            case "registered" -> "Registered";
+            case "bootstrap_transferring", "bootstrap_sent", "transferring" -> {
+                if (transferProgress != null && !transferProgress.isEmpty()) {
+                    yield "Setting Up (" + transferProgress + ")";
+                }
+                yield "Setting Up";
+            }
+            case "ready" -> "Ready";
+            case "running" -> "Connected";
+            case "disconnected" -> isTerminalStatus() ? "Closed" : "Disconnected";
+            default -> wsState;
+        };
+    }
+
+
+
+    public String getStatusBadgeClass() {
+        String status = getStatus();
+        if (status == null || status.isBlank()) {
+            return "status-badge status-badge-unknown";
+        }
+        String firstWord = status.split("[\\s(]")[0].toLowerCase().replaceAll("[^a-z]", "");
+        return getBadgeClass(firstWord);
+    }
+
+    public String getWsStateBadgeClass() {
+        if (wsState == null || wsState.isBlank()) {
+            return "";
+        }
+        return switch (wsState) {
+            case "connected" -> "status-badge status-badge-connected";
+            case "registered" -> "status-badge status-badge-registered";
+            case "bootstrap_transferring", "bootstrap_sent", "transferring" -> "status-badge status-badge-settingup";
+            case "ready" -> "status-badge status-badge-ready";
+            case "running" -> "status-badge status-badge-ws-connected";
+            case "disconnected" -> isTerminalStatus()
+                    ? "status-badge status-badge-closed"
+                    : "status-badge status-badge-disconnected";
+            default -> "status-badge status-badge-unknown";
+        };
+    }
+
+    protected String getBadgeClass(String normalized) {
+        return switch (normalized) {
+            case "running" -> "status-badge status-badge-running";
+            case "starting" -> "status-badge status-badge-starting";
+            case "pending" -> "status-badge status-badge-pending";
+            case "ready" -> "status-badge status-badge-ready";
+            case "paused", "ramppaused" -> "status-badge status-badge-paused";
+            case "stopped" -> "status-badge status-badge-stopped";
+            case "completed" -> "status-badge status-badge-completed";
+            case "successful" -> "status-badge status-badge-successful";
+            case "disconnected" -> "status-badge status-badge-disconnected";
+            case "terminated" -> "status-badge status-badge-terminated";
+            case "replaced" -> "status-badge status-badge-replaced";
+            default -> "status-badge status-badge-unknown";
+        };
+    }
+
+    private boolean isTerminalStatus() {
+        String s = getStatus();
+        if (s == null || s.isBlank()) {
+            return false;
+        }
+        String normalized = s.split("[\\s(]")[0].toLowerCase().replaceAll("[^a-z]", "");
+        return switch (normalized) {
+            case "completed", "stopped", "terminated", "replaced", "successful" -> true;
+            default -> false;
+        };
     }
 
     /**
@@ -371,6 +475,10 @@ public abstract class JobNodeBean implements Serializable {
     public abstract String getTotalSubNodesReady();
 
     public abstract String getTotalSubNodesRunning();
+
+    public String getTotalSubNodesConnected() {
+        return "";
+    }
 
     public abstract boolean allSubNodesCompleted();
 

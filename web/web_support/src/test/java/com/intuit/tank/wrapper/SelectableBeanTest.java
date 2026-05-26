@@ -13,439 +13,176 @@ package com.intuit.tank.wrapper;
  * #L%
  */
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.behavior.Behavior;
-import jakarta.faces.event.AjaxBehaviorEvent;
-
-import org.junit.jupiter.api.*;
+import com.intuit.tank.prefs.TablePreferences;
+import com.intuit.tank.prefs.TableViewState;
+import com.intuit.tank.view.filter.ViewFilterType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.primefaces.extensions.behavior.javascript.JavascriptBehavior;
-import org.primefaces.extensions.component.dynaform.DynaForm;
-
-import com.intuit.tank.prefs.TablePreferences;
-import com.intuit.tank.prefs.TableViewState;
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.DataFileBrowser;
-import com.intuit.tank.view.filter.ViewFilterType;
-import com.intuit.tank.wrapper.SelectableBean;
-import com.intuit.tank.wrapper.SelectableWrapper;
-
-/**
- * The class <code>SelectableBeanTest</code> contains tests for the class <code>{@link SelectableBean}</code>.
- * 
- * @generatedBy CodePro at 12/15/14 3:52 PM
- */
-@Disabled
 public class SelectableBeanTest {
-    /**
-     * Run the void deleteSelected() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testDeleteSelected_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
 
-        fixture.deleteSelected();
+    // Concrete test implementation of SelectableBean
+    private static class TestSelectableBean extends SelectableBean<String> {
+        private List<String> entities;
+        private boolean current = true;
+        private List<String> deleted = new LinkedList<>();
+
+        TestSelectableBean(List<String> entities) {
+            this.entities = entities;
+        }
+
+        @Override
+        public List<String> getEntityList(ViewFilterType viewFilter) {
+            return entities;
+        }
+
+        @Override
+        public void delete(String entity) {
+            deleted.add(entity);
+            entities.remove(entity);
+        }
+
+        @Override
+        public boolean isCurrent() {
+            return current;
+        }
+
+        void setCurrent(boolean current) {
+            this.current = current;
+        }
+
+        List<String> getDeleted() {
+            return deleted;
+        }
     }
 
-    /**
-     * Run the void deleteSelected() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testDeleteSelected_2()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+    private TestSelectableBean bean;
 
-        fixture.deleteSelected();
+    @BeforeEach
+    void setUp() {
+        bean = new TestSelectableBean(new java.util.ArrayList<>(Arrays.asList("alpha", "beta", "gamma")));
+        bean.tablePrefs = new TablePreferences(new LinkedList<>());
+        bean.tableState = new TableViewState();
     }
 
-    /**
-     * Run the void deleteSelected() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testDeleteSelected_3()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        fixture.deleteSelected();
+    public void testGetSelectionList_ReturnsWrappedEntities() {
+        List<SelectableWrapper<String>> list = bean.getSelectionList();
+        assertNotNull(list);
+        assertEquals(3, list.size());
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getFilteredData() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetFilteredData_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<SelectableWrapper<DataFile>> result = fixture.getFilteredData();
+    public void testGetSelectionList_CachesWhenCurrent() {
+        List<SelectableWrapper<String>> first = bean.getSelectionList();
+        List<SelectableWrapper<String>> second = bean.getSelectionList();
+        assertSame(first, second);
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getFilteredData() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetFilteredData_2()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<SelectableWrapper<DataFile>> result = fixture.getFilteredData();
+    public void testGetSelectionList_RefreshesWhenNotCurrent() {
+        bean.getSelectionList(); // populate
+        bean.setCurrent(false);
+        List<SelectableWrapper<String>> refreshed = bean.getSelectionList();
+        assertNotNull(refreshed);
+        assertEquals(3, refreshed.size());
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getSelectionList() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetSelectionList_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+    public void testGetFilteredData_WhenNull_ReturnsSelectionList() {
+        List<SelectableWrapper<String>> result = bean.getFilteredData();
+        assertNotNull(result);
+        assertEquals(3, result.size());
+    }
 
-        List<SelectableWrapper<DataFile>> result = fixture.getSelectionList();
+    @Test
+    public void testSetFilteredData_WithNull_ClearsFilter() {
+        bean.setFilteredData(null);
+        List<SelectableWrapper<String>> result = bean.getFilteredData();
         assertNotNull(result);
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getSelectionList() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetSelectionList_2()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+    public void testSetFilteredData_UnselectedItemsOutsideFilter() {
+        List<SelectableWrapper<String>> all = bean.getSelectionList();
+        all.get(0).setSelected(true);
 
-        List<SelectableWrapper<DataFile>> result = fixture.getSelectionList();
+        List<SelectableWrapper<String>> filtered = List.of(all.get(1));
+        bean.setFilteredData(filtered);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+        assertFalse(all.get(0).isSelected()); // was deselected
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getSelectionList() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetSelectionList_3()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<SelectableWrapper<DataFile>> result = fixture.getSelectionList();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+    public void testSelectAll() {
+        bean.getSelectionList(); // ensure populated
+        bean.selectAll();
+        assertTrue(bean.hasSelected());
     }
 
-    /**
-     * Run the List<SelectableWrapper<Object>> getSelectionList() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetSelectionList_4()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        List<SelectableWrapper<DataFile>> result = fixture.getSelectionList();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+    public void testUnselectAll() {
+        bean.getSelectionList();
+        bean.selectAll();
+        bean.unselectAll();
+        assertFalse(bean.hasSelected());
     }
 
-    /**
-     * Run the TablePreferences getTablePrefs() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetTablePrefs_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        TablePreferences result = fixture.getTablePrefs();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+    public void testHasSelected_Initially_ReturnsFalse() {
+        assertFalse(bean.hasSelected());
     }
 
-    /**
-     * Run the TableViewState getTableState() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetTableState_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
+    public void testDeleteSelected_DeletesSelectedItems() {
+        List<SelectableWrapper<String>> list = bean.getSelectionList();
+        list.get(0).setSelected(true);
 
-        TableViewState result = fixture.getTableState();
+        bean.deleteSelected();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+        assertEquals(1, bean.getDeleted().size());
+        assertEquals("alpha", bean.getDeleted().get(0));
     }
 
-    /**
-     * Run the ViewFilterType getViewFilterType() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetViewFilterType_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        ViewFilterType result = fixture.getViewFilterType();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
-        // at com.intuit.tank.util.SelectionTracker.<init>(SelectionTracker.java:32)
-        // at com.intuit.tank.wrapper.SelectableBean.<init>(SelectableBean.java:32)
-        // at com.intuit.tank.project.DataFileBrowser.<init>(DataFileBrowser.java:43)
-        assertNotNull(result);
+    public void testRefresh_ForcesReload() {
+        List<SelectableWrapper<String>> before = bean.getSelectionList();
+        bean.refresh();
+        List<SelectableWrapper<String>> after = bean.getSelectionList();
+        assertNotNull(after);
     }
 
-    /**
-     * Run the ViewFilterType[] getViewFilterTypeList() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testGetViewFilterTypeList_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        ViewFilterType[] result = fixture.getViewFilterTypeList();
-        assertNotNull(result);
+    public void testGetViewFilterType_DefaultIsAll() {
+        assertEquals(ViewFilterType.ALL, bean.getViewFilterType());
     }
 
-    /**
-     * Run the boolean hasSelected() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testHasSelected_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        boolean result = fixture.hasSelected();
-        assertTrue(!result);
+    public void testSetViewFilterType() {
+        bean.setViewFilterType(ViewFilterType.LAST_TWO_WEEKS);
+        assertEquals(ViewFilterType.LAST_TWO_WEEKS, bean.getViewFilterType());
     }
 
-    /**
-     * Run the boolean hasSelected() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testHasSelected_2()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        boolean result = fixture.hasSelected();
-        assertTrue(!result);
+    public void testGetViewFilterTypeList_ReturnsAllValues() {
+        ViewFilterType[] types = bean.getViewFilterTypeList();
+        assertNotNull(types);
+        assertTrue(types.length > 0);
     }
 
-    /**
-     * Run the void refresh() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testRefresh_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        fixture.refresh();
+    public void testGetTablePrefs() {
+        assertNotNull(bean.getTablePrefs());
     }
 
-    /**
-     * Run the void selectAll() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
     @Test
-    public void testSelectAll_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        fixture.selectAll();
-    }
-
-    /**
-     * Run the void setFilteredData(List<SelectableWrapper<T>>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetFilteredData_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<SelectableWrapper<DataFile>> filteredData = new LinkedList();
-
-        fixture.setFilteredData(filteredData);
-    }
-
-    /**
-     * Run the void setFilteredData(List<SelectableWrapper<T>>) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetFilteredData_2()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        List<SelectableWrapper<DataFile>> filteredData = null;
-
-        fixture.setFilteredData(filteredData);
-    }
-
-    /**
-     * Run the void setViewFilterType(ViewFilterType) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testSetViewFilterType_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-        ViewFilterType viewFilterType = ViewFilterType.ALL;
-
-        fixture.setViewFilterType(viewFilterType);
-    }
-
-    /**
-     * Run the void unselectAll() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/15/14 3:52 PM
-     */
-    @Test
-    public void testUnselectAll_1()
-            throws Exception {
-        DataFileBrowser fixture = new DataFileBrowser();
-        fixture.tableState = new TableViewState();
-        fixture.tablePrefs = new TablePreferences(new LinkedList());
-
-        fixture.unselectAll();
+    public void testGetTableState() {
+        assertNotNull(bean.getTableState());
     }
 }

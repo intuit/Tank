@@ -133,7 +133,8 @@ public class ActJobNodeBean extends JobNodeBean {
         // terminated = normal shutdown, replaced = watchdog replaced a failed agent
         return vmBeans.stream()
                 .filter(vm -> !vm.getStatus().equals(VMStatus.terminated.toString())
-                           && !vm.getStatus().equals(VMStatus.replaced.toString()))
+                           && !vm.getStatus().equals(VMStatus.replaced.toString())
+                           && !vm.getStatus().equals(VMStatus.disconnected.toString()))
                 .collect(Collectors.toList());
     }
 
@@ -145,6 +146,13 @@ public class ActJobNodeBean extends JobNodeBean {
     @Override
     public String getTotalSubNodesReady() {
         return Long.toString(vmBeans.stream().filter(vm -> vm.getStatus().equals(VMStatus.ready.toString())).count());
+    }
+
+    @Override
+    public String getTotalSubNodesConnected() {
+        return Long.toString(vmBeans.stream()
+                .filter(vm -> vm.getWsState() != null && !vm.getWsState().equals("disconnected"))
+                .count());
     }
 
     @Override

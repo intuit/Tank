@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import org.mockito.InjectMocks;
@@ -160,5 +161,23 @@ public class ScriptBeanTest {
         assertNotNull(scripts);
         assertFalse(scripts.isEmpty());
         assertEquals(1, scripts.size());
+    }
+
+    @Test
+    public void testGetCreatorList_DelegatesToScriptLoader() {
+        jakarta.faces.model.SelectItem[] items = new jakarta.faces.model.SelectItem[0];
+        when(scriptLoader.getCreatorList()).thenReturn(items);
+        assertSame(items, scriptBean.getCreatorList());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetEntityList_WithH2_ReturnsNonNull() {
+        com.intuit.tank.wrapper.VersionContainer<Script> container =
+                (com.intuit.tank.wrapper.VersionContainer<Script>) mock(com.intuit.tank.wrapper.VersionContainer.class);
+        when(container.getVersion()).thenReturn(1);
+        when(scriptLoader.getVersionContainer(any(ViewFilterType.class))).thenReturn(container);
+        List<Script> result = scriptBean.getEntityList(ViewFilterType.ALL);
+        assertNotNull(result);
     }
 }

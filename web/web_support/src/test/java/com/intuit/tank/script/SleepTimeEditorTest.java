@@ -14,11 +14,16 @@ package com.intuit.tank.script;
  */
 
 import org.junit.jupiter.api.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.SleepTimeEditor;
+import com.intuit.tank.util.Messages;
 
 /**
  * The class <code>SleepTimeEditorTest</code> contains tests for the class <code>{@link SleepTimeEditor}</code>.
@@ -220,5 +225,90 @@ public class SleepTimeEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.SleepTimeEditor.setSleepTime(SleepTimeEditor.java:131)
+    }
+
+    // Mockito-based tests for addToScript, validate, insert, done paths
+
+    @InjectMocks
+    private SleepTimeEditor sleepTimeEditor;
+
+    @Mock
+    private ScriptEditor scriptEditor;
+
+    @Mock
+    private Messages messages;
+
+    private AutoCloseable closeable;
+
+    @BeforeEach
+    void initMocks() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void closeMocks() throws Exception {
+        closeable.close();
+    }
+
+    @Test
+    public void testAddToScript_WithValidDigit_InInsertMode_CallsInsert() {
+        sleepTimeEditor.insertSleepTime();
+        sleepTimeEditor.setSleepTime("100");
+        sleepTimeEditor.addToScript();
+        verify(scriptEditor).insert(any(ScriptStep.class));
+    }
+
+    @Test
+    public void testAddToScript_WithZeroSleepTime_ShowsError() {
+        sleepTimeEditor.setSleepTime("0");
+        sleepTimeEditor.addToScript();
+        verify(messages).error("Sleep time has to be greater than 0");
+    }
+
+    @Test
+    public void testAddToScript_WithNegativeSleepTime_ShowsError() {
+        sleepTimeEditor.setSleepTime("-5");
+        sleepTimeEditor.addToScript();
+        verify(messages).error(anyString());
+    }
+
+    @Test
+    public void testAddToScript_InEditMode_CallsDone() {
+        ScriptStep step = new ScriptStep();
+        sleepTimeEditor.editSleepTime(step);
+        sleepTimeEditor.setSleepTime("50");
+        sleepTimeEditor.addToScript();
+        verify(scriptEditor, never()).insert(any());
+    }
+
+    @Test
+    public void testAddToScript_WithInvalidNonDigitValue_ShowsError() {
+        sleepTimeEditor.setSleepTime("notANumber");
+        sleepTimeEditor.addToScript();
+        verify(messages).error("Sleep time has to be an integer, function, or variable.");
+    }
+
+    @Test
+    public void testInsertSleepTime_SetsInsertMode() {
+        sleepTimeEditor.insertSleepTime();
+        assertEquals("", sleepTimeEditor.getSleepTime());
+        assertEquals("Add", sleepTimeEditor.getButtonLabel());
+    }
+
+    @Test
+    public void testInsert_CallsScriptEditorInsert() {
+        sleepTimeEditor.setSleepTime("200");
+        sleepTimeEditor.insert();
+        verify(scriptEditor).insert(any(ScriptStep.class));
+    }
+
+    @Test
+    public void testDone_WithStep_UpdatesStepData() {
+        ScriptStep step = new ScriptStep();
+        sleepTimeEditor.editSleepTime(step);
+        sleepTimeEditor.setSleepTime("75");
+        sleepTimeEditor.done();
+        // After done(), sleepTime is cleared
+        assertEquals("", sleepTimeEditor.getSleepTime());
     }
 }

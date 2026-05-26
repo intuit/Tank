@@ -7,11 +7,13 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GenericExceptionHandlerTest {
     @Test
@@ -52,5 +54,57 @@ public class GenericExceptionHandlerTest {
         Throwable e = mock(Throwable.class);
         SimpleErrorResponse response = genericExceptionHandler.handleOtherErrors(e);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleBadRequestException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        GenericServiceBadRequestException e = mock(GenericServiceBadRequestException.class);
+        SimpleErrorResponse response = genericExceptionHandler.handleBadRequestException(e);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleForbiddenAccessException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        GenericServiceForbiddenAccessException e = mock(GenericServiceForbiddenAccessException.class);
+        SimpleErrorResponse response = genericExceptionHandler.handleForbiddenAccessException(e);
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleInternalServerException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        GenericServiceInternalServerException e = mock(GenericServiceInternalServerException.class);
+        SimpleErrorResponse response = genericExceptionHandler.handleInternalServerException(e);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleClientException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        ClientException e = mock(ClientException.class);
+        when(e.getStatusCode()).thenReturn(422);
+        when(e.getErrorMessage()).thenReturn("Unprocessable");
+        SimpleErrorResponse response = genericExceptionHandler.handleClientException(e);
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleFileException() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        org.springframework.web.multipart.MultipartException ex = mock(org.springframework.web.multipart.MultipartException.class);
+        org.springframework.http.ResponseEntity<Object> response = genericExceptionHandler.handleFileException(request, ex);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void testHandleNoResourceFound() {
+        GenericExceptionHandler genericExceptionHandler = new GenericExceptionHandler();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        org.springframework.web.servlet.resource.NoResourceFoundException ex = mock(org.springframework.web.servlet.resource.NoResourceFoundException.class);
+        org.springframework.http.ResponseEntity<Object> response = genericExceptionHandler.handleNoResourceFound(request, ex);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

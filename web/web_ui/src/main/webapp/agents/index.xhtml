@@ -105,13 +105,40 @@
           <p:column id="statusColumn" headerText="Status" styleClass="ellipsis min-column-size"
             style="width:#{jobQueueManager.tablePrefs.getSize('statusColumn')}px;"
             rendered="#{jobQueueManager.tablePrefs.isVisible('statusColumn')}">
-            <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}" />
-            <h:outputText value="Completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}" />
-            <h:outputText value="#{node.status}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and not node.useTwoStep}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesReady()}/#{node.getCurrentSubNodes().size()} Agents Ready)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}" />
-            <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting' and node.useTwoStep}" />
-            <h:outputText value="#{node.status}" rendered="#{node.type eq 'vm'}" />
+            <h:panelGroup styleClass="#{node.getTotalSubNodesRunning() > 0 ? 'status-badge status-badge-running' : 'status-badge status-badge-pending'}" rendered="#{not node.allSubNodesCompleted() and node.type eq 'project'}">
+              <h:outputText value="#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Jobs Running" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="status-badge status-badge-completed" rendered="#{node.allSubNodesCompleted() and node.type eq 'project'}">
+              <h:outputText value="Completed" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="#{node.statusBadgeClass}" rendered="#{not node.hasSubNodes() and node.type eq 'job'}">
+              <h:outputText value="#{node.status}" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="#{node.statusBadgeClass}" rendered="#{node.hasSubNodes() and node.type eq 'job' and not node.useTwoStep}">
+              <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="#{node.statusBadgeClass}" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status eq 'Starting' and node.useTwoStep}">
+              <h:outputText value="#{node.status} (#{node.getTotalSubNodesConnected()}/#{node.getSubNodes().size()} Connected, #{node.getTotalSubNodesReady()}/#{node.getSubNodes().size()} Ready)" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="#{node.statusBadgeClass}" rendered="#{node.hasSubNodes() and node.type eq 'job' and node.status ne 'Starting' and node.useTwoStep}">
+              <h:outputText value="#{node.status} (#{node.getTotalSubNodesRunning()}/#{node.getCurrentSubNodes().size()} Agents Running)" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="#{node.statusBadgeClass}" rendered="#{node.type eq 'vm'}">
+              <h:outputText value="#{node.status}" />
+            </h:panelGroup>
+          </p:column>
+
+          <p:column id="wsStateColumn" headerText="WS State" styleClass="ellipsis min-column-size"
+            style="width:120px;">
+            <h:panelGroup styleClass="#{node.wsStateBadgeClass}" rendered="#{node.type eq 'vm' and node.wsStateDisplay ne ''}">
+              <h:outputText value="#{node.wsStateDisplay}" title="#{node.wsStateDisplay}" />
+            </h:panelGroup>
+          </p:column>
+
+          <p:column id="lastSeenColumn" headerText="Last Seen" styleClass="ellipsis min-column-size"
+            style="width:90px;">
+            <h:outputText value="#{node.lastSeen}" title="#{node.lastSeen}"
+              rendered="#{node.type eq 'vm' and node.lastSeen ne ''}" />
           </p:column>
 
           <p:column id="regionColumn" style="width:#{jobQueueManager.tablePrefs.getSize('regionColumn')}px;"

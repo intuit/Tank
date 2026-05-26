@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>proxy-parent</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>4.2.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>owasp-proxy</artifactId>
@@ -33,13 +33,13 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.79</version>
+      <version>1.84</version>
     </dependency>
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk18on</artifactId>
-      <version>1.79</version>
+      <version>1.84</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
