@@ -1,3 +1,22 @@
+# 4.2.7 (Tue May 26 2026)
+
+#### 🐛 Bug Fix
+
+- Bump org.apache.tomcat:tomcat-catalina from 11.0.21 to 11.0.22 [#484](https://github.com/intuit/Tank/pull/484) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### ⚠️ Pushed to `master`
+
+- Merge remote-tracking branch 'origin/master' ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Revert: Run workflows release on PR merge only. ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Run workflows release on PR merge only. ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.2.6 (Wed May 20 2026)
 
 #### 🐛 Bug Fix
