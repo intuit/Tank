@@ -22,7 +22,6 @@ import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.common.JobLockManager;
 import com.intuit.tank.vm.event.JobEvent;
 import com.intuit.tank.vm.perfManager.AgentChannel;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -97,20 +96,18 @@ public class JobEventSender {
     public String startAgents(String jobId) {
         AWSXRay.beginSubsegment("Start.Agents." + jobId);
         try {
-            synchronized (JobLockManager.getLock(jobId)) {
-                JobInstanceDao jobInstanceDao = new JobInstanceDao();
-                JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
-                if (job == null) {
-                    LOG.warn("startAgents called for non-existent job id={} — skipping", jobId);
-                    return jobId;
-                }
-                if (job.getStatus() != JobQueueStatus.Starting) {
-                    LOG.warn("startAgents called for job id={} with status={} — only Starting jobs can start agents", jobId, job.getStatus());
-                    return jobId;
-                }
-                jobManager.startAgents(jobId);
-                jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
+            JobInstanceDao jobInstanceDao = new JobInstanceDao();
+            JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
+            if (job == null) {
+                LOG.warn("startAgents called for non-existent job id={} — skipping", jobId);
+                return jobId;
             }
+            if (job.getStatus() != JobQueueStatus.Starting) {
+                LOG.warn("startAgents called for job id={} with status={} — only Starting jobs can start agents", jobId, job.getStatus());
+                return jobId;
+            }
+            jobManager.startAgents(jobId);
+            jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
         } finally {
             AWSXRay.endSubsegment();
         }

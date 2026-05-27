@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.intuit.tank.vm.common.JobLockManager;
+import com.intuit.tank.rest.mvc.rest.cloud.JobLockManager;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.models.*;
 import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;

@@ -32,11 +32,4 @@ public class JobQueueStatusCpTest {
         assertNotNull(deleted);
         assertEquals("Deleted", deleted.name());
     }
-
-    @Test
-    void testAllExpectedValuesPresent() {
-        JobQueueStatus[] values = JobQueueStatus.values();
-        assertEquals(10, values.length);
-        assertEquals(JobQueueStatus.Deleted, values[values.length - 1]);
-    }
 }

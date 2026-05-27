@@ -91,7 +91,6 @@ public class ProjectNodeBean extends JobNodeBean {
     public List<ActJobNodeBean> getCurrentSubNodes() {
         return jobBeans.stream().filter(job ->
                 !job.getStatus().equals(JobQueueStatus.Completed.toString())
-                && !job.getStatus().equals(JobQueueStatus.Deleted.toString())
         ).collect(Collectors.toList());
     }
 
@@ -109,7 +108,6 @@ public class ProjectNodeBean extends JobNodeBean {
     public boolean allSubNodesCompleted(){
         return jobBeans.stream().allMatch(job ->
                 job.getStatus().equals(JobQueueStatus.Completed.toString())
-                || job.getStatus().equals(JobQueueStatus.Deleted.toString())
         );
     }
 

@@ -1,4 +1,4 @@
-package com.intuit.tank.vm.common;
+package com.intuit.tank.rest.mvc.rest.cloud;
 
 import java.util.concurrent.ConcurrentHashMap;
 

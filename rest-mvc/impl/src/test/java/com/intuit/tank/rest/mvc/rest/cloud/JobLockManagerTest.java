@@ -1,6 +1,5 @@
 package com.intuit.tank.rest.mvc.rest.cloud;
 
-import com.intuit.tank.vm.common.JobLockManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;

@@ -42,7 +42,6 @@ import jakarta.inject.Named;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.logging.ControllerLoggingConfig;
-import com.intuit.tank.vm.common.JobLockManager;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -173,28 +172,27 @@ public class VMTrackerImpl implements VMTracker {
                 jobMap.put(jobId, cloudVmStatusContainer);
                 JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(jobId));
                 if (job != null) {
-                    if (job.getStatus() == JobQueueStatus.Deleted) {
-                        LOG.warn("Skipping status update for deleted job {}", jobId);
-                        cloudVmStatusContainer.setStatus(JobQueueStatus.Deleted);
-                    } else {
-                        cloudVmStatusContainer.setStatus(job.getStatus());
+                    JobQueueStatus newStatus = getQueueStatus(job.getStatus(), status.getJobStatus());
+                    cloudVmStatusContainer.setStatus(newStatus);
+                    if (newStatus != job.getStatus()) {
+                        job.setStatus(newStatus);
+                        new JobInstanceDao().saveOrUpdate(job);
                     }
+                } else {
+                    JobQueueStatus newStatus = getQueueStatus(cloudVmStatusContainer.getStatus(), status.getJobStatus());
+                    cloudVmStatusContainer.setStatus(newStatus);
                 }
             }
             cloudVmStatusContainer.setReportTime(status.getReportTime());
-            if (cloudVmStatusContainer.getStatus() == JobQueueStatus.Deleted) {
-                LOG.warn("Skipping status update for deleted job {} — stale agent report", jobId);
-            } else {
-                addStatusToJobContainer(status, cloudVmStatusContainer);
-                String projectId = getProjectForJobId(jobId);
-                if (projectId != null) {
-                    ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
-                    if (projectStatusContainer == null) {
-                        projectStatusContainer = new ProjectStatusContainer();
-                        projectContainerMap.put(projectId, projectStatusContainer);
-                    }
-                    projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
+            addStatusToJobContainer(status, cloudVmStatusContainer);
+            String projectId = getProjectForJobId(jobId);
+            if (projectId != null) {
+                ProjectStatusContainer projectStatusContainer = getProjectStatusContainer(projectId);
+                if (projectStatusContainer == null) {
+                    projectStatusContainer = new ProjectStatusContainer();
+                    projectContainerMap.put(projectId, projectStatusContainer);
                 }
+                projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
             }
         }
         AWSXRay.endSegment();
@@ -373,48 +371,40 @@ public class VMTrackerImpl implements VMTracker {
             cloudVmStatusContainer.setEndTime(new Date());
         }
         if (job != null) {
-            synchronized (JobLockManager.getLock(status.getJobId())) {
-                // Re-read inside the lock to get authoritative status
-                job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
-                if (job == null || job.getStatus() == JobQueueStatus.Deleted) {
-                    LOG.warn("Skipping status calc for deleted job {} — agent reports are stale", status.getJobId());
-                    return;
+            job.setEndTime(cloudVmStatusContainer.getEndTime());
+            JobQueueStatus oldStatus = job.getStatus();
+            JobQueueStatus newStatus = job.getStatus();
+            if (isFinished) {
+                newStatus = JobQueueStatus.Completed;
+                stopJob(Integer.toString(job.getId()));
+            } else if (paused) {
+                newStatus = JobQueueStatus.Paused;
+            } else if (rampPaused) {
+                newStatus = JobQueueStatus.RampPaused;
+            } else if (stopped) {
+                newStatus = JobQueueStatus.Stopped;
+            } else if (running) {
+                newStatus = JobQueueStatus.Running;
+                if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
+                    job.setStartTime(status.getStartTime());
+                    jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
                 }
-                job.setEndTime(cloudVmStatusContainer.getEndTime());
-                JobQueueStatus oldStatus = job.getStatus();
-                JobQueueStatus newStatus = job.getStatus();
-                if (isFinished) {
-                    newStatus = JobQueueStatus.Completed;
-                    stopJob(Integer.toString(job.getId()));
-                } else if (paused) {
-                    newStatus = JobQueueStatus.Paused;
-                } else if (rampPaused) {
-                    newStatus = JobQueueStatus.RampPaused;
-                } else if (stopped) {
-                    newStatus = JobQueueStatus.Stopped;
-                } else if (running) {
-                    newStatus = JobQueueStatus.Running;
-                    if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
-                        job.setStartTime(status.getStartTime());
-                        jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
-                    }
-                }
+            }
 
-                if (oldStatus != newStatus) {
-                    LOG.info(new ObjectMessage(Map.of("Message",
-                        "Job " + status.getJobId() + " status transition: " + oldStatus + " -> " + newStatus +
-                        " (isFinished=" + isFinished + ", paused=" + paused + ", rampPaused=" + rampPaused +
-                        ", stopped=" + stopped + ", running=" + running + ")")));
-                }
-                LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
-                job.setStatus(newStatus);
-                jobInstanceDao.get().saveOrUpdate(job);
+            if (oldStatus != newStatus) {
+                LOG.info(new ObjectMessage(Map.of("Message",
+                    "Job " + status.getJobId() + " status transition: " + oldStatus + " -> " + newStatus +
+                    " (isFinished=" + isFinished + ", paused=" + paused + ", rampPaused=" + rampPaused +
+                    ", stopped=" + stopped + ", running=" + running + ")")));
+            }
+            LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
+            job.setStatus(newStatus);
+            jobInstanceDao.get().saveOrUpdate(job);
 
-                // Job StartTime is source of truth for cloudVMStatusContainer StartTime
-                if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {
-                    if (job.getStartTime().before(cloudVmStatusContainer.getStartTime())) {
-                        cloudVmStatusContainer.setStartTime(job.getStartTime());
-                    }
+            // Job StartTime is source of truth for cloudVMStatusContainer StartTime
+            if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {
+                if (job.getStartTime().before(cloudVmStatusContainer.getStartTime())) {
+                    cloudVmStatusContainer.setStartTime(job.getStartTime());
                 }
             }
         }

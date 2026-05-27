@@ -189,15 +189,4 @@ public interface JobServiceV2 {
      * @return job status
      */
     public String killJob(Integer jobId);
-
-    /**
-     * Soft-deletes a job by setting its status to Deleted.
-     *
-     * @param jobId jobId for job
-     *
-     * @throws GenericServiceResourceNotFoundException if job not found
-     *
-     * @return map with jobId and status
-     */
-    public Map<String, String> deleteJob(Integer jobId);
 }
