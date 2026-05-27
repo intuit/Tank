@@ -1,3 +1,16 @@
+# 4.2.10 (Wed May 27 2026)
+
+#### 🐛 Bug Fix
+
+- nit: missing updated test failing build for deleted status change [#488](https://github.com/intuit/Tank/pull/488) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.9 (Wed May 27 2026)
 
 #### 🐛 Bug Fix
