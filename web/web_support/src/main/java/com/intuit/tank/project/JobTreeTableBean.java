@@ -176,9 +176,8 @@ public abstract class JobTreeTableBean implements Serializable {
                         return;
                     }
                     JobQueueStatus status = jobInstance.getStatus();
-                    if (status == JobQueueStatus.Starting || status == JobQueueStatus.Running
-                            || status == JobQueueStatus.Paused || status == JobQueueStatus.RampPaused) {
-                        messages.warn(bean.getName() + " is active (" + status + ") — stop or kill it before deleting.");
+                    if (status != JobQueueStatus.Created) {
+                        messages.warn(bean.getName() + " cannot be deleted.");
                         return;
                     }
                     jobInstance.setStatus(JobQueueStatus.Deleted);

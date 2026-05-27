@@ -146,13 +146,13 @@ public class JobStatusHelperTest {
     }
 
     @Test
-    public void testCompletedJobCanBeDeleted() {
-        assertTrue(JobStatusHelper.canBeDeleted("Completed"));
+    public void testCompletedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Completed"));
     }
 
     @Test
-    public void testAbortedJobCanBeDeleted() {
-        assertTrue(JobStatusHelper.canBeDeleted("Aborted"));
+    public void testAbortedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Aborted"));
     }
 
     @Test
@@ -166,13 +166,13 @@ public class JobStatusHelperTest {
     }
 
     @Test
-    public void testQueuedJobCanBeDeleted() {
-        assertTrue(JobStatusHelper.canBeDeleted("Queued"));
+    public void testQueuedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Queued"));
     }
 
     @Test
-    public void testStoppedJobCanBeDeleted() {
-        assertTrue(JobStatusHelper.canBeDeleted("Stopped"));
+    public void testStoppedJobCannotBeDeleted() {
+        assertFalse(JobStatusHelper.canBeDeleted("Stopped"));
     }
 
     @Test

@@ -480,6 +480,28 @@ public class JobEventSenderTest {
         }
     }
 
+    @Test
+    @DisplayName("startAgents with Deleted status does not start agents and does not fire event")
+    void startAgents_deletedStatus_doesNotFireEvent() {
+        JobInstance job = new JobInstance();
+        job.setId(123);
+        job.setStatus(JobQueueStatus.Deleted);
+
+        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
+             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+                     (mock, context) -> when(mock.findById(123)).thenReturn(job))) {
+
+            Subsegment mockSubsegment = mock(Subsegment.class);
+            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
+
+            String result = jobEventSender.startAgents("123");
+
+            assertEquals("123", result);
+            verify(jobManager, never()).startAgents(anyString());
+            verify(jobEventProducer, never()).fire(any());
+        }
+    }
+
     // =====================================================================
     // killJob tests
     // =====================================================================
