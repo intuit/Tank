@@ -459,8 +459,8 @@ public class JobEventSenderTest {
     }
 
     @Test
-    @DisplayName("startAgents with non-Starting status does not start agents but still fires event")
-    void startAgents_nonStartingStatus_firesEventOnly() {
+    @DisplayName("startAgents with non-Starting status does not start agents and does not fire event")
+    void startAgents_nonStartingStatus_doesNotFireEvent() {
         JobInstance job = new JobInstance();
         job.setId(123);
         job.setStatus(JobQueueStatus.Running);
@@ -476,8 +476,7 @@ public class JobEventSenderTest {
 
             assertEquals("123", result);
             verify(jobManager, never()).startAgents(anyString());
-            // Event still fires outside the if block
-            verify(jobEventProducer).fire(any(JobEvent.class));
+            verify(jobEventProducer, never()).fire(any());
         }
     }
 

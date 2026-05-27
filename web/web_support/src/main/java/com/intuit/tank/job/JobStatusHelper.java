@@ -64,6 +64,10 @@ public class JobStatusHelper {
     }
 
 	public static boolean canBeDeleted(String status) {
-		return (status.equalsIgnoreCase(JobQueueStatus.Created.toString()));
+		return (status.equalsIgnoreCase(JobQueueStatus.Created.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Queued.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Stopped.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Completed.toString())
+				|| status.equalsIgnoreCase(JobQueueStatus.Aborted.toString()));
 	}
 }
