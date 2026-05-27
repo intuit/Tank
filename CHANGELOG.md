@@ -1,3 +1,16 @@
+# 4.2.8 (Wed May 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: prevent zombie jobs from starting after deletion [#465](https://github.com/intuit/Tank/pull/465) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.7 (Tue May 26 2026)
 
 #### 🐛 Bug Fix
