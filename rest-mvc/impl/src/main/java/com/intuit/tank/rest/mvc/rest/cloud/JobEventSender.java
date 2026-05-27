@@ -102,11 +102,13 @@ public class JobEventSender {
                 LOG.warn("startAgents called for non-existent job id={} — skipping", jobId);
                 return jobId;
             }
-            if (job.getStatus() != JobQueueStatus.Starting) {
-                LOG.warn("startAgents called for job id={} with status={} — only Starting jobs can start agents", jobId, job.getStatus());
+            if (job.getStatus() == JobQueueStatus.Deleted) {
+                LOG.warn("startAgents called for job id={} with status=Deleted — deleted jobs cannot start agents", jobId);
                 return jobId;
             }
-            jobManager.startAgents(jobId);
+            if (job.getStatus() == JobQueueStatus.Starting) {
+                jobManager.startAgents(jobId);
+            }
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
         } finally {
             AWSXRay.endSubsegment();
