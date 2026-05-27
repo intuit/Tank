@@ -1,3 +1,16 @@
+# 4.2.9 (Wed May 27 2026)
+
+#### 🐛 Bug Fix
+
+- Follow-up PR: Restore Created-only delete eligibility for soft-deleted jobs [#487](https://github.com/intuit/Tank/pull/487) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.8 (Wed May 27 2026)
 
 #### 🐛 Bug Fix
