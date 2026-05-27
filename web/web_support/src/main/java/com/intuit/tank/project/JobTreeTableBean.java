@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.rest.mvc.rest.cloud.JobLockManager;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.models.*;
 import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import jakarta.annotation.Nonnull;
@@ -159,15 +161,28 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     public void deleteJobInstance(JobNodeBean bean) {
-        if (bean.isDeleteable()) {
+        if (bean.isDeletable()) {
             try {
-                JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
-                Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
-                JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
-                JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
-                if (instance != null) {
-                    queue.getJobs().remove(instance);
-                    jobQueueDao.saveOrUpdate(queue);
+                JobInstanceDao jobInstanceDao = new JobInstanceDao();
+                JobInstance jobInstance = jobInstanceDao.findById(Integer.valueOf(bean.getId()));
+                if (jobInstance == null) {
+                    messages.warn("Job not found.");
+                    return;
+                }
+                synchronized (JobLockManager.getLock(bean.getId())) {
+                    jobInstance = jobInstanceDao.findById(Integer.valueOf(bean.getId()));
+                    if (jobInstance == null) {
+                        messages.warn("Job not found.");
+                        return;
+                    }
+                    JobQueueStatus status = jobInstance.getStatus();
+                    if (status == JobQueueStatus.Starting || status == JobQueueStatus.Running
+                            || status == JobQueueStatus.Paused || status == JobQueueStatus.RampPaused) {
+                        messages.warn(bean.getName() + " is active (" + status + ") — stop or kill it before deleting.");
+                        return;
+                    }
+                    jobInstance.setStatus(JobQueueStatus.Deleted);
+                    jobInstanceDao.saveOrUpdate(jobInstance);
                 }
                 refreshData();
                 messages.info("Job " + jobInstance.getName() + " has been deleted.");
@@ -554,6 +569,9 @@ public abstract class JobTreeTableBean implements Serializable {
             for (JobInstance jobInstance : jobs) {
 
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
+                if (jobInstance.getStatus() == JobQueueStatus.Deleted) {
+                    continue; // never show deleted jobs in the tree
+                }
                 if (!filterFinished || jobInstance.getEndTime() == null) {
                     ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
                     pnb.addJob(jobInstanceNode);
