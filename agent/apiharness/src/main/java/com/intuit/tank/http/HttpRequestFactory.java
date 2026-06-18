@@ -58,5 +58,10 @@ public class HttpRequestFactory {
             return APITestHarness.getInstance().getTankConfig().getAgentConfig();
         }
 
+        @Override
+        public boolean isDebugMode() {
+            return APITestHarness.getInstance().isDebug();
+        }
+
     }
 }
