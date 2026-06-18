@@ -46,7 +46,7 @@ public class ConfiguredLanguage {
 
     private static final String[][] data = {
             { "ECMAScript", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
-                    "com.sun.script.javascript.RhinoScriptEngineFactory", "js" },
+                    "com.oracle.truffle.js.scriptengine.GraalJSScriptEngineFactory", "js" },
             { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "com.sun.script.jruby.JRubyScriptEngineFactory", "rb" },
             { "groovy", SyntaxConstants.SYNTAX_STYLE_GROOVY, "Groovy",
                     "org.codehaus.groovy.jsr223.GroovyScriptEngineFactory", "groovy" }
