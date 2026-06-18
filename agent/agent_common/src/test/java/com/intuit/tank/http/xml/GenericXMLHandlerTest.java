@@ -14,294 +14,56 @@ package com.intuit.tank.http.xml;
  */
 
 import java.io.File;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 
-import org.jdom2.Document;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * The class <code>GenericXMLHandlerTest</code> contains tests for the class <code>{@link GenericXMLHandler}</code>.
- * 
- * @generatedBy CodePro at 12/16/14 4:29 PM
- */
 public class GenericXMLHandlerTest {
-    /**
-     * Run the GenericXMLHandler() constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_1()
-            throws Exception {
 
-        GenericXMLHandler result = new GenericXMLHandler();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.ExceptionInInitializerError
-        // at org.apache.log4j.LogManager.getLogger(Logger.java:117)
-        // at com.intuit.tank.http.xml.GenericXMLHandler.<clinit>(GenericXMLHandler.java:31)
-        assertNotNull(result);
-    }
+    private final String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <rootElement>
+              <childElement1 attribute1="value1">
+                Text content for child element 1.
+              </childElement1>
+              <childElement2>
+                <nestedElement>
+                  More text content.
+                </nestedElement>
+              </childElement2>
+              <emptyElement/>
+            </rootElement>""";
 
     /**
-     * Run the GenericXMLHandler(File) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
+     * Run the String GetElementAttr(String) method test.
      */
     @Test
-    public void testGenericXMLHandler_2()
-            throws Exception {
-        File xmlFile = new File("");
+    public void testGetElementAttr_1() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        String xPathExpression = "rootElement/childElement1";
 
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
+        String result = fixture.GetElementAttr(xPathExpression);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(File) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_3()
-            throws Exception {
-        File xmlFile = new File("");
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(File) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_4()
-            throws Exception {
-        File xmlFile = new File("");
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_5()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_6()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_7()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_8()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_9()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_10()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_11()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
-    }
-
-    /**
-     * Run the GenericXMLHandler(String) constructor test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGenericXMLHandler_12()
-            throws Exception {
-        String xmlFile = "";
-
-        GenericXMLHandler result = new GenericXMLHandler(xmlFile);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
+        assertEquals("value1", result);
     }
 
     /**
      * Run the String GetElementAttr(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @Disabled
-    public void testGetElementAttr_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
+    public void testGetElementAttr_2() {
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
+        String xPathExpression = "testPlan/testSuite";
 
         String result = fixture.GetElementAttr(xPathExpression);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
-    }
-
-    /**
-     * Run the String GetElementAttr(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    @Disabled
-    public void testGetElementAttr_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-
-        String result = fixture.GetElementAttr(xPathExpression);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
+        assertEquals("Suite for XXX5,XXX5", result);
     }
 
     /**
@@ -314,549 +76,253 @@ public class GenericXMLHandlerTest {
     @Test
     public void testGetElementText_1()
             throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        String xPathExpression = "rootElement/childElement1";
 
         String result = fixture.GetElementText(xPathExpression);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
+        assertEquals("Text content for child element 1.", result.trim());
     }
 
     /**
      * Run the String GetElementText(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
     public void testGetElementText_2()
             throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
+        String xPathExpression = "testPlan/testSuite";
 
         String result = fixture.GetElementText(xPathExpression);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
-    }
-
-    /**
-     * Run the String GetElementText(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGetElementText_3()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-
-        String result = fixture.GetElementText(xPathExpression);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
+        assertEquals("https\n\t\t\t\ttest.com\n\t\t\t\t/index.html", result.trim());
     }
 
     /**
      * Run the void Save() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testSave_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
+    public void testSave() {
+        File xmlfile = new File("src/test/resources/tt.xml");
+        GenericXMLHandler fixture = new GenericXMLHandler(xmlfile);
 
         fixture.Save();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-    }
-
-    /**
-     * Run the void Save() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSave_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-
-        fixture.Save();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-    }
-
-    /**
-     * Run the void Save() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSave_3()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-
-        fixture.Save();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-    }
-
-    /**
-     * Run the void Save() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSave_4()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-
-        fixture.Save();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-    }
-
-    /**
-     * Run the void Save() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testSave_5()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-
-        fixture.Save();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertTrue(xmlfile.exists());
+        assertTrue(Instant.now().isAfter(Instant.ofEpochMilli(xmlfile.lastModified())));
     }
 
     /**
      * Run the void SetElementAttribute(String,String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
     public void testSetElementAttribute_1()
             throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-        String attribute = "";
-        String value = "";
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        String xPathExpression = "rootElement/childElement2";
+        String attribute = "TEST";
+        String value = "TEST";
 
         fixture.SetElementAttribute(xPathExpression, attribute, value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertEquals("TEST", fixture.GetElementAttr(xPathExpression));
     }
 
     /**
      * Run the void SetElementAttribute(String,String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testSetElementAttribute_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-        String attribute = "";
-        String value = "";
+    public void testSetElementAttribute_2() {
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
+        String xPathExpression = "testPlan/testSuite";
+        String attribute = "TEST";
+        String value = "TEST";
 
         fixture.SetElementAttribute(xPathExpression, attribute, value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertTrue(Arrays.asList(fixture.GetElementAttr(xPathExpression).split(",")).contains(value));
     }
 
     /**
      * Run the void SetElementText(String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testSetElementText_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-        String value = "";
+    public void testSetElementText_1() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        String xPathExpression = "rootElement/childElement2";
+        String value = "TEST";
 
         fixture.SetElementText(xPathExpression, value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertEquals(value, fixture.GetElementText(xPathExpression));
     }
 
     /**
      * Run the void SetElementText(String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testSetElementText_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xPathExpression = "";
-        String value = "";
+    public void testSetElementText_2() {
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
+        String xPathExpression = "testPlan/testSuite";
+        String value = "TEST";
 
         fixture.SetElementText(xPathExpression, value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertEquals(value, fixture.GetElementText(xPathExpression));
     }
 
     /**
      * Run the Object clone() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testClone_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
+    public void testClone_1() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
 
         Object result = fixture.clone();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
+        assertTrue(result instanceof GenericXMLHandler);
     }
 
     /**
      * Run the Object clone() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testClone_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
+    public void testClone_2() {
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
 
         Object result = fixture.clone();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
+        assertTrue(result instanceof GenericXMLHandler);
     }
 
     /**
      * Run the String getChildNode(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testGetChildNode_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpath = "";
+    public void testGetChildNode() {
+        GenericXMLHandler fixture = new GenericXMLHandler("");
+        String xpath = "/TEST/TEST";
 
         String result = fixture.getChildNode(xpath);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
-    }
-
-    /**
-     * Run the String getChildNode(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGetChildNode_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpath = "";
-
-        String result = fixture.getChildNode(xpath);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
+        assertEquals("TEST", result);
     }
 
     /**
      * Run the String getCurrentPath(String,int) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testGetCurrentPath_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpath = "";
-        int node = -1;
+    public void testGetCurrentPath()  {
+        GenericXMLHandler fixture = new GenericXMLHandler("");
+        String xpath = "//TEST/TEST";
+        int node = 1;
 
         String result = fixture.getCurrentPath(xpath, node);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
+        assertEquals("//TEST", result);
     }
 
     /**
      * Run the String getParentPath(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testGetParentPath_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpath = "";
+    public void testGetParentPath_1()  {
+        GenericXMLHandler fixture = new GenericXMLHandler("");
+        String xpath = "/rootElement/childElement1";
 
         String result = fixture.getParentPath(xpath);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
-    }
-
-    /**
-     * Run the String getParentPath(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testGetParentPath_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpath = "";
-
-        String result = fixture.getParentPath(xpath);
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertNotNull(result);
+        assertEquals("/rootElement", result);
     }
 
     /**
      * Run the boolean isXMLValid() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testIsXMLValid_1()
-            throws Exception {
+    public void testIsXMLValid_1() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        boolean result = fixture.isXMLValid();
+        assertTrue(result);
+
+        GenericXMLHandler fixture2 = new GenericXMLHandler(xml.substring(10, 30));
+        boolean result2 = fixture2.isXMLValid();
+        assertFalse(result2);
+    }
+
+    /**
+     * Run the boolean isXMLValid() method test.
+     */
+    @Test
+    public void testIsXMLValid_2() {
         GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
         boolean result = fixture.isXMLValid();
         assertTrue(result);
     }
 
     /**
-     * Run the boolean isXMLValid() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
-     */
-    @Test
-    public void testIsXMLValid_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-
-        boolean result = fixture.isXMLValid();
-
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertTrue(result);
-    }
-
-    /**
      * Run the void setNamespace(String,String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testSetNamespace_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String name = "";
-        String value = "";
+    public void testSetNamespace() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+        String name = "TEST";
+        String value = "TEST";
 
         fixture.setNamespace(name, value);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
+        assertEquals(value, fixture.namespaces.get(name));
     }
 
     /**
      * Run the String toString() method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    public void testToString_2()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = null;
+    public void testToString() {
+        GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
 
         String result = fixture.toString();
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertNotNull(result);
     }
 
     /**
      * Run the boolean xPathExists(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @Disabled
-    public void testXPathExists_1()
-            throws Exception {
-        GenericXMLHandler fixture = new GenericXMLHandler(new File(""));
-        fixture.namespaces = new HashMap();
-        fixture.xml = "";
-        fixture.xmlDocument = new Document();
-        String xpathExpr = "";
+    public void testXPathExists() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
 
-        boolean result = fixture.xPathExists(xpathExpr);
+        boolean result = fixture.xPathExists("rootElement/childElement1");
+        assertTrue(result);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
-        assertTrue(!result);
+        boolean result2 = fixture.xPathExists("rootElement");
+        assertTrue(result2);
+
+        boolean result3 = fixture.xPathExists("BADELEMENT");
+        assertFalse(result3);
+
+        boolean result4 = fixture.xPathExists("");
+        assertFalse(result4);
     }
 
     /**
      * Run the boolean xPathExists(String) method test.
-     * 
-     * @throws Exception
-     * 
-     * @generatedBy CodePro at 12/16/14 4:29 PM
      */
     @Test
-    @Disabled
-    public void testXPathExists_2()
-            throws Exception {
+    public void testXPathExists_2()  {
         GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
         fixture.namespaces = new HashMap();
         String xpathExpr = "testPlan/testSuite";
 
         boolean result = fixture.xPathExists(xpathExpr);
 
-        // An unexpected exception was thrown in user code while executing this test:
-        // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.http.xml.GenericXMLHandler
         assertTrue(result);
     }
 
