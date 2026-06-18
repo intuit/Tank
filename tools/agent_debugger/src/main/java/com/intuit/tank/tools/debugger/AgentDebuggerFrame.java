@@ -35,6 +35,9 @@ import java.util.Map.Entry;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.intuit.tank.http.BaseRequest;
+import com.intuit.tank.http.BaseResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +45,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.fife.ui.rsyntaxtextarea.SquiggleUnderlineHighlightPainter;
 import org.fife.ui.rtextarea.GutterIconInfo;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -1016,27 +1020,60 @@ public class AgentDebuggerFrame extends JFrame {
         return requestResponsePanel;
     }
 
-    public void exportCSV(File csvOutputFile) {
-        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("URL,HTTP Code,HTTP Msg,Response Time,Proxy Response Time,Response Size,Headers...,Cookies...");
+    public void exportData(File outputFile) {
+        try (PrintWriter pw = new PrintWriter(outputFile)) {
             steps.stream()
                     .filter(step -> step.getResponse() != null)
+                    .filter(step -> step.getRequest() != null)
                     .forEach(step -> {
-                        String escapedUrl = escapeCSV(step.getRequest().getRequestUrl());
-                        pw.println(escapedUrl + "," + step.getResponse().convertToCSV());
+                        BaseRequest request = step.getRequest();
+                        BaseResponse response = step.getResponse();
+
+                        pw.println(request.getRequestUrl() + " " + response.getHttpCode());
+                        pw.println();
+
+                        String requestBody = request.getBody();
+                        if (requestBody != null && !requestBody.trim().isEmpty()) {
+                            pw.println("REQUEST PAYLOAD:");
+                            pw.println(requestBody);
+                        }
+
+                        pw.println("\n--------- RESPONSE ---------\n");
+
+                        String responseBody = response.getResponseBody();
+                        if (responseBody != null && !responseBody.trim().isEmpty()) {
+                            pw.println("RESPONSE BODY:");
+                            pw.println(responseBody);
+                        }
+
+                        pw.println("\n\n==============================================\n\n");
                     });
-        } catch ( FileNotFoundException e) {
-            LOG.error("Error exporting CSV: {}", String.valueOf(e));
+            LOG.info("Successfully Agent Debugger request and response data to " + outputFile.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            LOG.error("Error exporting text file: {}", String.valueOf(e));
         }
     }
 
-    private String escapeCSV(String value) {
-        if (value == null) {
-            return "";
+    private String extractJsonValue(String json, String path) {
+        try {
+            String jacksonPath = path.replaceFirst("^/", "");
+            String[] pathElements = jacksonPath.split("/");
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(json);
+
+            JsonNode currentNode = rootNode;
+            for (String element : pathElements) {
+                if (currentNode == null) {
+                    return "N/A";
+                }
+                currentNode = currentNode.get(element);
+            }
+            return currentNode != null ? currentNode.toString() : "N/A";
+        } catch (Exception e) {
+            LOG.warn("Error extracting JSON value for path {}: {}", path, e.getMessage());
+            return "ERROR";
         }
-        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
-        }
-        return value;
     }
+
 }

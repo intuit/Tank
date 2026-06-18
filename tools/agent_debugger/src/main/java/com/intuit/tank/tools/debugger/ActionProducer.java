@@ -895,7 +895,7 @@ public class ActionProducer {
                     int option = jFileChooser.showSaveDialog(debuggerFrame);
                     if (option != JFileChooser.CANCEL_OPTION) {
                         File selectedFile = jFileChooser.getSelectedFile();
-                        debuggerFrame.exportCSV(selectedFile);
+                        debuggerFrame.exportData(selectedFile);
                     }
                 }
             };
