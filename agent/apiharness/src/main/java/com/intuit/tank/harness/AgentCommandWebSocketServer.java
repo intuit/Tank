@@ -303,6 +303,18 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             Files.move(state.tempFile.toPath(), state.targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
+        long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - state.transferStartedAtNs);
+        double throughputMiBps = durationMs > 0
+                ? Math.round(((state.receivedBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                : 0.0;
+        LOG.info(new ObjectMessage(Map.of("Message",
+                "WS file received file=" + state.fileName
+                        + " type=" + state.fileType
+                        + " bytes=" + state.receivedBytes + "/" + state.totalBytes
+                        + " chunks=" + state.receivedChunks + "/" + state.totalChunks
+                        + " durationMs=" + durationMs
+                        + " throughputMiBps=" + throughputMiBps)));
+
         if (SUPPORT_ARCHIVE_FILE_TYPE.equalsIgnoreCase(state.fileType)) {
             unpackSupportArchive(state.targetFile);
             Files.deleteIfExists(state.targetFile.toPath());
@@ -487,6 +499,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         private final int totalChunks;
         private final boolean defaultDataFile;
         private final OutputStream outputStream;
+        private final long transferStartedAtNs;
         private long receivedBytes;
         private int receivedChunks;
 
@@ -501,6 +514,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             this.totalChunks = totalChunks;
             this.defaultDataFile = defaultDataFile;
             this.outputStream = outputStream;
+            this.transferStartedAtNs = System.nanoTime();
         }
 
         private void closeQuietly() {

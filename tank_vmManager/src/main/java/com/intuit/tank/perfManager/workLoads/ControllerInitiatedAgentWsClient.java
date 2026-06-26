@@ -51,7 +51,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final int CHUNK_ACK_WINDOW =
             Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 32));
     private static final long MAX_BOOTSTRAP_CONNECTION_MS =
-            Long.getLong("tank.ws.bootstrap.maxConnectionMs", 30_000L);
+            Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
 
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
@@ -260,7 +260,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private boolean pushStartupBootstrapJar(String agentId, SessionContext context, long transferTimeoutMillis)
             throws Exception {
-        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId + " needs startup bootstrap — pushing harness JAR")));
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
+                + " needs startup bootstrap — pushing harness JAR"
+                + " chunkBytes=" + DEFAULT_CHUNK_BYTES
+                + " ackWindow=" + CHUNK_ACK_WINDOW
+                + " maxConnectionMs=" + MAX_BOOTSTRAP_CONNECTION_MS)));
         File harnessJar = findHarnessJar();
         if (harnessJar == null || !harnessJar.exists() || !harnessJar.isFile()) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Harness JAR not found on controller for startup bootstrap")));
@@ -419,6 +423,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         long totalBytes = content != null ? content.length : 0L;
         int totalChunks = Math.max(1, (int) Math.ceil((double) totalBytes / chunkBytes));
         String fileId = UUID.randomUUID().toString();
+        long transferStartedAtNs = System.nanoTime();
 
         // Send offer and wait for ack (may include resume offset)
         CompletableFuture<AgentWsEnvelope> offerAckFuture = new CompletableFuture<>();
@@ -481,7 +486,28 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             sendChunk(context, instanceId, fileId, chunkIndex, content, offset, len, connectionDeadlineMs);
             chunkIndex++;
         }
+        logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
+                startOffset, chunkIndex - startChunk, transferStartedAtNs);
         return true;
+    }
+
+    private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
+                                         int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs) {
+        long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs);
+        long sentBytes = Math.max(0L, totalBytes - startOffset);
+        double throughputMiBps = durationMs > 0
+                ? Math.round(((sentBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                : 0.0;
+        LOG.info(new ObjectMessage(Map.of("Message",
+                "[WS] File transfer complete for " + instanceId
+                        + " file=" + file.fileName()
+                        + " bytes=" + totalBytes
+                        + " chunks=" + chunksSent + "/" + totalChunks
+                        + " chunkBytes=" + chunkBytes
+                        + " resumed=" + (startOffset > 0)
+                        + " resumeOffset=" + startOffset
+                        + " durationMs=" + durationMs
+                        + " throughputMiBps=" + throughputMiBps)));
     }
 
     private void sendChunk(SessionContext context, String instanceId, String fileId,

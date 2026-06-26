@@ -44,6 +44,7 @@ public class StartupWebSocketServer extends WebSocketServer {
     private int expectedChunks;
     private long receivedBytes;
     private long expectedBytes;
+    private long transferStartedAtNs;
 
     public StartupWebSocketServer(int port, String instanceId, String jobId, int capacity) {
         super(new InetSocketAddress(port));
@@ -216,6 +217,9 @@ public class StartupWebSocketServer extends WebSocketServer {
                 expectedChunks = offerTotalChunks;
                 receivedBytes = partialBytes;
                 expectedBytes = offerTotalBytes;
+                if (transferStartedAtNs == 0L) {
+                    transferStartedAtNs = System.nanoTime();
+                }
                 sendFileAckWithResume(conn, envelope.getFileId(), AckStatus.resume, partialBytes, resumeChunk);
                 return;
             }
@@ -230,6 +234,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             expectedChunks = offerTotalChunks;
             receivedBytes = 0;
             expectedBytes = offerTotalBytes;
+            transferStartedAtNs = System.nanoTime();
             // Send explicit ok ack so controller doesn't wait 10s
             sendFileAck(conn, envelope.getFileId(), 0, AckStatus.ok, null);
         } catch (IOException e) {
@@ -297,9 +302,18 @@ public class StartupWebSocketServer extends WebSocketServer {
             Files.move(currentTempFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         File completedFile = targetFile;
+        long durationMs = transferStartedAtNs > 0L
+                ? TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs)
+                : 0L;
+        double throughputMiBps = durationMs > 0
+                ? Math.round(((receivedBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                : 0.0;
+        logger.info("Startup WS harness JAR received bytes={} chunks={}/{} durationMs={} throughputMiBps={}",
+                receivedBytes, receivedChunks, expectedChunks, durationMs, throughputMiBps);
         currentTempFile = null;
         targetFile = null;
         currentFileId = null;
+        transferStartedAtNs = 0L;
         return completedFile;
     }
 
