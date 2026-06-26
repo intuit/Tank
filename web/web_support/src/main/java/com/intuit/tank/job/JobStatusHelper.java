@@ -20,6 +20,7 @@ import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 public class JobStatusHelper {
 
     public static boolean canBeRun(String status) {
+        if (status.equals(JobQueueStatus.Deleted.toString())) return false;
         return (status.equals(JobQueueStatus.Created.toString())
         		|| status.equals(JobQueueStatus.Queued.toString())
         		|| status.equals(JobQueueStatus.Paused.toString())
