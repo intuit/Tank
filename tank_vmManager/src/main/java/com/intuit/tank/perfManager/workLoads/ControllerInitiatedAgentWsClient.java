@@ -47,9 +47,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final int DEFAULT_CHUNK_BYTES =
-            Math.max(1, Integer.getInteger("tank.ws.chunkBytes", 4 * 1024 * 1024));
+            Math.max(1, Integer.getInteger("tank.ws.chunkBytes", 2 * 1024 * 1024));
     private static final int CHUNK_ACK_WINDOW =
-            Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 64));
+            Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 32));
     private static final long MAX_BOOTSTRAP_CONNECTION_MS =
             Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
 
