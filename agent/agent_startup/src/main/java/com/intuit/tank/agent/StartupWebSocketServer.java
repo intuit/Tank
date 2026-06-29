@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -43,6 +44,7 @@ public class StartupWebSocketServer extends WebSocketServer {
     private int expectedChunks;
     private long receivedBytes;
     private long expectedBytes;
+    private long transferStartedAtNs;
 
     public StartupWebSocketServer(int port, String instanceId, String jobId, int capacity) {
         super(new InetSocketAddress(port));
@@ -99,6 +101,16 @@ public class StartupWebSocketServer extends WebSocketServer {
             }
         } catch (Exception e) {
             logger.warn("Failed handling startup WS message: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, ByteBuffer message) {
+        try {
+            AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(message);
+            handleFileChunk(conn, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+        } catch (Exception e) {
+            logger.warn("Failed handling startup WS binary message: {}", e.getMessage(), e);
         }
     }
 
@@ -205,6 +217,9 @@ public class StartupWebSocketServer extends WebSocketServer {
                 expectedChunks = offerTotalChunks;
                 receivedBytes = partialBytes;
                 expectedBytes = offerTotalBytes;
+                if (transferStartedAtNs == 0L) {
+                    transferStartedAtNs = System.nanoTime();
+                }
                 sendFileAckWithResume(conn, envelope.getFileId(), AckStatus.resume, partialBytes, resumeChunk);
                 return;
             }
@@ -219,6 +234,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             expectedChunks = offerTotalChunks;
             receivedBytes = 0;
             expectedBytes = offerTotalBytes;
+            transferStartedAtNs = System.nanoTime();
             // Send explicit ok ack so controller doesn't wait 10s
             sendFileAck(conn, envelope.getFileId(), 0, AckStatus.ok, null);
         } catch (IOException e) {
@@ -228,28 +244,38 @@ public class StartupWebSocketServer extends WebSocketServer {
     }
 
     private synchronized void handleFileChunk(WebSocket conn, AgentWsEnvelope envelope) {
-        if (currentFileStream == null || currentFileId == null || !currentFileId.equals(envelope.getFileId())) {
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, "file_offer_not_found");
-            return;
-        }
-
         try {
             byte[] payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
                     ? new byte[0]
                     : Base64.getDecoder().decode(envelope.getChunkData());
+            handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
+        } catch (Exception e) {
+            closeCurrentFileQuietly();
+            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            harnessJarFuture.completeExceptionally(e);
+        }
+    }
+
+    private synchronized void handleFileChunk(WebSocket conn, String fileId, Integer chunkIndex, byte[] payload) {
+        if (currentFileStream == null || currentFileId == null || !currentFileId.equals(fileId)) {
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
+            return;
+        }
+
+        try {
             currentFileStream.write(payload);
             receivedBytes += payload.length;
             receivedChunks++;
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.chunk_received, null);
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
 
             if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
                 File completedFile = finalizeHarnessJar();
-                sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.complete, null);
+                sendFileAck(conn, fileId, chunkIndex, AckStatus.complete, null);
                 harnessJarFuture.complete(completedFile);
             }
         } catch (Exception e) {
             closeCurrentFileQuietly();
-            sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, e.getMessage());
             harnessJarFuture.completeExceptionally(e);
         }
     }
@@ -276,9 +302,18 @@ public class StartupWebSocketServer extends WebSocketServer {
             Files.move(currentTempFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         File completedFile = targetFile;
+        long durationMs = transferStartedAtNs > 0L
+                ? TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs)
+                : 0L;
+        double throughputMiBps = durationMs > 0
+                ? Math.round(((receivedBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                : 0.0;
+        logger.info("Startup WS harness JAR received bytes={} chunks={}/{} durationMs={} throughputMiBps={}",
+                receivedBytes, receivedChunks, expectedChunks, durationMs, throughputMiBps);
         currentTempFile = null;
         targetFile = null;
         currentFileId = null;
+        transferStartedAtNs = 0L;
         return completedFile;
     }
 
