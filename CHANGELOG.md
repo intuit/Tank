@@ -1,3 +1,16 @@
+# 4.2.12 (Mon Jun 29 2026)
+
+#### 🐛 Bug Fix
+
+- fix: optimize WS file transfer with binary frames and larger chunks [#482](https://github.com/intuit/Tank/pull/482) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.11 (Mon Jun 29 2026)
 
 #### 🐛 Bug Fix
