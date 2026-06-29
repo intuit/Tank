@@ -1,0 +1,30 @@
+{
+  "plugins": [
+    ["maven", { "mavenReleaseGoals": ["--version"],"mavenOptions": ["-DprocessAllModules=true"] }]
+  ],
+  "noVersionPrefix": true,
+  "owner": "intuit",
+  "repo": "Tank",
+  "name": "Kevin McGoldrick",
+  "email": "kevin_mcgoldrick@intuit.com",
+    "labels": [
+      {
+        "name": "major",
+        "changelogTitle": "💥 Breaking Change",
+        "description": "Increment major version for incompatible API changes",
+        "releaseType": "major"
+      },
+      {
+        "name": "minor",
+        "changelogTitle": "✨ Feature",
+        "description": "Add backward-compatible functionality",
+        "releaseType": "minor"
+      },
+      {
+        "name": "patch",
+        "changelogTitle": "🐛 Fix",
+        "description": "Backward-compatible bug fixes",
+        "releaseType": "patch"
+      }
+    ],
+}

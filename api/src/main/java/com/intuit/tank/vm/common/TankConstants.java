@@ -58,6 +58,7 @@ public class TankConstants {
     public static final String KEY_JVM_ARGS = "jvmArgs";
     public static final String KEY_AWS_SECRET_KEY_ID = "AWS_SECRET_KEY_ID";
     public static final String KEY_AWS_SECRET_KEY = "AWS_SECRET_KEY";
+    public static final String KEY_COMMAND_WS_ENABLED = "commandWsEnabled";
 
     public static final String HTTP_CASE_SKIP = "SKIP";
     public static final String HTTP_CASE_SKIPGROUP = "SKIPGROUP";

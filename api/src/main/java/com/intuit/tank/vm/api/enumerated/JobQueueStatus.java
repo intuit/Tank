@@ -36,6 +36,7 @@ public enum JobQueueStatus {
     Paused,
     RampPaused,
     Completed,
-    Aborted
+    Aborted,
+    Deleted
 
 }

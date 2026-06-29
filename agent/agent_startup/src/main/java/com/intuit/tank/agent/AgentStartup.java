@@ -18,10 +18,12 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -40,6 +42,13 @@ public class AgentStartup implements Runnable {
     private static final String API_HARNESS_COMMAND = "./startAgent.sh";
     private static final String METHOD_SUPPORT = "/support-files";
     private static final String TANK_AGENT_DIR = "/opt/tank_agent";
+    private static final String TANK_APP_DIR = "/tmp/tankApp";
+    private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
+    private static final int DEFAULT_AGENT_WS_PORT = 8090;
+    private static final long STARTUP_WS_BOOTSTRAP_WAIT_MS =
+            Long.getLong("tank.ws.startupBootstrapWaitMs", 600_000L);
+    private static final long STARTUP_WS_RESTART_SLEEP_MS =
+            Long.getLong("tank.ws.startupWsRestartSleepMs", 1_000L);
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
 
     private final String controllerBaseUrl;
@@ -52,60 +61,181 @@ public class AgentStartup implements Runnable {
 
     public void run() {
         logger.info("Starting up...");
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
         try {
+            boolean wsEnabled = Boolean.parseBoolean(
+                    AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_COMMAND_WS_ENABLED, "false"));
             logger.info("Starting up: ControllerBaseUrl={}", controllerBaseUrl);
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
-                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
-                    .header("Authorization", "bearer "+token).build();
-            logger.info("Starting up: making call to tank service url to get settings.xml {} {} {}",
-                    controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
-            client.send(request, BodyHandlers.ofFile(Paths.get(TANK_AGENT_DIR, "settings.xml")));
-            logger.info("got settings file...");
-            // Download Support Files
-            request = HttpRequest.newBuilder().uri(URI.create(
-                    controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
-                    .header("Authorization", "bearer "+token).build();
-            logger.info("Making call to tank service url to get support files {} {} {}",
-                    controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
-            int retryCount = 0;
-            while (true) {
-                try (ZipInputStream zip = new ZipInputStream(
-                        client.send(request, BodyHandlers.ofInputStream()).body())) {
-                    ZipEntry entry = zip.getNextEntry();
-                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
-                    while (entry != null) {
-                        String filename = entry.getName();
-                        logger.info("Got file from controller: {}", filename);
-                        Path targetPath = agentDirPath.resolve(filename).normalize();
-                        if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
-                            throw new ZipException("Bad zip entry");
-                        Files.write(targetPath, zip.readAllBytes());
-                        entry = zip.getNextEntry();
+            File harnessJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+            if (wsEnabled) {
+                logger.info("Command WS enabled — starting startup WS server for controller-initiated bootstrap.");
+                harnessJar = receiveHarnessJarOverWs();
+            } else {
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
+                        controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
+                        .header("Authorization", "bearer "+token).build();
+                logger.info("Starting up: making call to tank service url to get settings.xml {} {} {}",
+                        controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
+                client.send(request, BodyHandlers.ofFile(Paths.get(TANK_AGENT_DIR, "settings.xml")));
+                logger.info("got settings file...");
+
+                if (!harnessJar.exists()) {
+                    request = HttpRequest.newBuilder().uri(URI.create(
+                        controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SUPPORT))
+                            .header("Authorization", "bearer "+token).build();
+                    logger.info("Making call to tank service url to get support files {} {} {}",
+                            controllerBaseUrl, SERVICE_RELATIVE_PATH, METHOD_SUPPORT);
+                    int retryCount = 0;
+                    while (true) {
+                        try {
+                            HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+                            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                                throw new IOException("Support files download failed: HTTP " + response.statusCode());
+                            }
+                            try (ZipInputStream zip = new ZipInputStream(response.body())) {
+                                ZipEntry entry = zip.getNextEntry();
+                                Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
+                                boolean extractedEntry = false;
+                                while (entry != null) {
+                                    String filename = entry.getName();
+                                    logger.info("Got file from controller: {}", filename);
+                                    Path targetPath = agentDirPath.resolve(filename).normalize();
+                                    if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
+                                        throw new ZipException("Bad zip entry");
+                                    if (!entry.isDirectory()) {
+                                        Files.write(targetPath, zip.readAllBytes());
+                                        extractedEntry = true;
+                                    }
+                                    entry = zip.getNextEntry();
+                                }
+                                if (!extractedEntry) {
+                                    throw new ZipException("Support files archive contained no files");
+                                }
+                                break;
+                            }
+                        } catch (IOException e) {
+                            logger.error("Error downloading/unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
+                            if (retryCount < FIBONACCI.length) {
+                                Thread.sleep( FIBONACCI[retryCount++] * 1000 );
+                            } else throw e;
+                        }
                     }
-                    break;
-                } catch (EOFException | ZipException e) {
-                    logger.error("Error unzipping support files : retryCount={} : {}", retryCount, e.getMessage());
-                    if (retryCount < FIBONACCI.length) {
-                        Thread.sleep( FIBONACCI[retryCount++] * 1000 );
-                    } else throw e;
                 }
             }
-            // now start the harness
-            String controllerArg = " -http=" + controllerBaseUrl;
-            String jvmArgs = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_JVM_ARGS);
-            logger.info("Starting apiharness with command: {} {} {}",
-                    API_HARNESS_COMMAND, controllerArg, jvmArgs);
-            Runtime.getRuntime().exec(API_HARNESS_COMMAND + controllerArg + " " + jvmArgs);
+            if (!harnessJar.exists()) {
+                throw new IOException(API_HARNESS_JAR + " not found after support files preparation");
+            }
+            launchHarness("Starting apiharness with command: {}");
         } catch (ConnectException ce) {
             logger.error("Error creating connection to {} : this is normal during the bake : {}",
                     controllerBaseUrl, ce.getMessage());
+            launchIfHarnessExists();
         } catch (IOException e) {
-            logger.error("Error Executing API Harness Command: {} : {}", API_HARNESS_COMMAND, e, e);
+            logger.error("Error in AgentStartup: {} : {}", API_HARNESS_COMMAND, e, e);
+            launchIfHarnessExists();
         } catch (InterruptedException ignored) {
         } catch (Exception e) {
             logger.error("Error in AgentStartup {}", e, e);
         }
+    }
+
+    private void copyBakedHarnessJar(File harnessJar) {
+        File[] sources = new File[] {
+                new File(TANK_APP_DIR, API_HARNESS_JAR),
+                new File("/opt", API_HARNESS_JAR),
+                new File("/tmp", API_HARNESS_JAR)
+        };
+        for (File source : sources) {
+            if (!source.exists()) {
+                logger.info("No baked harness jar found at {}", source.getAbsolutePath());
+                continue;
+            }
+            try {
+                File parent = harnessJar.getParentFile();
+                if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                    throw new IOException("Unable to create " + parent.getAbsolutePath());
+                }
+                Files.copy(source.toPath(), harnessJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                logger.info("Copied baked harness jar from {} to {}", source.getAbsolutePath(), harnessJar.getAbsolutePath());
+                return;
+            } catch (IOException e) {
+                logger.warn("Unable to copy baked harness jar from {} : {}", source.getAbsolutePath(), e.getMessage());
+            }
+        }
+    }
+
+    private File receiveHarnessJarOverWs() throws IOException, InterruptedException {
+        long deadlineMs = System.currentTimeMillis() + STARTUP_WS_BOOTSTRAP_WAIT_MS;
+        int restartCount = 0;
+        while (System.currentTimeMillis() < deadlineMs) {
+            StartupWebSocketServer wsServer = new StartupWebSocketServer(
+                    DEFAULT_AGENT_WS_PORT,
+                    AmazonUtil.getInstanceId(),
+                    AmazonUtil.getJobId(),
+                    AmazonUtil.getCapacity());
+            wsServer.setReuseAddr(true);
+            try {
+                wsServer.start();
+                long remainingMs = Math.max(1L, deadlineMs - System.currentTimeMillis());
+                logger.info("Startup WS server listening on port {} — waiting for controller to push harness JAR restartCount={} remainingMs={}",
+                        DEFAULT_AGENT_WS_PORT, restartCount, remainingMs);
+                File harnessJar = wsServer.awaitHarnessJarOrServerStop(remainingMs);
+                if (harnessJar != null && harnessJar.exists()) {
+                    return harnessJar;
+                }
+                if (!wsServer.hasServerStopped()) {
+                    break;
+                }
+                restartCount++;
+                logger.warn("Startup WS server stopped before harness JAR was received — restarting restartCount={} remainingMs={}",
+                        restartCount, Math.max(0L, deadlineMs - System.currentTimeMillis()));
+            } finally {
+                try {
+                    wsServer.stop(1000);
+                    logger.info("Startup WS server stopped");
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+            }
+            long remainingMs = deadlineMs - System.currentTimeMillis();
+            if (remainingMs > 0) {
+                Thread.sleep(Math.min(STARTUP_WS_RESTART_SLEEP_MS, remainingMs));
+            }
+        }
+
+        File harnessJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+        if (!harnessJar.exists()) {
+            copyBakedHarnessJar(harnessJar);
+        }
+        if (harnessJar.exists()) {
+            logger.info("Using pre-existing harness JAR from disk");
+            return harnessJar;
+        }
+        throw new IOException("Harness JAR not received from controller and not found on disk");
+    }
+
+    private void launchIfHarnessExists() {
+        File fallbackJar = new File(TANK_AGENT_DIR, API_HARNESS_JAR);
+        if (fallbackJar.exists()) {
+            logger.info("Harness JAR found on disk despite download failure — launching anyway");
+            try {
+                launchHarness("Starting apiharness with fallback command: {}");
+            } catch (IOException ex) {
+                logger.error("Fallback harness launch also failed: {}", ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void launchHarness(String message) throws IOException {
+        String controllerArg = " -http=" + controllerBaseUrl;
+        String jvmArgs = AmazonUtil.getUserDataAsMap().getOrDefault(TankConstants.KEY_JVM_ARGS, "");
+        String command = API_HARNESS_COMMAND + controllerArg;
+        if (jvmArgs != null && !jvmArgs.isBlank()) {
+            command += " " + jvmArgs;
+        }
+        logger.info(message, command);
+        Runtime.getRuntime().exec(command);
     }
 
     public static void main(String[] args) {

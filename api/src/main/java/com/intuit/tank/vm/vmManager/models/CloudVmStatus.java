@@ -207,6 +207,14 @@ public class CloudVmStatus implements Serializable {
     }
 
     /**
+     * @param instanceId
+     *            the instanceId to set
+     */
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    /**
      * @return the vmRegion
      */
     public VMRegion getVmRegion() {

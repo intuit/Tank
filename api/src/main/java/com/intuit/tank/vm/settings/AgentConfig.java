@@ -64,6 +64,8 @@ public class AgentConfig implements Serializable {
     private static final String KEY_LOG_VARIABLES = "log-variables";
     private static final String KEY_CONNECTION_TIMEOUT = "connection-timeout";
 
+    private static final String KEY_COMMAND_WS_ENABLED = "command-ws-enabled";
+
     private static final String KEY_REQUEST_HEADERS = "request-headers/header";
     // private static final String KEY_RESULT_PROVIDERS =
     // "result-providers/provider";
@@ -334,6 +336,10 @@ public class AgentConfig implements Serializable {
      */
     public long getStatusReportIntervalMilis(long pollTime) {
         return config.getLong(KEY_POLL_TIME_MILIS, pollTime);
+    }
+
+    public boolean isCommandWsEnabled() {
+        return config.getBoolean(KEY_COMMAND_WS_ENABLED, false);
     }
 
 }

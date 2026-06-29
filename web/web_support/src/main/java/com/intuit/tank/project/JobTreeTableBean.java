@@ -21,7 +21,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.intuit.tank.rest.mvc.rest.cloud.JobLockManager;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.models.*;
+import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
@@ -158,15 +161,27 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     public void deleteJobInstance(JobNodeBean bean) {
-        if (bean.isDeleteable()) {
+        if (bean.isDeletable()) {
             try {
-                JobInstance jobInstance = new JobInstanceDao().findById(Integer.valueOf(bean.getId()));
-                Workload workload = new WorkloadDao().findById(jobInstance.getWorkloadId());
-                JobQueue queue = jobQueueDao.findOrCreateForProjectId(workload.getProject().getId());
-                JobInstance instance = queue.getJobs().stream().filter(job -> job.getId() == jobInstance.getId()).findFirst().orElse(null);
-                if (instance != null) {
-                    queue.getJobs().remove(instance);
-                    jobQueueDao.saveOrUpdate(queue);
+                JobInstanceDao jobInstanceDao = new JobInstanceDao();
+                JobInstance jobInstance = jobInstanceDao.findById(Integer.valueOf(bean.getId()));
+                if (jobInstance == null) {
+                    messages.warn("Job not found.");
+                    return;
+                }
+                synchronized (JobLockManager.getLock(bean.getId())) {
+                    jobInstance = jobInstanceDao.findById(Integer.valueOf(bean.getId()));
+                    if (jobInstance == null) {
+                        messages.warn("Job not found.");
+                        return;
+                    }
+                    JobQueueStatus status = jobInstance.getStatus();
+                    if (status != JobQueueStatus.Created) {
+                        messages.warn(bean.getName() + " cannot be deleted.");
+                        return;
+                    }
+                    jobInstance.setStatus(JobQueueStatus.Deleted);
+                    jobInstanceDao.saveOrUpdate(jobInstance);
                 }
                 refreshData();
                 messages.info("Job " + jobInstance.getName() + " has been deleted.");
@@ -553,6 +568,9 @@ public abstract class JobTreeTableBean implements Serializable {
             for (JobInstance jobInstance : jobs) {
 
                 trackerJobs.remove(Integer.toString(jobInstance.getId()));
+                if (jobInstance.getStatus() == JobQueueStatus.Deleted) {
+                    continue; // never show deleted jobs in the tree
+                }
                 if (!filterFinished || jobInstance.getEndTime() == null) {
                     ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
                     pnb.addJob(jobInstanceNode);
@@ -667,13 +685,38 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private List<VMNodeBean> getVMStatus(@Nonnull CloudVmStatusContainer container, boolean hasRights) {
         List<VMNodeBean> vmNodes = new ArrayList<VMNodeBean>();
+        AgentWsCommandSender wsSender = AgentWsCommandSender.getStaticInstance();
         for (CloudVmStatus cloudVmStatus : container.getStatuses()) {
             VMNodeBean vmNode = new VMNodeBean(cloudVmStatus, hasRights, preferencesBean.getDateTimeFormat());
             vmNode.setStatusDetailMap(container.getDetailMap());
             vmNode.setTps(cloudVmStatus.getTotalTps());
+            if (wsSender != null) {
+                String instanceId = cloudVmStatus.getInstanceId();
+                vmNode.setWsState(wsSender.getWsState(instanceId));
+                vmNode.setTransferProgress(wsSender.getTransferProgress(instanceId));
+                vmNode.setLastSeen(formatLastSeen(wsSender.getLastSeen(instanceId)));
+            }
             vmNodes.add(vmNode);
         }
         return vmNodes;
+    }
+
+    private String formatLastSeen(Long lastSeen) {
+        if (lastSeen == null) {
+            return "";
+        }
+        long ageSeconds = Math.max(0L, (System.currentTimeMillis() - lastSeen) / 1000L);
+        if (ageSeconds < 2L) {
+            return "now";
+        }
+        if (ageSeconds < 60L) {
+            return ageSeconds + "s ago";
+        }
+        long ageMinutes = ageSeconds / 60L;
+        if (ageMinutes < 60L) {
+            return ageMinutes + "m ago";
+        }
+        return (ageMinutes / 60L) + "h ago";
     }
 
     public void onNodeExpand(NodeExpandEvent event) {

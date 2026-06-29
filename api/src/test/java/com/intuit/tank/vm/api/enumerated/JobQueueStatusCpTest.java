@@ -25,4 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * @generatedBy CodePro at 9/3/14 3:41 PM
  */
 public class JobQueueStatusCpTest {
+
+    @Test
+    void testDeletedStatusExists() {
+        JobQueueStatus deleted = JobQueueStatus.valueOf("Deleted");
+        assertNotNull(deleted);
+        assertEquals("Deleted", deleted.name());
+    }
 }
