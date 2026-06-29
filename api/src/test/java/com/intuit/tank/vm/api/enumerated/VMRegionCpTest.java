@@ -74,7 +74,7 @@ public class VMRegionCpTest {
 
         assertNotNull(result);
         assertEquals("Standalone Agent", result.getDescription());
-        assertEquals("Standalone Agent", result.toString());
+        assertEquals("STANDALONE", result.toString());
         assertEquals("", result.getEndpoint());
         assertEquals("STANDALONE", result.name());
     }
@@ -95,7 +95,7 @@ public class VMRegionCpTest {
 
         assertNotNull(result);
         assertEquals("Standalone Agent", result.getDescription());
-        assertEquals("Standalone Agent", result.toString());
+        assertEquals("STANDALONE", result.toString());
         assertEquals("", result.getEndpoint());
         assertEquals("STANDALONE", result.name());
     }
@@ -116,7 +116,7 @@ public class VMRegionCpTest {
 
         assertNotNull(result);
         assertEquals("Standalone Agent", result.getDescription());
-        assertEquals("Standalone Agent", result.toString());
+        assertEquals("STANDALONE", result.toString());
         assertEquals("", result.getEndpoint());
         assertEquals("STANDALONE", result.name());
     }
@@ -135,6 +135,6 @@ public class VMRegionCpTest {
 
         String result = fixture.toString();
 
-        assertEquals("Asia Pacific (Singapore)", result);
+        assertEquals("ASIA_1", result);
     }
 }

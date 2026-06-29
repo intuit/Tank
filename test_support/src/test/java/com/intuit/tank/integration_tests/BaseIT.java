@@ -1,6 +1,5 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -12,6 +11,7 @@ import java.time.Duration;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.json.JsonMapper;
 
 public class BaseIT {
 
@@ -30,9 +30,7 @@ public class BaseIT {
     protected static final String ACCEPT_HEADER = "Accept";
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final HttpClient httpClient = getHttpClient();
-
-    protected final ObjectMapper objectMapper = new ObjectMapper();
-
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     protected static HttpClient getHttpClient() {
         return HttpClient.newBuilder()
@@ -107,7 +105,7 @@ public class BaseIT {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error retrieving token from SSM: " + e.getMessage());
+            LOG.error("Error retrieving token from SSM: {}", e.getMessage());
         }
 
         return null;

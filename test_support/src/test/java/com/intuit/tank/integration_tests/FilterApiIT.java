@@ -1,7 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.*;
 
 import java.net.URI;
@@ -16,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilterApiIT extends BaseIT {
 
     private static final String FILTERS_ENDPOINT = "/v2/filters";
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     @Tag("integration")
@@ -55,12 +53,12 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("filters"), "Response should contain 'filters' field");
 
         JsonNode filters = responseBody.get("filters");
         assertTrue(filters.isArray(), "Filters should be an array");
-        assertTrue(filters.size() > 0, "Should contain at least one filter");
+        assertFalse(filters.isEmpty(), "Should contain at least one filter");
 
         // Validate specific known filters from the response
         boolean foundTokenSubmitPath = false;
@@ -75,34 +73,34 @@ public class FilterApiIT extends BaseIT {
 
             // Validate data types
             assertTrue(filter.get("id").isInt(), "Filter ID should be integer");
-            assertTrue(filter.get("name").isTextual(), "Filter name should be string");
+            assertTrue(filter.get("name").isString(), "Filter name should be string");
             assertTrue(filter.get("id").asInt() > 0, "Filter ID should be positive");
-            assertFalse(filter.get("name").asText().trim().isEmpty(), "Filter name should not be empty");
+            assertFalse(filter.get("name").asString().trim().isEmpty(), "Filter name should not be empty");
 
             // ProductName can be null, empty string, or actual value
             JsonNode productNameNode = filter.get("productName");
-            assertTrue(productNameNode.isTextual() || productNameNode.isNull(),
+            assertTrue(productNameNode.isString() || productNameNode.isNull(),
                       "ProductName should be string or null");
 
             // Check for specific known filters
             int filterId = filter.get("id").asInt();
-            String filterName = filter.get("name").asText();
+            String filterName = filter.get("name").asString();
 
             if (filterId == 1 && "Token SUBMIT PATH".equals(filterName)) {
                 foundTokenSubmitPath = true;
-                assertEquals("", filter.get("productName").asText(),
+                assertEquals("", filter.get("productName").asString(),
                            "Token SUBMIT PATH should have empty productName");
             }
 
             if (filterId == 2 && "Remove TTO flash".equals(filterName)) {
                 foundRemoveTTOFlash = true;
-                assertEquals("ShowAll", filter.get("productName").asText(),
+                assertEquals("ShowAll", filter.get("productName").asString(),
                            "Remove TTO flash should have 'ShowAll' productName");
             }
 
             if (filterId == 5 && "Intuit Domain Only".equals(filterName)) {
                 foundIntuitDomainOnly = true;
-                assertEquals("AllProducts", filter.get("productName").asText(),
+                assertEquals("AllProducts", filter.get("productName").asString(),
                            "Intuit Domain Only should have 'AllProducts' productName");
             }
         }
@@ -130,7 +128,7 @@ public class FilterApiIT extends BaseIT {
         for (JsonNode filter : filters) {
             JsonNode productNameNode = filter.get("productName");
             if (!productNameNode.isNull()) {
-                productNames.add(productNameNode.asText());
+                productNames.add(productNameNode.asString());
             }
         }
         assertTrue(productNames.contains("ShowAll"), "Should have filters with 'ShowAll' productName");
@@ -156,12 +154,12 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("filterGroups"), "Response should contain 'filterGroups' field");
 
         JsonNode filterGroups = responseBody.get("filterGroups");
         assertTrue(filterGroups.isArray(), "Filter groups should be an array");
-        assertTrue(filterGroups.size() > 0, "Should contain at least one filter group");
+        assertFalse(filterGroups.isEmpty(), "Should contain at least one filter group");
 
         // Validate specific known filter groups from the response
         boolean foundTTOProdCapacity = false;
@@ -177,28 +175,28 @@ public class FilterApiIT extends BaseIT {
 
             // Validate data types
             assertTrue(filterGroup.get("id").isInt(), "Filter group ID should be integer");
-            assertTrue(filterGroup.get("name").isTextual(), "Filter group name should be string");
+            assertTrue(filterGroup.get("name").isString(), "Filter group name should be string");
             assertTrue(filterGroup.get("id").asInt() > 0, "Filter group ID should be positive");
-            assertFalse(filterGroup.get("name").asText().trim().isEmpty(), "Filter group name should not be empty");
+            assertFalse(filterGroup.get("name").asString().trim().isEmpty(), "Filter group name should not be empty");
 
             // ProductName can be null, empty string, or actual value
             JsonNode productNameNode = filterGroup.get("productName");
-            assertTrue(productNameNode.isTextual() || productNameNode.isNull(),
+            assertTrue(productNameNode.isString() || productNameNode.isNull(),
                       "ProductName should be string or null");
 
             // Check for specific known filter groups
             int filterGroupId = filterGroup.get("id").asInt();
-            String filterGroupName = filterGroup.get("name").asText();
+            String filterGroupName = filterGroup.get("name").asString();
 
             if (filterGroupId == 2 && "TTO Prod Capacity".equals(filterGroupName)) {
                 foundTTOProdCapacity = true;
-                assertEquals("TTO", filterGroup.get("productName").asText(),
+                assertEquals("TTO", filterGroup.get("productName").asString(),
                            "TTO Prod Capacity should have 'TTO' productName");
             }
 
             if (filterGroupId == 3 && "AutomationBaseline".equals(filterGroupName)) {
                 foundAutomationBaseline = true;
-                assertEquals("TTO", filterGroup.get("productName").asText(),
+                assertEquals("TTO", filterGroup.get("productName").asString(),
                            "AutomationBaseline should have 'TTO' productName");
             }
         }
@@ -224,7 +222,7 @@ public class FilterApiIT extends BaseIT {
         boolean foundEmptyProductName = false;
         for (JsonNode filterGroup : filterGroups) {
             JsonNode productNameNode = filterGroup.get("productName");
-            if (!productNameNode.isNull() && productNameNode.asText().isEmpty()) {
+            if (!productNameNode.isNull() && productNameNode.asString().isEmpty()) {
                 foundEmptyProductName = true;
                 break;
             }
@@ -236,7 +234,7 @@ public class FilterApiIT extends BaseIT {
         for (JsonNode filterGroup : filterGroups) {
             JsonNode productNameNode = filterGroup.get("productName");
             if (!productNameNode.isNull()) {
-                productNames.add(productNameNode.asText());
+                productNames.add(productNameNode.asString());
             }
         }
         assertTrue(productNames.contains("TTO"), "Should have filter groups with 'TTO' productName");
@@ -263,7 +261,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode filter = objectMapper.readTree(response.body());
+        JsonNode filter = JSON_MAPPER.readTree(response.body());
         assertEquals(filterId, filter.get("id").asInt(), "Should return correct filter ID");
         assertTrue(filter.has("name"), "Filter should have name field");
         assertTrue(filter.has("productName"), "Filter should have productName field");
@@ -309,7 +307,7 @@ public class FilterApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode filterGroup = objectMapper.readTree(response.body());
+        JsonNode filterGroup = JSON_MAPPER.readTree(response.body());
         assertEquals(filterGroupId, filterGroup.get("id").asInt(), "Should return correct filter group ID");
         assertTrue(filterGroup.has("name"), "Filter group should have name field");
         assertTrue(filterGroup.has("productName"), "Filter group should have productName field");
@@ -354,7 +352,7 @@ public class FilterApiIT extends BaseIT {
         HttpResponse<String> copyResponse = httpClient.send(copyRequest, BodyHandlers.ofString());
         assertEquals(201, copyResponse.statusCode(), "Should successfully copy script");
 
-        Map<String, String> responseBody = objectMapper.readValue(copyResponse.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(copyResponse.body(), Map.class);
         assertNotNull(responseBody.get("message"), "Copy response should contain message");
 
         String message = responseBody.get("message");
@@ -392,7 +390,7 @@ public class FilterApiIT extends BaseIT {
             HttpResponse<String> response = httpClient.send(applyFiltersRequest, BodyHandlers.ofString());
 
             // Assert
-            assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK for successful filter application");
+            assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for successful filter application");
             assertTrue(response.body().contains("applied") || response.body().contains("success") || response.body().contains("filter"),
                           "Response should indicate successful filter application");
         } finally {
