@@ -1,3 +1,16 @@
+# 4.2.11 (Mon Jun 29 2026)
+
+#### 🐛 Bug Fix
+
+- Fix apiharness logging config packaging [#489](https://github.com/intuit/Tank/pull/489) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.10 (Wed May 27 2026)
 
 #### 🐛 Bug Fix
