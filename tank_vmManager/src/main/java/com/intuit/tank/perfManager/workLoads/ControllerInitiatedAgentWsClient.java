@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
@@ -56,7 +57,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, CompletableFuture<AgentWsEnvelope>> pendingAcks = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, PendingChunkAck> pendingChunkAcks = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Boolean> fileTransferReady = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> agentLastSeen = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentWsState = new ConcurrentHashMap<>();
@@ -411,7 +411,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Bootstrap transfer budget reached for " + instanceId
                             + " during ack wait — closing cleanly to resume")));
-            pendingChunkAcks.remove(instanceId);
+            context.drainSendCredits();
             return false;
         }
     }
@@ -437,7 +437,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 totalBytes,
                 totalChunks,
                 chunkBytes,
-                file.defaultDataFile()));
+                file.defaultDataFile(),
+                CHUNK_ACK_WINDOW));
 
         if (content == null || content.length == 0) {
             pendingAcks.remove(fileId);
@@ -486,6 +487,13 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             sendChunk(context, instanceId, fileId, chunkIndex, content, offset, len, connectionDeadlineMs);
             chunkIndex++;
         }
+        // Drain the pipelined send tail so any chunk send failure surfaces here and the bytes are
+        // durably queued on the socket before we report the transfer complete.
+        try {
+            context.sendTail.join();
+        } catch (Exception e) {
+            throw new IOException("Failed sending WS file chunks for " + instanceId, e);
+        }
         logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
                 startOffset, chunkIndex - startChunk, transferStartedAtNs);
         return true;
@@ -513,51 +521,57 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private void sendChunk(SessionContext context, String instanceId, String fileId,
                            int chunkIndex, byte[] bytes, int offset, int len, long connectionDeadlineMs)
             throws IOException, InterruptedException {
-        CompletableFuture<Void> gate = null;
-        if ((chunkIndex + 1) % CHUNK_ACK_WINDOW == 0) {
-            gate = new CompletableFuture<>();
-            pendingChunkAcks.put(instanceId, new PendingChunkAck(fileId, chunkIndex, gate));
-        }
+        // Credit-based sliding window: stay at most CHUNK_ACK_WINDOW chunks ahead of the last
+        // acked window boundary. Block (acquiring a credit) only when the sender has run that
+        // far ahead, rather than draining to a single ack every window. The agent acks on each
+        // window boundary ((chunkIndex+1) % CHUNK_ACK_WINDOW == 0) and on completion; each such
+        // ack restores a window's worth of credits via releaseSendCredit().
+        acquireSendCredit(context, instanceId, connectionDeadlineMs);
+        // Enqueue the send without blocking the caller; failures surface on the chained tail
+        // and are observed by the final await in sendFile().
         sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
-        if (gate != null) {
-            try {
-                long ackTimeoutMs = 30_000L;
-                if (connectionDeadlineMs > 0) {
-                    long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
-                    if (remainingMs <= 0) {
-                        throw new BootstrapBudgetExceededException(
-                                "Bootstrap connection budget reached during chunk ack wait");
-                    }
-                    ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
-                }
-                gate.get(ackTimeoutMs, TimeUnit.MILLISECONDS);
-            } catch (BootstrapBudgetExceededException e) {
-                throw e;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw e;
-            } catch (java.util.concurrent.TimeoutException e) {
-                if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
-                    throw new BootstrapBudgetExceededException(
-                            "Bootstrap connection budget reached while waiting for chunk ack");
-                }
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
-            } catch (Exception e) {
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
+    }
+
+    private void acquireSendCredit(SessionContext context, String instanceId, long connectionDeadlineMs)
+            throws IOException, InterruptedException {
+        long ackTimeoutMs = 30_000L;
+        if (connectionDeadlineMs > 0) {
+            long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
+            if (remainingMs <= 0) {
+                throw new BootstrapBudgetExceededException(
+                        "Bootstrap connection budget reached during chunk ack wait");
             }
+            ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
+        }
+        if (!context.sendCredits.tryAcquire(ackTimeoutMs, TimeUnit.MILLISECONDS)) {
+            if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
+                throw new BootstrapBudgetExceededException(
+                        "Bootstrap connection budget reached while waiting for chunk ack");
+            }
+            throw new IOException("Timed out waiting for WS chunk ack for " + instanceId);
         }
     }
 
+    /** Pipelined send: chain on the per-session tail so the next chunk is queued the instant the
+     *  previous send completes (JDK WebSocket requires that ordering) without blocking the caller. */
     private void sendBinaryChunk(SessionContext context, ByteBuffer payload) {
         synchronized (context.webSocket) {
-            context.webSocket.sendBinary(payload, true).join();
+            context.sendTail = context.sendTail.thenCompose(ws -> ws.sendBinary(payload, true));
         }
     }
 
     private void sendEnvelope(SessionContext context, AgentWsEnvelope envelope) throws IOException {
+        String json = envelope.toJson();
+        CompletableFuture<WebSocket> sent;
         synchronized (context.webSocket) {
-            context.webSocket.sendText(envelope.toJson(), true).join();
+            // Order text frames behind any queued binary chunks on the same tail so offer/config
+            // frames never overtake the bytes they describe.
+            sent = context.sendTail.thenCompose(ws -> ws.sendText(json, true));
+            context.sendTail = sent;
         }
+        // Control frames (hello/offer/command/ack/close) keep synchronous error semantics: block
+        // until this frame is on the wire. Bulk chunks (sendBinaryChunk) stay pipelined.
+        sent.join();
     }
 
     private void handleText(String instanceId, WebSocket webSocket, String text,
@@ -625,11 +639,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(instanceId, true);
             agentWsState.put(instanceId, "ready");
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.complete(null);
-            }
+            context.releaseSendCredit();
             context.transferCompleteFuture.complete(null);
             return;
         }
@@ -642,18 +652,12 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
         }
 
+        // Each window-boundary / complete ack returns one send credit, letting the pipelined
+        // sender advance another chunk. A failed chunk fails the whole transfer.
         if (envelope.getStatus() == AckStatus.complete || envelope.getStatus() == AckStatus.chunk_received) {
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.complete(null);
-            }
+            context.releaseSendCredit();
         } else if (envelope.getStatus() == AckStatus.failed) {
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.completeExceptionally(new IOException(envelope.getError()));
-            }
+            context.drainSendCredits();
             context.transferCompleteFuture.completeExceptionally(new IOException(envelope.getError()));
         }
     }
@@ -695,10 +699,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
         context.markClosed();
         fileTransferReady.remove(instanceId);
-        PendingChunkAck pending = pendingChunkAcks.remove(instanceId);
-        if (pending != null) {
-            pending.future.completeExceptionally(new IOException("WS connection closed for " + instanceId));
-        }
+        // Unblock any sender parked on send credits for this torn-down session.
+        context.drainSendCredits();
         agentWsState.put(instanceId, "disconnected");
     }
 
@@ -756,6 +758,12 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private final ConcurrentHashMap<String, Integer> completedFiles = new ConcurrentHashMap<>();
         private final AtomicBoolean closed = new AtomicBoolean(false);
         private final long openedAtMs;
+        // Credit-based send window: sender may run up to CHUNK_ACK_WINDOW chunks ahead of the
+        // latest boundary ack; each window-boundary/complete ack releases one credit.
+        private final Semaphore sendCredits = new Semaphore(CHUNK_ACK_WINDOW);
+        // Tail of the pipelined send chain; each send is chained onto the previous so the JDK
+        // WebSocket "previous send must complete first" contract holds without blocking callers.
+        private volatile CompletableFuture<WebSocket> sendTail;
         private volatile String instanceId;
         private volatile String jobId;
         private volatile int expectedFiles;
@@ -766,6 +774,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             this.webSocket = webSocket;
             this.helloFuture = helloFuture;
             this.openedAtMs = System.currentTimeMillis();
+            this.sendTail = CompletableFuture.completedFuture(webSocket);
+        }
+
+        /** A boundary (or complete) ack confirms a whole window of chunks; restore the window's
+         *  worth of credits, capped at the ceiling so duplicate/extra acks can't over-release. */
+        private synchronized void releaseSendCredit() {
+            int deficit = CHUNK_ACK_WINDOW - sendCredits.availablePermits();
+            if (deficit > 0) {
+                sendCredits.release(Math.min(CHUNK_ACK_WINDOW, deficit));
+            }
+        }
+
+        /** Unblock any sender waiting on credits when the session is torn down. */
+        private void drainSendCredits() {
+            sendCredits.release(CHUNK_ACK_WINDOW);
         }
 
         private boolean isOpen() {
@@ -810,22 +833,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     }
 
     private record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
-    }
-
-    private static class PendingChunkAck {
-        private final String fileId;
-        private final int chunkIndex;
-        private final CompletableFuture<Void> future;
-
-        private PendingChunkAck(String fileId, int chunkIndex, CompletableFuture<Void> future) {
-            this.fileId = fileId;
-            this.chunkIndex = chunkIndex;
-            this.future = future;
-        }
-
-        private boolean matches(String fileId, Integer chunkIndex) {
-            return this.fileId.equals(fileId) && chunkIndex != null && this.chunkIndex == chunkIndex;
-        }
     }
 
     private static class BootstrapBudgetExceededException extends IOException {

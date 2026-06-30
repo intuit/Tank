@@ -220,6 +220,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
                     envelope.getTotalBytes() != null ? envelope.getTotalBytes() : 0L,
                     envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0,
                     Boolean.TRUE.equals(envelope.getDefaultDataFile()),
+                    envelope.getAckEvery() != null ? envelope.getAckEvery() : 0,
                     new FileOutputStream(tempFile)
             );
             incomingFiles.put(fileId, state);
@@ -264,7 +265,13 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             state.receivedBytes += payload.length;
             state.receivedChunks++;
 
-            sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
+            // Ack only on the sender's window boundary (every ackEvery chunks). The completion ack
+            // below covers the final partial window. ackEvery <= 0 means legacy ack-every-chunk.
+            boolean boundary = state.ackEvery <= 0
+                    || (chunkIndex != null && (chunkIndex + 1) % state.ackEvery == 0);
+            if (boundary) {
+                sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
+            }
 
             if (state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks) {
                 finalizeFile(state);
@@ -498,6 +505,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         private final long totalBytes;
         private final int totalChunks;
         private final boolean defaultDataFile;
+        private final int ackEvery;
         private final OutputStream outputStream;
         private final long transferStartedAtNs;
         private long receivedBytes;
@@ -505,7 +513,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
 
         private IncomingFileState(String fileType, String fileName, File targetFile, File tempFile,
                                   long totalBytes, int totalChunks, boolean defaultDataFile,
-                                  OutputStream outputStream) {
+                                  int ackEvery, OutputStream outputStream) {
             this.fileType = fileType;
             this.fileName = fileName;
             this.targetFile = targetFile;
@@ -513,6 +521,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             this.totalBytes = totalBytes;
             this.totalChunks = totalChunks;
             this.defaultDataFile = defaultDataFile;
+            this.ackEvery = ackEvery;
             this.outputStream = outputStream;
             this.transferStartedAtNs = System.nanoTime();
         }

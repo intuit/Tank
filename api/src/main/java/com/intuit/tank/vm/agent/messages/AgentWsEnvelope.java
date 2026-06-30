@@ -110,6 +110,12 @@ public class AgentWsEnvelope {
     @JsonProperty("chunkBytes")
     private Integer chunkBytes;
 
+    // How often the receiver should send a chunk_received ack: once every N chunks (on the
+    // boundary where (chunkIndex+1) % ackEvery == 0). Lets the sender's credit window advance
+    // without an ack per chunk. Null/absent => ack every chunk (legacy behavior).
+    @JsonProperty("ackEvery")
+    private Integer ackEvery;
+
     @JsonProperty("isDefaultDataFile")
     private Boolean defaultDataFile;
 
@@ -206,6 +212,9 @@ public class AgentWsEnvelope {
 
     public Integer getChunkBytes() { return chunkBytes; }
     public void setChunkBytes(Integer chunkBytes) { this.chunkBytes = chunkBytes; }
+
+    public Integer getAckEvery() { return ackEvery; }
+    public void setAckEvery(Integer ackEvery) { this.ackEvery = ackEvery; }
 
     public Boolean getDefaultDataFile() { return defaultDataFile; }
     public void setDefaultDataFile(Boolean defaultDataFile) { this.defaultDataFile = defaultDataFile; }
@@ -376,6 +385,13 @@ public class AgentWsEnvelope {
     public static AgentWsEnvelope fileOffer(String instanceId, String jobId, String fileId, String fileType,
                                             String fileName, long totalBytes, int totalChunks, int chunkBytes,
                                             Boolean defaultDataFile) {
+        return fileOffer(instanceId, jobId, fileId, fileType, fileName, totalBytes, totalChunks,
+                chunkBytes, defaultDataFile, null);
+    }
+
+    public static AgentWsEnvelope fileOffer(String instanceId, String jobId, String fileId, String fileType,
+                                            String fileName, long totalBytes, int totalChunks, int chunkBytes,
+                                            Boolean defaultDataFile, Integer ackEvery) {
         AgentWsEnvelope env = new AgentWsEnvelope();
         env.setType(Type.file_offer);
         env.setInstanceId(instanceId);
@@ -387,6 +403,7 @@ public class AgentWsEnvelope {
         env.setTotalBytes(totalBytes);
         env.setTotalChunks(totalChunks);
         env.setDefaultDataFile(defaultDataFile);
+        env.setAckEvery(ackEvery);
         env.setSentAtMs(System.currentTimeMillis());
         return env;
     }

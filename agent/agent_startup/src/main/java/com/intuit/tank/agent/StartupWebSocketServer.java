@@ -45,6 +45,8 @@ public class StartupWebSocketServer extends WebSocketServer {
     private long receivedBytes;
     private long expectedBytes;
     private long transferStartedAtNs;
+    // Ack every N chunks (the sender's credit window). 0 => legacy ack-every-chunk.
+    private int ackEvery;
 
     public StartupWebSocketServer(int port, String instanceId, String jobId, int capacity) {
         super(new InetSocketAddress(port));
@@ -185,6 +187,7 @@ public class StartupWebSocketServer extends WebSocketServer {
         long offerTotalBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L;
         int offerTotalChunks = envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0;
         int offerChunkBytes = envelope.getChunkBytes() != null ? envelope.getChunkBytes() : 0;
+        ackEvery = envelope.getAckEvery() != null ? envelope.getAckEvery() : 0;
         try {
             File agentDir = new File(TANK_AGENT_DIR);
             if (!agentDir.exists() && !agentDir.mkdirs()) {
@@ -266,7 +269,12 @@ public class StartupWebSocketServer extends WebSocketServer {
             currentFileStream.write(payload);
             receivedBytes += payload.length;
             receivedChunks++;
-            sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
+            // Ack only on the sender's window boundary; the completion ack covers the final window.
+            boolean boundary = ackEvery <= 0
+                    || (chunkIndex != null && (chunkIndex + 1) % ackEvery == 0);
+            if (boundary) {
+                sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
+            }
 
             if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
                 File completedFile = finalizeHarnessJar();
