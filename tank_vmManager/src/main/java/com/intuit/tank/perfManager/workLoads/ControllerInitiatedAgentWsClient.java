@@ -528,15 +528,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private void sendChunk(SessionContext context, ActiveTransfer transfer, String instanceId, String fileId,
                            int chunkIndex, byte[] bytes, int offset, int len, long connectionDeadlineMs)
             throws IOException, InterruptedException {
-        // Credit-based sliding window: stay at most CHUNK_ACK_WINDOW chunks ahead of the highest
-        // chunk the receiver has confirmed. Block (acquiring a credit) only when the sender has run
-        // that far ahead, rather than draining to a single ack every window. The agent acks on each
-        // window boundary ((chunkIndex+1) % CHUNK_ACK_WINDOW == 0) and on completion; each ack
-        // advances the confirmed watermark and returns the matching number of credits. acquire()
-        // also fails fast if the transfer was marked failed (failed ack / close / send error).
         acquireSendCredit(transfer, instanceId, connectionDeadlineMs);
-        // Enqueue the send without blocking the caller; a send failure marks the transfer failed
-        // (waking any blocked sender) and also surfaces on the final await in sendFile().
         sendBinaryChunk(context, transfer, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
     }
 
