@@ -267,9 +267,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
 
             // Ack only on the sender's window boundary (every ackEvery chunks). The completion ack
             // below covers the final partial window. ackEvery <= 0 means legacy ack-every-chunk.
-            boolean boundary = state.ackEvery <= 0
-                    || (chunkIndex != null && (chunkIndex + 1) % state.ackEvery == 0);
-            if (boundary) {
+            if (shouldAckChunk(chunkIndex, state.ackEvery)) {
                 sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
             }
 
@@ -284,6 +282,10 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             state.closeQuietly();
             sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, e.getMessage());
         }
+    }
+
+    static boolean shouldAckChunk(Integer chunkIndex, int ackEvery) {
+        return ackEvery <= 0 || (chunkIndex != null && (chunkIndex + 1) % ackEvery == 0);
     }
 
     private void markFileComplete(WebSocket connection, String fileId, Integer chunkIndex) {

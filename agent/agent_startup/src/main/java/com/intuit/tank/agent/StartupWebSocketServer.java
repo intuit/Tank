@@ -270,9 +270,7 @@ public class StartupWebSocketServer extends WebSocketServer {
             receivedBytes += payload.length;
             receivedChunks++;
             // Ack only on the sender's window boundary; the completion ack covers the final window.
-            boolean boundary = ackEvery <= 0
-                    || (chunkIndex != null && (chunkIndex + 1) % ackEvery == 0);
-            if (boundary) {
+            if (shouldAckChunk(chunkIndex, ackEvery)) {
                 sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
             }
 
@@ -286,6 +284,10 @@ public class StartupWebSocketServer extends WebSocketServer {
             sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, e.getMessage());
             harnessJarFuture.completeExceptionally(e);
         }
+    }
+
+    static boolean shouldAckChunk(Integer chunkIndex, int ackEvery) {
+        return ackEvery <= 0 || (chunkIndex != null && (chunkIndex + 1) % ackEvery == 0);
     }
 
     private void handlePing(WebSocket conn, AgentWsEnvelope envelope) {

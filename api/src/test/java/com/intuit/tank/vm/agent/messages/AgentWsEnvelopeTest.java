@@ -146,6 +146,20 @@ public class AgentWsEnvelopeTest {
         assertEquals(3, env.getTotalChunks());
         assertEquals(512, env.getChunkBytes());
         assertEquals(false, env.getDefaultDataFile());
+        assertNull(env.getAckEvery());
+    }
+
+    @Test
+    public void testFileOfferFactoryWithAckEvery() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.fileOffer("i-123", "job-1", "file-1", "script",
+                "script.xml", 1024L, 3, 512, false, 32);
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertTrue(json.contains("\"ackEvery\":32"));
+        assertEquals(32, env.getAckEvery());
+        assertEquals(32, parsed.getAckEvery());
     }
 
     @Test

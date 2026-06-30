@@ -861,7 +861,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
      * chunk and confirmThrough() returns credits as acks advance the confirmed watermark. Failure
      * is sticky: once fail() is called, acquire() throws immediately and any blocked sender wakes.
      */
-    private static class ActiveTransfer {
+    static class ActiveTransfer {
         private final String fileId;
         private final Semaphore credits = new Semaphore(CHUNK_ACK_WINDOW);
         private final AtomicBoolean failed = new AtomicBoolean(false);
@@ -869,20 +869,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         // Highest chunk index confirmed by an ack so far; -1 before any ack. Guarded by `this`.
         private int highestAckedChunk = -1;
 
-        private ActiveTransfer(String fileId) {
+        ActiveTransfer(String fileId) {
             this.fileId = fileId;
         }
 
         /** Acquire one credit before queueing a chunk; fails fast if the transfer was marked failed
          *  before or while waiting. Returns false on timeout so the caller can decide how to fail. */
-        private boolean acquire(long timeoutMs) throws IOException, InterruptedException {
+        boolean acquire(long timeoutMs) throws IOException, InterruptedException {
             checkFailed();
             boolean got = credits.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
             checkFailed();
             return got;
         }
 
-        private void checkFailed() throws IOException {
+        void checkFailed() throws IOException {
             if (failed.get()) {
                 throw new IOException("WS file transfer failed for " + fileId
                         + (failureReason != null ? ": " + failureReason : ""));
@@ -891,7 +891,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         /** Advance the confirmed watermark to chunkIndex and release one credit per newly-confirmed
          *  chunk. Lower/duplicate indices release nothing, so cross-signal and stale acks are safe. */
-        private synchronized void confirmThrough(Integer chunkIndex) {
+        synchronized void confirmThrough(Integer chunkIndex) {
             if (chunkIndex == null || chunkIndex <= highestAckedChunk) {
                 return;
             }
@@ -905,12 +905,16 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         /** Mark failed and wake any blocked sender. Idempotent; first reason wins. */
-        private void fail(String reason) {
+        void fail(String reason) {
             if (failed.compareAndSet(false, true)) {
                 failureReason = reason;
             }
             // Always unblock a parked acquire(), even on repeat calls.
             credits.release(CHUNK_ACK_WINDOW);
+        }
+
+        int availableCredits() {
+            return credits.availablePermits();
         }
     }
 
