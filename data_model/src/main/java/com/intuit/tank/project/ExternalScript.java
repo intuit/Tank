@@ -29,6 +29,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.envers.Audited;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 @Entity
 @Audited
 @Table(name = "external_script",
@@ -36,6 +38,11 @@ import org.hibernate.envers.Audited;
 public class ExternalScript extends OwnableEntity implements Comparable<ExternalScript> {
 
     private static final long serialVersionUID = 1L;
+
+    // Cache ScriptEngine instances to avoid expensive recreation
+    // Thread-safe: ConcurrentHashMap + ScriptEngine reuse is safe in Nashorn 
+    private static final ConcurrentHashMap<String, ScriptEngine> ENGINE_CACHE = new ConcurrentHashMap<>();
+    private static final ScriptEngineManager SCRIPT_ENGINE_MANAGER = new ScriptEngineManager();
 
     @Column(name = "name", length = 255, nullable = false)
     @NotNull
@@ -88,8 +95,31 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
         this.productName = productName;
     }
 
+    /**
+     * Gets a cached ScriptEngine for this script's file extension.
+     *
+     * Thread Safety: ConcurrentHashMap.computeIfAbsent is thread-safe.
+     * ScriptEngine reuse is safe for Nashorn (read operations are thread-safe,
+     * write operations use isolated ScriptContext in ScriptRunner).
+     * 
+     * @return cached ScriptEngine instance for this script's extension
+     * @throws IllegalStateException if no ScriptEngine is available for the extension
+     */
     public ScriptEngine getEngine() {
-        return new ScriptEngineManager().getEngineByExtension(FilenameUtils.getExtension(name));
+        String extension = FilenameUtils.getExtension(name);
+        if (extension == null || extension.isEmpty()) {
+            extension = "js"; // Default to JavaScript
+        }
+        
+        return ENGINE_CACHE.computeIfAbsent(extension, ext -> {
+            ScriptEngine engine = SCRIPT_ENGINE_MANAGER.getEngineByExtension(ext);
+            if (engine == null) {
+                throw new IllegalStateException(
+                    String.format("No ScriptEngine found for extension: %s (script: %s)", ext, name)
+                );
+            }
+            return engine;
+        });
     }
 
     /**
