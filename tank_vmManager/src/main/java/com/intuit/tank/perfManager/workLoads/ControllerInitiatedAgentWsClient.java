@@ -483,6 +483,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         int chunkIndex = startChunk;
+        long chunkLoopStartNs = System.nanoTime();
         for (int offset = startOffset; offset < content.length; offset += chunkBytes) {
             if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
                 LOG.info(new ObjectMessage(Map.of("Message",
@@ -502,20 +503,24 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         } catch (Exception e) {
             throw new IOException("Failed sending WS file chunks for " + instanceId, e);
         }
+        long sendDrainMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - chunkLoopStartNs);
         // Surface a receiver-side failure (failed ack) that arrived while we were sending.
         transfer.checkFailed();
         logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
-                startOffset, chunkIndex - startChunk, transferStartedAtNs, offerRttMs);
+                startOffset, chunkIndex - startChunk, transferStartedAtNs, offerRttMs, sendDrainMs);
         return true;
     }
 
     private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
                                          int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs,
-                                         long linkRttMs) {
+                                         long linkRttMs, long sendDrainMs) {
         long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs);
         long sentBytes = Math.max(0L, totalBytes - startOffset);
         double throughputMiBps = durationMs > 0
                 ? Math.round(((sentBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                : 0.0;
+        double sendMiBps = sendDrainMs > 0
+                ? Math.round(((sentBytes / (1024.0 * 1024.0)) / (sendDrainMs / 1000.0)) * 100.0) / 100.0
                 : 0.0;
         LOG.info(new ObjectMessage(Map.of("Message",
                 "[WS] File transfer complete for " + instanceId
@@ -526,7 +531,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                         + " resumed=" + (startOffset > 0)
                         + " resumeOffset=" + startOffset
                         + " durationMs=" + durationMs
+                        + " sendDrainMs=" + sendDrainMs
                         + " linkRttMs=" + (linkRttMs >= 0 ? linkRttMs : "unknown")
+                        + " sendMiBps=" + sendMiBps
                         + " throughputMiBps=" + throughputMiBps)));
     }
 
