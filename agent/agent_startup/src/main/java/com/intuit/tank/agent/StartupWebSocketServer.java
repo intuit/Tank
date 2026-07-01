@@ -9,8 +9,8 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -36,12 +36,17 @@ public class StartupWebSocketServer extends WebSocketServer {
     private final CompletableFuture<Void> serverStoppedFuture = new CompletableFuture<>();
 
     private WebSocket currentFileConnection;
-    private FileOutputStream currentFileStream;
+    // Positioned-write file: chunks arriving out of order across parallel connections are written at
+    // chunkIndex * chunkBytes. The seek+write is guarded by fileWriteLock (not the whole message
+    // handler) so N connection threads can be in flight without serializing on a single big lock.
+    private RandomAccessFile currentRaf;
+    private final Object fileWriteLock = new Object();
     private File currentTempFile;
     private File targetFile;
     private String currentFileId;
     private int receivedChunks;
     private int expectedChunks;
+    private int chunkBytes;
     private long receivedBytes;
     private long expectedBytes;
     private long transferStartedAtNs;
@@ -197,44 +202,20 @@ public class StartupWebSocketServer extends WebSocketServer {
             targetFile = new File(agentDir, API_HARNESS_JAR);
             currentTempFile = new File(targetFile.getAbsolutePath() + ".part");
 
-            // Check for resumable partial file from a previous failed transfer
-            if (currentTempFile.exists() && offerTotalBytes > 0 && offerChunkBytes > 0
-                    && currentTempFile.length() > 0 && currentTempFile.length() < offerTotalBytes) {
-                long partialBytes = currentTempFile.length();
-                // Truncate to safe chunk boundary
-                long safeResumeOffset = partialBytes - (partialBytes % offerChunkBytes);
-                if (safeResumeOffset != partialBytes) {
-                    logger.info("Truncating .part from {} to {} (chunk boundary alignment, chunkBytes={})",
-                            partialBytes, safeResumeOffset, offerChunkBytes);
-                    try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(currentTempFile, "rw")) {
-                        raf.setLength(safeResumeOffset);
-                    }
-                    partialBytes = safeResumeOffset;
-                }
-                int resumeChunk = (int) (partialBytes / offerChunkBytes);
-                logger.info("Resumable .part file found: {} bytes={}/{} resumeChunk={} chunkBytes={}",
-                        currentTempFile.getAbsolutePath(), partialBytes, offerTotalBytes, resumeChunk, offerChunkBytes);
-                currentFileStream = new FileOutputStream(currentTempFile, true); // append
-                currentFileId = envelope.getFileId();
-                receivedChunks = resumeChunk;
-                expectedChunks = offerTotalChunks;
-                receivedBytes = partialBytes;
-                expectedBytes = offerTotalBytes;
-                if (transferStartedAtNs == 0L) {
-                    transferStartedAtNs = System.nanoTime();
-                }
-                sendFileAckWithResume(conn, envelope.getFileId(), AckStatus.resume, partialBytes, resumeChunk);
-                return;
-            }
-
-            // Fresh transfer — delete stale .part if any
+            // PROTOTYPE: parallel connections write chunks out of order to absolute offsets, so a
+            // fresh preallocated file is used every time. The old .part-length-based resume is
+            // incompatible with a sparse (holey) file and is disabled here.
             if (currentTempFile.exists()) {
                 currentTempFile.delete();
             }
-            currentFileStream = new FileOutputStream(currentTempFile);
+            currentRaf = new RandomAccessFile(currentTempFile, "rw");
+            if (offerTotalBytes > 0) {
+                currentRaf.setLength(offerTotalBytes);
+            }
             currentFileId = envelope.getFileId();
             receivedChunks = 0;
             expectedChunks = offerTotalChunks;
+            chunkBytes = offerChunkBytes;
             receivedBytes = 0;
             expectedBytes = offerTotalBytes;
             transferStartedAtNs = System.nanoTime();
@@ -259,22 +240,40 @@ public class StartupWebSocketServer extends WebSocketServer {
         }
     }
 
-    private synchronized void handleFileChunk(WebSocket conn, String fileId, Integer chunkIndex, byte[] payload) {
-        if (currentFileStream == null || currentFileId == null || !currentFileId.equals(fileId)) {
+    // NOT synchronized on the method: N connection threads may deliver chunks concurrently. Only the
+    // seek+write and the counter update are guarded (fileWriteLock), so connections run in parallel.
+    private void handleFileChunk(WebSocket conn, String fileId, Integer chunkIndex, byte[] payload) {
+        if (currentRaf == null || currentFileId == null || !currentFileId.equals(fileId)) {
             sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
             return;
         }
 
         try {
-            currentFileStream.write(payload);
-            receivedBytes += payload.length;
-            receivedChunks++;
+            long received;
+            boolean complete;
+            synchronized (fileWriteLock) {
+                if (payload.length > 0 && chunkBytes > 0) {
+                    currentRaf.seek((long) chunkIndex * chunkBytes);
+                    currentRaf.write(payload);
+                    receivedBytes += payload.length;
+                }
+                receivedChunks++;
+                received = receivedBytes;
+                complete = expectedBytes > 0 && received >= expectedBytes && currentRaf != null;
+                // One-shot: null out currentRaf under the lock so only one thread finalizes.
+                if (complete) {
+                    // leave currentRaf set; finalize closes it — but guard against double-finalize
+                    // by clearing currentFileId here atomically with the completion decision.
+                    currentFileId = null;
+                }
+            }
+
             // Ack only on the sender's window boundary; the completion ack covers the final window.
             if (shouldAckChunk(chunkIndex, ackEvery)) {
                 sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
             }
 
-            if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
+            if (complete) {
                 File completedFile = finalizeHarnessJar();
                 sendFileAck(conn, fileId, chunkIndex, AckStatus.complete, null);
                 harnessJarFuture.complete(completedFile);
@@ -300,8 +299,12 @@ public class StartupWebSocketServer extends WebSocketServer {
     }
 
     private File finalizeHarnessJar() throws IOException {
-        currentFileStream.close();
-        currentFileStream = null;
+        synchronized (fileWriteLock) {
+            if (currentRaf != null) {
+                currentRaf.close();
+                currentRaf = null;
+            }
+        }
         if (expectedBytes >= 0 && expectedBytes != receivedBytes) {
             throw new IOException("file size mismatch expected=" + expectedBytes + " actual=" + receivedBytes);
         }
@@ -336,16 +339,6 @@ public class StartupWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void sendFileAckWithResume(WebSocket conn, String fileId, AckStatus status, long resumeOffset, int resumeChunk) {
-        try {
-            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, resumeChunk, status, null);
-            ack.setResumeOffset(resumeOffset);
-            conn.send(ack.toJson());
-        } catch (Exception e) {
-            logger.warn("Failed to send startup WS resume ack for {}: {}", fileId, e.getMessage());
-        }
-    }
-
     private synchronized void handleFatalError(Exception ex) {
         closeCurrentFileQuietly();
         if (currentTempFile != null && currentTempFile.exists()) {
@@ -357,13 +350,15 @@ public class StartupWebSocketServer extends WebSocketServer {
         serverStoppedFuture.completeExceptionally(ex);
     }
 
-    private synchronized void closeCurrentFileQuietly() {
-        if (currentFileStream != null) {
-            try {
-                currentFileStream.close();
-            } catch (IOException ignored) {
+    private void closeCurrentFileQuietly() {
+        synchronized (fileWriteLock) {
+            if (currentRaf != null) {
+                try {
+                    currentRaf.close();
+                } catch (IOException ignored) {
+                }
+                currentRaf = null;
             }
-            currentFileStream = null;
         }
     }
 

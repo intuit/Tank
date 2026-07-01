@@ -53,6 +53,12 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 32));
     private static final long MAX_BOOTSTRAP_CONNECTION_MS =
             Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
+    // PROTOTYPE: number of parallel WebSocket connections used to stream file chunks. The JDK
+    // WebSocket allows only one in-flight send per connection, so a single connection can't keep a
+    // high-BDP (high-RTT) pipe full — the flow goes app_limited and TCP never opens the window.
+    // Striping chunks across N connections puts N sends genuinely in flight at once. 1 => legacy
+    // single-connection behavior.
+    private static final int PARALLEL_CONNECTIONS = 4;
 
     private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
@@ -92,6 +98,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                     .join();
 
             SessionContext context = new SessionContext(webSocket, helloFuture);
+            // Retain connection coordinates so the transfer can open parallel data connections.
+            context.wsHttpClient = wsHttpClient;
+            context.wsUrl = wsUrl;
+            context.token = token;
             SessionContext previous = sessions.put(instanceId, context);
             if (previous != null) {
                 previous.close();
@@ -430,6 +440,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         ActiveTransfer transfer = new ActiveTransfer(fileId);
         context.activeTransfer = transfer;
 
+        // Open parallel data connections before streaming so chunks can be striped across them.
+        int connCount = context.ensureDataConnections();
+
         // Send offer and wait for ack (may include resume offset)
         CompletableFuture<AgentWsEnvelope> offerAckFuture = new CompletableFuture<>();
         pendingAcks.put(fileId, offerAckFuture);
@@ -496,10 +509,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             sendChunk(context, transfer, instanceId, fileId, chunkIndex, content, offset, len, connectionDeadlineMs);
             chunkIndex++;
         }
-        // Drain the pipelined send tail so any chunk send failure surfaces here and the bytes are
-        // durably queued on the socket before we report the transfer complete.
+        // Drain every connection's send tail so all chunk sends complete (and any failure surfaces)
+        // before we report the transfer done and the bytes are durably queued on the sockets.
         try {
-            context.sendTail.join();
+            CompletableFuture<WebSocket>[] tails = context.dataSendTails;
+            if (tails != null) {
+                for (CompletableFuture<WebSocket> tail : tails) {
+                    tail.join();
+                }
+            } else {
+                context.sendTail.join();
+            }
         } catch (Exception e) {
             throw new IOException("Failed sending WS file chunks for " + instanceId, e);
         }
@@ -507,13 +527,13 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         // Surface a receiver-side failure (failed ack) that arrived while we were sending.
         transfer.checkFailed();
         logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
-                startOffset, chunkIndex - startChunk, transferStartedAtNs, offerRttMs, sendDrainMs);
+                startOffset, chunkIndex - startChunk, transferStartedAtNs, offerRttMs, sendDrainMs, connCount);
         return true;
     }
 
     private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
                                          int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs,
-                                         long linkRttMs, long sendDrainMs) {
+                                         long linkRttMs, long sendDrainMs, int connCount) {
         long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs);
         long sentBytes = Math.max(0L, totalBytes - startOffset);
         double throughputMiBps = durationMs > 0
@@ -533,6 +553,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                         + " durationMs=" + durationMs
                         + " sendDrainMs=" + sendDrainMs
                         + " linkRttMs=" + (linkRttMs >= 0 ? linkRttMs : "unknown")
+                        + " connections=" + connCount
                         + " sendMiBps=" + sendMiBps
                         + " throughputMiBps=" + throughputMiBps)));
     }
@@ -541,7 +562,13 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                            int chunkIndex, byte[] bytes, int offset, int len, long connectionDeadlineMs)
             throws IOException, InterruptedException {
         acquireSendCredit(transfer, instanceId, connectionDeadlineMs);
-        sendBinaryChunk(context, transfer, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
+        // Stripe chunks round-robin across the data connections: chunk i -> connection i % N. Each
+        // connection sends serially (JDK rule), but N connections give N concurrent in-flight sends,
+        // which is what keeps a high-RTT pipe full where one connection goes app_limited.
+        int connCount = context.dataConnections != null ? context.dataConnections.length : 1;
+        int connIndex = connCount > 0 ? chunkIndex % connCount : 0;
+        sendBinaryChunk(context, transfer, connIndex,
+                AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
     }
 
     private void acquireSendCredit(ActiveTransfer transfer, String instanceId, long connectionDeadlineMs)
@@ -564,18 +591,33 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    /** Pipelined send: chain on the per-session tail so the next chunk is queued the instant the
-     *  previous send completes (JDK WebSocket requires that ordering) without blocking the caller.
-     *  A send failure marks the transfer failed so a blocked sender wakes immediately. */
-    private void sendBinaryChunk(SessionContext context, ActiveTransfer transfer, ByteBuffer payload) {
-        synchronized (context.webSocket) {
-            context.sendTail = context.sendTail
+    /** Pipelined send on a specific data connection: chain on that connection's own tail so its
+     *  sends stay serialized (JDK requires one in-flight send per connection) while other
+     *  connections send concurrently. A send failure marks the transfer failed so a blocked sender
+     *  wakes immediately. */
+    private void sendBinaryChunk(SessionContext context, ActiveTransfer transfer, int connIndex, ByteBuffer payload) {
+        WebSocket[] conns = context.dataConnections;
+        CompletableFuture<WebSocket>[] tails = context.dataSendTails;
+        // Fall back to the primary connection/tail if data connections weren't set up.
+        if (conns == null || tails == null || connIndex >= conns.length) {
+            synchronized (context.webSocket) {
+                context.sendTail = context.sendTail
+                        .thenCompose(ws -> ws.sendBinary(payload, true))
+                        .whenComplete((ws, ex) -> failOnError(transfer, ex));
+            }
+            return;
+        }
+        WebSocket conn = conns[connIndex];
+        synchronized (conn) {
+            tails[connIndex] = tails[connIndex]
                     .thenCompose(ws -> ws.sendBinary(payload, true))
-                    .whenComplete((ws, ex) -> {
-                        if (ex != null) {
-                            transfer.fail("send failed: " + ex.getMessage());
-                        }
-                    });
+                    .whenComplete((ws, ex) -> failOnError(transfer, ex));
+        }
+    }
+
+    private static void failOnError(ActiveTransfer transfer, Throwable ex) {
+        if (ex != null) {
+            transfer.fail("send failed: " + ex.getMessage());
         }
     }
 
@@ -773,6 +815,28 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
+    /** Minimal listener for parallel data connections. They only carry outbound file chunks; all
+     *  inbound control/ack traffic uses the primary connection, so this just keeps the read side
+     *  drained (the JDK requires request()) and ignores everything. */
+    private static class DrainListener implements WebSocket.Listener {
+        @Override
+        public void onOpen(WebSocket webSocket) {
+            webSocket.request(1);
+        }
+
+        @Override
+        public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+            webSocket.request(1);
+            return null;
+        }
+
+        @Override
+        public CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last) {
+            webSocket.request(1);
+            return null;
+        }
+    }
+
     private static class SessionContext {
         private final WebSocket webSocket;
         private final CompletableFuture<AgentWsEnvelope> helloFuture;
@@ -792,12 +856,59 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private volatile int expectedFiles;
         private volatile boolean bootstrapTransfer;
         private volatile AgentWsEnvelope hello;
+        // PROTOTYPE parallel connections: coordinates retained from connect() so the transfer can
+        // open extra data connections to the same agent endpoint. dataConnections[0] is the primary
+        // (this.webSocket); indices 1..N-1 are the extra sockets. Each has its own send tail so N
+        // sends run concurrently, one per socket (the JDK single-in-flight rule is per connection).
+        private volatile HttpClient wsHttpClient;
+        private volatile String wsUrl;
+        private volatile String token;
+        private volatile WebSocket[] dataConnections;
+        private volatile CompletableFuture<WebSocket>[] dataSendTails;
 
         private SessionContext(WebSocket webSocket, CompletableFuture<AgentWsEnvelope> helloFuture) {
             this.webSocket = webSocket;
             this.helloFuture = helloFuture;
             this.openedAtMs = System.currentTimeMillis();
             this.sendTail = CompletableFuture.completedFuture(webSocket);
+        }
+
+        /** Lazily open PARALLEL_CONNECTIONS-1 extra data connections (index 0 is the primary).
+         *  Idempotent; safe to call once at the start of a transfer. Returns the connection count
+         *  actually available (>=1). Extra connections use a minimal drain-only listener — file_ack
+         *  frames still arrive on the primary control connection. */
+        @SuppressWarnings("unchecked")
+        private synchronized int ensureDataConnections() {
+            if (dataConnections != null) {
+                return dataConnections.length;
+            }
+            int n = Math.max(1, PARALLEL_CONNECTIONS);
+            WebSocket[] conns = new WebSocket[n];
+            CompletableFuture<WebSocket>[] tails = new CompletableFuture[n];
+            conns[0] = webSocket;
+            tails[0] = CompletableFuture.completedFuture(webSocket);
+            for (int i = 1; i < n; i++) {
+                try {
+                    WebSocket extra = wsHttpClient.newWebSocketBuilder()
+                            .header("Authorization", "bearer " + token)
+                            .buildAsync(URI.create(wsUrl), new DrainListener())
+                            .join();
+                    conns[i] = extra;
+                    tails[i] = CompletableFuture.completedFuture(extra);
+                } catch (Exception e) {
+                    // Fall back to whatever opened; a smaller fan-out still works.
+                    WebSocket[] partial = new WebSocket[i];
+                    CompletableFuture<WebSocket>[] partialTails = new CompletableFuture[i];
+                    System.arraycopy(conns, 0, partial, 0, i);
+                    System.arraycopy(tails, 0, partialTails, 0, i);
+                    conns = partial;
+                    tails = partialTails;
+                    break;
+                }
+            }
+            dataConnections = conns;
+            dataSendTails = tails;
+            return conns.length;
         }
 
         /** Credit an ack against the active transfer if its fileId matches. Releases exactly the
@@ -828,9 +939,27 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             closeGracefully("Closing session");
         }
 
+        /** Abort the extra data connections (index 1+); the primary (index 0 == webSocket) is
+         *  handled by the caller's close/abort of the control connection. */
+        private void abortDataConnections() {
+            WebSocket[] conns = dataConnections;
+            if (conns == null) {
+                return;
+            }
+            for (int i = 1; i < conns.length; i++) {
+                try {
+                    if (conns[i] != null) {
+                        conns[i].abort();
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
         private void closeGracefully(String reason) {
             if (closed.compareAndSet(false, true)) {
                 failActiveTransfer(reason);
+                abortDataConnections();
                 try {
                     webSocket.sendClose(WebSocket.NORMAL_CLOSURE, reason)
                             .orTimeout(2, TimeUnit.SECONDS)
@@ -850,6 +979,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private void abort() {
             if (closed.compareAndSet(false, true)) {
                 failActiveTransfer("Aborted");
+                abortDataConnections();
                 try { webSocket.abort(); } catch (Exception ignored) {}
                 helloFuture.completeExceptionally(new IllegalStateException("Aborted"));
                 transferCompleteFuture.completeExceptionally(new IllegalStateException("Aborted"));
@@ -859,6 +989,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private void markClosed() {
             closed.set(true);
             failActiveTransfer("Closed");
+            abortDataConnections();
             helloFuture.completeExceptionally(new IllegalStateException("Closed"));
             transferCompleteFuture.completeExceptionally(new IllegalStateException("Closed"));
         }

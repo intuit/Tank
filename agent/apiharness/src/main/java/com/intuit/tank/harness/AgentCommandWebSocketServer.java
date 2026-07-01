@@ -15,9 +15,9 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -212,16 +212,23 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
             }
 
             File tempFile = new File(targetFile.getAbsolutePath() + ".part");
+            RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
+            long totalBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : 0L;
+            // Preallocate so positioned writes never extend past EOF unexpectedly.
+            if (totalBytes > 0) {
+                raf.setLength(totalBytes);
+            }
             IncomingFileState state = new IncomingFileState(
                     envelope.getFileType(),
                     envelope.getFileName(),
                     targetFile,
                     tempFile,
-                    envelope.getTotalBytes() != null ? envelope.getTotalBytes() : 0L,
+                    totalBytes,
                     envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0,
+                    envelope.getChunkBytes() != null ? envelope.getChunkBytes() : 0,
                     Boolean.TRUE.equals(envelope.getDefaultDataFile()),
                     envelope.getAckEvery() != null ? envelope.getAckEvery() : 0,
-                    new FileOutputStream(tempFile)
+                    raf
             );
             incomingFiles.put(fileId, state);
             sendFileAck(connection, fileId, 0, AckStatus.ok, null);
@@ -254,16 +261,16 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
 
         try {
             if (state.totalChunks < 0 && payload.length == 0) {
-                finalizeFile(state);
-                incomingFiles.remove(fileId);
-                sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
-                markFileComplete(connection, fileId, chunkIndex);
+                if (incomingFiles.remove(fileId, state)) {
+                    finalizeFile(state);
+                    sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
+                    markFileComplete(connection, fileId, chunkIndex);
+                }
                 return;
             }
 
-            state.outputStream.write(payload);
-            state.receivedBytes += payload.length;
-            state.receivedChunks++;
+            // Positioned write — safe for chunks arriving out of order across parallel connections.
+            long receivedBytes = state.writeChunk(chunkIndex, payload);
 
             // Ack only on the sender's window boundary (every ackEvery chunks). The completion ack
             // below covers the final partial window. ackEvery <= 0 means legacy ack-every-chunk.
@@ -271,9 +278,13 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
                 sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
             }
 
-            if (state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks) {
+            // Completion is by byte count (order-independent). remove() acts as a one-shot guard so
+            // only the thread that removes the state finalizes, even if two connections finish
+            // together.
+            boolean complete = (state.totalBytes > 0 && receivedBytes >= state.totalBytes)
+                    || (state.totalBytes <= 0 && state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks);
+            if (complete && incomingFiles.remove(fileId, state)) {
                 finalizeFile(state);
-                incomingFiles.remove(fileId);
                 sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
                 markFileComplete(connection, fileId, chunkIndex);
             }
@@ -506,31 +517,49 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         private final File tempFile;
         private final long totalBytes;
         private final int totalChunks;
+        private final int chunkBytes;
         private final boolean defaultDataFile;
         private final int ackEvery;
-        private final OutputStream outputStream;
+        // Positioned-write file so chunks arriving out of order across parallel connections land at
+        // their correct offset (chunkIndex * chunkBytes). Guarded by `this` since N connection
+        // threads write concurrently.
+        private final RandomAccessFile raf;
         private final long transferStartedAtNs;
         private long receivedBytes;
         private int receivedChunks;
 
         private IncomingFileState(String fileType, String fileName, File targetFile, File tempFile,
-                                  long totalBytes, int totalChunks, boolean defaultDataFile,
-                                  int ackEvery, OutputStream outputStream) {
+                                  long totalBytes, int totalChunks, int chunkBytes, boolean defaultDataFile,
+                                  int ackEvery, RandomAccessFile raf) {
             this.fileType = fileType;
             this.fileName = fileName;
             this.targetFile = targetFile;
             this.tempFile = tempFile;
             this.totalBytes = totalBytes;
             this.totalChunks = totalChunks;
+            this.chunkBytes = chunkBytes;
             this.defaultDataFile = defaultDataFile;
             this.ackEvery = ackEvery;
-            this.outputStream = outputStream;
+            this.raf = raf;
             this.transferStartedAtNs = System.nanoTime();
+        }
+
+        /** Write a chunk at its absolute offset and advance the byte/chunk counters. Synchronized so
+         *  concurrent connection threads don't interleave a seek+write or corrupt the counters.
+         *  Returns the running received-byte total after this write. */
+        private synchronized long writeChunk(int chunkIndex, byte[] payload) throws IOException {
+            if (payload.length > 0) {
+                raf.seek((long) chunkIndex * chunkBytes);
+                raf.write(payload);
+                receivedBytes += payload.length;
+            }
+            receivedChunks++;
+            return receivedBytes;
         }
 
         private void closeQuietly() {
             try {
-                outputStream.close();
+                raf.close();
             } catch (IOException ignored) {
             }
         }
