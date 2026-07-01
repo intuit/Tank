@@ -303,4 +303,68 @@ public class AgentCommandWebSocketHandlerTest {
         assertEquals("job-1", statusCaptor.getValue().getJobId());
         assertEquals(JobStatus.Running, statusCaptor.getValue().getJobStatus());
     }
+
+    @Test
+    void testTerminalStatusUpdateDelegatesToAgentStatusLifecycleForTermination() throws Exception {
+        AgentWsEnvelope hello = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello.toJson()));
+
+        AgentStatusLifecycle statusLifecycle = mock(AgentStatusLifecycle.class);
+        Field statusLifecycleField = AgentCommandWebSocketHandler.class.getDeclaredField("cachedAgentStatusLifecycle");
+        statusLifecycleField.setAccessible(true);
+        statusLifecycleField.set(handler, statusLifecycle);
+
+        CloudVmStatus status = new CloudVmStatus(
+                "i-spoofed",
+                "job-1",
+                "sg-1",
+                JobStatus.Completed,
+                VMImageType.AGENT,
+                VMRegion.US_EAST,
+                VMStatus.terminated,
+                new ValidationStatus(),
+                5,
+                0,
+                new Date(),
+                new Date());
+
+        AgentWsEnvelope statusUpdate = AgentWsEnvelope.statusUpdate("i-123", "job-1", status);
+        handler.handleTextMessage(session, new TextMessage(statusUpdate.toJson()));
+
+        ArgumentCaptor<CloudVmStatus> statusCaptor = ArgumentCaptor.forClass(CloudVmStatus.class);
+        verify(statusLifecycle).setVmStatus(eq("i-123"), statusCaptor.capture());
+        assertEquals("i-123", statusCaptor.getValue().getInstanceId());
+        assertEquals(JobStatus.Completed, statusCaptor.getValue().getJobStatus());
+        assertEquals(VMStatus.terminated, statusCaptor.getValue().getVmStatus());
+    }
+
+    @Test
+    void testTerminalStatusDoesNotFallBackToTrackerWhenLifecycleUnavailable() throws Exception {
+        AgentWsEnvelope hello = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null);
+        handler.handleTextMessage(session, new TextMessage(hello.toJson()));
+
+        VMTracker vmTracker = mock(VMTracker.class);
+        Field vmTrackerField = AgentCommandWebSocketHandler.class.getDeclaredField("cachedVMTracker");
+        vmTrackerField.setAccessible(true);
+        vmTrackerField.set(handler, vmTracker);
+
+        CloudVmStatus status = new CloudVmStatus(
+                "i-spoofed",
+                "job-1",
+                "sg-1",
+                JobStatus.Completed,
+                VMImageType.AGENT,
+                VMRegion.US_EAST,
+                VMStatus.terminated,
+                new ValidationStatus(),
+                5,
+                0,
+                new Date(),
+                new Date());
+
+        AgentWsEnvelope statusUpdate = AgentWsEnvelope.statusUpdate("i-123", "job-1", status);
+        handler.handleTextMessage(session, new TextMessage(statusUpdate.toJson()));
+
+        verify(vmTracker, never()).setStatus(any(CloudVmStatus.class));
+    }
 }

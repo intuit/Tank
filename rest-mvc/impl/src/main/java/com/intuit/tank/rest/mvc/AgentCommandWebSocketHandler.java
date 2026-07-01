@@ -8,6 +8,7 @@ import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.Type;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -102,6 +103,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     private ServletContext servletContext;
 
     private volatile JobManager cachedJobManager;
+    private volatile AgentStatusLifecycle cachedAgentStatusLifecycle;
     private volatile VMTracker cachedVMTracker;
     private volatile AgentConfig cachedAgentConfig;
 
@@ -299,16 +301,31 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
 
         status.setInstanceId(boundId);
 
-        VMTracker tracker = resolveVMTracker();
-        if (tracker == null) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "Unable to resolve VMTracker for WS status update from " + boundId)));
+        AgentStatusLifecycle statusLifecycle = resolveAgentStatusLifecycle();
+        if (statusLifecycle != null) {
+            try {
+                statusLifecycle.setVmStatus(boundId, status);
+                return;
+            } catch (Exception e) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Failed WS lifecycle status update from " + boundId + ": " + e.getMessage())));
+            }
+        }
+
+        if (isTerminalStatus(status)) {
+            LOG.error(new ObjectMessage(Map.of("Message", "Unable to process terminal WS status for " + boundId
+                    + " - lifecycle handler unavailable, not falling back to non-terminating tracker update")));
             return;
         }
 
-        try {
-            tracker.setStatus(status);
-        } catch (Exception e) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "Failed WS status update from " + boundId + ": " + e.getMessage())));
+        VMTracker tracker = resolveVMTracker();
+        if (tracker != null) {
+            try {
+                tracker.setStatus(status);
+            } catch (Exception e) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Failed WS tracker status update from " + boundId + ": " + e.getMessage())));
+            }
+        } else {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Unable to resolve status handler for WS status update from " + boundId)));
         }
     }
 
@@ -573,6 +590,24 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         }
     }
 
+    private AgentStatusLifecycle resolveAgentStatusLifecycle() {
+        AgentStatusLifecycle statusLifecycle = cachedAgentStatusLifecycle;
+        if (statusLifecycle != null) {
+            return statusLifecycle;
+        }
+        if (servletContext == null) {
+            return null;
+        }
+        try {
+            statusLifecycle = new ServletInjector<AgentStatusLifecycle>().getManagedBean(servletContext, AgentStatusLifecycle.class);
+            cachedAgentStatusLifecycle = statusLifecycle;
+            return statusLifecycle;
+        } catch (Exception e) {
+            LOG.error(new ObjectMessage(Map.of("Message", "Error resolving AgentStatusLifecycle: " + e.getMessage())), e);
+            return null;
+        }
+    }
+
     private VMTracker resolveVMTracker() {
         VMTracker tracker = cachedVMTracker;
         if (tracker != null) {
@@ -647,6 +682,12 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                 || status == VMStatus.terminated
                 || status == VMStatus.replaced
                 || status == VMStatus.disconnected;
+    }
+
+    private boolean isTerminalStatus(CloudVmStatus status) {
+        return status.getJobStatus() == JobStatus.Completed
+                || status.getVmStatus() == VMStatus.terminated
+                || status.getVmStatus() == VMStatus.replaced;
     }
 
     private void handleJobTransferComplete(String instanceId) {
