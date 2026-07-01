@@ -454,8 +454,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         // Check for offer ack (ok, resume, or failed)
         int startOffset = 0;
         int startChunk = 0;
+        long offerRttMs = -1L;
+        long offerSentAtNs = System.nanoTime();
         try {
             AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
+            offerRttMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - offerSentAtNs);
             if (offerAck != null) {
                 if (offerAck.getStatus() == AckStatus.failed) {
                     throw new IOException("File offer rejected by agent: " + offerAck.getError());
@@ -502,12 +505,13 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         // Surface a receiver-side failure (failed ack) that arrived while we were sending.
         transfer.checkFailed();
         logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
-                startOffset, chunkIndex - startChunk, transferStartedAtNs);
+                startOffset, chunkIndex - startChunk, transferStartedAtNs, offerRttMs);
         return true;
     }
 
     private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
-                                         int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs) {
+                                         int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs,
+                                         long linkRttMs) {
         long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs);
         long sentBytes = Math.max(0L, totalBytes - startOffset);
         double throughputMiBps = durationMs > 0
@@ -522,6 +526,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                         + " resumed=" + (startOffset > 0)
                         + " resumeOffset=" + startOffset
                         + " durationMs=" + durationMs
+                        + " linkRttMs=" + (linkRttMs >= 0 ? linkRttMs : "unknown")
                         + " throughputMiBps=" + throughputMiBps)));
     }
 
