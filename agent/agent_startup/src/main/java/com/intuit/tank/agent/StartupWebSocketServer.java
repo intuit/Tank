@@ -89,7 +89,7 @@ public class StartupWebSocketServer {
         WebSocketUpgradeHandler wsHandler = WebSocketUpgradeHandler.from(server, container -> {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
-            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new StartupEndpoint());
+            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new StartupEndpoint(this));
         });
         server.setHandler(wsHandler);
 
@@ -353,17 +353,23 @@ public class StartupWebSocketServer {
      * Per-connection Jetty WebSocket endpoint. {@code AutoDemanding} means Jetty automatically demands
      * the next frame after each callback returns, matching the old library's push-style delivery.
      */
-    private class StartupEndpoint implements Session.Listener.AutoDemanding {
+    public static class StartupEndpoint implements Session.Listener.AutoDemanding {
 
+        private final StartupWebSocketServer server;
         private Session session;
+
+        private StartupEndpoint(StartupWebSocketServer server) {
+            this.server = server;
+        }
 
         @Override
         public void onWebSocketOpen(Session session) {
             this.session = session;
             logger.info("Controller connected to startup WS server from {}", session.getRemoteSocketAddress());
             try {
-                AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, null, capacity, true);
-                sendText(session, hello.toJson());
+                AgentWsEnvelope hello = AgentWsEnvelope.hello(
+                        server.instanceId, server.jobId, server.agentSessionId, null, server.capacity, true);
+                server.sendText(session, hello.toJson());
             } catch (Exception e) {
                 logger.warn("Failed to send startup WS hello: {}", e.getMessage());
                 session.close();
@@ -379,9 +385,9 @@ public class StartupWebSocketServer {
                     return;
                 }
                 switch (envelope.getType()) {
-                    case file_offer -> handleFileOffer(session, envelope);
+                    case file_offer -> server.handleFileOffer(session, envelope);
                     case file_chunk -> handleTextFileChunk(session, envelope);
-                    case ping -> handlePing(session, envelope);
+                    case ping -> server.handlePing(session, envelope);
                     case ack -> logger.info("Startup WS received ack: {}", envelope.getAckForType());
                     case close -> session.close();
                     default -> logger.info("Startup WS ignoring frame type: {}", envelope.getType());
@@ -395,7 +401,7 @@ public class StartupWebSocketServer {
         public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
             try {
                 AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
-                handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+                server.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
                 callback.succeed();
             } catch (Exception e) {
                 logger.warn("Failed handling startup WS binary message: {}", e.getMessage(), e);
@@ -408,18 +414,18 @@ public class StartupWebSocketServer {
                 byte[] payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
                         ? new byte[0]
                         : java.util.Base64.getDecoder().decode(envelope.getChunkData());
-                handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
+                server.handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
             } catch (Exception e) {
-                closeCurrentFileQuietly();
-                sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
-                harnessJarFuture.completeExceptionally(e);
+                server.closeCurrentFileQuietly();
+                server.sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
+                server.harnessJarFuture.completeExceptionally(e);
             }
         }
 
         @Override
         public void onWebSocketClose(int statusCode, String reason) {
             logger.info("Startup WS connection closed code={} reason={}", statusCode, reason);
-            resetFileStateForRetry(session);
+            server.resetFileStateForRetry(session);
         }
 
         @Override
@@ -427,10 +433,10 @@ public class StartupWebSocketServer {
             logger.warn("Startup WS error: {}", cause.getMessage(), cause);
             if (session == null) {
                 logger.error("Startup WS server-level error — preserving partial file for restart");
-                handleFatalError(cause instanceof Exception ? (Exception) cause : new IOException(cause));
+                server.handleFatalError(cause instanceof Exception ? (Exception) cause : new IOException(cause));
                 return;
             }
-            resetFileStateForRetry(session);
+            server.resetFileStateForRetry(session);
         }
     }
 }

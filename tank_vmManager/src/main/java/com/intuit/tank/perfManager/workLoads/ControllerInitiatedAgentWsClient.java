@@ -112,7 +112,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
 
             CompletableFuture<AgentWsEnvelope> helloFuture = new CompletableFuture<>();
-            Endpoint endpoint = new Endpoint(instanceId, helloFuture);
+            Endpoint endpoint = new Endpoint(this, instanceId, helloFuture);
 
             ClientUpgradeRequest upgradeRequest = new ClientUpgradeRequest();
             upgradeRequest.setHeader("Authorization", "bearer " + token);
@@ -764,13 +764,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentWsState.put(instanceId, "disconnected");
     }
 
-    private class Endpoint implements Session.Listener.AutoDemanding {
+    /**
+     * WebSocket listener. Must be a {@code public static} class: Jetty 12 invokes the callback
+     * methods via MethodHandles, which cannot reach a non-public (e.g. private inner) endpoint class.
+     */
+    public static class Endpoint implements Session.Listener.AutoDemanding {
+        private final ControllerInitiatedAgentWsClient client;
         private final String instanceId;
         private final CompletableFuture<AgentWsEnvelope> helloFuture;
         private volatile SessionContext context;
         private Session session;
 
-        private Endpoint(String instanceId, CompletableFuture<AgentWsEnvelope> helloFuture) {
+        private Endpoint(ControllerInitiatedAgentWsClient client, String instanceId,
+                         CompletableFuture<AgentWsEnvelope> helloFuture) {
+            this.client = client;
             this.instanceId = instanceId;
             this.helloFuture = helloFuture;
         }
@@ -782,19 +789,19 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         @Override
         public void onWebSocketText(String message) {
-            handleText(instanceId, session, message, helloFuture);
+            client.handleText(instanceId, session, message, helloFuture);
         }
 
         @Override
         public void onWebSocketClose(int statusCode, String reason) {
-            onClosed(instanceId, session);
+            client.onClosed(instanceId, session);
         }
 
         @Override
         public void onWebSocketError(Throwable cause) {
             LOG.warn(new ObjectMessage(Map.of("Message",
                     "[WS] Controller initiated WS listener error for " + instanceId + ": " + cause.getMessage())));
-            onClosed(instanceId, session);
+            client.onClosed(instanceId, session);
         }
     }
 

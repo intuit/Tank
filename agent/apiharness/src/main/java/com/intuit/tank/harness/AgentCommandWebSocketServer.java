@@ -109,7 +109,7 @@ public class AgentCommandWebSocketServer {
         WebSocketUpgradeHandler wsHandler = WebSocketUpgradeHandler.from(server, container -> {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
-            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint());
+            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint(this));
         });
         server.setHandler(wsHandler);
 
@@ -520,26 +520,31 @@ public class AgentCommandWebSocketServer {
      * Per-connection Jetty WebSocket endpoint. {@code AutoDemanding} means Jetty automatically demands
      * the next frame after each callback returns, matching the old library's push-style delivery.
      */
-    private class CommandEndpoint implements Session.Listener.AutoDemanding {
+    public static class CommandEndpoint implements Session.Listener.AutoDemanding {
 
+        private final AgentCommandWebSocketServer owner;
         private Session session;
+
+        private CommandEndpoint(AgentCommandWebSocketServer owner) {
+            this.owner = owner;
+        }
 
         @Override
         public void onWebSocketOpen(Session session) {
             this.session = session;
-            onConnectionEstablished(session);
+            owner.onConnectionEstablished(session);
         }
 
         @Override
         public void onWebSocketText(String message) {
-            onTextMessage(session, message);
+            owner.onTextMessage(session, message);
         }
 
         @Override
         public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
             try {
                 AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
-                handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+                owner.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
                 callback.succeed();
             } catch (IOException e) {
                 LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
@@ -549,7 +554,7 @@ public class AgentCommandWebSocketServer {
 
         @Override
         public void onWebSocketClose(int statusCode, String reason) {
-            onConnectionClosed(session, statusCode, reason);
+            owner.onConnectionClosed(session, statusCode, reason);
         }
 
         @Override
