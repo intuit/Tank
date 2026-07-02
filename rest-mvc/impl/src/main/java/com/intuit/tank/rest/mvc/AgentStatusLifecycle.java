@@ -11,7 +11,6 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +19,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@Named
 @ApplicationScoped
 public class AgentStatusLifecycle {
 
