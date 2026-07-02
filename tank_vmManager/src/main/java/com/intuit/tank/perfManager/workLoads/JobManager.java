@@ -61,6 +61,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
+import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.apache.logging.log4j.message.ObjectMessage;
 
@@ -79,6 +80,9 @@ public class JobManager implements Serializable {
 
     @Inject
     private VMTracker vmTracker;
+
+    @Inject
+    private VMTerminator vmTerminator;
 
     @Inject
     private StandaloneAgentTracker standaloneTracker;
@@ -521,6 +525,7 @@ public class JobManager implements Serializable {
 
     public ControllerInitiatedAgentWsClient getControllerInitiatedAgentWsClient() {
         controllerInitiatedAgentWsClient.setVmTracker(vmTracker);
+        controllerInitiatedAgentWsClient.setVmTerminator(vmTerminator);
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(controllerInitiatedAgentWsClient);
         return controllerInitiatedAgentWsClient;
     }
