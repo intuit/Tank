@@ -10,15 +10,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
+import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.websocket.api.Callback;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -39,20 +43,31 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-public class AgentCommandWebSocketServer extends WebSocketServer {
+/**
+ * Agent-side WebSocket server that receives job config, settings/script/data files, and control
+ * commands pushed by the controller. Runs over WebSocket-over-HTTP/2 (RFC 8441) using Jetty 12; the
+ * same connector also accepts HTTP/1.1 WebSocket upgrades for transition compatibility.
+ */
+public class AgentCommandWebSocketServer {
 
     private static final Logger LOG = LogManager.getLogger(AgentCommandWebSocketServer.class);
     private static final int MAX_APPLIED_COMMAND_IDS = 10_000;
     private static final String AGENT_HOME_DIR = "/opt/tank_agent";
     private static final String SUPPORT_ARCHIVE_FILE_TYPE = "support_archive";
     private static final String DEFAULT_SUPPORT_ARCHIVE_NAME = "agent-support-files.zip";
+    // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
+    private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
 
+    private final int port;
     private final String instanceId;
     private final String jobId;
     private final int capacity;
     private final String agentSessionId;
 
-    private final AtomicReference<WebSocket> activeConnection = new AtomicReference<>();
+    private final Server server;
+    private boolean reuseAddr = true;
+
+    private final AtomicReference<Session> activeConnection = new AtomicReference<>();
     private final Set<String> appliedCommandIds = ConcurrentHashMap.newKeySet();
     private final ConcurrentHashMap<String, IncomingFileState> incomingFiles = new ConcurrentHashMap<>();
     private final AtomicInteger completedFiles = new AtomicInteger(0);
@@ -63,38 +78,66 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
     private volatile CompletableFuture<Void> transferCompleteFuture = new CompletableFuture<>();
     private volatile int expectedFiles = -1;
     private volatile AgentTestStartData receivedJobConfig;
-    private volatile WebSocket transferCompleteAckWebSocket;
+    private volatile Session transferCompleteAckWebSocket;
     private volatile String transferCompleteAckFileId;
     private volatile Integer transferCompleteAckChunkIndex;
 
     public AgentCommandWebSocketServer(int port, String instanceId, String jobId, int capacity) {
-        super(new InetSocketAddress(port));
-        setReuseAddr(true);
+        this.port = port;
         this.instanceId = instanceId;
         this.jobId = jobId;
         this.capacity = capacity;
         this.agentSessionId = UUID.randomUUID().toString();
+        this.server = new Server();
     }
 
-    @Override
-    public void onOpen(WebSocket connection, ClientHandshake handshake) {
+    public void setReuseAddr(boolean reuseAddr) {
+        this.reuseAddr = reuseAddr;
+    }
+
+    public void start() throws IOException {
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
+        HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig);
+        h2c.setConnectProtocolEnabled(true);
+
+        ServerConnector connector = new ServerConnector(server, http11, h2c);
+        connector.setPort(port);
+        connector.setReuseAddress(reuseAddr);
+        server.addConnector(connector);
+
+        WebSocketUpgradeHandler wsHandler = WebSocketUpgradeHandler.from(server, container -> {
+            container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
+            container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
+            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint());
+        });
+        server.setHandler(wsHandler);
+
+        try {
+            server.start();
+        } catch (Exception e) {
+            throw new IOException("Failed to start agent WS control server on port " + port, e);
+        }
+        LOG.info(new ObjectMessage(Map.of("Message", "Agent WS control server started for " + instanceId + " on port " + port)));
+    }
+
+    private void onConnectionEstablished(Session connection) {
         LOG.info(new ObjectMessage(Map.of("Message",
                 "Controller WS connected to agent " + instanceId + " from " + connection.getRemoteSocketAddress())));
-        WebSocket previous = activeConnection.getAndSet(connection);
+        Session previous = activeConnection.getAndSet(connection);
         if (previous != null && previous != connection && previous.isOpen()) {
             previous.close();
         }
         try {
             AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, capacity);
-            connection.send(hello.toJson());
+            sendText(connection, hello.toJson());
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send WS hello: " + e.getMessage())));
             connection.close();
         }
     }
 
-    @Override
-    public void onMessage(WebSocket connection, String message) {
+    private void onTextMessage(Session connection, String message) {
         try {
             AgentWsEnvelope envelope = AgentWsEnvelope.fromJson(message);
             if (envelope.getType() == null) {
@@ -120,17 +163,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    @Override
-    public void onMessage(WebSocket connection, ByteBuffer message) {
-        try {
-            AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(message);
-            handleFileChunk(connection, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
-        } catch (IOException e) {
-            LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
-        }
-    }
-
-    private void handleCommand(WebSocket connection, AgentWsEnvelope envelope) {
+    private void handleCommand(Session connection, AgentWsEnvelope envelope) {
         String commandId = envelope.getCommandId();
         String command = envelope.getCommand();
 
@@ -163,10 +196,10 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         return "start".equalsIgnoreCase(command) || "run".equalsIgnoreCase(command);
     }
 
-    private void handlePing(WebSocket connection, AgentWsEnvelope envelope) {
+    private void handlePing(Session connection, AgentWsEnvelope envelope) {
         try {
             AgentWsEnvelope pong = AgentWsEnvelope.pong(instanceId, agentSessionId, envelope.getPingId(), lastAppliedCommandId);
-            connection.send(pong.toJson());
+            sendText(connection, pong.toJson());
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send pong: " + e.getMessage())));
         }
@@ -193,7 +226,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void handleFileOffer(WebSocket connection, AgentWsEnvelope envelope) {
+    private void handleFileOffer(Session connection, AgentWsEnvelope envelope) {
         String fileId = envelope.getFileId();
         if (fileId == null || envelope.getFileName() == null) {
             return;
@@ -230,7 +263,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void handleFileChunk(WebSocket connection, AgentWsEnvelope envelope) {
+    private void handleFileChunk(Session connection, AgentWsEnvelope envelope) {
         String fileId = envelope.getFileId();
         byte[] payload;
         try {
@@ -244,7 +277,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         handleFileChunk(connection, fileId, envelope.getChunkIndex(), payload);
     }
 
-    private void handleFileChunk(WebSocket connection, String fileId, Integer chunkIndex, byte[] payload) {
+    private void handleFileChunk(Session connection, String fileId, Integer chunkIndex, byte[] payload) {
         IncomingFileState state = fileId != null ? incomingFiles.get(fileId) : null;
         if (state == null) {
             sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
@@ -279,7 +312,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void markFileComplete(WebSocket connection, String fileId, Integer chunkIndex) {
+    private void markFileComplete(Session connection, String fileId, Integer chunkIndex) {
         int done = completedFiles.incrementAndGet();
         CompletableFuture<Void> currentTransferCompleteFuture = transferCompleteFuture;
         if (expectedFiles > 0 && done >= expectedFiles && !currentTransferCompleteFuture.isDone()) {
@@ -381,23 +414,23 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         return new File(envelope.getFileName());
     }
 
-    private void sendFileAck(WebSocket connection, String fileId, Integer chunkIndex, AckStatus status, String error) {
+    private void sendFileAck(Session connection, String fileId, Integer chunkIndex, AckStatus status, String error) {
         try {
             AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
-            connection.send(ack.toJson());
+            sendText(connection, ack.toJson());
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send file ack for " + fileId + ": " + e.getMessage())));
         }
     }
 
-    private void prepareTransferCompleteAck(WebSocket connection, String fileId, Integer chunkIndex) {
+    private void prepareTransferCompleteAck(Session connection, String fileId, Integer chunkIndex) {
         transferCompleteAckWebSocket = connection;
         transferCompleteAckFileId = fileId;
         transferCompleteAckChunkIndex = chunkIndex;
     }
 
     private void sendTransferCompleteAckIfReady() {
-        WebSocket connection = transferCompleteAckWebSocket;
+        Session connection = transferCompleteAckWebSocket;
         if (!initialBootstrapReady.get() || connection == null || !connection.isOpen()) {
             return;
         }
@@ -406,31 +439,24 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
         }
     }
 
-    private void sendAck(WebSocket connection, String commandId, AckStatus status, String error) {
+    private void sendAck(Session connection, String commandId, AckStatus status, String error) {
         try {
             AgentWsEnvelope ack = AgentWsEnvelope.ack(instanceId, "command", commandId, status);
             ack.setError(error);
-            connection.send(ack.toJson());
+            sendText(connection, ack.toJson());
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send command ack: " + e.getMessage())));
         }
     }
 
-    @Override
-    public void onClose(WebSocket connection, int code, String reason, boolean remote) {
+    private void sendText(Session connection, String text) {
+        connection.sendText(text, Callback.NOOP);
+    }
+
+    private void onConnectionClosed(Session connection, int code, String reason) {
         LOG.info(new ObjectMessage(Map.of("Message",
                 "Controller WS disconnected from agent " + instanceId + " code=" + code + " reason=" + reason)));
         activeConnection.compareAndSet(connection, null);
-    }
-
-    @Override
-    public void onError(WebSocket connection, Exception ex) {
-        LOG.error(new ObjectMessage(Map.of("Message", "Agent WS server transport error: " + ex.getMessage())), ex);
-    }
-
-    @Override
-    public void onStart() {
-        LOG.info(new ObjectMessage(Map.of("Message", "Agent WS control server started for " + instanceId)));
     }
 
     public boolean awaitInitialTransfer(long timeoutMillis) {
@@ -456,7 +482,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
     }
 
     public boolean sendStatusUpdate(CloudVmStatus instanceStatus) {
-        WebSocket connection = activeConnection.get();
+        Session connection = activeConnection.get();
         if (connection == null || !connection.isOpen()) {
             return false;
         }
@@ -465,7 +491,7 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
                     ? instanceStatus.getJobId()
                     : jobId;
             AgentWsEnvelope update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus);
-            connection.send(update.toJson());
+            sendText(connection, update.toJson());
             return true;
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed sending WS status update: " + e.getMessage())));
@@ -474,19 +500,61 @@ public class AgentCommandWebSocketServer extends WebSocketServer {
     }
 
     public void closeServer() {
-        WebSocket connection = activeConnection.getAndSet(null);
+        Session connection = activeConnection.getAndSet(null);
         if (connection != null && connection.isOpen()) {
             try {
                 AgentWsEnvelope closeEnvelope = AgentWsEnvelope.close(instanceId, "agent_shutdown", "Agent shutting down");
-                connection.send(closeEnvelope.toJson());
+                sendText(connection, closeEnvelope.toJson());
             } catch (IOException ignored) {
             }
             connection.close();
         }
         try {
-            stop();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            server.stop();
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Error stopping agent WS server: " + e.getMessage())));
+        }
+    }
+
+    /**
+     * Per-connection Jetty WebSocket endpoint. {@code AutoDemanding} means Jetty automatically demands
+     * the next frame after each callback returns, matching the old library's push-style delivery.
+     */
+    private class CommandEndpoint implements Session.Listener.AutoDemanding {
+
+        private Session session;
+
+        @Override
+        public void onWebSocketOpen(Session session) {
+            this.session = session;
+            onConnectionEstablished(session);
+        }
+
+        @Override
+        public void onWebSocketText(String message) {
+            onTextMessage(session, message);
+        }
+
+        @Override
+        public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
+            try {
+                AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
+                handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+                callback.succeed();
+            } catch (IOException e) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
+                callback.fail(e);
+            }
+        }
+
+        @Override
+        public void onWebSocketClose(int statusCode, String reason) {
+            onConnectionClosed(session, statusCode, reason);
+        }
+
+        @Override
+        public void onWebSocketError(Throwable cause) {
+            LOG.error(new ObjectMessage(Map.of("Message", "Agent WS server transport error: " + cause.getMessage())), cause);
         }
     }
 

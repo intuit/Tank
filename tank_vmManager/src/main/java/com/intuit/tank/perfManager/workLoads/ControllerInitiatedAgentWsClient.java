@@ -13,6 +13,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.http2.client.HTTP2Client;
+import org.eclipse.jetty.http2.client.transport.HttpClientTransportOverHTTP2;
+import org.eclipse.jetty.websocket.api.Callback;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,10 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -32,12 +37,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
+/**
+ * Controller-side client that pushes bootstrap and job files to agents over WebSocket-over-HTTP/2
+ * (RFC 8441) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
+ * (sliding) window rather than a fixed stop-and-wait ack gate, so throughput is independent of RTT.
+ */
 @ApplicationScoped
 public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
@@ -48,20 +57,24 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final int DEFAULT_CHUNK_BYTES =
             Math.max(1, Integer.getInteger("tank.ws.chunkBytes", 2 * 1024 * 1024));
-    private static final int CHUNK_ACK_WINDOW =
-            Math.max(1, Integer.getInteger("tank.ws.chunkAckWindow", 32));
+    // Bounded number of unacked chunks allowed in flight before the sender blocks for credit.
+    private static final int CHUNK_WINDOW =
+            Math.max(1, Integer.getInteger("tank.ws.chunkWindow", 32));
     private static final long MAX_BOOTSTRAP_CONNECTION_MS =
             Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
+    // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
+    private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
 
-    private final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+    private final java.net.http.HttpClient httpClient =
+            java.net.http.HttpClient.newBuilder().build();
     private final ConcurrentHashMap<String, SessionContext> sessions = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, CompletableFuture<AgentWsEnvelope>> pendingAcks = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, PendingChunkAck> pendingChunkAcks = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Boolean> fileTransferReady = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> agentLastSeen = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentWsState = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
     private volatile byte[] cachedHarnessJarBytes;
+    private volatile WebSocketClient wsClient;
 
     private volatile VMTracker vmTracker;
 
@@ -72,6 +85,25 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         this.vmTracker = vmTracker;
     }
 
+    private WebSocketClient webSocketClient() throws Exception {
+        WebSocketClient client = wsClient;
+        if (client == null) {
+            synchronized (this) {
+                client = wsClient;
+                if (client == null) {
+                    HTTP2Client http2Client = new HTTP2Client();
+                    HttpClient jettyHttpClient = new HttpClient(new HttpClientTransportOverHTTP2(http2Client));
+                    client = new WebSocketClient(jettyHttpClient);
+                    client.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
+                    client.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
+                    client.start();
+                    wsClient = client;
+                }
+            }
+        }
+        return client;
+    }
+
     public Optional<AgentWsEnvelope> connect(String instanceId, String wsUrl, String token, long helloTimeoutMillis) {
         try {
             SessionContext existing = sessions.get(instanceId);
@@ -80,18 +112,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
 
             CompletableFuture<AgentWsEnvelope> helloFuture = new CompletableFuture<>();
-            Listener listener = new Listener(instanceId, helloFuture);
+            Endpoint endpoint = new Endpoint(instanceId, helloFuture);
 
-            HttpClient wsHttpClient = HttpClient.newBuilder()
-                    .version(HttpClient.Version.HTTP_1_1)
-                    .connectTimeout(java.time.Duration.ofSeconds(10))
-                    .build();
-            WebSocket webSocket = wsHttpClient.newWebSocketBuilder()
-                    .header("Authorization", "bearer " + token)
-                    .buildAsync(URI.create(wsUrl), listener)
-                    .join();
+            ClientUpgradeRequest upgradeRequest = new ClientUpgradeRequest();
+            upgradeRequest.setHeader("Authorization", "bearer " + token);
 
-            SessionContext context = new SessionContext(webSocket, helloFuture);
+            Session session = webSocketClient()
+                    .connect(endpoint, URI.create(wsUrl), upgradeRequest)
+                    .get(10, TimeUnit.SECONDS);
+
+            SessionContext context = new SessionContext(session, endpoint, helloFuture);
+            endpoint.context = context;
             SessionContext previous = sessions.put(instanceId, context);
             if (previous != null) {
                 previous.close();
@@ -263,7 +294,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
                 + " needs startup bootstrap — pushing harness JAR"
                 + " chunkBytes=" + DEFAULT_CHUNK_BYTES
-                + " ackWindow=" + CHUNK_ACK_WINDOW
+                + " window=" + CHUNK_WINDOW
                 + " maxConnectionMs=" + MAX_BOOTSTRAP_CONNECTION_MS)));
         File harnessJar = findHarnessJar();
         if (harnessJar == null || !harnessJar.exists() || !harnessJar.isFile()) {
@@ -411,7 +442,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Bootstrap transfer budget reached for " + instanceId
                             + " during ack wait — closing cleanly to resume")));
-            pendingChunkAcks.remove(instanceId);
             return false;
         }
     }
@@ -439,9 +469,13 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 chunkBytes,
                 file.defaultDataFile()));
 
+        // Fresh in-flight window state for this file.
+        ChunkWindow window = new ChunkWindow(fileId);
+        context.chunkWindow = window;
+
         if (content == null || content.length == 0) {
             pendingAcks.remove(fileId);
-            sendChunk(context, instanceId, fileId, 0, new byte[0], 0, 0, connectionDeadlineMs);
+            sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, 0, new byte[0], 0, 0));
             return true;
         }
 
@@ -482,13 +516,78 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                                 + "/" + totalBytes + " — will reconnect and resume")));
                 return false;
             }
+            // Bounded in-flight window: block only when too many chunks are unacked.
+            awaitWindowCredit(window, chunkIndex, connectionDeadlineMs, instanceId);
             int len = Math.min(chunkBytes, content.length - offset);
-            sendChunk(context, instanceId, fileId, chunkIndex, content, offset, len, connectionDeadlineMs);
+            sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, content, offset, len));
+            window.onSent(chunkIndex);
             chunkIndex++;
         }
+        // Drain the window: wait until all sent chunks have been acked.
+        awaitWindowDrained(window, chunkIndex - 1, connectionDeadlineMs, instanceId);
         logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
                 startOffset, chunkIndex - startChunk, transferStartedAtNs);
         return true;
+    }
+
+    /** Blocks until fewer than CHUNK_WINDOW chunks are outstanding (unacked) for this file. */
+    private void awaitWindowCredit(ChunkWindow window, int nextChunkIndex, long connectionDeadlineMs, String instanceId)
+            throws IOException, InterruptedException {
+        int lowestAllowed = nextChunkIndex - CHUNK_WINDOW + 1;
+        waitForAckedThrough(window, lowestAllowed - 1, connectionDeadlineMs, instanceId);
+    }
+
+    /** Blocks until every chunk up through lastChunkIndex has been acked. */
+    private void awaitWindowDrained(ChunkWindow window, int lastChunkIndex, long connectionDeadlineMs, String instanceId)
+            throws IOException, InterruptedException {
+        if (lastChunkIndex < 0) {
+            return;
+        }
+        waitForAckedThrough(window, lastChunkIndex, connectionDeadlineMs, instanceId);
+    }
+
+    private void waitForAckedThrough(ChunkWindow window, int requiredAckedIndex, long connectionDeadlineMs,
+                                     String instanceId) throws IOException, InterruptedException {
+        while (true) {
+            // Atomically re-check the window and obtain the future to await, closing the race where an
+            // ack could land between the check and the wait.
+            CompletableFuture<Void> advance = window.awaitAdvanceIfBelow(requiredAckedIndex);
+            if (advance == null) {
+                if (window.failure() != null) {
+                    throw new IOException(window.failure());
+                }
+                return;
+            }
+            long ackTimeoutMs = 30_000L;
+            if (connectionDeadlineMs > 0) {
+                long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
+                if (remainingMs <= 0) {
+                    throw new BootstrapBudgetExceededException(
+                            "Bootstrap connection budget reached during chunk ack wait");
+                }
+                ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
+            }
+            try {
+                advance.get(ackTimeoutMs, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw e;
+            } catch (java.util.concurrent.TimeoutException e) {
+                if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
+                    throw new BootstrapBudgetExceededException(
+                            "Bootstrap connection budget reached while waiting for chunk ack");
+                }
+                if (window.failure() != null) {
+                    throw new IOException(window.failure());
+                }
+                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
+            } catch (Exception e) {
+                if (window.failure() != null) {
+                    throw new IOException(window.failure());
+                }
+                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
+            }
+        }
     }
 
     private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
@@ -510,57 +609,23 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                         + " throughputMiBps=" + throughputMiBps)));
     }
 
-    private void sendChunk(SessionContext context, String instanceId, String fileId,
-                           int chunkIndex, byte[] bytes, int offset, int len, long connectionDeadlineMs)
-            throws IOException, InterruptedException {
-        CompletableFuture<Void> gate = null;
-        if ((chunkIndex + 1) % CHUNK_ACK_WINDOW == 0) {
-            gate = new CompletableFuture<>();
-            pendingChunkAcks.put(instanceId, new PendingChunkAck(fileId, chunkIndex, gate));
-        }
-        sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, bytes, offset, len));
-        if (gate != null) {
-            try {
-                long ackTimeoutMs = 30_000L;
-                if (connectionDeadlineMs > 0) {
-                    long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
-                    if (remainingMs <= 0) {
-                        throw new BootstrapBudgetExceededException(
-                                "Bootstrap connection budget reached during chunk ack wait");
-                    }
-                    ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
-                }
-                gate.get(ackTimeoutMs, TimeUnit.MILLISECONDS);
-            } catch (BootstrapBudgetExceededException e) {
-                throw e;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw e;
-            } catch (java.util.concurrent.TimeoutException e) {
-                if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
-                    throw new BootstrapBudgetExceededException(
-                            "Bootstrap connection budget reached while waiting for chunk ack");
-                }
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
-            } catch (Exception e) {
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
-            }
-        }
-    }
-
     private void sendBinaryChunk(SessionContext context, ByteBuffer payload) {
-        synchronized (context.webSocket) {
-            context.webSocket.sendBinary(payload, true).join();
+        Callback.Completable callback = new Callback.Completable();
+        synchronized (context.session) {
+            context.session.sendBinary(payload, callback);
         }
+        callback.join();
     }
 
     private void sendEnvelope(SessionContext context, AgentWsEnvelope envelope) throws IOException {
-        synchronized (context.webSocket) {
-            context.webSocket.sendText(envelope.toJson(), true).join();
+        Callback.Completable callback = new Callback.Completable();
+        synchronized (context.session) {
+            context.session.sendText(envelope.toJson(), callback);
         }
+        callback.join();
     }
 
-    private void handleText(String instanceId, WebSocket webSocket, String text,
+    private void handleText(String instanceId, Session session, String text,
                             CompletableFuture<AgentWsEnvelope> helloFuture) {
         try {
             AgentWsEnvelope envelope = AgentWsEnvelope.fromJson(text);
@@ -572,10 +637,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             switch (envelope.getType()) {
                 case hello -> helloFuture.complete(envelope);
                 case ack -> handleAck(envelope);
-                case file_ack -> handleFileAck(agentId, webSocket, envelope);
+                case file_ack -> handleFileAck(agentId, session, envelope);
                 case status_update -> handleStatusUpdate(agentId, envelope);
                 case pong -> LOG.debug(new ObjectMessage(Map.of("Message", "[WS] Pong from " + agentId)));
-                case close -> onClosed(agentId, webSocket);
+                case close -> onClosed(agentId, session);
                 default -> {
                 }
             }
@@ -593,19 +658,19 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private void handleFileAck(String instanceId, WebSocket webSocket, AgentWsEnvelope envelope) {
+    private void handleFileAck(String instanceId, Session session, AgentWsEnvelope envelope) {
         SessionContext context = sessions.get(instanceId);
         if (context == null) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring file_ack for non-active session " + instanceId)));
             return;
         }
-        if (webSocket == null) {
+        if (session == null) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring file_ack without WebSocket identity for " + instanceId)));
             return;
         }
-        if (context.webSocket != webSocket) {
+        if (context.session != session) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring stale file_ack from previous session for " + instanceId)));
             return;
@@ -625,10 +690,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(instanceId, true);
             agentWsState.put(instanceId, "ready");
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.complete(null);
+            ChunkWindow window = context.chunkWindow;
+            if (window != null && window.matchesFile(envelope.getFileId())) {
+                window.onAck(envelope.getChunkIndex());
             }
             context.transferCompleteFuture.complete(null);
             return;
@@ -643,16 +707,14 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         if (envelope.getStatus() == AckStatus.complete || envelope.getStatus() == AckStatus.chunk_received) {
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.complete(null);
+            ChunkWindow window = context.chunkWindow;
+            if (window != null && window.matchesFile(envelope.getFileId())) {
+                window.onAck(envelope.getChunkIndex());
             }
         } else if (envelope.getStatus() == AckStatus.failed) {
-            PendingChunkAck pending = pendingChunkAcks.get(instanceId);
-            if (pending != null && pending.matches(envelope.getFileId(), envelope.getChunkIndex())) {
-                pendingChunkAcks.remove(instanceId, pending);
-                pending.future.completeExceptionally(new IOException(envelope.getError()));
+            ChunkWindow window = context.chunkWindow;
+            if (window != null && window.matchesFile(envelope.getFileId())) {
+                window.onFailure(envelope.getError());
             }
             context.transferCompleteFuture.completeExceptionally(new IOException(envelope.getError()));
         }
@@ -671,19 +733,19 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private void onClosed(String instanceId, WebSocket webSocket) {
+    private void onClosed(String instanceId, Session session) {
         SessionContext context = sessions.get(instanceId);
         if (context == null) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring close for non-active session " + instanceId)));
             return;
         }
-        if (webSocket == null) {
+        if (session == null) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring close without WebSocket identity for " + instanceId)));
             return;
         }
-        if (context.webSocket != webSocket) {
+        if (context.session != session) {
             LOG.info(new ObjectMessage(Map.of("Message",
                     "[WS] Ignoring stale close from previous session for " + instanceId)));
             return;
@@ -695,62 +757,50 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
         context.markClosed();
         fileTransferReady.remove(instanceId);
-        PendingChunkAck pending = pendingChunkAcks.remove(instanceId);
-        if (pending != null) {
-            pending.future.completeExceptionally(new IOException("WS connection closed for " + instanceId));
+        ChunkWindow window = context.chunkWindow;
+        if (window != null) {
+            window.onFailure("WS connection closed for " + instanceId);
         }
         agentWsState.put(instanceId, "disconnected");
     }
 
-    private class Listener implements WebSocket.Listener {
+    private class Endpoint implements Session.Listener.AutoDemanding {
         private final String instanceId;
         private final CompletableFuture<AgentWsEnvelope> helloFuture;
-        private final StringBuilder messageBuffer = new StringBuilder();
+        private volatile SessionContext context;
+        private Session session;
 
-        private Listener(String instanceId, CompletableFuture<AgentWsEnvelope> helloFuture) {
+        private Endpoint(String instanceId, CompletableFuture<AgentWsEnvelope> helloFuture) {
             this.instanceId = instanceId;
             this.helloFuture = helloFuture;
         }
 
         @Override
-        public void onOpen(WebSocket webSocket) {
-            webSocket.request(1);
+        public void onWebSocketOpen(Session session) {
+            this.session = session;
         }
 
         @Override
-        public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-            messageBuffer.append(data);
-            if (last) {
-                String fullMessage = messageBuffer.toString();
-                messageBuffer.setLength(0);
-                handleText(instanceId, webSocket, fullMessage, helloFuture);
-            }
-            webSocket.request(1);
-            return null;
+        public void onWebSocketText(String message) {
+            handleText(instanceId, session, message, helloFuture);
         }
 
         @Override
-        public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-            webSocket.request(1);
-            return null;
+        public void onWebSocketClose(int statusCode, String reason) {
+            onClosed(instanceId, session);
         }
 
         @Override
-        public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-            onClosed(instanceId, webSocket);
-            return null;
-        }
-
-        @Override
-        public void onError(WebSocket webSocket, Throwable error) {
+        public void onWebSocketError(Throwable cause) {
             LOG.warn(new ObjectMessage(Map.of("Message",
-                    "[WS] Controller initiated WS listener error for " + instanceId + ": " + error.getMessage())));
-            onClosed(instanceId, webSocket);
+                    "[WS] Controller initiated WS listener error for " + instanceId + ": " + cause.getMessage())));
+            onClosed(instanceId, session);
         }
     }
 
     private static class SessionContext {
-        private final WebSocket webSocket;
+        private final Session session;
+        private final Endpoint endpoint;
         private final CompletableFuture<AgentWsEnvelope> helloFuture;
         private final CompletableFuture<Void> transferCompleteFuture = new CompletableFuture<>();
         private final ConcurrentHashMap<String, Integer> completedFiles = new ConcurrentHashMap<>();
@@ -761,15 +811,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private volatile int expectedFiles;
         private volatile boolean bootstrapTransfer;
         private volatile AgentWsEnvelope hello;
+        private volatile ChunkWindow chunkWindow;
 
-        private SessionContext(WebSocket webSocket, CompletableFuture<AgentWsEnvelope> helloFuture) {
-            this.webSocket = webSocket;
+        private SessionContext(Session session, Endpoint endpoint, CompletableFuture<AgentWsEnvelope> helloFuture) {
+            this.session = session;
+            this.endpoint = endpoint;
             this.helloFuture = helloFuture;
             this.openedAtMs = System.currentTimeMillis();
         }
 
         private boolean isOpen() {
-            return !closed.get() && !webSocket.isInputClosed() && !webSocket.isOutputClosed();
+            return !closed.get() && session.isOpen();
         }
 
         private void close() {
@@ -779,15 +831,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private void closeGracefully(String reason) {
             if (closed.compareAndSet(false, true)) {
                 try {
-                    webSocket.sendClose(WebSocket.NORMAL_CLOSURE, reason)
-                            .orTimeout(2, TimeUnit.SECONDS)
-                            .exceptionally(t -> {
-                                webSocket.abort();
-                                return webSocket;
-                            })
-                            .join();
+                    session.close(org.eclipse.jetty.websocket.api.StatusCode.NORMAL, reason, Callback.NOOP);
                 } catch (Exception e) {
-                    try { webSocket.abort(); } catch (Exception ignored) {}
+                    try { session.disconnect(); } catch (Exception ignored) {}
                 }
                 helloFuture.completeExceptionally(new IllegalStateException(reason));
                 transferCompleteFuture.completeExceptionally(new IllegalStateException(reason));
@@ -796,7 +842,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
         private void abort() {
             if (closed.compareAndSet(false, true)) {
-                try { webSocket.abort(); } catch (Exception ignored) {}
+                try { session.disconnect(); } catch (Exception ignored) {}
                 helloFuture.completeExceptionally(new IllegalStateException("Aborted"));
                 transferCompleteFuture.completeExceptionally(new IllegalStateException("Aborted"));
             }
@@ -812,19 +858,70 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
     }
 
-    private static class PendingChunkAck {
+    /**
+     * Tracks the sliding send window for a single file transfer. The sender advances
+     * {@code highestAckedChunk} as contiguous {@code chunk_received}/{@code complete} acks arrive and
+     * blocks only when the number of unacked chunks reaches {@link #CHUNK_WINDOW}.
+     */
+    private static class ChunkWindow {
         private final String fileId;
-        private final int chunkIndex;
-        private final CompletableFuture<Void> future;
+        private final java.util.BitSet ackedChunks = new java.util.BitSet();
+        private int highestContiguousAcked = -1;
+        private volatile String failure;
+        private volatile CompletableFuture<Void> advance = new CompletableFuture<>();
 
-        private PendingChunkAck(String fileId, int chunkIndex, CompletableFuture<Void> future) {
+        private ChunkWindow(String fileId) {
             this.fileId = fileId;
-            this.chunkIndex = chunkIndex;
-            this.future = future;
         }
 
-        private boolean matches(String fileId, Integer chunkIndex) {
-            return this.fileId.equals(fileId) && chunkIndex != null && this.chunkIndex == chunkIndex;
+        private boolean matchesFile(String otherFileId) {
+            return fileId.equals(otherFileId);
+        }
+
+        private synchronized void onSent(int chunkIndex) {
+            // no-op bookkeeping hook; kept for symmetry / future metrics
+        }
+
+        private synchronized void onAck(Integer chunkIndex) {
+            if (chunkIndex == null || chunkIndex < 0) {
+                return;
+            }
+            ackedChunks.set(chunkIndex);
+            while (ackedChunks.get(highestContiguousAcked + 1)) {
+                highestContiguousAcked++;
+            }
+            signal();
+        }
+
+        private synchronized void onFailure(String error) {
+            this.failure = error != null ? error : "chunk transfer failed";
+            signal();
+        }
+
+        private synchronized String failure() {
+            return failure;
+        }
+
+        /**
+         * If the window has already acked through {@code requiredAckedIndex} (or failed), returns null.
+         * Otherwise returns a fresh future that completes the next time an ack advances the window or a
+         * failure occurs. Synchronized so the check and future handoff are atomic with {@link #onAck}.
+         */
+        private synchronized CompletableFuture<Void> awaitAdvanceIfBelow(int requiredAckedIndex) {
+            if (highestContiguousAcked >= requiredAckedIndex || failure != null) {
+                return null;
+            }
+            if (advance.isDone()) {
+                advance = new CompletableFuture<>();
+            }
+            return advance;
+        }
+
+        private void signal() {
+            CompletableFuture<Void> current = advance;
+            if (!current.isDone()) {
+                current.complete(null);
+            }
         }
     }
 
