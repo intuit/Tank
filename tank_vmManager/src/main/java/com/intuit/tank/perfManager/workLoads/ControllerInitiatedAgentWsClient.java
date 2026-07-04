@@ -64,6 +64,14 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
     // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
+    // Jetty's default WS idle timeout is 30s. The controller holds connections idle while waiting for
+    // a whole fleet of agents to become ready before broadcasting START — raise it well past that.
+    private static final long WS_IDLE_TIMEOUT_MS =
+            Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
+    // Interval for the application-level keepalive ping that holds idle connections open and detects
+    // dead ones early (well under WS_IDLE_TIMEOUT_MS).
+    private static final long WS_KEEPALIVE_PING_MS =
+            Math.max(5_000L, Long.getLong("tank.ws.keepAlivePingMs", 10_000L));
 
     private final java.net.http.HttpClient httpClient =
             java.net.http.HttpClient.newBuilder().build();
@@ -75,6 +83,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
     private volatile byte[] cachedHarnessJarBytes;
     private volatile WebSocketClient wsClient;
+    private volatile java.util.concurrent.ScheduledExecutorService keepAliveExecutor;
 
     private volatile VMTracker vmTracker;
 
@@ -96,12 +105,48 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                     client = new WebSocketClient(jettyHttpClient);
                     client.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
                     client.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
+                    // Match the agents' raised idle timeout: the controller may hold connections idle
+                    // while waiting for a whole fleet to become ready before broadcasting START.
+                    client.setIdleTimeout(java.time.Duration.ofMillis(WS_IDLE_TIMEOUT_MS));
                     client.start();
                     wsClient = client;
+                    startKeepAlive();
                 }
             }
         }
         return client;
+    }
+
+    /**
+     * Periodically pings every open session so a connection held idle (e.g. while the controller waits
+     * for a whole fleet to become ready before broadcasting START) is kept warm and not closed by the
+     * peer's idle timeout. The agent servers reply with pong; a send failure closes the dead session.
+     */
+    private void startKeepAlive() {
+        java.util.concurrent.ScheduledExecutorService executor =
+                java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+                    Thread t = new Thread(r, "ws-keepalive");
+                    t.setDaemon(true);
+                    return t;
+                });
+        executor.scheduleWithFixedDelay(this::pingOpenSessions,
+                WS_KEEPALIVE_PING_MS, WS_KEEPALIVE_PING_MS, TimeUnit.MILLISECONDS);
+        keepAliveExecutor = executor;
+    }
+
+    private void pingOpenSessions() {
+        for (Map.Entry<String, SessionContext> entry : sessions.entrySet()) {
+            SessionContext context = entry.getValue();
+            if (context == null || !context.isOpen()) {
+                continue;
+            }
+            try {
+                sendEnvelope(context, AgentWsEnvelope.ping(UUID.randomUUID().toString()));
+            } catch (Exception e) {
+                LOG.debug(new ObjectMessage(Map.of("Message",
+                        "[WS] Keepalive ping failed for " + entry.getKey() + ": " + e.getMessage())));
+            }
+        }
     }
 
     public Optional<AgentWsEnvelope> connect(String instanceId, String wsUrl, String token, long helloTimeoutMillis) {

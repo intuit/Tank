@@ -38,6 +38,9 @@ public class StartupWebSocketServer {
     private static final String SUPPORT_JAR_FILE_TYPE = "support_jar";
     // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
+    // Raise Jetty's 30s default WS idle timeout so a slow/paused bootstrap transfer isn't dropped.
+    private static final long WS_IDLE_TIMEOUT_MS =
+            Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
 
     private final int port;
     private final String instanceId;
@@ -84,11 +87,13 @@ public class StartupWebSocketServer {
         ServerConnector connector = new ServerConnector(server, http11, h2c);
         connector.setPort(port);
         connector.setReuseAddress(reuseAddr);
+        connector.setIdleTimeout(WS_IDLE_TIMEOUT_MS);
         server.addConnector(connector);
 
         WebSocketUpgradeHandler wsHandler = WebSocketUpgradeHandler.from(server, container -> {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
+            container.setIdleTimeout(java.time.Duration.ofMillis(WS_IDLE_TIMEOUT_MS));
             container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new StartupEndpoint(this));
         });
         server.setHandler(wsHandler);

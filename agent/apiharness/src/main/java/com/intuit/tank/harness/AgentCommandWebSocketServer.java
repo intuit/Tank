@@ -57,6 +57,11 @@ public class AgentCommandWebSocketServer {
     private static final String DEFAULT_SUPPORT_ARCHIVE_NAME = "agent-support-files.zip";
     // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
+    // Jetty's default WS idle timeout is 30s. The controller may hold the connection idle while it
+    // waits for a whole fleet of agents to become ready before broadcasting START, so raise it well
+    // past that window to avoid the connection being closed with "Connection Idle Timeout".
+    private static final long WS_IDLE_TIMEOUT_MS =
+            Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
 
     private final int port;
     private final String instanceId;
@@ -104,11 +109,13 @@ public class AgentCommandWebSocketServer {
         ServerConnector connector = new ServerConnector(server, http11, h2c);
         connector.setPort(port);
         connector.setReuseAddress(reuseAddr);
+        connector.setIdleTimeout(WS_IDLE_TIMEOUT_MS);
         server.addConnector(connector);
 
         WebSocketUpgradeHandler wsHandler = WebSocketUpgradeHandler.from(server, container -> {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
+            container.setIdleTimeout(java.time.Duration.ofMillis(WS_IDLE_TIMEOUT_MS));
             container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint(this));
         });
         server.setHandler(wsHandler);
