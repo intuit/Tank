@@ -241,7 +241,7 @@ public class StartupWebSocketServer {
 
             if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
                 File completedFile = finalizeHarnessJar();
-                sendFileAck(conn, fileId, chunkIndex, AckStatus.complete, null);
+                sendFileAckSync(conn, fileId, chunkIndex, AckStatus.complete, null);
                 harnessJarFuture.complete(completedFile);
             }
         } catch (Exception e) {
@@ -294,6 +294,18 @@ public class StartupWebSocketServer {
             sendText(conn, ack.toJson());
         } catch (Exception e) {
             logger.warn("Failed to send startup WS file ack for {}: {}", fileId, e.getMessage());
+        }
+    }
+
+    /** Sends a file ack and blocks until the frame is flushed, so it cannot be lost on shutdown. */
+    private void sendFileAckSync(Session conn, String fileId, Integer chunkIndex, AckStatus status, String error) {
+        try {
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
+            Callback.Completable callback = new Callback.Completable();
+            conn.sendText(ack.toJson(), callback);
+            callback.get(10, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.warn("Failed to send startup WS file ack (sync) for {}: {}", fileId, e.getMessage());
         }
     }
 

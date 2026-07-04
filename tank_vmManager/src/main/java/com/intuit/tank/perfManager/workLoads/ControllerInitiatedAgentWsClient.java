@@ -343,6 +343,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentTransferProgress.put(agentId, "1/1 files");
         agentWsState.put(agentId, "bootstrap_sent");
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] Bootstrap JAR sent to " + agentId + " — waiting for harness to start")));
+        sessions.remove(agentId, context);
+        fileTransferReady.remove(agentId);
         context.close();
         return false;
     }
