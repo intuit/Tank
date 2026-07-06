@@ -1,3 +1,20 @@
+# 4.3.0 (Mon Jul 06 2026)
+
+#### 🚀 Enhancement
+
+- [SRE-38860] Accelerate WebSocket transfer via HTTP/2 (RFC 8441) migration [#493](https://github.com/intuit/Tank/pull/493) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump com.fasterxml.jackson.core:jackson-databind from 2.18.3 to 2.22.0 in /test_support [#490](https://github.com/intuit/Tank/pull/490) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.2.12 (Mon Jun 29 2026)
 
 #### 🐛 Bug Fix
