@@ -20,10 +20,14 @@
       <artifactId>api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- Jetty 12 WebSocket server with HTTP/2 (RFC 8441) support -->
     <dependency>
-      <groupId>org.java-websocket</groupId>
-      <artifactId>Java-WebSocket</artifactId>
-      <version>1.5.6</version>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>jetty-websocket-jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>jetty-http2-server</artifactId>
     </dependency>
   </dependencies>
 
