@@ -67,6 +67,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletContext;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 @Service
 public class JobServiceV2Impl implements JobServiceV2 {
@@ -104,6 +105,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             if (prj != null) {
                 JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
                 List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
+                jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
                 return JobContainer.builder().withJobs(list).build();
@@ -121,6 +123,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
         try {
             JobInstanceDao dao = new JobInstanceDao();
             List<JobInstance> jobs = dao.findAll();
+            jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
             if (!jobs.isEmpty()) {
                 jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());

@@ -27,7 +27,9 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
@@ -42,6 +44,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import jakarta.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -49,7 +52,7 @@ import java.util.stream.Collectors;
 public class AmazonInstance implements IEnvironmentInstance {
 
     protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
-    protected static String REQUEST_LIMIT_EXCEEDED = "RequestLimitExceeded";
+    protected static String INVALID_AMI_ID_UNAVAILABLE = "InvalidAMIID.Unavailable";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
 
@@ -75,7 +78,10 @@ public class AmazonInstance implements IEnvironmentInstance {
         this.vmRegion = vmRegion;
         try {
             CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder();
+            Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build());
             if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
                 try {
                     ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
@@ -184,6 +190,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
                 instanceRequest.addUserData(TankConstants.KEY_AGENT_TOKEN, config.getAgentConfig().getAgentToken());
                 instanceRequest.addUserData(TankConstants.KEY_NUM_USERS_PER_AGENT, Integer.toString(instanceRequest.getNumUsersPerAgent()));
+                instanceRequest.addUserData(TankConstants.KEY_COMMAND_WS_ENABLED, Boolean.toString(config.getAgentConfig().isCommandWsEnabled()));
 
                 if (instanceRequest.isUseEips()) {
                     instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
@@ -336,8 +343,8 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     * @param runInstancesRequestTemplate
      * @param subnetId
+     * @param runInstancesRequestTemplate
      * @param requestCount
      * @return
      */
@@ -356,20 +363,18 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(completionException -> {
                     Throwable cause = completionException.getCause();
-                    if (cause instanceof Ec2Exception) {
-                        String errorCode = ((Ec2Exception)cause).awsErrorDetails().errorCode();
+                    if (cause instanceof Ec2Exception && ((Ec2Exception) cause).awsErrorDetails() != null) {
+                        String errorCode = ((Ec2Exception) cause).awsErrorDetails().errorCode();
                         if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
                             LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
-                        } else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
-                            LOG.warn("Exceeded request limit: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
-                            try { Thread.sleep(new Random().nextInt(1000) + 500); } catch (InterruptedException ignored) {}
-                            return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, instanceTypes).join();
+                        } else if ( errorCode.equals(INVALID_AMI_ID_UNAVAILABLE) ) {
+                            LOG.error("AMI is not available in {}: {}", vmRegion, cause.getMessage());
+                            throw new CompletionException(cause);
                         }
-                    } else {
-                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
                     }
-                    return RunInstancesResponse.builder().build();
+                    LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
+                    throw new CompletionException(cause);
                 })
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {

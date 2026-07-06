@@ -128,6 +128,12 @@ Resources:
               command: 'sed -i "s/#DefaultLimitNOFILE=/DefaultLimitNOFILE=81960/" /etc/systemd/system.conf'
             032_set_file_open_limit:
               command: 'sed -i "s/#DefaultLimitNOFILE=/DefaultLimitNOFILE=81960/" /etc/systemd/user.conf'
+            033_create_tank_agent_systemd_timeout_dir:
+              command: 'mkdir -p /etc/systemd/system/tank_agent.service.d'
+            034_set_tank_agent_systemd_timeout:
+              command: 'printf "[Service]\nTimeoutStartSec=900\n" > /etc/systemd/system/tank_agent.service.d/timeout.conf'
+            035_reload_systemd:
+              command: 'systemctl daemon-reload'
           services:
             sysvinit:
               tank_agent:

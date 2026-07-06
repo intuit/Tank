@@ -1,5 +1,6 @@
 package com.intuit.tank.vmManager;
 
+import com.intuit.tank.dao.VMImageDao;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
@@ -14,9 +15,11 @@ import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +46,7 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
         List<VMInformation> vmInfo = new ArrayList<>();
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker, null);
 
         String result = agentWatchdog.toString();
 
@@ -65,7 +69,8 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000, null);
         agentWatchdog.run();
 
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
@@ -91,7 +96,8 @@ public class AgentWatchdogTest {
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 1000, null);
         agentWatchdog.run();
 
         verify(amazonInstanceMock, never()).killInstances(Mockito.anyList());
@@ -119,7 +125,7 @@ public class AgentWatchdogTest {
         instanceRequest.setRegion(VMRegion.STANDALONE);
         List<VMInformation> vmInfo = new ArrayList<>();
         
-        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker);
+        AgentWatchdog agentWatchdog = new AgentWatchdog(instanceRequest, vmInfo, vmTracker, null);
         
         // Use reflection to access private createCloudStatus method
         Method createCloudStatus = AgentWatchdog.class.getDeclaredMethod(
@@ -143,16 +149,11 @@ public class AgentWatchdogTest {
         assertEquals(JobStatus.Starting, result.getJobStatus());
     }
     
-    /**
-     * Verifies the checkForReportingInstances() logic only considers 'pending' agents as reported.
-     * This test ensures that 'starting' agents are NOT moved to reportedInstances.
-     */
     @Test
-    public void checkForReportingInstances_onlyMovesPendingAgents(
+    public void checkForReportingInstances_movesPendingReadyAndRunningAgents(
             @Mock VMTracker vmTrackerMock, 
-            @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
+            @Mock CloudVmStatusContainer cloudVmStatusContainerMock) throws Exception {
         
-        // Setup: Two agents - one starting (should wait), one pending (should be reported)
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
         
         CloudVmStatus vmstatusStarting = new CloudVmStatus(
@@ -164,14 +165,25 @@ public class AgentWatchdogTest {
             "i-reported", "123", "sg-123456", 
             JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, 
             VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+
+        CloudVmStatus vmstatusReady = new CloudVmStatus(
+            "i-ready", "123", "sg-123456",
+            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE,
+            VMStatus.ready, new ValidationStatus(), 1, 1, new Date(), new Date());
+
+        CloudVmStatus vmstatusRunning = new CloudVmStatus(
+            "i-running", "123", "sg-123456",
+            JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE,
+            VMStatus.running, new ValidationStatus(), 1, 1, new Date(), new Date());
         
         Set<CloudVmStatus> statuses = new HashSet<>();
         statuses.add(vmstatusStarting);
         statuses.add(vmstatusPending);
+        statuses.add(vmstatusReady);
+        statuses.add(vmstatusRunning);
         when(cloudVmStatusContainerMock.getStatuses()).thenReturn(statuses);
-        when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
+        when(vmTrackerMock.getVmStatusForJob("123")).thenReturn(cloudVmStatusContainerMock);
 
-        // Create VMInformation for both agents
         VMInformation vmInfoStarting = new VMInformation();
         vmInfoStarting.setState("pending");
         vmInfoStarting.setInstanceId("i-still-starting");
@@ -179,37 +191,108 @@ public class AgentWatchdogTest {
         VMInformation vmInfoPending = new VMInformation();
         vmInfoPending.setState("pending");
         vmInfoPending.setInstanceId("i-reported");
+
+        VMInformation vmInfoReady = new VMInformation();
+        vmInfoReady.setState("pending");
+        vmInfoReady.setInstanceId("i-ready");
+
+        VMInformation vmInfoRunning = new VMInformation();
+        vmInfoRunning.setState("pending");
+        vmInfoRunning.setInstanceId("i-running");
         
         List<VMInformation> vmInfo = new ArrayList<>();
         vmInfo.add(vmInfoStarting);
         vmInfo.add(vmInfoPending);
+        vmInfo.add(vmInfoReady);
+        vmInfo.add(vmInfoRunning);
         
         VMInstanceRequest instanceRequest = new VMInstanceRequest();
+        instanceRequest.setJobId("123");
         instanceRequest.setRegion(VMRegion.STANDALONE);
 
-        // Short timeout to let it check once then timeout waiting for i-still-starting
-        // maxWaitForResponse=1 means it will immediately try to relaunch
-        // But since we're not mocking amazonInstance.create, it should fail
-        // and we just verify the initial check behavior
         AgentWatchdog agentWatchdog = new AgentWatchdog(
-            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50);
-        
-        // Run in a way that only checks once - the job will "appear stopped" after first check
-        when(cloudVmStatusContainerMock.getEndTime())
-            .thenReturn(null)  // First check
-            .thenReturn(new Date());  // Second check - job appears stopped, exit
-        
-        try {
-            agentWatchdog.run();
-        } catch (RuntimeException e) {
-            // Expected - job appears stopped
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50, null);
+
+        setField(agentWatchdog, "startedInstances", new ArrayList<>(vmInfo));
+        setField(agentWatchdog, "reportedInstances", new ArrayList<VMInformation>());
+        setField(agentWatchdog, "startTime", System.currentTimeMillis());
+
+        Method checkForReportingInstances = AgentWatchdog.class.getDeclaredMethod("checkForReportingInstances");
+        checkForReportingInstances.setAccessible(true);
+        checkForReportingInstances.invoke(agentWatchdog);
+
+        @SuppressWarnings("unchecked")
+        ArrayList<VMInformation> startedInstances = (ArrayList<VMInformation>) getField(agentWatchdog, "startedInstances");
+        @SuppressWarnings("unchecked")
+        ArrayList<VMInformation> reportedInstances = (ArrayList<VMInformation>) getField(agentWatchdog, "reportedInstances");
+
+        assertEquals(Set.of("i-still-starting"), instanceIds(startedInstances));
+        assertEquals(Set.of("i-reported", "i-ready", "i-running"), instanceIds(reportedInstances));
+        verify(cloudVmStatusContainerMock, times(1)).getStatuses();
+    }
+
+    @Test
+    public void relaunch_invokesWsBootstrapCallbackWithNewVms(@Mock VMTracker vmTrackerMock) throws Exception {
+        VMInformation oldVm = new VMInformation();
+        oldVm.setInstanceId("i-old");
+
+        VMInformation newVm = new VMInformation();
+        newVm.setInstanceId("i-new");
+
+        ArrayList<VMInformation> vmInfo = new ArrayList<>();
+        vmInfo.add(oldVm);
+        ArrayList<VMInformation> startedInstances = new ArrayList<>();
+        startedInstances.add(oldVm);
+        ArrayList<VMInformation> reportedInstances = new ArrayList<>();
+        List<VMInformation> newVms = Collections.singletonList(newVm);
+
+        VMInstanceRequest instanceRequest = new VMInstanceRequest();
+        instanceRequest.setJobId("123");
+        instanceRequest.setRegion(VMRegion.STANDALONE);
+        when(amazonInstanceMock.create(instanceRequest)).thenReturn(newVms);
+
+        AtomicReference<VMInstanceRequest> callbackRequest = new AtomicReference<>();
+        AtomicReference<List<VMInformation>> callbackVms = new AtomicReference<>();
+        AgentWatchdog.WsBootstrapCallback callback = (req, vms) -> {
+            callbackRequest.set(req);
+            callbackVms.set(vms);
+        };
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50, callback);
+
+        setField(agentWatchdog, "startedInstances", startedInstances);
+        setField(agentWatchdog, "reportedInstances", reportedInstances);
+
+        try (MockedConstruction<VMImageDao> daoMock = Mockito.mockConstruction(VMImageDao.class)) {
+            Method relaunch = AgentWatchdog.class.getDeclaredMethod("relaunch", ArrayList.class);
+            relaunch.setAccessible(true);
+            relaunch.invoke(agentWatchdog, startedInstances);
+
+            assertEquals(1, daoMock.constructed().size());
         }
 
-        // After ONE check:
-        // - i-reported (pending) should be in reportedInstances
-        // - i-still-starting (starting) should still be in startedInstances
-        // The key assertion is that the watchdog did NOT immediately exit
-        // because i-still-starting is still 'starting' not 'pending'
-        verify(cloudVmStatusContainerMock, atLeast(1)).getStatuses();
+        assertSame(instanceRequest, callbackRequest.get());
+        assertSame(newVms, callbackVms.get());
+        assertEquals(Set.of("i-new"), instanceIds(vmInfo));
+        assertEquals(Set.of("i-new"), instanceIds(startedInstances));
+        verify(amazonInstanceMock).killInstances(Collections.singletonList("i-old"));
+        verify(amazonInstanceMock).create(instanceRequest);
+    }
+
+    private static Set<String> instanceIds(List<VMInformation> instances) {
+        return instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toSet());
+    }
+
+    private static Object getField(Object target, String fieldName) throws Exception {
+        Field field = AgentWatchdog.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
+    }
+
+    private static void setField(Object target, String fieldName, Object value) throws Exception {
+        Field field = AgentWatchdog.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 }

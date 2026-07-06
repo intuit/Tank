@@ -1,0 +1,326 @@
+package com.intuit.tank.vm.agent.messages;
+
+import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
+import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.Type;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
+import com.intuit.tank.vm.api.enumerated.VMImageType;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
+import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AgentWsEnvelopeTest {
+
+    @Test
+    public void testHelloFactory() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", "cmd-99");
+
+        assertEquals(Type.hello, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals("sess-1", env.getAgentSessionId());
+        assertEquals("cmd-99", env.getLastAppliedCommandId());
+        assertEquals(AgentWsEnvelope.PROTOCOL_VERSION, env.getProtocolVersion());
+        assertTrue(env.getSentAtMs() > 0);
+    }
+
+    @Test
+    public void testHelloFactoryWithCapacity() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", "cmd-99", 4000);
+
+        assertEquals(Type.hello, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals("sess-1", env.getAgentSessionId());
+        assertEquals("cmd-99", env.getLastAppliedCommandId());
+        assertEquals(4000, env.getCapacity());
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+        assertEquals(4000, parsed.getCapacity());
+    }
+
+    @Test
+    public void testHelloFactoryWithNeedsBootstrap() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", null, 4000, true);
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertTrue(json.contains("\"needsBootstrap\":true"));
+        assertEquals(Boolean.TRUE, parsed.getNeedsBootstrap());
+        assertEquals(4000, parsed.getCapacity());
+    }
+
+    @Test
+    public void testHelloFactoryWithoutNeedsBootstrapOmitsField() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.hello("i-123", "job-1", "sess-1", "cmd-99", 4000);
+
+        String json = env.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertFalse(json.contains("\"needsBootstrap\""));
+        assertFalse(Boolean.TRUE.equals(parsed.getNeedsBootstrap()));
+    }
+
+    @Test
+    public void testCommandFactory() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "start");
+
+        assertEquals(Type.command, env.getType());
+        assertEquals("cmd-1", env.getCommandId());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals("start", env.getCommand());
+    }
+
+    @Test
+    public void testAckFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.ack("i-123", "command", "cmd-1", AckStatus.ok);
+
+        assertEquals(Type.ack, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("command", env.getAckForType());
+        assertEquals("cmd-1", env.getAckForId());
+        assertEquals(AckStatus.ok, env.getStatus());
+    }
+
+    @Test
+    public void testPingFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.ping("ping-1");
+
+        assertEquals(Type.ping, env.getType());
+        assertEquals("ping-1", env.getPingId());
+    }
+
+    @Test
+    public void testPongFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.pong("i-123", "sess-1", "ping-1", "cmd-5");
+
+        assertEquals(Type.pong, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("sess-1", env.getAgentSessionId());
+        assertEquals("ping-1", env.getPingId());
+        assertEquals("cmd-5", env.getLastAppliedCommandId());
+    }
+
+    @Test
+    public void testCloseFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.close("i-123", "shutdown", "Agent shutting down");
+
+        assertEquals(Type.close, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("shutdown", env.getReasonCode());
+        assertEquals("Agent shutting down", env.getReason());
+    }
+
+    @Test
+    public void testJobConfigFactory() {
+        AgentTestStartData startData = new AgentTestStartData("https://controller/v2/jobs/1/script", 25, 120000);
+        startData.setJobId("job-1");
+        AgentWsEnvelope env = AgentWsEnvelope.jobConfig("i-123", "job-1", startData, 4);
+
+        assertEquals(Type.job_config, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertEquals(startData, env.getJobConfig());
+        assertEquals(4, env.getExpectedFiles());
+    }
+
+    @Test
+    public void testFileOfferFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileOffer("i-123", "job-1", "file-1", "script",
+                "script.xml", 1024L, 3, 512, false);
+
+        assertEquals(Type.file_offer, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals("script", env.getFileType());
+        assertEquals("script.xml", env.getFileName());
+        assertEquals(1024L, env.getTotalBytes());
+        assertEquals(3, env.getTotalChunks());
+        assertEquals(512, env.getChunkBytes());
+        assertEquals(false, env.getDefaultDataFile());
+    }
+
+    @Test
+    public void testFileChunkFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileChunk("i-123", "job-1", "file-1", 2, "YWJj");
+
+        assertEquals(Type.file_chunk, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals(2, env.getChunkIndex());
+        assertEquals("YWJj", env.getChunkData());
+    }
+
+    @Test
+    public void testFileAckFactory() {
+        AgentWsEnvelope env = AgentWsEnvelope.fileAck("i-123", "job-1", "file-1", 2,
+                AckStatus.chunk_received, null);
+
+        assertEquals(Type.file_ack, env.getType());
+        assertEquals("file-1", env.getFileId());
+        assertEquals(2, env.getChunkIndex());
+        assertEquals(AckStatus.chunk_received, env.getStatus());
+    }
+
+    @Test
+    public void testStatusUpdateFactory() {
+        CloudVmStatus vmStatus = new CloudVmStatus(
+                "i-123",
+                "job-1",
+                "sg-1",
+                JobStatus.Running,
+                VMImageType.AGENT,
+                VMRegion.US_EAST,
+                VMStatus.running,
+                new ValidationStatus(),
+                50,
+                10,
+                new Date(),
+                null);
+
+        AgentWsEnvelope env = AgentWsEnvelope.statusUpdate("i-123", "job-1", vmStatus);
+
+        assertEquals(Type.status_update, env.getType());
+        assertEquals("i-123", env.getInstanceId());
+        assertEquals("job-1", env.getJobId());
+        assertNotNull(env.getInstanceStatus());
+        assertEquals("i-123", env.getInstanceStatus().getInstanceId());
+    }
+
+    @Test
+    public void testStatusUpdateRoundTrip() throws IOException {
+        CloudVmStatus vmStatus = new CloudVmStatus(
+                "i-321",
+                "job-9",
+                "sg-9",
+                JobStatus.Paused,
+                VMImageType.AGENT,
+                VMRegion.US_WEST_1,
+                VMStatus.rampPaused,
+                new ValidationStatus(),
+                80,
+                40,
+                new Date(),
+                null);
+
+        AgentWsEnvelope env = AgentWsEnvelope.statusUpdate("i-321", "job-9", vmStatus);
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(env.toJson());
+
+        assertEquals(Type.status_update, parsed.getType());
+        assertNotNull(parsed.getInstanceStatus());
+        assertEquals("i-321", parsed.getInstanceStatus().getInstanceId());
+        assertEquals("job-9", parsed.getInstanceStatus().getJobId());
+        assertEquals(VMStatus.rampPaused, parsed.getInstanceStatus().getVmStatus());
+        assertEquals(JobStatus.Paused, parsed.getInstanceStatus().getJobStatus());
+        assertEquals(80, parsed.getInstanceStatus().getTotalUsers());
+        assertEquals(40, parsed.getInstanceStatus().getCurrentUsers());
+    }
+
+    @Test
+    public void testJsonRoundTrip() throws IOException {
+        AgentWsEnvelope original = AgentWsEnvelope.command("cmd-1", "i-123", "job-1", "stop");
+        String json = original.toJson();
+
+        assertNotNull(json);
+        assertTrue(json.contains("\"type\":\"command\""));
+        assertTrue(json.contains("\"commandId\":\"cmd-1\""));
+        assertTrue(json.contains("\"command\":\"stop\""));
+
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+        assertEquals(Type.command, parsed.getType());
+        assertEquals("cmd-1", parsed.getCommandId());
+        assertEquals("i-123", parsed.getInstanceId());
+        assertEquals("job-1", parsed.getJobId());
+        assertEquals("stop", parsed.getCommand());
+    }
+
+    @Test
+    public void testJsonNullFieldsOmitted() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.ping("ping-1");
+        String json = env.toJson();
+
+        // Null fields should not be present
+        assertFalse(json.contains("\"instanceId\""));
+        assertFalse(json.contains("\"jobId\""));
+        assertFalse(json.contains("\"commandId\""));
+    }
+
+    @Test
+    public void testFromJsonUnknownFieldsIgnored() throws IOException {
+        String json = "{\"type\":\"hello\",\"instanceId\":\"i-1\",\"jobId\":\"j-1\",\"agentSessionId\":\"s-1\",\"unknownField\":\"value\",\"sentAtMs\":1000,\"protocolVersion\":1}";
+        AgentWsEnvelope env = AgentWsEnvelope.fromJson(json);
+
+        assertEquals(Type.hello, env.getType());
+        assertEquals("i-1", env.getInstanceId());
+        assertEquals("j-1", env.getJobId());
+    }
+
+    @Test
+    public void testFromJsonInvalidType() {
+        String json = "{\"type\":\"bogus\",\"instanceId\":\"i-1\"}";
+        assertThrows(IOException.class, () -> AgentWsEnvelope.fromJson(json));
+    }
+
+    @Test
+    public void testFromJsonMalformed() {
+        assertThrows(IOException.class, () -> AgentWsEnvelope.fromJson("not json"));
+    }
+
+    @Test
+    public void testFromJsonEmptyObject() throws IOException {
+        AgentWsEnvelope env = AgentWsEnvelope.fromJson("{}");
+        assertNull(env.getType());
+        assertNull(env.getInstanceId());
+    }
+
+    @Test
+    public void testAckStatusValues() {
+        assertEquals(8, AckStatus.values().length);
+        assertNotNull(AckStatus.valueOf("ok"));
+        assertNotNull(AckStatus.valueOf("duplicate"));
+        assertNotNull(AckStatus.valueOf("failed"));
+        assertNotNull(AckStatus.valueOf("unsupported"));
+        assertNotNull(AckStatus.valueOf("chunk_received"));
+        assertNotNull(AckStatus.valueOf("complete"));
+        assertNotNull(AckStatus.valueOf("all_files_complete"));
+        assertNotNull(AckStatus.valueOf("resume"));
+    }
+
+    @Test
+    public void testTypeValues() {
+        assertEquals(11, Type.values().length);
+        assertNotNull(Type.valueOf("hello"));
+        assertNotNull(Type.valueOf("command"));
+        assertNotNull(Type.valueOf("ack"));
+        assertNotNull(Type.valueOf("ping"));
+        assertNotNull(Type.valueOf("pong"));
+        assertNotNull(Type.valueOf("close"));
+        assertNotNull(Type.valueOf("job_config"));
+        assertNotNull(Type.valueOf("file_offer"));
+        assertNotNull(Type.valueOf("file_chunk"));
+        assertNotNull(Type.valueOf("file_ack"));
+        assertNotNull(Type.valueOf("status_update"));
+    }
+
+    @Test
+    public void testAckRoundTrip() throws IOException {
+        AgentWsEnvelope ack = AgentWsEnvelope.ack("i-123", "command", "cmd-1", AckStatus.duplicate);
+        ack.setError("already applied");
+        ack.setAgentSessionId("sess-1");
+
+        String json = ack.toJson();
+        AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
+
+        assertEquals(Type.ack, parsed.getType());
+        assertEquals(AckStatus.duplicate, parsed.getStatus());
+        assertEquals("already applied", parsed.getError());
+        assertEquals("sess-1", parsed.getAgentSessionId());
+    }
+}

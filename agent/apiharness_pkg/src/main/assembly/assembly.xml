@@ -18,10 +18,20 @@
       <unpackOptions>
         <excludes>
           <exclude>**/Log4j2Plugins.dat</exclude>
+          <exclude>log4j2.xml</exclude>
         </excludes>
       </unpackOptions>
     </dependencySet>
   </dependencySets>
+  <fileSets>
+    <fileSet>
+      <directory>../apiharness/src/main/resources</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>log4j2.xml</include>
+      </includes>
+    </fileSet>
+  </fileSets>
   <containerDescriptorHandlers>
     <containerDescriptorHandler>
       <handlerName>metaInf-services</handlerName>

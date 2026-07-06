@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>4.2.4-SNAPSHOT</version>
+    <version>4.3.1-SNAPSHOT</version>
   </parent>
   
   <artifactId>agent-startup</artifactId>
@@ -19,6 +19,15 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <!-- Jetty 12 WebSocket server with HTTP/2 (RFC 8441) support -->
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>jetty-websocket-jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>jetty-http2-server</artifactId>
     </dependency>
   </dependencies>
 
