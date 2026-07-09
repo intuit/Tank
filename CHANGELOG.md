@@ -1,3 +1,15 @@
+# 4.3.1 (Wed Jul 08 2026)
+
+#### 🐛 Bug Fix
+
+- Library Updates [#495](https://github.com/intuit/Tank/pull/495) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.0 (Mon Jul 06 2026)
 
 #### 🚀 Enhancement
