@@ -29,6 +29,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
+    <version.graalvm>25.1.3</version.graalvm>
     <version.hibernate>6.6.41.Final</version.hibernate>
     <version.software.amazon.awssdk>2.44.4</version.software.amazon.awssdk>
     <version.aws-xray-sdk-bom>2.20.0</version.aws-xray-sdk-bom>
@@ -747,18 +748,18 @@
       <dependency>
         <groupId>org.graalvm.polyglot</groupId>
         <artifactId>polyglot</artifactId>
-        <version>25.0.2</version>
+        <version>${version.graalvm}</version>
       </dependency>
       <dependency>
         <groupId>org.graalvm.polyglot</groupId>
         <artifactId>js-community</artifactId>
-        <version>25.0.2</version>
+        <version>${version.graalvm}</version>
         <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.graalvm.js</groupId>
         <artifactId>js-scriptengine</artifactId>
-        <version>25.0.2</version>
+        <version>${version.graalvm}</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet.jsp.jstl</groupId>
