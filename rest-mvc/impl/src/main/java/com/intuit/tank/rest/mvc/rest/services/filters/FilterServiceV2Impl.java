@@ -95,6 +95,35 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     }
 
     @Override
+    public FilterTO createOrUpdateFilter(FilterTO request) {
+        ScriptFilterDao dao = new ScriptFilterDao();
+        try {
+            if (request == null) {
+                throw new IllegalArgumentException("Filter request is required");
+            }
+            if (request.getName() == null || request.getName().isBlank()) {
+                throw new IllegalArgumentException("Filter name is required");
+            }
+
+            ScriptFilter filter = new ScriptFilter();
+            if (request.getId() != null && request.getId() > 0) {
+                filter = dao.findById(request.getId());
+                if (filter == null) {
+                    throw new IllegalArgumentException("Filter with filter id " + request.getId() + " does not exist");
+                }
+            } else if (request.getCreator() == null || request.getCreator().isBlank()) {
+                throw new IllegalArgumentException("Filter creator is required");
+            }
+
+            FilterServiceUtil.toScriptFilter(request, filter);
+            return FilterServiceUtil.filterToTO(dao.saveOrUpdate(filter));
+        } catch (Exception e) {
+            LOGGER.error("Error saving filter: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("filter", "filter", e);
+        }
+    }
+
+    @Override
     public FilterGroupContainer getFilterGroups() {
         try {
         List<ScriptFilterGroup> all = new ScriptFilterGroupDao().findAll();

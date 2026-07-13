@@ -62,6 +62,35 @@ public class FilterClient extends BaseClient{
         return null;
     }
 
+    public FilterTO createOrUpdateFilter(FilterTO filter) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody;
+        try {
+            requestBody = objectMapper.writeValueAsString(filter);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
+        }
+
+        HttpRequest request = requestBuilder("")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (checkStatusCode(response.statusCode())) {
+                return objectMapper.readValue(response.body(), FilterTO.class);
+            }
+            throw new ClientException(response.body(), response.statusCode());
+        } catch (ClientException e1) {
+            throw e1;
+        } catch (Exception e2) {
+            handleError(request, e2);
+        }
+        return null;
+    }
+
     public FilterGroupContainer getFilterGroups() {
         HttpRequest request = requestBuilder("/groups")
                 .header("Accept", "application/json")

@@ -45,6 +45,11 @@ public class FilterControllerTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        when(request.getScheme()).thenReturn("https");
+        when(request.getServerName()).thenReturn("localhost");
+        when(request.getServerPort()).thenReturn(443);
+        when(request.getRequestURI()).thenReturn("/v2/filters");
+        when(request.getRequestURL()).thenReturn(new StringBuffer("https://localhost/v2/filters"));
     }
 
     @Test
@@ -72,6 +77,27 @@ public class FilterControllerTest {
         assertEquals("testProductName", result.getBody().getFilters().get(0).getProductName());
         assertEquals(200, result.getStatusCodeValue());
         verify(filterService).getFilters();
+    }
+
+    @Test
+    public void testCreateOrUpdateFilter() {
+        FilterTO requestFilter = FilterTO.builder()
+                .withName("testFilterName")
+                .withCreator("sync-user")
+                .build();
+        FilterTO savedFilter = FilterTO.builder()
+                .withId(5)
+                .withName("testFilterName")
+                .withCreator("sync-user")
+                .build();
+        when(filterService.createOrUpdateFilter(requestFilter)).thenReturn(savedFilter);
+
+        ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
+
+        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(5, result.getBody().getId());
+        assertEquals("https://localhost/v2/filters/5", result.getHeaders().getLocation().toString());
+        verify(filterService).createOrUpdateFilter(requestFilter);
     }
 
     @Test

@@ -120,6 +120,55 @@ class FilterServiceV2ImplTest {
         }
     }
 
+    @Test
+    void createOrUpdateFilter_createsCompleteFilter() {
+        FilterTO request = FilterTO.builder().withName("new-filter").withCreator("sync-user").build();
+        ScriptFilter filter = new ScriptFilter();
+        FilterTO response = FilterTO.builder().withId(7).withName("new-filter").withCreator("sync-user").build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.saveOrUpdate(filter)).thenReturn(filter));
+             MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
+            utilMock.when(() -> FilterServiceUtil.toScriptFilter(eq(request), any(ScriptFilter.class))).thenReturn(filter);
+            utilMock.when(() -> FilterServiceUtil.filterToTO(filter)).thenReturn(response);
+
+            FilterTO result = service.createOrUpdateFilter(request);
+
+            assertEquals(7, result.getId());
+            verify(daoMock.constructed().get(0)).saveOrUpdate(filter);
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_updatesExistingFilter() {
+        FilterTO request = FilterTO.builder().withId(4).withName("updated").build();
+        ScriptFilter existing = new ScriptFilter();
+        FilterTO response = FilterTO.builder().withId(4).withName("updated").build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(4)).thenReturn(existing);
+                    when(mock.saveOrUpdate(existing)).thenReturn(existing);
+                });
+             MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
+            utilMock.when(() -> FilterServiceUtil.toScriptFilter(request, existing)).thenReturn(existing);
+            utilMock.when(() -> FilterServiceUtil.filterToTO(existing)).thenReturn(response);
+
+            FilterTO result = service.createOrUpdateFilter(request);
+
+            assertEquals(4, result.getId());
+            verify(daoMock.constructed().get(0)).findById(4);
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsCreateWithoutCreator() {
+        FilterTO request = FilterTO.builder().withName("invalid").build();
+
+        assertThrows(GenericServiceCreateOrUpdateException.class,
+                () -> service.createOrUpdateFilter(request));
+    }
+
     // =====================================================================
     // getFilterGroups
     // =====================================================================

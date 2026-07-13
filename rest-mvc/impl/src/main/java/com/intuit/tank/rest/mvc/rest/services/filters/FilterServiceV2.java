@@ -62,6 +62,14 @@ public interface FilterServiceV2 {
     public FilterContainer getFilters();
 
     /**
+     * Creates a new filter or updates the filter identified by the request ID.
+     *
+     * @param request complete filter JSON payload
+     * @return the persisted filter
+     */
+    public FilterTO createOrUpdateFilter(FilterTO request);
+
+    /**
      * Gets the list of filter groups
      *
      * @throws GenericServiceCreateOrUpdateException
