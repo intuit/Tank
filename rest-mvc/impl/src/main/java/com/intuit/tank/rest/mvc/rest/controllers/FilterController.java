@@ -21,11 +21,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Content;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.annotation.Resource;
+import java.net.URI;
 import java.util.Objects;
 
 @RestController
@@ -53,6 +56,30 @@ public class FilterController {
     })
     public ResponseEntity<FilterContainer> getFilters() {
         return new ResponseEntity<>(filterService.getFilters(), HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Creates a new filter, or updates the filter when the payload contains an existing ID",
+            summary = "Create or update a filter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully saved filter"),
+            @ApiResponse(responseCode = "200", description = "Successfully updated filter"),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
+    })
+    public ResponseEntity<FilterTO> createOrUpdateFilter(
+            @RequestBody @Parameter(description = "Complete filter JSON payload", required = true) FilterTO filter) {
+        FilterTO savedFilter = filterService.createOrUpdateFilter(filter);
+        if (filter.getId() != null && filter.getId() > 0) {
+            return new ResponseEntity<>(savedFilter, HttpStatus.OK);
+        }
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .scheme("https")
+                .path("/{id}")
+                .buildAndExpand(savedFilter.getId())
+                .toUri();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setLocation(location);
+        return new ResponseEntity<>(savedFilter, responseHeaders, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
