@@ -140,6 +140,86 @@ public class FilterApiIT extends BaseIT {
 
     @Test
     @Tag("integration")
+    public void testCreateUpdateAndDeleteInternalFilter() throws Exception {
+        String filterName = "InternalFilterApiIT-" + UUID.randomUUID();
+        String createRequestBody = """
+                {
+                  "creator": "integration-test",
+                  "name": "%s",
+                  "productName": "IntegrationTest",
+                  "persist": true,
+                  "allConditionsMustPass": true,
+                  "filterType": "INTERNAL",
+                  "conditions": [{
+                    "scope": "path",
+                    "condition": "contains",
+                    "value": "/filter-api-it"
+                  }],
+                  "actions": [{
+                    "action": "replace",
+                    "scope": "queryString",
+                    "key": "mode",
+                    "value": "created"
+                  }]
+                }
+                """.formatted(filterName);
+
+        HttpRequest createRequest = HttpRequest.newBuilder()
+                .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT))
+                .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(createRequestBody))
+                .build();
+
+        HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
+        assertEquals(201, createResponse.statusCode(), "Should create an internal filter");
+
+        JsonNode createdFilter = objectMapper.readTree(createResponse.body());
+        int filterId = createdFilter.get("id").asInt();
+        assertEquals(filterName, createdFilter.get("name").asText());
+        assertEquals("INTERNAL", createdFilter.get("filterType").asText());
+        assertEquals("/filter-api-it", createdFilter.get("conditions").get(0).get("value").asText());
+
+        try {
+            HttpRequest getRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT + "/" + filterId))
+                    .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                    .timeout(Duration.ofSeconds(30))
+                    .GET()
+                    .build();
+            JsonNode fetchedFilter = objectMapper.readTree(httpClient.send(getRequest, BodyHandlers.ofString()).body());
+            assertEquals("created", fetchedFilter.get("actions").get(0).get("value").asText());
+
+            String updateRequestBody = createRequestBody
+                    .replaceFirst("\\{", "{ \"id\": " + filterId + ",")
+                    .replace("\"created\"", "\"updated\"");
+            HttpRequest updateRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT))
+                    .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                    .header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
+                    .timeout(Duration.ofSeconds(30))
+                    .POST(HttpRequest.BodyPublishers.ofString(updateRequestBody))
+                    .build();
+
+            HttpResponse<String> updateResponse = httpClient.send(updateRequest, BodyHandlers.ofString());
+            assertEquals(200, updateResponse.statusCode(), "Should update an existing internal filter");
+            assertEquals("updated", objectMapper.readTree(updateResponse.body())
+                    .get("actions").get(0).get("value").asText());
+        } finally {
+            HttpRequest deleteRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT + "/" + filterId))
+                    .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
+                    .timeout(Duration.ofSeconds(30))
+                    .DELETE()
+                    .build();
+            assertEquals(204, httpClient.send(deleteRequest, BodyHandlers.ofString()).statusCode(),
+                    "Should delete the test filter");
+        }
+    }
+
+    @Test
+    @Tag("integration")
     public void testGetAllFilterGroups() throws Exception {
         // Arrange
         HttpRequest request = HttpRequest.newBuilder()

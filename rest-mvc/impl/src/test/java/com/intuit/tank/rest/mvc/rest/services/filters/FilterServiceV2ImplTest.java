@@ -16,6 +16,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteExce
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.util.FilterServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
+import com.intuit.tank.util.ScriptFilterType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -164,6 +165,18 @@ class FilterServiceV2ImplTest {
     @Test
     void createOrUpdateFilter_rejectsCreateWithoutCreator() {
         FilterTO request = FilterTO.builder().withName("invalid").build();
+
+        assertThrows(GenericServiceCreateOrUpdateException.class,
+                () -> service.createOrUpdateFilter(request));
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsExternalFilter() {
+        FilterTO request = FilterTO.builder()
+                .withName("external")
+                .withCreator("sync-user")
+                .withFilterType(ScriptFilterType.EXTERNAL.name())
+                .build();
 
         assertThrows(GenericServiceCreateOrUpdateException.class,
                 () -> service.createOrUpdateFilter(request));

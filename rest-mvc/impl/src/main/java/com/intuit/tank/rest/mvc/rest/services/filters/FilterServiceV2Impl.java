@@ -30,6 +30,7 @@ import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
+import com.intuit.tank.util.ScriptFilterType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -103,6 +104,12 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
             }
             if (request.getName() == null || request.getName().isBlank()) {
                 throw new IllegalArgumentException("Filter name is required");
+            }
+            if (request.getFilterType() != null && !ScriptFilterType.INTERNAL.name().equals(request.getFilterType())) {
+                throw new IllegalArgumentException("Only internal filters are supported");
+            }
+            if (request.getExternalScriptId() != null) {
+                throw new IllegalArgumentException("Internal filters cannot reference an external script");
             }
 
             ScriptFilter filter = new ScriptFilter();

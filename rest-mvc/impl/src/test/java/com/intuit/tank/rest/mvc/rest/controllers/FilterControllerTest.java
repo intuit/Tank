@@ -27,6 +27,7 @@ import org.mockito.MockitoAnnotations;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,6 +98,21 @@ public class FilterControllerTest {
         assertEquals(201, result.getStatusCodeValue());
         assertEquals(5, result.getBody().getId());
         assertEquals("https://localhost/v2/filters/5", result.getHeaders().getLocation().toString());
+        verify(filterService).createOrUpdateFilter(requestFilter);
+    }
+
+    @Test
+    public void testUpdateFilter() {
+        FilterTO requestFilter = FilterTO.builder()
+                .withId(5)
+                .withName("testFilterName")
+                .build();
+        when(filterService.createOrUpdateFilter(requestFilter)).thenReturn(requestFilter);
+
+        ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
+
+        assertEquals(200, result.getStatusCodeValue());
+        assertFalse(result.getHeaders().containsKey("Location"));
         verify(filterService).createOrUpdateFilter(requestFilter);
     }
 

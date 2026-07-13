@@ -63,11 +63,15 @@ public class FilterController {
             summary = "Create or update a filter")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully saved filter"),
+            @ApiResponse(responseCode = "200", description = "Successfully updated filter"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
     public ResponseEntity<FilterTO> createOrUpdateFilter(
             @RequestBody @Parameter(description = "Complete filter JSON payload", required = true) FilterTO filter) {
         FilterTO savedFilter = filterService.createOrUpdateFilter(filter);
+        if (filter.getId() != null && filter.getId() > 0) {
+            return new ResponseEntity<>(savedFilter, HttpStatus.OK);
+        }
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .scheme("https")
                 .path("/{id}")
