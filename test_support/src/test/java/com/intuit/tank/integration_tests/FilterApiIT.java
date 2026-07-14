@@ -254,6 +254,8 @@ public class FilterApiIT extends BaseIT {
             assertTrue(filterGroup.has("id"), "Filter group should have 'id' field");
             assertTrue(filterGroup.has("name"), "Filter group should have 'name' field");
             assertTrue(filterGroup.has("productName"), "Filter group should have 'productName' field");
+            assertTrue(filterGroup.has("filterIds"), "Filter group should have 'filterIds' field");
+            assertTrue(filterGroup.get("filterIds").isArray(), "Filter IDs should be an array");
 
             // Validate data types
             assertTrue(filterGroup.get("id").isInt(), "Filter group ID should be integer");
@@ -393,6 +395,23 @@ public class FilterApiIT extends BaseIT {
         assertEquals(filterGroupId, filterGroup.get("id").asInt(), "Should return correct filter group ID");
         assertTrue(filterGroup.has("name"), "Filter group should have name field");
         assertTrue(filterGroup.has("productName"), "Filter group should have productName field");
+        assertTrue(filterGroup.has("filterIds"), "Filter group should have filterIds field");
+        assertTrue(filterGroup.get("filterIds").isArray(), "Filter IDs should be an array");
+        assertTrue(filterGroup.has("filters"), "Filter group detail should have filters field");
+        assertTrue(filterGroup.get("filters").isArray(), "Filters should be an array");
+        assertTrue(filterGroup.get("filters").size() > 0, "Known filter group should contain filters");
+
+        Set<Integer> filterIds = new HashSet<>();
+        filterGroup.get("filterIds").forEach(id -> filterIds.add(id.asInt()));
+        for (JsonNode filter : filterGroup.get("filters")) {
+            assertTrue(filterIds.contains(filter.get("id").asInt()),
+                    "Every expanded filter should appear in filterIds");
+            assertTrue(filter.has("filterType"), "Expanded filter should include filterType");
+            assertTrue(filter.has("conditions"), "Expanded filter should include conditions");
+            assertTrue(filter.has("actions"), "Expanded filter should include actions");
+        }
+        assertEquals(filterIds.size(), filterGroup.get("filters").size(),
+                "Filter IDs and expanded filters should have matching membership");
     }
 
     @Test

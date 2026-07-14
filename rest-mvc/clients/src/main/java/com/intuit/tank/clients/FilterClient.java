@@ -147,8 +147,8 @@ public class FilterClient extends BaseClient{
         return null;
     }
 
-    public FilterGroupTO getFilterGroup(Integer filterGroupId) {
-        HttpRequest request = requestBuilder("", filterGroupId)
+    public FilterGroupDetailTO getFilterGroup(Integer filterGroupId) {
+        HttpRequest request = requestBuilder("/groups", filterGroupId)
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -159,7 +159,7 @@ public class FilterClient extends BaseClient{
             if(checkStatusCode(response.statusCode())) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, FilterGroupTO.class);
+                    return objectMapper.readValue(is, FilterGroupDetailTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -230,7 +230,7 @@ public class FilterClient extends BaseClient{
     }
 
     public String deleteFilterGroup(Integer filterGroupId) {
-        HttpRequest request = requestBuilder("", filterGroupId)
+        HttpRequest request = requestBuilder("/groups", filterGroupId)
                 .header("Accept", "text/plain")
                 .DELETE()
                 .build();
