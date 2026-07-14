@@ -310,14 +310,14 @@ public class AmazonInstance implements IEnvironmentInstance {
                             .collect(Collectors.toList());
                     CompletableFuture<DescribeInstancesResponse> future = ec2AsyncClient.describeInstances(
                             DescribeInstancesRequest.builder().instanceIds(instanceIds).build());
-                    if (future != null) {
-                        DescribeInstancesResponse described = future.get();
+                    DescribeInstancesResponse described = future != null ? future.get() : null;
+                    if (described != null && described.reservations() != null) {
                         // Update result with fresh instance data that includes public IPs
                         List<VMInformation> updated = described.reservations().stream()
                                 .flatMap(reservation -> reservation.instances().stream()
                                         .map(instance -> AmazonDataConverter.instanceToVmInformation(
                                                 reservation.requesterId(), instance, vmRegion)))
-                                .collect(Collectors.toList());
+                                .toList();
                         result.clear();
                         result.addAll(updated);
                         LOG.debug("Refreshed {} instance details with public IP information", updated.size());

@@ -1,3 +1,28 @@
+# 4.3.2 (Mon Jul 13 2026)
+
+#### 🐛 Bug Fix
+
+- Add Internal Filters API support [#496](https://github.com/intuit/Tank/pull/496) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.1 (Wed Jul 08 2026)
+
+#### 🐛 Bug Fix
+
+- Library Updates [#495](https://github.com/intuit/Tank/pull/495) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.0 (Mon Jul 06 2026)
 
 #### 🚀 Enhancement
