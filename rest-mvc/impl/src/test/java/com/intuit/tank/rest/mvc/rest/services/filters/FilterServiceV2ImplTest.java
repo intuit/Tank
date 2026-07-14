@@ -16,6 +16,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteExce
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.util.FilterServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
+import com.intuit.tank.util.ScriptFilterType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -118,6 +119,67 @@ class FilterServiceV2ImplTest {
             assertNotNull(result);
             assertEquals(1, result.getFilters().size());
         }
+    }
+
+    @Test
+    void createOrUpdateFilter_createsCompleteFilter() {
+        FilterTO request = FilterTO.builder().withName("new-filter").withCreator("sync-user").build();
+        ScriptFilter filter = new ScriptFilter();
+        FilterTO response = FilterTO.builder().withId(7).withName("new-filter").withCreator("sync-user").build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.saveOrUpdate(filter)).thenReturn(filter));
+             MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
+            utilMock.when(() -> FilterServiceUtil.toScriptFilter(eq(request), any(ScriptFilter.class))).thenReturn(filter);
+            utilMock.when(() -> FilterServiceUtil.filterToTO(filter)).thenReturn(response);
+
+            FilterTO result = service.createOrUpdateFilter(request);
+
+            assertEquals(7, result.getId());
+            verify(daoMock.constructed().get(0)).saveOrUpdate(filter);
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_updatesExistingFilter() {
+        FilterTO request = FilterTO.builder().withId(4).withName("updated").build();
+        ScriptFilter existing = new ScriptFilter();
+        FilterTO response = FilterTO.builder().withId(4).withName("updated").build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(4)).thenReturn(existing);
+                    when(mock.saveOrUpdate(existing)).thenReturn(existing);
+                });
+             MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
+            utilMock.when(() -> FilterServiceUtil.toScriptFilter(request, existing)).thenReturn(existing);
+            utilMock.when(() -> FilterServiceUtil.filterToTO(existing)).thenReturn(response);
+
+            FilterTO result = service.createOrUpdateFilter(request);
+
+            assertEquals(4, result.getId());
+            verify(daoMock.constructed().get(0)).findById(4);
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsCreateWithoutCreator() {
+        FilterTO request = FilterTO.builder().withName("invalid").build();
+
+        assertThrows(GenericServiceCreateOrUpdateException.class,
+                () -> service.createOrUpdateFilter(request));
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsExternalFilter() {
+        FilterTO request = FilterTO.builder()
+                .withName("external")
+                .withCreator("sync-user")
+                .withFilterType(ScriptFilterType.EXTERNAL.name())
+                .build();
+
+        assertThrows(GenericServiceCreateOrUpdateException.class,
+                () -> service.createOrUpdateFilter(request));
     }
 
     // =====================================================================

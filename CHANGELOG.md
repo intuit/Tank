@@ -1,3 +1,16 @@
+# 4.3.2 (Mon Jul 13 2026)
+
+#### 🐛 Bug Fix
+
+- Add Internal Filters API support [#496](https://github.com/intuit/Tank/pull/496) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.1 (Wed Jul 08 2026)
 
 #### 🐛 Bug Fix
