@@ -4,7 +4,7 @@
 		<useCase name="Group1" description="Request 1">
 			<variable name="username" value="#function.string.userid.9.MM-dd-yyyy"/>
 		</useCase>
-
+		
 		<useCase name="Group2" description="Request 64">
 
 			<testStep name="Request 2" description="Request 64" onFail="skip">
