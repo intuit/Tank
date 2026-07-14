@@ -1,3 +1,16 @@
+# 4.3.3 (Tue Jul 14 2026)
+
+#### 🐛 Bug Fix
+
+- Expand filter group API responses with group membership [#497](https://github.com/intuit/Tank/pull/497) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.2 (Mon Jul 13 2026)
 
 #### 🐛 Bug Fix
