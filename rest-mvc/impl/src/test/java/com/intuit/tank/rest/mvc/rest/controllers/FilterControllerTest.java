@@ -10,6 +10,7 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 import com.intuit.tank.rest.mvc.rest.services.filters.FilterServiceV2;
 import com.intuit.tank.filters.models.FilterTO;
 import com.intuit.tank.filters.models.FilterContainer;
+import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -122,6 +124,7 @@ public class FilterControllerTest {
                 .withId(4)
                 .withName("testFilterGroupName")
                 .withProductName("testProductName")
+                .withFilterIds(List.of(2, 5))
                 .build();
         FilterGroupContainer filterGroupContainer = FilterGroupContainer.builder().withFilterGroup(testFilterGroup).build();
         when(filterService.getFilterGroups()).thenReturn(filterGroupContainer);
@@ -130,6 +133,7 @@ public class FilterControllerTest {
         assertEquals(4, result.getBody().getFilterGroups().get(0).getId());
         assertEquals("testFilterGroupName", result.getBody().getFilterGroups().get(0).getName());
         assertEquals("testProductName", result.getBody().getFilterGroups().get(0).getProductName());
+        assertEquals(List.of(2, 5), result.getBody().getFilterGroups().get(0).getFilterIds());
         assertEquals(200, result.getStatusCodeValue());
         verify(filterService).getFilterGroups();
     }
@@ -153,17 +157,23 @@ public class FilterControllerTest {
 
     @Test
     public void testGetFilterGroup() {
-        FilterGroupTO testFilterGroup = FilterGroupTO.builder()
-                .withId(4)
-                .withName("testFilterGroupName")
-                .withProductName("testProductName")
-                .build();
+        FilterGroupDetailTO testFilterGroup = new FilterGroupDetailTO();
+        testFilterGroup.setId(4);
+        testFilterGroup.setName("testFilterGroupName");
+        testFilterGroup.setProductName("testProductName");
+        testFilterGroup.setFilterIds(List.of(5));
+        testFilterGroup.setFilters(List.of(FilterTO.builder()
+                .withId(5)
+                .withName("testFilterName")
+                .build()));
 
         when(filterService.getFilterGroup(1)).thenReturn(testFilterGroup);
-        ResponseEntity<FilterGroupTO> result = filterController.getFilterGroup(1);
+        ResponseEntity<FilterGroupDetailTO> result = filterController.getFilterGroup(1);
         assertEquals(4, result.getBody().getId());
         assertEquals("testFilterGroupName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
+        assertEquals(List.of(5), result.getBody().getFilterIds());
+        assertEquals("testFilterName", result.getBody().getFilters().get(0).getName());
         assertEquals(200, result.getStatusCodeValue());
         verify(filterService).getFilterGroup(1);
     }

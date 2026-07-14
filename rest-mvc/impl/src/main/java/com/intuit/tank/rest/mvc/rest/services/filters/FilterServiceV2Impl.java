@@ -21,6 +21,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNo
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.filters.models.FilterTO;
 import com.intuit.tank.filters.models.FilterContainer;
+import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
@@ -70,11 +71,11 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     }
 
     @Override
-    public FilterGroupTO getFilterGroup(Integer filterGroupId){
+    public FilterGroupDetailTO getFilterGroup(Integer filterGroupId){
         try {
             ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
             ScriptFilterGroup filterGroup = dao.findById(filterGroupId);
-            return FilterServiceUtil.filterGroupToTO(filterGroup);
+            return FilterServiceUtil.filterGroupToDetailTO(filterGroup);
         } catch(Exception e){
             LOGGER.error("Error returning specific filter: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "filterGroup", e);

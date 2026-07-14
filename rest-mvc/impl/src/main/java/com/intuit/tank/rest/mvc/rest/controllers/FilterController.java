@@ -9,7 +9,7 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
 import com.intuit.tank.filters.models.FilterTO;
-import com.intuit.tank.filters.models.FilterGroupTO;
+import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.FilterContainer;
 import com.intuit.tank.rest.mvc.rest.services.filters.FilterServiceV2;
@@ -83,7 +83,8 @@ public class FilterController {
     }
 
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
-    @Operation(description = "Returns list of all filter group descriptions", summary = "Get all filter group descriptions")
+    @Operation(description = "Returns all filter groups with their member filter IDs",
+            summary = "Get all filter groups")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found all filter group descriptions"),
             @ApiResponse(responseCode = "404", description = "All filter group descriptions could not be found", content = @Content)
@@ -103,12 +104,13 @@ public class FilterController {
     }
 
     @RequestMapping(value = "/groups/{filterGroupId}", method = RequestMethod.GET)
-    @Operation(description = "Returns specified filter group description by filter group id", summary = "Get a specific filter group description")
+    @Operation(description = "Returns the specified filter group with complete member filter definitions",
+            summary = "Get a filter group with its filters")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found filter group"),
             @ApiResponse(responseCode = "404", description = "Filter group could not be found", content = @Content)
     })
-    public ResponseEntity<FilterGroupTO> getFilterGroup(@PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId) {
+    public ResponseEntity<FilterGroupDetailTO> getFilterGroup(@PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId) {
         return new ResponseEntity<>(filterService.getFilterGroup(filterGroupId), HttpStatus.OK);
     }
 

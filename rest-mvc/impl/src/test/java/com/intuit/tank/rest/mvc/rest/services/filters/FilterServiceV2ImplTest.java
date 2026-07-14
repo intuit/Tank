@@ -89,15 +89,22 @@ class FilterServiceV2ImplTest {
     @Test
     void getFilterGroup_returnsFilterGroup() {
         ScriptFilterGroup group = new ScriptFilterGroup();
-        FilterGroupTO to = FilterGroupTO.builder().withId(1).withName("grp").withProductName("prod").build();
+        FilterGroupDetailTO to = new FilterGroupDetailTO();
+        to.setId(1);
+        to.setName("grp");
+        to.setProductName("prod");
+        to.setFilterIds(List.of(3));
+        to.setFilters(List.of(FilterTO.builder().withId(3).withName("filter").build()));
 
         try (MockedConstruction<ScriptFilterGroupDao> daoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
                 (mock, ctx) -> when(mock.findById(1)).thenReturn(group));
              MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
-            utilMock.when(() -> FilterServiceUtil.filterGroupToTO(group)).thenReturn(to);
+            utilMock.when(() -> FilterServiceUtil.filterGroupToDetailTO(group)).thenReturn(to);
 
-            FilterGroupTO result = service.getFilterGroup(1);
+            FilterGroupDetailTO result = service.getFilterGroup(1);
             assertNotNull(result);
+            assertEquals(List.of(3), result.getFilterIds());
+            assertEquals(3, result.getFilters().get(0).getId());
         }
     }
 
