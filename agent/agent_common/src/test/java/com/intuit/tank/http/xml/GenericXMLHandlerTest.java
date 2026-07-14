@@ -15,7 +15,6 @@ package com.intuit.tank.http.xml;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.*;
@@ -44,7 +43,7 @@ public class GenericXMLHandlerTest {
     @Test
     public void testGetElementAttr_1() {
         GenericXMLHandler fixture = new GenericXMLHandler(xml);
-        String xPathExpression = "rootElement/childElement1";
+        String xPathExpression = "rootElement/childElement1/@attribute1";
 
         String result = fixture.GetElementAttr(xPathExpression);
 
@@ -53,17 +52,24 @@ public class GenericXMLHandlerTest {
     }
 
     /**
+     * A GetElementAttr expression selecting a non-existent attribute returns "".
+     */
+    @Test
+    public void testGetElementAttr_missing() {
+        GenericXMLHandler fixture = new GenericXMLHandler(xml);
+
+        assertEquals("", fixture.GetElementAttr("rootElement/childElement1/@nope"));
+    }
+
+    /**
      * Run the String GetElementAttr(String) method test.
      */
     @Test
     public void testGetElementAttr_2() {
         GenericXMLHandler fixture = new GenericXMLHandler(new File("src/test/resources/tt.xml"));
-        String xPathExpression = "testPlan/testSuite";
 
-        String result = fixture.GetElementAttr(xPathExpression);
-
-        assertNotNull(result);
-        assertEquals("Suite for XXX5,XXX5", result);
+        assertEquals("Suite for XXX5", fixture.GetElementAttr("testPlan/testSuite/@description"));
+        assertEquals("XXX5", fixture.GetElementAttr("testPlan/testSuite/@name"));
     }
 
     /**
@@ -127,7 +133,7 @@ public class GenericXMLHandlerTest {
 
         fixture.SetElementAttribute(xPathExpression, attribute, value);
 
-        assertEquals("TEST", fixture.GetElementAttr(xPathExpression));
+        assertEquals("TEST", fixture.GetElementAttr(xPathExpression + "/@" + attribute));
     }
 
     /**
@@ -142,7 +148,7 @@ public class GenericXMLHandlerTest {
 
         fixture.SetElementAttribute(xPathExpression, attribute, value);
 
-        assertTrue(Arrays.asList(fixture.GetElementAttr(xPathExpression).split(",")).contains(value));
+        assertEquals(value, fixture.GetElementAttr(xPathExpression + "/@" + attribute));
     }
 
     /**
@@ -281,6 +287,25 @@ public class GenericXMLHandlerTest {
     }
 
     /**
+     * A configured namespace prefix must be usable end-to-end: create a namespaced element from an
+     * empty document, then read its value and confirm it exists via prefixed XPath expressions.
+     */
+    @Test
+    public void testNamespaceRoundTrip() {
+        GenericXMLHandler fixture = new GenericXMLHandler();
+        fixture.setNamespace("ns", "http://example.com/ns");
+
+        fixture.SetElementText("ns:root/ns:child", "hello");
+
+        assertTrue(fixture.xPathExists("ns:root/ns:child"));
+        assertEquals("hello", fixture.GetElementText("ns:root/ns:child"));
+
+        String output = fixture.toString();
+        assertTrue(output.contains("xmlns:ns=\"http://example.com/ns\""), output);
+        assertTrue(output.contains("<ns:child>hello</ns:child>"), output);
+    }
+
+    /**
      * Run the String toString() method test.
      */
     @Test
@@ -310,6 +335,17 @@ public class GenericXMLHandlerTest {
 
         boolean result4 = fixture.xPathExists("");
         assertFalse(result4);
+    }
+
+    /**
+     * An existing but empty element must be reported as present, even though its string value is "".
+     */
+    @Test
+    public void testXPathExists_emptyElement() {
+        GenericXMLHandler fixture = new GenericXMLHandler("<root><empty/></root>");
+
+        assertTrue(fixture.xPathExists("root/empty"));
+        assertFalse(fixture.xPathExists("root/missing"));
     }
 
     /**

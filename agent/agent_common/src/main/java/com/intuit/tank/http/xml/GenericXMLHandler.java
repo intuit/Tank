@@ -17,6 +17,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,6 +38,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -52,21 +56,30 @@ public class GenericXMLHandler implements Cloneable {
 
     static {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        try {
-            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        } catch (ParserConfigurationException ex) {
-            LOG.warn("Could not set all XXE prevention features: {}", ex.getMessage());
-        }
+        // Set each feature independently so one unsupported feature does not skip the rest (fail closed).
+        setFeatureQuietly(dbf, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeatureQuietly(dbf, "http://xml.org/sax/features/external-general-entities", false);
+        setFeatureQuietly(dbf, "http://xml.org/sax/features/external-parameter-entities", false);
+        // Standard, portable XXE restrictions on the parser factory.
+        dbf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        dbf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         dbf.setXIncludeAware(false);
         dbf.setExpandEntityReferences(false);
+        dbf.setNamespaceAware(true);
         DOCUMENT_BUILDER_FACTORY = dbf;
 
         TransformerFactory tf = TransformerFactory.newInstance();
         tf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
         tf.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         TRANSFORMER_FACTORY = tf;
+    }
+
+    private static void setFeatureQuietly(DocumentBuilderFactory dbf, String feature, boolean value) {
+        try {
+            dbf.setFeature(feature, value);
+        } catch (ParserConfigurationException ex) {
+            LOG.warn("Could not set XXE prevention feature {}: {}", feature, ex.getMessage());
+        }
     }
 
     protected Document xmlDocument = null;
@@ -177,7 +190,7 @@ public class GenericXMLHandler implements Cloneable {
 
         String currentPath = String.join("/", Arrays.copyOfRange(segments, 0, currentNode + 1));
 
-        Node existing = (Node) XPATH_FACTORY.newXPath()
+        Node existing = (Node) newXPath()
                 .evaluate(currentPath, this.xmlDocument, XPathConstants.NODE);
         if (existing instanceof Element) {
             if (currentNode == segments.length - 1) {
@@ -186,19 +199,20 @@ public class GenericXMLHandler implements Cloneable {
             return resolveOrCreateElement(xPathExpression, currentNode + 1);
         }
 
-        String childNode = getChildNode(currentPath);
+        // Last segment of the current path, e.g. "ns:child" — keep the prefix for the qualified name.
+        String qualifiedName = segments[currentNode];
         String namespace = getCurrentNamespace(currentPath);
 
         Element element;
-        if (namespace != null) {
-            element = this.xmlDocument.createElementNS(this.namespaces.get(namespace), childNode);
+        if (namespace != null && this.namespaces.get(namespace) != null) {
+            element = this.xmlDocument.createElementNS(this.namespaces.get(namespace), qualifiedName);
         } else {
-            element = this.xmlDocument.createElement(childNode);
+            element = this.xmlDocument.createElement(getChildNode(currentPath));
         }
 
         if (this.xmlDocument.getDocumentElement() != null) {
             String parentPath = String.join("/", Arrays.copyOfRange(segments, 0, currentNode));
-            Node parent = (Node) XPATH_FACTORY.newXPath()
+            Node parent = (Node) newXPath()
                     .evaluate(parentPath, this.xmlDocument, XPathConstants.NODE);
             if (parent == null) {
                 return null;
@@ -223,7 +237,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public String GetElementText(String xPathExpression) {
         try {
-            Node node = (Node) XPATH_FACTORY.newXPath()
+            Node node = (Node) newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
             return node != null ? node.getTextContent() : "";
         } catch (XPathExpressionException ex) {
@@ -233,23 +247,19 @@ public class GenericXMLHandler implements Cloneable {
     }
 
     /**
-     * Get the text for the selected element
-     * 
+     * Get the value of the attribute selected by the xpath expression.
+     * <p>
+     * The expression is expected to select an attribute, e.g. {@code root/child/@first}, matching the
+     * original attribute-selection contract. The attribute value is returned directly (an empty string
+     * if the expression selects nothing).
+     *
      * @param xPathExpression
-     *            The xpath expression for the element
-     * @return The text value of the element
+     *            The xpath expression selecting the attribute
+     * @return The value of the selected attribute, or "" if it does not exist
      */
     public String GetElementAttr(String xPathExpression) {
         try {
-            Node node = (Node) XPATH_FACTORY.newXPath()
-                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
-            NamedNodeMap attributes = node != null ? node.getAttributes() : null;
-            if (attributes != null) {
-                return IntStream.range(0, attributes.getLength())
-                        .mapToObj(attributes::item)
-                        .map(Node::getTextContent)
-                        .collect(Collectors.joining(","));
-            }
+            return newXPath().evaluate(xPathExpression, this.xmlDocument);
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
@@ -264,7 +274,7 @@ public class GenericXMLHandler implements Cloneable {
      */
     public ArrayList<String> GetElementList(String xPathExpression) {
         try {
-            NodeList nodeList = (NodeList) XPATH_FACTORY.newXPath()
+            NodeList nodeList = (NodeList) newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODESET);
             return IntStream.range(0, nodeList.getLength())
                     .mapToObj(nodeList::item)
@@ -286,7 +296,9 @@ public class GenericXMLHandler implements Cloneable {
     public boolean xPathExists(String xPathExpression)
     {
         try {
-            return !(XPATH_FACTORY.newXPath().evaluate(xPathExpression, this.xmlDocument).isEmpty());
+            Node node = (Node) newXPath()
+                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            return node != null;
         } catch (XPathExpressionException ex) {
             return false;
         }
@@ -407,5 +419,43 @@ public class GenericXMLHandler implements Cloneable {
 
     public void setNamespace(String name, String value) {
         this.namespaces.put(name, value);
+    }
+
+    /**
+     * Create an XPath instance whose prefixes resolve against the configured namespaces so that
+     * expressions such as {@code ns:root/ns:child} evaluate against namespace-aware documents.
+     */
+    private XPath newXPath() {
+        XPath xpath = XPATH_FACTORY.newXPath();
+        final Map<String, String> ns = this.namespaces;
+        if (ns != null && !ns.isEmpty()) {
+            xpath.setNamespaceContext(new NamespaceContext() {
+                @Override
+                public String getNamespaceURI(String prefix) {
+                    String uri = ns.get(prefix);
+                    return uri != null ? uri : javax.xml.XMLConstants.NULL_NS_URI;
+                }
+
+                @Override
+                public String getPrefix(String namespaceURI) {
+                    for (Map.Entry<String, String> entry : ns.entrySet()) {
+                        if (entry.getValue().equals(namespaceURI)) {
+                            return entry.getKey();
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                public Iterator<String> getPrefixes(String namespaceURI) {
+                    return ns.entrySet().stream()
+                            .filter(e -> e.getValue().equals(namespaceURI))
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList())
+                            .iterator();
+                }
+            });
+        }
+        return xpath;
     }
 }
