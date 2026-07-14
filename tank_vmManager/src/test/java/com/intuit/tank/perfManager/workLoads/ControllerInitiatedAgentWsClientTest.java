@@ -47,6 +47,24 @@ public class ControllerInitiatedAgentWsClientTest {
     }
 
     @Test
+    void testStatusUpdateUsesSessionBoundInstanceId() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        VMTracker vmTracker = mock(VMTracker.class);
+        VMTerminator vmTerminator = mock(VMTerminator.class);
+        client.setVmTracker(vmTracker);
+        client.setVmTerminator(vmTerminator);
+
+        CloudVmStatus status = createStatus("i-spoofed", JobStatus.Completed, VMStatus.terminated);
+        AgentWsEnvelope statusUpdate = AgentWsEnvelope.statusUpdate("i-spoofed", "job-1", status);
+
+        invokeHandleText(client, "i-session-bound", statusUpdate);
+
+        verify(vmTerminator).terminate("i-session-bound");
+        verify(vmTerminator, never()).terminate("i-spoofed");
+        verify(vmTracker).setStatus(argThat(updated -> "i-session-bound".equals(updated.getInstanceId())));
+    }
+
+    @Test
     void testTerminalStatusSchedulesTerminationOnlyOnce() throws Exception {
         ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
         VMTracker vmTracker = mock(VMTracker.class);
@@ -105,6 +123,14 @@ public class ControllerInitiatedAgentWsClientTest {
                 "handleStatusUpdate", String.class, AgentWsEnvelope.class);
         method.setAccessible(true);
         method.invoke(client, instanceId, envelope);
+    }
+
+    private void invokeHandleText(ControllerInitiatedAgentWsClient client, String instanceId,
+                                  AgentWsEnvelope envelope) throws Exception {
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
+                "handleText", String.class, Session.class, String.class, CompletableFuture.class);
+        method.setAccessible(true);
+        method.invoke(client, instanceId, null, envelope.toJson(), new CompletableFuture<AgentWsEnvelope>());
     }
 
     private void invokeOnClosed(ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {

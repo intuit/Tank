@@ -694,7 +694,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 case hello -> helloFuture.complete(envelope);
                 case ack -> handleAck(envelope);
                 case file_ack -> handleFileAck(agentId, session, envelope);
-                case status_update -> handleStatusUpdate(agentId, envelope);
+                case status_update -> handleStatusUpdate(instanceId, envelope);
                 case pong -> LOG.debug(new ObjectMessage(Map.of("Message", "[WS] Pong from " + agentId)));
                 case close -> onClosed(agentId, session);
                 default -> {
