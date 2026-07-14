@@ -1,3 +1,16 @@
+# 4.3.4 (Tue Jul 14 2026)
+
+#### 🐛 Bug Fix
+
+- Fix WS agent bootstrap and terminate agents after graceful STOP [#494](https://github.com/intuit/Tank/pull/494) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.3 (Tue Jul 14 2026)
 
 #### 🐛 Bug Fix
