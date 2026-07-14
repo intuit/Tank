@@ -6,9 +6,12 @@ import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
+import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import com.intuit.tank.vm.vmManager.models.VMStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,17 +84,23 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final ConcurrentHashMap<String, Long> agentLastSeen = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentWsState = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
+    private final java.util.Set<String> terminationRequestedInstances = ConcurrentHashMap.newKeySet();
     private volatile byte[] cachedHarnessJarBytes;
     private volatile WebSocketClient wsClient;
     private volatile java.util.concurrent.ScheduledExecutorService keepAliveExecutor;
 
     private volatile VMTracker vmTracker;
+    private volatile VMTerminator vmTerminator;
 
     public ControllerInitiatedAgentWsClient() {
     }
 
     public void setVmTracker(VMTracker vmTracker) {
         this.vmTracker = vmTracker;
+    }
+
+    public void setVmTerminator(VMTerminator vmTerminator) {
+        this.vmTerminator = vmTerminator;
     }
 
     private WebSocketClient webSocketClient() throws Exception {
@@ -685,7 +694,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 case hello -> helloFuture.complete(envelope);
                 case ack -> handleAck(envelope);
                 case file_ack -> handleFileAck(agentId, session, envelope);
-                case status_update -> handleStatusUpdate(agentId, envelope);
+                case status_update -> handleStatusUpdate(instanceId, envelope);
                 case pong -> LOG.debug(new ObjectMessage(Map.of("Message", "[WS] Pong from " + agentId)));
                 case close -> onClosed(agentId, session);
                 default -> {
@@ -774,10 +783,41 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
         try {
             status.setInstanceId(instanceId);
+            requestTerminationForTerminalStatus(instanceId, status);
             vmTracker.setStatus(status);
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Failed status update from " + instanceId + ": " + e.getMessage())));
         }
+    }
+
+    private void requestTerminationForTerminalStatus(String instanceId, CloudVmStatus status) {
+        if (!isTerminalStatus(status)) {
+            return;
+        }
+        VMTerminator terminator = vmTerminator;
+        if (terminator == null) {
+            LOG.error(new ObjectMessage(Map.of("Message", "[WS] Terminal status from " + instanceId
+                    + " but VMTerminator is unavailable; instance termination was not scheduled")));
+            return;
+        }
+        if (!terminationRequestedInstances.add(instanceId)) {
+            return;
+        }
+        try {
+            LOG.info(new ObjectMessage(Map.of("Message", "[WS] Scheduling VM termination for terminal status from "
+                    + instanceId + " job " + status.getJobId())));
+            terminator.terminate(instanceId);
+        } catch (Exception e) {
+            terminationRequestedInstances.remove(instanceId);
+            LOG.error(new ObjectMessage(Map.of("Message", "[WS] Failed scheduling VM termination for "
+                    + instanceId + ": " + e.getMessage())), e);
+        }
+    }
+
+    private boolean isTerminalStatus(CloudVmStatus status) {
+        return status.getJobStatus() == JobStatus.Completed
+                || status.getVmStatus() == VMStatus.terminated
+                || status.getVmStatus() == VMStatus.replaced;
     }
 
     private void onClosed(String instanceId, Session session) {
@@ -802,6 +842,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                     "[WS] Ignoring close for replaced session " + instanceId)));
             return;
         }
+        terminationRequestedInstances.remove(instanceId);
         context.markClosed();
         fileTransferReady.remove(instanceId);
         ChunkWindow window = context.chunkWindow;
