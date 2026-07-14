@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>4.3.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>tank-vm-manager</artifactId>
@@ -73,6 +73,16 @@
     <dependency>
       <groupId>xalan</groupId>
       <artifactId>serializer</artifactId>
+    </dependency>
+
+    <!-- Jetty 12 WebSocket client over HTTP/2 (RFC 8441) for controller-initiated agent file push -->
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>jetty-websocket-jetty-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>jetty-http2-client-transport</artifactId>
     </dependency>
 
   </dependencies>

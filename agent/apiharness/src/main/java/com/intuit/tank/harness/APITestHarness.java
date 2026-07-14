@@ -105,6 +105,7 @@ public class APITestHarness {
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
+    private volatile AgentCommandWebSocketServer commandWebSocketServer;
 
     private Date send = new Date();
     private static final int interval = 15; // SECONDS
@@ -234,6 +235,17 @@ public class APITestHarness {
         return "local-instance";
     }
 
+    private boolean isCommandWsEnabled() {
+        try {
+            String value = AmazonUtil.getUserDataAsMap().get(TankConstants.KEY_COMMAND_WS_ENABLED);
+            if (StringUtils.isNotBlank(value)) {
+                return Boolean.parseBoolean(value);
+            }
+        } catch (Exception ignored) {
+        }
+        return tankConfig.getAgentConfig().isCommandWsEnabled();
+    }
+
     /**
      * Display usage error text
      */
@@ -254,10 +266,64 @@ public class APITestHarness {
 
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
-        HostInfo hostInfo = new HostInfo();
-        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        boolean wsEnabled = isCommandWsEnabled();
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;
+        if (capacity < 0) {
+            capacity = AmazonUtil.getCapacity();
+        }
+        agentRunData.setJobId(AmazonUtil.getJobId());
+        if (agentRunData.getJobId() == null || "unknown".equals(agentRunData.getJobId()) || agentRunData.getJobId().isBlank()) {
+            LOG.error("Missing jobId in userdata — cannot start WS agent. Exiting.");
+            System.exit(1);
+        }
+        agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
+        LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
+        if (wsEnabled) {
+            try {
+                int wsPort = tankConfig.getAgentConfig().getAgentPort();
+                LOG.info(new ObjectMessage(Map.of("Message", "Starting controller-initiated WS server on port " + wsPort)));
+                AgentCommandWebSocketServer wsServer = new AgentCommandWebSocketServer(
+                        wsPort,
+                        instanceId,
+                        agentRunData.getJobId(),
+                        capacity);
+                commandWebSocketServer = wsServer;
+                wsServer.start();
+
+                long transferTimeoutMs = Math.max(60_000L, tankConfig.getAgentConfig().getMaxAgentWaitTime());
+                if (!wsServer.awaitInitialTransfer(transferTimeoutMs)) {
+                    throw new RuntimeException("Timed out waiting for controller-initiated WS job config/file transfer");
+                }
+
+                AgentTestStartData startData = wsServer.getReceivedJobConfig();
+                if (startData == null) {
+                    throw new RuntimeException("Missing WS job_config payload");
+                }
+
+                tankConfig = new TankConfig();
+                applyStartData(startData);
+                ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
+                loadScriptFromLocalFile("script.xml");
+                wsServer.markInitialBootstrapReady();
+
+                Thread thread = new Thread(new StartedChecker());
+                thread.setName("StartedChecker");
+                thread.setDaemon(false);
+                thread.start();
+                return;
+            } catch (Exception e) {
+                LOG.error("Error in WS file transfer startup path: " + e, e);
+                if (commandWebSocketServer != null) {
+                    commandWebSocketServer.closeServer();
+                    commandWebSocketServer = null;
+                }
+                System.exit(0);
+            }
+        }
+
+        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        HostInfo hostInfo = new HostInfo();
         String instanceUrl = null;
         int retryCount = 0;
         while (instanceUrl == null) {
@@ -272,7 +338,7 @@ public class APITestHarness {
                 } else {
                     LOG.error("Error getting amazon host. maybe local.");
                     String publicIp = hostInfo.getPublicIp();
-                    
+
                     if (!publicIp.equals(HostInfo.UNKNOWN)) {
                         instanceUrl = "http://" + publicIp + ":"
                                 + tankConfig.getAgentConfig().getAgentPort();
@@ -284,13 +350,6 @@ public class APITestHarness {
             }
         }
         LOG.info(new ObjectMessage(Map.of("Message", "MyInstanceURL = " + instanceUrl)));
-        if (capacity < 0) {
-            capacity = AmazonUtil.getCapacity();
-        }
-        agentRunData.setJobId(AmazonUtil.getJobId());
-        agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
-        LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
-
         AgentData data = new AgentData(agentRunData.getJobId(), instanceId, instanceUrl, capacity,
                 AmazonUtil.getVMRegion(), AmazonUtil.getZone());
         try {
@@ -320,17 +379,7 @@ public class APITestHarness {
                 }
             }
             writeXmlToFile(startData.getScriptUrl(), token);
-
-            agentRunData.setNumUsers(startData.getConcurrentUsers());
-            agentRunData.setNumStartUsers(startData.getStartUsers());
-            agentRunData.setRampTimeMillis(startData.getRampTime());
-            agentRunData.setJobId(startData.getJobId());
-            agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
-            agentRunData.setUserInterval(startData.getUserIntervalIncrement());
-            agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
-            agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
-            agentRunData.setTotalAgents(startData.getTotalAgents());
-            agentRunData.setTargetRampRate(startData.getTargetRampRate()); // non-linear: same ramp rate set for each agent
+            applyStartData(startData);
 
             ThreadContext.put("workloadType", agentRunData.getIncrementStrategy().getDisplay());
 
@@ -340,6 +389,7 @@ public class APITestHarness {
                     saveDataFile(dfRequest, token);
                 }
             }
+
             Thread thread = new Thread(new StartedChecker());
             thread.setName("StartedChecker");
             thread.setDaemon(false);
@@ -347,6 +397,32 @@ public class APITestHarness {
         } catch (Exception e) {
             LOG.error("Error communicating with controller: " + e, e);
             System.exit(0);
+        }
+    }
+
+    private void applyStartData(AgentTestStartData startData) {
+        agentRunData.setNumUsers(startData.getConcurrentUsers());
+        agentRunData.setNumStartUsers(startData.getStartUsers());
+        agentRunData.setRampTimeMillis(startData.getRampTime());
+        agentRunData.setJobId(startData.getJobId());
+        agentRunData.setIncrementStrategy(startData.getIncrementStrategy());
+        agentRunData.setUserInterval(startData.getUserIntervalIncrement());
+        agentRunData.setSimulationTimeMillis(startData.getSimulationTime());
+        agentRunData.setAgentInstanceNum(startData.getAgentInstanceNum());
+        agentRunData.setTotalAgents(startData.getTotalAgents());
+        agentRunData.setTargetRampRate(startData.getTargetRampRate());
+    }
+
+    private void loadScriptFromLocalFile(String path) {
+        try {
+            File script = new File(path);
+            if (!script.exists()) {
+                throw new IOException("Script file not found: " + path);
+            }
+            String scriptXML = FileUtils.readFileToString(script, "UTF-8");
+            TestPlanSingleton.getInstance().setTestPlanXML(scriptXML);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to load local script " + path, e);
         }
     }
 
@@ -877,6 +953,10 @@ public class APITestHarness {
      */
     public ResultsReporter getResultsReporter() {
         return resultsReporter;
+    }
+
+    public AgentCommandWebSocketServer getCommandWebSocketServer() {
+        return commandWebSocketServer;
     }
 
     /**

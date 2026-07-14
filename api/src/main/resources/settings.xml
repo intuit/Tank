@@ -137,6 +137,9 @@
 		</tank-http-clients>
 		<default-tank-client>JDK HttpClient</default-tank-client>
 
+		<!-- WebSocket control channel for agent commands (ACP compliance) -->
+		<command-ws-enabled>false</command-ws-enabled>
+
 	</agent-config>
 
 

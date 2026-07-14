@@ -63,36 +63,58 @@ public class JobEventSender {
 
     public String startJob(String jobId) {
         AWSXRay.beginSubsegment("Start.Job." + jobId);
-        JobInstanceDao jobInstanceDao = new JobInstanceDao();
-        JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
-        synchronized (jobId) {
-            if (job.getStatus() == JobQueueStatus.Created) {// only start if new job to init agents
-                // save the job
+        try {
+            synchronized (JobLockManager.getLock(jobId)) {
+                JobInstanceDao jobInstanceDao = new JobInstanceDao();
+                JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
+                if (job == null) {
+                    LOG.warn("startJob called for non-existent job id={} — skipping", jobId);
+                    return jobId;
+                }
+                if (job.getStatus() != JobQueueStatus.Created) {
+                    LOG.warn("startJob called for job id={} with status={} — only Created jobs can be started", jobId, job.getStatus());
+                    return jobId;
+                }
                 job.setStatus(JobQueueStatus.Starting);
                 jobInstanceDao.saveOrUpdate(job);
 
-                ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
+                java.io.File scriptFile = ProjectDaoUtil.getScriptFile(jobId);
+                if (!scriptFile.exists()) {
+                    ProjectDaoUtil.storeScriptFile(jobId, getScriptString(job));
+                }
 
                 vmTracker.removeStatusForJob(jobId);
                 jobManager.startJob(job.getId());
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.AGENT_LAUNCHED));
             }
+        } finally {
+            AWSXRay.endSubsegment();
         }
-        AWSXRay.endSubsegment();
         return jobId;
     }
 
     public String startAgents(String jobId) {
         AWSXRay.beginSubsegment("Start.Agents." + jobId);
-        JobInstanceDao jobInstanceDao = new JobInstanceDao();
-        JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
-        synchronized (jobId) {
-            if (job.getStatus() == JobQueueStatus.Starting) {// only start if agents initialized
-                jobManager.startAgents(jobId);
+        try {
+            JobInstanceDao jobInstanceDao = new JobInstanceDao();
+            JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
+            if (job == null) {
+                LOG.warn("startAgents called for non-existent job id={} — skipping", jobId);
+                return jobId;
             }
+            if (job.getStatus() == JobQueueStatus.Deleted) {
+                LOG.warn("startAgents called for job id={} with status=Deleted — deleted jobs cannot start agents", jobId);
+                return jobId;
+            }
+            if (job.getStatus() != JobQueueStatus.Starting) {
+                LOG.warn("startAgents called for job id={} with status={} — only Starting jobs can start agents", jobId, job.getStatus());
+                return jobId;
+            }
+            jobManager.startAgents(jobId);
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
+        } finally {
+            AWSXRay.endSubsegment();
         }
-        AWSXRay.endSubsegment();
         return jobId;
     }
 
@@ -106,7 +128,7 @@ public class JobEventSender {
         if (instanceIds.isEmpty()) {
             JobInstanceDao dao = new JobInstanceDao();
             JobInstance job = dao.findById(Integer.parseInt(jobId));
-            if (job != null) {
+            if (job != null && job.getStatus() != JobQueueStatus.Deleted) {
                 job.setStatus(JobQueueStatus.Completed);
                 job.setEndTime(new Date());
                 dao.saveOrUpdate(job);
@@ -296,7 +318,8 @@ public class JobEventSender {
 
                 // set the status of the JobInstance to finished.
                 JobInstance finishedJob = dao.findById(Integer.valueOf(jobId));
-                if (finishedJob.getEndTime() == null) {
+                if (finishedJob != null && finishedJob.getEndTime() == null
+                        && finishedJob.getStatus() != JobQueueStatus.Deleted) {
                     finishedJob.setEndTime(new Date());
                     finishedJob.setStatus(JobQueueStatus.Completed);
                     dao.saveOrUpdate(finishedJob);

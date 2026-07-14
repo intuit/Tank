@@ -63,12 +63,12 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     @Size(max = 255)
     private String productName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(joinColumns = @JoinColumn(name = "filter_id"),
             inverseJoinColumns = @JoinColumn(name = "action_id"))
     private Set<ScriptFilterAction> actions = new HashSet<ScriptFilterAction>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(joinColumns = @JoinColumn(name = "filter_id"),
             inverseJoinColumns = @JoinColumn(name = "condition_id"))
     private Set<ScriptFilterCondition> conditions = new HashSet<ScriptFilterCondition>();

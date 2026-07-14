@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>4.2.1-SNAPSHOT</version>
+    <version>4.3.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>agent</artifactId>
@@ -72,6 +72,16 @@
     <dependency>
       <groupId>org.openjdk.nashorn</groupId>
       <artifactId>nashorn-core</artifactId>
+    </dependency>
+
+    <!-- Jetty 12 WebSocket server with HTTP/2 (RFC 8441) support -->
+    <dependency>
+      <groupId>org.eclipse.jetty.websocket</groupId>
+      <artifactId>jetty-websocket-jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>jetty-http2-server</artifactId>
     </dependency>
   </dependencies>
 </project>

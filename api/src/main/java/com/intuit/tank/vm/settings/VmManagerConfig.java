@@ -260,6 +260,20 @@ public class VmManagerConfig implements Serializable {
         return defaultMills;
     }
 
+    public long getMaxAgentReportMillsForRegion(VMRegion region, long defaultMills) {
+        if (region != null) {
+            String string = config.getString("watchdog/max-time-for-agent-report-" + region.getRegion());
+            if (string != null) {
+                try {
+                    return TimeUtil.parseTimeString(string);
+                } catch (Exception e) {
+                    LOG.error(e.toString());
+                }
+            }
+        }
+        return getMaxAgentReportMills(defaultMills);
+    }
+
     /**
      * 
      * @param defaultMills

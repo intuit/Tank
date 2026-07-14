@@ -30,6 +30,7 @@ import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.vm.settings.ModificationType;
+import com.intuit.tank.util.ScriptFilterType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,6 +92,41 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         } catch(Exception e){
             LOGGER.error("Error returning all filters: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "all filters", e);
+        }
+    }
+
+    @Override
+    public FilterTO createOrUpdateFilter(FilterTO request) {
+        ScriptFilterDao dao = new ScriptFilterDao();
+        try {
+            if (request == null) {
+                throw new IllegalArgumentException("Filter request is required");
+            }
+            if (request.getName() == null || request.getName().isBlank()) {
+                throw new IllegalArgumentException("Filter name is required");
+            }
+            if (request.getFilterType() != null && !ScriptFilterType.INTERNAL.name().equals(request.getFilterType())) {
+                throw new IllegalArgumentException("Only internal filters are supported");
+            }
+            if (request.getExternalScriptId() != null) {
+                throw new IllegalArgumentException("Internal filters cannot reference an external script");
+            }
+
+            ScriptFilter filter = new ScriptFilter();
+            if (request.getId() != null && request.getId() > 0) {
+                filter = dao.findById(request.getId());
+                if (filter == null) {
+                    throw new IllegalArgumentException("Filter with filter id " + request.getId() + " does not exist");
+                }
+            } else if (request.getCreator() == null || request.getCreator().isBlank()) {
+                throw new IllegalArgumentException("Filter creator is required");
+            }
+
+            FilterServiceUtil.toScriptFilter(request, filter);
+            return FilterServiceUtil.filterToTO(dao.saveOrUpdate(filter));
+        } catch (Exception e) {
+            LOGGER.error("Error saving filter: " + e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException("filter", "filter", e);
         }
     }
 
