@@ -1,28 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testPlan name="XXX5" description="XXX5" type="local">
-	<testSuite name="XXX5" description="Suite for XXX5">
-		<useCase name="Group1" description="Request 1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><testPlan description="XXX5" name="XXX5" type="local">
+	<testSuite description="Suite for XXX5" name="XXX5">
+		<useCase description="Request 1" name="Group1">
 			<variable name="username" value="#function.string.userid.9.MM-dd-yyyy"/>
 		</useCase>
 		
-		<useCase name="Group2" description="Request 64">
+		<useCase description="Request 64" name="Group2">
 
-			<testStep name="Request 2" description="Request 64" onFail="skip">
+			<testStep description="Request 64" name="Request 2" onFail="skip">
 				<protocol>https</protocol>
 				<host>test.com</host>
 				<path>/index.html</path>
-				<request method="get" format="nvp">
+				<request format="nvp" method="get">
 					<headers>
-						<data name="Accept-Encoding" action="add" value="gzip, deflate" />
-						<data name="Accept-Language" action="add" value="en-us" />
-						<data name="Connection" action="add" value="Keep-Alive" />
-						<data name="Cache-Control" action="add" value="no-cache" />
+						<data action="add" name="Accept-Encoding" value="gzip, deflate"/>
+						<data action="add" name="Accept-Language" value="en-us"/>
+						<data action="add" name="Connection" value="Keep-Alive"/>
+						<data action="add" name="Cache-Control" value="no-cache"/>
 					</headers>
 
 				</request>
 				<response format="json">
 					<headers>
-						<validate name="HTTPRESPONSECODE" value="200" />
+						<validate name="HTTPRESPONSECODE" value="200"/>
 					</headers>
 				</response>
 			</testStep>

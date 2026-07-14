@@ -15,6 +15,7 @@ package com.intuit.tank.http.xml;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -136,8 +137,7 @@ public class GenericXMLHandler implements Cloneable {
     public void SetElementText(String xPathExpression, String value) {
 
         try {
-            Element element = (Element) XPATH_FACTORY.newXPath()
-                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            Element element = resolveOrCreateElement(xPathExpression, 0);
             if (element != null) element.setTextContent(value);
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
@@ -148,12 +148,70 @@ public class GenericXMLHandler implements Cloneable {
     public void SetElementAttribute(String xPathExpression, String attribute, String value) {
 
         try {
-            Element element = (Element) XPATH_FACTORY.newXPath()
-                    .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
+            Element element = resolveOrCreateElement(xPathExpression, 0);
             if (element != null) element.setAttribute(attribute, value);
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * Resolve the element for the given xpath expression, creating any missing path segments (and the
+     * root element if necessary) so that a value can be written to it.
+     *
+     * @param xPathExpression
+     *            The xpath expression for the element
+     * @param currentNode
+     *            The index of the path segment currently being resolved
+     * @return The resolved (or newly created) element for the full xpath expression
+     * @throws XPathExpressionException
+     */
+    private Element resolveOrCreateElement(String xPathExpression, int currentNode) throws XPathExpressionException {
+
+        String[] segments = Arrays.stream(xPathExpression.split("/"))
+                .filter(StringUtils::isNotEmpty)
+                .toArray(String[]::new);
+        if (segments.length == 0) {
+            return null;
+        }
+
+        String currentPath = String.join("/", Arrays.copyOfRange(segments, 0, currentNode + 1));
+
+        Node existing = (Node) XPATH_FACTORY.newXPath()
+                .evaluate(currentPath, this.xmlDocument, XPathConstants.NODE);
+        if (existing instanceof Element) {
+            if (currentNode == segments.length - 1) {
+                return (Element) existing;
+            }
+            return resolveOrCreateElement(xPathExpression, currentNode + 1);
+        }
+
+        String childNode = getChildNode(currentPath);
+        String namespace = getCurrentNamespace(currentPath);
+
+        Element element;
+        if (namespace != null) {
+            element = this.xmlDocument.createElementNS(this.namespaces.get(namespace), childNode);
+        } else {
+            element = this.xmlDocument.createElement(childNode);
+        }
+
+        if (this.xmlDocument.getDocumentElement() != null) {
+            String parentPath = String.join("/", Arrays.copyOfRange(segments, 0, currentNode));
+            Node parent = (Node) XPATH_FACTORY.newXPath()
+                    .evaluate(parentPath, this.xmlDocument, XPathConstants.NODE);
+            if (parent == null) {
+                return null;
+            }
+            parent.appendChild(element);
+        } else {
+            this.xmlDocument.appendChild(element);
+        }
+
+        if (currentNode == segments.length - 1) {
+            return element;
+        }
+        return resolveOrCreateElement(xPathExpression, currentNode + 1);
     }
 
    /**
@@ -185,11 +243,13 @@ public class GenericXMLHandler implements Cloneable {
         try {
             Node node = (Node) XPATH_FACTORY.newXPath()
                     .evaluate(xPathExpression, this.xmlDocument, XPathConstants.NODE);
-            NamedNodeMap attributes = node.getAttributes();
-            return IntStream.range(0, attributes.getLength())
-                    .mapToObj(attributes::item)
-                    .map(Node::getTextContent)
-                    .collect(Collectors.joining(","));
+            NamedNodeMap attributes = node != null ? node.getAttributes() : null;
+            if (attributes != null) {
+                return IntStream.range(0, attributes.getLength())
+                        .mapToObj(attributes::item)
+                        .map(Node::getTextContent)
+                        .collect(Collectors.joining(","));
+            }
         } catch (XPathExpressionException ex) {
             LOG.error("Error in handler: {}", ex.getMessage(), ex);
         }
