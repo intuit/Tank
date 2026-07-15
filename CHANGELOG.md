@@ -1,3 +1,15 @@
+# 4.3.5 (Wed Jul 15 2026)
+
+#### 🐛 Bug Fix
+
+- Update XMLHandler [#438](https://github.com/intuit/Tank/pull/438) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.4 (Tue Jul 14 2026)
 
 #### 🐛 Bug Fix
