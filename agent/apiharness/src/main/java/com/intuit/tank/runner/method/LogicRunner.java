@@ -30,7 +30,7 @@ import com.intuit.tank.tools.script.ScriptRunner;
 import com.intuit.tank.vm.common.LogicScriptUtil;
 import com.intuit.tank.vm.common.TankConstants;
 
-import javax.script.ScriptEngineManager;
+import com.intuit.tank.tools.script.JsEngineFactory;
 
 class LogicRunner implements Runner {
     private static Logger LOG = LogManager.getLogger(LogicRunner.class);
@@ -60,7 +60,7 @@ class LogicRunner implements Runner {
         String scriptToRun = new LogicScriptUtil().buildScript(step.getScript());
         try {
             ScriptIOBean ioBean = new ScriptRunner().runScript(step.getName(), scriptToRun,
-                    new ScriptEngineManager().getEngineByExtension("js"), inputs, outputLogger);
+                    JsEngineFactory.createJsEngine(), inputs, outputLogger);
             String action = (String) ioBean.getOutput("action");
             if (action != null) {
                 ret = handleAction(action);
