@@ -12,7 +12,10 @@ const {
     redactText,
     formatCompactBundle,
     formatJsonl,
-    isStackContinuation
+    isStackContinuation,
+    volumeBuckets,
+    formatDuration,
+    shortTimestamp
 } = require(path.resolve(__dirname, "../../main/webapp/resources/js/log-processing.js"));
 
 function test(name, fn) {
@@ -207,6 +210,22 @@ test("orphan stack frames attach to previous error or are dropped", function() {
     assert.strictEqual(result.events.length, 2);
     assert.ok(result.events[0].stack.length >= 2);
     assert.strictEqual(result.events[1].level, "INFO");
+});
+
+test("volume buckets expose time range metadata", function() {
+    const events = [
+        parseLine("2025-07-10 16:39:20 INFO LogViewer:1 - first"),
+        parseLine("2025-07-10 16:39:50 INFO LogViewer:1 - middle"),
+        parseLine("2025-07-10 16:40:20 WARN LogViewer:1 - last")
+    ];
+    const volume = volumeBuckets(events, 4);
+    assert.ok(volume.startMs);
+    assert.ok(volume.endMs > volume.startMs);
+    assert.strictEqual(volume.buckets.length, 4);
+    assert.ok(volume.buckets.some(function(bucket) { return bucket.total > 0; }));
+    assert.ok(volume.buckets[0].startMs !== null);
+    assert.strictEqual(formatDuration(1500), "+1.5s");
+    assert.ok(shortTimestamp(events[0].timestamp).match(/^\d{2}:\d{2}:\d{2}\.\d{3}$/));
 });
 
 if (!process.exitCode) {

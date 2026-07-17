@@ -16,10 +16,10 @@
 
   <composite:implementation>
     <h:outputScript target="head" library="js" name="codemirror.js" />
-    <h:outputScript target="head" library="js" name="log-processing.js" />
-    <h:outputScript target="head" library="js" name="log-viewer.js" />
+    <h:outputScript target="head" library="js" name="log-processing.2.js" />
+    <h:outputScript target="head" library="js" name="log-viewer.2.js" />
     <h:outputStylesheet target="head" library="js" name="codemirror.css" />
-    <h:outputStylesheet target="head" library="css" name="log-viewer.css" />
+    <h:outputStylesheet target="head" library="css" name="log-viewer.2.css" />
 
     <section id="#{cc.clientId}_root"
       class="tank-log-viewer"
@@ -105,7 +105,14 @@
         <div class="log-viewer-export-stats" data-role="export-stats"></div>
       </div>
 
-      <div class="log-viewer-volume" data-role="volume" aria-hidden="true"></div>
+      <div class="log-viewer-volume-wrap" title="Event volume over the visible time range">
+        <div class="log-viewer-volume" data-role="volume" aria-hidden="true"></div>
+        <div class="log-viewer-volume-axis" data-role="volume-axis" hidden="hidden">
+          <span data-role="volume-start"></span>
+          <span data-role="volume-span"></span>
+          <span data-role="volume-end"></span>
+        </div>
+      </div>
       <div class="log-viewer-notice" data-role="notice" role="alert" hidden="hidden"></div>
       <div class="log-viewer-summary" data-role="summary" aria-live="polite"></div>
       <div class="log-viewer-toast" data-role="toast" hidden="hidden"></div>
