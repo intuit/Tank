@@ -183,6 +183,9 @@
         this.root.querySelector('[data-action="pause"]').addEventListener("click", function() {
             viewer.paused = !viewer.paused;
             this.textContent = viewer.paused ? "Resume" : "Pause";
+            this.title = viewer.paused
+                    ? "Resume live polling for new log bytes"
+                    : "Pause live polling. Click again to resume.";
             this.setAttribute("aria-pressed", String(viewer.paused));
             if (viewer.paused) {
                 viewer.setStatus("paused", "Paused");
@@ -206,6 +209,9 @@
             viewer.root.classList.toggle("log-viewer-wrap", viewer.wrap);
             viewer.rawEditor.setOption("lineWrapping", viewer.wrap);
             this.textContent = viewer.wrap ? "No wrap" : "Wrap";
+            this.title = viewer.wrap
+                    ? "Turn off wrapping so each log line stays on one row"
+                    : "Wrap long lines to the panel width";
             this.setAttribute("aria-pressed", String(viewer.wrap));
         });
 
@@ -789,7 +795,7 @@
                 var active = viewer.facets[field] === item.value;
                 button.setAttribute("aria-pressed", String(active));
                 button.textContent = item.value + " (" + item.count + ")";
-                button.title = item.value;
+                button.title = (active ? "Clear filter " : "Filter to ") + field + "=" + item.value;
                 button.addEventListener("click", function() {
                     if (viewer.facets[field] === item.value) {
                         delete viewer.facets[field];
@@ -825,6 +831,9 @@
             title.appendChild(textSpan("log-entry-level", pattern.level));
             title.appendChild(textSpan("log-entry-source", pattern.logger || "unknown"));
             title.appendChild(textSpan("log-entry-message", pattern.message || ""));
+            title.title = (viewer.patternFilter === pattern.fingerprint
+                    ? "Clear this pattern filter"
+                    : "Show only this pattern") + " (x" + pattern.count + ")";
             title.addEventListener("click", function() {
                 viewer.patternFilter = viewer.patternFilter === pattern.fingerprint ? null : pattern.fingerprint;
                 viewer.setView("timeline");
@@ -835,6 +844,7 @@
             var only = document.createElement("button");
             only.type = "button";
             only.textContent = "Only";
+            only.title = "Keep only this pattern in the timeline";
             only.addEventListener("click", function() {
                 viewer.patternFilter = pattern.fingerprint;
                 viewer.setView("timeline");
@@ -843,6 +853,7 @@
             var exclude = document.createElement("button");
             exclude.type = "button";
             exclude.textContent = "Exclude";
+            exclude.title = "Hide messages like this from the current filter set";
             exclude.addEventListener("click", function() {
                 viewer.searchElement.value = (viewer.searchElement.value + ' -"' + String(pattern.message || "").slice(0, 80) + '"').trim();
                 viewer.query = viewer.searchElement.value;
@@ -1085,6 +1096,10 @@
         followButton.textContent = this.follow
                 ? "Following"
                 : "Follow" + (this.newEntries > 0 ? " (" + this.newEntries + " new)" : "");
+        followButton.title = this.follow
+                ? "Keep the timeline scrolled to the newest events. Turns off when you scroll up."
+                : "Jump to the newest events and resume auto-follow"
+                        + (this.newEntries > 0 ? " (" + this.newEntries + " arrived while scrolled up)" : "");
         followButton.setAttribute("aria-pressed", String(this.follow));
     };
 

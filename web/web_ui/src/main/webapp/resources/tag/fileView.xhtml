@@ -37,11 +37,16 @@
           <span class="log-viewer-meta" data-role="meta"></span>
         </div>
         <div class="log-viewer-header-actions" role="group" aria-label="Live log controls">
-          <span class="log-viewer-status status-loading" data-role="status" role="status">Loading</span>
-          <button type="button" data-action="refresh">Refresh</button>
-          <button type="button" data-action="pause" aria-pressed="false">Pause</button>
-          <button type="button" data-action="follow" aria-pressed="true">Following</button>
-          <button type="button" data-action="wrap" aria-pressed="false">Wrap</button>
+          <span class="log-viewer-status status-loading" data-role="status" role="status"
+            title="Current fetch/poll state for this log">Loading</span>
+          <button type="button" data-action="refresh"
+            title="Fetch new log bytes now without waiting for the next poll">Refresh</button>
+          <button type="button" data-action="pause" aria-pressed="false"
+            title="Pause live polling. Click again to resume.">Pause</button>
+          <button type="button" data-action="follow" aria-pressed="true"
+            title="Keep the timeline scrolled to the newest events. Turns off when you scroll up.">Following</button>
+          <button type="button" data-action="wrap" aria-pressed="false"
+            title="Wrap long lines to the panel width. Off keeps each line on one row (horizontal scroll).">Wrap</button>
         </div>
       </header>
 
@@ -49,40 +54,53 @@
         <div class="log-viewer-search">
           <input type="search" data-role="search"
             aria-label="Search retained log entries"
+            title="Filter retained events. Examples: error, level:error, job:123, -logger:Hibernate"
             placeholder="Search: level:error job:123 -logger:Hibernate" />
-          <button type="button" data-action="clear-search">Clear</button>
+          <button type="button" data-action="clear-search"
+            title="Clear the search box and show events matching other filters only">Clear</button>
         </div>
         <div class="log-viewer-presets" role="group" aria-label="Severity presets">
-          <button type="button" data-preset="all" aria-pressed="true">All</button>
-          <button type="button" data-preset="warnplus" aria-pressed="false">Warn+</button>
-          <button type="button" data-preset="errors" aria-pressed="false">Errors</button>
+          <button type="button" data-preset="all" aria-pressed="true"
+            title="Show all severity levels">All</button>
+          <button type="button" data-preset="warnplus" aria-pressed="false"
+            title="Show WARN, ERROR, and FATAL only">Warn+</button>
+          <button type="button" data-preset="errors" aria-pressed="false"
+            title="Show ERROR and FATAL only. Empty if the retained tail has no errors.">Errors</button>
         </div>
         <div class="log-viewer-copy-actions" role="group" aria-label="Copy actions">
-          <button type="button" data-action="copy-selected">Copy selected</button>
-          <button type="button" data-action="copy-visible">Copy visible</button>
-          <button type="button" data-action="copy-context">Copy ±5 context</button>
-          <button type="button" data-action="copy-menu" aria-haspopup="true">LLM export</button>
+          <button type="button" data-action="copy-selected"
+            title="Copy checked timeline rows to the clipboard as a compact diagnostic bundle">Copy selected</button>
+          <button type="button" data-action="copy-visible"
+            title="Copy every event currently shown after filters">Copy visible</button>
+          <button type="button" data-action="copy-context"
+            title="Copy the focused/selected event plus up to 5 events before and after it">Copy ±5 context</button>
+          <button type="button" data-action="copy-menu" aria-haspopup="true"
+            title="Open LLM export options (compact or JSONL, with optional redaction)">LLM export</button>
         </div>
         <div class="log-viewer-view-toggle" role="group" aria-label="Log display mode">
-          <button type="button" data-view="timeline" aria-pressed="true">Timeline</button>
-          <button type="button" data-view="patterns" aria-pressed="false">Patterns</button>
-          <button type="button" data-view="raw" aria-pressed="false">Raw</button>
+          <button type="button" data-view="timeline" aria-pressed="true"
+            title="Structured event rows with time, level, logger, and message">Timeline</button>
+          <button type="button" data-view="patterns" aria-pressed="false"
+            title="Group similar messages by fingerprint to spot repeated noise">Patterns</button>
+          <button type="button" data-view="raw" aria-pressed="false"
+            title="Unprocessed log text in a plain editor">Raw</button>
         </div>
       </div>
 
       <div class="log-viewer-export-panel" data-role="export-panel" hidden="hidden">
         <div class="log-viewer-export-row">
-          <label><input type="radio" name="#{cc.clientId}_export" data-export-format="compact" checked="checked" /> Compact RTK bundle</label>
-          <label><input type="radio" name="#{cc.clientId}_export" data-export-format="jsonl" /> Canonical JSONL</label>
-          <label><input type="checkbox" data-role="redact-toggle" checked="checked" /> Redact secrets</label>
-          <label>Scope
-            <select data-role="export-scope">
+          <label title="Token-friendly summary for pasting into an LLM"><input type="radio" name="#{cc.clientId}_export" data-export-format="compact" checked="checked" /> Compact RTK bundle</label>
+          <label title="One JSON object per line for machine processing"><input type="radio" name="#{cc.clientId}_export" data-export-format="jsonl" /> Canonical JSONL</label>
+          <label title="Replace secrets with stable placeholders before copying (recommended)"><input type="checkbox" data-role="redact-toggle" checked="checked" /> Redact secrets</label>
+          <label title="Which retained events to include in the export">Scope
+            <select data-role="export-scope" title="Which retained events to include in the export">
               <option value="selected">Selected</option>
               <option value="visible" selected="selected">Visible</option>
               <option value="retained">All retained</option>
             </select>
           </label>
-          <button type="button" data-action="copy-export">Copy export</button>
+          <button type="button" data-action="copy-export"
+            title="Copy the configured export bundle to the clipboard">Copy export</button>
         </div>
         <div class="log-viewer-export-stats" data-role="export-stats"></div>
       </div>
@@ -93,25 +111,26 @@
       <div class="log-viewer-toast" data-role="toast" hidden="hidden"></div>
 
       <div class="log-viewer-workspace">
-        <aside class="log-viewer-facets" data-role="facets" aria-label="Facets">
+        <aside class="log-viewer-facets" data-role="facets" aria-label="Facets"
+          title="Click a value to filter the timeline to matching events">
           <div class="log-viewer-facet-group" data-facet-field="job">
-            <h3>Job</h3>
+            <h3 title="Filter by job id when present in the log">Job</h3>
             <div data-role="facet-job"></div>
           </div>
           <div class="log-viewer-facet-group" data-facet-field="instance">
-            <h3>Instance</h3>
+            <h3 title="Filter by agent/instance id when present">Instance</h3>
             <div data-role="facet-instance"></div>
           </div>
           <div class="log-viewer-facet-group" data-facet-field="transaction">
-            <h3>Transaction</h3>
+            <h3 title="Filter by transaction/correlation id when present">Transaction</h3>
             <div data-role="facet-transaction"></div>
           </div>
           <div class="log-viewer-facet-group" data-facet-field="eventType">
-            <h3>Event type</h3>
+            <h3 title="Filter by normalized event type">Event type</h3>
             <div data-role="facet-eventType"></div>
           </div>
           <div class="log-viewer-facet-group" data-facet-field="loggerShort">
-            <h3>Logger</h3>
+            <h3 title="Filter by logger/class name">Logger</h3>
             <div data-role="facet-loggerShort"></div>
           </div>
         </aside>
@@ -143,12 +162,16 @@
         <aside class="log-viewer-detail" data-role="detail" hidden="hidden" aria-label="Event detail">
           <div class="log-viewer-detail-header">
             <strong data-role="detail-title">Event detail</strong>
-            <button type="button" data-action="close-detail">Close</button>
+            <button type="button" data-action="close-detail"
+              title="Hide the event detail panel">Close</button>
           </div>
           <div class="log-viewer-detail-actions">
-            <button type="button" data-action="copy-event">Copy event</button>
-            <button type="button" data-action="copy-event-json">Copy JSON</button>
-            <button type="button" data-action="show-context">Surrounding ±5</button>
+            <button type="button" data-action="copy-event"
+              title="Copy this event as a compact diagnostic snippet">Copy event</button>
+            <button type="button" data-action="copy-event-json"
+              title="Copy this event as structured JSON">Copy JSON</button>
+            <button type="button" data-action="show-context"
+              title="Show up to 5 events before and after this one in the panel below">Surrounding ±5</button>
           </div>
           <dl class="log-viewer-detail-fields" data-role="detail-fields"></dl>
           <h4>Raw evidence</h4>
