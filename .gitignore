@@ -179,3 +179,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Local agent / IDE tooling (never commit)
+.cursor/
+CLAUDE.md
+AGENTS.md
+.codegraph/
