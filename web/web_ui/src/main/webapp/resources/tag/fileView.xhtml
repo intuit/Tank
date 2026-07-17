@@ -1,8 +1,7 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0
   Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:component xmlns="http://www.w3.org/1999/xhtml"
   xmlns:h="http://xmlns.jcp.org/jsf/html"
-  xmlns:p="http://primefaces.org/ui"
   xmlns:composite="http://xmlns.jcp.org/jsf/composite"
   xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
@@ -12,167 +11,188 @@
     <composite:attribute name="url" required="true" />
     <composite:attribute name="poll" required="true" />
     <composite:attribute name="lines" required="true" />
-    <composite:attribute name="height" required="false"/>
+    <composite:attribute name="height" required="false" />
   </composite:interface>
 
   <composite:implementation>
-
     <h:outputScript target="head" library="js" name="codemirror.js" />
+    <h:outputScript target="head" library="js" name="log-processing.2.js" />
+    <h:outputScript target="head" library="js" name="log-viewer.2.js" />
     <h:outputStylesheet target="head" library="js" name="codemirror.css" />
-    <style type="text/css">
-      .CodeMirror {
-        border: 1px solid black;
-        height: #{cc.attrs.height}px;
-    }
-    </style>
-    <h:panelGroup layout="block" style="margin: 10px;">
-      <h:outputText value="Viewing File #{cc.attrs.fileName}" />
-      <p:commandButton value="Pause" type="button"
-        styleClass="pauseButton h-space v-space" />
-      <p:commandButton value="Wrap Lines" type="button"
-        styleClass="wrapButton h-space v-space" />
-    </h:panelGroup>
+    <h:outputStylesheet target="head" library="css" name="log-viewer.2.css" />
 
-    <textarea id="#{cc.attrs.widgetVar}" class="#{cc.attrs.widgetVar}"
-      style="border: 1px thin black;" />
+    <section id="#{cc.clientId}_root"
+      class="tank-log-viewer"
+      data-url="#{cc.attrs.url}"
+      data-file="#{cc.attrs.fileName}"
+      data-lines="#{cc.attrs.lines}"
+      data-poll="#{cc.attrs.poll}"
+      data-widget="#{cc.attrs.widgetVar}"
+      style="--viewer-height: #{empty cc.attrs.height ? '62vh' : cc.attrs.height};">
+
+      <header class="log-viewer-header">
+        <div class="log-viewer-title">
+          <span class="log-viewer-title-label">Investigation workspace</span>
+          <span class="log-viewer-file-name" title="#{cc.attrs.fileName}">#{cc.attrs.fileName}</span>
+          <span class="log-viewer-meta" data-role="meta"></span>
+        </div>
+        <div class="log-viewer-header-actions" role="group" aria-label="Live log controls">
+          <span class="log-viewer-status status-loading" data-role="status" role="status"
+            title="Current fetch/poll state for this log">Loading</span>
+          <button type="button" data-action="refresh"
+            title="Fetch new log bytes now without waiting for the next poll">Refresh</button>
+          <button type="button" data-action="pause" aria-pressed="false"
+            title="Pause live polling. Click again to resume.">Pause</button>
+          <button type="button" data-action="follow" aria-pressed="true"
+            title="Keep the timeline scrolled to the newest events. Turns off when you scroll up.">Following</button>
+          <button type="button" data-action="wrap" aria-pressed="false"
+            title="Wrap long lines to the panel width. Off keeps each line on one row (horizontal scroll).">Wrap</button>
+        </div>
+      </header>
+
+      <div class="log-viewer-command-bar">
+        <div class="log-viewer-search">
+          <input type="search" data-role="search"
+            aria-label="Search retained log entries"
+            title="Filter retained events. Examples: error, level:error, job:123, -logger:Hibernate"
+            placeholder="Search: level:error job:123 -logger:Hibernate" />
+          <button type="button" data-action="clear-search"
+            title="Clear the search box and show events matching other filters only">Clear</button>
+        </div>
+        <div class="log-viewer-presets" role="group" aria-label="Severity presets">
+          <button type="button" data-preset="all" aria-pressed="true"
+            title="Show all severity levels">All</button>
+          <button type="button" data-preset="warnplus" aria-pressed="false"
+            title="Show WARN, ERROR, and FATAL only">Warn+</button>
+          <button type="button" data-preset="errors" aria-pressed="false"
+            title="Show ERROR and FATAL only. Empty if the retained tail has no errors.">Errors</button>
+        </div>
+        <div class="log-viewer-copy-actions" role="group" aria-label="Copy actions">
+          <button type="button" data-action="copy-selected"
+            title="Copy checked timeline rows to the clipboard as a compact diagnostic bundle">Copy selected</button>
+          <button type="button" data-action="copy-visible"
+            title="Copy every event currently shown after filters">Copy visible</button>
+          <button type="button" data-action="copy-context"
+            title="Copy the focused/selected event plus up to 5 events before and after it">Copy ±5 context</button>
+          <button type="button" data-action="copy-menu" aria-haspopup="true"
+            title="Open LLM export options (compact or JSONL, with optional redaction)">LLM export</button>
+        </div>
+        <div class="log-viewer-view-toggle" role="group" aria-label="Log display mode">
+          <button type="button" data-view="timeline" aria-pressed="true"
+            title="Structured event rows with time, level, logger, and message">Timeline</button>
+          <button type="button" data-view="patterns" aria-pressed="false"
+            title="Group similar messages by fingerprint to spot repeated noise">Patterns</button>
+          <button type="button" data-view="raw" aria-pressed="false"
+            title="Unprocessed log text in a plain editor">Raw</button>
+        </div>
+      </div>
+
+      <div class="log-viewer-export-panel" data-role="export-panel" hidden="hidden">
+        <div class="log-viewer-export-row">
+          <label title="Token-friendly summary for pasting into an LLM"><input type="radio" name="#{cc.clientId}_export" data-export-format="compact" checked="checked" /> Compact RTK bundle</label>
+          <label title="One JSON object per line for machine processing"><input type="radio" name="#{cc.clientId}_export" data-export-format="jsonl" /> Canonical JSONL</label>
+          <label title="Replace secrets with stable placeholders before copying (recommended)"><input type="checkbox" data-role="redact-toggle" checked="checked" /> Redact secrets</label>
+          <label title="Which retained events to include in the export">Scope
+            <select data-role="export-scope" title="Which retained events to include in the export">
+              <option value="selected">Selected</option>
+              <option value="visible" selected="selected">Visible</option>
+              <option value="retained">All retained</option>
+            </select>
+          </label>
+          <button type="button" data-action="copy-export"
+            title="Copy the configured export bundle to the clipboard">Copy export</button>
+        </div>
+        <div class="log-viewer-export-stats" data-role="export-stats"></div>
+      </div>
+
+      <div class="log-viewer-volume-wrap" title="Event volume over the visible time range">
+        <div class="log-viewer-volume" data-role="volume" aria-hidden="true"></div>
+        <div class="log-viewer-volume-axis" data-role="volume-axis" hidden="hidden">
+          <span data-role="volume-start"></span>
+          <span data-role="volume-span"></span>
+          <span data-role="volume-end"></span>
+        </div>
+      </div>
+      <div class="log-viewer-notice" data-role="notice" role="alert" hidden="hidden"></div>
+      <div class="log-viewer-summary" data-role="summary" aria-live="polite"></div>
+      <div class="log-viewer-toast" data-role="toast" hidden="hidden"></div>
+
+      <div class="log-viewer-workspace">
+        <aside class="log-viewer-facets" data-role="facets" aria-label="Facets"
+          title="Click a value to filter the timeline to matching events">
+          <div class="log-viewer-facet-group" data-facet-field="job">
+            <h3 title="Filter by job id when present in the log">Job</h3>
+            <div data-role="facet-job"></div>
+          </div>
+          <div class="log-viewer-facet-group" data-facet-field="instance">
+            <h3 title="Filter by agent/instance id when present">Instance</h3>
+            <div data-role="facet-instance"></div>
+          </div>
+          <div class="log-viewer-facet-group" data-facet-field="transaction">
+            <h3 title="Filter by transaction/correlation id when present">Transaction</h3>
+            <div data-role="facet-transaction"></div>
+          </div>
+          <div class="log-viewer-facet-group" data-facet-field="eventType">
+            <h3 title="Filter by normalized event type">Event type</h3>
+            <div data-role="facet-eventType"></div>
+          </div>
+          <div class="log-viewer-facet-group" data-facet-field="loggerShort">
+            <h3 title="Filter by logger/class name">Logger</h3>
+            <div data-role="facet-loggerShort"></div>
+          </div>
+        </aside>
+
+        <div class="log-viewer-main">
+          <div data-role="timeline">
+            <div class="log-viewer-entries" data-role="entries"
+              role="listbox" aria-multiselectable="true"
+              aria-label="#{cc.attrs.fileName} timeline"></div>
+            <div class="log-viewer-no-results" data-role="empty">
+              Waiting for log data. If this stays empty, check the yellow notice above
+              for HTTP errors or path mismatches.
+            </div>
+          </div>
+
+          <div data-role="patterns" hidden="hidden">
+            <div class="log-viewer-patterns" data-role="pattern-list"></div>
+            <div class="log-viewer-no-results" data-role="pattern-empty" hidden="hidden">
+              No patterns in the current filter set.
+            </div>
+          </div>
+
+          <div class="log-viewer-raw" data-role="raw" hidden="hidden">
+            <textarea id="#{cc.clientId}_raw" data-role="raw-text"
+              aria-label="#{cc.attrs.fileName} raw log output"></textarea>
+          </div>
+        </div>
+
+        <aside class="log-viewer-detail" data-role="detail" hidden="hidden" aria-label="Event detail">
+          <div class="log-viewer-detail-header">
+            <strong data-role="detail-title">Event detail</strong>
+            <button type="button" data-action="close-detail"
+              title="Hide the event detail panel">Close</button>
+          </div>
+          <div class="log-viewer-detail-actions">
+            <button type="button" data-action="copy-event"
+              title="Copy this event as a compact diagnostic snippet">Copy event</button>
+            <button type="button" data-action="copy-event-json"
+              title="Copy this event as structured JSON">Copy JSON</button>
+            <button type="button" data-action="show-context"
+              title="Show up to 5 events before and after this one in the panel below">Surrounding ±5</button>
+          </div>
+          <dl class="log-viewer-detail-fields" data-role="detail-fields"></dl>
+          <h4>Raw evidence</h4>
+          <pre class="log-viewer-detail-raw" data-role="detail-raw"></pre>
+          <h4>Surrounding context</h4>
+          <pre class="log-viewer-detail-context" data-role="detail-context"></pre>
+        </aside>
+      </div>
+    </section>
 
     <script type="text/javascript">
     //<![CDATA[
-    var #{cc.attrs.widgetVar} = CodeMirror.fromTextArea($("##{cc.attrs.widgetVar}").get(0),  {
-                mode: "text/plain", 
-                value: "",
-                lineNumbers: true, 
-                lineWrapping: false,
-                readOnly: true, 
-                theme: "eclipse"}
-            );
-            
-    (function() {
-
-        var pausetoggle = ".pauseButton";
-        var wraptoggle = ".wrapButton";
-
-        var url = "#{cc.attrs.url}";
-        var lines = #{cc.attrs.lines};
-        var poll = #{cc.attrs.poll} * 1000;
-
-        var kill = false;
-        var loading = false;
-        var pause = false;
-        var wrap = false;
-        var log_data = "";
-        var log_size = 0;
-
-        function get_log() {
-            if (kill | loading){
-                return;
-            }
-            if (pause) {
-            	if (poll > 0) {
-                    setTimeout(get_log, poll);
-                }
-            	return;
-            }
-            loading = true;
-
-            var theUrl;
-            if (log_size === 0) {
-                theUrl = url + "?from=" + (-lines).toString();
-            } else{
-                theUrl = url + "?from=" + (log_size).toString();
-            }
-
-            $.ajax(theUrl, {
-                dataType : "text",
-                cache : false,
-                global: false,
-                success : function(data, s, xhr) {
-                    loading = false;
-                    var size;
-                    if (xhr.status === 200) {
-                        size = data.length;
-                        if (xhr.getResponseHeader("X-Total-Content-Length") !== null) {
-                            size = xhr.getResponseHeader("X-Total-Content-Length");
-                        }
-                    }
-
-                        log_data = data;
-
-                    log_size = size;
-                    show_log();
-                    if (poll > 0) {
-                        setTimeout(get_log, poll);
-                    }
-                },
-                error : function(xhr, s, t) {
-                    loading = false;
-
-                    if (xhr.status == 404) {
-                    	error("Call to " + theUrl + " returned 404.");
-                    	if (poll > 0) {
-                            setTimeout(get_log, poll);
-                        }
-                    } else {
-                        if (s == "error")
-                            error(xhr.statusText);
-                        else
-                            error("AJAX Error: " + s);
-                    }
-                }
-            });
-        }
-
-        function scrollToEnd() {
-        	var lastLine = #{cc.attrs.widgetVar}.getDoc().lastLine();
-        	#{cc.attrs.widgetVar}.scrollIntoView(lastLine);
-        }
-
-        function show_log() {
-            /* if (pause) {
-                return;
-            } */
-
-           
-            #{cc.attrs.widgetVar}.setValue(#{cc.attrs.widgetVar}.getValue() + log_data);
-            scrollToEnd();
-        }
-
-        function error(what) {
-            kill = true;
-
-            #{cc.attrs.widgetVar}.setValue(
-                    "An error occured. Reloading may help; no promises: " + what);
-            scrollToEnd();
-        }
-
-        $(document).ready(function() {
-            $(window).on("error", error);
-            
-            /* Add pause toggle */
-            $(pausetoggle).click(function(e) {
-                pause = !pause;
-                $(pausetoggle).children( ".ui-button-text" ).text(pause ? "Unpause" : "Pause");
-                //show_log();
-                e.preventDefault();
-            });
-            /* Add pause toggle */
-            $(wraptoggle).click(function(e) {
-                wrap = !wrap;
-                #{cc.attrs.widgetVar}.setOption("lineWrapping", wrap);
-                                 
-                $(wraptoggle).children( ".ui-button-text" ).text(wrap ? "Unwrap Lines" : "Wrap Lines");
-                
-                //show_log();
-                e.preventDefault();
-            });
-
-            get_log();
-        });
-
-    })();
-    // ]]>
+      window.TankLogViewer.mount(document.getElementById("#{cc.clientId}_root"));
+    //]]>
     </script>
-
-
   </composite:implementation>
 </ui:component>

@@ -10,8 +10,6 @@ package com.intuit.tank.rest.mvc.rest.services.logs;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
 public interface LogServiceV2 {
 
     /**
@@ -32,8 +30,8 @@ public interface LogServiceV2 {
      * @throws GenericServiceForbiddenAccessException
      *         if user not authorized to access file
      *
-     * @return streaming output of log file
+     * @return streaming output and byte-range metadata for the log file
      */
-    public StreamingResponseBody getFile(String filePath, String start);
+    LogFileResponse getFile(String filePath, String start);
 
 }

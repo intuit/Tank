@@ -8,7 +8,6 @@
 package com.intuit.tank.rest.mvc.rest.util;
 
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,14 +15,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 
 public final class FileReader {
+
+    private static final int TAIL_BUFFER_SIZE = 8192;
+
+    public record FileStream(
+            StreamingResponseBody body,
+            long totalLength,
+            long startOffset) {
+    }
 
     private FileReader() {
         // empty private constructor
@@ -40,39 +45,49 @@ public final class FileReader {
      *          file
      * 
      * @param total
-     *          total number of lines
+     *          total number of bytes
      *
      * @param start
-     *          starting line number
+     *          starting byte offset, or a negative number of lines from the end
      * 
      * @return a StreamingResponseBody
      */
-    public static StreamingResponseBody getFileStreamingResponseBody(final File f, long total, String start) {
+    public static FileStream getFileStream(final File f, long total, String start) {
+        final long from = resolveStartOffset(f, total, start);
+        final long count = total - from;
 
-        long l = 0;
-        if (start != null) {
-            try {
-                l = Long.parseLong(start);
-                // num lines to get from end
-                if (l < 0) {
-                    l = getStartChar(f, Math.abs(l), total);
-                }
-            } catch (Exception e) {
-                LOG.error("Error parsing start " + start + ": " + e);
-            }
-        }
-        final long to = l > total ? 0 : total;
-        final long from = l;
-
-        StreamingResponseBody streamer = (final OutputStream output) -> {
-            try (FileChannel inputChannel = new FileInputStream(f).getChannel();
+        StreamingResponseBody body = (final OutputStream output) -> {
+            try (FileInputStream inputStream = new FileInputStream(f);
+                 FileChannel inputChannel = inputStream.getChannel();
                  WritableByteChannel outputChannel = Channels.newChannel(output)) {
-                inputChannel.transferTo(from, to, outputChannel);
+                inputChannel.transferTo(from, count, outputChannel);
             }
-            // closing the channels
         };
-        LOG.debug("returning data from " + from + " - " + to + " of total " + total);
-        return streamer;
+        LOG.debug("returning data from " + from + " - " + total + " of total " + total);
+        return new FileStream(body, total, from);
+    }
+
+    public static StreamingResponseBody getFileStreamingResponseBody(final File f, long total, String start) {
+        return getFileStream(f, total, start).body();
+    }
+
+    private static long resolveStartOffset(File f, long total, String start) {
+        if (start == null) {
+            return 0;
+        }
+
+        try {
+            long requestedOffset = Long.parseLong(start);
+            if (requestedOffset < 0) {
+                return getStartByte(f, Math.abs(requestedOffset), total);
+            }
+            // Offsets past EOF yield an empty slice at EOF so clients can detect
+            // truncation via X-Content-Start without replaying the whole file.
+            return Math.min(Math.max(0, requestedOffset), total);
+        } catch (Exception e) {
+            LOG.error("Error parsing start " + start + ": " + e);
+            return 0;
+        }
     }
 
     /**
@@ -82,18 +97,37 @@ public final class FileReader {
      * @return
      * @throws IOException
      */
-    @SuppressWarnings({ "unchecked" })
-    private static long getStartChar(File f, long numLines, long total) throws IOException {
-        List<String> lines = FileUtils.readLines(f, StandardCharsets.UTF_8);
-        long count = 0;
-        if (lines.size() > numLines) {
-            Collections.reverse(lines);
-            for (int i = 0; i < numLines; i++) {
-                count += lines.get(i).length() + 1;
-            }
-            count = total - (count + 1);
+    private static long getStartByte(File f, long numLines, long total) throws IOException {
+        if (numLines == 0 || total == 0) {
+            return 0;
         }
-        return count;
+
+        long newlines = 0;
+        try (RandomAccessFile file = new RandomAccessFile(f, "r")) {
+            long blockEnd = total;
+            byte[] buffer = new byte[TAIL_BUFFER_SIZE];
+            while (blockEnd > 0) {
+                int blockLength = (int) Math.min(TAIL_BUFFER_SIZE, blockEnd);
+                long blockStart = blockEnd - blockLength;
+                file.seek(blockStart);
+                file.readFully(buffer, 0, blockLength);
+
+                for (int i = blockLength - 1; i >= 0; i--) {
+                    long position = blockStart + i;
+                    if (buffer[i] == '\n') {
+                        if (position == total - 1) {
+                            continue;
+                        }
+                        newlines++;
+                        if (newlines == numLines) {
+                            return position + 1;
+                        }
+                    }
+                }
+                blockEnd = blockStart;
+            }
+        }
+        return 0;
     }
 
 }

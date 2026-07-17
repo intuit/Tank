@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
+import com.intuit.tank.rest.mvc.rest.services.logs.LogFileResponse;
 import com.intuit.tank.rest.mvc.rest.services.logs.LogServiceV2;
 
 import org.springframework.http.MediaType;
@@ -51,11 +52,14 @@ public class LogControllerTest {
         StreamingResponseBody responseBody = outputStream -> {
             Files.copy(testCSV.toPath(), outputStream);
         };
-        String filename = "test.csv";
-        when(logService.getFile("test.csv", "0")).thenReturn(responseBody);
+        when(logService.getFile("testCSV", "0"))
+                .thenReturn(new LogFileResponse(responseBody, testCSV.length(), 0));
         ResponseEntity<StreamingResponseBody> result = logController.getFile("testCSV", "0");
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(200, result.getStatusCodeValue());
+        assertEquals(Long.toString(testCSV.length()),
+                result.getHeaders().getFirst(LogController.TOTAL_LENGTH_HEADER));
+        assertEquals("0", result.getHeaders().getFirst(LogController.CONTENT_START_HEADER));
         verify(logService).getFile("testCSV", "0");
     }
 
