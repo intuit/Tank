@@ -1,3 +1,16 @@
+# 4.3.6 (Fri Jul 17 2026)
+
+#### 🐛 Bug Fix
+
+- Improve Admin Log Viewer with reliable streaming and investigation workspace [#498](https://github.com/intuit/Tank/pull/498) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.5 (Wed Jul 15 2026)
 
 #### 🐛 Bug Fix
