@@ -1,9 +1,0 @@
----
-description: Keep commit messages concise and sentence-based
-alwaysApply: true
----
-
-# Commit Messages
-
-- Use a concise, single-sentence commit message.
-- State the purpose of the change directly.
