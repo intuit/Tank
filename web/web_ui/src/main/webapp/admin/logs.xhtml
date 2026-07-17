@@ -10,52 +10,113 @@
     <f:viewAction action="#{tsConversationManager.end}" />
   </f:metadata>
   <ui:define name="content">
-    <h:form id="mainForm">
+    <h:form id="mainForm" styleClass="log-viewer-page">
+      <h:outputScript target="head" library="js" name="codemirror.js" />
+      <h:outputScript target="head" library="js" name="log-processing.js" />
+      <h:outputScript target="head" library="js" name="log-viewer.js" />
+      <h:outputStylesheet target="head" library="js" name="codemirror.css" />
+      <h:outputStylesheet library="css" name="log-viewer.css" />
       <ts:toolbar title="Log Viewer" />
-      <div class="vertical-spacer" />
 
       <p:growl globalOnly="true" id="messages" />
-      <p:fieldset legend="Log Viewer Options">
-        <div style="padding: 10px;">
-          <div class="formRow">
-            <div class="float-left h-space">
-              <p:selectOneMenu value="#{logViewer.currentLogFile}">
-                <f:selectItem itemLabel="Select a log file" itemValue="" />
-                <f:selectItems value="#{logViewer.logFiles}" />
-              </p:selectOneMenu>
-            </div>
 
-            <div class="float-left h-space">
-              Initial Lines:
-              <p:inputNumber id="numLines" value="#{logViewer.numLines}" minValue="0"
-                decimalPlaces="0" converter="jakarta.faces.Integer">
-                <p:ajax update="numLines" />
-              </p:inputNumber>
-              <ts:tip tipId="numLinsesTip"
-                text="Number of lines to tail at start. Set to 0 to view entire file." />
-            </div>
-            <div class="float-left h-space">
-              Poll seconds:
-              <p:inputNumber id="pollSeconds" value="#{logViewer.pollSeconds}"
-                decimalPlaces="0" minValue="0" converter="jakarta.faces.Integer">
-                <p:ajax update="pollSeconds" />
-              </p:inputNumber>
-              <ts:tip tipId="pollTip"
-                text="Poll time in seconds. Set to 0 to not poll." />
-            </div>
-            <div class="float-left h-space">
-              <p:commandButton value="Go" ajax="false" />
-            </div>
-
-          </div>
+      <p:outputPanel id="controls" layout="block" styleClass="log-viewer-controls">
+        <div class="log-viewer-control">
+          <h:outputLabel for="logFile" value="Log file" />
+          <p:selectOneMenu id="logFile" value="#{logViewer.currentLogFile}"
+            filter="true" filterMatchMode="contains">
+            <f:selectItem itemLabel="Select a log file" itemValue="" />
+            <f:selectItems value="#{logViewer.logFiles}" />
+            <p:ajax event="change"
+              process="logFile numLines pollSeconds"
+              update="viewerPanel messages"
+              onstart="return TankLogViewerPage.beforeLoad();"
+              oncomplete="TankLogViewerPage.afterLoad();" />
+          </p:selectOneMenu>
         </div>
-      </p:fieldset>
-      <ts:fileView fileName="#{logViewer.currentLogFile}"
-        url="#{logViewer.logFileUrl}"
-        rendered="#{logViewer.logFileUrl ne null}" widgetVar="logViewer"
-        lines="#{logViewer.numLines}" height="500"
-        poll="#{logViewer.pollSeconds}" />
 
+        <div class="log-viewer-control">
+          <h:outputLabel for="numLines" value="Initial lines" />
+          <p:inputNumber id="numLines" value="#{logViewer.numLines}" minValue="0"
+            decimalPlaces="0" converter="jakarta.faces.Integer" />
+          <span class="log-viewer-control-help">
+            Tail this many lines first. 0 streams the whole file (expensive);
+            the browser still retains at most 2000 normalized events.
+          </span>
+        </div>
+
+        <div class="log-viewer-control">
+          <h:outputLabel for="pollSeconds" value="Refresh interval" />
+          <p:inputNumber id="pollSeconds" value="#{logViewer.pollSeconds}"
+            decimalPlaces="0" minValue="0" maxValue="300"
+            converter="jakarta.faces.Integer" />
+          <span class="log-viewer-control-help">Seconds (max 300). Use 0 for a static snapshot. Not milliseconds.</span>
+        </div>
+
+        <div class="log-viewer-control">
+          <span class="log-viewer-control-label">View</span>
+          <p:commandButton value="Load log" icon="pi pi-play"
+            process="logFile numLines pollSeconds"
+            update="viewerPanel messages"
+            onclick="return TankLogViewerPage.beforeLoad();"
+            oncomplete="TankLogViewerPage.afterLoad();"
+            styleClass="log-viewer-load" />
+        </div>
+      </p:outputPanel>
+
+      <script type="text/javascript">
+      //<![CDATA[
+      window.TankLogViewerPage = {
+        beforeLoad: function() {
+          if (window.TankLogViewer) {
+            TankLogViewer.destroyAll();
+          }
+          var input = document.querySelector('#mainForm\\:numLines_input')
+              || document.querySelector('#mainForm\\:numLines');
+          var value = input ? String(input.value || '').replace(/,/g, '') : '';
+          if (value === '0') {
+            return window.confirm(
+              'Initial lines is 0, so the server may stream the entire log. '
+              + 'The browser will still retain at most 2000 normalized events. Continue?'
+            );
+          }
+          return true;
+        },
+        afterLoad: function() {
+          if (!window.TankLogViewer || typeof TankLogViewer.mount !== 'function') {
+            return;
+          }
+          // Inline fileView script usually mounts already; only mount orphans.
+          var roots = document.querySelectorAll('.tank-log-viewer');
+          for (var i = 0; i < roots.length; i++) {
+            var root = roots[i];
+            var widget = root.getAttribute('data-widget') || root.id;
+            if (!TankLogViewer.instances[widget]) {
+              TankLogViewer.mount(root);
+            }
+          }
+        }
+      };
+      //]]>
+      </script>
+
+      <p:outputPanel id="viewerPanel" layout="block">
+        <ui:fragment rendered="#{logViewer.logFileUrl ne null}">
+          <ts:fileView id="logOutput"
+            fileName="#{logViewer.currentLogFile}"
+            url="#{logViewer.logFileUrl}"
+            widgetVar="logViewer"
+            lines="#{logViewer.numLines}"
+            height="62vh"
+            poll="#{logViewer.pollSeconds}" />
+        </ui:fragment>
+        <ui:fragment rendered="#{logViewer.logFileUrl eq null}">
+          <div class="log-viewer-empty-selection">
+            <strong>Select a log file to begin</strong>
+            <span>Choosing a file loads the viewer automatically. Prefer tank.log for application logs.</span>
+          </div>
+        </ui:fragment>
+      </p:outputPanel>
     </h:form>
   </ui:define>
 </ui:composition>
