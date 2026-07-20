@@ -14,7 +14,10 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClientBuilder;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
@@ -24,13 +27,12 @@ import software.amazon.awssdk.services.cloudwatch.model.StatisticSet;
 import jakarta.annotation.Nonnull;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -46,16 +48,20 @@ public class CloudWatchDataSource implements IDatabase {
 
     private CloudWatchAsyncClient cloudWatchClient;
     private static final int MAX_CLOUDWATCH_METRICS_SUPPORTED = 150;
+    private static final int MAX_DATUMS_PER_REQUEST = 1000;
     private static final String namespace = "Intuit/Tank";
 
     public CloudWatchDataSource() {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        CloudWatchAsyncClientBuilder builder = CloudWatchAsyncClient.builder()
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .retryStrategy(RetryMode.ADAPTIVE_V2)
+                        .build());
         if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
             AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-            this.cloudWatchClient = CloudWatchAsyncClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
-        } else {
-            this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
+            builder.credentialsProvider(StaticCredentialsProvider.create(credentials));
         }
+        this.cloudWatchClient = builder.build();
     }
 
     @Override
@@ -101,14 +107,13 @@ public class CloudWatchDataSource implements IDatabase {
             for (Map.Entry<String,List<Integer>> entry : grouped.entrySet()) {
                 List<Integer> groupResults = entry.getValue();
                 int size = groupResults.size();
-                Supplier<DoubleStream> doubleStream =
-                        () -> groupResults.stream()
-                                .sorted()
-                                .mapToDouble(Double::valueOf);
-                Collection<Double> sortedList = doubleStream.get()
+                double[] sortedArray = groupResults.stream()
+                        .sorted()
+                        .mapToDouble(Double::valueOf)
+                        .toArray();
+                double sum = Arrays.stream(sortedArray).sum();
+                Collection<Double> sortedList = Arrays.stream(sortedArray)
                         .boxed().limit(MAX_CLOUDWATCH_METRICS_SUPPORTED).collect(Collectors.toList());
-                double[] sortedArray = doubleStream.get().toArray();
-                double sum = doubleStream.get().sum();
 
                 Dimension request = Dimension.builder()
                         .name("RequestName")
@@ -137,15 +142,21 @@ public class CloudWatchDataSource implements IDatabase {
                         .dimensions(request, instanceId, jobId)
                         .build());
             }
-            LOG.trace("Sending to CloudWatchMetrics: " + datumList.size() + " to " + namespace);
-            PutMetricDataRequest request = PutMetricDataRequest.builder()
-                    .namespace(namespace)
-                    .metricData(datumList)
-                    .build();
-
-            cloudWatchClient.putMetricData(request);
+            LOG.trace("Sending to CloudWatchMetrics: {} to " + namespace, datumList.size());
+            for (int i = 0; i < datumList.size(); i += MAX_DATUMS_PER_REQUEST) {
+                List<MetricDatum> chunk = datumList.subList(i, Math.min(i + MAX_DATUMS_PER_REQUEST, datumList.size()));
+                PutMetricDataRequest request = PutMetricDataRequest.builder()
+                        .namespace(namespace)
+                        .metricData(chunk)
+                        .build();
+                cloudWatchClient.putMetricData(request).whenComplete((response, throwable) -> {
+                    if (throwable != null) {
+                        LOG.error("Failed to push metric data to cloudwatch: {}", throwable.getMessage(), throwable);
+                    }
+                });
+            }
         } catch (Exception e) {
-            LOG.error("Failed to push metric data to cloudwatch: " + e.getMessage(), e);
+            LOG.error("Failed to push metric data to cloudwatch: {}", e.getMessage(), e);
         }
     }
 

@@ -28,9 +28,12 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -60,12 +63,15 @@ public class S3Datasource implements IDatabase {
 
 	public S3Datasource() {
 		CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+		S3AsyncClientBuilder builder = S3AsyncClient.builder()
+				.overrideConfiguration(ClientOverrideConfiguration.builder()
+						.retryStrategy(RetryMode.ADAPTIVE_V2)
+						.build());
 		if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
 			AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-			this.s3Client = S3AsyncClient.builder().credentialsProvider(StaticCredentialsProvider.create(credentials)).build();
-		} else {
-			this.s3Client = S3AsyncClient.builder().build();
+			builder.credentialsProvider(StaticCredentialsProvider.create(credentials));
 		}
+		this.s3Client = builder.build();
 	}
 
 	@Override
@@ -97,7 +103,7 @@ public class S3Datasource implements IDatabase {
 				bucketName = resultsProviderConfig.getString("bucket", "tank-test");
 				hostname = InetAddress.getLocalHost().getHostName();
 			} catch (UnknownHostException e) {
-				LOG.error("Failed to get hostname " + e.toString(), e);
+                LOG.error("Failed to get hostname {}", e.toString(), e);
 			}
 		} else {
 			LOG.error("Results Provider Config is Empty. Please update settings.xml to include S3Datasource Configuration");
@@ -105,7 +111,7 @@ public class S3Datasource implements IDatabase {
 
 		String region = new DefaultAwsRegionProviderChain().getRegion().toString();
 
-		if (StringUtils.endsWith(bucketName, "-")) {
+		if (bucketName.endsWith("-")) {
 			bucketName = bucketName.concat(region);
 		}
 
@@ -161,22 +167,18 @@ public class S3Datasource implements IDatabase {
 					.bucket(bucketName)
 					.key("TANK-AgentData-" + UUID.randomUUID() + ".log")
 					.acl(ObjectCannedACL.BUCKET_OWNER_FULL_CONTROL);
-			s3Client.putObject(request.build(), AsyncRequestBody.fromString(sb.toString()));
+			s3Client.putObject(request.build(), AsyncRequestBody.fromString(sb.toString()))
+					.whenComplete((response, throwable) -> {
+						if (throwable != null) {
+                            LOG.error("Failed to push results to S3 bucket={}: {}", bucketName, throwable.getMessage(), throwable);
+						}
+					});
 		} catch (SdkClientException ase) {
-			LOG.error("SdkClientException: which " +
-            		"means your request made it " +
-                    "to Amazon S3, but was rejected with an error response" +
-                    " for some reason. bucket=" + bucketName +
-                    "," + ase.getMessage(), ase);
+            LOG.error("SdkClientException: which means your request made it to Amazon S3, but was rejected with an error response for some reason. bucket={},{}", bucketName, ase.getMessage(), ase);
 		} catch (S3Exception ace) {
-			LOG.error("S3Exception: which " +
-            		"means the client encountered " +
-                    "an internal error while trying to " +
-                    "communicate with S3, " +
-                    "such as not being able to access the network. bucket=" +
-                    bucketName + "," + ace.getMessage(), ace);
+            LOG.error("S3Exception: which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network. bucket={},{}", bucketName, ace.getMessage(), ace);
 		} catch (Exception e) {
-			LOG.error("Error: " + e.getMessage(), e);
+            LOG.error("Error: {}", e.getMessage(), e);
 		}
 	}
 

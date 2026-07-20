@@ -23,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
@@ -37,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class AmazonS3 {
     private static final Logger LOG = LogManager.getLogger(AmazonS3.class);
@@ -64,17 +65,16 @@ public class AmazonS3 {
                     LOG.error("invalid proxy setup.");
                 }
             }
+            software.amazon.awssdk.services.s3.S3ClientBuilder s3ClientBuilder = S3Client.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build())
+                    .httpClientBuilder(httpClientBuilder);
             if (StringUtils.isNotBlank(creds.getKeyId()) && StringUtils.isNotBlank(creds.getKey())) {
                 AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                this.s3Client = S3Client.builder()
-                        .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                        .httpClientBuilder(httpClientBuilder)
-                        .build();
-            } else {
-                this.s3Client = S3Client.builder()
-                        .httpClientBuilder(httpClientBuilder)
-                        .build();
+                s3ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
             }
+            this.s3Client = s3ClientBuilder.build();
         } catch (Exception ex) {
             LOG.error(ex.getMessage());
             throw new RuntimeException(ex);
@@ -84,9 +84,9 @@ public class AmazonS3 {
     public void createBucket(String bucketName) {
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
-            LOG.info("Created bucket " + bucketName + " at " + "now");
+            LOG.info("Created bucket {} at now", bucketName);
         } catch (S3Exception e) {
-            LOG.error("Error creating bucket: " + e, e);
+            LOG.error("Error creating bucket: {}", e, e);
         }
     }
 
@@ -103,7 +103,7 @@ public class AmazonS3 {
                     PutObjectRequest.builder().bucket(bucketName).key(key).metadata(metaMap).build(),
                     RequestBody.fromInputStream(in, in.available()));
         } catch (IOException e) {
-            LOG.error("IO Error putting stream into bucket: " + e, e);
+            LOG.error("IO Error putting stream into bucket: {}", e, e);
     }
     }
 
@@ -135,12 +135,10 @@ public class AmazonS3 {
             HeadObjectResponse response = s3Client
                     .headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
             if (response.metadata() != null) {
-                for (Entry<String, String> entry : response.metadata().entrySet()) {
-                    ret.put(entry.getKey(), entry.getValue());
-                }
+                ret.putAll(response.metadata());
             }
         } catch (Exception e) {
-            LOG.error("Error getting MetaData: " + e, e);
+            LOG.error("Error getting MetaData: {}", e, e);
             throw new RuntimeException(e);
         }
         return ret;
