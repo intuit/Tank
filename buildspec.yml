@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    MAVEN_OPTS: "-Xms1g -Xmx2g"
+    MAVEN_OPTS: "-Xms2g -Xmx3g"
     SKIP_METHODTIMER_TEST: true
     SKIP_GUI_TEST: true
 
