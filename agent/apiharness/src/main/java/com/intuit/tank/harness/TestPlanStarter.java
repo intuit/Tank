@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -74,7 +76,11 @@ public class TestPlanStarter implements Runnable {
         this.rampDelay = calcRampTime();
         this.standalone = ((this.numThreads == 1) && (this.agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)));
         if (!this.standalone) {
-            this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
+            this.cloudWatchClient = CloudWatchAsyncClient.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build())
+                    .build();
             this.testPlan = Dimension.builder()
                     .name("testPlan")
                     .value(plan.getTestPlanName())
@@ -439,7 +445,11 @@ public class TestPlanStarter implements Runnable {
                     .metricData(datumList)
                     .build();
 
-            cloudWatchClient.putMetricData(request);
+            cloudWatchClient.putMetricData(request).whenComplete((response, throwable) -> {
+                if (throwable != null) {
+                    LOG.error(LogUtil.getLogMessage("Failed to push metric data to cloudwatch: " + throwable.getMessage()), throwable);
+                }
+            });
             send = DateUtils.addSeconds(new Date(), interval); // 15 SECONDS
             this.sessionStarts = 0; // reset session starts for next interval
         }

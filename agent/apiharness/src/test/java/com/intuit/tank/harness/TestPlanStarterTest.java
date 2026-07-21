@@ -33,7 +33,7 @@ public class TestPlanStarterTest {
         _threadGroupMock = mock(ThreadGroup.class);
         _agentRunData = mock(AgentRunData.class);
         mock_CloudWatchAsyncClient = mockStatic(CloudWatchAsyncClient.class);
-        when(CloudWatchAsyncClient.builder()).thenReturn(mock(CloudWatchAsyncClientBuilder.class));
+        when(CloudWatchAsyncClient.builder()).thenReturn(mock(CloudWatchAsyncClientBuilder.class, RETURNS_SELF));
         when(_agentRunData.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);
     }
 

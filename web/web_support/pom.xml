@@ -17,6 +17,11 @@
   <dependencies>
 
     <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>ssm</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>harness-data</artifactId>
       <version>${project.version}</version>

@@ -39,8 +39,6 @@ import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.SnsClientBuilder;
 import software.amazon.awssdk.services.sns.model.CreateTopicRequest;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
-import software.amazon.awssdk.services.sns.model.ListTopicsRequest;
-import software.amazon.awssdk.services.sns.model.ListTopicsResponse;
 import software.amazon.awssdk.services.sns.model.SubscribeRequest;
 import software.amazon.awssdk.services.sns.model.Topic;
 
@@ -168,15 +166,12 @@ public class CloudwatchInstance {
      * @return
      */
     public String getOrCreateNotification(String email) {
-        String ret = null;
         String topicName = getTopicName(email);
-        String nextToken = null;
-        do {
-            ListTopicsResponse listTopics = snsClient.listTopics(ListTopicsRequest.builder().nextToken(nextToken).build());
-            List<Topic> topics = listTopics.topics();
-            ret = topics.stream().filter(s -> s.topicArn().endsWith(topicName)).findFirst().map(Topic::topicArn).orElse(ret);
-            nextToken = listTopics.nextToken();
-        } while (ret == null && nextToken != null);
+        String ret = snsClient.listTopicsPaginator().topics().stream()
+                .filter(s -> s.topicArn().endsWith(topicName))
+                .findFirst()
+                .map(Topic::topicArn)
+                .orElse(null);
         if (ret == null) {
             // create the topic and the subscription
             CreateTopicResponse topic = snsClient.createTopic(CreateTopicRequest.builder().name(topicName).build());

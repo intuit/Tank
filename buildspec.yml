@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    MAVEN_OPTS: "-Xms1g -Xmx2g"
+    MAVEN_OPTS: "-Xms2g -Xmx3g"
     SKIP_METHODTIMER_TEST: true
     SKIP_GUI_TEST: true
 
@@ -13,6 +13,7 @@ phases:
   build:
     commands:
       - java -version
+      - export WATS_PROPERTIES="$CODEBUILD_SRC_DIR/api/src/main/resources"
       # Run the complete build with both unit and integration tests
       - mvn clean install surefire-report:report -P release
       - export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
