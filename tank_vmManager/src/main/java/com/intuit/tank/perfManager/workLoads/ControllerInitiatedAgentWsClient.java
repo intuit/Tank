@@ -1,5 +1,8 @@
 package com.intuit.tank.perfManager.workLoads;
 
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
@@ -55,6 +58,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private static final Logger LOG = LogManager.getLogger(ControllerInitiatedAgentWsClient.class);
     private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
+    private static final String START_AGENT_SCRIPT = "startAgent.sh";
+    private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
@@ -86,6 +91,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
     private final java.util.Set<String> terminationRequestedInstances = ConcurrentHashMap.newKeySet();
     private volatile byte[] cachedHarnessJarBytes;
+    private volatile Optional<byte[]> cachedStartupScript;
     private volatile WebSocketClient wsClient;
     private volatile java.util.concurrent.ScheduledExecutorService keepAliveExecutor;
 
@@ -345,24 +351,12 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private boolean pushStartupBootstrapJar(String agentId, SessionContext context, long transferTimeoutMillis)
             throws Exception {
-        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
-                + " needs startup bootstrap — pushing harness JAR"
-                + " chunkBytes=" + DEFAULT_CHUNK_BYTES
-                + " window=" + CHUNK_WINDOW
-                + " maxConnectionMs=" + MAX_BOOTSTRAP_CONNECTION_MS)));
         File harnessJar = findHarnessJar();
         if (harnessJar == null || !harnessJar.exists() || !harnessJar.isFile()) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Harness JAR not found on controller for startup bootstrap")));
             context.close();
             return false;
         }
-
-        context.jobId = "bootstrap";
-        context.expectedFiles = 1;
-        context.bootstrapTransfer = true;
-        fileTransferReady.put(agentId, false);
-        agentWsState.put(agentId, "bootstrap_transferring");
-        agentTransferProgress.put(agentId, "0/1 files");
 
         byte[] jarBytes = cachedHarnessJarBytes;
         if (jarBytes == null) {
@@ -376,8 +370,22 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 }
             }
         }
-        List<TransferFile> bootstrapFiles = new ArrayList<>();
-        bootstrapFiles.add(new TransferFile("support_jar", API_HARNESS_JAR, jarBytes, false));
+        Optional<byte[]> startupScript = loadStartupScript();
+        List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(jarBytes, startupScript);
+        int bootstrapFileCount = bootstrapFiles.size();
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
+                + " needs startup bootstrap — pushing " + bootstrapFileCount + " files"
+                + " customStartAgent=" + startupScript.isPresent()
+                + " chunkBytes=" + DEFAULT_CHUNK_BYTES
+                + " window=" + CHUNK_WINDOW
+                + " maxConnectionMs=" + MAX_BOOTSTRAP_CONNECTION_MS)));
+
+        context.jobId = "bootstrap";
+        context.expectedFiles = bootstrapFileCount;
+        context.bootstrapTransfer = true;
+        fileTransferReady.put(agentId, false);
+        agentWsState.put(agentId, "bootstrap_transferring");
+        agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
 
         long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
         boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
@@ -394,13 +402,52 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
 
         context.transferCompleteFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
-        agentTransferProgress.put(agentId, "1/1 files");
+        agentTransferProgress.put(agentId, bootstrapFileCount + "/" + bootstrapFileCount + " files");
         agentWsState.put(agentId, "bootstrap_sent");
-        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Bootstrap JAR sent to " + agentId + " — waiting for harness to start")));
+        LOG.info(new ObjectMessage(Map.of("Message", "[WS] Startup bootstrap files sent to " + agentId
+                + " — waiting for harness to start")));
         sessions.remove(agentId, context);
         fileTransferReady.remove(agentId);
         context.close();
         return false;
+    }
+
+    private Optional<byte[]> loadStartupScript() throws IOException {
+        Optional<byte[]> startupScript = cachedStartupScript;
+        if (startupScript == null) {
+            synchronized (this) {
+                startupScript = cachedStartupScript;
+                if (startupScript == null) {
+                    FileStorage fileStorage =
+                            FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
+                    startupScript = readStartupScript(fileStorage);
+                    cachedStartupScript = startupScript;
+                }
+            }
+        }
+        return startupScript;
+    }
+
+    static Optional<byte[]> readStartupScript(FileStorage fileStorage) throws IOException {
+        FileData startupScript = new FileData("", START_AGENT_SCRIPT);
+        if (!fileStorage.exists(startupScript)) {
+            LOG.warn(new ObjectMessage(Map.of("Message",
+                    "[WS] Custom startAgent.sh not found in configured JAR storage — using packaged default")));
+            return Optional.empty();
+        }
+        try (InputStream input = fileStorage.readFileData(startupScript)) {
+            return Optional.of(input.readAllBytes());
+        } catch (RuntimeException e) {
+            throw new IOException("Failed reading startAgent.sh from configured JAR storage", e);
+        }
+    }
+
+    static List<TransferFile> buildStartupBootstrapFiles(byte[] jarBytes, Optional<byte[]> startupScript) {
+        List<TransferFile> files = new ArrayList<>();
+        startupScript.ifPresent(content ->
+                files.add(new TransferFile(STARTUP_SCRIPT_FILE_TYPE, START_AGENT_SCRIPT, content, false)));
+        files.add(new TransferFile("support_jar", API_HARNESS_JAR, jarBytes, false));
+        return files;
     }
 
     private File findHarnessJar() {
@@ -950,7 +997,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
+    record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
     }
 
     /**

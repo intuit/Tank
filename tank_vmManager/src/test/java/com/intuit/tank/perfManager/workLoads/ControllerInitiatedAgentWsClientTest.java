@@ -1,5 +1,6 @@
 package com.intuit.tank.perfManager.workLoads;
 
+import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -12,21 +13,72 @@ import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.eclipse.jetty.websocket.api.Session;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ControllerInitiatedAgentWsClientTest {
+
+    @Test
+    void testStartupBootstrapSendsCustomScriptBeforeHarnessJar() {
+        byte[] startupScript = "#!/bin/sh\necho custom\n".getBytes();
+        byte[] harnessJar = new byte[] { 1, 2, 3 };
+
+        List<ControllerInitiatedAgentWsClient.TransferFile> files =
+                ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
+                        harnessJar, Optional.of(startupScript));
+
+        assertEquals(2, files.size());
+        assertEquals("startup_script", files.get(0).fileType());
+        assertEquals("startAgent.sh", files.get(0).fileName());
+        assertArrayEquals(startupScript, files.get(0).content());
+        assertEquals("support_jar", files.get(1).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
+        assertArrayEquals(harnessJar, files.get(1).content());
+    }
+
+    @Test
+    void testStartupBootstrapUsesPackagedScriptWhenCustomScriptIsMissing() {
+        byte[] harnessJar = new byte[] { 1, 2, 3 };
+
+        List<ControllerInitiatedAgentWsClient.TransferFile> files =
+                ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
+                        harnessJar, Optional.empty());
+
+        assertEquals(1, files.size());
+        assertEquals("support_jar", files.get(0).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(0).fileName());
+    }
+
+    @Test
+    void testStartupScriptIsReadFromConfiguredFileStorage() throws Exception {
+        byte[] startupScript = "#!/bin/sh\necho configured\n".getBytes();
+        FileStorage fileStorage = mock(FileStorage.class);
+        when(fileStorage.exists(argThat(file -> "startAgent.sh".equals(file.getFileName())))).thenReturn(true);
+        when(fileStorage.readFileData(argThat(file -> "startAgent.sh".equals(file.getFileName()))))
+                .thenReturn(new ByteArrayInputStream(startupScript));
+
+        Optional<byte[]> result = ControllerInitiatedAgentWsClient.readStartupScript(fileStorage);
+
+        assertTrue(result.isPresent());
+        assertArrayEquals(startupScript, result.orElseThrow());
+    }
 
     @Test
     void testTerminalStatusSchedulesTerminationAndUpdatesTracker() throws Exception {
