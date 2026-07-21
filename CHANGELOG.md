@@ -1,3 +1,15 @@
+# 4.3.7 (Tue Jul 21 2026)
+
+#### 🐛 Bug Fix
+
+- AWS SDK Consistency Cleanup [#499](https://github.com/intuit/Tank/pull/499) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.6 (Fri Jul 17 2026)
 
 #### 🐛 Bug Fix
