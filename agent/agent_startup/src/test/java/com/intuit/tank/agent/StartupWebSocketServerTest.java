@@ -68,6 +68,27 @@ class StartupWebSocketServerTest {
     }
 
     @Test
+    void startupScriptFailureDoesNotPreventHarnessRetry() throws Exception {
+        StartupWebSocketServer server =
+                new StartupWebSocketServer(0, "i-agent", "job-1", 1, agentDir.toFile());
+        Session session = sessionThatCompletesCallbacks();
+
+        server.handleFileOffer(session, fileOffer(
+                "script-id", "startup_script", "startAgent.sh", 1));
+        server.handleFileChunk(session, "script-id", 0, new byte[] { 1, 2 });
+
+        assertFalse(isHarnessJarReady(server));
+        verify(session).sendText(contains("file size mismatch"), any(Callback.class));
+
+        byte[] harnessJar = new byte[] { 3 };
+        server.handleFileOffer(session, fileOffer(
+                "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
+        server.handleFileChunk(session, "jar-id", 0, harnessJar);
+
+        assertEquals(agentDir.resolve("apiharness-1.0-all.jar").toFile(), server.awaitHarnessJar(100));
+    }
+
+    @Test
     void keepsPackagedStartupScriptWhenControllerOnlySendsHarnessJar() throws Exception {
         byte[] packagedScript = "#!/bin/sh\necho packaged\n".getBytes(StandardCharsets.UTF_8);
         Path startupScript = agentDir.resolve("startAgent.sh");

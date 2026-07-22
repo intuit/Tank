@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -51,6 +52,29 @@ public class ControllerInitiatedAgentWsClientTest {
         assertEquals("support_jar", files.get(1).fileType());
         assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
         assertArrayEquals(harnessJar, files.get(1).content());
+    }
+
+    @Test
+    void testLegacyAgentRejectionTriggersFallbackOnlyForStartupScript() {
+        ControllerInitiatedAgentWsClient.TransferFile startupScript =
+                new ControllerInitiatedAgentWsClient.TransferFile(
+                        "startup_script", "startAgent.sh", new byte[] { 1 }, false);
+        ControllerInitiatedAgentWsClient.TransferFile harnessJar =
+                new ControllerInitiatedAgentWsClient.TransferFile(
+                        "support_jar", "apiharness-1.0-all.jar", new byte[] { 2 }, false);
+        AgentWsEnvelope unsupported = AgentWsEnvelope.fileAck(
+                "i-agent", "bootstrap", "file-id", null,
+                AgentWsEnvelope.AckStatus.failed, "unsupported_startup_file");
+        AgentWsEnvelope otherFailure = AgentWsEnvelope.fileAck(
+                "i-agent", "bootstrap", "file-id", null,
+                AgentWsEnvelope.AckStatus.failed, "disk_full");
+
+        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+                startupScript, unsupported));
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+                harnessJar, unsupported));
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+                startupScript, otherFailure));
     }
 
     @Test

@@ -267,9 +267,7 @@ public class StartupWebSocketServer {
                 }
             }
         } catch (Exception e) {
-            closeCurrentFileQuietly();
-            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, e.getMessage());
-            harnessJarFuture.completeExceptionally(e);
+            failCurrentFileTransfer(conn, fileId, chunkIndex, e);
         }
     }
 
@@ -347,6 +345,16 @@ public class StartupWebSocketServer {
 
     private void sendText(Session conn, String text) {
         conn.sendText(text, Callback.NOOP);
+    }
+
+    private synchronized void failCurrentFileTransfer(
+            Session conn, String fileId, Integer chunkIndex, Exception error) {
+        boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
+        closeCurrentFileQuietly();
+        sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, error.getMessage());
+        if (harnessJar) {
+            harnessJarFuture.completeExceptionally(error);
+        }
     }
 
     private synchronized void handleFatalError(Exception ex) {
@@ -454,9 +462,8 @@ public class StartupWebSocketServer {
                         : java.util.Base64.getDecoder().decode(envelope.getChunkData());
                 server.handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
             } catch (Exception e) {
-                server.closeCurrentFileQuietly();
-                server.sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
-                server.harnessJarFuture.completeExceptionally(e);
+                server.failCurrentFileTransfer(
+                        conn, envelope.getFileId(), envelope.getChunkIndex(), e);
             }
         }
 

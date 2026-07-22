@@ -388,8 +388,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
 
         long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
-        boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+        boolean sentAllChunks;
+        try {
+            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
+                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+        } catch (UnsupportedStartupScriptException e) {
+            bootstrapFiles = buildStartupBootstrapFiles(jarBytes, Optional.empty());
+            bootstrapFileCount = bootstrapFiles.size();
+            context.expectedFiles = bootstrapFileCount;
+            context.completedFiles.clear();
+            agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
+            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
+                    + " does not support startup_script — retrying bootstrap with harness JAR only")));
+            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
+                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+        }
 
         if (!sentAllChunks) {
             LOG.info(new ObjectMessage(Map.of("Message",
@@ -589,6 +602,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
             if (offerAck != null) {
                 if (offerAck.getStatus() == AckStatus.failed) {
+                    if (isLegacyStartupScriptRejection(file, offerAck)) {
+                        throw new UnsupportedStartupScriptException();
+                    }
                     throw new IOException("File offer rejected by agent: " + offerAck.getError());
                 }
                 if (offerAck.getStatus() == AckStatus.resume
@@ -691,6 +707,14 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
             }
         }
+    }
+
+    static boolean isLegacyStartupScriptRejection(TransferFile file, AgentWsEnvelope offerAck) {
+        return STARTUP_SCRIPT_FILE_TYPE.equals(file.fileType())
+                && START_AGENT_SCRIPT.equals(file.fileName())
+                && offerAck != null
+                && offerAck.getStatus() == AckStatus.failed
+                && "unsupported_startup_file".equals(offerAck.getError());
     }
 
     private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
@@ -1071,5 +1095,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private BootstrapBudgetExceededException(String message) {
             super(message);
         }
+    }
+
+    private static class UnsupportedStartupScriptException extends IOException {
     }
 }
