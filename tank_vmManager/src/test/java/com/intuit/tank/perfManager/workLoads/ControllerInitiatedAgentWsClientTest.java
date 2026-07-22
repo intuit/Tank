@@ -10,13 +10,19 @@ import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -35,6 +44,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ControllerInitiatedAgentWsClientTest {
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void testStartupBootstrapSendsCustomScriptBeforeHarnessJar() {
@@ -75,6 +87,63 @@ public class ControllerInitiatedAgentWsClientTest {
                 harnessJar, unsupported));
         assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
                 startupScript, otherFailure));
+    }
+
+    @Test
+    void testLegacyAgentRejectionRetriesBootstrapWithHarnessJarOnly() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = mock(Session.class);
+        Object context = installSession(client, "i-agent", session);
+        List<String> offeredFiles = new ArrayList<>();
+        setField(client, "cachedStartupScript", Optional.of(new byte[] { 1 }));
+
+        Path toolsDir = tempDir.resolve("webapps/ROOT/tools");
+        Files.createDirectories(toolsDir);
+        Files.write(toolsDir.resolve("apiharness-1.0-all.jar"), new byte[] { 2 });
+        String previousCatalinaHome = System.getProperty("catalina.home");
+        System.setProperty("catalina.home", tempDir.toString());
+
+        doAnswer(invocation -> {
+            AgentWsEnvelope offer = AgentWsEnvelope.fromJson(invocation.getArgument(0));
+            Callback callback = invocation.getArgument(1);
+            callback.succeed();
+            if (offer.getType() == AgentWsEnvelope.Type.file_offer) {
+                offeredFiles.add(offer.getFileName());
+                AgentWsEnvelope.AckStatus status = "startAgent.sh".equals(offer.getFileName())
+                        ? AgentWsEnvelope.AckStatus.failed
+                        : AgentWsEnvelope.AckStatus.ok;
+                String error = status == AgentWsEnvelope.AckStatus.failed
+                        ? "unsupported_startup_file"
+                        : null;
+                invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                        "i-agent", "bootstrap", offer.getFileId(), null, status, error));
+            }
+            return null;
+        }).when(session).sendText(anyString(), any(Callback.class));
+        doAnswer(invocation -> {
+            AgentWsEnvelope.BinaryFileChunk chunk =
+                    AgentWsEnvelope.fromBinaryFileChunk(((ByteBuffer) invocation.getArgument(0)).duplicate());
+            Callback callback = invocation.getArgument(1);
+            callback.succeed();
+            invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                    "i-agent", "bootstrap", chunk.fileId(), chunk.chunkIndex(),
+                    AgentWsEnvelope.AckStatus.complete, null));
+            return null;
+        }).when(session).sendBinary(any(ByteBuffer.class), any(Callback.class));
+
+        try {
+            boolean result = invokePushStartupBootstrap(client, context);
+
+            assertFalse(result);
+            assertEquals(List.of("startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
+            assertEquals("1/1 files", client.getTransferProgress("i-agent"));
+        } finally {
+            if (previousCatalinaHome == null) {
+                System.clearProperty("catalina.home");
+            } else {
+                System.setProperty("catalina.home", previousCatalinaHome);
+            }
+        }
     }
 
     @Test
@@ -203,10 +272,23 @@ public class ControllerInitiatedAgentWsClientTest {
 
     private void invokeHandleText(ControllerInitiatedAgentWsClient client, String instanceId,
                                   AgentWsEnvelope envelope) throws Exception {
+        invokeHandleText(client, instanceId, null, envelope);
+    }
+
+    private void invokeHandleText(ControllerInitiatedAgentWsClient client, String instanceId,
+                                  Session session, AgentWsEnvelope envelope) throws Exception {
         Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
                 "handleText", String.class, Session.class, String.class, CompletableFuture.class);
         method.setAccessible(true);
-        method.invoke(client, instanceId, null, envelope.toJson(), new CompletableFuture<AgentWsEnvelope>());
+        method.invoke(client, instanceId, session, envelope.toJson(), new CompletableFuture<AgentWsEnvelope>());
+    }
+
+    private boolean invokePushStartupBootstrap(
+            ControllerInitiatedAgentWsClient client, Object sessionContext) throws Exception {
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
+                "pushStartupBootstrapJar", String.class, sessionContext.getClass(), long.class);
+        method.setAccessible(true);
+        return (boolean) method.invoke(client, "i-agent", sessionContext, 1_000L);
     }
 
     private void invokeOnClosed(ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {
@@ -217,7 +299,8 @@ public class ControllerInitiatedAgentWsClientTest {
     }
 
     @SuppressWarnings("unchecked")
-    private void installSession(ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {
+    private Object installSession(
+            ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {
         Class<?> sessionContextClass = Class.forName(
                 "com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient$SessionContext");
         Class<?> endpointClass = Class.forName(
@@ -238,6 +321,13 @@ public class ControllerInitiatedAgentWsClientTest {
         ConcurrentHashMap<String, Object> sessions =
                 (ConcurrentHashMap<String, Object>) sessionsField.get(client);
         sessions.put(instanceId, sessionContext);
+        return sessionContext;
+    }
+
+    private void setField(ControllerInitiatedAgentWsClient client, String name, Object value) throws Exception {
+        Field field = ControllerInitiatedAgentWsClient.class.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(client, value);
     }
 
     private CloudVmStatus createStatus(String instanceId, JobStatus jobStatus, VMStatus vmStatus) {
