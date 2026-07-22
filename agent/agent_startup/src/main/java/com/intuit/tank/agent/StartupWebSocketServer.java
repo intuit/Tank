@@ -25,8 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Agent-side WebSocket server that receives the harness JAR pushed by the controller during startup
- * bootstrap. Runs over WebSocket-over-HTTP/2 (RFC 8441) using Jetty 12; the same connector also
+ * Agent-side WebSocket server that receives startup files pushed by the controller during bootstrap.
+ * Runs over WebSocket-over-HTTP/2 (RFC 8441) using Jetty 12; the same connector also
  * accepts HTTP/1.1 WebSocket upgrades so a controller may negotiate either transport via ALPN/prior
  * knowledge.
  */
@@ -36,6 +36,8 @@ public class StartupWebSocketServer {
     private static final String TANK_AGENT_DIR = "/opt/tank_agent";
     private static final String API_HARNESS_JAR = "apiharness-1.0-all.jar";
     private static final String SUPPORT_JAR_FILE_TYPE = "support_jar";
+    private static final String START_AGENT_SCRIPT = "startAgent.sh";
+    private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
     // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
     // Raise Jetty's 30s default WS idle timeout so a slow/paused bootstrap transfer isn't dropped.
@@ -46,6 +48,7 @@ public class StartupWebSocketServer {
     private final String instanceId;
     private final String jobId;
     private final int capacity;
+    private final File agentDir;
     private final String agentSessionId = UUID.randomUUID().toString();
     private final CompletableFuture<File> harnessJarFuture = new CompletableFuture<>();
     private final CompletableFuture<Void> serverStoppedFuture = new CompletableFuture<>();
@@ -57,6 +60,7 @@ public class StartupWebSocketServer {
     private FileOutputStream currentFileStream;
     private File currentTempFile;
     private File targetFile;
+    private String currentFileName;
     private String currentFileId;
     private int receivedChunks;
     private int expectedChunks;
@@ -65,10 +69,15 @@ public class StartupWebSocketServer {
     private long transferStartedAtNs;
 
     public StartupWebSocketServer(int port, String instanceId, String jobId, int capacity) {
+        this(port, instanceId, jobId, capacity, new File(TANK_AGENT_DIR));
+    }
+
+    StartupWebSocketServer(int port, String instanceId, String jobId, int capacity, File agentDir) {
         this.port = port;
         this.instanceId = instanceId;
         this.jobId = jobId;
         this.capacity = capacity;
+        this.agentDir = agentDir;
         this.server = new Server();
     }
 
@@ -162,10 +171,15 @@ public class StartupWebSocketServer {
         return serverStoppedFuture.isDone();
     }
 
-    private synchronized void handleFileOffer(Session conn, AgentWsEnvelope envelope) {
-        String fileName = new File(envelope.getFileName() != null ? envelope.getFileName() : "").getName();
+    synchronized void handleFileOffer(Session conn, AgentWsEnvelope envelope) {
+        String offeredFileName = envelope.getFileName() != null ? envelope.getFileName() : "";
+        String fileName = new File(offeredFileName).getName();
         String fileType = envelope.getFileType();
-        if (!API_HARNESS_JAR.equals(fileName) && !SUPPORT_JAR_FILE_TYPE.equalsIgnoreCase(fileType)) {
+        boolean harnessJar = API_HARNESS_JAR.equals(fileName)
+                && SUPPORT_JAR_FILE_TYPE.equalsIgnoreCase(fileType);
+        boolean startupScript = START_AGENT_SCRIPT.equals(fileName)
+                && STARTUP_SCRIPT_FILE_TYPE.equalsIgnoreCase(fileType);
+        if (!offeredFileName.equals(fileName) || (!harnessJar && !startupScript)) {
             sendFileAck(conn, envelope.getFileId(), null, AckStatus.failed, "unsupported_startup_file");
             return;
         }
@@ -175,12 +189,12 @@ public class StartupWebSocketServer {
         int offerTotalChunks = envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0;
         int offerChunkBytes = envelope.getChunkBytes() != null ? envelope.getChunkBytes() : 0;
         try {
-            File agentDir = new File(TANK_AGENT_DIR);
             if (!agentDir.exists() && !agentDir.mkdirs()) {
                 throw new IOException("Unable to create " + agentDir.getAbsolutePath());
             }
             currentFileConnection = conn;
-            targetFile = new File(agentDir, API_HARNESS_JAR);
+            currentFileName = fileName;
+            targetFile = new File(agentDir, fileName);
             currentTempFile = new File(targetFile.getAbsolutePath() + ".part");
 
             // Check for resumable partial file from a previous failed transfer
@@ -232,7 +246,7 @@ public class StartupWebSocketServer {
         }
     }
 
-    private synchronized void handleFileChunk(Session conn, String fileId, Integer chunkIndex, byte[] payload) {
+    synchronized void handleFileChunk(Session conn, String fileId, Integer chunkIndex, byte[] payload) {
         if (currentFileStream == null || currentFileId == null || !currentFileId.equals(fileId)) {
             sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
             return;
@@ -244,15 +258,16 @@ public class StartupWebSocketServer {
             receivedChunks++;
             sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
 
-            if (expectedBytes > 0 && receivedBytes >= expectedBytes) {
-                File completedFile = finalizeHarnessJar();
+            if (expectedBytes >= 0 && receivedBytes >= expectedBytes) {
+                boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
+                File completedFile = finalizeStartupFile();
                 sendFileAckSync(conn, fileId, chunkIndex, AckStatus.complete, null);
-                harnessJarFuture.complete(completedFile);
+                if (harnessJar) {
+                    harnessJarFuture.complete(completedFile);
+                }
             }
         } catch (Exception e) {
-            closeCurrentFileQuietly();
-            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, e.getMessage());
-            harnessJarFuture.completeExceptionally(e);
+            failCurrentFileTransfer(conn, fileId, chunkIndex, e);
         }
     }
 
@@ -265,7 +280,7 @@ public class StartupWebSocketServer {
         }
     }
 
-    private File finalizeHarnessJar() throws IOException {
+    private File finalizeStartupFile() throws IOException {
         currentFileStream.close();
         currentFileStream = null;
         if (expectedBytes >= 0 && expectedBytes != receivedBytes) {
@@ -278,16 +293,20 @@ public class StartupWebSocketServer {
             Files.move(currentTempFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         File completedFile = targetFile;
+        if (START_AGENT_SCRIPT.equals(currentFileName) && !completedFile.setExecutable(true, false)) {
+            throw new IOException("Unable to make " + completedFile.getAbsolutePath() + " executable");
+        }
         long durationMs = transferStartedAtNs > 0L
                 ? TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs)
                 : 0L;
         double throughputMiBps = durationMs > 0
                 ? Math.round(((receivedBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
                 : 0.0;
-        logger.info("Startup WS harness JAR received bytes={} chunks={}/{} durationMs={} throughputMiBps={}",
-                receivedBytes, receivedChunks, expectedChunks, durationMs, throughputMiBps);
+        logger.info("Startup WS file received file={} bytes={} chunks={}/{} durationMs={} throughputMiBps={}",
+                currentFileName, receivedBytes, receivedChunks, expectedChunks, durationMs, throughputMiBps);
         currentTempFile = null;
         targetFile = null;
+        currentFileName = null;
         currentFileId = null;
         transferStartedAtNs = 0L;
         return completedFile;
@@ -326,6 +345,16 @@ public class StartupWebSocketServer {
 
     private void sendText(Session conn, String text) {
         conn.sendText(text, Callback.NOOP);
+    }
+
+    private synchronized void failCurrentFileTransfer(
+            Session conn, String fileId, Integer chunkIndex, Exception error) {
+        boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
+        closeCurrentFileQuietly();
+        sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, error.getMessage());
+        if (harnessJar) {
+            harnessJarFuture.completeExceptionally(error);
+        }
     }
 
     private synchronized void handleFatalError(Exception ex) {
@@ -433,9 +462,8 @@ public class StartupWebSocketServer {
                         : java.util.Base64.getDecoder().decode(envelope.getChunkData());
                 server.handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
             } catch (Exception e) {
-                server.closeCurrentFileQuietly();
-                server.sendFileAck(conn, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
-                server.harnessJarFuture.completeExceptionally(e);
+                server.failCurrentFileTransfer(
+                        conn, envelope.getFileId(), envelope.getChunkIndex(), e);
             }
         }
 
