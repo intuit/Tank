@@ -1,3 +1,16 @@
+# 4.3.8 (Wed Jul 22 2026)
+
+#### 🐛 Bug Fix
+
+- Fix startAgent.sh delivery during WebSocket bootstrap [#500](https://github.com/intuit/Tank/pull/500) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.7 (Tue Jul 21 2026)
 
 #### 🐛 Bug Fix
