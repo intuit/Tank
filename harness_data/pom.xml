@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>4.3.8-SNAPSHOT</version>
+    <version>4.3.8</version>
   </parent>
 
   <artifactId>harness-data</artifactId>
