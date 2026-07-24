@@ -125,7 +125,7 @@ public abstract class BaseJob extends BaseEntity {
      */
     public BaseJob(BaseJob copy) {
         this.baselineVirtualUsers = copy.baselineVirtualUsers;
-        this.incrementStrategy = copy.incrementStrategy;
+        this.incrementStrategy = copy.getIncrementStrategy();
         this.rampTime = copy.rampTime;
         this.simulationTime = copy.simulationTime;
         this.terminationPolicy = copy.terminationPolicy;
