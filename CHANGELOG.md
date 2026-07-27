@@ -1,3 +1,16 @@
+# 4.3.9 (Mon Jul 27 2026)
+
+#### 🐛 Bug Fix
+
+- [SRE-39090] Preserve nonlinear workload selection during job creation [#501](https://github.com/intuit/Tank/pull/501) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.8 (Wed Jul 22 2026)
 
 #### 🐛 Bug Fix
