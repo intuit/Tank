@@ -95,7 +95,7 @@ final class TankUiBrowser implements AutoCloseable {
             }
 
             page.screenshot(new Page.ScreenshotOptions().setPath(screenshot).setFullPage(true));
-        } catch (RuntimeException uiFailure) {
+        } catch (RuntimeException | AssertionError uiFailure) {
             try {
                 page.screenshot(new Page.ScreenshotOptions().setPath(screenshot).setFullPage(true));
             } catch (Exception ignored) {

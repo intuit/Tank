@@ -17,10 +17,13 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.time.Duration;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -108,13 +111,17 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
             waitForSchema();
             LOG.info("Embedded Tank ready at {} (jdbc={})", baseUrl, jdbcUrl);
         } catch (Exception e) {
+            try {
+                close();
+            } catch (RuntimeException cleanupFailure) {
+                e.addSuppressed(cleanupFailure);
+            }
             throw new IllegalStateException("Failed to start embedded Tank runtime", e);
         }
     }
 
     private Path resolveExplodedWar(Path warFile) throws IOException, InterruptedException {
-        String cacheKey = Files.getLastModifiedTime(warFile).toMillis()
-                + "-" + Files.size(warFile);
+        String cacheKey = warCacheKey(warFile);
         Path globalCache = Path.of(System.getProperty("user.home"), ".cache", "tank-system-tests",
                 "exploded-war", cacheKey);
         Path workExploded = workDir.resolve("exploded-war");
@@ -140,6 +147,22 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
         cloneDirectory(globalCache, workExploded);
         Files.writeString(workStamp, cacheKey);
         return workExploded;
+    }
+
+    private static String warCacheKey(Path warFile) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            try (InputStream input = Files.newInputStream(warFile)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    digest.update(buffer, 0, bytesRead);
+                }
+            }
+            return HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 is unavailable", e);
+        }
     }
 
     private static void cloneDirectory(Path source, Path destination) throws IOException, InterruptedException {
@@ -258,22 +281,7 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
                 return jar;
             }
         }
-        Path copiedJar = Path.of("target", "embedded-lib", "tomcat-embed-websocket.jar")
-                .toAbsolutePath();
-        if (Files.isRegularFile(copiedJar)) {
-            return copiedJar;
-        }
-        for (String version : List.of("11.0.2", "11.0.24", "10.1.43", "10.1.41")) {
-            Path localJar = Path.of(System.getProperty("user.home"), ".m2", "repository",
-                    "org", "apache", "tomcat", "embed", "tomcat-embed-websocket",
-                    version, "tomcat-embed-websocket-" + version + ".jar");
-            if (Files.isRegularFile(localJar)) {
-                return localJar;
-            }
-        }
-        throw new IllegalStateException(
-                "Embedded websocket jar not found. Set tank.embedded.websocket.jar or install "
-                        + "org.apache.tomcat:tomcat-embed-websocket locally.");
+        throw new IllegalStateException("Embedded websocket jar not found at " + configured);
     }
 
     private static int findFreePort() throws IOException {
@@ -355,7 +363,7 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
         }
     }
 
-    private void writeWebSocketLib(Path webappDir) throws Exception {
+    private void writeWebSocketLib(Path webappDir) throws IOException {
         Path libDir = webappDir.resolve("WEB-INF/lib");
         Files.createDirectories(libDir);
         Files.copy(resolveEmbeddedWebsocketJar(), libDir.resolve("tomcat-embed-websocket.jar"),
