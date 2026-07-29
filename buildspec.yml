@@ -10,11 +10,12 @@ phases:
   install:
     runtime-versions:
       java: corretto25
+    commands:
+      - yum install -y atk at-spi2-atk cups-libs libdrm libXcomposite libXdamage libXrandr libgbm libxkbcommon pango alsa-lib nss nspr || true
   build:
     commands:
       - java -version
       - export WATS_PROPERTIES="$CODEBUILD_SRC_DIR/api/src/main/resources"
-      # Run the complete build with both unit and integration tests
       - mvn clean install surefire-report:report -P release
       - export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
       - |
@@ -47,3 +48,5 @@ artifacts:
 cache:
   paths:
     - '/root/.m2/**/*'
+    - '/root/.cache/ms-playwright/**/*'
+    - '/root/.cache/tank-system-tests/**/*'
