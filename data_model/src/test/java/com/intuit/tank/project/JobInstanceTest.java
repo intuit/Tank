@@ -30,6 +30,7 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobVMInstance;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 /**
@@ -64,6 +65,26 @@ public class JobInstanceTest {
     public void testJobInstance_2() {
         JobInstance result = new JobInstance(Workload.builder().build(), "");
         assertNotNull(result);
+    }
+
+    @Test
+    public void testJobInstanceCopiesNonlinearStrategyFromProxyGetter() {
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new ProxyJobConfiguration(IncrementStrategy.standard));
+
+        JobInstance result = new JobInstance(workload, "nonlinear");
+
+        assertEquals(IncrementStrategy.standard, result.getIncrementStrategy());
+    }
+
+    @Test
+    public void testJobInstanceCopiesLinearStrategyFromProxyGetter() {
+        Workload workload = new Workload();
+        workload.setJobConfiguration(new ProxyJobConfiguration(IncrementStrategy.increasing));
+
+        JobInstance result = new JobInstance(workload, "linear");
+
+        assertEquals(IncrementStrategy.increasing, result.getIncrementStrategy());
     }
 
     /**
@@ -1047,5 +1068,20 @@ public class JobInstanceTest {
 
         String result = fixture.toString();
         assertNotNull(result);
+    }
+
+    private static final class ProxyJobConfiguration extends JobConfiguration {
+        private static final long serialVersionUID = 1L;
+
+        private final IncrementStrategy loadedStrategy;
+
+        private ProxyJobConfiguration(IncrementStrategy loadedStrategy) {
+            this.loadedStrategy = loadedStrategy;
+        }
+
+        @Override
+        public IncrementStrategy getIncrementStrategy() {
+            return loadedStrategy;
+        }
     }
 }
