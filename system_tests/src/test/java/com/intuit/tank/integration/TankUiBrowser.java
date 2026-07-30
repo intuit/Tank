@@ -49,12 +49,16 @@ final class TankUiBrowser implements AutoCloseable {
             page.locator("#login\\:username").fill(username);
             page.locator("#login\\:password").fill(password);
             page.locator("#login\\:loginButton").click();
-            page.locator("#mainForm\\:projectTableId").waitFor(
-                    new Locator.WaitForOptions().setTimeout(60_000));
 
             page.navigate(baseUrl + "/agents/index.jsf");
-            page.waitForSelector("#mainForm\\:jobTableId",
-                    new Page.WaitForSelectorOptions().setTimeout(60_000));
+            try {
+                page.waitForSelector("#mainForm\\:jobTableId",
+                        new Page.WaitForSelectorOptions().setTimeout(60_000));
+            } catch (RuntimeException navigationFailure) {
+                throw new AssertionError(
+                        "Job queue unavailable after login; current URL: " + page.url(),
+                        navigationFailure);
+            }
             page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
                     new Page.GetByRoleOptions().setName("Refresh")).click();
             page.waitForLoadState(LoadState.NETWORKIDLE);
