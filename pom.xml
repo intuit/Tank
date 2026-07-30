@@ -199,6 +199,7 @@
         <module>data_access</module>
         <module>tank_vmManager</module>
         <module>web</module>
+        <module>system_tests</module>
       </modules>
     </profile>
 
@@ -248,6 +249,30 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>system-integration</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>agent</module>
+        <module>tools</module>
+        <module>rest-mvc</module>
+        <module>tank_common</module>
+        <module>proxy-parent</module>
+        <module>script_processor</module>
+        <module>harness_data</module>
+        <module>reporting</module>
+        <module>test_support</module>
+        <module>api</module>
+        <module>data_model</module>
+        <module>data_access</module>
+        <module>tank_vmManager</module>
+        <module>web</module>
+        <module>system_tests</module>
+      </modules>
     </profile>
 
     <profile>

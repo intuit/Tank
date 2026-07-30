@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.intuit.tank</groupId>
+    <artifactId>tank-parent</artifactId>
+    <version>4.3.10-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>tank-system-tests</artifactId>
+  <packaging>jar</packaging>
+  <name>Tank System Tests</name>
+  <description>Self-contained system tests for job creation against the packaged WAR</description>
+
+  <properties>
+    <version.playwright>1.50.0</version.playwright>
+    <checkstyle.skip>true</checkstyle.skip>
+    <tank.ui.headless>true</tank.ui.headless>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tank</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>api</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-catalina</artifactId>
+      <version>${version.tomcat}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jasper</artifactId>
+      <version>${version.tomcat}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-websocket</artifactId>
+      <version>${version.tomcat}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+      <version>${version.playwright}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>2.0.17</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>install-playwright-chromium</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>com.microsoft.playwright.CLI</mainClass>
+              <classpathScope>test</classpathScope>
+              <blockSystemExit>true</blockSystemExit>
+              <arguments>
+                <argument>install</argument>
+                <argument>chromium</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${version.surefire}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>
+            <include>**/*IT.java</include>
+          </includes>
+          <classpathDependencyExcludes>
+            <classpathDependencyExclude>org.jboss.weld:weld-junit5</classpathDependencyExclude>
+            <classpathDependencyExclude>org.jboss.weld.se:weld-se-core</classpathDependencyExclude>
+            <classpathDependencyExclude>org.jboss.weld.servlet:weld-servlet-core</classpathDependencyExclude>
+          </classpathDependencyExcludes>
+          <systemPropertyVariables>
+            <project.version>${project.version}</project.version>
+            <tank.embedded.websocket.jar>${settings.localRepository}/org/apache/tomcat/embed/tomcat-embed-websocket/${version.tomcat}/tomcat-embed-websocket-${version.tomcat}.jar</tank.embedded.websocket.jar>
+            <tank.ui.headless>${tank.ui.headless}</tank.ui.headless>
+          </systemPropertyVariables>
+          <environmentVariables>
+            <WATS_PROPERTIES>${project.build.directory}/system-test-runtime/settings</WATS_PROPERTIES>
+          </environmentVariables>
+          <trimStackTrace>false</trimStackTrace>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
