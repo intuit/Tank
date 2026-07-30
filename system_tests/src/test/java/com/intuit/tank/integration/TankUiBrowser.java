@@ -51,6 +51,9 @@ final class TankUiBrowser implements AutoCloseable {
             page.locator("#login\\:loginButton").click();
 
             page.navigate(baseUrl + "/agents/index.jsf");
+            if (page.url().startsWith(baseUrl + "/login.jsf")) {
+                throw new AssertionError("UI login failed; redirected to " + page.url());
+            }
             try {
                 page.waitForSelector("#mainForm\\:jobTableId",
                         new Page.WaitForSelectorOptions().setTimeout(60_000));

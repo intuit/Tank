@@ -156,6 +156,9 @@
             <tank.embedded.websocket.jar>${settings.localRepository}/org/apache/tomcat/embed/tomcat-embed-websocket/${version.tomcat}/tomcat-embed-websocket-${version.tomcat}.jar</tank.embedded.websocket.jar>
             <tank.ui.headless>${tank.ui.headless}</tank.ui.headless>
           </systemPropertyVariables>
+          <environmentVariables>
+            <WATS_PROPERTIES>${project.build.directory}/system-test-runtime/settings</WATS_PROPERTIES>
+          </environmentVariables>
           <trimStackTrace>false</trimStackTrace>
           <redirectTestOutputToFile>false</redirectTestOutputToFile>
         </configuration>
