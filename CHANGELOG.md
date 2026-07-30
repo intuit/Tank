@@ -1,3 +1,16 @@
+# 4.3.10 (Thu Jul 30 2026)
+
+#### 🐛 Bug Fix
+
+- Add load test flow system tests [#502](https://github.com/intuit/Tank/pull/502) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.9 (Mon Jul 27 2026)
 
 #### 🐛 Bug Fix
