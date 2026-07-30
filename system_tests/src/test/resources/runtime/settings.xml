@@ -37,7 +37,7 @@
     <users>
       <user>
         <name>admin</name>
-        <password>adminadmin</password>
+        <password>admin</password>
         <email>admin@system-test.local</email>
         <group>admin</group>
         <group>job-manager</group>

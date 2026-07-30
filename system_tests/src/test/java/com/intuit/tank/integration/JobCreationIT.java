@@ -34,7 +34,7 @@ public class JobCreationIT {
     }
 
     private static final String UI_USER = "admin";
-    private static final String UI_PASSWORD = "adminadmin";
+    private static final String UI_PASSWORD = "admin";
     private static final String BUILD_USER = "system-test";
     private static final List<String> SCRIPT_ROLES = List.of(
             "setup", "new-user", "transition", "return-user", "cleanup");
