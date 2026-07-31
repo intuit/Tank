@@ -1,3 +1,16 @@
+# 4.3.11 (Fri Jul 31 2026)
+
+#### 🐛 Bug Fix
+
+- [SRE-39121] fix job configuration copying and UI validation [#503](https://github.com/intuit/Tank/pull/503) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.3.10 (Thu Jul 30 2026)
 
 #### 🐛 Bug Fix
