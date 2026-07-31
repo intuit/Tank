@@ -13,6 +13,7 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -32,6 +33,7 @@ import com.intuit.tank.project.JobVMInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
+import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 
 /**
  * The class <code>JobInstanceTest</code> contains tests for the class <code>{@link JobInstance}</code>.
@@ -68,13 +70,35 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void testJobInstanceCopiesNonlinearStrategyFromProxyGetter() {
+    public void testJobInstanceCopiesCompleteConfigurationFromProxyGetters() {
         Workload workload = new Workload();
         workload.setJobConfiguration(new ProxyJobConfiguration(IncrementStrategy.standard));
 
         JobInstance result = new JobInstance(workload, "nonlinear");
 
-        assertEquals(IncrementStrategy.standard, result.getIncrementStrategy());
+        assertAll(
+                () -> assertEquals(17, result.getBaselineVirtualUsers()),
+                () -> assertEquals(IncrementStrategy.standard, result.getIncrementStrategy()),
+                () -> assertEquals(30_000L, result.getRampTime()),
+                () -> assertEquals(60_000L, result.getSimulationTime()),
+                () -> assertEquals(TerminationPolicy.script, result.getTerminationPolicy()),
+                () -> assertEquals(9, result.getUserIntervalIncrement()),
+                () -> assertEquals(24.0, result.getTargetRampRate()),
+                () -> assertEquals("plano", result.getLocation()),
+                () -> assertEquals("perf_db_results", result.getReportingMode()),
+                () -> assertTrue(result.isAllowOverride()),
+                () -> assertEquals("USER_VARIABLE", result.getLoggingProfile()),
+                () -> assertEquals("30s", result.getRampTimeExpression()),
+                () -> assertEquals("60s", result.getSimulationTimeExpression()),
+                () -> assertEquals("END_OF_STEP", result.getStopBehavior()),
+                () -> assertEquals(42L, result.getExecutionTime()),
+                () -> assertEquals(500, result.getNumUsersPerAgent()),
+                () -> assertEquals(3, result.getNumAgents()),
+                () -> assertEquals(8.0, result.getTargetRatePerAgent()),
+                () -> assertEquals("m7g.large", result.getVmInstanceType()),
+                () -> assertTrue(result.isUseEips()),
+                () -> assertTrue(result.isUseTwoStep()),
+                () -> assertEquals("test-http-client", result.getTankClientClass()));
     }
 
     @Test
@@ -1082,6 +1106,111 @@ public class JobInstanceTest {
         @Override
         public IncrementStrategy getIncrementStrategy() {
             return loadedStrategy;
+        }
+
+        @Override
+        public int getBaselineVirtualUsers() {
+            return 17;
+        }
+
+        @Override
+        public long getRampTime() {
+            return 30_000L;
+        }
+
+        @Override
+        public long getSimulationTime() {
+            return 60_000L;
+        }
+
+        @Override
+        public TerminationPolicy getTerminationPolicy() {
+            return TerminationPolicy.script;
+        }
+
+        @Override
+        public int getUserIntervalIncrement() {
+            return 9;
+        }
+
+        @Override
+        public double getTargetRampRate() {
+            return 24.0;
+        }
+
+        @Override
+        public String getLocation() {
+            return "plano";
+        }
+
+        @Override
+        public String getReportingMode() {
+            return "perf_db_results";
+        }
+
+        @Override
+        public boolean isAllowOverride() {
+            return true;
+        }
+
+        @Override
+        public String getLoggingProfile() {
+            return "USER_VARIABLE";
+        }
+
+        @Override
+        public String getRampTimeExpression() {
+            return "30s";
+        }
+
+        @Override
+        public String getSimulationTimeExpression() {
+            return "60s";
+        }
+
+        @Override
+        public String getStopBehavior() {
+            return "END_OF_STEP";
+        }
+
+        @Override
+        public Long getExecutionTime() {
+            return 42L;
+        }
+
+        @Override
+        public int getNumUsersPerAgent() {
+            return 500;
+        }
+
+        @Override
+        public int getNumAgents() {
+            return 3;
+        }
+
+        @Override
+        public Double getTargetRatePerAgent() {
+            return 8.0;
+        }
+
+        @Override
+        public String getVmInstanceType() {
+            return "m7g.large";
+        }
+
+        @Override
+        public boolean isUseEips() {
+            return true;
+        }
+
+        @Override
+        public boolean isUseTwoStep() {
+            return true;
+        }
+
+        @Override
+        public String getTankClientClass() {
+            return "test-http-client";
         }
     }
 }
