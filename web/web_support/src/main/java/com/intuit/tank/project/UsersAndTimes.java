@@ -93,6 +93,15 @@ public class UsersAndTimes implements Serializable {
                     }
                 }
                 if (!found) {
+                    String users = regions.stream()
+                            .map(JobRegion::getUsers)
+                            .filter(value -> !"0".equals(value))
+                            .collect(Collectors.joining(" + "));
+                    int percentage = regions.stream()
+                            .mapToInt(region -> NumberUtils.toInt(region.getPercentage()))
+                            .sum();
+                    standaloneRegion.setUsers(StringUtils.defaultIfBlank(users, "0"));
+                    standaloneRegion.setPercentage(Integer.toString(percentage));
                     regions.clear();
                     regions.add(standaloneRegion);
                 }

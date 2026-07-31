@@ -135,7 +135,31 @@ public class JobCreationIT {
             assertEquals(0, api.getVmStatusCount(created.jobId()),
                     "Create-only flow must not launch agent VMs");
 
-            confirmJobInUi(created.jobId(), scenario.projectName(), jobName, "Created", null);
+            String uiJobName = jobName + "_ui";
+            uiBrowser.createJobFromProject(artifactDir, scenario.projectName(), uiJobName,
+                    "Workload Type: Nonlinear",
+                    "Max Users/Sec Per Agent: 0.191",
+                    "Target Users Per Second: 0.38");
+
+            int uiJobId = api.findJobIdByName(uiJobName);
+            JsonNode uiJob = api.getJob(uiJobId);
+            assertEquals(uiJobName, uiJob.get("name").asText());
+            assertEquals("Created", uiJob.get("status").asText());
+
+            TankApiClient.PersistedJobConfiguration uiConfig =
+                    api.queryJobConfiguration(uiJobId);
+            assertEquals("standard", uiConfig.workloadType(),
+                    "UI-created job must preserve standard workload_type");
+            assertEquals(Double.parseDouble(JobCreationContract.STANDARD_TARGET_RAMP_RATE),
+                    uiConfig.targetRampRate(), 0.001,
+                    "UI-created job must preserve target ramp rate");
+            assertEquals(Double.parseDouble(JobCreationContract.STANDARD_TARGET_RATE_PER_AGENT),
+                    uiConfig.targetRatePerAgent(), 0.001,
+                    "UI-created job must preserve target rate per agent");
+            assertEquals(0, api.getVmStatusCount(uiJobId),
+                    "UI create-only flow must not launch agent VMs");
+
+            confirmJobInUi(uiJobId, scenario.projectName(), uiJobName, "Created", null);
         } catch (Throwable failure) {
             env.retainLogsOnFailure(failure);
             throw failure;

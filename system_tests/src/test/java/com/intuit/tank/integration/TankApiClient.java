@@ -212,10 +212,8 @@ public final class TankApiClient {
                 env.jdbcUrl(), env.jdbcUser(), env.jdbcPassword());
              PreparedStatement statement = connection.prepareStatement(
                      """
-                     SELECT jc.workload_type, jc.target_rate, jc.target_rate_per_agent
+                     SELECT workload_type, target_rate, target_rate_per_agent
                      FROM job_instance ji
-                     INNER JOIN workload w ON ji.workload_id = w.id
-                     INNER JOIN job_configuration jc ON w.job_configuration_id = jc.id
                      WHERE ji.id = ?
                      """)) {
             statement.setInt(1, jobId);
@@ -227,6 +225,21 @@ public final class TankApiClient {
                         rs.getString("workload_type"),
                         rs.getDouble("target_rate"),
                         rs.getDouble("target_rate_per_agent"));
+            }
+        }
+    }
+
+    public int findJobIdByName(String jobName) throws Exception {
+        try (Connection connection = DriverManager.getConnection(
+                env.jdbcUrl(), env.jdbcUser(), env.jdbcPassword());
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT id FROM job_instance WHERE name = ? ORDER BY id DESC")) {
+            statement.setString(1, jobName);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalStateException("No job_instance row for name=" + jobName);
+                }
+                return rs.getInt("id");
             }
         }
     }
