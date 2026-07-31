@@ -124,27 +124,28 @@ public abstract class BaseJob extends BaseEntity {
      * 
      */
     public BaseJob(BaseJob copy) {
-        this.baselineVirtualUsers = copy.baselineVirtualUsers;
+        // Accessors ensure Hibernate proxies initialize every value before it is copied.
+        this.baselineVirtualUsers = copy.getBaselineVirtualUsers();
         this.incrementStrategy = copy.getIncrementStrategy();
-        this.rampTime = copy.rampTime;
-        this.simulationTime = copy.simulationTime;
-        this.terminationPolicy = copy.terminationPolicy;
-        this.userIntervalIncrement = copy.userIntervalIncrement;
-        this.targetRampRate = copy.targetRampRate;
-        this.location = copy.location;
-        this.reportingMode = copy.reportingMode;
-        this.allowOverride = copy.allowOverride;
-        this.loggingProfile = copy.loggingProfile;
-        this.rampTimeExpression = copy.rampTimeExpression;
-        this.simulationTimeExpression = copy.simulationTimeExpression;
-        this.stopBehavior = copy.stopBehavior;
-        this.executionTime = copy.executionTime;
-        this.numUsersPerAgent = copy.numUsersPerAgent;
-        this.numAgents = copy.numAgents;
-        this.targetRatePerAgent = copy.targetRatePerAgent;
-        this.vmInstanceType = copy.vmInstanceType;
-        this.useEips = copy.useEips;
-        this.useTwoStep = copy.useTwoStep;
+        this.rampTime = copy.getRampTime();
+        this.simulationTime = copy.getSimulationTime();
+        this.terminationPolicy = copy.getTerminationPolicy();
+        this.userIntervalIncrement = copy.getUserIntervalIncrement();
+        this.targetRampRate = copy.getTargetRampRate();
+        this.location = copy.getLocation();
+        this.reportingMode = copy.getReportingMode();
+        this.allowOverride = copy.isAllowOverride();
+        this.loggingProfile = copy.getLoggingProfile();
+        this.rampTimeExpression = copy.getRampTimeExpression();
+        this.simulationTimeExpression = copy.getSimulationTimeExpression();
+        this.stopBehavior = copy.getStopBehavior();
+        this.executionTime = copy.getExecutionTime();
+        this.numUsersPerAgent = copy.getNumUsersPerAgent();
+        this.numAgents = copy.getNumAgents();
+        this.targetRatePerAgent = copy.getTargetRatePerAgent();
+        this.vmInstanceType = copy.getVmInstanceType();
+        this.useEips = copy.isUseEips();
+        this.useTwoStep = copy.isUseTwoStep();
         this.tankClientClass = copy.getTankClientClass();
     }
 
