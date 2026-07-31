@@ -45,10 +45,7 @@ final class TankUiBrowser implements AutoCloseable {
                 .setSnapshots(true));
         Page page = context.newPage();
         try {
-            page.navigate(baseUrl + "/login.jsf");
-            page.locator("#login\\:username").fill(username);
-            page.locator("#login\\:password").fill(password);
-            page.locator("#login\\:loginButton").click();
+            login(page);
 
             page.navigate(baseUrl + "/agents/index.jsf");
             if (page.url().startsWith(baseUrl + "/login.jsf")) {
@@ -113,6 +110,86 @@ final class TankUiBrowser implements AutoCloseable {
             context.tracing().stop(new Tracing.StopOptions().setPath(trace));
             context.close();
         }
+    }
+
+    void createJobFromProject(Path artifactDir, String projectName, String jobName,
+                              String... expectedSummaryLines) {
+        Path screenshot = artifactDir.resolve("job-create-" + jobName + ".png");
+        Path trace = artifactDir.resolve("job-create-" + jobName + ".zip");
+
+        BrowserContext context = browser.newContext();
+        context.tracing().start(new Tracing.StartOptions()
+                .setScreenshots(true)
+                .setSnapshots(true));
+        Page page = context.newPage();
+        try {
+            login(page);
+            page.navigate(baseUrl + "/projects/index.jsf");
+            if (page.url().startsWith(baseUrl + "/login.jsf")) {
+                throw new AssertionError("UI login failed; redirected to " + page.url());
+            }
+
+            Locator projectTable = page.locator("#mainForm\\:projectTableId");
+            projectTable.waitFor(new Locator.WaitForOptions().setTimeout(60_000));
+            Locator projectLink = projectTable.getByText(projectName,
+                    new Locator.GetByTextOptions().setExact(true)).first();
+            projectLink.waitFor(new Locator.WaitForOptions().setTimeout(60_000));
+            projectLink.click();
+
+            page.locator("#mainForm\\:projectTabPanelID")
+                    .waitFor(new Locator.WaitForOptions().setTimeout(60_000));
+            page.getByRole(com.microsoft.playwright.options.AriaRole.TAB,
+                    new Page.GetByRoleOptions().setName("Create Job").setExact(true)).click();
+
+            Locator jobNameInput = page.locator(
+                    "#mainForm\\:projectTabPanelID\\:nameTF");
+            jobNameInput.waitFor(new Locator.WaitForOptions().setTimeout(60_000));
+            jobNameInput.fill(jobName);
+            page.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+                    new Page.GetByRoleOptions()
+                            .setName("Save And Validate new JOB...")
+                            .setExact(true))
+                    .click();
+
+            Locator dialog = page.locator("#createJobPopupID");
+            dialog.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE)
+                    .setTimeout(60_000));
+            String summary = dialog.innerText();
+            for (String expectedLine : expectedSummaryLines) {
+                if (!summary.contains(expectedLine)) {
+                    throw new AssertionError("Job summary missing '" + expectedLine
+                            + "'. Actual summary: " + summary);
+                }
+            }
+            page.screenshot(new Page.ScreenshotOptions().setPath(screenshot).setFullPage(true));
+
+            dialog.getByRole(com.microsoft.playwright.options.AriaRole.BUTTON,
+                    new Locator.GetByRoleOptions()
+                            .setName("Add Job To Queue")
+                            .setExact(true))
+                    .click();
+            dialog.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.HIDDEN)
+                    .setTimeout(60_000));
+        } catch (RuntimeException | AssertionError uiFailure) {
+            try {
+                page.screenshot(new Page.ScreenshotOptions().setPath(screenshot).setFullPage(true));
+            } catch (Exception ignored) {
+                // best effort
+            }
+            throw uiFailure;
+        } finally {
+            context.tracing().stop(new Tracing.StopOptions().setPath(trace));
+            context.close();
+        }
+    }
+
+    private void login(Page page) {
+        page.navigate(baseUrl + "/login.jsf");
+        page.locator("#login\\:username").fill(username);
+        page.locator("#login\\:password").fill(password);
+        page.locator("#login\\:loginButton").click();
     }
 
     @Override
