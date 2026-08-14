@@ -95,13 +95,13 @@ public class TPSMonitor {
     public void addToMap(final String loggingKey, final BaseRequest req) {
         if (isEnabled()) {
             // LOG.info("Adding request " + req.getTimeStamp());
-            new Thread( () -> {
+            Thread.ofVirtual().start( () -> {
                 if (req != null && req.getTimeStamp() != null) {
                     counters.add(new Counter(loggingKey,
                             TimeUtil.normalizeToPeriod(period, req.getTimeStamp()))
                     );
                 }
-            }).start();
+            });
         }
     }
 
