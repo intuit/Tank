@@ -1,3 +1,15 @@
+# 4.4.0 (Sat Aug 22 2026)
+
+#### 🚀 Enhancement
+
+- Java21 & Virtual Threads [#504](https://github.com/intuit/Tank/pull/504) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.11 (Fri Jul 31 2026)
 
 #### 🐛 Bug Fix
