@@ -3,9 +3,9 @@ package com.intuit.tank.vm.agent.messages;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,8 +15,9 @@ import java.nio.charset.StandardCharsets;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AgentWsEnvelope {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .build();
 
     public static final int PROTOCOL_VERSION = 1;
     private static final int BINARY_FILE_CHUNK_MAGIC = 0x54574331;

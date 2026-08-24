@@ -173,11 +173,11 @@ public class FilterApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create an internal filter");
 
-        JsonNode createdFilter = objectMapper.readTree(createResponse.body());
+        JsonNode createdFilter = JSON_MAPPER.readTree(createResponse.body());
         int filterId = createdFilter.get("id").asInt();
-        assertEquals(filterName, createdFilter.get("name").asText());
-        assertEquals("INTERNAL", createdFilter.get("filterType").asText());
-        assertEquals("/filter-api-it", createdFilter.get("conditions").get(0).get("value").asText());
+        assertEquals(filterName, createdFilter.get("name").asString());
+        assertEquals("INTERNAL", createdFilter.get("filterType").asString());
+        assertEquals("/filter-api-it", createdFilter.get("conditions").get(0).get("value").asString());
 
         try {
             HttpRequest getRequest = HttpRequest.newBuilder()
@@ -186,8 +186,8 @@ public class FilterApiIT extends BaseIT {
                     .timeout(Duration.ofSeconds(30))
                     .GET()
                     .build();
-            JsonNode fetchedFilter = objectMapper.readTree(httpClient.send(getRequest, BodyHandlers.ofString()).body());
-            assertEquals("created", fetchedFilter.get("actions").get(0).get("value").asText());
+            JsonNode fetchedFilter = JSON_MAPPER.readTree(httpClient.send(getRequest, BodyHandlers.ofString()).body());
+            assertEquals("created", fetchedFilter.get("actions").get(0).get("value").asString());
 
             String updateRequestBody = createRequestBody
                     .replaceFirst("\\{", "{ \"id\": " + filterId + ",")
@@ -202,8 +202,8 @@ public class FilterApiIT extends BaseIT {
 
             HttpResponse<String> updateResponse = httpClient.send(updateRequest, BodyHandlers.ofString());
             assertEquals(200, updateResponse.statusCode(), "Should update an existing internal filter");
-            assertEquals("updated", objectMapper.readTree(updateResponse.body())
-                    .get("actions").get(0).get("value").asText());
+            assertEquals("updated", JSON_MAPPER.readTree(updateResponse.body())
+                    .get("actions").get(0).get("value").asString());
         } finally {
             HttpRequest deleteRequest = HttpRequest.newBuilder()
                     .uri(URI.create(QA_BASE_URL + FILTERS_ENDPOINT + "/" + filterId))

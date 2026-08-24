@@ -61,11 +61,10 @@ public class FilterClient extends BaseClient{
     }
 
     public FilterTO createOrUpdateFilter(FilterTO filter) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
         try {
-            requestBody = objectMapper.writeValueAsString(filter);
-        } catch (JsonProcessingException e) {
+            requestBody = JSON_MAPPER.writeValueAsString(filter);
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 
@@ -78,7 +77,7 @@ public class FilterClient extends BaseClient{
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), FilterTO.class);
+                return JSON_MAPPER.readValue(response.body(), FilterTO.class);
             }
             throw new ClientException(response.body(), response.statusCode());
         } catch (ClientException e1) {
@@ -154,7 +153,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return JSON_MAPPER.readValue(is, FFilterGroupDetailTO.class);
+                    return JSON_MAPPER.readValue(is, FilterGroupDetailTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {

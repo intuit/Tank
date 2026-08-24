@@ -120,7 +120,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         AgentWsEnvelope envelope;
         try {
             envelope = AgentWsEnvelope.fromJson(message.getPayload());
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Invalid frame, closing session: " + e.getMessage())));
             session.close(CloseStatus.BAD_DATA);
             return;

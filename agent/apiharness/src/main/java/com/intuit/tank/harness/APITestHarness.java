@@ -266,6 +266,7 @@ public class APITestHarness {
 
     private void startHttp(String baseUrl, String token) {
         isLocal = false;
+        JsonMapper JSON_MAPPER = JsonMapper.builder().build();
         boolean wsEnabled = isCommandWsEnabled();
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
         token = (token == null) ? AmazonUtil.getAgentToken() : token;

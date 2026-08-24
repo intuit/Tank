@@ -57,6 +57,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     protected static String INVALID_AMI_ID_UNAVAILABLE = "InvalidAMIID.Unavailable";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     private static final Map<VMRegion, Ec2AsyncClient> CLIENT_CACHE = new ConcurrentHashMap<>();
 
 
