@@ -12,9 +12,9 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUp
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
 import com.intuit.tank.filters.models.FilterGroupContainer;
+import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterContainer;
 import com.intuit.tank.filters.models.FilterTO;
-import com.intuit.tank.filters.models.FilterGroupTO;
 
 public interface FilterServiceV2 {
 
@@ -49,7 +49,7 @@ public interface FilterServiceV2 {
      *
      * @return list of filters
      */
-    public FilterGroupTO getFilterGroup(Integer filterGroupId);
+    public FilterGroupDetailTO getFilterGroup(Integer filterGroupId);
 
     /**
      * Returns all filters
@@ -60,6 +60,14 @@ public interface FilterServiceV2 {
      * @return list of filters
      */
     public FilterContainer getFilters();
+
+    /**
+     * Creates a new filter or updates the filter identified by the request ID.
+     *
+     * @param request complete filter JSON payload
+     * @return the persisted filter
+     */
+    public FilterTO createOrUpdateFilter(FilterTO request);
 
     /**
      * Gets the list of filter groups

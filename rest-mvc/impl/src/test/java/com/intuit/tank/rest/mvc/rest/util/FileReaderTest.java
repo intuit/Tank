@@ -77,14 +77,42 @@ class FileReaderTest {
         File testFile = createTestFile("line1\nline2\nline3\nline4\nline5\n");
         long total = testFile.length();
 
-        // -2 means get last 2 lines
-        StreamingResponseBody body = FileReader.getFileStreamingResponseBody(testFile, total, "-2");
+        FileReader.FileStream stream = FileReader.getFileStream(testFile, total, "-2");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        body.writeTo(out);
+        stream.body().writeTo(out);
 
         String content = out.toString(StandardCharsets.UTF_8);
-        // Should contain at least the last lines
-        assertTrue(content.contains("line5") || content.contains("line4"));
+        assertEquals("line4\nline5\n", content);
+        assertEquals(total, stream.totalLength());
+        assertEquals("line1\nline2\nline3\n".getBytes(StandardCharsets.UTF_8).length,
+                stream.startOffset());
+    }
+
+    @Test
+    void getFileStream_usesByteOffsetsForUtf8Content() throws IOException {
+        File testFile = createTestFile("alpha\ncafé\n最後\n");
+        long total = testFile.length();
+
+        FileReader.FileStream stream = FileReader.getFileStream(testFile, total, "-1");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        stream.body().writeTo(out);
+
+        assertEquals("最後\n", out.toString(StandardCharsets.UTF_8));
+        assertEquals("alpha\ncafé\n".getBytes(StandardCharsets.UTF_8).length,
+                stream.startOffset());
+    }
+
+    @Test
+    void getFileStream_returnsEmptySliceWhenOffsetPastEof() throws IOException {
+        File testFile = createTestFile("new content\n");
+        long total = testFile.length();
+
+        FileReader.FileStream stream = FileReader.getFileStream(testFile, total, "500");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        stream.body().writeTo(out);
+
+        assertEquals(total, stream.startOffset());
+        assertEquals("", out.toString(StandardCharsets.UTF_8));
     }
 
     private File createTestFile(String content) throws IOException {

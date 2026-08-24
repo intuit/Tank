@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tank-settings>
+  <instance-name>tank-system-test</instance-name>
+  <controller-base-url>http://127.0.0.1:8080/tank</controller-base-url>
+  <standalone>true</standalone>
+  <s3-encrypt>false</s3-encrypt>
+  <rest-security-enabled>false</rest-security-enabled>
+  <data-file-storage>${datafiles}</data-file-storage>
+  <timing-file-storage>${timing}</timing-file-storage>
+  <tmp-file-storage>${tmpfiles}</tmp-file-storage>
+  <jar-file-storage>${jars}</jar-file-storage>
+  <products>
+    <product name="">All Products</product>
+  </products>
+  <locations>
+    <location name="unspecified" displayName="Unspecified" />
+  </locations>
+  <reporting>
+    <provider>
+      <reporter>com.intuit.tank.reporting.db.DatabaseResultsReporter</reporter>
+      <reader>com.intuit.tank.reporting.db.DatabaseResultsReader</reader>
+      <config></config>
+    </provider>
+  </reporting>
+  <agent-config>
+    <default-tank-client>JDK HttpClient</default-tank-client>
+    <tank-http-clients>
+      <tank-client name="JDK HttpClient">com.intuit.tank.httpclientjdk.TankHttpClientJDK</tank-client>
+    </tank-http-clients>
+  </agent-config>
+  <security>
+    <groups>
+      <group>admin</group>
+      <group isDefault="true">user</group>
+      <group>job-manager</group>
+    </groups>
+    <users>
+      <user>
+        <name>admin</name>
+        <password>admin</password>
+        <email>admin@system-test.local</email>
+        <group>admin</group>
+        <group>job-manager</group>
+      </user>
+    </users>
+  </security>
+  <vm-manager>
+    <default-region>US_EAST_2</default-region>
+    <use-agent-elastic-ips>false</use-agent-elastic-ips>
+    <reserved-elastic-ips></reserved-elastic-ips>
+    <default-instance-description>
+      <security-group>system-test</security-group>
+      <keypair>system-test</keypair>
+      <reuse-instances>false</reuse-instances>
+    </default-instance-description>
+    <credentials type="amazon"></credentials>
+    <instance-descriptions region="US_WEST_2">
+      <instance-description name="AGENT">
+        <ami>ami-system-test</ami>
+        <keypair>system-test</keypair>
+      </instance-description>
+    </instance-descriptions>
+    <instance-descriptions region="US_EAST_2">
+      <instance-description name="AGENT">
+        <ami>ami-system-test</ami>
+        <keypair>system-test</keypair>
+      </instance-description>
+    </instance-descriptions>
+    <instance-types type="amazon">
+      <type name="m.xlarge" types="m8g.xlarge,m7g.xlarge" cost=".1795" users="6400" cpus="4" ecus="16" mem="16" default="true" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    </instance-types>
+    <watchdog>
+      <max-time-for-agent-start>5m</max-time-for-agent-start>
+      <max-time-for-agent-report>10m</max-time-for-agent-report>
+      <max-restarts>2</max-restarts>
+      <sleep-time-between-check>30s</sleep-time-between-check>
+    </watchdog>
+    <results>
+      <provider>com.intuit.tank.persistence.databases.CloudWatchDataSource</provider>
+    </results>
+  </vm-manager>
+</tank-settings>

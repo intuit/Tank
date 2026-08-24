@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<script xmlns="urn:wats/domain/script/v1">
+    <id>0</id>
+    <name>IT Minimal Script</name>
+    <creator>integration-test</creator>
+    <productName>Tank Integration Test</productName>
+    <comments>Minimal script for JobCreationIT — request only, no variables</comments>
+    <runtime>0</runtime>
+    <steps>
+        <step>
+            <uuid>it-step-1</uuid>
+            <type>request</type>
+            <method>GET</method>
+            <url>https://example.com/health</url>
+            <label>Health Check</label>
+            <stepIndex>0</stepIndex>
+            <protocol>https</protocol>
+            <hostname>example.com</hostname>
+            <simplePath>/health</simplePath>
+            <loggingKey>health</loggingKey>
+            <requestheaders>
+                <requestHeaders>
+                    <key>Accept</key>
+                    <value>application/json</value>
+                </requestHeaders>
+            </requestheaders>
+            <responseData>
+                <responseData>
+                    <key>httpCode</key>
+                    <value>200</value>
+                </responseData>
+            </responseData>
+        </step>
+        <step>
+            <uuid>it-step-2</uuid>
+            <type>sleep</type>
+            <stepIndex>1</stepIndex>
+            <data>
+                <data>
+                    <key>time</key>
+                    <value>100</value>
+                </data>
+            </data>
+        </step>
+    </steps>
+</script>

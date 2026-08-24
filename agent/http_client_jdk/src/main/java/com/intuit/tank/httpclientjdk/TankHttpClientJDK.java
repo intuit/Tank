@@ -56,7 +56,6 @@ public class TankHttpClientJDK implements TankHttpClient {
     private final CookieManager cookieManager = new CookieManager();
     private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
 
-
     /**
      * no-arg constructor for client
      */
@@ -75,7 +74,32 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     public void setConnectionTimeout(long connectionTimeout) {
         httpclientBuilder.connectTimeout(Duration.ofMillis(connectionTimeout));
+        rebuild();
+    }
+
+    /**
+     * Rebuild the immutable client from the mutated builder, closing the client
+     * being replaced so its selector/worker threads are released immediately
+     * (Java 21 HttpClient is AutoCloseable) instead of lingering until GC.
+     */
+    private void rebuild() {
+        HttpClient old = httpclient;
         httpclient = httpclientBuilder.build();
+        if (old != null) {
+            old.close();
+        }
+    }
+
+    /**
+     * Releases this client's selector/worker threads. Called once per virtual-user
+     * thread when its test plan finishes. Blocks until in-flight requests drain.
+     */
+    @Override
+    public void close() {
+        if (httpclient != null) {
+            httpclient.close();
+            httpclient = null;
+        }
     }
 
     /*
@@ -229,7 +253,7 @@ public class TankHttpClientJDK implements TankHttpClient {
         } else {
             httpclientBuilder.proxy(HttpClient.Builder.NO_PROXY);
         }
-        httpclient = httpclientBuilder.build();
+        rebuild();
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequest method, String requestBody) {
@@ -360,7 +384,7 @@ public class TankHttpClientJDK implements TankHttpClient {
                     long proxyResponseTime = Long.parseLong(proxyResponseTimeHeaders.get(0));
                     response.setProxyResponseTime(proxyResponseTime);
                 } catch (NumberFormatException e) {
-                    LOG.warn("could not parse proxy service time header: " + proxyResponseTimeHeaders.get(0));
+                    LOG.warn("could not parse proxy service time header: {}", proxyResponseTimeHeaders.get(0));
                     response.setProxyResponseTime(-1);
                 }
             } else {
@@ -395,14 +419,14 @@ public class TankHttpClientJDK implements TankHttpClient {
 
                         default:
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
+                                LOG.debug("Unknown content encoding: {}, keeping raw response", contentEncoding);
                             }
                             break;
                     }
                 } catch (IOException e) {
-                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
+                    LOG.warn("Failed to decompress response with encoding '{}': {}", contentEncoding, e.getMessage());
                 } catch (Exception e) {
-                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
+                    LOG.error("Unexpected error during decompression: {}", e.getMessage(), e);
                 }
             }
             response.setResponseBody(bResponse);

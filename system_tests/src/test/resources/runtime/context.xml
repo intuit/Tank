@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+  <Resource
+      name="BeanManager"
+      auth="Container"
+      type="jakarta.enterprise.inject.spi.BeanManager"
+      factory="org.jboss.weld.resources.ManagerObjectFactory" />
+
+  <Resource name="jdbc/watsDS"
+            auth="Container"
+            type="org.h2.jdbcx.JdbcDataSource"
+            factory="org.apache.naming.factory.BeanFactory"
+            URL="${jdbcUrl}"
+            user="sa"
+            password="" />
+</Context>

@@ -1,15 +1,12 @@
 package com.intuit.tank.rest.mvc.rest.services.logs;
 
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-
-import jakarta.servlet.ServletContext;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +20,6 @@ class LogServiceV2ImplTest {
 
     @InjectMocks
     private LogServiceV2Impl service;
-
-    @Mock
-    private ServletContext servletContext;
 
     private File testFile;
 
@@ -43,13 +37,13 @@ class LogServiceV2ImplTest {
 
     @Test
     void getFile_rejectsPathTraversal() {
-        assertThrows(GenericServiceResourceNotFoundException.class,
+        assertThrows(GenericServiceBadRequestException.class,
                 () -> service.getFile("../etc/passwd", "0"));
     }
 
     @Test
     void getFile_rejectsAbsolutePath() {
-        assertThrows(GenericServiceResourceNotFoundException.class,
+        assertThrows(GenericServiceBadRequestException.class,
                 () -> service.getFile("/var/log/syslog", "0"));
     }
 
@@ -72,11 +66,13 @@ class LogServiceV2ImplTest {
         testFile = new File(logsDir, TEST_LOG_FILENAME);
         Files.writeString(testFile.toPath(), "log line 1\nlog line 2\n");
 
-        StreamingResponseBody body = service.getFile(TEST_LOG_FILENAME, "0");
-        assertNotNull(body);
+        LogFileResponse response = service.getFile(TEST_LOG_FILENAME, "0");
+        assertNotNull(response.body());
+        assertEquals(testFile.length(), response.totalLength());
+        assertEquals(0, response.startOffset());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        body.writeTo(out);
+        response.body().writeTo(out);
         String content = out.toString();
         assertTrue(content.contains("log line 1"));
         assertTrue(content.contains("log line 2"));

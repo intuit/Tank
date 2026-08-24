@@ -60,6 +60,35 @@ public class FilterClient extends BaseClient{
         return null;
     }
 
+    public FilterTO createOrUpdateFilter(FilterTO filter) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody;
+        try {
+            requestBody = objectMapper.writeValueAsString(filter);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
+        }
+
+        HttpRequest request = requestBuilder("")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (checkStatusCode(response.statusCode())) {
+                return objectMapper.readValue(response.body(), FilterTO.class);
+            }
+            throw new ClientException(response.body(), response.statusCode());
+        } catch (ClientException e1) {
+            throw e1;
+        } catch (Exception e2) {
+            handleError(request, e2);
+        }
+        return null;
+    }
+
     public FilterGroupContainer getFilterGroups() {
         HttpRequest request = requestBuilder("/groups")
                 .header("Accept", "application/json")
@@ -114,8 +143,8 @@ public class FilterClient extends BaseClient{
         return null;
     }
 
-    public FilterGroupTO getFilterGroup(Integer filterGroupId) {
-        HttpRequest request = requestBuilder("", filterGroupId)
+    public FilterGroupDetailTO getFilterGroup(Integer filterGroupId) {
+        HttpRequest request = requestBuilder("/groups", filterGroupId)
                 .header("Accept", "application/json")
                 .GET()
                 .build();
@@ -125,7 +154,7 @@ public class FilterClient extends BaseClient{
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
-                    return JSON_MAPPER.readValue(is, FilterGroupTO.class);
+                    return JSON_MAPPER.readValue(is, FFilterGroupDetailTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -195,7 +224,7 @@ public class FilterClient extends BaseClient{
     }
 
     public String deleteFilterGroup(Integer filterGroupId) {
-        HttpRequest request = requestBuilder("", filterGroupId)
+        HttpRequest request = requestBuilder("/groups", filterGroupId)
                 .header("Accept", "text/plain")
                 .DELETE()
                 .build();

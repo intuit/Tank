@@ -1,0 +1,22 @@
+{
+  "projectId": "${projectId}",
+  "jobInstanceName": "${jobInstanceName}",
+  "rampTime": "61m",
+  "simulationTime": "24h",
+  "userIntervalIncrement": 1,
+  "stopBehavior": "END_OF_SCRIPT",
+  "vmInstance": "m.xlarge",
+  "targetRampRate": "0.382",
+  "targetRatePerAgent": "0.211",
+  "jobRegions": [
+    {
+      "region": "us-east-2",
+      "percentage": "50"
+    },
+    {
+      "region": "us-west-2",
+      "percentage": "50"
+    }
+  ],
+  "workloadType": "standard"
+}

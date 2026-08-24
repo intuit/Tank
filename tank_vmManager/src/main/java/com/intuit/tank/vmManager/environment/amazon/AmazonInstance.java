@@ -26,7 +26,9 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
@@ -43,6 +45,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -50,10 +54,11 @@ import java.util.stream.Collectors;
 public class AmazonInstance implements IEnvironmentInstance {
 
     protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
-    protected static String REQUEST_LIMIT_EXCEEDED = "RequestLimitExceeded";
+    protected static String INVALID_AMI_ID_UNAVAILABLE = "InvalidAMIID.Unavailable";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
-    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
+    private static final Map<VMRegion, Ec2AsyncClient> CLIENT_CACHE = new ConcurrentHashMap<>();
+
 
     private Ec2AsyncClient ec2AsyncClient;
     private VMRegion vmRegion;
@@ -76,30 +81,40 @@ public class AmazonInstance implements IEnvironmentInstance {
     public AmazonInstance(@Nonnull VMRegion vmRegion) {
         this.vmRegion = vmRegion;
         try {
-            CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder();
-            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
-                try {
-                    ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
-                    if (StringUtils.isNotBlank(creds.getProxyPort())) {
-                        proxyConfig.port(Integer.parseInt(creds.getProxyPort()));
-                    }
-                    SdkAsyncHttpClient.Builder<NettyNioAsyncHttpClient.Builder> httpClientBuilder =
-                            NettyNioAsyncHttpClient.builder().proxyConfiguration(proxyConfig.build());
-                    ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
-                } catch (NumberFormatException e) {
-                    LOG.error("invalid proxy setup.");
-                }
-            }
-            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
-                AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
-            }
-            ec2AsyncClient = ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
+            this.ec2AsyncClient = CLIENT_CACHE.computeIfAbsent(vmRegion, AmazonInstance::buildClient);
         } catch (Exception ex) {
             LOG.error("Error initializing amazon client: {}", ex, ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    /**
+     * Build an {@link Ec2AsyncClient} for the given region. Called once per region via the client cache.
+     */
+    private static Ec2AsyncClient buildClient(VMRegion vmRegion) {
+        CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder()
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .retryStrategy(RetryMode.ADAPTIVE_V2)
+                        .build());
+        if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
+            try {
+                ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
+                if (StringUtils.isNotBlank(creds.getProxyPort())) {
+                    proxyConfig.port(Integer.parseInt(creds.getProxyPort()));
+                }
+                SdkAsyncHttpClient.Builder<NettyNioAsyncHttpClient.Builder> httpClientBuilder =
+                        NettyNioAsyncHttpClient.builder().proxyConfiguration(proxyConfig.build());
+                ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
+            } catch (NumberFormatException e) {
+                LOG.error("invalid proxy setup.");
+            }
+        }
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
+        }
+        return ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
     }
 
     public void attachVolume(String volumneId, String instanceId, String device) {
@@ -306,14 +321,14 @@ public class AmazonInstance implements IEnvironmentInstance {
                             .collect(Collectors.toList());
                     CompletableFuture<DescribeInstancesResponse> future = ec2AsyncClient.describeInstances(
                             DescribeInstancesRequest.builder().instanceIds(instanceIds).build());
-                    if (future != null) {
-                        DescribeInstancesResponse described = future.get();
+                    DescribeInstancesResponse described = future != null ? future.get() : null;
+                    if (described != null && described.reservations() != null) {
                         // Update result with fresh instance data that includes public IPs
                         List<VMInformation> updated = described.reservations().stream()
                                 .flatMap(reservation -> reservation.instances().stream()
                                         .map(instance -> AmazonDataConverter.instanceToVmInformation(
                                                 reservation.requesterId(), instance, vmRegion)))
-                                .collect(Collectors.toList());
+                                .toList();
                         result.clear();
                         result.addAll(updated);
                         LOG.debug("Refreshed {} instance details with public IP information", updated.size());
@@ -339,8 +354,8 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     * @param runInstancesRequestTemplate
      * @param subnetId
+     * @param runInstancesRequestTemplate
      * @param requestCount
      * @return
      */
@@ -359,20 +374,18 @@ public class AmazonInstance implements IEnvironmentInstance {
                         .minCount(1).maxCount(requestCount).build())
                 .exceptionally(completionException -> {
                     Throwable cause = completionException.getCause();
-                    if (cause instanceof Ec2Exception) {
-                        String errorCode = ((Ec2Exception)cause).awsErrorDetails().errorCode();
+                    if (cause instanceof Ec2Exception && ((Ec2Exception) cause).awsErrorDetails() != null) {
+                        String errorCode = ((Ec2Exception) cause).awsErrorDetails().errorCode();
                         if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
                             LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
                             return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
-                        } else if ( errorCode.equals(REQUEST_LIMIT_EXCEEDED) ) {
-                            LOG.warn("Exceeded request limit: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
-                            try { Thread.sleep(new Random().nextInt(1000) + 500); } catch (InterruptedException ignored) {}
-                            return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, instanceTypes).join();
+                        } else if ( errorCode.equals(INVALID_AMI_ID_UNAVAILABLE) ) {
+                            LOG.error("AMI is not available in {}: {}", vmRegion, cause.getMessage());
+                            throw new CompletionException(cause);
                         }
-                    } else {
-                        LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
                     }
-                    return RunInstancesResponse.builder().build();
+                    LOG.error("Error requesting instances: {}: {}", vmRegion, cause.getMessage(), cause);
+                    throw new CompletionException(cause);
                 })
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {

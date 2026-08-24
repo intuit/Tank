@@ -18,12 +18,15 @@ import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.settings.TankConfig;
+import com.intuit.tank.vm.settings.VmManagerConfig;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +43,12 @@ public class UsersAndTimesTest {
     @Mock
     private Messages messages;
 
+    @Mock
+    private TankConfig tankConfig;
+
+    @Mock
+    private VmManagerConfig vmManagerConfig;
+
     private JobConfiguration jobConfiguration;
     private AutoCloseable closeable;
 
@@ -54,6 +63,8 @@ public class UsersAndTimesTest {
         jobConfiguration.setBaselineVirtualUsers(10);
         jobConfiguration.setUserIntervalIncrement(5);
         when(projectBean.getJobConfiguration()).thenReturn(jobConfiguration);
+        when(tankConfig.getVmManagerConfig()).thenReturn(vmManagerConfig);
+        when(vmManagerConfig.getConfiguredRegions()).thenReturn(List.of());
     }
 
     @AfterEach
@@ -187,6 +198,20 @@ public class UsersAndTimesTest {
         // getTotalUsers calls getJobRegions() which may call projectBean.getJobConfiguration()
         int total = usersAndTimes.getTotalUsers();
         assertTrue(total >= 0);
+    }
+
+    @Test
+    public void testGetJobRegions_StandaloneStandardAllocationTotalsOneHundredPercent() {
+        when(tankConfig.getStandalone()).thenReturn(true);
+        jobConfiguration.setJobRegions(new HashSet<>(Set.of(
+                new JobRegion(VMRegion.US_EAST_2, "0", "50"),
+                new JobRegion(VMRegion.US_WEST_2, "0", "50"))));
+
+        List<JobRegion> regions = usersAndTimes.getJobRegions();
+
+        assertEquals(1, regions.size());
+        assertEquals(VMRegion.STANDALONE, regions.get(0).getRegion());
+        assertEquals("100", regions.get(0).getPercentage());
     }
 
     @Test

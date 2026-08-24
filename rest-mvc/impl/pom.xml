@@ -6,13 +6,17 @@
     <parent>
         <groupId>com.intuit.tank</groupId>
         <artifactId>tank-rest-api</artifactId>
-        <version>4.2.12-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>tank-rest-api-impl</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ssm</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>

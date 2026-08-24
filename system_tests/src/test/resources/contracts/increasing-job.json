@@ -1,0 +1,21 @@
+{
+  "projectId": "${projectId}",
+  "jobInstanceName": "${jobInstanceName}",
+  "rampTime": "120m",
+  "simulationTime": "24h",
+  "userIntervalIncrement": 1,
+  "stopBehavior": "END_OF_SCRIPT",
+  "vmInstance": "m.xlarge",
+  "numUsersPerAgent": 6400,
+  "jobRegions": [
+    {
+      "region": "us-east-2",
+      "users": "1400"
+    },
+    {
+      "region": "us-west-2",
+      "users": "1400"
+    }
+  ],
+  "workloadType": "increasing"
+}

@@ -184,29 +184,32 @@ public class ProjectDaoTest {
         Project persistedProject = dao.saveOrUpdate(project);
         int id = persistedProject.getId();
 
-        // Act & Assert
-        Project nameProject = dao.findByName(name);
-        assertNotNull(nameProject);
-        assertEquals(name, nameProject.getName());
-        assertThrows(LazyInitializationException.class, () -> nameProject.getWorkloads().get(0));
+        try {
+            // Act & Assert
+            Project nameProject = dao.findByName(name);
+            assertNotNull(nameProject);
+            assertEquals(name, nameProject.getName());
+            assertThrows(LazyInitializationException.class, () -> nameProject.getWorkloads().get(0));
 
-        // Act & Assert
-        Project idProject = dao.findById(id);
-        assertNotNull(idProject);
-        assertEquals(name, idProject.getName());
-        validateProject(project, idProject, false);
-        assertEquals(2, idProject.getWorkloads().get(0).getTestPlans().size());
-        assertEquals(testPlanName, idProject.getWorkloads().get(0).getTestPlans().get(0).getName());
+            // Act & Assert - findById does not eagerly load the lazy testPlans collection,
+            // so accessing it outside the session throws LazyInitializationException.
+            Project idProject = dao.findById(id);
+            assertNotNull(idProject);
+            assertEquals(name, idProject.getName());
+            validateProject(project, idProject, false);
+            assertThrows(LazyInitializationException.class,
+                    () -> idProject.getWorkloads().get(0).getTestPlans().size());
 
-        // Act & Assert
-        Project eagerProject = dao.findByIdEager(persistedProject.getId());
-        assertNotNull(eagerProject);
-        validateProject(project, eagerProject, false);
-        assertEquals(2, eagerProject.getWorkloads().get(0).getTestPlans().size());
-        assertEquals(testPlanName, eagerProject.getWorkloads().get(0).getTestPlans().get(0).getName());
-
-        // cleanup
-        dao.delete(persistedProject);
+            // Act & Assert - findByIdEager initializes testPlans, so they are accessible.
+            Project eagerProject = dao.findByIdEager(persistedProject.getId());
+            assertNotNull(eagerProject);
+            validateProject(project, eagerProject, false);
+            assertEquals(2, eagerProject.getWorkloads().get(0).getTestPlans().size());
+            assertEquals(testPlanName, eagerProject.getWorkloads().get(0).getTestPlans().get(0).getName());
+        } finally {
+            // cleanup
+            dao.delete(persistedProject);
+        }
         assertEquals(0, dao.findAllFast().size());
     }
 

@@ -1,3 +1,185 @@
+# 4.4.0 (Sat Aug 22 2026)
+
+#### 🚀 Enhancement
+
+- Java21 & Virtual Threads [#504](https://github.com/intuit/Tank/pull/504) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.3.11 (Fri Jul 31 2026)
+
+#### 🐛 Bug Fix
+
+- [SRE-39121] fix job configuration copying and UI validation [#503](https://github.com/intuit/Tank/pull/503) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.10 (Thu Jul 30 2026)
+
+#### 🐛 Bug Fix
+
+- Add load test flow system tests [#502](https://github.com/intuit/Tank/pull/502) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.9 (Mon Jul 27 2026)
+
+#### 🐛 Bug Fix
+
+- [SRE-39090] Preserve nonlinear workload selection during job creation [#501](https://github.com/intuit/Tank/pull/501) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.8 (Wed Jul 22 2026)
+
+#### 🐛 Bug Fix
+
+- Fix startAgent.sh delivery during WebSocket bootstrap [#500](https://github.com/intuit/Tank/pull/500) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.7 (Tue Jul 21 2026)
+
+#### 🐛 Bug Fix
+
+- AWS SDK Consistency Cleanup [#499](https://github.com/intuit/Tank/pull/499) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.3.6 (Fri Jul 17 2026)
+
+#### 🐛 Bug Fix
+
+- Improve Admin Log Viewer with reliable streaming and investigation workspace [#498](https://github.com/intuit/Tank/pull/498) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.5 (Wed Jul 15 2026)
+
+#### 🐛 Bug Fix
+
+- Update XMLHandler [#438](https://github.com/intuit/Tank/pull/438) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.3.4 (Tue Jul 14 2026)
+
+#### 🐛 Bug Fix
+
+- Fix WS agent bootstrap and terminate agents after graceful STOP [#494](https://github.com/intuit/Tank/pull/494) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.3 (Tue Jul 14 2026)
+
+#### 🐛 Bug Fix
+
+- Expand filter group API responses with group membership [#497](https://github.com/intuit/Tank/pull/497) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.2 (Mon Jul 13 2026)
+
+#### 🐛 Bug Fix
+
+- Add Internal Filters API support [#496](https://github.com/intuit/Tank/pull/496) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.3.1 (Wed Jul 08 2026)
+
+#### 🐛 Bug Fix
+
+- Library Updates [#495](https://github.com/intuit/Tank/pull/495) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.3.0 (Mon Jul 06 2026)
+
+#### 🚀 Enhancement
+
+- [SRE-38860] Accelerate WebSocket transfer via HTTP/2 (RFC 8441) migration [#493](https://github.com/intuit/Tank/pull/493) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump com.fasterxml.jackson.core:jackson-databind from 2.18.3 to 2.22.0 in /test_support [#490](https://github.com/intuit/Tank/pull/490) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.2.12 (Mon Jun 29 2026)
+
+#### 🐛 Bug Fix
+
+- fix: optimize WS file transfer with binary frames and larger chunks [#482](https://github.com/intuit/Tank/pull/482) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.2.11 (Mon Jun 29 2026)
 
 #### 🐛 Bug Fix
