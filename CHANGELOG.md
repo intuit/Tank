@@ -1,3 +1,15 @@
+# 4.4.1 (Tue Aug 25 2026)
+
+#### 🐛 Bug Fix
+
+- Optimize FunctionHandler.java [#505](https://github.com/intuit/Tank/pull/505) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.4.0 (Sat Aug 22 2026)
 
 #### 🚀 Enhancement
