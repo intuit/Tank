@@ -26,6 +26,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -51,6 +53,14 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     private static final Logger LOG = LogManager.getLogger(TankHttpClientJDK.class);
 
+    /**
+     * Shared across all client instances (one per virtual user) so request
+     * processing runs on virtual threads instead of each client's default
+     * cached pool of platform threads. HttpClient.close() does not shut down
+     * a user-supplied executor, so per-user clients can close independently.
+     */
+    private static final ExecutorService SHARED_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
     private HttpClient httpclient;
     private HttpClient.Builder httpclientBuilder;
     private final CookieManager cookieManager = new CookieManager();
@@ -63,6 +73,7 @@ public class TankHttpClientJDK implements TankHttpClient {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         httpclientBuilder = HttpClient.newBuilder()
                 .cookieHandler(cookieManager)
+                .executor(SHARED_EXECUTOR)
                 .connectTimeout(Duration.ofSeconds(30))
                 .followRedirects(HttpClient.Redirect.ALWAYS);
         httpclient = httpclientBuilder.build();

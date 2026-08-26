@@ -26,7 +26,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.text.DateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
@@ -101,7 +100,6 @@ public class APITestHarness {
     private TankConfig tankConfig;
     private UserTracker userTracker = new UserTracker();
     private FlowController flowControllerTemplate;
-    private Map<Long, FlowController> controllerMap = new ConcurrentHashMap<Long, FlowController>();
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
@@ -912,10 +910,6 @@ public class APITestHarness {
      */
     public void setFlowControllerTemplate(FlowController flowControllerTemplate) {
         this.flowControllerTemplate = flowControllerTemplate;
-    }
-
-    public FlowController getFlowController(Long threadId) {
-        return controllerMap.computeIfAbsent(threadId, id -> flowControllerTemplate.cloneController());
     }
 
     public int getCurrentUsers() { return currentUsers; }
