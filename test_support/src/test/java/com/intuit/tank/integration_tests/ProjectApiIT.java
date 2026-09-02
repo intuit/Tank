@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,17 +126,17 @@ public class ProjectApiIT extends BaseIT {
         assertTrue(projectNames.size() > 10,
                 "Response should contain multiple projects (at least 10)");
 
-        assertEquals(298, Integer.parseInt(Objects.requireNonNull(projectNames.entrySet().stream()
+        assertEquals(298, Integer.parseInt(projectNames.entrySet().stream()
                 .filter(entry -> "Simple Endurance Project".equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .orElse(null))), "Should find project ID for 'Simple Endurance Project'");
+                .orElseThrow()), "Should find project ID for 'Simple Endurance Project'");
 
-        assertEquals(367, Integer.parseInt(Objects.requireNonNull(projectNames.entrySet().stream()
+        assertEquals(367, Integer.parseInt(projectNames.entrySet().stream()
                 .filter(entry -> "PDS_Perf_Baseline".equals(entry.getValue()))
                 .map(Map.Entry::getKey)
                 .findFirst()
-                .orElse(null))), "Should find project ID for 'PDS_Perf_Baseline'");
+                .orElseThrow()), "Should find project ID for 'PDS_Perf_Baseline'");
     }
 
     @Test

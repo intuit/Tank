@@ -8,7 +8,6 @@
 package com.intuit.tank.rest.mvc.rest.controllers.errors;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import tools.jackson.databind.json.JsonMapper;

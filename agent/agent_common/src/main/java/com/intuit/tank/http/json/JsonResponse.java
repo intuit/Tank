@@ -29,9 +29,12 @@ import org.json.JSONObject;
 
 import com.intuit.tank.http.BaseResponse;
 
+import tools.jackson.databind.json.JsonMapper;
+
 public class JsonResponse extends BaseResponse {
 
     static protected Logger logger = LogManager.getLogger(JsonResponse.class);
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     @SuppressWarnings("rawtypes")
     private Map jsonMap = null;
 
@@ -81,15 +84,19 @@ public class JsonResponse extends BaseResponse {
     private String cleanString(String input) {
         return input == null ? null :
                 input.strip()
-                        .replace("\r\n", "")
                         .replace("\r", "")
                         .replace("\n", "");
     }
-    
+
     private void initialize() {
-        Map map = StringUtils.isNotEmpty(response)
-                ? GenericJsonHandler.fromJson(response, HashMap.class)
-                : null;
+        Map<?, ?> map = null;
+        if (StringUtils.isNotEmpty(response)) {
+            try {
+                map = JSON_MAPPER.readValue(response, HashMap.class);
+            } catch (Exception ex) {
+                logger.warn("Unable to parse the response string as a JSON object: {}", response, ex);
+            }
+        }
         jsonMap = (map != null) ? map : Collections.emptyMap();
     }
 

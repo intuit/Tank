@@ -311,7 +311,6 @@ public class AgentDataCpTest {
     public void testSetUsers_1()
             throws Exception {
         AgentData fixture = new AgentData("", "", "", 1, VMRegion.ASIA_1, "");
-        fixture.setUsers(1);
         int users = 2;
 
         fixture.setUsers(users);

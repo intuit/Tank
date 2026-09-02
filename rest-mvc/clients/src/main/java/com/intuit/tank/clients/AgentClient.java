@@ -85,7 +85,7 @@ public class AgentClient extends BaseClient {
     }
 
 
-    public AgentTestStartData agentReady(AgentData agentData) throws JacksonException {
+    public AgentTestStartData agentReady(AgentData agentData) {
 
         HttpRequest request = requestBuilder("/ready")
                 .header("Accept", "application/json")
@@ -169,7 +169,7 @@ public class AgentClient extends BaseClient {
         return null;
     }
 
-    public void setStandaloneAgentAvailability(AgentAvailability availability) throws JacksonException {
+    public void setStandaloneAgentAvailability(AgentAvailability availability) {
 
         HttpRequest request = requestBuilder("/availability")
                 .header("Accept", "application/json")
@@ -220,7 +220,7 @@ public class AgentClient extends BaseClient {
         return null;
     }
 
-    public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws JacksonException {
+    public Void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) {
 
         HttpRequest request = requestBuilder("/instance/status/", instanceId)
                 .header("Accept", "application/json")

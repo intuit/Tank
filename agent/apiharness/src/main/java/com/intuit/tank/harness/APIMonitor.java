@@ -20,7 +20,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Date;
 
-import tools.jackson.core.JacksonException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
@@ -168,7 +167,7 @@ public class APIMonitor implements Runnable {
         }
     }
 
-    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException, JacksonException {
+    protected static void setInstanceStatus(String instanceId, CloudVmStatus VmStatus) throws URISyntaxException {
         APITestHarness harness = APITestHarness.getInstance();
         boolean wsEnabled = harness.getTankConfig().getAgentConfig().isCommandWsEnabled();
 

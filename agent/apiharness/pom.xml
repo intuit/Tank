@@ -63,10 +63,9 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Workaround for JsonLayout in log4j2  -->
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-layout-template-json</artifactId>
       <scope>runtime</scope>
     </dependency>
 

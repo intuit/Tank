@@ -229,11 +229,11 @@ public class AgentWsEnvelope {
     public CloudVmStatus getInstanceStatus() { return instanceStatus; }
     public void setInstanceStatus(CloudVmStatus instanceStatus) { this.instanceStatus = instanceStatus; }
 
-    public String toJson() throws IOException {
+    public String toJson() {
         return MAPPER.writeValueAsString(this);
     }
 
-    public static AgentWsEnvelope fromJson(String json) throws IOException {
+    public static AgentWsEnvelope fromJson(String json) {
         return MAPPER.readValue(json, AgentWsEnvelope.class);
     }
 

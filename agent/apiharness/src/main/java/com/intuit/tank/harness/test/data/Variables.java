@@ -16,7 +16,6 @@ package com.intuit.tank.harness.test.data;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -61,9 +60,6 @@ public class Variables {
             .create();
 
     private static final Pattern p = Pattern.compile(TankConstants.EXPRESSION_REGEX);
-
-    // Cache for compiled JEXL expressions to avoid repeated parsing
-    private static final Map<String, JexlExpression> expressionCache = new ConcurrentHashMap<>();
 
     private JexlContext context;
 
@@ -117,8 +113,8 @@ public class Variables {
         do {
             String group = m.group(1);
 
-            // Get or create cached expression
-            JexlExpression expression = expressionCache.computeIfAbsent(group, jexl::createExpression);
+            // The engine's expression cache (see .cache(1024) above) absorbs the parse cost
+            JexlExpression expression = jexl.createExpression(group);
 
             String evalResult = (String) expression.evaluate(context);
             if (evalResult == null && (group.contains("getCSVData") || group.contains("getFile"))) {

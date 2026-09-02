@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.clients.util;
 
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.core.JacksonException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

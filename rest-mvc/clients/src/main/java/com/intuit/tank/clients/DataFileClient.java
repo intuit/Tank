@@ -10,7 +10,6 @@ package com.intuit.tank.clients;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.datafiles.models.DataFileDescriptor;
 import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
-import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
