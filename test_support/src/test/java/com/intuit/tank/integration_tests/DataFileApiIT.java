@@ -1,10 +1,8 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -19,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataFileApiIT extends BaseIT {
 
     private static final String DATAFILES_ENDPOINT = "/v2/datafiles";
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final List<Integer> createdDataFileIds = new ArrayList<>();
 
     @AfterEach
@@ -79,13 +76,13 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("dataFiles"), "Response should contain 'dataFiles' field");
 
         JsonNode dataFiles = responseBody.get("dataFiles");
         assertTrue(dataFiles.isArray(), "DataFiles should be an array");
 
-        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+        assertFalse(dataFiles.isEmpty(), "Should have at least one data file to test with");
         // Validate data file structure based on provided sample
         JsonNode firstDataFile = dataFiles.get(0);
         assertTrue(firstDataFile.has("id"), "DataFile should have 'id' field");
@@ -98,11 +95,11 @@ public class DataFileApiIT extends BaseIT {
 
         // Validate data types
         assertTrue(firstDataFile.get("id").isInt(), "DataFile ID should be integer");
-        assertTrue(firstDataFile.get("name").isTextual(), "DataFile name should be string");
-        assertTrue(firstDataFile.get("creator").isTextual(), "DataFile creator should be string");
+        assertTrue(firstDataFile.get("name").isString(), "DataFile name should be string");
+        assertTrue(firstDataFile.get("creator").isString(), "DataFile creator should be string");
 
         // Validate dataUrl format
-        String dataUrl = firstDataFile.get("dataUrl").asText();
+        String dataUrl = firstDataFile.get("dataUrl").asString();
         assertTrue(dataUrl.contains("/v2/datafiles/content?id="), "DataUrl should contain correct endpoint");
 
         // Validate that dataUrl contains the same ID as the data file
@@ -128,10 +125,10 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        Map<String, String> dataFileNames = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> dataFileNames = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(dataFileNames, "DataFile names map should not be null");
 
-        assertTrue(dataFileNames.size() > 0, "Should have at least one data file to test with");
+        assertFalse(dataFileNames.isEmpty(), "Should have at least one data file to test with");
         // Validate that keys are numeric (data file IDs) and values are strings (names)
         for (Map.Entry<String, String> entry : dataFileNames.entrySet()) {
             assertDoesNotThrow(() -> Integer.parseInt(entry.getKey()),
@@ -156,12 +153,12 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> getAllResponse = httpClient.send(getAllRequest, BodyHandlers.ofString());
         assertEquals(200, getAllResponse.statusCode(), "Should get all data files successfully");
 
-        JsonNode responseBody = objectMapper.readTree(getAllResponse.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(getAllResponse.body());
         JsonNode dataFiles = responseBody.get("dataFiles");
-        
-        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+
+        assertFalse(dataFiles.isEmpty(), "Should have at least one data file to test with");
         int dataFileId = dataFiles.get(0).get("id").asInt();
-        String expectedName = dataFiles.get(0).get("name").asText();
+        String expectedName = dataFiles.get(0).get("name").asString();
 
         // Act - Get specific data file
         HttpRequest request = HttpRequest.newBuilder()
@@ -177,9 +174,9 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode dataFile = objectMapper.readTree(response.body());
+        JsonNode dataFile = JSON_MAPPER.readTree(response.body());
         assertEquals(dataFileId, dataFile.get("id").asInt(), "Should return correct data file ID");
-        assertEquals(expectedName, dataFile.get("name").asText(), "Should return correct data file name");
+        assertEquals(expectedName, dataFile.get("name").asString(), "Should return correct data file name");
         assertTrue(dataFile.has("created"), "DataFile should have created timestamp");
         assertTrue(dataFile.has("modified"), "DataFile should have modified timestamp");
         assertTrue(dataFile.has("creator"), "DataFile should have creator");
@@ -223,7 +220,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
 
         assertNotNull(response.body(), "Content should not be null");
         assertEquals("text/plain;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
@@ -247,7 +244,7 @@ public class DataFileApiIT extends BaseIT {
         System.out.println(response.body());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
         assertEquals("application/octet-stream",
                    response.headers().firstValue("Content-Type").orElse(""),
                    "Should return application/octet-stream content type");
@@ -309,7 +306,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("datafileId"), "Response should contain datafileId");
         assertTrue(responseBody.get("message").contains("uploaded"), "Response should indicate successful upload");
 
@@ -342,7 +339,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create initial data file");
 
-        Map<String, String> createResponseBody = objectMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> createResponseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int dataFileId = Integer.parseInt(createResponseBody.get("datafileId"));
         createdDataFileIds.add(dataFileId);
 
@@ -366,7 +363,7 @@ public class DataFileApiIT extends BaseIT {
         // Assert
         assertEquals(201, updateResponse.statusCode(), "Should return HTTP 201 Created for overwrite");
 
-        Map<String, String> updateResponseBody = objectMapper.readValue(updateResponse.body(), Map.class);
+        Map<String, String> updateResponseBody = JSON_MAPPER.readValue(updateResponse.body(), Map.class);
         assertEquals(String.valueOf(dataFileId), updateResponseBody.get("datafileId"),
                     "Should return same datafileId for overwrite");
         assertTrue(updateResponseBody.get("message").contains("overwritten with new datafile"),
@@ -394,7 +391,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> createResponse = httpClient.send(createRequest, BodyHandlers.ofString());
         assertEquals(201, createResponse.statusCode(), "Should create data file for deletion test");
 
-        Map<String, String> createResponseBody = objectMapper.readValue(createResponse.body(), Map.class);
+        Map<String, String> createResponseBody = JSON_MAPPER.readValue(createResponse.body(), Map.class);
         int dataFileId = Integer.parseInt(createResponseBody.get("datafileId"));
 
         // Act - Delete the data file
@@ -532,8 +529,8 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Data file should exist after creation");
 
-        JsonNode dataFile = objectMapper.readTree(response.body());
+        JsonNode dataFile = JSON_MAPPER.readTree(response.body());
         assertEquals(dataFileId, dataFile.get("id").asInt(), "Data file ID should match");
-        assertEquals(expectedName, dataFile.get("name").asText(), "Data file name should match");
+        assertEquals(expectedName, dataFile.get("name").asString(), "Data file name should match");
     }
 }

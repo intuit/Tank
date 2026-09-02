@@ -32,7 +32,7 @@ public class VMNodeBean extends JobNodeBean {
         this.setId(vmStatus.getInstanceId());
         this.setReportMode("");
         this.setStatus(vmStatus.getVmStatus().toString());
-        this.setRegion(vmStatus.getVmRegion().toString());
+        this.setRegion(vmStatus.getVmRegion().getDescription());
         this.setActiveUsers(String.valueOf(vmStatus.getCurrentUsers()));
         this.setNumFailures(vmStatus.getValidationFailures());
         this.setUserDetails(vmStatus.getUserDetails());

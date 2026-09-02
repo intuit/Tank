@@ -16,9 +16,8 @@ package com.intuit.tank.http.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -93,7 +92,7 @@ public class JsonResponseTest {
     public void testJsonResponseBody() throws Exception{
     	
     	JsonResponse fixture = new JsonResponse();
-    	fixture.setResponseBody(readFile("src/test/resources/json-response.json"));
+    	fixture.setResponseBody(Files.readString(Paths.get("src/test/resources/json-response.json")));
 
         Stream<Pair<String, String>> keys = Stream.of(
                 new ImmutablePair<>("/data/data/returns/IRS1040/Return/ReturnData/PPPerson/SpouseFilerInfoPP/FieldAttributes/UUID", "de7f702f-e40b-4f16-8a7d-e4263f11421d"),
@@ -113,19 +112,5 @@ public class JsonResponseTest {
         );
 
         keys.forEach(pair -> assertEquals(pair.getValue(), fixture.getValue(pair.getKey())));
-    }
-    
-    private String readFile( String file ) throws IOException {
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = null;
-            StringBuilder stringBuilder = new StringBuilder();
-            String ls = System.getProperty("line.separator");
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-            return stringBuilder.toString();
-        }
     }
 }

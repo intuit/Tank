@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import tools.jackson.core.JacksonException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -771,7 +772,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 default -> {
                 }
             }
-        } catch (IOException ignored) {
+        } catch (JacksonException ignored) {
         }
     }
 

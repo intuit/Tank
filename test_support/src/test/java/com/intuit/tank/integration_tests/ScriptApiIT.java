@@ -1,6 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -80,12 +80,12 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("scripts"), "Response should contain 'scripts' field");
 
         JsonNode scripts = responseBody.get("scripts");
         assertTrue(scripts.isArray(), "Scripts should be an array");
-        assertTrue(scripts.size() > 0, "Should contain at least one script");
+        assertFalse(scripts.isEmpty(), "Should contain at least one script");
 
         // Validate script structure
         JsonNode firstScript = scripts.get(0);
@@ -112,8 +112,8 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        Map<String, String> scriptNames = objectMapper.readValue(response.body(), Map.class);
-        assertTrue(scriptNames.size() > 0, "Should contain at least one script");
+        Map<String, String> scriptNames = JSON_MAPPER.readValue(response.body(), Map.class);
+        assertFalse(scriptNames.isEmpty(), "Should contain at least one script");
 
         // Validate structure - keys should be script IDs, values should be script names
         for (Map.Entry<String, String> entry : scriptNames.entrySet()) {
@@ -189,7 +189,7 @@ public class ScriptApiIT extends BaseIT {
 
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing script");
-        JsonNode script = objectMapper.readTree(response.body());
+        JsonNode script = JSON_MAPPER.readTree(response.body());
         assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
         assertTrue(script.has("name"), "Script should have name field");
         assertTrue(script.has("creator"), "Script should have creator field");
@@ -252,7 +252,7 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("scriptId"), "Response should contain scriptId");
         assertTrue(responseBody.get("message").contains("uploaded"), "Response should indicate successful upload");
 
@@ -296,7 +296,7 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created for gzipped proxy recording upload");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("scriptId"), "Response should contain scriptId");
         assertTrue(responseBody.get("message").contains("uploaded"), "Response should indicate successful upload");
 
@@ -344,7 +344,7 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created for gzipped Tank script upload");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("message"), "Response should contain message");
 
         String message = responseBody.get("message");
@@ -388,7 +388,7 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(201, response.statusCode(), "Should return HTTP 201 Created for script copy");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         String message = responseBody.get("message");
         assertTrue(message.contains("script ID"), "Message should contain script ID");
 
@@ -599,7 +599,7 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Should create script successfully");
 
-        Map<String, String> responseBody = objectMapper.readValue(response.body(), Map.class);
+        Map<String, String> responseBody = JSON_MAPPER.readValue(response.body(), Map.class);
         assertNotNull(responseBody.get("message"), "Response should contain message");
 
         // Extract script ID from message: "Script Sample Tank Script with script ID 1647 updated successfully"
@@ -630,9 +630,9 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "Script should exist");
 
-        JsonNode script = objectMapper.readTree(response.body());
+        JsonNode script = JSON_MAPPER.readTree(response.body());
         assertEquals(scriptId, script.get("id").asInt(), "Should return correct script ID");
-        assertEquals(expectedName, script.get("name").asText(), "Should return correct script name");
+        assertEquals(expectedName, script.get("name").asString(), "Should return correct script name");
     }
 
     private void verifyScriptDeleted(int scriptId) throws Exception {
@@ -668,7 +668,7 @@ public class ScriptApiIT extends BaseIT {
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         System.out.println(responseBody);
         assertTrue(responseBody.has("scripts"), "Response should contain 'scripts' field");
 
@@ -676,7 +676,7 @@ public class ScriptApiIT extends BaseIT {
         assertTrue(externalScripts.isArray(), "scripts should be an array");
 
         // If there are external scripts, validate structure
-        if (externalScripts.size() > 0) {
+        if (!externalScripts.isEmpty()) {
             JsonNode firstScript = externalScripts.get(0);
             assertTrue(firstScript.has("id"), "External script should have 'id' field");
             assertTrue(firstScript.has("name"), "External script should have 'name' field");
@@ -718,10 +718,10 @@ public class ScriptApiIT extends BaseIT {
         assertTrue(response.headers().firstValue("Location").isPresent(),
                   "Should have Location header for created resource");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("id"), "Response should contain external script ID");
-        assertEquals(scriptName, responseBody.get("name").asText(), "Should return correct script name");
-        assertEquals("integration-test", responseBody.get("creator").asText(), "Should return correct creator");
+        assertEquals(scriptName, responseBody.get("name").asString(), "Should return correct script name");
+        assertEquals("integration-test", responseBody.get("creator").asString(), "Should return correct creator");
 
         // Store for cleanup
         int externalScriptId = responseBody.get("id").asInt();
@@ -771,7 +771,7 @@ public class ScriptApiIT extends BaseIT {
 
         // Assert
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for existing external script");
-        JsonNode script = objectMapper.readTree(response.body());
+        JsonNode script = JSON_MAPPER.readTree(response.body());
         assertEquals(externalScriptId, script.get("id").asInt(), "Should return correct external script ID");
         assertTrue(script.has("name"), "External script should have name field");
         assertTrue(script.has("creator"), "External script should have creator field");
@@ -915,7 +915,7 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Should create external script successfully");
 
-        JsonNode responseBody = objectMapper.readTree(response.body());
+        JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         int externalScriptId = responseBody.get("id").asInt();
 
         createdScriptIds.add(-externalScriptId); // Use negative ID to distinguish external scripts
@@ -934,9 +934,9 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
         assertEquals(200, response.statusCode(), "External script should exist");
 
-        JsonNode script = objectMapper.readTree(response.body());
+        JsonNode script = JSON_MAPPER.readTree(response.body());
         assertEquals(externalScriptId, script.get("id").asInt(), "Should return correct external script ID");
-        assertEquals(expectedName, script.get("name").asText(), "Should return correct external script name");
+        assertEquals(expectedName, script.get("name").asString(), "Should return correct external script name");
     }
 
     private void verifyExternalScriptDeleted(int externalScriptId) throws Exception {
