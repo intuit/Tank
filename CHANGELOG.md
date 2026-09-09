@@ -1,3 +1,15 @@
+# 4.4.3 (Wed Sep 09 2026)
+
+#### 🐛 Bug Fix
+
+- Bump org.apache.tomcat:tomcat-catalina from 11.0.24 to 11.0.25 [#507](https://github.com/intuit/Tank/pull/507) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # 4.4.2 (Tue Sep 01 2026)
 
 #### 🐛 Bug Fix
