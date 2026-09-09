@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.*;
 import java.net.http.HttpClient;
@@ -26,8 +27,10 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -54,29 +57,47 @@ public class TankHttpClientJDK implements TankHttpClient {
     private static final Logger LOG = LogManager.getLogger(TankHttpClientJDK.class);
 
     /**
-     * Shared across all client instances (one per virtual user) so request
-     * processing runs on virtual threads instead of each client's default
-     * cached pool of platform threads. HttpClient.close() does not shut down
-     * a user-supplied executor, so per-user clients can close independently.
+     * Every JDK HttpClient instance owns a selector-manager platform thread, so
+     * clients cannot be created per virtual user (or per proxy/timeout change)
+     * without exhausting the agent's platform threads. Instead a small pool of
+     * clients per connection configuration is shared by all virtual users and
+     * lives for the life of the agent JVM. Cookies are applied per request from
+     * each user's own CookieManager (a client-level cookieHandler would be
+     * shared too), which requires following redirects manually so each hop
+     * still sends and stores that user's cookies.
+     */
+    private static final int CLIENT_POOL_SIZE = Integer.getInteger("tank.http.jdk.client.pool.size",
+            Math.max(2, Runtime.getRuntime().availableProcessors()));
+
+    /** Matches the JDK's default redirect retry limit (jdk.httpclient.redirects.retrylimit). */
+    private static final int MAX_REDIRECTS = Integer.getInteger("tank.http.jdk.redirect.limit", 5);
+
+    /**
+     * Shared across all client instances so request processing runs on virtual
+     * threads instead of each client's default cached pool of platform threads.
      */
     private static final ExecutorService SHARED_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
-    private HttpClient httpclient;
-    private HttpClient.Builder httpclientBuilder;
+    private static final ConcurrentHashMap<ClientConfig, HttpClient[]> CLIENT_POOLS = new ConcurrentHashMap<>();
+    private static final AtomicInteger NEXT_SLOT = new AtomicInteger();
+
+    private record ClientConfig(long connectTimeoutMs, String proxyHost, int proxyPort) {}
+
     private final CookieManager cookieManager = new CookieManager();
     private final Collection<String> mimeTypes = new TankConfig().getAgentConfig().getTextMimeTypeRegex();
+    /** Fixed pool slot per virtual user so a user keeps the same client (and its connections) across requests. */
+    private final int slot = Math.floorMod(NEXT_SLOT.getAndIncrement(), CLIENT_POOL_SIZE);
+
+    private long connectTimeoutMs = 30_000L;
+    private String proxyHost;
+    private int proxyPort = -1;
+    private HttpClient httpclient;
 
     /**
      * no-arg constructor for client
      */
     public TankHttpClientJDK() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        httpclientBuilder = HttpClient.newBuilder()
-                .cookieHandler(cookieManager)
-                .executor(SHARED_EXECUTOR)
-                .connectTimeout(Duration.ofSeconds(30))
-                .followRedirects(HttpClient.Redirect.ALWAYS);
-        httpclient = httpclientBuilder.build();
     }
 
     public Object createHttpClient() { return null; }
@@ -84,38 +105,55 @@ public class TankHttpClientJDK implements TankHttpClient {
     public void setHttpClient(Object httpClient) {}
 
     public void setConnectionTimeout(long connectionTimeout) {
-        httpclientBuilder.connectTimeout(Duration.ofMillis(connectionTimeout));
-        rebuild();
-    }
-
-    /**
-     * Rebuild the immutable client from the mutated builder, closing the client
-     * being replaced so its selector/worker threads are released immediately
-     * (Java 21 HttpClient is AutoCloseable) instead of lingering until GC.
-     */
-    private void rebuild() {
-        HttpClient old = httpclient;
-        httpclient = httpclientBuilder.build();
-        if (old != null) {
-            old.close();
-        }
-    }
-
-    /**
-     * Releases this client's selector/worker threads. Called once per virtual-user
-     * thread when its test plan finishes. Blocks until in-flight requests drain.
-     */
-    @Override
-    public void close() {
-        if (httpclient != null) {
-            httpclient.close();
+        if (connectionTimeout != connectTimeoutMs) {
+            connectTimeoutMs = connectionTimeout;
             httpclient = null;
         }
     }
 
+    /**
+     * Resolves the shared client for this user's connection settings, building
+     * it lazily so repeated setProxy/setConnectionTimeout calls before (or
+     * between) requests never construct throwaway clients.
+     */
+    private HttpClient client() {
+        if (httpclient == null) {
+            ClientConfig config = new ClientConfig(connectTimeoutMs, proxyHost, proxyPort);
+            HttpClient[] pool = CLIENT_POOLS.computeIfAbsent(config, k -> new HttpClient[CLIENT_POOL_SIZE]);
+            synchronized (pool) {
+                if (pool[slot] == null) {
+                    pool[slot] = newClient(config);
+                }
+                httpclient = pool[slot];
+            }
+        }
+        return httpclient;
+    }
+
+    private static HttpClient newClient(ClientConfig config) {
+        HttpClient.Builder builder = HttpClient.newBuilder()
+                .executor(SHARED_EXECUTOR)
+                .connectTimeout(Duration.ofMillis(config.connectTimeoutMs()))
+                .followRedirects(HttpClient.Redirect.NEVER);
+        if (config.proxyHost() != null) {
+            builder.proxy(ProxySelector.of(new InetSocketAddress(config.proxyHost(), config.proxyPort())));
+        }
+        return builder.build();
+    }
+
+    /**
+     * Ends this virtual user's session. The underlying HttpClient is shared
+     * with other users and must not be closed here.
+     */
+    @Override
+    public void close() {
+        cookieManager.getCookieStore().removeAll();
+        httpclient = null;
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#doGet(com.intuit.tank.http.
      * BaseRequest)
@@ -129,7 +167,7 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#doPut(com.intuit.tank.http.
      * BaseRequest)
@@ -152,7 +190,7 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#doDelete(com.intuit.tank.http.
      * BaseRequest)
@@ -163,10 +201,10 @@ public class TankHttpClientJDK implements TankHttpClient {
         request.getHeaderInformation().forEach(httpdelete::header);
         sendRequest(request, httpdelete.build(), request.getBody());
     }
-    
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
      * BaseRequest)
@@ -181,7 +219,7 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#doPost(com.intuit.tank.http.
      * BaseRequest)
@@ -227,7 +265,7 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.intuit.tank.httpclient3.TankHttpClient#addAuth(com.intuit.tank.http.
      * AuthCredentials)
@@ -243,13 +281,16 @@ public class TankHttpClientJDK implements TankHttpClient {
         HttpCookie sessionCookie = new HttpCookie(cookie.getName(), cookie.getValue());
         sessionCookie.setDomain(cookie.getDomain());
         sessionCookie.setPath(cookie.getPath());
+        // HttpCookie defaults to version 1 (RFC 2965), which serializes with $Version/$Path
+        // noise; version 0 sends the plain name=value form servers expect
+        sessionCookie.setVersion(0);
 
         cookieManager.getCookieStore().add(URI.create(cookie.getDomain()), sessionCookie);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.intuit.tank.httpclient3.TankHttpClient#clearSession()
      */
     @Override
@@ -259,12 +300,13 @@ public class TankHttpClientJDK implements TankHttpClient {
 
     @Override
     public void setProxy(String proxyhost, int proxyport) {
-        if (StringUtils.isNotBlank(proxyhost)) {
-            httpclientBuilder.proxy(ProxySelector.of(new InetSocketAddress(proxyhost, proxyport)));
-        } else {
-            httpclientBuilder.proxy(HttpClient.Builder.NO_PROXY);
+        String newHost = StringUtils.isNotBlank(proxyhost) ? proxyhost : null;
+        int newPort = newHost != null ? proxyport : -1;
+        if (!Objects.equals(newHost, proxyHost) || newPort != proxyPort) {
+            proxyHost = newHost;
+            proxyPort = newPort;
+            httpclient = null;
         }
-        rebuild();
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequest method, String requestBody) {
@@ -279,7 +321,7 @@ public class TankHttpClientJDK implements TankHttpClient {
             request.logRequest(uri, requestBody, method.method(), request.getHeaderInformation(), cookies, false);
             long startTime = System.currentTimeMillis();
             request.setTimestamp(new Date(startTime));
-            HttpResponse<InputStream> response = httpclient.send(method, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = send(method);
 
             // Read response body:
             byte[] responseBody = new byte[0];
@@ -323,6 +365,83 @@ public class TankHttpClientJDK implements TankHttpClient {
         }
         if (waitTime != 0) {
             doWaitDueToLongResponse(request, waitTime, uri);
+        }
+    }
+
+    /**
+     * Sends the request on the shared client, applying this user's cookies to
+     * each hop and following redirects manually (mirroring the semantics of
+     * HttpClient.Redirect.ALWAYS, which cannot be used on a shared client
+     * because redirect hops would bypass per-user cookie handling).
+     */
+    private HttpResponse<InputStream> send(HttpRequest initial) throws IOException, InterruptedException {
+        HttpRequest current = withCookieHeader(initial);
+        HttpResponse<InputStream> response = client().send(current, HttpResponse.BodyHandlers.ofInputStream());
+        int hops = 0;
+        while (isRedirect(response.statusCode()) && hops++ < MAX_REDIRECTS) {
+            storeCookies(response);
+            Optional<String> location = response.headers().firstValue("location");
+            if (location.isEmpty()) {
+                break;
+            }
+            drain(response);
+            URI target = response.uri().resolve(location.get());
+            current = withCookieHeader(redirectedRequest(current, response.statusCode(), target));
+            response = client().send(current, HttpResponse.BodyHandlers.ofInputStream());
+        }
+        storeCookies(response);
+        return response;
+    }
+
+    private static boolean isRedirect(int statusCode) {
+        return statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 || statusCode == 308;
+    }
+
+    private static HttpRequest redirectedRequest(HttpRequest prior, int statusCode, URI target) {
+        // 303 (and 301/302 for POST) redirect as GET without a body; 307/308 keep method and body
+        boolean switchToGet = statusCode == 303
+                || ((statusCode == 301 || statusCode == 302) && "POST".equals(prior.method()));
+        HttpRequest.Builder builder = HttpRequest.newBuilder(prior, (name, value) ->
+                !"Cookie".equalsIgnoreCase(name) && !(switchToGet && "Content-Type".equalsIgnoreCase(name)));
+        builder.uri(target);
+        if (switchToGet) {
+            builder.GET();
+        }
+        return builder.build();
+    }
+
+    private HttpRequest withCookieHeader(HttpRequest request) {
+        try {
+            List<String> cookies = cookieManager.get(request.uri(), request.headers().map())
+                    .getOrDefault("Cookie", Collections.emptyList());
+            if (cookies.isEmpty()) {
+                return request;
+            }
+            return HttpRequest.newBuilder(request, (name, value) -> true)
+                    .header("Cookie", String.join("; ", cookies))
+                    .build();
+        } catch (IOException e) {
+            LOG.warn("Could not apply cookies to request " + request.uri() + ": " + e);
+            return request;
+        }
+    }
+
+    private void storeCookies(HttpResponse<?> response) {
+        try {
+            cookieManager.put(response.uri(), response.headers().map());
+        } catch (IOException e) {
+            LOG.warn("Could not store cookies from response " + response.uri() + ": " + e);
+        }
+    }
+
+    private static void drain(HttpResponse<InputStream> response) {
+        InputStream body = response.body();
+        if (body != null) {
+            try (InputStream is = body) {
+                is.transferTo(OutputStream.nullOutputStream());
+            } catch (IOException e) {
+                // connection just won't be reused
+            }
         }
     }
 
