@@ -158,19 +158,21 @@ class StringFunctions {
             } else if (values[2].equalsIgnoreCase("useridFromRangeWithModExclude")) {
                 return StringFunctions.userIdFromRangeWithMod(values, false);
             } else if (values[2].equalsIgnoreCase("substring")) {
-                if (values.length == 5) {
-                    return StringFunctions.getSubstring(values[3], Integer.valueOf(values[4]), -1);
-                } else if (values.length == 6)
-                    try {
-                        return StringFunctions.getSubstring(values[3], Integer.valueOf(values[4]),
-                                Integer.valueOf(values[5]));
-                    } catch (NumberFormatException nfe) {
-                        return StringFunctions.getSubstring(addtlString, values[3], values[4]);
-                    }
+                return StringFunctions.substring(values, addtlString);
             }
             return "";
         } catch (Exception ex) {
             return "";
+        }
+    }
+
+    private static String substring(String[] values, String addtlString) {
+        try {
+            int beginIndex = Integer.valueOf(values[4]);
+            int endIndex = values.length <= 5 || StringUtils.isEmpty(values[5]) ? -1 : Integer.valueOf(values[5]);
+            return StringFunctions.getSubstring(values[3], beginIndex, endIndex);
+        } catch (NumberFormatException nfe) {
+            return StringFunctions.getSubstring(addtlString, values[3], values[4]);
         }
     }
 

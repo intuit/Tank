@@ -30,4 +30,20 @@ public class FunctionHandlerTest {
         result = FunctionHandler.executeFunction("#function.test", variables, "test");
         assertNull(result);
     }
+
+    @Test
+    public void testSubstringFunctionExtractsValueFromResponseBody() {
+        Variables variables = new Variables();
+        String responseBody = "or-payments-svc-e2e\\\\.api\\\\.intuit\\\\.com\","
+                + "\"deferredPluginsUrl\":\"https://us-west-2.e2e.turbotaxonline.intuit.com"
+                + "/shell-service/v1/plugins/turbotaxonline-app-experience::"
+                + "66a2cbc6bda35f5cc3304b2075e1a7fa?intuit_apikey=preprdakyrest\"";
+
+        String result = FunctionHandler.executeFunction(
+                "#function.string.substring.turbotaxonline-app-experience::.?",
+                variables,
+                responseBody);
+
+        assertEquals("66a2cbc6bda35f5cc3304b2075e1a7fa", result);
+    }
 }
