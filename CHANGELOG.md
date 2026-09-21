@@ -1,3 +1,15 @@
+# 4.4.5 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- JDK httpclient rewrite [#510](https://github.com/intuit/Tank/pull/510) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.4.4 (Mon Sep 21 2026)
 
 #### 🐛 Bug Fix
