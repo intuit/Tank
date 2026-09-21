@@ -1,3 +1,16 @@
+# 4.4.4 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- fix: restore substring body extraction (SRE-39717) [#512](https://github.com/intuit/Tank/pull/512) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.4.3 (Wed Sep 09 2026)
 
 #### 🐛 Bug Fix
