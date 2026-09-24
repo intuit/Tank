@@ -535,7 +535,9 @@ public class RequestRunner implements Runner {
      */
     private String validateBody(ValidationData original, ValidationData item, Variables variables,
             BaseResponse reqResponse, String uniqueName) {
-        String actualValue = reqResponse.getValue(item.getKey());
+        String actualValue = ValidationUtil.isFunction(item.getKey())
+                ? FunctionHandler.executeFunction(item.getKey(), variables, reqResponse.getResponseBody())
+                : reqResponse.getValue(item.getKey());
         LOG.debug("Body compare actual value: " + actualValue);
         boolean result = evaluateResult(actualValue, item.getValue(), item.getCondition(),
                 variables);
