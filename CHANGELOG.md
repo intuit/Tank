@@ -1,3 +1,16 @@
+# 4.4.6 (Thu Sep 24 2026)
+
+#### 🐛 Bug Fix
+
+- feat: add last substring response extraction (SRE-39717) [#513](https://github.com/intuit/Tank/pull/513) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.4.5 (Mon Sep 21 2026)
 
 #### 🐛 Bug Fix
