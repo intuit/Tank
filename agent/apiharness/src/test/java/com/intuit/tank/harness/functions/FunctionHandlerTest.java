@@ -46,4 +46,33 @@ public class FunctionHandlerTest {
 
         assertEquals("66a2cbc6bda35f5cc3304b2075e1a7fa", result);
     }
+
+	@Test
+	public void testLastSubstringFunctionExtractsTerminalSseValues() {
+		Variables variables = new Variables();
+		String responseBody = """
+				data:{"result":{"status":{"state":"submitted"}}}
+
+				data:{"result":{"status":{"state":"working"},"final":false}}
+
+				data:{"result":{"status":{"state":"input-required"},"final":true,"metadata":{}}}
+				""";
+
+		assertEquals("input-required", FunctionHandler.executeFunction(
+				"#function.string.lastsubstring.\"status\":{\"state\":\".\"",
+				variables,
+				responseBody));
+		assertEquals("true", FunctionHandler.executeFunction(
+				"#function.string.lastsubstring.\"final\":.,",
+				variables,
+				responseBody));
+	}
+
+	@Test
+	public void testLastSubstringFunctionReturnsEmptyWhenMarkerIsMissing() {
+		assertEquals("", FunctionHandler.executeFunction(
+				"#function.string.lastsubstring.\"final\":.,",
+				new Variables(),
+				"data:{\"result\":{\"status\":{\"state\":\"working\"}}}"));
+	}
 }

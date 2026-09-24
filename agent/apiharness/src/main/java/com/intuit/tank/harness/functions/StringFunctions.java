@@ -107,7 +107,8 @@ class StringFunctions {
                     || values[2].equalsIgnoreCase("useridFromRangeWithMod")
                     || values[2].equalsIgnoreCase("useridFromRangeWithModExclude")
                     || values[2].equalsIgnoreCase("useridFromRangeWithModInclude")
-                    || values[2].equalsIgnoreCase("substring"))
+                    || values[2].equalsIgnoreCase("substring")
+					|| values[2].equalsIgnoreCase("lastsubstring"))
                 return true;
             return false;
         } catch (Exception ex) {
@@ -159,6 +160,8 @@ class StringFunctions {
                 return StringFunctions.userIdFromRangeWithMod(values, false);
             } else if (values[2].equalsIgnoreCase("substring")) {
                 return StringFunctions.substring(values, addtlString);
+			} else if (values[2].equalsIgnoreCase("lastsubstring")) {
+				return StringFunctions.getSubstring(addtlString, values[3], values[4], true);
             }
             return "";
         } catch (Exception ex) {
@@ -178,11 +181,15 @@ class StringFunctions {
 
     private static String getSubstring(String string, String start,
             String end) {
+		return getSubstring(string, start, end, false);
+	}
 
+	private static String getSubstring(String string, String start,
+			String end, boolean last) {
         if (string == null)
             return "";
 
-        int beginIndex = string.indexOf(start);
+		int beginIndex = last ? string.lastIndexOf(start) : string.indexOf(start);
         if (beginIndex < 0)
             return "";
 
