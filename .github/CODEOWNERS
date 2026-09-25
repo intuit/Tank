@@ -1,0 +1,9 @@
+# CODEOWNERS
+#
+# Each line is a file pattern followed by one or more owners.
+# These owners are requested for review when a pull request touches
+# matching files. Order matters: later matches take precedence.
+# See https://docs.github.com/articles/about-code-owners/
+
+# Default owner for everything in the repo
+* @kevin-mcgoldrick @Zakaria-Kofiro
