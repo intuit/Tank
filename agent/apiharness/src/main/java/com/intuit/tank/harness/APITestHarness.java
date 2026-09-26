@@ -30,7 +30,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.zip.GZIPInputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.http.TankHttpClient;
 import com.intuit.tank.vm.api.enumerated.*;
 import org.apache.commons.io.FileUtils;
@@ -66,10 +65,12 @@ import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
+import tools.jackson.databind.json.JsonMapper;
 
 public class APITestHarness {
     private static final Logger LOG = LogManager.getLogger(APITestHarness.class);
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     public static final int POLL_INTERVAL = 15000;
 
     private static APITestHarness instance;
@@ -354,11 +355,9 @@ public class APITestHarness {
             AgentTestStartData startData = null;
             int count = 0;
             LOG.info(LogUtil.getLogMessage("Sending AgentData to controller: " + data.toString()));
+            String json = JSON_MAPPER.writeValueAsString(data);
             while (count < FIBONACCI.length) {
                 try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    String json = objectMapper.writerFor(AgentData.class)
-                            .withDefaultPrettyPrinter().writeValueAsString(data);
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(new URI(baseUrl + "/v2/agent/ready"))
                             .header(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType())
@@ -367,7 +366,7 @@ public class APITestHarness {
                             .POST(BodyPublishers.ofString(json))
                             .build();
                     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-                    startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
+                    startData = JSON_MAPPER.readValue(response.body(), AgentTestStartData.class);
                     break;
                 } catch (Exception e) {
                     LOG.error("Error sending ready: {}", e, e);

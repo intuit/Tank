@@ -14,6 +14,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import jakarta.servlet.ServletContext;
+import tools.jackson.core.JacksonException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
@@ -120,7 +121,7 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
         AgentWsEnvelope envelope;
         try {
             envelope = AgentWsEnvelope.fromJson(message.getPayload());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ Invalid frame, closing session: " + e.getMessage())));
             session.close(CloseStatus.BAD_DATA);
             return;

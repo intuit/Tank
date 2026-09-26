@@ -23,7 +23,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -109,11 +108,7 @@ public class StandaloneAgentStartup implements Runnable {
             } catch (Exception e) {
                 LOG.error("Error in AgentStartup {}", e, e);
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
-                try {
-                    sendAvailability();
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
+                sendAvailability();
             }
         });
         t.start();
@@ -152,7 +147,7 @@ public class StandaloneAgentStartup implements Runnable {
         t.start();
     }
 
-    private void sendAvailability() throws JsonProcessingException {
+    private void sendAvailability() {
         // create new availability as a copy of the original
         AgentAvailability availability = new AgentAvailability(currentAvailability.getInstanceId(),
                 currentAvailability.getInstanceUrl(), currentAvailability.getCapacity(),

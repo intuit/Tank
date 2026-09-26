@@ -30,7 +30,7 @@
     <version.surefire>3.5.3</version.surefire>
     <version.jaxb>4.0.3</version.jaxb>
     <version.junit>6.1.1</version.junit>
-    <version.jackson>2.22.1</version.jackson>
+    <version.jackson>3.2.2</version.jackson>
     <version.software.amazon.awssdk>2.47.1</version.software.amazon.awssdk>
     <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -116,7 +116,7 @@
         <version>${version.software.amazon.awssdk}</version>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
         <version>${version.jackson}</version>
     </dependency>

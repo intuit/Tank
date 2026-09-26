@@ -17,6 +17,7 @@ package com.intuit.tank.vm.common.util;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * ValidationUtil
@@ -40,11 +41,7 @@ public class ValidationUtil {
             return false;
         }
 
-        if (key.charAt(0) == identifierChar) {
-            return true;
-        }
-
-        return false;
+        return key.charAt(0) == identifierChar;
     }
 
     /**
@@ -62,11 +59,7 @@ public class ValidationUtil {
         if (key.charAt(0) == identifierChar) {
             return true;
         }
-        if (key.indexOf("#{") == 0 && key.indexOf("}") == key.length() - 1) {
-            return true;
-        }
-
-        return false;
+        return key.indexOf("#{") == 0 && key.indexOf("}") == key.length() - 1;
     }
 
     /**
@@ -80,10 +73,7 @@ public class ValidationUtil {
         if (StringUtils.isEmpty(function)) {
             return false;
         }
-        if (function.startsWith(functionIdentifier)) {
-            return true;
-        }
-        return false;
+        return function.startsWith(functionIdentifier);
     }
 
     public static String removeVariableIdentifier(String key) {
@@ -92,9 +82,9 @@ public class ValidationUtil {
 
     public static String removeAllVariableIdentifier(String key) {
         key = removeIdentifier(key, identifierChar);
-        key = StringUtils.removeStart(key, "#");
-        key = StringUtils.removeStart(key, "{");
-        return StringUtils.removeEnd(key, "}");
+        key = Strings.CS.removeStart(key, "#");
+        key = Strings.CS.removeStart(key, "{");
+        return Strings.CS.removeEnd(key, "}");
     }
 
     private static String removeIdentifier(String key, char c) {

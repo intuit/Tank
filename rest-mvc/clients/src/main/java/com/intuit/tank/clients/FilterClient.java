@@ -7,10 +7,9 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.filters.models.*;
+import tools.jackson.core.JacksonException;
 
 import java.io.InputStream;
 import java.net.http.HttpRequest;
@@ -44,9 +43,8 @@ public class FilterClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, FilterContainer.class);
+                    return JSON_MAPPER.readValue(is, FilterContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -63,11 +61,10 @@ public class FilterClient extends BaseClient{
     }
 
     public FilterTO createOrUpdateFilter(FilterTO filter) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
         try {
-            requestBody = objectMapper.writeValueAsString(filter);
-        } catch (JsonProcessingException e) {
+            requestBody = JSON_MAPPER.writeValueAsString(filter);
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 
@@ -80,7 +77,7 @@ public class FilterClient extends BaseClient{
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), FilterTO.class);
+                return JSON_MAPPER.readValue(response.body(), FilterTO.class);
             }
             throw new ClientException(response.body(), response.statusCode());
         } catch (ClientException e1) {
@@ -101,9 +98,8 @@ public class FilterClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, FilterGroupContainer.class);
+                    return JSON_MAPPER.readValue(is, FilterGroupContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -129,9 +125,8 @@ public class FilterClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, FilterTO.class);
+                    return JSON_MAPPER.readValue(is, FilterTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -157,9 +152,8 @@ public class FilterClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, FilterGroupDetailTO.class);
+                    return JSON_MAPPER.readValue(is, FilterGroupDetailTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -176,12 +170,11 @@ public class FilterClient extends BaseClient{
     }
 
     public String applyFilters(Integer scriptId, ApplyFiltersRequest filtersRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
 
         try {
-            requestBody = objectMapper.writeValueAsString(filtersRequest);
-        } catch (JsonProcessingException e) {
+            requestBody = JSON_MAPPER.writeValueAsString(filtersRequest);
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 

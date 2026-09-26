@@ -109,7 +109,7 @@ public class AgentBean implements Serializable {
             asr.setStartTime(DateFormatUtils.format(cloudVmStatus.getStartTime(), "mm/dd/yyyy HH:mm:ss"));
             asr.setEndTime(DateFormatUtils.format(cloudVmStatus.getEndTime(), "mm/dd/yyyy HH:mm:ss"));
             asr.setAgentStatus(cloudVmStatus.getVmStatus().toString());
-            asr.setRegion(cloudVmStatus.getVmRegion().toString());
+            asr.setRegion(cloudVmStatus.getVmRegion().getDescription());
             asr.setRole(cloudVmStatus.getRole().toString());
             asr.setJobStatus(cloudVmStatus.getJobStatus().toString());
             asr.setTotalTime("");
