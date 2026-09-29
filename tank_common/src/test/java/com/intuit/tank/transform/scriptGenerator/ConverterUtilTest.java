@@ -31,6 +31,7 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.script.RequestDataType;
 
@@ -99,6 +100,32 @@ public class ConverterUtilTest {
         assertEquals("TestPlan for  (id_0)", result.getName());
         assertEquals("TestPlan for  (id_0)", result.getDescription());
         assertNull(result.getVariables());
+    }
+
+    @Test
+    public void convertScriptToHdWorkloadPreservesEqualsAnyValidation() {
+        RequestData validation = new RequestData("state", "==Anyinput-required||completed",
+                RequestDataType.bodyValidation.name());
+        ScriptStep step = ScriptStep.builder()
+                .type("request")
+                .method("GET")
+                .label("state")
+                .hostname("example.com")
+                .protocol("https")
+                .simplePath("/state")
+                .stepIndex(0)
+                .responseData(Set.of(validation))
+                .build();
+        Script script = new Script();
+        script.setName("or-validation");
+        script.setSteps(new LinkedList<>());
+        script.addStep(step);
+
+        HDWorkload result = ConverterUtil.convertScriptToHdWorkload(script);
+        String harnessXml = ConverterUtil.getWorkloadXML(result);
+
+        assertTrue(harnessXml.contains("condition=\"==Any\""));
+        assertTrue(harnessXml.contains("<value>input-required||completed</value>"));
     }
 
     /**
