@@ -1,3 +1,21 @@
+# 4.4.7 (Tue Sep 29 2026)
+
+#### 🐛 Bug Fix
+
+- feat: support OR response validation (SRE-39831) [#516](https://github.com/intuit/Tank/pull/516) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### 📝 Documentation
+
+- Add CODEOWNERS [#514](https://github.com/intuit/Tank/pull/514) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 3
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.4.6 (Thu Sep 24 2026)
 
 #### 🐛 Bug Fix
