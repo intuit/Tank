@@ -240,6 +240,52 @@ public class RequestRunnerTest {
     }
 
 	@Test
+	public void equalsAnyBodyValidationPassesWhenFirstValueMatches() {
+		String result = executeBodyValidation("state", ValidationTypeConstants.EQUALS_ANY,
+				"input-required||completed", "{\"state\":\"input-required\"}");
+
+		assertEquals("PASS", result);
+	}
+
+	@Test
+	public void equalsAnyBodyValidationPassesWhenSecondValueMatches() {
+		String result = executeBodyValidation("state", ValidationTypeConstants.EQUALS_ANY,
+				"input-required||completed", "{\"state\":\"completed\"}");
+
+		assertEquals("PASS", result);
+	}
+
+	@Test
+	public void equalsAnyBodyValidationFailsWhenNeitherValueMatches() {
+		String result = executeBodyValidation("state", ValidationTypeConstants.EQUALS_ANY,
+				"input-required||completed", "{\"state\":\"working\"}");
+
+		assertEquals("FAIL", result);
+	}
+
+	@Test
+	public void equalsBodyValidationDoesNotTreatDelimiterAsOr() {
+		String result = executeBodyValidation("state", ValidationTypeConstants.EQUALS,
+				"input-required||completed", "{\"state\":\"input-required\"}");
+
+		assertEquals("FAIL", result);
+	}
+
+	@Test
+	public void lastSubstringBodyValidationWorksWithEqualsAny() {
+		String result = executeBodyValidation("#function.string.lastsubstring.\"status\":{\"state\":\".\"",
+				ValidationTypeConstants.EQUALS_ANY,
+				"input-required||completed",
+				"""
+				data:{"jsonrpc":"2.0","result":{"status":{"state":"submitted"}}}
+
+				data:{"jsonrpc":"2.0","result":{"status":{"state":"completed"},"final":true,"metadata":{}}}
+				""");
+
+		assertEquals("PASS", result);
+	}
+
+	@Test
 	public void testRawResponseBodyFunctionValidation() {
 		validationData.setPhase(RequestDataPhase.POST_REQUEST);
 		validationData.setKey("#function.string.lastsubstring.\"status\":{\"state\":\".\"");
@@ -278,5 +324,30 @@ public class RequestRunnerTest {
 
 		validationData.setValue("completed");
 		assertEquals("FAIL", requestRunner.execute());
+	}
+
+	private String executeBodyValidation(String key, String condition, String expectedValue, String responseBody) {
+		ValidationData data = new ValidationData();
+		data.setPhase(RequestDataPhase.POST_REQUEST);
+		data.setKey(key);
+		data.setCondition(condition);
+		data.setValue(expectedValue);
+		validation.addBodyValidation(data);
+		response.setValidation(validation);
+
+		step.setRequest(request);
+		step.setResponse(response);
+
+		testStepContext = new TestStepContext(step, variables, "testPlanName",
+				"testUniqueName", timerMap, testPlanRunner);
+		testStepContext.setHttpClient(new TestHttpClient());
+
+		RequestRunner requestRunner = new RequestRunner(testStepContext);
+		jsonResponse = new JsonResponse();
+		jsonResponse.setHttpCode(200);
+		jsonResponse.setResponseBody(responseBody);
+		requestRunner.setBaseResponse(jsonResponse);
+
+		return requestRunner.execute();
 	}
 }

@@ -16,6 +16,7 @@ package com.intuit.tank.vm.common;
 public class ValidationTypeConstants {
 
     public static final String REPRESENTATION_EQUALS = "Equals";
+    public static final String REPRESENTATION_EQUALS_ANY = "Equals Any";
     public static final String REPRESENTATION_NOT_EQUALS = "Not Equals";
     public final static String REPRESENTATION_EMPTY = "Empty";
     public final static String REPRESENTATION_NOTEMPTY = "Not empty";
@@ -25,6 +26,7 @@ public class ValidationTypeConstants {
     public final static String REPRESENTATION_GREATER_THAN = "Greater Than";
 
     public final static String EQUALS = "==";
+    public final static String EQUALS_ANY = "==Any";
     public final static String NOTEQUALS = "!=";
     public final static String EMPTY = "Empty";
     public final static String NOTEMPTY = "Not empty";

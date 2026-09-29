@@ -48,6 +48,13 @@ public class ResponseContentParserTest {
         assertNotNull(result);
     }
 
+    @Test
+    public void extractConditionRecognizesEqualsAnyBeforeEquals() {
+        String result = ResponseContentParser.extractCondition("==Anyinput-required||completed");
+
+        assertEquals("==Any", result);
+    }
+
     /**
      * Run the String extractCondition(String) method test.
      *
@@ -169,6 +176,13 @@ public class ResponseContentParserTest {
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.ResponseContentParser.extractValidateValue(ResponseContentParser.java:34)
         assertNotNull(result);
+    }
+
+    @Test
+    public void extractValidateValueStripsEqualsAnyOperator() {
+        String result = ResponseContentParser.extractValidateValue("==Anyinput-required||completed");
+
+        assertEquals("input-required||completed", result);
     }
 
     /**
