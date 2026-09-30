@@ -1,3 +1,15 @@
+# 4.5.0 (Wed Sep 30 2026)
+
+#### 🚀 Enhancement
+
+- Enforce REST authorization and harden auth (React migration phase 0) [#517](https://github.com/intuit/Tank/pull/517) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.4.7 (Tue Sep 29 2026)
 
 #### 🐛 Bug Fix
