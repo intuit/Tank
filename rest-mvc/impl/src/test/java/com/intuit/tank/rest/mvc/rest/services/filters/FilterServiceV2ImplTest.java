@@ -1,5 +1,10 @@
 package com.intuit.tank.rest.mvc.rest.services.filters;
 
+import java.util.Map;
+import org.mockito.ArgumentCaptor;
+import com.intuit.tank.vm.settings.AccessRight;
+import com.intuit.tank.rest.mvc.rest.security.SecurityTestSupport;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.FilterGroupDao;
 import com.intuit.tank.dao.ScriptDao;
@@ -170,11 +175,58 @@ class FilterServiceV2ImplTest {
     }
 
     @Test
-    void createOrUpdateFilter_rejectsCreateWithoutCreator() {
-        FilterTO request = FilterTO.builder().withName("invalid").build();
+    void createOrUpdateFilter_recordsCallerAsCreator_ignoringRequestCreator() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.CREATE_FILTER, List.of("filterers")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "filterers"));
+        FilterTO request = FilterTO.builder().withName("new-filter").withCreator("mallory").build();
 
-        assertThrows(GenericServiceCreateOrUpdateException.class,
-                () -> service.createOrUpdateFilter(request));
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> i.getArgument(0)))) {
+
+            service.createOrUpdateFilter(request);
+
+            ArgumentCaptor<ScriptFilter> saved = ArgumentCaptor.forClass(ScriptFilter.class);
+            verify(daoMock.constructed().get(0)).saveOrUpdate(saved.capture());
+            assertEquals("alice", saved.getValue().getCreator());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_forbiddenWithoutCreateRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+        try {
+            assertThrows(GenericServiceForbiddenAccessException.class,
+                    () -> service.createOrUpdateFilter(FilterTO.builder().withName("f").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_updateKeepsOwnerAndRequiresEditRightOrOwnership() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        ScriptFilter existing = new ScriptFilter();
+        existing.setCreator("alice");
+        FilterTO request = FilterTO.builder().withId(4).withName("renamed").withCreator("bob").build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(4)).thenReturn(existing);
+                    when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> i.getArgument(0));
+                })) {
+            SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.createOrUpdateFilter(request));
+
+            SecurityTestSupport.actAs(SecurityTestSupport.user("alice"));
+            service.createOrUpdateFilter(request);
+            assertEquals("alice", existing.getCreator());
+            assertEquals("renamed", existing.getName());
+        } finally {
+            SecurityTestSupport.reset();
+        }
     }
 
     @Test

@@ -1,5 +1,8 @@
 package com.intuit.tank.rest.mvc.rest.services.projects;
 
+import com.intuit.tank.vm.settings.AccessRight;
+import com.intuit.tank.rest.mvc.rest.security.SecurityTestSupport;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.project.*;
@@ -194,6 +197,68 @@ class ProjectServiceV2ImplTest {
 
             ProjectDao dao = daoMock.constructed().get(0);
             verify(dao).delete(p);
+        }
+    }
+
+    @Test
+    void deleteProject_forbiddenForNonOwnerWithoutRight() {
+        Project p = createProject(1, "Owned");
+        p.setCreator("alice");
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+
+        try (MockedConstruction<ProjectDao> daoMock = Mockito.mockConstruction(ProjectDao.class,
+                (mock, ctx) -> when(mock.findByIdEager(1)).thenReturn(p))) {
+
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.deleteProject(1));
+            verify(daoMock.constructed().get(0), never()).delete(any(Project.class));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void deleteProject_allowedForOwnerAndForDeleteRight() {
+        Project p = createProject(1, "Owned");
+        p.setCreator("alice");
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.DELETE_PROJECT, List.of("cleaners")));
+
+        try (MockedConstruction<ProjectDao> daoMock = Mockito.mockConstruction(ProjectDao.class,
+                (mock, ctx) -> when(mock.findByIdEager(1)).thenReturn(p))) {
+            SecurityTestSupport.actAs(SecurityTestSupport.user("alice"));
+            assertEquals("", service.deleteProject(1));
+            SecurityTestSupport.actAs(SecurityTestSupport.user("carol", "cleaners"));
+            assertEquals("", service.deleteProject(1));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateProject_forbiddenForNonOwnerWithoutRight() {
+        Project p = createProject(1, "Owned");
+        p.setCreator("alice");
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+
+        try (MockedConstruction<ProjectDao> daoMock = Mockito.mockConstruction(ProjectDao.class,
+                (mock, ctx) -> when(mock.findByIdEager(1)).thenReturn(p))) {
+            assertThrows(GenericServiceForbiddenAccessException.class,
+                    () -> service.updateProject(1, AutomationRequest.builder().withName("x").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createProject_forbiddenWithoutCreateRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+        try {
+            assertThrows(GenericServiceForbiddenAccessException.class,
+                    () -> service.createProject(AutomationRequest.builder().withName("x").build()));
+        } finally {
+            SecurityTestSupport.reset();
         }
     }
 

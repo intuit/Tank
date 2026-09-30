@@ -26,13 +26,15 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequest
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.api.enumerated.Location;
 import com.intuit.tank.vm.api.enumerated.ScriptDriver;
-import com.intuit.tank.vm.common.TankConstants;
+import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.settings.ModificationType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
@@ -107,6 +109,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
 
     @Override
     public Map<String, String> createProject(AutomationRequest request){
+        RestAuthorization.requireRight(AccessRight.CREATE_PROJECT, "projects");
         Map<String, String> response = new HashMap<>();
         Project project = createOrUpdateProject(null, request);
         response.put("ProjectId", Integer.toString(project.getId()));
@@ -118,10 +121,12 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     public Map<String, String> updateProject(Integer projectId, AutomationRequest request){
         Map<String, String> response = new HashMap<>();
         ProjectDao projectDao = new ProjectDao();
-        if(projectDao.findByIdEager(projectId) == null){
+        Project existing = projectDao.findByIdEager(projectId);
+        if(existing == null){
             response.put("error", "project with that project Id does not exist");
             return response;
         }
+        RestAuthorization.requireRightOrOwner(AccessRight.EDIT_PROJECT, existing, "projects");
         Project project = createOrUpdateProject(projectId, request);
         response.put("ProjectId", Integer.toString(project.getId()));
         response.put("status", "Updated");
@@ -164,7 +169,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                 if(request.getComments() != null) {
                     project.setComments(request.getComments());
                 }
-                project.setCreator(TankConstants.TANK_USER_SYSTEM);
+                project.setCreator(RestAuthorization.currentUserName());
                 if(request.getName() != null) {
                     workload.setName(request.getName());
                 }
@@ -248,7 +253,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                         entry.setLoop(sgs.getLoop());
                         scripts.add(entry); // add scripts in order they appear in scripts payload
                     } else {
-                        LOGGER.error("Script with script id " + scriptId + " does not exist and cannot be added to Test Plan " + tp.getName());
+                        LOGGER.error("Script with script id {} does not exist and cannot be added to Test Plan {}", scriptId, tp.getName());
                         throw new GenericServiceBadRequestException("projects", "updating project",
                                 "project - Script with script id " + scriptId + " does not exist and cannot be added to Test Plan " + tp.getName());
                     }
@@ -274,7 +279,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         try {
             ProjectDao projectDao = new ProjectDao();
             if(projectDao.findByName(name) != null){
-                LOGGER.error("project - Cannot change the name of the existing project " + name);
+                LOGGER.error("project - Cannot change the name of the existing project {}", name);
                 throw new GenericServiceBadRequestException("projects", "updating project",
                         "project - Cannot change the name of the existing project " + name);
             }
@@ -301,7 +306,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                 return payload;
             }
         } catch (Exception e){
-            LOGGER.error("Error downloading project harness file: " + e.getMessage(), e);
+            LOGGER.error("Error downloading project harness file: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "project harness file", e);
         }
     }
@@ -314,11 +319,14 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
                 LOGGER.warn("Project with id " + projectId + " does not exist");
                 return "Project with id " + projectId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_PROJECT, project, "projects");
                 dao.delete(project);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (RuntimeException e) {
-            LOGGER.error("Error deleting project: " + e, e);
+            LOGGER.error("Error deleting project: {}", e, e);
             throw new GenericServiceDeleteException("project", "project", e);
         }
     }

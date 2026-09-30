@@ -35,6 +35,9 @@ import com.intuit.tank.util.ScriptFilterType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -119,14 +122,20 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 if (filter == null) {
                     throw new IllegalArgumentException("Filter with filter id " + request.getId() + " does not exist");
                 }
-            } else if (request.getCreator() == null || request.getCreator().isBlank()) {
-                throw new IllegalArgumentException("Filter creator is required");
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_FILTER, filter, "filters");
+            } else {
+                RestAuthorization.requireRight(AccessRight.CREATE_FILTER, "filters");
             }
 
+            // the owner is the caller for new filters and unchanged for existing ones; never taken from the request
+            String creator = filter.getCreator() != null ? filter.getCreator() : RestAuthorization.currentUserName();
             FilterServiceUtil.toScriptFilter(request, filter);
+            filter.setCreator(creator);
             return FilterServiceUtil.filterToTO(dao.saveOrUpdate(filter));
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error saving filter: " + e.getMessage(), e);
+            LOGGER.error("Error saving filter: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("filter", "filter", e);
         }
     }
@@ -140,7 +149,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 .collect(Collectors.toList());
         return FilterGroupContainer.builder().withFilterGroups(filterGroups).build();
         } catch(Exception e){
-            LOGGER.error("Error returning all filter groups: " + e.getMessage(), e);
+            LOGGER.error("Error returning all filter groups: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "all filter groups", e);
         }
     }
@@ -153,6 +162,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 if (script == null){
                     return "Script with that script ID does not exist";
                 }
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, script, "filters");
                 List<Integer> filterIds = new ArrayList<>(request.getFilterIds());
                 FilterGroupDao dao = new FilterGroupDao();
 
@@ -171,8 +181,10 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                     return "Filters applied";
                 }
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch(Exception e){
-            LOGGER.error("Error applying filter to script: " + e.getMessage(), e);
+            LOGGER.error("Error applying filter to script: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("filter", "script", e);
         }
         return null;
@@ -188,14 +200,17 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
             ScriptFilterDao dao = new ScriptFilterDao();
             ScriptFilter filter = dao.findById(filterId);
             if (filter == null) {
-                LOGGER.warn("Filter with filter id " + filterId + " does not exist");
+                LOGGER.warn("Filter with filter id {} does not exist", filterId);
                 return "Filter with filter id " + filterId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_FILTER, filter, "filters");
                 dao.delete(filter);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error deleting filter: " + e, e);
+            LOGGER.error("Error deleting filter: {}", e, e);
             throw new GenericServiceDeleteException("filter", "filter", e);
         }
     }
@@ -206,14 +221,17 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
             ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
             ScriptFilterGroup filterGroup = dao.findById(filterGroupId);
             if (filterGroup == null) {
-                LOGGER.warn("Filter Group with id " + filterGroupId + " does not exist");
+                LOGGER.warn("Filter Group with id {} does not exist", filterGroupId);
                 return "Filter Group with filter group id " + filterGroupId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_FILTER, filterGroup, "filters");
                 dao.delete(filterGroup);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error deleting FilterGroup: " + e, e);
+            LOGGER.error("Error deleting FilterGroup: {}", e, e);
             throw new GenericServiceDeleteException("filter", "filterGroup", e);
         }
     }

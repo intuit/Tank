@@ -84,6 +84,9 @@
 
   <session-config>
     <session-timeout>120</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+    </cookie-config>
   </session-config>
 
   <!-- This section is optional. We are allowing index.jsf to handle the 

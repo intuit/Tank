@@ -96,7 +96,7 @@ public class LoginFilterTest {
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_tankSsoHandlerMock, times(1)).HandleSsoAuthorization(any(String.class));
+        verify(_tankSsoHandlerMock, times(1)).HandleSsoAuthorization(any(String.class), any(), any());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class LoginFilterTest {
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_tankSsoHandlerMock, times(0)).HandleSsoAuthorization(any(String.class));
+        verify(_tankSsoHandlerMock, times(0)).HandleSsoAuthorization(any(String.class), any(), any());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class LoginFilterTest {
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
-        doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
+        doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class), any(), any());
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);

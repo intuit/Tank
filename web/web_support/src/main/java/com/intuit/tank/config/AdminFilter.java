@@ -17,7 +17,10 @@ import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@WebFilter(urlPatterns = "/admin/*")
+// the one-off data migration pages under /tools are admin-only as well
+@WebFilter(urlPatterns = { "/admin/*",
+        "/tools/updateFilters.jsf", "/tools/updateFilters.xhtml",
+        "/tools/updateScriptGroup.jsf", "/tools/updateScriptGroup.xhtml" })
 public class AdminFilter implements Filter {
     private static final Logger LOG = LogManager.getLogger(AdminFilter.class);
 
