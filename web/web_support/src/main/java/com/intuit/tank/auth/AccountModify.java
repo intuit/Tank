@@ -174,7 +174,6 @@ public class AccountModify implements Serializable {
             messages.error("Cannot find user. Please log in again.");
         } else {
             if (StringUtils.isNotBlank(password)) {
-                messages.error("Password is required.");
                 if (!password.equals(passwordConfirm)) {
                     messages.error("Passwords do not match.");
                     return null;

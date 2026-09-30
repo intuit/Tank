@@ -57,6 +57,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.amazonaws.xray.AWSXRay;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.JobAuthorization;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -93,7 +97,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e) {
-            LOGGER.error("Error returning job: " + e.getMessage(), e);
+            LOGGER.error("Error returning job: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "job", e);
         }
     }
@@ -113,7 +117,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e){
-            LOGGER.error("Error returning jobs by project: " + e.getMessage(), e);
+            LOGGER.error("Error returning jobs by project: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "jobs by project", e);
         }
     }
@@ -132,7 +136,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e){
-            LOGGER.error("Error returning all jobs: " + e.getMessage(), e);
+            LOGGER.error("Error returning all jobs: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "all jobs", e);
         }
     }
@@ -145,14 +149,18 @@ public class JobServiceV2Impl implements JobServiceV2 {
             if (projectId != null) {
                 ProjectDao projectDao = new ProjectDao();
                 Project project = new ProjectDao().findByIdEager(projectId);
+                // creating a job saves the project's job configuration, so it needs the same rights as editing it
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_PROJECT, project, "jobs");
                 buildJobConfiguration(request, project);
                 project = projectDao.saveOrUpdateProject(project);
                 JobInstance job = addJobToQueue(project, request);
                 response.put("JobId", Integer.toString(job.getId()));
                 response.put("status", "created");
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error creating job: " + e.getMessage(), e);
+            LOGGER.error("Error creating job: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job", e);
         }
         return response;
@@ -228,7 +236,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             try ( BufferedReader in = new BufferedReader(new FileReader(file)) ) {
                 IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
             } catch (IOException e) {
-                LOGGER.error("Error streaming job harness file: " + e.getMessage(), e);
+                LOGGER.error("Error streaming job harness file: {}", e.getMessage(), e);
                 throw new GenericServiceInternalServerException("jobs", "streaming output of job harness XML script file", e);
             }
         };
@@ -248,13 +256,14 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String startJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.startJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error starting job: " + e);
+            LOGGER.error("Error starting job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to start", e);
         }
     }
@@ -262,13 +271,14 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String stopJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.stopJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error stopping job: " + e);
+            LOGGER.error("Error stopping job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to stop", e);
         }
     }
@@ -276,13 +286,14 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String pauseJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.pauseRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error pausing job: " + e);
+            LOGGER.error("Error pausing job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to pause", e);
         }
     }
@@ -290,6 +301,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String resumeJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
@@ -304,13 +316,14 @@ public class JobServiceV2Impl implements JobServiceV2 {
     @Override
     public String killJob(Integer jobId) {
         AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.killJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error killing job: " + e);
+            LOGGER.error("Error killing job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
         }
     }

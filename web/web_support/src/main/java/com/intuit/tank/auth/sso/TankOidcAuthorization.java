@@ -6,7 +6,6 @@ import com.intuit.tank.auth.sso.models.Token;
 import com.intuit.tank.http.WebHttpClient;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +17,7 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,8 +75,9 @@ public class TankOidcAuthorization {
 
         var truncatedEncodedIdTokenString = token.getIdToken().substring(token.getIdToken().indexOf('.')+1, token.getIdToken().lastIndexOf('.'));
 
-        byte[] decodedIdTokenBuffer = Base64.getDecoder().decode(truncatedEncodedIdTokenString);
-        String decodedUserInfoString = new String(decodedIdTokenBuffer);
+        // JWT segments are base64url encoded
+        byte[] decodedIdTokenBuffer = Base64.getUrlDecoder().decode(truncatedEncodedIdTokenString);
+        String decodedUserInfoString = new String(decodedIdTokenBuffer, StandardCharsets.UTF_8);
 
         UserInfo userInfo = _gson.fromJson(decodedUserInfoString, UserInfo.class);
         LOG.info("Decoding ID Token to UserInfo for {}", userInfo.getUsername());

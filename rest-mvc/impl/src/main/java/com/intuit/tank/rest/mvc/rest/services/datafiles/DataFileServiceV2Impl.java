@@ -25,6 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.io.IOUtils;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -58,7 +61,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             }
             return null;
         } catch (Exception e) {
-            LOGGER.error("Error returning datafile: " + e.getMessage(), e);
+            LOGGER.error("Error returning datafile: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("datafiles", "datafile", e);
         }
     }
@@ -71,7 +74,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             List<DataFileDescriptor> result = all.stream().map(DataFileServiceUtil::dataFileToDescriptor).collect(Collectors.toList());
             return DataFileDescriptorContainer.builder().withDataFiles(result).build();
         } catch (Exception e) {
-            LOGGER.error("Error returning all datafiles: " + e.getMessage(), e);
+            LOGGER.error("Error returning all datafiles: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("datafiles", "all datafiles", e);
         }
     }
@@ -82,7 +85,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             List<DataFile> all = new DataFileDao().findAll();
             return all.stream().collect(Collectors.toMap(DataFile::getId, DataFile::getPath));
         } catch (Exception e) {
-            LOGGER.error("Error returning all datafile names: " + e.getMessage(), e);
+            LOGGER.error("Error returning all datafile names: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("datafiles", "all datafile names", e);
         }
     }
@@ -126,7 +129,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
                     lineNum++;
                 }
             } catch (IOException e) {
-                LOGGER.error("Error returning datafile content: " + e.getMessage(), e);
+                LOGGER.error("Error returning datafile content: {}", e.getMessage(), e);
                 throw new GenericServiceResourceNotFoundException("datafiles", "datafile content", e);
             }
         };
@@ -158,10 +161,12 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
             if (dataFile == null) {
+                RestAuthorization.requireRight(AccessRight.CREATE_DATAFILE, "datafiles");
                 dataFile = new DataFile();
-                dataFile.setCreator("System");
+                dataFile.setCreator(RestAuthorization.currentUserName());
                 dataFile.setId(0);
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_DATAFILE, dataFile, "datafiles");
                 payload.put("message", "Datafile with datafile ID " + datafileId + " overwritten with new datafile");
             }
 
@@ -179,6 +184,8 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
                 }
             }
             payload.put("datafileId", Integer.toString(dataFile.getId()));
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error uploading datafile: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("datafiles", "new datafile via datafile upload", e);
@@ -193,14 +200,17 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
             DataFileDao dao = new DataFileDao();
             DataFile dataFile = dao.findById(datafileId);
             if (dataFile == null) {
-                LOGGER.warn("Datafile with datafile id " + datafileId + " does not exist");
+                LOGGER.warn("Datafile with datafile id {} does not exist", datafileId);
                 return "Datafile with datafile id " + datafileId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_DATAFILE, dataFile, "datafiles");
                 dao.delete(dataFile);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error deleting datafile : " + e, e);
+            LOGGER.error("Error deleting datafile : {}", e, e);
             throw new GenericServiceDeleteException("datafile", "datafile", e);
         }
     }

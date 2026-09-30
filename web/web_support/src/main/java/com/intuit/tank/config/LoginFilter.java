@@ -42,13 +42,18 @@ public class LoginFilter extends HttpFilter {
 		// Handle Redirect From SSO Authorization Server
 		if (authorizationCode != null) {
 			try {
-				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
+				_tankSsoHandler.HandleSsoAuthorization(authorizationCode,
+						request.getParameter(OidcConstants.STATE_KEY), request.getSession(false));
+				// new session id after login prevents session fixation
+				request.changeSessionId();
 			} catch (IllegalArgumentException e) {
 				LOG.error("Failed SSO due to missing argument", e);
 				InvalidateAndRedirect(request, response);
+				return;
 			} catch (Exception e) {
 				LOG.error("Failed SSO due to unhandled exception", e);
 				InvalidateAndRedirect(request, response);
+				return;
 			}
 			OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null) {

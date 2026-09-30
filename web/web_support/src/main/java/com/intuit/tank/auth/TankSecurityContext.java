@@ -45,6 +45,10 @@ public class TankSecurityContext implements SecurityContext, Serializable {
         return userRoles.contains(role);
     }
 
+    public Set<String> getCallerRoles() {
+        return Collections.unmodifiableSet(userRoles);
+    }
+
     @Override
     public boolean hasAccessToWebResource(String resource, String... methods) {
         return false;
