@@ -1,3 +1,15 @@
+# 4.5.1 (Thu Oct 01 2026)
+
+#### 🐛 Bug Fix
+
+- Add session, current user and reference data REST endpoints (React migration phase 1) [#518](https://github.com/intuit/Tank/pull/518) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.0 (Wed Sep 30 2026)
 
 #### 🚀 Enhancement
