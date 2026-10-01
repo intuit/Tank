@@ -9,6 +9,7 @@ package com.intuit.tank.rest.mvc.rest.security;
 
 import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -121,6 +122,23 @@ public final class RestAuthorization {
         if (!hasRight(right) && !isOwner(creator)) {
             deny(service, right.getDisplay());
         }
+    }
+
+    /**
+     * Requires a signed-in user, whatever the {@code rest-security-enabled} setting: endpoints about
+     * "the current user" have no meaning for anonymous callers or the agent token.
+     *
+     * @return the caller
+     * @throws GenericServiceUnauthorizedException (401) for anonymous callers
+     * @throws GenericServiceForbiddenAccessException (403) for the agent token
+     */
+    public static TankPrincipal requireUser(String service) {
+        TankPrincipal principal = currentPrincipal()
+                .orElseThrow(() -> new GenericServiceUnauthorizedException(service, "Authentication required"));
+        if (principal.isAgent()) {
+            deny(service, "user resources");
+        }
+        return principal;
     }
 
     public static void requireAdmin(String service) {

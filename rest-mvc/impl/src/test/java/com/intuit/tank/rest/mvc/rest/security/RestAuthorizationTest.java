@@ -9,6 +9,7 @@ package com.intuit.tank.rest.mvc.rest.security;
 
 import com.intuit.tank.project.Script;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.AccessRight;
 import org.junit.jupiter.api.AfterEach;
@@ -101,5 +102,26 @@ class RestAuthorizationTest {
                 () -> RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent"));
         actAs(user("olivia", "operators"));
         assertDoesNotThrow(() -> RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent"));
+    }
+
+    @Test
+    void requireUser_rejectsAnonymousEvenWhenRestSecurityDisabled() {
+        useConfig(false, Map.of());
+        assertThrows(GenericServiceUnauthorizedException.class, () -> RestAuthorization.requireUser("me"));
+    }
+
+    @Test
+    void requireUser_rejectsAgentToken() {
+        useConfig(true, Map.of());
+        actAs(TankPrincipal.agent());
+        assertThrows(GenericServiceForbiddenAccessException.class, () -> RestAuthorization.requireUser("me"));
+    }
+
+    @Test
+    void requireUser_returnsUser() {
+        useConfig(true, Map.of());
+        TankPrincipal bob = user("bob");
+        actAs(bob);
+        assertSame(bob, RestAuthorization.requireUser("me"));
     }
 }

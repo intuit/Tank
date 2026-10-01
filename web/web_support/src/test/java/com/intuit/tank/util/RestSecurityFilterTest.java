@@ -261,4 +261,51 @@ public class RestSecurityFilterTest {
         assertTrue(forwardedPrincipal().isAgent());
         verify(response, never()).addCookie(any());
     }
+
+    @Test
+    public void testDoFilter_SecurityEnabled_AnonymousLogin_PassesThrough() throws IOException, ServletException {
+        when(tankConfig.isRestSecurityEnabled()).thenReturn(true);
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getRequestURI()).thenReturn("/tank/v2/auth/login");
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
+    }
+
+    @Test
+    public void testDoFilter_SecurityEnabled_AnonymousNonPublic_Returns401() throws IOException, ServletException {
+        when(tankConfig.isRestSecurityEnabled()).thenReturn(true);
+        when(request.getRequestURI()).thenReturn("/tank/v2/me");
+
+        filter.doFilter(request, response, chain);
+
+        verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(chain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    public void testDoFilter_SessionPostToLogin_WithoutCsrfToken_PassesThrough() throws IOException, ServletException {
+        givenSessionUser("bob", Set.of());
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getRequestURI()).thenReturn("/tank/v2/auth/login");
+
+        filter.doFilter(request, response, chain);
+
+        assertEquals("bob", forwardedPrincipal().getName());
+        verify(response, never()).setStatus(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void testDoFilter_SessionPostToLogout_WithoutCsrfToken_Returns403() throws IOException, ServletException {
+        givenSessionUser("bob", Set.of());
+        when(request.getMethod()).thenReturn("POST");
+        when(request.getRequestURI()).thenReturn("/tank/v2/auth/logout");
+
+        filter.doFilter(request, response, chain);
+
+        verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
+        verify(chain, never()).doFilter(any(), any());
+    }
 }

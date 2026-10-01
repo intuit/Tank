@@ -54,6 +54,14 @@ public final class CsrfTokens {
     }
 
     /**
+     * Replaces the session's token, so a token issued before login is not valid after it.
+     */
+    public static String rotate(HttpSession session) {
+        session.removeAttribute(SESSION_ATTRIBUTE);
+        return getOrCreate(session);
+    }
+
+    /**
      * @return true when the request header carries the session's token
      */
     public static boolean isValid(HttpServletRequest request, HttpSession session) {

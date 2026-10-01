@@ -28,6 +28,7 @@ class CsrfTokensTest {
         HttpSession session = mock(HttpSession.class);
         when(session.getAttribute(anyString())).thenAnswer(i -> attributes.get(i.getArgument(0, String.class)));
         doAnswer(i -> attributes.put(i.getArgument(0), i.getArgument(1))).when(session).setAttribute(anyString(), any());
+        doAnswer(i -> attributes.remove(i.getArgument(0, String.class))).when(session).removeAttribute(anyString());
         return session;
     }
 
@@ -47,6 +48,15 @@ class CsrfTokensTest {
         assertEquals(token, CsrfTokens.getOrCreate(session));
         assertNotEquals(token, CsrfTokens.getOrCreate(fakeSession()));
         assertTrue(token.length() >= 40);
+    }
+
+    @Test
+    void rotate_replacesTheSessionToken() {
+        HttpSession session = fakeSession();
+        String before = CsrfTokens.getOrCreate(session);
+        String after = CsrfTokens.rotate(session);
+        assertNotEquals(before, after);
+        assertEquals(after, CsrfTokens.getOrCreate(session));
     }
 
     @Test

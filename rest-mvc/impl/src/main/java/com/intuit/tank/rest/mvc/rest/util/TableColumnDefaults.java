@@ -1,36 +1,28 @@
 /**
- * Copyright 2011 Intuit Inc. All Rights Reserved
+ *  Copyright 2015-2026 Intuit Inc.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
  */
-package com.intuit.tank;
-
-/*
- * #%L
- * JSF Support Beans
- * %%
- * Copyright (C) 2011 - 2015 Intuit Inc.
- * %%
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * #L%
- */
-
-import java.util.Arrays;
-import java.util.List;
+package com.intuit.tank.rest.mvc.rest.util;
 
 import com.intuit.tank.project.ColumnPreferences;
 import com.intuit.tank.project.ColumnPreferences.Hidability;
 import com.intuit.tank.project.ColumnPreferences.Visibility;
+import com.intuit.tank.project.Preferences;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 
 /**
- * TableColumnPrefs
- * 
- * @author dangleton
- * 
+ * The tables whose columns a user can configure, their default columns, and the rule that fills in
+ * columns missing from a user's saved {@link Preferences}. Shared by the web UI and the REST API.
  */
-public final class DefaultTableColumnUtil {
-    private DefaultTableColumnUtil() {
+public final class TableColumnDefaults {
+
+    private TableColumnDefaults() {
     }
 
     public static final List<ColumnPreferences> PROJECT_COL_PREFS = Arrays.asList(new ColumnPreferences[] {
@@ -101,4 +93,69 @@ public final class DefaultTableColumnUtil {
             new ColumnPreferences("actionsColumn", "Actions", 75, Visibility.VISIBLE, Hidability.NON_HIDABLE)
     });
 
+    /**
+     * A configurable table, named as it appears in the REST API.
+     */
+    public enum Table {
+        projects(PROJECT_COL_PREFS, Preferences::getProjectTableColumns),
+        scripts(SCRIPTS_COL_PREFS, Preferences::getScriptsTableColumns),
+        scriptSteps(SCRIPT_STEPS_COL_PREFS, Preferences::getScriptStepTableColumns),
+        datafiles(DATA_FILES_COL_PREFS, Preferences::getDatafilesTableColumns),
+        jobs(JOBS_COL_PREFS, Preferences::getJobsTableColumns);
+
+        private final List<ColumnPreferences> defaults;
+        private final Function<Preferences, List<ColumnPreferences>> columns;
+
+        Table(List<ColumnPreferences> defaults, Function<Preferences, List<ColumnPreferences>> columns) {
+            this.defaults = defaults;
+            this.columns = columns;
+        }
+
+        public List<ColumnPreferences> getDefaults() {
+            return defaults;
+        }
+
+        public List<ColumnPreferences> columnsOf(Preferences preferences) {
+            return columns.apply(preferences);
+        }
+    }
+
+    /**
+     * Returns the preferences to use for {@code owner}: the saved ones, or new ones when there are none,
+     * with any default column they lack inserted at its default position.
+     *
+     * @return the preferences, and whether they changed and need saving
+     */
+    public static Result ensureDefaults(Preferences saved, String owner) {
+        Preferences preferences = saved;
+        if (preferences == null) {
+            preferences = new Preferences();
+            preferences.setCreator(owner);
+        }
+        boolean changed = false;
+        for (Table table : Table.values()) {
+            changed |= addMissingColumns(preferences.getCreator(), table.columnsOf(preferences), table.getDefaults());
+        }
+        return new Result(preferences, changed);
+    }
+
+    public record Result(Preferences preferences, boolean changed) {
+    }
+
+    private static boolean addMissingColumns(String owner, List<ColumnPreferences> existing,
+                                             List<ColumnPreferences> defaults) {
+        boolean changed = false;
+        for (int i = 0; i < defaults.size(); i++) {
+            ColumnPreferences p = defaults.get(i);
+            if (!existing.contains(p)) {
+                ColumnPreferences pref = new ColumnPreferences(p.getColName(), p.getDisplayName(), p.getSize(),
+                        p.isVisible() ? Visibility.VISIBLE : Visibility.HIDDEN,
+                        p.isHideable() ? Hidability.HIDABLE : Hidability.NON_HIDABLE);
+                pref.setCreator(owner);
+                existing.add(Math.min(i, existing.size()), pref);
+                changed = true;
+            }
+        }
+        return changed;
+    }
 }
