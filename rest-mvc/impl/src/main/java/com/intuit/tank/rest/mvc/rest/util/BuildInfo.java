@@ -48,7 +48,7 @@ public record BuildInfo(String version, Date buildDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
         try {
             Date buildDate = sdf.parse(timestamp);
-            int buildNum = (int) (buildDate.getTime() - sdf.parse(BASE_DATE).getTime()) / 60000;
+            int buildNum = (int) ((buildDate.getTime() - sdf.parse(BASE_DATE).getTime()) / 60000);
             return new BuildInfo(version + "-" + buildNum, buildDate);
         } catch (ParseException e) {
             LOG.error("Error parsing date {}: {}", timestamp, e, e);

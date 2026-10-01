@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 @Service
@@ -92,8 +94,13 @@ public class AuthServiceV2Impl implements AuthServiceV2 {
         String returnPath;
         try {
             returnPath = webSessionBridgeProvider.get().completeSsoLogin(request, code, state);
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn("Rejected SSO callback: {}", e.getMessage());
+        } catch (Exception e) {
+            // a bad state or nonce, or a failed or malformed token response: the login fails either way
+            if (e instanceof IllegalArgumentException) {
+                LOGGER.warn("Rejected SSO callback: {}", e.getMessage());
+            } else {
+                LOGGER.error("SSO callback failed: {}", e.getMessage(), e);
+            }
             HttpSession session = request.getSession(false);
             if (session != null) {
                 session.invalidate();
@@ -110,8 +117,21 @@ public class AuthServiceV2Impl implements AuthServiceV2 {
         webSessionBridgeProvider.get().logout(request);
     }
 
+    /**
+     * @return true for a path within this application that can be sent as a redirect: it must also parse
+     *         as a URI, so characters such as a bare {@code %} or {@code |} are rejected when the login starts
+     *         rather than failing after it completes
+     */
     static boolean isValidReturnPath(String path) {
-        return path != null && path.length() <= MAX_RETURN_PATH_LENGTH && RETURN_PATH.matcher(path).matches();
+        if (path == null || path.length() > MAX_RETURN_PATH_LENGTH || !RETURN_PATH.matcher(path).matches()) {
+            return false;
+        }
+        try {
+            new URI(path);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     private static boolean isSsoEnabled(TankConfig config) {

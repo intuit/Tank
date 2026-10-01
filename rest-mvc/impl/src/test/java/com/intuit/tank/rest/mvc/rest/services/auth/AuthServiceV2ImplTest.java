@@ -197,20 +197,39 @@ class AuthServiceV2ImplTest {
     }
 
     @Test
+    void completeSso_tokenRequestFailureIsUnauthorizedAndInvalidatesSession() throws Exception {
+        when(bridge.completeSsoLogin(request, "code", "state")).thenThrow(new java.io.IOException("connection reset"));
+        assertThrows(GenericServiceUnauthorizedException.class,
+                () -> service.completeSsoLogin("code", "state", request, response));
+        verify(session).invalidate();
+        verify(response, never()).addCookie(any());
+    }
+
+    @Test
+    void completeSso_malformedTokenIsUnauthorizedAndInvalidatesSession() throws Exception {
+        when(bridge.completeSsoLogin(request, "code", "state")).thenThrow(new StringIndexOutOfBoundsException("bad token"));
+        assertThrows(GenericServiceUnauthorizedException.class,
+                () -> service.completeSsoLogin("code", "state", request, response));
+        verify(session).invalidate();
+    }
+
+    @Test
     void logout_delegates() {
         service.logout(request);
         verify(bridge).logout(request);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "/", "/app", "/app/projects/4?tab=jobs#top", "/projects/index.jsf" })
+    @ValueSource(strings = { "/", "/app", "/app/projects/4?tab=jobs#top", "/projects/index.jsf", "/scripts?q=100%25" })
     void validReturnPaths(String path) {
         assertTrue(AuthServiceV2Impl.isValidReturnPath(path), path);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { "", "app", "//evil.example.com", "/\\evil.example.com", "https://evil.example.com",
-            "/app\\..", "/app\r\nSet-Cookie: x", "/a b" })
+            "/app\\..", "/app\r\nSet-Cookie: x", "/a b",
+            // pass the path pattern but cannot be sent as a redirect Location
+            "/scripts?q=100%", "/projects|x", "/a\"b", "/{x}", "/a<b>", "/a^b", "/a`b" })
     void invalidReturnPaths(String path) {
         assertFalse(AuthServiceV2Impl.isValidReturnPath(path), path);
     }
