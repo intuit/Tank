@@ -55,6 +55,12 @@ public class LoginFilter extends HttpFilter {
 				InvalidateAndRedirect(request, response);
 				return;
 			}
+			// an SSO login started from the REST API returns to the page that started it
+			String returnPath = _tankSsoHandler.consumeReturnPath(request.getSession(false));
+			if (returnPath != null) {
+				response.sendRedirect(request.getContextPath() + returnPath);
+				return;
+			}
 			OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null) {
 				String REDIRECT_URL_VALUE = oidcSsoConfig.getRedirectUrl();

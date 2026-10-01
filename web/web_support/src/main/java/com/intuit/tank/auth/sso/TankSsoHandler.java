@@ -48,6 +48,7 @@ public class TankSsoHandler {
 
     static final String STATE_SESSION_ATTRIBUTE = TankSsoHandler.class.getName() + ".state";
     static final String NONCE_SESSION_ATTRIBUTE = TankSsoHandler.class.getName() + ".nonce";
+    static final String RETURN_PATH_SESSION_ATTRIBUTE = TankSsoHandler.class.getName() + ".returnPath";
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
@@ -115,6 +116,32 @@ public class TankSsoHandler {
         }
 
         _tankSecurityContext.ssoSecurityContext(user);
+    }
+
+    /**
+     * Remembers where to send the browser once the SSO login started for this session completes.
+     *
+     * @param returnPath an already validated path within this application, or null to use the configured
+     *                   redirect URL
+     */
+    public void setReturnPath(HttpSession session, String returnPath) {
+        if (returnPath == null) {
+            session.removeAttribute(RETURN_PATH_SESSION_ATTRIBUTE);
+        } else {
+            session.setAttribute(RETURN_PATH_SESSION_ATTRIBUTE, returnPath);
+        }
+    }
+
+    /**
+     * @return the return path set for this session's SSO login, or null; it is single use
+     */
+    public String consumeReturnPath(HttpSession session) {
+        if (session == null) {
+            return null;
+        }
+        Object returnPath = session.getAttribute(RETURN_PATH_SESSION_ATTRIBUTE);
+        session.removeAttribute(RETURN_PATH_SESSION_ATTRIBUTE);
+        return returnPath instanceof String ? (String) returnPath : null;
     }
 
     /*

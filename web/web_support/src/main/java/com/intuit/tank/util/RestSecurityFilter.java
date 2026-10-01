@@ -24,6 +24,7 @@ import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
 import com.intuit.tank.rest.mvc.rest.security.AuthenticatedRequest;
 import com.intuit.tank.rest.mvc.rest.security.CsrfTokens;
+import com.intuit.tank.rest.mvc.rest.security.PublicEndpoints;
 import com.intuit.tank.rest.mvc.rest.security.TankPrincipal;
 import jakarta.inject.Inject;
 import jakarta.servlet.FilterChain;
@@ -47,8 +48,9 @@ import com.intuit.tank.vm.settings.TankConfig;
  * <p>Callers are identified, in order, by the agent token or a user API token in the
  * {@code Authorization: Bearer} header, or by an existing web UI session. When
  * {@code rest-security-enabled} is true, requests with no identity are rejected with 401; when false
- * they continue anonymously as before. Session-authenticated state-changing requests must carry the
- * CSRF token (see {@link CsrfTokens}).</p>
+ * they continue anonymously as before. The login endpoints listed in {@link PublicEndpoints} are always
+ * reachable without credentials. Session-authenticated state-changing requests must carry the
+ * CSRF token (see {@link CsrfTokens}), except on those login endpoints.</p>
  */
 @WebFilter(urlPatterns = "/v2/*", asyncSupported = true)
 public class RestSecurityFilter extends HttpFilter {
@@ -76,8 +78,9 @@ public class RestSecurityFilter extends HttpFilter {
             return;
         }
 
+        boolean publicEndpoint = PublicEndpoints.isPublic(request);
         if (principal == null) {
-            if (tankConfig.isRestSecurityEnabled()) {
+            if (tankConfig.isRestSecurityEnabled() && !publicEndpoint) {
                 sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 return;
             }
@@ -88,7 +91,10 @@ public class RestSecurityFilter extends HttpFilter {
         if (principal.getAuthMethod() == TankPrincipal.AuthMethod.SESSION) {
             HttpSession session = request.getSession(false);
             if (session != null) {
-                if (!CsrfTokens.isSafeMethod(request.getMethod()) && !CsrfTokens.isValid(request, session)) {
+                // login is exempt: it is unauthenticated by design and only accepts a JSON body,
+                // which a cross-site form cannot send
+                if (!publicEndpoint && !CsrfTokens.isSafeMethod(request.getMethod())
+                        && !CsrfTokens.isValid(request, session)) {
                     LOG.warn("Rejected {} {} from {}: missing or invalid CSRF token",
                             request.getMethod(), request.getRequestURI(), principal.getName());
                     sendError(response, HttpServletResponse.SC_FORBIDDEN, "Missing or invalid CSRF token");
