@@ -113,7 +113,7 @@ public final class ProjectValidator {
     }
 
     /** The validator's messages are written for the HTML job details. */
-    static String plainText(String html) {
+    public static String plainText(String html) {
         return html.replace("<br/>", " ").replace("&nbsp;", "").replaceAll("\\s+", " ").trim();
     }
 

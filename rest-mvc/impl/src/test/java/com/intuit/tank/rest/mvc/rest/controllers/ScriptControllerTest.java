@@ -47,6 +47,9 @@ public class ScriptControllerTest {
     private ScriptServiceV2 scriptService;
 
     @Mock
+    private com.intuit.tank.rest.mvc.rest.services.scripts.ScriptDraftServiceV2 scriptDraftService;
+
+    @Mock
     HttpServletRequest request;
 
     @BeforeEach
@@ -120,27 +123,27 @@ public class ScriptControllerTest {
         Map<String, String> payload = new HashMap<>();
         payload.put("scriptId", "7");
         payload.put("message", "Script with new script ID 7 has been uploaded");
-        when(scriptService.createScript("testName", 0, "true", null, null, "gzip", mockMultipartFile)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.createScript("gzip", "testName", 0, "true", null, null, mockMultipartFile);
+        when(scriptService.createScript("testName", 0, "true", null, null, "gzip", mockMultipartFile, null, null)).thenReturn(payload);
+        ResponseEntity<Map<String, String>> result = scriptController.createScript("gzip", "testName", 0, "true", null, null, mockMultipartFile, null, null);
         Map<String, String> response = result.getBody();
         assertEquals("7", response.get("scriptId"));
         assertTrue(response.get("message").contains("uploaded"));
         assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).createScript("testName", 0, "true", null, null, "gzip", mockMultipartFile);
+        verify(scriptService).createScript("testName", 0, "true", null, null, "gzip", mockMultipartFile, null, null);
 
-        when(scriptService.createScript("testName", 0, "true", null, null, null, mockMultipartFile)).thenReturn(payload);
-        result = scriptController.createScript(null, "testName", 0, "true", null, null, mockMultipartFile);
+        when(scriptService.createScript("testName", 0, "true", null, null, null, mockMultipartFile, null, null)).thenReturn(payload);
+        result = scriptController.createScript(null, "testName", 0, "true", null, null, mockMultipartFile, null, null);
         response = result.getBody();
         assertEquals("7", response.get("scriptId"));
         assertTrue(response.get("message").contains("uploaded"));
         assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).createScript("testName", 0, "true", null, null, null, mockMultipartFile);
+        verify(scriptService).createScript("testName", 0, "true", null, null, null, mockMultipartFile, null, null);
 
         // File Not Found
-        when(scriptService.createScript("testName", 0, "true", null, null, null, mockMultipartFile))
+        when(scriptService.createScript("testName", 0, "true", null, null, null, mockMultipartFile, null, null))
                 .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
         Exception exception = assertThrows(IOException.class, () -> {
-            scriptController.createScript(null, "testName", 0, "true", null, null, mockMultipartFile);
+            scriptController.createScript(null, "testName", 0, "true", null, null, mockMultipartFile, null, null);
         });
         assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
     }
@@ -152,25 +155,25 @@ public class ScriptControllerTest {
 
         Map<String, String> payload = new HashMap<>();
         payload.put("message", "Script with script ID 7 updated successfully");
-        when(scriptService.createScript("testName", 0, null, null, null, "gzip", mockMultipartFile)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.createScript("gzip", "testName", 0, null, null, null, mockMultipartFile);
+        when(scriptService.createScript("testName", 0, null, null, null, "gzip", mockMultipartFile, null, null)).thenReturn(payload);
+        ResponseEntity<Map<String, String>> result = scriptController.createScript("gzip", "testName", 0, null, null, null, mockMultipartFile, null, null);
         Map<String, String> response = result.getBody();
         assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
         assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).createScript("testName", 0, null, null, null, "gzip", mockMultipartFile);
+        verify(scriptService).createScript("testName", 0, null, null, null, "gzip", mockMultipartFile, null, null);
 
-        when(scriptService.createScript("testName", 0, null, null, null, null, mockMultipartFile)).thenReturn(payload);
-        result = scriptController.createScript(null, "testName", 0, null, null, null, mockMultipartFile);
+        when(scriptService.createScript("testName", 0, null, null, null, null, mockMultipartFile, null, null)).thenReturn(payload);
+        result = scriptController.createScript(null, "testName", 0, null, null, null, mockMultipartFile, null, null);
         response = result.getBody();
         assertTrue(response.get("message").contains("Script with script ID 7 updated successfully"));
         assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).createScript("testName", 0, null, null, null, null, mockMultipartFile);
+        verify(scriptService).createScript("testName", 0, null, null, null, null, mockMultipartFile, null, null);
 
         // File Not Found
-        when(scriptService.createScript("testName", 0, null, null, null, null, mockMultipartFile))
+        when(scriptService.createScript("testName", 0, null, null, null, null, mockMultipartFile, null, null))
                 .thenThrow(new IOException("Error updating script file: script.xml (No such file or directory)"));
         Exception exception = assertThrows(IOException.class, () -> {
-            scriptController.createScript(null, "testName", 0, null, null, null, mockMultipartFile);
+            scriptController.createScript(null, "testName", 0, null, null, null, mockMultipartFile, null, null);
         });
         assertEquals("Error updating script file: script.xml (No such file or directory)", exception.getMessage());
 
@@ -178,10 +181,10 @@ public class ScriptControllerTest {
         when(notFoundMultipartFile.getOriginalFilename()).thenReturn("testNonexistentScript.xml");
 
 //        // Script does not exist
-        when(scriptService.createScript("testName", 0, null, null, null, null, notFoundMultipartFile))
+        when(scriptService.createScript("testName", 0, null, null, null, null, notFoundMultipartFile, null, null))
                 .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot update a script that does not exist (script id 99)"));
         exception = assertThrows(GenericServiceBadRequestException.class, () -> {
-            scriptController.createScript(null, "testName", 0, null, null, null, notFoundMultipartFile);
+            scriptController.createScript(null, "testName", 0, null, null, null, notFoundMultipartFile, null, null);
         });
         assertEquals("Cannot update a script that does not exist (script id 99)", exception.getMessage());
 
@@ -189,10 +192,10 @@ public class ScriptControllerTest {
         when(changeNameMultipartFile.getOriginalFilename()).thenReturn("testChangeNameScript.xml");
 
         // Can't change name of script
-        when(scriptService.createScript("testName", 0, null, null, null, null, changeNameMultipartFile))
+        when(scriptService.createScript("testName", 0, null, null, null, null, changeNameMultipartFile, null, null))
                 .thenThrow(new GenericServiceBadRequestException("scripts", "updating script", "Cannot change the name of the existing script testScript"));
         exception = assertThrows(GenericServiceBadRequestException.class, () -> {
-            scriptController.createScript(null, "testName", 0, null, null, null, changeNameMultipartFile);
+            scriptController.createScript(null, "testName", 0, null, null, null, changeNameMultipartFile, null, null);
         });
         assertEquals("Cannot change the name of the existing script testScript", exception.getMessage());
     }
@@ -201,24 +204,24 @@ public class ScriptControllerTest {
     public void testCreateScriptCopyFrom() throws IOException {
         Map<String, String> payload = new HashMap<>();
         payload.put("message", "Script copyScript with script ID 7 created successfully (copied from script ID 6 - Original Script");
-        when(scriptService.createScript("testName", 0, null, null, null, null, null)).thenReturn(payload);
-        ResponseEntity<Map<String, String>> result = scriptController.createScript(null, "testName", 0, null, null, null, null);
+        when(scriptService.createScript("testName", 0, null, null, null, null, null, null, null)).thenReturn(payload);
+        ResponseEntity<Map<String, String>> result = scriptController.createScript(null, "testName", 0, null, null, null, null, null, null);
         Map<String, String> response = result.getBody();
         assertTrue(response.get("message").contains("Script copyScript with script ID 7 created successfully (copied from script ID 6 - Original Script"));
         assertEquals(201, result.getStatusCode().value());
-        verify(scriptService).createScript("testName", 0, null, null, null, null, null);
+        verify(scriptService).createScript("testName", 0, null, null, null, null, null, null, null);
 
         // No Script Name
-        when(scriptService.createScript("testName", 0, null, null, null, null, null)).thenThrow(new IllegalArgumentException("Must provide a script name to copy from existing script"));
+        when(scriptService.createScript("testName", 0, null, null, null, null, null, null, null)).thenThrow(new IllegalArgumentException("Must provide a script name to copy from existing script"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            scriptController.createScript(null, "testName", 0, null, null, null, null);
+            scriptController.createScript(null, "testName", 0, null, null, null, null, null, null);
         });
         assertEquals("Must provide a script name to copy from existing script", exception.getMessage());
 
         // No Source ID
-        when(scriptService.createScript("testName2", 0, null, null, null, null, null)).thenThrow(new IllegalArgumentException("Source script cannot be found"));
+        when(scriptService.createScript("testName2", 0, null, null, null, null, null, null, null)).thenThrow(new IllegalArgumentException("Source script cannot be found"));
         exception = assertThrows(IllegalArgumentException.class, () -> {
-            scriptController.createScript(null, "testName2", 0, null, null, null, null);
+            scriptController.createScript(null, "testName2", 0, null, null, null, null, null, null);
         });
         assertEquals("Source script cannot be found", exception.getMessage());
     }
@@ -366,5 +369,57 @@ public class ScriptControllerTest {
         ResponseEntity<String> error = scriptController.deleteExternalScript(2);
         assertTrue(error.getBody().contains("not exist"));
         assertEquals(404, error.getStatusCode().value());
+    }
+
+    @Test
+    public void testEditorRoutes() {
+        com.intuit.tank.rest.mvc.rest.models.PageResponse<com.intuit.tank.rest.mvc.rest.models.ScriptSummary> page =
+                new com.intuit.tank.rest.mvc.rest.models.PageResponse<>(java.util.List.of(), 0, 0, 25);
+        when(scriptService.listScripts(0, 25, null, null, "q")).thenReturn(page);
+        assertSame(page, scriptController.listScripts(0, 25, null, null, "q").getBody());
+
+        com.intuit.tank.rest.mvc.rest.models.ScriptDocument doc = new com.intuit.tank.rest.mvc.rest.models.ScriptDocument(
+                1, "s", null, null, "alice", null, null, java.util.List.of(), null);
+        when(scriptService.getScriptDocument(1)).thenReturn(doc);
+        when(scriptService.updateScriptDocument(1, doc)).thenReturn(doc);
+        assertSame(doc, scriptController.getScriptDocument(1).getBody());
+        assertSame(doc, scriptController.updateScriptDocument(1, doc).getBody());
+
+        com.intuit.tank.rest.mvc.rest.models.CopyRequest copyRequest = new com.intuit.tank.rest.mvc.rest.models.CopyRequest("c");
+        when(scriptService.copyScript(1, copyRequest)).thenReturn(new com.intuit.tank.rest.mvc.rest.models.ScriptSummary(
+                9, "c", null, null, "alice", null, null, 0));
+        ResponseEntity<com.intuit.tank.rest.mvc.rest.models.ScriptSummary> copied = scriptController.copyScript(1, copyRequest);
+        assertEquals(201, copied.getStatusCode().value());
+        assertTrue(copied.getHeaders().getLocation().toString().endsWith("/v2/scripts/9/steps"));
+
+        when(scriptService.getStepResponse(1, "u1")).thenReturn("<html/>");
+        assertEquals("<html/>", scriptController.getStepResponse(1, "u1").getBody());
+    }
+
+    @Test
+    public void testDraftRoutes() {
+        var search = new com.intuit.tank.rest.mvc.rest.models.StepSearchRequest(java.util.List.of(), "q", java.util.List.of("host"));
+        var matches = java.util.List.of(new com.intuit.tank.rest.mvc.rest.models.StepMatch("u", 0, "host", null, "h"));
+        when(scriptDraftService.search(search)).thenReturn(matches);
+        assertSame(matches, scriptController.searchSteps(search).getBody());
+
+        var draft = new com.intuit.tank.rest.mvc.rest.models.DraftSteps(java.util.List.of(), 0);
+        var replace = new com.intuit.tank.rest.mvc.rest.models.StepReplaceRequest(java.util.List.of(), "q", java.util.List.of("host"), "r", null, null);
+        when(scriptDraftService.replace(replace)).thenReturn(draft);
+        assertSame(draft, scriptController.replaceInSteps(replace).getBody());
+        var filters = new com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest(java.util.List.of(), java.util.List.of(1));
+        when(scriptDraftService.applyFilters(filters)).thenReturn(draft);
+        assertSame(draft, scriptController.applyFiltersToSteps(filters).getBody());
+
+        var validate = new com.intuit.tank.rest.mvc.rest.models.ValidateStepsRequest("s", java.util.List.of());
+        var validation = new com.intuit.tank.rest.mvc.rest.models.ScriptValidation(0, java.util.List.of(), java.util.List.of(),
+                java.util.List.of(), java.util.List.of(), "");
+        when(scriptDraftService.validate(validate)).thenReturn(validation);
+        assertSame(validation, scriptController.validateSteps(validate).getBody());
+
+        var logic = new com.intuit.tank.rest.mvc.rest.models.LogicTestRequest(null, "log(1)", null, null, null, null, null);
+        var output = new com.intuit.tank.rest.mvc.rest.models.LogicTestResult("1", false, 2);
+        when(scriptDraftService.testLogic(logic)).thenReturn(output);
+        assertSame(output, scriptController.testLogicStep(logic).getBody());
     }
 }
