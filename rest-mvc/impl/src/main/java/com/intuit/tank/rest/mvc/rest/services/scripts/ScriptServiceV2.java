@@ -7,6 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.scripts;
 
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
+import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
@@ -20,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface ScriptServiceV2 {
@@ -201,4 +207,50 @@ public interface ScriptServiceV2 {
      * @return string confirmation of deletion
      */
     public String deleteExternalScript(Integer externalScriptId);
+
+    /**
+     * As {@link #createScript(String, Integer, String, String, Integer, String, MultipartFile)}; for a proxy
+     * recording upload, also sets the product and applies the given filters, in order, as the web UI's
+     * "create script" page does.
+     *
+     * @param productName the script's product, or null to leave it unset
+     * @param filterIds   script filters to apply to the recording, or null for none
+     */
+    Map<String, String> createScript(String name, Integer id, String recording, String copy, Integer sourceId,
+                                     String contentEncoding, MultipartFile file, String productName,
+                                     List<Integer> filterIds) throws IOException;
+
+    /**
+     * Lists scripts one page at a time, for the scripts table.
+     *
+     * @param sort  {@code id}, {@code name}, {@code productName}, {@code owner}, {@code created},
+     *              {@code modified} or {@code runtime}, optionally followed by {@code ,asc} or {@code ,desc};
+     *              default {@code modified,desc}
+     * @param owner only scripts owned by this user
+     * @param q     text that the name, product or comments must contain (case-insensitive)
+     */
+    PageResponse<ScriptSummary> listScripts(Integer page, Integer size, String sort, String owner, String q);
+
+    /**
+     * @return the script with every step, for the script editor
+     */
+    ScriptDocument getScriptDocument(Integer scriptId);
+
+    /**
+     * Replaces the script's header and steps. Needs {@code EDIT_SCRIPT} or ownership.
+     *
+     * @throws com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException when the
+     *         script was saved after {@code document.modified()}
+     */
+    ScriptDocument updateScriptDocument(Integer scriptId, ScriptDocument document);
+
+    /**
+     * Copies a script under a new name, owned by the caller. Needs {@code CREATE_SCRIPT}.
+     */
+    ScriptSummary copyScript(Integer scriptId, CopyRequest request);
+
+    /**
+     * @return the response recorded for a step, as stored
+     */
+    String getStepResponse(Integer scriptId, String stepUuid);
 }

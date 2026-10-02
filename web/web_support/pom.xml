@@ -184,9 +184,9 @@
     </dependency>
 
     <dependency>
+      <!-- compile scope: the logic step tester builds a sandboxed engine with the Nashorn API -->
       <groupId>org.openjdk.nashorn</groupId>
       <artifactId>nashorn-core</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
     <dependency>
