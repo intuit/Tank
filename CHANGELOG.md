@@ -1,3 +1,16 @@
+# 4.5.3 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add job queue, live job tree and job control REST endpoints (React migration phase 3) [#521](https://github.com/intuit/Tank/pull/521) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Fix SSO return path and callback handling, and build number overflow [#520](https://github.com/intuit/Tank/pull/520) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.2 (Fri Oct 02 2026)
 
 #### 🐛 Bug Fix
