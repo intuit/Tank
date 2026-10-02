@@ -1,3 +1,15 @@
+# 4.5.4 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add data file paging, batch upload, preview and bulk delete REST endpoints (React migration phase 4) [#522](https://github.com/intuit/Tank/pull/522) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.3 (Fri Oct 02 2026)
 
 #### 🐛 Bug Fix
