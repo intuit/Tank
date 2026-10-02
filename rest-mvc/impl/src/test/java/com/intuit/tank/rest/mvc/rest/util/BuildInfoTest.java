@@ -50,4 +50,13 @@ class BuildInfoTest {
         BuildInfo info = BuildInfo.read(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
         assertEquals(TankConstants.TANK_BUILD_VERSION + "-60", info.version());
     }
+
+    @Test
+    void recentBuildsDoNotOverflow() throws Exception {
+        // more than Integer.MAX_VALUE milliseconds after the base date
+        BuildInfo info = BuildInfo.fromManifest(manifest("2026-10-01T00:00:00Z"));
+        long expected = java.time.Duration.between(Instant.parse("2013-01-15T00:00:00Z"),
+                Instant.parse("2026-10-01T00:00:00Z")).toMinutes();
+        assertEquals(TankConstants.TANK_BUILD_VERSION + "-" + expected, info.version());
+    }
 }

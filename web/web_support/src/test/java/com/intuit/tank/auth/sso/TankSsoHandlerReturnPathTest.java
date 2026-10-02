@@ -7,7 +7,13 @@
  */
 package com.intuit.tank.auth.sso;
 
+import com.intuit.tank.vm.settings.OidcSsoConfig;
+import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -20,7 +26,24 @@ import static org.mockito.Mockito.*;
 
 class TankSsoHandlerReturnPathTest {
 
-    private final TankSsoHandler handler = new TankSsoHandler();
+    @InjectMocks
+    private TankSsoHandler handler;
+
+    @Mock
+    private TankConfig tankConfig;
+
+    @Mock
+    private OidcSsoConfig oidcSsoConfig;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        when(tankConfig.getOidcSsoConfig()).thenReturn(oidcSsoConfig);
+        when(oidcSsoConfig.getConfiguration()).thenReturn(mock(HierarchicalConfiguration.class));
+        when(oidcSsoConfig.getAuthorizationUrl()).thenReturn("https://idp.example.com/auth");
+        when(oidcSsoConfig.getClientId()).thenReturn("client-id");
+        when(oidcSsoConfig.getRedirectUrl()).thenReturn("https://tank.example.com/projects/");
+    }
 
     private static HttpSession fakeSession() {
         Map<String, Object> attributes = new HashMap<>();
@@ -50,5 +73,25 @@ class TankSsoHandlerReturnPathTest {
     @Test
     void noSession() {
         assertNull(handler.consumeReturnPath(null));
+    }
+
+    @Test
+    void newLogin_clearsReturnPathOfAbandonedLogin() {
+        HttpSession session = fakeSession();
+        handler.GetOnLoadAuthorizationRequest(session);
+        handler.setReturnPath(session, "/app/abandoned");
+
+        // the user later signs in from the JSF login page, which never sets a return path
+        handler.GetOnLoadAuthorizationRequest(session);
+
+        assertNull(handler.consumeReturnPath(session));
+    }
+
+    @Test
+    void returnPathSetAfterStartingSurvives() {
+        HttpSession session = fakeSession();
+        handler.GetOnLoadAuthorizationRequest(session);
+        handler.setReturnPath(session, "/app/jobs");
+        assertEquals("/app/jobs", handler.consumeReturnPath(session));
     }
 }

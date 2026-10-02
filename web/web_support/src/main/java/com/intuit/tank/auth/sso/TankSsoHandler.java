@@ -53,7 +53,8 @@ public class TankSsoHandler {
 
     /**
      * Builds the IdP authorization URL. A fresh random {@code state} (CSRF protection for the callback)
-     * and {@code nonce} (binds the ID token to this login) are stored in the session.
+     * and {@code nonce} (binds the ID token to this login) are stored in the session, and any return path
+     * left by an earlier, abandoned login is cleared.
      */
     public String GetOnLoadAuthorizationRequest(HttpSession session) {
         OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
@@ -66,6 +67,8 @@ public class TankSsoHandler {
         String nonce = randomValue();
         session.setAttribute(STATE_SESSION_ATTRIBUTE, state);
         session.setAttribute(NONCE_SESSION_ATTRIBUTE, nonce);
+        // a return path belongs to one login; a new login, from either UI, starts without one
+        session.removeAttribute(RETURN_PATH_SESSION_ATTRIBUTE);
 
         URI uri = UriComponentsBuilder
                 .fromHttpUrl(oidcSsoConfig.getAuthorizationUrl())
