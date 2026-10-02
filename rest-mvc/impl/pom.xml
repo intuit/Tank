@@ -47,6 +47,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!-- zip archives of data files and scripts -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <dependency>
             <!-- TPS series for the job tree charts -->
             <groupId>${project.groupId}</groupId>
             <artifactId>reporting-api</artifactId>

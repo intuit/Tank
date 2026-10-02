@@ -7,6 +7,12 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.datafiles;
 
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult;
+import com.intuit.tank.rest.mvc.rest.models.DataFilePreview;
+import com.intuit.tank.rest.mvc.rest.models.DataFileSummary;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
@@ -17,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public interface DataFileServiceV2 {
@@ -117,4 +124,46 @@ public interface DataFileServiceV2 {
      */
     public String deleteDatafile(Integer datafileId);
 
+
+    /**
+     * Lines of a data file, read as {@code /content} reads them, with the file's total line count.
+     */
+    record ContentPage(String text, int totalLines) {
+    }
+
+    /**
+     * Reads a data file as {@link #getDatafileContent} does: {@code numLines} limits CSV files only.
+     *
+     * @return null when there is no such data file
+     */
+    ContentPage readDatafileContent(Integer datafileId, Integer offset, Integer numLines);
+
+    /**
+     * Lists data files one page at a time, for the data files table.
+     *
+     * @param sort  {@code id}, {@code name}, {@code owner}, {@code created} or {@code modified}, optionally
+     *              followed by {@code ,asc} or {@code ,desc}; default {@code modified,desc}
+     * @param owner only data files owned by this user
+     * @param q     text that the name or comments must contain (case-insensitive)
+     */
+    PageResponse<DataFileSummary> listDatafiles(Integer page, Integer size, String sort, String owner, String q);
+
+    /**
+     * Creates a data file from each uploaded {@code .csv}, {@code .txt} or {@code .xml} file and from each
+     * such entry of uploaded {@code .zip} archives. Needs {@code CREATE_DATAFILE}.
+     */
+    DataFileBatchResult uploadDatafiles(List<MultipartFile> files);
+
+    /**
+     * A page of any data file's lines, with its total line count.
+     *
+     * @param lines at most {@value DataFileServiceV2Impl#MAX_PREVIEW_LINES}; default
+     *              {@value DataFileServiceV2Impl#DEFAULT_PREVIEW_LINES}
+     */
+    DataFilePreview previewDatafile(Integer datafileId, Integer offset, Integer lines);
+
+    /**
+     * Deletes several data files. Nothing is deleted unless the caller may delete all of the existing ones.
+     */
+    BulkDeleteResult deleteDatafiles(List<Integer> datafileIds);
 }
