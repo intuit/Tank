@@ -33,7 +33,6 @@ import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.JobContainer;
 import com.intuit.tank.jobs.models.JobTO;
@@ -41,14 +40,13 @@ import com.intuit.tank.jobs.models.CreateJobRequest;
 import com.intuit.tank.jobs.models.CreateJobRegion;
 import com.intuit.tank.rest.mvc.rest.util.*;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.JobQueueEventSender;
+import com.intuit.tank.rest.mvc.rest.util.JobInstanceFactory;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
-import com.intuit.tank.util.TestParamUtil;
-import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
-import com.intuit.tank.vm.common.util.ReportUtil;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -154,6 +152,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 buildJobConfiguration(request, project);
                 project = projectDao.saveOrUpdateProject(project);
                 JobInstance job = addJobToQueue(project, request);
+                sendQueuedEvent(job);
                 response.put("JobId", Integer.toString(job.getId()));
                 response.put("status", "created");
             }
@@ -332,7 +331,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     public static void buildJobConfiguration(@Nonnull CreateJobRequest request, Project project) {
         JobConfiguration jobConfiguration = (project != null && project.getWorkloads() != null && !project.getWorkloads().isEmpty())
-                ? project.getWorkloads().get(0).getJobConfiguration()
+                ? project.getWorkloads().getFirst().getJobConfiguration()
                 : null;
 
         if(jobConfiguration == null){
@@ -393,55 +392,28 @@ public class JobServiceV2Impl implements JobServiceV2 {
         }
     }
 
+    /**
+     * The job is already queued, so a failure to announce it is logged rather than reported to the caller.
+     */
+    private void sendQueuedEvent(JobInstance job) {
+        try {
+            new ServletInjector<JobQueueEventSender>().getManagedBean(servletContext, JobQueueEventSender.class)
+                    .jobQueued(job.getId());
+        } catch (RuntimeException e) {
+            LOGGER.warn("Job {} was queued but the queue event could not be sent: {}", job.getId(), e.toString());
+        }
+    }
+
     public static JobInstance addJobToQueue(Project project, CreateJobRequest request) {
-        JobQueueDao jobQueueDao = new JobQueueDao();
-        DataFileDao dataFileDao = new DataFileDao();
-        JobNotificationDao jobNotificationDao = new JobNotificationDao();
-        JobInstanceDao jobInstanceDao = new JobInstanceDao();
-
-        Workload workload = project.getWorkloads().get(0);
-        JobConfiguration jc = workload.getJobConfiguration();
-        JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
-        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
-        jobInstance.setScheduledTime(new Date());
-        jobInstance.setLocation(jc.getLocation());
-        jobInstance.setLoggingProfile(jc.getLoggingProfile());
-        jobInstance.setStopBehavior(jc.getStopBehavior());
-        jobInstance.setVmInstanceType(jc.getVmInstanceType());
-        jobInstance.setNumUsersPerAgent(jc.getNumUsersPerAgent());
-        jobInstance.setReportingMode(jc.getReportingMode());
-        jobInstance.getVariables().putAll(jc.getVariables());
-        // set version info
-        jobInstance.getDataFileVersions()
-                .addAll(getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
-
-        jobInstance.getNotificationVersions()
-                .addAll(getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
-        JobValidator validator = new JobValidator(workload.getTestPlans(), jobInstance.getVariables(), false);
-        long maxDuration = 0;
-        for (TestPlan plan : workload.getTestPlans()) {
-            maxDuration = Math.max(validator.getDurationMs(plan.getName()), maxDuration);
-        }
-        TestParameterContainer times = TestParamUtil.evaluateTestTimes(maxDuration, jc.getRampTimeExpression(),
-                jc.getSimulationTimeExpression());
-        jobInstance.setExecutionTime(maxDuration);
-        jobInstance.setRampTime(times.getRampTime());
-        jobInstance.setSimulationTime(times.getSimulationTime());
-        int totalVirtualUsers = 0;
-        for (JobRegion region : jc.getJobRegions()) {
-            totalVirtualUsers += TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
-                    times.getSimulationTime(), times.getRampTime());
-            jobInstance.getJobRegionVersions().add(new EntityVersion(region.getId(), 0, JobRegion.class));
-        }
-        jobInstance.setTotalVirtualUsers(totalVirtualUsers);
-        queue.addJob(jobInstance);
-        String jobDetails = JobDetailFormatter.createJobDetails(validator, workload, jobInstance);
-        jobInstance.setJobDetails(jobDetails);
+        Workload workload = project.getWorkloads().getFirst();
+        String projectName = request.getProjectName() != null ? request.getProjectName() : project.getName();
+        JobInstanceFactory.Proposal proposal = JobInstanceFactory.propose(workload, projectName,
+                StringUtils.trimToNull(request.getJobInstanceName()), RestAuthorization.currentUserName());
+        JobInstance jobInstance = proposal.job();
+        jobInstance.setJobDetails(JobDetailFormatter.createJobDetails(proposal.validator(), workload, jobInstance));
         clearLoadedScriptSteps(workload);
-        workload = new WorkloadDao().saveOrUpdate(workload);
-        jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
-        jobQueueDao.saveOrUpdate(queue);
-        return jobInstance;
+        new WorkloadDao().saveOrUpdate(workload);
+        return JobInstanceFactory.queue(project.getId(), workload, jobInstance).job();
     }
 
     private static void clearLoadedScriptSteps(Workload workload) {
@@ -453,34 +425,6 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 .forEach(script -> script.getScriptSteps().clear());
     }
 
-    private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
-        String projectName = request.getProjectName() == null ? project.getName() : request.getProjectName();
-        String jobType = "_nonlinear_";
-        if(request.getWorkloadType().equals(IncrementStrategy.increasing)) {
-            jobType = "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"; // set to total users for linear
-        }
-        return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
-                : projectName + jobType + ReportUtil.getTimestamp(new Date());
-    }
 
-    private static Set<EntityVersion> getVersions(BaseDao dao, Collection<Integer> dataFileIds,
-                                                  Class<? extends BaseEntity> entityClass) {
-        HashSet<EntityVersion> result = new HashSet<>();
-        for (Integer id : dataFileIds) {
-            int versionId = dao.getHeadRevisionNumber(id);
-            result.add(new EntityVersion(id, versionId, entityClass));
-        }
-        return result;
-    }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Set<EntityVersion> getVersions(BaseDao dao, Set<? extends BaseEntity> entities) {
-        HashSet<Integer> ids = new HashSet<>();
-        Class entityClass = null;
-        for (BaseEntity entity : entities) {
-            ids.add(entity.getId());
-            entityClass = entity.getClass();
-        }
-        return getVersions(dao, ids, entityClass);
-    }
 }

@@ -10,6 +10,11 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.CreateJobRequest;
 import com.intuit.tank.jobs.models.JobContainer;
+import com.intuit.tank.rest.mvc.rest.models.JobActionResult;
+import com.intuit.tank.rest.mvc.rest.models.JobDetails;
+import com.intuit.tank.rest.mvc.rest.models.JobTree;
+import com.intuit.tank.rest.mvc.rest.models.Timeseries;
+import com.intuit.tank.rest.mvc.rest.services.jobs.JobQueueServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.jobs.JobServiceV2;
 import com.intuit.tank.jobs.models.JobTO;
 
@@ -40,6 +45,9 @@ public class JobController {
 
     @Resource
     private JobServiceV2 jobService;
+
+    @Resource
+    private JobQueueServiceV2 jobQueueService;
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Pings job service", summary = "Check if job service is up")
@@ -177,7 +185,7 @@ public class JobController {
     // Job Status Setters
 
     @RequestMapping(value = "/start/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
-    @Operation(description = "Starts a specific job by job id", summary = "Start a specific job")
+    @Operation(deprecated = true, description = "Deprecated: use POST /v2/jobs/{jobId}/<action>. Starts a specific job by job id", summary = "Start a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully started job"),
             @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
@@ -188,7 +196,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/stop/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
-    @Operation(description = "Stops a specific job by job id", summary = "Stop a specific job")
+    @Operation(deprecated = true, description = "Deprecated: use POST /v2/jobs/{jobId}/<action>. Stops a specific job by job id", summary = "Stop a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully stopped job"),
             @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
@@ -199,7 +207,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/pause/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
-    @Operation(description = "Pauses a specific job by job id", summary = "Pause a job")
+    @Operation(deprecated = true, description = "Deprecated: use POST /v2/jobs/{jobId}/<action>. Pauses a specific job by job id", summary = "Pause a job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully paused job"),
             @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
@@ -210,7 +218,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/resume/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
-    @Operation(description = "Resumes a specific job by job id", summary = "Resume a paused job")
+    @Operation(deprecated = true, description = "Deprecated: use POST /v2/jobs/{jobId}/<action>. Resumes a specific job by job id", summary = "Resume a paused job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully resumed job"),
             @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
@@ -221,7 +229,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/kill/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
-    @Operation(description = "Terminates a specific job by job id", summary = "Terminate a specific job")
+    @Operation(deprecated = true, description = "Deprecated: use POST /v2/jobs/{jobId}/<action>. Terminates a specific job by job id", summary = "Terminate a specific job")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully terminated job"),
             @ApiResponse(responseCode = "400", description = "Could not update job status due to invalid jobId", content = @Content)
@@ -229,5 +237,101 @@ public class JobController {
     public ResponseEntity<String> killJob(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {
         String status = jobService.killJob(jobId);
         return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    // Job queue pages
+
+    @RequestMapping(value = "/tree", method = RequestMethod.GET)
+    @Operation(description = "Recent and running jobs grouped by project, with each agent's live status and the actions "
+            + "the caller may take. Live figures come from the controller serving the request. Poll every 10 seconds or more",
+            summary = "Get the live job tree")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the tree")
+    })
+    public ResponseEntity<JobTree> getJobTree(
+            @RequestParam(required = false) @Parameter(description = "Only this project's jobs; default every project with activity in the last week") Integer projectId,
+            @RequestParam(defaultValue = "false") @Parameter(description = "Include jobs that have ended") boolean includeFinished) {
+        return ResponseEntity.ok(jobQueueService.getJobTree(projectId, includeFinished));
+    }
+
+    @RequestMapping(value = "/{jobId}/{action}", method = RequestMethod.POST)
+    @Operation(description = "Sends an action to a job: start, start-load (two-step jobs), pause, resume, pause-ramp, "
+            + "resume-ramp, stop or kill. Actions are asynchronous", summary = "Control a job")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Action sent; returns the job's status"),
+            @ApiResponse(responseCode = "400", description = "Unknown action", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to control the job", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content),
+            @ApiResponse(responseCode = "409", description = "The job's status does not allow the action", content = @Content)
+    })
+    public ResponseEntity<JobActionResult> controlJob(
+            @PathVariable @Parameter(description = "The job ID", required = true) Integer jobId,
+            @PathVariable @Parameter(description = "The action", required = true) String action) {
+        return ResponseEntity.ok(jobQueueService.controlJob(jobId, action));
+    }
+
+    @RequestMapping(value = "/instances/{instanceId}/{action}", method = RequestMethod.POST)
+    @Operation(description = "Sends an action to one agent of a job: pause, resume, pause-ramp, resume-ramp, stop or kill",
+            summary = "Control an agent")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Action sent; returns the agent's status"),
+            @ApiResponse(responseCode = "400", description = "Unknown action, or one for whole jobs only", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to control the job", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No agent with that instance ID reports to this controller", content = @Content),
+            @ApiResponse(responseCode = "409", description = "The agent's status does not allow the action", content = @Content)
+    })
+    public ResponseEntity<JobActionResult> controlAgent(
+            @PathVariable @Parameter(description = "The agent's instance ID", required = true) String instanceId,
+            @PathVariable @Parameter(description = "The action", required = true) String action) {
+        return ResponseEntity.ok(jobQueueService.controlAgent(instanceId, action));
+    }
+
+    @RequestMapping(value = "/{jobId}", method = RequestMethod.DELETE)
+    @Operation(description = "Deletes a job that has not started", summary = "Delete a job")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Deleted", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to control the job", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content),
+            @ApiResponse(responseCode = "409", description = "The job has already started", content = @Content)
+    })
+    public ResponseEntity<Void> deleteJob(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
+        jobQueueService.deleteJob(jobId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/{jobId}/details", method = RequestMethod.GET)
+    @Operation(description = "The job details recorded when it was queued, with live user and failure totals",
+            summary = "Get job details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the details"),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content)
+    })
+    public ResponseEntity<JobDetails> getJobDetails(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
+        return ResponseEntity.ok(jobQueueService.getJobDetails(jobId));
+    }
+
+    @RequestMapping(value = "/{jobId}/users-timeseries", method = RequestMethod.GET)
+    @Operation(description = "Users per script over time, as the job's agents reported them to this controller",
+            summary = "Get the users chart data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the series"),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content)
+    })
+    public ResponseEntity<Timeseries> getUserSeries(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
+        return ResponseEntity.ok(jobQueueService.getUserSeries(jobId));
+    }
+
+    @RequestMapping(value = "/{jobId}/tps-timeseries", method = RequestMethod.GET)
+    @Operation(description = "Transactions per second per request over time, with a Total TPS series first",
+            summary = "Get the TPS chart data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the series"),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content)
+    })
+    public ResponseEntity<Timeseries> getTpsSeries(
+            @PathVariable @Parameter(description = "The job ID", required = true) Integer jobId,
+            @RequestParam(required = false) @Parameter(description = "Only this agent") String instanceId,
+            @RequestParam(required = false) @Parameter(description = "Only samples after this time (epoch milliseconds)") Long since) {
+        return ResponseEntity.ok(jobQueueService.getTpsSeries(jobId, instanceId, since));
     }
 }

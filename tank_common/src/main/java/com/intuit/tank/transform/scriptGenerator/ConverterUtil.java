@@ -624,7 +624,9 @@ public class ConverterUtil {
     }
 
     public static boolean includedHeader(String header) {
-
+        if (header == null) {
+            return false; // a header without a name cannot be sent
+        }
         return (header.startsWith(HttpHeaders.ACCEPT) ||
                 (!header.equalsIgnoreCase(HttpHeaders.HOST)
                         && !header.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)
