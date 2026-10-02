@@ -15,7 +15,6 @@ package com.intuit.tank;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.intuit.tank.project.*;
 import jakarta.enterprise.context.ConversationScoped;
@@ -33,7 +32,7 @@ import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.dao.WorkloadDao;
+import com.intuit.tank.rest.mvc.rest.util.ProjectCopier;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.ExceptionHandler;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
@@ -266,12 +265,14 @@ public class ProjectBean implements Serializable {
             if (originalName.equals(saveAsName)) {
                 save();
             } else {
-                Project copied = copyProject();
-                copied.getWorkloads().get(0).getJobConfiguration().setVariables(new HashMap<String,String>());
-                copied = new ProjectDao().saveOrUpdateProject(copied);
-                save(); // FIXME Hack for original project losing data. Do not know why this works
-                projectVariableEditor.copyTo(copied.getWorkloads().get(0));
-                new WorkloadDao().saveOrUpdate(copied.getWorkloads().get(0));
+                String owner = securityContext.getCallerPrincipal().getName();
+                // save pending edits first, so the copy includes them
+                if (!doSave()) {
+                    return;
+                }
+                ProjectDao projectDao = new ProjectDao();
+                Project copied = ProjectCopier.copy(projectDao.findByIdEager(project.getId()), saveAsName, owner);
+                copied = projectDao.saveOrUpdateProject(copied);
                 doOpenProject(copied);
                 projectEvent.fire(new ModifiedProjectMessage(project, this));
                 messages.info("Project " + originalName + " has been saved as " + project.getName() + ".");
@@ -280,65 +281,6 @@ public class ProjectBean implements Serializable {
         	LOG.error(e.getMessage());
             messages.error(e.getMessage());
         }
-    }
-
-    /**
-     * @return
-     */
-    private Project copyProject() {
-        Project ret = new Project();
-        Workload workload = new Workload();
-        workload.setParent(ret);
-        workload.setName(saveAsName);
-        ret.setWorkloads(List.of(workload));
-        ret.setComments(project.getComments());
-        ret.setCreator(securityContext.getCallerPrincipal().getName());
-        ret.setName(saveAsName);
-        ret.setProductName(project.getProductName());
-        ret.setScriptDriver(project.getScriptDriver());
-
-        JobConfiguration originalJobConfig = project.getWorkloads().get(0).getJobConfiguration();
-        JobConfiguration newJobConfig = copyJobConfiguration(originalJobConfig, workload);
-        workload.setJobConfiguration(newJobConfig);
-
-        usersAndTimes.copyTo(workload);
-        workloadScripts.copyTo(workload);
-        notificationsEditor.copyTo(workload);
-        return ret;
-    }
-
-    private JobConfiguration copyJobConfiguration(JobConfiguration original, Workload newParent) {
-        JobConfiguration copy = new JobConfiguration();
-        copy.setBaselineVirtualUsers(original.getBaselineVirtualUsers());
-        copy.setTargetRampRate(original.getTargetRampRate());
-        copy.setDataFileIds(Set.copyOf(original.getDataFileIds()));
-        copy.setIncrementStrategy(original.getIncrementStrategy());
-        copy.setLocation(original.getLocation());
-        copy.setReportingMode(original.getReportingMode());
-        copy.setSimulationTime(original.getSimulationTime());
-        copy.setSimulationTimeExpression(original.getSimulationTimeExpression());
-        copy.setRampTime(original.getRampTime());
-        copy.setRampTimeExpression(original.getRampTimeExpression());
-        copy.setTerminationPolicy(original.getTerminationPolicy());
-        copy.setUserIntervalIncrement(original.getUserIntervalIncrement());
-        copy.setNumUsersPerAgent(original.getNumUsersPerAgent());
-        copy.setTargetRatePerAgent(original.getTargetRatePerAgent());
-        copy.setStopBehavior(original.getStopBehavior());
-        copy.setVmInstanceType(original.getVmInstanceType());
-        copy.setVariables(Map.copyOf(original.getVariables()));
-        copy.setJobRegions(original.getJobRegions().stream()
-                .map(this::copyRegion)
-                .collect(Collectors.toSet()));
-        copy.setParent(newParent);
-        return copy;
-    }
-
-    private JobRegion copyRegion(JobRegion original) {
-        JobRegion copy = new JobRegion();
-        copy.setRegion(original.getRegion());
-        copy.setUsers(original.getUsers());
-        copy.setPercentage(original.getPercentage());
-        return copy;
     }
 
     /**

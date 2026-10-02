@@ -7,7 +7,11 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.projects;
 
+import com.intuit.tank.dao.DataFileDao;
+import com.intuit.tank.dao.PagedQuery;
+import com.intuit.tank.dao.PagedResult;
 import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.harness.StopBehavior;
@@ -22,7 +26,20 @@ import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.projects.models.*;
+import com.intuit.tank.project.DataFile;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+import com.intuit.tank.rest.mvc.rest.models.ProjectCopyRequest;
+import com.intuit.tank.rest.mvc.rest.models.ProjectDetail;
+import com.intuit.tank.rest.mvc.rest.models.ProjectSummary;
+import com.intuit.tank.rest.mvc.rest.models.ProjectValidation;
+import com.intuit.tank.rest.mvc.rest.util.PageRequests;
+import com.intuit.tank.rest.mvc.rest.util.ProjectCopier;
+import com.intuit.tank.rest.mvc.rest.util.ProjectDetailMapper;
+import com.intuit.tank.rest.mvc.rest.util.ProjectValidator;
+import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
@@ -47,6 +64,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import jakarta.servlet.ServletContext;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,7 +109,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
             return all.stream().sorted(Comparator.comparing(Project::getModified).reversed())
                                .collect(Collectors.toMap(Project::getId, Project::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
-            LOGGER.error("Error returning all project names: " + e.getMessage(), e);
+            LOGGER.error("Error returning all project names: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "all project names", e);
         }
     }
@@ -228,7 +246,7 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
             sendMsg(project, type);
             return project;
         } catch (Exception e) {
-            LOGGER.error("Error creating project: " + e.getMessage(), e);
+            LOGGER.error("Error creating project: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("projects", e.getMessage(), e);
         }
     }
@@ -329,5 +347,213 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
             LOGGER.error("Error deleting project: {}", e, e);
             throw new GenericServiceDeleteException("project", "project", e);
         }
+    }
+
+    private static final String SERVICE = "projects";
+    static final int MAX_BULK_DELETE = 100;
+
+    private static final Map<String, String> SORTABLE_FIELDS = Map.of(
+            "id", BaseEntity.PROPERTY_ID,
+            "name", Project.PROPERTY_NAME,
+            "productName", Project.PROPERTY_PRODUCT_NAME,
+            "owner", Project.PROPERTY_CREATOR,
+            "created", BaseEntity.PROPERTY_CREATE,
+            "modified", BaseEntity.PROPERTY_MODIFIED);
+
+    @Override
+    public PageResponse<ProjectSummary> listProjects(Integer page, Integer size, String sort, String owner, String q) {
+        RestAuthorization.requireUser(SERVICE);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put(Project.PROPERTY_CREATOR, owner);
+        PagedQuery query = PageRequests.toQuery(SERVICE, page, size, sort, SORTABLE_FIELDS, "modified,desc", filters, q,
+                List.of(Project.PROPERTY_NAME, Project.PROPERTY_PRODUCT_NAME, Project.PROPERTY_COMMENTS));
+        PagedResult<Project> result = new ProjectDao().findPaged(query);
+        List<ProjectSummary> items = result.items().stream()
+                .map(p -> new ProjectSummary(p.getId(), p.getName(), p.getProductName(), p.getComments(),
+                        p.getCreator(), p.getCreated(), p.getModified()))
+                .collect(Collectors.toList());
+        return new PageResponse<>(items, result.total(), query.page(), query.size());
+    }
+
+    @Override
+    public ProjectDetail getProjectDetail(Integer projectId) {
+        RestAuthorization.requireUser(SERVICE);
+        return toDetail(findProject(projectId));
+    }
+
+    @Override
+    public synchronized ProjectDetail updateProjectDetail(Integer projectId, ProjectDetail detail) {
+        RestAuthorization.requireUser(SERVICE);
+        if (detail == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "project", "request body is required");
+        }
+        Project project = findProject(projectId);
+        RestAuthorization.requireRightOrOwner(AccessRight.EDIT_PROJECT, project, SERVICE);
+        if (detail.modified() == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "modified",
+                    "modified is required; send the value from the last GET");
+        }
+        if (!sameSecond(detail.modified(), project.getModified())) {
+            throw new GenericServiceConflictException(SERVICE,
+                    "Project " + projectId + " was changed by someone else since it was loaded; reload it and try again");
+        }
+        List<String> errors = ProjectDetailMapper.validate(detail);
+        if (!errors.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "project", String.join("; ", errors));
+        }
+        if (!detail.owner().equals(project.getCreator())) {
+            // as in the web UI, only the owner or an admin may give a project away
+            if (!RestAuthorization.isOwner(project)) {
+                RestAuthorization.requireAdmin(SERVICE);
+            }
+            if (new UserDao().findByUserName(detail.owner()) == null) {
+                throw new GenericServiceBadRequestException(SERVICE, "owner", "no user named " + detail.owner());
+            }
+        }
+        requireNameAvailable(detail.name().trim(), projectId);
+        Map<Integer, Script> scripts = findScripts(ProjectDetailMapper.scriptIds(detail));
+        requireDataFiles(detail.dataFileIds());
+
+        ProjectDetailMapper.apply(detail, project, scripts);
+        try {
+            project = new ProjectDao().saveOrUpdateProject(project);
+        } catch (RuntimeException e) {
+            LOGGER.error("Error saving project {}: {}", projectId, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, "project", e);
+        }
+        sendMsg(project, ModificationType.UPDATE);
+        LOGGER.info("{} saved project {}", RestAuthorization.currentUserName(), projectId);
+        return toDetail(findProject(projectId));
+    }
+
+    @Override
+    public synchronized ProjectDetail copyProject(Integer projectId, ProjectCopyRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_PROJECT, SERVICE);
+        String name = request != null ? StringUtils.trimToNull(request.name()) : null;
+        if (name == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name is required");
+        }
+        if (name.length() > 255) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name must be at most 255 characters");
+        }
+        Project source = findProject(projectId);
+        requireNameAvailable(name, null);
+        Project copy = ProjectCopier.copy(source, name, RestAuthorization.currentUserName());
+        try {
+            copy = new ProjectDao().saveOrUpdateProject(copy);
+        } catch (RuntimeException e) {
+            LOGGER.error("Error copying project {}: {}", projectId, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, "project copy", e);
+        }
+        sendMsg(copy, ModificationType.ADD);
+        LOGGER.info("{} copied project {} to {} ({})", RestAuthorization.currentUserName(), projectId, copy.getId(), name);
+        return toDetail(findProject(copy.getId()));
+    }
+
+    @Override
+    public BulkDeleteResult deleteProjects(List<Integer> projectIds) {
+        RestAuthorization.requireUser(SERVICE);
+        if (projectIds == null || projectIds.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "ids", "at least one id is required");
+        }
+        List<Integer> ids = projectIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.size() > MAX_BULK_DELETE) {
+            throw new GenericServiceBadRequestException(SERVICE, "ids", "at most " + MAX_BULK_DELETE + " ids at a time");
+        }
+        ProjectDao dao = new ProjectDao();
+        List<Project> found = new ArrayList<>();
+        List<Integer> notFound = new ArrayList<>();
+        for (Integer id : ids) {
+            Project project = dao.findById(id);
+            if (project == null) {
+                notFound.add(id);
+            } else {
+                found.add(project);
+            }
+        }
+        // check every project before deleting any, so a forbidden one leaves all of them in place
+        for (Project project : found) {
+            RestAuthorization.requireRightOrOwner(AccessRight.DELETE_PROJECT, project, SERVICE);
+        }
+        List<Integer> deleted = new ArrayList<>();
+        for (Project project : found) {
+            try {
+                dao.delete(project.getId());
+            } catch (RuntimeException e) {
+                LOGGER.error("Error deleting project {}: {}", project.getId(), e.getMessage(), e);
+                throw new GenericServiceDeleteException(SERVICE, "project " + project.getId()
+                        + (deleted.isEmpty() ? "" : " (already deleted: " + deleted + ")"), e);
+            }
+            deleted.add(project.getId());
+            sendMsg(project, ModificationType.DELETE);
+        }
+        LOGGER.info("{} deleted projects {}", RestAuthorization.currentUserName(), deleted);
+        return new BulkDeleteResult(deleted, notFound);
+    }
+
+    @Override
+    public ProjectValidation validateProject(Integer projectId) {
+        RestAuthorization.requireUser(SERVICE);
+        return ProjectValidator.validate(findProject(projectId));
+    }
+
+    private Project findProject(Integer projectId) {
+        Project project = projectId != null ? new ProjectDao().findByIdEager(projectId) : null;
+        if (project == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "project " + projectId, null);
+        }
+        return project;
+    }
+
+    private ProjectDetail toDetail(Project project) {
+        boolean owner = RestAuthorization.isOwner(project);
+        ProjectDetail.Permissions permissions = new ProjectDetail.Permissions(
+                owner || RestAuthorization.hasRight(AccessRight.EDIT_PROJECT),
+                owner || RestAuthorization.hasRight(AccessRight.DELETE_PROJECT),
+                owner || RestAuthorization.isAdmin());
+        TankConfig config = new TankConfig();
+        return ProjectDetailMapper.toDetail(project, permissions, config.getVmManagerConfig().getConfiguredRegions(),
+                config.getStandalone());
+    }
+
+    private static void requireNameAvailable(String name, Integer projectId) {
+        Project existing = new ProjectDao().findByName(name);
+        if (existing != null && (projectId == null || existing.getId() != projectId)) {
+            throw new GenericServiceConflictException(SERVICE, "A project named " + name + " already exists");
+        }
+    }
+
+    private static Map<Integer, Script> findScripts(Set<Integer> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        Map<Integer, Script> scripts = new ScriptDao().findForIds(new ArrayList<>(ids)).stream()
+                .collect(Collectors.toMap(Script::getId, s -> s));
+        List<Integer> missing = ids.stream().filter(id -> !scripts.containsKey(id)).sorted().toList();
+        if (!missing.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "scripts", "no scripts with ids " + missing);
+        }
+        return scripts;
+    }
+
+    private static void requireDataFiles(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        Set<Integer> wanted = new HashSet<>(ids);
+        Set<Integer> found = new DataFileDao().findForIds(new ArrayList<>(wanted)).stream()
+                .map(DataFile::getId).collect(Collectors.toSet());
+        List<Integer> missing = wanted.stream().filter(id -> !found.contains(id)).sorted().collect(Collectors.toList());
+        if (!missing.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "dataFileIds", "no data files with ids " + missing);
+        }
+    }
+
+    /**
+     * Compares save times to the second: the database may not store milliseconds.
+     */
+    static boolean sameSecond(Date a, Date b) {
+        return a != null && b != null && a.getTime() / 1000 == b.getTime() / 1000;
     }
 }
