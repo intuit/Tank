@@ -516,6 +516,7 @@ public class ConverterUtilTest {
     public void testIncludedHeader() throws Exception {
         assertTrue(ConverterUtil.includedHeader("Accept"));
         assertTrue(ConverterUtil.includedHeader(""));
+        assertFalse(ConverterUtil.includedHeader(null), "a header with no name, e.g. from a mis-nested script XML, is skipped");
         assertFalse(ConverterUtil.includedHeader("Content-Type"));
         assertFalse(ConverterUtil.includedHeader("content-type"));
     }

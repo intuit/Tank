@@ -36,13 +36,20 @@ public final class ProjectValidator {
     }
 
     public static ProjectValidation validate(Project project) {
-        Workload workload = project.getWorkloads().get(0);
+        Workload workload = project.getWorkloads().getFirst();
+        return validate(project, new JobValidator(workload.getTestPlans(), workload.getJobConfiguration().getVariables()));
+    }
+
+    /**
+     * @param validator a validator already run over the project's test plans, to avoid loading every script
+     *                  a second time
+     */
+    public static ProjectValidation validate(Project project, JobValidator validator) {
+        Workload workload = project.getWorkloads().getFirst();
         JobConfiguration config = workload.getJobConfiguration();
         List<TestPlan> plans = workload.getTestPlans();
         List<String> errors = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
-
-        JobValidator validator = new JobValidator(plans, config.getVariables());
 
         long rampTime = 0;
         long simulationTime = 0;
