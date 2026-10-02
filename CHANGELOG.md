@@ -1,3 +1,15 @@
+# 4.5.2 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add project editor REST endpoints (React migration phase 2) [#519](https://github.com/intuit/Tank/pull/519) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.1 (Thu Oct 01 2026)
 
 #### 🐛 Bug Fix
