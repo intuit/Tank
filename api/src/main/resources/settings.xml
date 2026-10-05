@@ -139,6 +139,8 @@
 
 		<!-- WebSocket control channel for agent commands (ACP compliance) -->
 		<command-ws-enabled>false</command-ws-enabled>
+		<!-- Reconnect WS to running agents found by EC2 Controller/JobId tags (controller restart recovery) -->
+		<agent-readoption-enabled>false</agent-readoption-enabled>
 
 	</agent-config>
 

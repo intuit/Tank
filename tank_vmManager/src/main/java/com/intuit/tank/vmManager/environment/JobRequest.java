@@ -145,7 +145,7 @@ public class JobRequest implements Runnable {
     private void connectAndBootstrapAgent(ControllerInitiatedAgentWsClient wsClient, VMInstanceRequest instanceRequest,
                                           VMInformation info, String token, int port, long helloTimeoutMillis,
                                           long transferTimeoutMillis, long maxConnectWaitMillis) {
-        String host = resolveWsHost(info);
+        String host = resolveWsHost(request.getRegion(), info);
         if (host == null || host.isBlank()) {
             logger.warn(new ObjectMessage(Map.of("Message", "[WS] No reachable host found for " + info.getInstanceId())));
             return;
@@ -183,8 +183,8 @@ public class JobRequest implements Runnable {
                         + " for job " + instanceRequest.getJobId())));
     }
 
-    private String resolveWsHost(VMInformation info) {
-        if ((request.getRegion() == VMRegion.US_EAST || request.getRegion() == VMRegion.US_EAST_2)
+    public static String resolveWsHost(VMRegion region, VMInformation info) {
+        if ((region == VMRegion.US_EAST || region == VMRegion.US_EAST_2)
                 && isNotBlank(info.getPrivateIp())) {
             return info.getPrivateIp();
         }
@@ -203,7 +203,7 @@ public class JobRequest implements Runnable {
         return null;
     }
 
-    private boolean isNotBlank(String value) {
+    private static boolean isNotBlank(String value) {
         return value != null && !value.isBlank();
     }
 
