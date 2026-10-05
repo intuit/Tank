@@ -16,16 +16,13 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import java.util.Collection;
-
 import jakarta.inject.Named;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
+
+import com.intuit.tank.rest.mvc.rest.util.LogLevels;
 
 /**
  * LogConfig
@@ -40,9 +37,7 @@ public class LogConfig {
 
     public void setLogLevel(String level) {
         Level l = Level.toLevel(level);
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        Configuration config = ctx.getConfiguration();
-        config.getLoggers().values().forEach(loggerConfig -> loggerConfig.setLevel(l));
+        LogLevels.set(l);
         LOG.debug("Log level changed to {}", l);
         LOG.info("Log level changed to {}", l);
     }
