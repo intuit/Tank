@@ -13,7 +13,13 @@ import com.intuit.tank.dao.ScriptFilterGroupDao;
 import com.intuit.tank.filters.models.*;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptFilter;
+import com.intuit.tank.project.ScriptFilterAction;
+import com.intuit.tank.project.ScriptFilterCondition;
 import com.intuit.tank.project.ScriptFilterGroup;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
@@ -362,12 +368,35 @@ class FilterServiceV2ImplTest {
         ScriptFilter filter = new ScriptFilter();
 
         try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
-                (mock, ctx) -> when(mock.findById(1)).thenReturn(filter))) {
+                (mock, ctx) -> when(mock.findById(1)).thenReturn(filter));
+             MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class)) {
 
             String result = service.deleteFilter(1);
             assertEquals("", result);
 
             verify(daoMock.constructed().get(0)).delete(filter);
+        }
+    }
+
+    @Test
+    void deleteFilter_removesFilterFromItsGroupsFirst() {
+        ScriptFilter filter = filter(1, "doomed");
+        ScriptFilter other = filter(2, "kept");
+        ScriptFilterGroup group = group(5, "grp", "alice", filter, other);
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findById(1)).thenReturn(filter));
+             MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                     (mock, ctx) -> when(mock.getScriptFilterGroupForFilter(1)).thenReturn(List.of(group)))) {
+
+            assertEquals("", service.deleteFilter(1));
+
+            ScriptFilterGroupDao groupDao = groupDaoMock.constructed().get(0);
+            ScriptFilterDao dao = daoMock.constructed().get(0);
+            org.mockito.InOrder order = inOrder(groupDao, dao);
+            order.verify(groupDao).saveOrUpdate(group);
+            order.verify(dao).delete(filter);
+            assertEquals(Set.of(other), group.getFilters());
         }
     }
 
@@ -425,5 +454,379 @@ class FilterServiceV2ImplTest {
 
             assertThrows(GenericServiceDeleteException.class, () -> service.deleteFilterGroup(1));
         }
+    }
+
+    // =====================================================================
+    // createFilter / updateFilter / copyFilter
+    // =====================================================================
+
+    @Test
+    void createFilter_ownedByCaller_ignoringRequestIdAndCreator() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.CREATE_FILTER, List.of("filterers")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "filterers"));
+        FilterTO request = FilterTO.builder().withId(99).withName("new").withCreator("mallory")
+                .withConditions(List.of(FilterConditionTO.builder().withScope("host").withCondition("Contains").withValue("x").build()))
+                .build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> {
+                    ScriptFilter f = i.getArgument(0);
+                    f.setId(7);
+                    return f;
+                }))) {
+
+            FilterTO result = service.createFilter(request);
+
+            assertEquals(7, result.getId());
+            assertEquals("alice", result.getCreator());
+            assertEquals(1, result.getConditions().size());
+            verify(daoMock.constructed().get(0), never()).findById(anyInt());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createFilter_forbiddenWithoutCreateRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+        try {
+            assertThrows(GenericServiceForbiddenAccessException.class,
+                    () -> service.createFilter(FilterTO.builder().withName("f").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createFilter_rejectsBlankNameAndExternalFilters() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "admin"));
+        try {
+            assertThrows(GenericServiceBadRequestException.class,
+                    () -> service.createFilter(FilterTO.builder().withName(" ").build()));
+            assertThrows(GenericServiceBadRequestException.class,
+                    () -> service.createFilter(FilterTO.builder().withName("x".repeat(256)).build()));
+            assertThrows(GenericServiceBadRequestException.class, () -> service.createFilter(
+                    FilterTO.builder().withName("ext").withFilterType(ScriptFilterType.EXTERNAL.name()).build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createFilter_requiresSignedInUser() {
+        SecurityTestSupport.useConfig(false, Map.of());
+        try {
+            assertThrows(GenericServiceUnauthorizedException.class,
+                    () -> service.createFilter(FilterTO.builder().withName("f").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilter_ownerSavesAndKeepsOwner() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice"));
+        ScriptFilter existing = filter(4, "old");
+        existing.setCreator("alice");
+        existing.setModified(new Date(1_000_000L));
+        FilterTO request = FilterTO.builder().withName("renamed").withCreator("bob")
+                .withModified(new Date(1_000_400L)).build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(4)).thenReturn(existing);
+                    when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> i.getArgument(0));
+                })) {
+
+            FilterTO result = service.updateFilter(4, request);
+
+            assertEquals("renamed", result.getName());
+            assertEquals("alice", result.getCreator());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilter_forbiddenForNonOwnerWithoutEditRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+        ScriptFilter existing = filter(4, "old");
+        existing.setCreator("alice");
+        existing.setModified(new Date(1_000_000L));
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findById(4)).thenReturn(existing))) {
+
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.updateFilter(4,
+                    FilterTO.builder().withName("x").withModified(new Date(1_000_000L)).build()));
+            verify(daoMock.constructed().get(0), never()).saveOrUpdate(any());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilter_staleOrMissingModifiedIsRejected() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "admin"));
+        ScriptFilter existing = filter(4, "old");
+        existing.setModified(new Date(5_000_000L));
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findById(4)).thenReturn(existing))) {
+
+            assertThrows(GenericServiceBadRequestException.class,
+                    () -> service.updateFilter(4, FilterTO.builder().withName("x").build()));
+            assertThrows(GenericServiceConflictException.class, () -> service.updateFilter(4,
+                    FilterTO.builder().withName("x").withModified(new Date(4_000_000L)).build()));
+            verify(daoMock.constructed().get(0), never()).saveOrUpdate(any());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilter_notFound() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "admin"));
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class)) {
+            assertThrows(GenericServiceResourceNotFoundException.class,
+                    () -> service.updateFilter(404, FilterTO.builder().withName("x").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void copyFilter_copiesConditionsAndActionsAsNewRowsOwnedByCaller() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.CREATE_FILTER, List.of("filterers")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob", "filterers"));
+        ScriptFilter source = filter(3, "orig");
+        source.setCreator("alice");
+        source.setProductName("prod");
+        source.setAllConditionsMustPass(true);
+        ScriptFilterCondition condition = new ScriptFilterCondition();
+        condition.setId(30);
+        condition.setScope("host");
+        condition.setCondition("Contains");
+        condition.setValue("example");
+        source.addCondition(condition);
+        ScriptFilterAction action = new ScriptFilterAction();
+        action.setId(31);
+        action.setAction(com.intuit.tank.vm.api.enumerated.ScriptFilterActionType.replace);
+        action.setScope("host");
+        action.setValue("other");
+        source.addAction(action);
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(3)).thenReturn(source);
+                    when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> i.getArgument(0));
+                })) {
+
+            FilterTO result = service.copyFilter(3, new CopyRequest("  copy  "));
+
+            ArgumentCaptor<ScriptFilter> saved = ArgumentCaptor.forClass(ScriptFilter.class);
+            verify(daoMock.constructed().get(daoMock.constructed().size() - 1)).saveOrUpdate(saved.capture());
+            ScriptFilter copy = saved.getValue();
+            assertNotSame(source, copy);
+            assertEquals(0, copy.getId());
+            assertEquals("copy", copy.getName());
+            assertEquals("bob", copy.getCreator());
+            assertEquals("prod", copy.getProductName());
+            assertTrue(copy.getAllConditionsMustPass());
+            assertEquals(1, copy.getConditions().size());
+            assertEquals(0, copy.getConditions().iterator().next().getId());
+            assertEquals("example", copy.getConditions().iterator().next().getValue());
+            assertEquals(1, copy.getActions().size());
+            assertEquals(0, copy.getActions().iterator().next().getId());
+            assertEquals("bob", result.getCreator());
+            assertEquals("alice", source.getCreator());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void copyFilter_requiresNameAndCreateRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        try {
+            SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.copyFilter(3, new CopyRequest("c")));
+
+            SecurityTestSupport.actAs(SecurityTestSupport.user("admin", "admin"));
+            assertThrows(GenericServiceBadRequestException.class, () -> service.copyFilter(3, new CopyRequest(" ")));
+            assertThrows(GenericServiceBadRequestException.class, () -> service.copyFilter(3, null));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    // =====================================================================
+    // createFilterGroup / updateFilterGroup / copyFilterGroup
+    // =====================================================================
+
+    @Test
+    void createFilterGroup_resolvesMembersAndIsOwnedByCaller() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.CREATE_FILTER, List.of("filterers")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "filterers"));
+        ScriptFilter f1 = filter(1, "a");
+        ScriptFilter f2 = filter(2, "b");
+        FilterGroupTO request = FilterGroupTO.builder().withId(77).withName(" grp ").withProductName("prod")
+                .withCreator("mallory").withFilterIds(java.util.Arrays.asList(2, 1, 2, null)).build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findForIds(List.of(2, 1))).thenReturn(List.of(f2, f1)));
+             MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                     (mock, ctx) -> when(mock.saveOrUpdate(any(ScriptFilterGroup.class))).thenAnswer(i -> {
+                         ScriptFilterGroup g = i.getArgument(0);
+                         g.setId(8);
+                         return g;
+                     }))) {
+
+            FilterGroupDetailTO result = service.createFilterGroup(request);
+
+            assertEquals(8, result.getId());
+            assertEquals("grp", result.getName());
+            assertEquals("alice", result.getCreator());
+            assertEquals(List.of(1, 2), result.getFilterIds());
+            assertEquals(2, result.getFilters().size());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createFilterGroup_rejectsUnknownFilterIds() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice", "admin"));
+        FilterGroupTO request = FilterGroupTO.builder().withName("grp").withFilterIds(List.of(1, 404)).build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findForIds(anyList())).thenReturn(List.of(filter(1, "a"))));
+             MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class)) {
+
+            GenericServiceBadRequestException e = assertThrows(GenericServiceBadRequestException.class,
+                    () -> service.createFilterGroup(request));
+            assertTrue(e.getMessage().contains("404"));
+            assertTrue(groupDaoMock.constructed().isEmpty());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void createFilterGroup_forbiddenWithoutCreateRight() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+        try {
+            assertThrows(GenericServiceForbiddenAccessException.class,
+                    () -> service.createFilterGroup(FilterGroupTO.builder().withName("g").build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilterGroup_replacesMembersAndKeepsOwner() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.EDIT_FILTER, List.of("editors")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob", "editors"));
+        ScriptFilterGroup existing = group(5, "grp", "alice", filter(1, "a"));
+        existing.setModified(new Date(2_000_000L));
+        ScriptFilter f3 = filter(3, "c");
+        FilterGroupTO request = FilterGroupTO.builder().withName("renamed").withCreator("bob")
+                .withModified(new Date(2_000_000L)).withFilterIds(List.of(3)).build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findForIds(List.of(3))).thenReturn(List.of(f3)));
+             MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                     (mock, ctx) -> {
+                         when(mock.findById(5)).thenReturn(existing);
+                         when(mock.saveOrUpdate(any(ScriptFilterGroup.class))).thenAnswer(i -> i.getArgument(0));
+                     })) {
+
+            FilterGroupDetailTO result = service.updateFilterGroup(5, request);
+
+            assertEquals("renamed", result.getName());
+            assertEquals("alice", result.getCreator());
+            assertEquals(List.of(3), result.getFilterIds());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void updateFilterGroup_forbiddenStaleAndNotFound() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        ScriptFilterGroup existing = group(5, "grp", "alice");
+        existing.setModified(new Date(2_000_000L));
+
+        try (MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                (mock, ctx) -> when(mock.findById(5)).thenReturn(existing))) {
+            SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.updateFilterGroup(5,
+                    FilterGroupTO.builder().withName("g").withModified(new Date(2_000_000L)).build()));
+
+            SecurityTestSupport.actAs(SecurityTestSupport.user("alice"));
+            assertThrows(GenericServiceConflictException.class, () -> service.updateFilterGroup(5,
+                    FilterGroupTO.builder().withName("g").withModified(new Date(1_000_000L)).build()));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.updateFilterGroup(6,
+                    FilterGroupTO.builder().withName("g").withModified(new Date(2_000_000L)).build()));
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
+    void copyFilterGroup_holdsSameFiltersOwnedByCaller() {
+        SecurityTestSupport.useConfig(true, Map.of(AccessRight.CREATE_FILTER, List.of("filterers")));
+        SecurityTestSupport.actAs(SecurityTestSupport.user("bob", "filterers"));
+        ScriptFilter f1 = filter(1, "a");
+        ScriptFilterGroup source = group(5, "grp", "alice", f1);
+        source.setProductName("prod");
+
+        try (MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(5)).thenReturn(source);
+                    when(mock.saveOrUpdate(any(ScriptFilterGroup.class))).thenAnswer(i -> {
+                        ScriptFilterGroup g = i.getArgument(0);
+                        g.setId(9);
+                        return g;
+                    });
+                })) {
+
+            FilterGroupDetailTO result = service.copyFilterGroup(5, new CopyRequest("grp copy"));
+
+            assertEquals(9, result.getId());
+            assertEquals("grp copy", result.getName());
+            assertEquals("bob", result.getCreator());
+            assertEquals("prod", result.getProductName());
+            assertEquals(List.of(1), result.getFilterIds());
+            assertEquals(5, source.getId());
+            assertEquals("alice", source.getCreator());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    private static ScriptFilter filter(int id, String name) {
+        ScriptFilter filter = new ScriptFilter();
+        filter.setId(id);
+        filter.setName(name);
+        filter.setFilterType(ScriptFilterType.INTERNAL);
+        return filter;
+    }
+
+    private static ScriptFilterGroup group(int id, String name, String creator, ScriptFilter... filters) {
+        ScriptFilterGroup group = new ScriptFilterGroup();
+        group.setId(id);
+        group.setName(name);
+        group.setCreator(creator);
+        group.setFilters(new HashSet<>(List.of(filters)));
+        return group;
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
  *                           keyed {@code addActionScopes}, {@code removeActionScopes} and
  *                           {@code replaceActionScopes} by action type
  * @param logicStep          the default script text around a logic step
+ * @param filterActionFields which inputs the filter action editor shows, for every action type and scope
  */
 public record UiOptions(List<Option> products,
                         List<Option> locations,
@@ -41,7 +42,8 @@ public record UiOptions(List<Option> products,
                         List<Option> reportingModes,
                         Map<String, List<Option>> stepOptions,
                         Map<String, List<Option>> filterOptions,
-                        LogicStepOptions logicStep) {
+                        LogicStepOptions logicStep,
+                        List<FilterActionField> filterActionFields) {
 
     /**
      * @param insertBefore script text placed before a logic step's script
