@@ -41,10 +41,18 @@ import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
+import org.apache.commons.lang3.StringUtils;
+
 import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,6 +62,8 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     private ServletContext servletContext;
 
     private static final Logger LOGGER = LogManager.getLogger(FilterServiceV2Impl.class);
+    private static final String SERVICE = "filters";
+    private static final int MAX_NAME_LENGTH = 255;
 
     @Override
     public String ping() {
@@ -103,17 +113,9 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     public FilterTO createOrUpdateFilter(FilterTO request) {
         ScriptFilterDao dao = new ScriptFilterDao();
         try {
-            if (request == null) {
-                throw new IllegalArgumentException("Filter request is required");
-            }
-            if (request.getName() == null || request.getName().isBlank()) {
-                throw new IllegalArgumentException("Filter name is required");
-            }
-            if (request.getFilterType() != null && !ScriptFilterType.INTERNAL.name().equals(request.getFilterType())) {
-                throw new IllegalArgumentException("Only internal filters are supported");
-            }
-            if (request.getExternalScriptId() != null) {
-                throw new IllegalArgumentException("Internal filters cannot reference an external script");
+            String error = filterError(request);
+            if (error != null) {
+                throw new IllegalArgumentException(error);
             }
 
             ScriptFilter filter = new ScriptFilter();
@@ -137,6 +139,193 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         } catch (Exception e) {
             LOGGER.error("Error saving filter: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("filter", "filter", e);
+        }
+    }
+
+    @Override
+    public FilterTO createFilter(FilterTO request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_FILTER, SERVICE);
+        requireValidFilter(request);
+        ScriptFilter filter = FilterServiceUtil.toScriptFilter(request, new ScriptFilter());
+        filter.setCreator(RestAuthorization.currentUserName());
+        return saveFilter(filter, "filter");
+    }
+
+    @Override
+    public FilterTO updateFilter(Integer filterId, FilterTO request) {
+        RestAuthorization.requireUser(SERVICE);
+        ScriptFilter filter = findFilter(filterId);
+        RestAuthorization.requireRightOrOwner(AccessRight.EDIT_FILTER, filter, SERVICE);
+        requireValidFilter(request);
+        requireCurrent(request.getModified(), filter.getModified(), "Filter " + filterId);
+        String creator = filter.getCreator();
+        FilterServiceUtil.toScriptFilter(request, filter);
+        filter.setCreator(creator);
+        return saveFilter(filter, "filter");
+    }
+
+    @Override
+    public FilterTO copyFilter(Integer filterId, CopyRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_FILTER, SERVICE);
+        String name = requireName(request != null ? request.name() : null);
+        ScriptFilter source = findFilter(filterId);
+        // round-trip through the TO so the copy gets new condition and action rows
+        ScriptFilter copy = FilterServiceUtil.toScriptFilter(FilterServiceUtil.filterToTO(source), new ScriptFilter());
+        copy.setName(name);
+        copy.setCreator(RestAuthorization.currentUserName());
+        FilterTO saved = saveFilter(copy, "filter copy");
+        LOGGER.info("{} copied filter {} to {} ({})", copy.getCreator(), filterId, saved.getId(), name);
+        return saved;
+    }
+
+    @Override
+    public FilterGroupDetailTO createFilterGroup(FilterGroupTO request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_FILTER, SERVICE);
+        if (request == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "filterGroup", "request body is required");
+        }
+        ScriptFilterGroup group = new ScriptFilterGroup();
+        applyGroup(request, group);
+        group.setCreator(RestAuthorization.currentUserName());
+        return saveFilterGroup(group, "filter group");
+    }
+
+    @Override
+    public FilterGroupDetailTO updateFilterGroup(Integer filterGroupId, FilterGroupTO request) {
+        RestAuthorization.requireUser(SERVICE);
+        ScriptFilterGroup group = findFilterGroup(filterGroupId);
+        RestAuthorization.requireRightOrOwner(AccessRight.EDIT_FILTER, group, SERVICE);
+        if (request == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "filterGroup", "request body is required");
+        }
+        requireCurrent(request.getModified(), group.getModified(), "Filter group " + filterGroupId);
+        applyGroup(request, group);
+        return saveFilterGroup(group, "filter group");
+    }
+
+    @Override
+    public FilterGroupDetailTO copyFilterGroup(Integer filterGroupId, CopyRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_FILTER, SERVICE);
+        String name = requireName(request != null ? request.name() : null);
+        ScriptFilterGroup source = findFilterGroup(filterGroupId);
+        ScriptFilterGroup copy = new ScriptFilterGroup();
+        copy.setName(name);
+        copy.setProductName(source.getProductName());
+        copy.setFilters(new HashSet<>(source.getFilters()));
+        copy.setCreator(RestAuthorization.currentUserName());
+        FilterGroupDetailTO saved = saveFilterGroup(copy, "filter group copy");
+        LOGGER.info("{} copied filter group {} to {} ({})", copy.getCreator(), filterGroupId, saved.getId(), name);
+        return saved;
+    }
+
+    /**
+     * The first problem with a filter request, or null when it can be saved. Only internal filters can be saved
+     * through REST.
+     */
+    private static String filterError(FilterTO request) {
+        if (request == null) {
+            return "Filter request is required";
+        }
+        if (request.getName() == null || request.getName().isBlank()) {
+            return "Filter name is required";
+        }
+        if (request.getName().length() > MAX_NAME_LENGTH) {
+            return "Filter name must be at most " + MAX_NAME_LENGTH + " characters";
+        }
+        if (request.getFilterType() != null && !ScriptFilterType.INTERNAL.name().equals(request.getFilterType())) {
+            return "Only internal filters are supported";
+        }
+        if (request.getExternalScriptId() != null) {
+            return "Internal filters cannot reference an external script";
+        }
+        return null;
+    }
+
+    private static void requireValidFilter(FilterTO request) {
+        String error = filterError(request);
+        if (error != null) {
+            throw new GenericServiceBadRequestException(SERVICE, "filter", error);
+        }
+    }
+
+    private static String requireName(String requested) {
+        String name = StringUtils.trimToNull(requested);
+        if (name == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name is required");
+        }
+        if (name.length() > MAX_NAME_LENGTH) {
+            throw new GenericServiceBadRequestException(SERVICE, "name",
+                    "name must be at most " + MAX_NAME_LENGTH + " characters");
+        }
+        return name;
+    }
+
+    /**
+     * Rejects a save based on a stale copy. Compares to the second: the database may not store milliseconds.
+     */
+    private static void requireCurrent(Date sent, Date stored, String what) {
+        if (sent == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "modified",
+                    "modified is required; send the value from the last GET");
+        }
+        if (stored == null || sent.getTime() / 1000 != stored.getTime() / 1000) {
+            throw new GenericServiceConflictException(SERVICE,
+                    what + " was changed by someone else since it was loaded; reload it and try again");
+        }
+    }
+
+    /**
+     * Copies the name, product and members from the request; the creator is left to the caller.
+     */
+    private static void applyGroup(FilterGroupTO request, ScriptFilterGroup group) {
+        group.setName(requireName(request.getName()));
+        group.setProductName(StringUtils.trimToNull(request.getProductName()));
+        List<Integer> ids = request.getFilterIds() == null ? List.of()
+                : request.getFilterIds().stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        List<ScriptFilter> filters = ids.isEmpty() ? List.of() : new ScriptFilterDao().findForIds(ids);
+        Set<Integer> found = filters.stream().map(ScriptFilter::getId).collect(Collectors.toSet());
+        List<Integer> missing = ids.stream().filter(id -> !found.contains(id)).collect(Collectors.toList());
+        if (!missing.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "filterIds", "no such filters: " + missing);
+        }
+        group.setFilters(new HashSet<>(filters));
+    }
+
+    private static ScriptFilter findFilter(Integer filterId) {
+        ScriptFilter filter = filterId != null ? new ScriptFilterDao().findById(filterId) : null;
+        if (filter == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "filter " + filterId, null);
+        }
+        return filter;
+    }
+
+    private static ScriptFilterGroup findFilterGroup(Integer filterGroupId) {
+        ScriptFilterGroup group = filterGroupId != null ? new ScriptFilterGroupDao().findById(filterGroupId) : null;
+        if (group == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "filter group " + filterGroupId, null);
+        }
+        return group;
+    }
+
+    private static FilterTO saveFilter(ScriptFilter filter, String what) {
+        try {
+            return FilterServiceUtil.filterToTO(new ScriptFilterDao().saveOrUpdate(filter));
+        } catch (RuntimeException e) {
+            LOGGER.error("Error saving {}: {}", what, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, what, e);
+        }
+    }
+
+    private static FilterGroupDetailTO saveFilterGroup(ScriptFilterGroup group, String what) {
+        try {
+            return FilterServiceUtil.filterGroupToDetailTO(new ScriptFilterGroupDao().saveOrUpdate(group));
+        } catch (RuntimeException e) {
+            LOGGER.error("Error saving {}: {}", what, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, what, e);
         }
     }
 
@@ -204,6 +393,13 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
                 return "Filter with filter id " + filterId + " does not exist";
             } else {
                 RestAuthorization.requireRightOrOwner(AccessRight.DELETE_FILTER, filter, "filters");
+                // the join table has no cascade, so drop the filter from its groups first (as FilterBean.delete does)
+                ScriptFilterGroupDao groupDao = new ScriptFilterGroupDao();
+                for (ScriptFilterGroup group : groupDao.getScriptFilterGroupForFilter(filterId)) {
+                    if (group.getFilters().remove(filter)) {
+                        groupDao.saveOrUpdate(group);
+                    }
+                }
                 dao.delete(filter);
                 return "";
             }

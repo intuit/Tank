@@ -14,6 +14,7 @@ import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.project.User;
+import com.intuit.tank.rest.mvc.rest.models.FilterActionField;
 import com.intuit.tank.rest.mvc.rest.models.InstanceTypeOption;
 import com.intuit.tank.rest.mvc.rest.models.Option;
 import com.intuit.tank.rest.mvc.rest.models.UiOptions;
@@ -35,6 +36,7 @@ import com.intuit.tank.vm.settings.SelectableItem;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -80,7 +82,35 @@ public class ConfigServiceV2Impl implements ConfigServiceV2 {
                 stepOptions(),
                 filterOptions(),
                 logicStep != null ? new UiOptions.LogicStepOptions(logicStep.getInsertBefore(), logicStep.getAppendAfter())
-                        : new UiOptions.LogicStepOptions("", ""));
+                        : new UiOptions.LogicStepOptions("", ""),
+                filterActionFields());
+    }
+
+    /**
+     * The inputs for each filter action type and scope, as the JSF {@code ScriptFilterActionBean} renders them.
+     */
+    static List<FilterActionField> filterActionFields() {
+        List<FilterActionField> fields = new ArrayList<>();
+        for (AddActionScope scope : AddActionScope.values()) {
+            fields.add(new FilterActionField(ScriptFilterActionType.add.name(), scope.getValue(),
+                    scope != AddActionScope.sleepTime, true, false,
+                    scope == AddActionScope.assignment ? FilterActionField.ValuePrefix.ASSIGNMENT
+                            : scope == AddActionScope.validation ? FilterActionField.ValuePrefix.VALIDATION
+                            : FilterActionField.ValuePrefix.NONE));
+        }
+        for (RemoveActionScope scope : RemoveActionScope.values()) {
+            fields.add(new FilterActionField(ScriptFilterActionType.remove.name(), scope.getValue(),
+                    scope != RemoveActionScope.request, false, false, FilterActionField.ValuePrefix.NONE));
+        }
+        for (ReplaceActionScope scope : ReplaceActionScope.values()) {
+            boolean onFail = scope == ReplaceActionScope.onfail;
+            fields.add(new FilterActionField(ScriptFilterActionType.replace.name(), scope.getValue(),
+                    !onFail, !onFail, onFail,
+                    scope == ReplaceActionScope.assignment ? FilterActionField.ValuePrefix.ASSIGNMENT
+                            : scope == ReplaceActionScope.validation ? FilterActionField.ValuePrefix.VALIDATION
+                            : FilterActionField.ValuePrefix.NONE));
+        }
+        return fields;
     }
 
     @Override

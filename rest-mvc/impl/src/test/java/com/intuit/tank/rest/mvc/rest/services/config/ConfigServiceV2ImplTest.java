@@ -10,10 +10,14 @@ package com.intuit.tank.rest.mvc.rest.services.config;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
+import com.intuit.tank.rest.mvc.rest.models.FilterActionField;
 import com.intuit.tank.rest.mvc.rest.models.Option;
 import com.intuit.tank.rest.mvc.rest.models.UiOptions;
 import com.intuit.tank.script.FailureTypes;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.script.util.AddActionScope;
+import com.intuit.tank.vm.script.util.RemoveActionScope;
+import com.intuit.tank.vm.script.util.ReplaceActionScope;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.LocationsConfig;
 import com.intuit.tank.vm.settings.LogicStepConfig;
@@ -104,6 +108,31 @@ class ConfigServiceV2ImplTest {
         assertFalse(values(options.filterOptions().get("onFailOptions")).contains(FailureTypes.gotoGroupRequest.getValue()));
         assertTrue(options.filterOptions().keySet().containsAll(
                 List.of("conditionScopes", "conditionMatches", "actionTypes", "addActionScopes", "removeActionScopes", "replaceActionScopes")));
+    }
+
+    @Test
+    void filterActionFields_followJsfActionEditor() {
+        List<FilterActionField> fields = ConfigServiceV2Impl.filterActionFields();
+        Map<String, FilterActionField> byKey = fields.stream()
+                .collect(Collectors.toMap(f -> f.actionType() + ":" + f.scope(), f -> f));
+
+        assertEquals(AddActionScope.values().length + RemoveActionScope.values().length
+                + ReplaceActionScope.values().length, fields.size());
+        assertFalse(byKey.get("add:sleepTime").key());
+        assertTrue(byKey.get("add:sleepTime").value());
+        assertEquals(FilterActionField.ValuePrefix.ASSIGNMENT, byKey.get("add:assignment").prefix());
+        assertEquals(FilterActionField.ValuePrefix.VALIDATION, byKey.get("add:validation").prefix());
+        assertFalse(byKey.get("remove:request").key());
+        assertTrue(byKey.get("remove:requestHeader").key());
+        assertFalse(byKey.get("remove:requestHeader").value());
+        FilterActionField onFail = byKey.get("replace:onFailure");
+        assertFalse(onFail.key());
+        assertFalse(onFail.value());
+        assertTrue(onFail.onFail());
+        assertEquals(FilterActionField.ValuePrefix.VALIDATION, byKey.get("replace:validation").prefix());
+        assertEquals(FilterActionField.ValuePrefix.NONE, byKey.get("replace:host").prefix());
+        assertTrue(byKey.get("replace:host").key());
+        assertEquals(fields, service.getOptions().filterActionFields());
     }
 
     @Test
