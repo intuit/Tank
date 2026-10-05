@@ -1,3 +1,15 @@
+# 4.5.6 (Mon Oct 05 2026)
+
+#### 🐛 Bug Fix
+
+- Add admin REST endpoints for users, groups, logs and log level (React migration phase 7) [#525](https://github.com/intuit/Tank/pull/525) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.5 (Mon Oct 05 2026)
 
 #### 🐛 Bug Fix
