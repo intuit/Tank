@@ -1,3 +1,16 @@
+# 4.5.5 (Mon Oct 05 2026)
+
+#### 🐛 Bug Fix
+
+- Add filter and filter group editor REST endpoints (React migration phase 6) [#524](https://github.com/intuit/Tank/pull/524) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Add script editor REST endpoints (React migration phase 5) [#523](https://github.com/intuit/Tank/pull/523) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.4 (Fri Oct 02 2026)
 
 #### 🐛 Bug Fix
