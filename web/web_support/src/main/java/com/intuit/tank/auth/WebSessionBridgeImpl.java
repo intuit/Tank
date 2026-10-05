@@ -7,9 +7,12 @@
  */
 package com.intuit.tank.auth;
 
+import com.intuit.tank.ModifiedUserMessage;
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.project.Preferences;
+import com.intuit.tank.project.User;
+import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.rest.mvc.rest.security.TankPrincipal;
 import com.intuit.tank.rest.mvc.rest.security.WebSessionBridge;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,6 +43,10 @@ public class WebSessionBridgeImpl implements WebSessionBridge {
     @Inject
     @Deleted
     private Event<Preferences> preferencesReloadEvent;
+
+    @Inject
+    @Modified
+    private Event<ModifiedUserMessage> userEvent;
 
     @Override
     public TankPrincipal login(HttpServletRequest request, HttpServletResponse response, String username, String password) {
@@ -83,6 +90,12 @@ public class WebSessionBridgeImpl implements WebSessionBridge {
     public void preferencesChanged(Preferences preferences) {
         // PreferencesBean observes this and reloads the preferences cached in the session
         preferencesReloadEvent.fire(preferences);
+    }
+
+    @Override
+    public void userChanged(User user) {
+        // UserLoader observes this and reloads the user list for the admin pages
+        userEvent.fire(new ModifiedUserMessage(user, this));
     }
 
     private TankPrincipal sessionPrincipal() {

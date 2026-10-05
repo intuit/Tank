@@ -7,8 +7,10 @@
  */
 package com.intuit.tank.auth;
 
+import com.intuit.tank.ModifiedUserMessage;
 import com.intuit.tank.auth.sso.TankSsoHandler;
 import com.intuit.tank.project.Preferences;
+import com.intuit.tank.project.User;
 import com.intuit.tank.rest.mvc.rest.security.TankPrincipal;
 import jakarta.enterprise.event.Event;
 import jakarta.security.enterprise.AuthenticationStatus;
@@ -47,6 +49,9 @@ class WebSessionBridgeImplTest {
 
     @Mock
     private Event<Preferences> preferencesReloadEvent;
+
+    @Mock
+    private Event<ModifiedUserMessage> userEvent;
 
     @Mock
     private HttpServletRequest request;
@@ -131,5 +136,15 @@ class WebSessionBridgeImplTest {
         Preferences preferences = new Preferences();
         bridge.preferencesChanged(preferences);
         verify(preferencesReloadEvent).fire(preferences);
+    }
+
+    @Test
+    void userChanged_firesModifiedUserEvent() {
+        User user = User.builder().name("carol").build();
+        bridge.userChanged(user);
+        ArgumentCaptor<ModifiedUserMessage> message = ArgumentCaptor.forClass(ModifiedUserMessage.class);
+        verify(userEvent).fire(message.capture());
+        assertSame(user, message.getValue().getModified());
+        verifyNoInteractions(preferencesReloadEvent);
     }
 }

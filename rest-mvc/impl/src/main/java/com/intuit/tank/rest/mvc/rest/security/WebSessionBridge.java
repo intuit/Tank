@@ -8,6 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.security;
 
 import com.intuit.tank.project.Preferences;
+import com.intuit.tank.project.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -56,4 +57,9 @@ public interface WebSessionBridge {
      * this request's session is reloaded.
      */
     void preferencesChanged(Preferences preferences);
+
+    /**
+     * Tells the web UI that a user was created, changed or deleted, so the cached user list is reloaded.
+     */
+    void userChanged(User user);
 }
