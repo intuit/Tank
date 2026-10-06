@@ -9,6 +9,11 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 
 import com.intuit.tank.datafiles.models.DataFileDescriptor;
 import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult;
+import com.intuit.tank.rest.mvc.rest.models.DataFilePreview;
+import com.intuit.tank.rest.mvc.rest.models.DataFileSummary;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.services.datafiles.DataFileServiceV2;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +34,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import jakarta.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,6 +42,9 @@ import java.util.Objects;
 @RequestMapping(value = "/v2/datafiles", produces = { MediaType.APPLICATION_JSON_VALUE })
 @Tag(name = "Datafiles")
 public class DataFileController {
+    /** The number of lines in the whole file, sent with {@code /content}. */
+    static final String TOTAL_LINES_HEADER = "X-Total-Lines";
+
     @Resource
     private DataFileServiceV2 dataFileService;
 
@@ -83,17 +92,17 @@ public class DataFileController {
     @RequestMapping(value = "/content", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Returns datafile content by datafile ID, with optional offset and lines parameters to adjust number of total lines returned", summary = "Get datafile content")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found datafile content", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found datafile content; the X-Total-Lines header gives the file's line count", content = @Content),
             @ApiResponse(responseCode = "404", description = "Datafile content could not be found", content = @Content)
     })
     public ResponseEntity<String> getDatafileContent(@RequestParam(required = true) @Parameter(description = "Datafile ID", required = true) Integer id,
                                                                     @RequestParam(required = false) @Parameter(description = "Starting line offset (0 by default)", required = false) Integer offset,
                                                                     @RequestParam(required = false) @Parameter(description = "Number of lines returned from offset (all lines by default)", required = false) Integer lines) throws IOException {
-        StreamingResponseBody content = dataFileService.getDatafileContent(id, offset, lines);
+        DataFileServiceV2.ContentPage content = dataFileService.readDatafileContent(id, offset, lines);
         if (content != null) {
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            content.writeTo(out);
-            return new ResponseEntity<>(out.toString(), HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .header(TOTAL_LINES_HEADER, Integer.toString(content.totalLines()))
+                    .body(content.text());
         }
         return ResponseEntity.notFound().build();
     }
@@ -154,5 +163,65 @@ public class DataFileController {
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, params = "page")
+    @Operation(description = "Lists data files one page at a time. The page parameter selects this form; without it "
+            + "GET /v2/datafiles returns every data file unpaged", summary = "List data files (paged)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the page"),
+            @ApiResponse(responseCode = "400", description = "Invalid page, size or sort", content = @Content)
+    })
+    public ResponseEntity<PageResponse<DataFileSummary>> listDatafiles(
+            @RequestParam @Parameter(description = "Zero-based page number") Integer page,
+            @RequestParam(required = false) @Parameter(description = "Page size, 1 to 200 (default 25)") Integer size,
+            @RequestParam(required = false) @Parameter(description = "id, name, owner, created or modified, optionally "
+                    + "followed by ,asc or ,desc (default modified,desc)") String sort,
+            @RequestParam(required = false) @Parameter(description = "Only data files owned by this user") String owner,
+            @RequestParam(required = false) @Parameter(description = "Text the name or comments contain") String q) {
+        return ResponseEntity.ok(dataFileService.listDatafiles(page, size, sort, owner, q));
+    }
+
+    @RequestMapping(value = "/batch", method = RequestMethod.POST, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(description = "Creates a data file from each uploaded .csv, .txt or .xml file, and from each such entry "
+            + "of uploaded .zip archives. Entries whose names start with _ or . are skipped. Example: \n\n"
+            + "        curl -X POST -H \"Authorization: Bearer <token>\" -F \"files=@users.csv\" -F \"files=@more.zip\" "
+            + "'https://{tank-base-url}/v2/datafiles/batch'", summary = "Upload data files and zip archives")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Returns the data files created and the names skipped"),
+            @ApiResponse(responseCode = "400", description = "No files, too many files, or an unreadable archive", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs CREATE_DATAFILE", content = @Content)
+    })
+    public ResponseEntity<DataFileBatchResult> uploadDatafiles(
+            @RequestParam("files") @Parameter(description = "Up to 50 files") List<MultipartFile> files) {
+        return new ResponseEntity<>(dataFileService.uploadDatafiles(files), HttpStatus.CREATED);
+    }
+
+    @RequestMapping(value = "/{datafileId}/preview", method = RequestMethod.GET)
+    @Operation(description = "Returns a page of a data file's lines with the file's total line count, for any file type",
+            summary = "Preview a data file")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the lines"),
+            @ApiResponse(responseCode = "400", description = "Negative offset, or lines outside 1 to 1000", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such data file", content = @Content)
+    })
+    public ResponseEntity<DataFilePreview> previewDatafile(
+            @PathVariable @Parameter(description = "Datafile ID", required = true) Integer datafileId,
+            @RequestParam(required = false) @Parameter(description = "Zero-based first line (default 0)") Integer offset,
+            @RequestParam(required = false) @Parameter(description = "Number of lines, 1 to 1000 (default 100)") Integer lines) {
+        return ResponseEntity.ok(dataFileService.previewDatafile(datafileId, offset, lines));
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, params = "ids")
+    @Operation(description = "Deletes several data files. Nothing is deleted unless the caller may delete every one that exists",
+            summary = "Delete data files")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns which ids were deleted and which did not exist"),
+            @ApiResponse(responseCode = "400", description = "No ids, or more than 100", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to delete one of the data files", content = @Content)
+    })
+    public ResponseEntity<BulkDeleteResult> deleteDatafiles(
+            @RequestParam @Parameter(description = "Datafile IDs, comma separated", required = true) List<Integer> ids) {
+        return ResponseEntity.ok(dataFileService.deleteDatafiles(ids));
     }
 }

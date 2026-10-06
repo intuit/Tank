@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.logging.LogEventType;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -32,10 +34,9 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TestPlanStarter implements Runnable {
 
@@ -54,7 +55,8 @@ public class TestPlanStarter implements Runnable {
     private final HDTestPlan plan;
     private final int numThreads;
     private final String tankHttpClientClass;
-    private final ThreadGroup threadGroup;
+    private final String threadGroupName;
+    private final AtomicLong activeRunnerThreads = new AtomicLong();
     private final AgentRunData agentRunData;
     private int threadsStarted = 0;
     private int sessionStarts = 0;
@@ -63,18 +65,22 @@ public class TestPlanStarter implements Runnable {
     private double currentRampRate;
     private boolean done = false;
 
-    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, ThreadGroup threadGroup, AgentRunData agentRunData) {
+    public TestPlanStarter(Object httpClient, HDTestPlan plan, int numThreads, String tankHttpClientClass, String threadGroupName, AgentRunData agentRunData) {
         super();
         this.httpClient = httpClient;
         this.plan = plan;
         this.tankHttpClientClass = tankHttpClientClass;
         this.numThreads = (int) Math.max(1, Math.floor(numThreads * (plan.getUserPercentage() / 100D)));
-        this.threadGroup = threadGroup;
+        this.threadGroupName = threadGroupName;
         this.agentRunData = agentRunData;
         this.rampDelay = calcRampTime();
         this.standalone = ((this.numThreads == 1) && (this.agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)));
         if (!this.standalone) {
-            this.cloudWatchClient = CloudWatchAsyncClient.builder().build();
+            this.cloudWatchClient = CloudWatchAsyncClient.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build())
+                    .build();
             this.testPlan = Dimension.builder()
                     .name("testPlan")
                     .value(plan.getTestPlanName())
@@ -139,18 +145,7 @@ public class TestPlanStarter implements Runnable {
                         break;
                     }
 
-                    long activeCount = numThreads; //default
-                    try {
-                        Thread[] list = new Thread[this.threadGroup.activeCount()];
-                        this.threadGroup.enumerate(list);
-                        activeCount = Arrays.stream(list)
-                                .filter(Objects::nonNull)
-                                .filter(Thread::isAlive)
-                                .filter(thread -> thread.getName() != null && thread.getName().contains("AGENT"))
-                                .count();
-                    } catch (SecurityException se) {
-                        LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
-                    }
+                    long activeCount = getActiveCount();
 
                     if (threadsStarted < numThreads || activeCount < numThreads) {
                         createThread(httpClient, this.threadsStarted);
@@ -378,19 +373,7 @@ public class TestPlanStarter implements Runnable {
     }
 
     private long getActiveCount() {
-        long activeCount = 0; //default
-        try {
-            Thread[] list = new Thread[this.threadGroup.activeCount()];
-            this.threadGroup.enumerate(list);
-            activeCount = Arrays.stream(list)
-                    .filter(Objects::nonNull)
-                    .filter(Thread::isAlive)
-                    .filter(thread -> thread.getName() != null && thread.getName().contains("AGENT"))
-                    .count();
-        } catch (SecurityException se) {
-            LOG.error(LogUtil.getLogMessage("Failure to count threads:"), se);
-        }
-        return activeCount;
+        return activeRunnerThreads.get();
     }
 
     private void sendCloudWatchMetrics(long activeCount) {
@@ -439,7 +422,11 @@ public class TestPlanStarter implements Runnable {
                     .metricData(datumList)
                     .build();
 
-            cloudWatchClient.putMetricData(request);
+            cloudWatchClient.putMetricData(request).whenComplete((response, throwable) -> {
+                if (throwable != null) {
+                    LOG.error(LogUtil.getLogMessage("Failed to push metric data to cloudwatch: " + throwable.getMessage()), throwable);
+                }
+            });
             send = DateUtils.addSeconds(new Date(), interval); // 15 SECONDS
             this.sessionStarts = 0; // reset session starts for next interval
         }
@@ -447,9 +434,16 @@ public class TestPlanStarter implements Runnable {
 
     private void createThread(Object httpClient, int threadNumber) {
         TestPlanRunner session = new TestPlanRunner(httpClient, plan, threadNumber, tankHttpClientClass);
-        Thread thread = new Thread(threadGroup, session, "AGENT-" + threadNumber);
-        thread.setDaemon(true);// system won't shut down normally until all user threads stop
-        session.setUniqueName(threadGroup.getName() + "-" + thread.getId());
+        activeRunnerThreads.incrementAndGet();
+        Runnable runner = () -> {
+            try {
+                session.run();
+            } finally {
+                activeRunnerThreads.decrementAndGet();
+            }
+        };
+        Thread thread = Thread.ofVirtual().name("AGENT-" + threadNumber).unstarted(runner);
+        session.setUniqueName(threadGroupName + "-" + thread.threadId());
         thread.start();
         APITestHarness.getInstance().threadStarted(thread);
         threadsStarted++;

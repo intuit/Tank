@@ -16,13 +16,10 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import java.io.File;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
@@ -33,12 +30,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.intuit.tank.rest.mvc.rest.util.LogDirectory;
 
 /**
  * LogViewer
- * 
+ *
  * @author dangleton
- * 
+ *
  */
 @Named
 @RequestScoped
@@ -54,96 +52,58 @@ public class LogViewer implements Serializable {
 
     @PostConstruct
     public void init() {
-        logFiles = new ArrayList<String>();
-        String fileRoot = System.getProperty("catalina.base")
-                + File.separator
-                + "logs";
-        File f = new File(fileRoot);
-        LOG.info("Log file dir is " + f.getAbsolutePath());
-        if (!f.exists()) {
-            f = new File("/opt/tomcat/logs");
-        }
-        try {
-            for (File file : Objects.requireNonNull(f.listFiles())) {
-                if (file.isFile()) {
-                    logFiles.add(file.getName());
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("Error getting log files: " + e, e);
-        }
-        logFiles.sort(String.CASE_INSENSITIVE_ORDER);
+        LOG.info("Scanning log file dirs {}", LogDirectory.candidateRoots());
+        logFiles = LogDirectory.listFileNames();
     }
 
     public String getLogFileUrl() {
         if (StringUtils.isNotBlank(currentLogFile)) {
             String contextPath = FacesContext.getCurrentInstance().getExternalContext()
                     .getRequestContextPath();
-            return getContextRoot(contextPath) + "v2/logs" + File.separator
+            // Always use URL path separators; File.separator breaks on Windows.
+            return getContextRoot(contextPath) + "v2/logs/"
                     + URLEncoder.encode(currentLogFile, StandardCharsets.UTF_8);
         }
         return null;
     }
 
-    /**
-     * @param contextPath
-     * @return
-     */
     private String getContextRoot(String contextPath) {
-        if (!StringUtils.endsWith(contextPath, File.separator)) {
-            contextPath = contextPath + File.separator;
+        if (!StringUtils.endsWith(contextPath, "/")) {
+            contextPath = contextPath + "/";
         }
         return contextPath;
     }
 
-    /**
-     * @return the currentLogFile
-     */
     public String getCurrentLogFile() {
         return currentLogFile;
     }
 
-    /**
-     * @param currentLogFile
-     *            the currentLogFile to set
-     */
     public void setCurrentLogFile(String currentLogFile) {
         this.currentLogFile = currentLogFile;
     }
 
-    /**
-     * @return the numLines
-     */
     public int getNumLines() {
         return numLines;
     }
 
-    /**
-     * @param numLines
-     *            the numLines to set
-     */
     public void setNumLines(int numLines) {
         this.numLines = numLines;
     }
 
-    /**
-     * @return the pollSeconds
-     */
     public int getPollSeconds() {
         return pollSeconds;
     }
 
-    /**
-     * @param pollSeconds
-     *            the pollSeconds to set
-     */
     public void setPollSeconds(int pollSeconds) {
-        this.pollSeconds = pollSeconds;
+        if (pollSeconds < 0) {
+            this.pollSeconds = 0;
+        } else if (pollSeconds > 300) {
+            this.pollSeconds = 300;
+        } else {
+            this.pollSeconds = pollSeconds;
+        }
     }
 
-    /**
-     * @return the logFiles
-     */
     public List<String> getLogFiles() {
         return logFiles;
     }

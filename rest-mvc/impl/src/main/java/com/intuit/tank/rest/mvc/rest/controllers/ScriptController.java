@@ -12,6 +12,20 @@ import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescription;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.script.models.ScriptTO;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
+import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
+import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
+import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
+import com.intuit.tank.rest.mvc.rest.models.LogicTestResult;
+import com.intuit.tank.rest.mvc.rest.models.ScriptValidation;
+import com.intuit.tank.rest.mvc.rest.models.StepMatch;
+import com.intuit.tank.rest.mvc.rest.models.StepReplaceRequest;
+import com.intuit.tank.rest.mvc.rest.models.StepSearchRequest;
+import com.intuit.tank.rest.mvc.rest.models.ValidateStepsRequest;
+import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptDraftServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +46,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.io.*;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import jakarta.annotation.Resource;
@@ -42,6 +57,9 @@ import jakarta.annotation.Resource;
 public class ScriptController {
     @Resource
     private ScriptServiceV2 scriptService;
+
+    @Resource
+    private ScriptDraftServiceV2 scriptDraftService;
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Pings script service", summary = "Checks if script service is up")
@@ -101,7 +119,7 @@ public class ScriptController {
             "        curl -v -X POST -H \"Authorization: Bearer <token>\" 'https://{tank-base-url}/v2/scripts?copy&sourceId=<scriptId>&name=<script-name>' \n\n" +
             "Notes: \n\n " +
             " - **Tank Script Upload**: Only accepts Tank script XML files for an existing Tank script to update. The script ID and script name defined in the first few lines of script XML file should match an existing script entry in Tank to update that script, but setting the script ID to 0 will create a new script with any name.\n\n" +
-            " - **Tank Proxy Recording Upload**: Only accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional \n\n " +
+            " - **Tank Proxy Recording Upload**: Only accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional. productName sets the script's product, and filterIds applies those script filters to the recording, in order \n\n " +
             " - **Copying**: You must pass a value for the name parameter to successfully create a copy of an existing script.\n\n " +
             "\n\n", summary = "Creates a new Tank script")
     @ApiResponses(value = {
@@ -114,8 +132,11 @@ public class ScriptController {
                                                  @RequestParam(name = "recording", required = false) @Parameter(description = "Enables Tank Proxy Recording file upload mode", required = false) String recording,
                                                  @RequestParam(required = false) @Parameter(description = "Enables copying from existing Tank Script", required = false) String copy,
                                                  @RequestParam(required = false) @Parameter(description = "Source ScriptId to copy from", required = false) Integer sourceId,
-                                                 @RequestParam(value = "file", required = false) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file) throws IOException{
-        Map<String, String> response = scriptService.createScript(name, id, recording, copy, sourceId, contentEncoding, file);
+                                                 @RequestParam(value = "file", required = false) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file,
+                                                 @RequestParam(required = false) @Parameter(description = "Recording upload: the script's product", required = false) String productName,
+                                                 @RequestParam(required = false) @Parameter(description = "Recording upload: script filter IDs to apply, in order", required = false) List<Integer> filterIds) throws IOException{
+        Map<String, String> response = scriptService.createScript(name, id, recording, copy, sourceId, contentEncoding, file,
+                productName, filterIds);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -244,5 +265,138 @@ public class ScriptController {
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, params = "page")
+    @Operation(description = "Lists scripts one page at a time. The page parameter selects this form; without it "
+            + "GET /v2/scripts returns every script unpaged", summary = "List scripts (paged)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the page"),
+            @ApiResponse(responseCode = "400", description = "Invalid page, size or sort", content = @Content)
+    })
+    public ResponseEntity<PageResponse<ScriptSummary>> listScripts(
+            @RequestParam @Parameter(description = "Zero-based page number") Integer page,
+            @RequestParam(required = false) @Parameter(description = "Page size, 1 to 200 (default 25)") Integer size,
+            @RequestParam(required = false) @Parameter(description = "id, name, productName, owner, created, modified or "
+                    + "runtime, optionally followed by ,asc or ,desc (default modified,desc)") String sort,
+            @RequestParam(required = false) @Parameter(description = "Only scripts owned by this user") String owner,
+            @RequestParam(required = false) @Parameter(description = "Text the name, product or comments contain") String q) {
+        return ResponseEntity.ok(scriptService.listScripts(page, size, sort, owner, q));
+    }
+
+    @RequestMapping(value = "/{scriptId}/steps", method = RequestMethod.GET)
+    @Operation(description = "Returns the script with every step, for the script editor. Recorded responses are left out "
+            + "and authentication passwords are masked", summary = "Get a script for editing")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the script"),
+            @ApiResponse(responseCode = "404", description = "No such script", content = @Content)
+    })
+    public ResponseEntity<ScriptDocument> getScriptDocument(
+            @PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId) {
+        return ResponseEntity.ok(scriptService.getScriptDocument(scriptId));
+    }
+
+    @RequestMapping(value = "/{scriptId}/steps", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Replaces the script's name, product, comments and every step, in list order. Send modified "
+            + "from the GET; if the script was saved since, the request is rejected with 409", summary = "Save a script")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Saved; returns the script as stored"),
+            @ApiResponse(responseCode = "400", description = "Invalid script", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to edit the script", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such script", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Saved by someone else since it was loaded", content = @Content)
+    })
+    public ResponseEntity<ScriptDocument> updateScriptDocument(
+            @PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId,
+            @RequestBody ScriptDocument document) {
+        return ResponseEntity.ok(scriptService.updateScriptDocument(scriptId, document));
+    }
+
+    @RequestMapping(value = "/{scriptId}/copy", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Copies a script under a new name, owned by the caller", summary = "Copy a script")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Copied; returns the new script"),
+            @ApiResponse(responseCode = "400", description = "Name missing or too long", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs CREATE_SCRIPT", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such script", content = @Content)
+    })
+    public ResponseEntity<ScriptSummary> copyScript(
+            @PathVariable @Parameter(description = "Script ID to copy", required = true) Integer scriptId,
+            @RequestBody CopyRequest request) {
+        ScriptSummary copy = scriptService.copyScript(scriptId, request);
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/v2/scripts/{id}/steps").buildAndExpand(copy.id()).toUri();
+        return ResponseEntity.created(location).body(copy);
+    }
+
+    @RequestMapping(value = "/{scriptId}/steps/{stepUuid}/response", method = RequestMethod.GET,
+            produces = { MediaType.TEXT_PLAIN_VALUE })
+    @Operation(description = "Returns the response recorded for a step, as stored", summary = "Get a step's recorded response")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "The recorded response"),
+            @ApiResponse(responseCode = "404", description = "No such script or step, or no recorded response", content = @Content)
+    })
+    public ResponseEntity<String> getStepResponse(
+            @PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId,
+            @PathVariable @Parameter(description = "Step uuid", required = true) String stepUuid) {
+        return ResponseEntity.ok(scriptService.getStepResponse(scriptId, stepUuid));
+    }
+
+    // Operations on an unsaved step list; nothing is saved
+
+    @RequestMapping(value = "/steps/search", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Finds steps whose chosen parts match the query (* and ? are wildcards; the whole value must "
+            + "match)", summary = "Search a step list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns every match"),
+            @ApiResponse(responseCode = "400", description = "No query, no sections, or an unknown section", content = @Content)
+    })
+    public ResponseEntity<List<StepMatch>> searchSteps(@RequestBody StepSearchRequest request) {
+        return ResponseEntity.ok(scriptDraftService.search(request));
+    }
+
+    @RequestMapping(value = "/steps/replace", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Replaces the matching keys or values in the step list, or only in the steps listed in uuids, "
+            + "and returns the updated list", summary = "Replace in a step list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the updated steps and how many changed"),
+            @ApiResponse(responseCode = "400", description = "Invalid query, sections, replacement or mode", content = @Content)
+    })
+    public ResponseEntity<DraftSteps> replaceInSteps(@RequestBody StepReplaceRequest request) {
+        return ResponseEntity.ok(scriptDraftService.replace(request));
+    }
+
+    @RequestMapping(value = "/steps/apply-filters", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Applies script filters, in order, to the step list and returns the result. To filter a saved "
+            + "script in place, use POST /v2/filters/apply-filters/{scriptId}", summary = "Apply filters to a step list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the filtered steps and how many changed"),
+            @ApiResponse(responseCode = "400", description = "No filters, or an unknown filter id", content = @Content)
+    })
+    public ResponseEntity<DraftSteps> applyFiltersToSteps(@RequestBody ApplyFiltersRequest request) {
+        return ResponseEntity.ok(scriptDraftService.applyFilters(request));
+    }
+
+    @RequestMapping(value = "/steps/validate", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Checks the step list as the script editor's Validate dialog does: estimated duration, "
+            + "best practices and variable usage", summary = "Validate a step list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the checks")
+    })
+    public ResponseEntity<ScriptValidation> validateSteps(@RequestBody ValidateStepsRequest request) {
+        return ResponseEntity.ok(scriptDraftService.validate(request));
+    }
+
+    @RequestMapping(value = "/logic/test", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Runs a logic step script against the given variables, request and response, in a sandbox "
+            + "with no Java access and a 5 second limit, and returns what it printed", summary = "Test a logic step")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the output; timedOut is true if the script did not finish"),
+            @ApiResponse(responseCode = "400", description = "No script, or a script over 64 KB", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs EDIT_SCRIPT or ownership of scriptId", content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many tests are running", content = @Content)
+    })
+    public ResponseEntity<LogicTestResult> testLogicStep(@RequestBody LogicTestRequest request) {
+        return ResponseEntity.ok(scriptDraftService.testLogic(request));
     }
 }

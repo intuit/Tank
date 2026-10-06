@@ -9,9 +9,11 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
 import com.intuit.tank.filters.models.FilterTO;
-import com.intuit.tank.filters.models.FilterGroupTO;
+import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.FilterContainer;
+import com.intuit.tank.filters.models.FilterGroupTO;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.services.filters.FilterServiceV2;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,7 +61,8 @@ public class FilterController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(description = "Creates a new filter, or updates the filter when the payload contains an existing ID",
+    @Operation(description = "Creates a new filter, or updates the filter when the payload contains an existing ID. "
+            + "New clients should use PUT /v2/filters/{filterId} to update, which checks for concurrent changes",
             summary = "Create or update a filter")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully saved filter"),
@@ -82,8 +85,91 @@ public class FilterController {
         return new ResponseEntity<>(savedFilter, responseHeaders, HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/{filterId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Replaces a filter's settings, conditions and actions. Send the modified time from the "
+            + "last GET; the owner is unchanged", summary = "Update a filter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Saved; returns the filter"),
+            @ApiResponse(responseCode = "400", description = "Invalid filter or modified missing", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs EDIT_FILTER or ownership", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such filter", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Changed by someone else since it was loaded", content = @Content)
+    })
+    public ResponseEntity<FilterTO> updateFilter(
+            @PathVariable @Parameter(description = "The filter ID", required = true) Integer filterId,
+            @RequestBody @Parameter(description = "Complete filter JSON payload", required = true) FilterTO filter) {
+        return ResponseEntity.ok(filterService.updateFilter(filterId, filter));
+    }
+
+    @RequestMapping(value = "/{filterId}/copy", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Copies a filter, with its conditions and actions, under a new name owned by the caller",
+            summary = "Copy a filter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Copied; returns the new filter"),
+            @ApiResponse(responseCode = "400", description = "Name missing or too long", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to create filters", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such filter", content = @Content)
+    })
+    public ResponseEntity<FilterTO> copyFilter(
+            @PathVariable @Parameter(description = "The filter ID to copy", required = true) Integer filterId,
+            @RequestBody CopyRequest request) {
+        FilterTO copy = filterService.copyFilter(filterId, request);
+        return ResponseEntity.created(location("/v2/filters/{id}", copy.getId())).body(copy);
+    }
+
+    @RequestMapping(value = "/groups", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Creates a filter group owned by the caller from a name, product and member filter IDs",
+            summary = "Create a filter group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created; returns the group with its filters"),
+            @ApiResponse(responseCode = "400", description = "Name missing or unknown filter IDs", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to create filters", content = @Content)
+    })
+    public ResponseEntity<FilterGroupDetailTO> createFilterGroup(
+            @RequestBody @Parameter(description = "The filter group", required = true) FilterGroupTO group) {
+        FilterGroupDetailTO saved = filterService.createFilterGroup(group);
+        return ResponseEntity.created(location("/v2/filters/groups/{id}", saved.getId())).body(saved);
+    }
+
+    @RequestMapping(value = "/groups/{filterGroupId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Replaces a filter group's name, product and members. Send the modified time from the "
+            + "last GET; the owner is unchanged", summary = "Update a filter group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Saved; returns the group with its filters"),
+            @ApiResponse(responseCode = "400", description = "Name missing, unknown filter IDs or modified missing", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs EDIT_FILTER or ownership", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such filter group", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Changed by someone else since it was loaded", content = @Content)
+    })
+    public ResponseEntity<FilterGroupDetailTO> updateFilterGroup(
+            @PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId,
+            @RequestBody @Parameter(description = "The filter group", required = true) FilterGroupTO group) {
+        return ResponseEntity.ok(filterService.updateFilterGroup(filterGroupId, group));
+    }
+
+    @RequestMapping(value = "/groups/{filterGroupId}/copy", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Copies a filter group, holding the same filters, under a new name owned by the caller",
+            summary = "Copy a filter group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Copied; returns the new group with its filters"),
+            @ApiResponse(responseCode = "400", description = "Name missing or too long", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to create filters", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No such filter group", content = @Content)
+    })
+    public ResponseEntity<FilterGroupDetailTO> copyFilterGroup(
+            @PathVariable @Parameter(description = "The filter group ID to copy", required = true) Integer filterGroupId,
+            @RequestBody CopyRequest request) {
+        FilterGroupDetailTO copy = filterService.copyFilterGroup(filterGroupId, request);
+        return ResponseEntity.created(location("/v2/filters/groups/{id}", copy.getId())).body(copy);
+    }
+
+    private static URI location(String path, Integer id) {
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(path).buildAndExpand(id).toUri();
+    }
+
     @RequestMapping(value = "/groups", method = RequestMethod.GET)
-    @Operation(description = "Returns list of all filter group descriptions", summary = "Get all filter group descriptions")
+    @Operation(description = "Returns all filter groups with their member filter IDs",
+            summary = "Get all filter groups")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found all filter group descriptions"),
             @ApiResponse(responseCode = "404", description = "All filter group descriptions could not be found", content = @Content)
@@ -103,12 +189,13 @@ public class FilterController {
     }
 
     @RequestMapping(value = "/groups/{filterGroupId}", method = RequestMethod.GET)
-    @Operation(description = "Returns specified filter group description by filter group id", summary = "Get a specific filter group description")
+    @Operation(description = "Returns the specified filter group with complete member filter definitions",
+            summary = "Get a filter group with its filters")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully found filter group"),
             @ApiResponse(responseCode = "404", description = "Filter group could not be found", content = @Content)
     })
-    public ResponseEntity<FilterGroupTO> getFilterGroup(@PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId) {
+    public ResponseEntity<FilterGroupDetailTO> getFilterGroup(@PathVariable @Parameter(description = "The filter group ID", required = true) Integer filterGroupId) {
         return new ResponseEntity<>(filterService.getFilterGroup(filterGroupId), HttpStatus.OK);
     }
 

@@ -20,7 +20,9 @@ import com.intuit.tank.vm.settings.TankConfig;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -57,7 +59,10 @@ public class S3FileStorage implements FileStorage, Serializable {
             TankConfig tankConfig = new TankConfig();
             this.encrypt = tankConfig.isS3EncryptionEnabled();
             CloudCredentials creds = tankConfig.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            S3ClientBuilder s3ClientBuilder = S3Client.builder();
+            S3ClientBuilder s3ClientBuilder = S3Client.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build());
             if (creds != null && StringUtils.isNotBlank(System.getProperty("http.proxyHost"))) {
                 try {
                     URIBuilder uriBuilder = new URIBuilder().setHost(System.getProperty("http.proxyHost"));
@@ -113,7 +118,7 @@ public class S3FileStorage implements FileStorage, Serializable {
             }
             s3Client.putObject(request.build(), RequestBody.fromInputStream(in, in.available()));
         } catch (Exception e) {
-            LOG.error("Error storing file: " + e, e);
+            LOG.error("Error storing file: {}", e, e);
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(in);
@@ -129,7 +134,6 @@ public class S3FileStorage implements FileStorage, Serializable {
     }
 
     private void createBucket(String bucketName) {
-        System.out.println(bucketName);
         try {
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket {} at now", bucketName);
@@ -166,13 +170,14 @@ public class S3FileStorage implements FileStorage, Serializable {
                 prefix = prefix + "/";
             }
             prefix = Strings.CS.removeStart(prefix, "/");
-            ListObjectsResponse response = s3Client.listObjects(ListObjectsRequest.builder().bucket(bucketName).prefix(prefix).delimiter("/").build());
-            for (S3Object object : response.contents()) {
+            ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+                    .bucket(bucketName).prefix(prefix).delimiter("/").build();
+            s3Client.listObjectsV2Paginator(listRequest).contents().forEach(object -> {
                 String fileName = FilenameUtils.getName(FilenameUtils.normalize(object.key()));
                 if (StringUtils.isNotBlank(fileName)) {
                     ret.add(new FileData(path, fileName));
                 }
-            }
+            });
         } catch (S3Exception e) {
             LOG.error("Error Listing Files: {}", e, e);
             throw new RuntimeException(e);

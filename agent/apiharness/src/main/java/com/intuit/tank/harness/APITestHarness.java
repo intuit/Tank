@@ -80,7 +80,6 @@ public class APITestHarness {
 
     private String testPlans = "";
     private String instanceId;
-    private ArrayList<ThreadGroup> threadGroupArray = new ArrayList<>();
     private int currentNumThreads = 0;
     private long startTime = 0;
     private int capacity = -1;
@@ -101,7 +100,6 @@ public class APITestHarness {
     private TankConfig tankConfig;
     private UserTracker userTracker = new UserTracker();
     private FlowController flowControllerTemplate;
-    private Map<Long, FlowController> controllerMap = new HashMap<Long, FlowController>();
     private TPSMonitor tpsMonitor;
     private ResultsReporter resultsReporter;
     private String tankHttpClientClass;
@@ -372,7 +370,7 @@ public class APITestHarness {
                     startData = objectMapper.readerFor(AgentTestStartData.class).readValue(response.body());
                     break;
                 } catch (Exception e) {
-                    LOG.error("Error sending ready: " + e, e);
+                    LOG.error("Error sending ready: {}", e, e);
                     try {
                         Thread.sleep(FIBONACCI[count++] * 1000);
                     } catch ( InterruptedException ignored) {}
@@ -395,7 +393,7 @@ public class APITestHarness {
             thread.setDaemon(false);
             thread.start();
         } catch (Exception e) {
-            LOG.error("Error communicating with controller: " + e, e);
+            LOG.error("Error communicating with controller: {}", e, e);
             System.exit(0);
         }
     }
@@ -602,9 +600,8 @@ public class APITestHarness {
             for (HDTestPlan plan : hdWorkload.getPlans()) {
                 if (plan.getUserPercentage() > 0) {
                     plan.setVariables(hdWorkload.getVariables());
-                    ThreadGroup threadGroup = new ThreadGroup("Test Plan Runner Group: " + plan.getTestPlanName());
-                    threadGroupArray.add(threadGroup);
-                    TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroup, agentRunData);
+                    String threadGroupName = "Test Plan Runner Group: " + plan.getTestPlanName();
+                    TestPlanStarter starter = new TestPlanStarter(httpClient, plan, agentRunData.getNumUsers(), tankHttpClientClass, threadGroupName, agentRunData);
                     testPlans.add(starter);
                     LOG.info(LogUtil.getLogMessage("Users for Test Plan " + plan.getTestPlanName() + " at "
                             + plan.getUserPercentage()
@@ -811,19 +808,15 @@ public class APITestHarness {
      * check the agent threads if simulation time has been met.
      */
     public void checkAgentThreads() {
-        for (ThreadGroup threadGroup : threadGroupArray) {
-            int activeCount = threadGroup.activeCount();
-            LOG.info(LogUtil.getLogMessage("Have " + threadGroup.activeCount()
-                    + " active Threads in thread group "
-                    + threadGroup.getName()));
-        }
+        long activeCount = sessionThreads.stream().filter(Thread::isAlive).count();
+        LOG.info(LogUtil.getLogMessage("Have " + activeCount + " active user Threads"));
         if (hasMetSimulationTime()) {          // && doneSignal.getCount() != 0) {
             if(agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
                 LOG.info(LogUtil.getLogMessage("Linear - Max simulation time has been met and there are "
                         + doneSignal.getCount() + " threads not reporting done, interrupting remaining threads."));
                 for (Thread t : sessionThreads) {
                     if (t.isAlive()) {
-                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.getId()
+                        LOG.warn(LogUtil.getLogMessage("thread " + t.getName() + '-' + t.threadId()
                                 + " is still running with a State of " + t.getState().name(), LogEventType.System));
                         t.interrupt();
                         doneSignal.countDown();
@@ -917,15 +910,6 @@ public class APITestHarness {
      */
     public void setFlowControllerTemplate(FlowController flowControllerTemplate) {
         this.flowControllerTemplate = flowControllerTemplate;
-    }
-
-    public FlowController getFlowController(Long threadId) {
-        FlowController ret = controllerMap.get(threadId);
-        if (ret == null) {
-            ret = flowControllerTemplate.cloneController();
-            controllerMap.put(threadId, ret);
-        }
-        return ret;
     }
 
     public int getCurrentUsers() { return currentUsers; }

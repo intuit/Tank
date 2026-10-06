@@ -45,6 +45,7 @@ import jakarta.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -55,6 +56,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     protected static String INVALID_AMI_ID_UNAVAILABLE = "InvalidAMIID.Unavailable";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
+    private static final Map<VMRegion, Ec2AsyncClient> CLIENT_CACHE = new ConcurrentHashMap<>();
 
     private Ec2AsyncClient ec2AsyncClient;
     private VMRegion vmRegion;
@@ -77,33 +79,40 @@ public class AmazonInstance implements IEnvironmentInstance {
     public AmazonInstance(@Nonnull VMRegion vmRegion) {
         this.vmRegion = vmRegion;
         try {
-            CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder()
-                    .overrideConfiguration(ClientOverrideConfiguration.builder()
-                            .retryStrategy(RetryMode.ADAPTIVE_V2)
-                            .build());
-            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
-                try {
-                    ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
-                    if (StringUtils.isNotBlank(creds.getProxyPort())) {
-                        proxyConfig.port(Integer.parseInt(creds.getProxyPort()));
-                    }
-                    SdkAsyncHttpClient.Builder<NettyNioAsyncHttpClient.Builder> httpClientBuilder =
-                            NettyNioAsyncHttpClient.builder().proxyConfiguration(proxyConfig.build());
-                    ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
-                } catch (NumberFormatException e) {
-                    LOG.error("invalid proxy setup.");
-                }
-            }
-            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
-                AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
-            }
-            ec2AsyncClient = ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
+            this.ec2AsyncClient = CLIENT_CACHE.computeIfAbsent(vmRegion, AmazonInstance::buildClient);
         } catch (Exception ex) {
             LOG.error("Error initializing amazon client: {}", ex, ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    /**
+     * Build an {@link Ec2AsyncClient} for the given region. Called once per region via the client cache.
+     */
+    private static Ec2AsyncClient buildClient(VMRegion vmRegion) {
+        CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+        Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder()
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .retryStrategy(RetryMode.ADAPTIVE_V2)
+                        .build());
+        if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
+            try {
+                ProxyConfiguration.Builder proxyConfig = ProxyConfiguration.builder().host(creds.getProxyHost());
+                if (StringUtils.isNotBlank(creds.getProxyPort())) {
+                    proxyConfig.port(Integer.parseInt(creds.getProxyPort()));
+                }
+                SdkAsyncHttpClient.Builder<NettyNioAsyncHttpClient.Builder> httpClientBuilder =
+                        NettyNioAsyncHttpClient.builder().proxyConfiguration(proxyConfig.build());
+                ec2ClientBuilder.httpClientBuilder(httpClientBuilder);
+            } catch (NumberFormatException e) {
+                LOG.error("invalid proxy setup.");
+            }
+        }
+        if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
+            AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
+            ec2ClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
+        }
+        return ec2ClientBuilder.region(Region.of(vmRegion.getRegion())).build();
     }
 
     public void attachVolume(String volumneId, String instanceId, String device) {
@@ -380,7 +389,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                     if (response.instances().size() < requestCount) {
                         LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
                         RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
-                        return response.toBuilder().instances(res.instances()).build();
+                        List<Instance> launched = new ArrayList<>(response.instances());
+                        launched.addAll(res.instances());
+                        return response.toBuilder().instances(launched).build();
                     }
                     return response;
                 });
@@ -644,6 +655,45 @@ public class AmazonInstance implements IEnvironmentInstance {
             this.address = address;
         }
 
+    }
+
+    /**
+     * Running agents this controller launched, identified by the Controller and JobId tags set in buildTags.
+     */
+    public List<VMInformation> findRunningAgents(String controllerName) {
+        List<VMInformation> agents = new ArrayList<>();
+        DescribeInstancesRequest.Builder request = DescribeInstancesRequest.builder().filters(
+                Filter.builder().name("tag:Controller").values(controllerName).build(),
+                Filter.builder().name("tag-key").values("JobId").build(),
+                Filter.builder().name("instance-state-name").values(InstanceStateName.RUNNING.toString()).build());
+        try {
+            String nextToken = null;
+            do {
+                DescribeInstancesResponse response = ec2AsyncClient.describeInstances(request.nextToken(nextToken).build()).get();
+                for (Reservation reservation : response.reservations()) {
+                    for (Instance instance : reservation.instances()) {
+                        VMInformation info = AmazonDataConverter.instanceToVmInformation(reservation.requesterId(), instance, vmRegion);
+                        instance.tags().stream()
+                                .filter(tag -> "JobId".equals(tag.key()))
+                                .findFirst()
+                                .ifPresent(tag -> info.setJobId(tag.value()));
+                        if (instance.launchTime() != null) {
+                            Calendar launchTime = Calendar.getInstance();
+                            launchTime.setTimeInMillis(instance.launchTime().toEpochMilli());
+                            info.setLaunchTime(launchTime);
+                        }
+                        agents.add(info);
+                    }
+                }
+                nextToken = response.nextToken();
+            } while (StringUtils.isNotEmpty(nextToken));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted finding running agents in {}", vmRegion);
+        } catch (ExecutionException e) {
+            LOG.error("Error finding running agents in {}: {}", vmRegion, e.getMessage(), e);
+        }
+        return agents;
     }
 
     public Optional<String> findDNSName(String instanceId) {

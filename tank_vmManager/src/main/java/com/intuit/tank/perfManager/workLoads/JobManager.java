@@ -61,6 +61,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
+import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.apache.logging.log4j.message.ObjectMessage;
 
@@ -81,12 +82,17 @@ public class JobManager implements Serializable {
     private VMTracker vmTracker;
 
     @Inject
+    private VMTerminator vmTerminator;
+
+    @Inject
     private StandaloneAgentTracker standaloneTracker;
 
     @Inject
     private Instance<WorkLoadFactory> workLoadFactoryInstance;
 
     private Map<String, JobInfo> jobInfoMapLocalCache = new ConcurrentHashMap<>();
+
+    private final Map<String, String> adoptedAgentJobs = new ConcurrentHashMap<>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
@@ -352,6 +358,10 @@ public class JobManager implements Serializable {
                         }
                     }
                 }
+                String adoptedJobId = adoptedAgentJobs.get(instanceId);
+                if (adoptedJobId != null) {
+                    instanceJobMap.putIfAbsent(instanceId, adoptedJobId);
+                }
             }
         }
 
@@ -521,8 +531,16 @@ public class JobManager implements Serializable {
 
     public ControllerInitiatedAgentWsClient getControllerInitiatedAgentWsClient() {
         controllerInitiatedAgentWsClient.setVmTracker(vmTracker);
+        controllerInitiatedAgentWsClient.setVmTerminator(vmTerminator);
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(controllerInitiatedAgentWsClient);
         return controllerInitiatedAgentWsClient;
+    }
+
+    /**
+     * Routes commands to a running agent that this controller process did not launch (e.g. after a restart).
+     */
+    public void adoptAgent(String instanceId, String jobId) {
+        adoptedAgentJobs.put(instanceId, jobId);
     }
 
     public void startAgents(String jobId){

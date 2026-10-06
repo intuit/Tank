@@ -7,19 +7,33 @@
  */
 package com.intuit.tank.filters.models;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import jakarta.xml.bind.annotation.*;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder(setterPrefix = "with")
 @XmlRootElement(name = "filterGroup", namespace = Namespace.NAMESPACE_V1)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FilterGroup", namespace = Namespace.NAMESPACE_V1, propOrder = {
         "id",
+        "created",
+        "modified",
+        "creator",
         "name",
-        "productName"
+        "productName",
+        "filterIds"
 })
 public class FilterGroupTO implements Serializable {
 
@@ -28,56 +42,24 @@ public class FilterGroupTO implements Serializable {
     @XmlElement(name = "id", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private Integer id;
 
+    @XmlElement(name = "created", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private Date created;
+
+    @XmlElement(name = "modified", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private Date modified;
+
+    @XmlElement(name = "creator", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private String creator;
+
     @XmlElement(name = "name", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String name;
 
     @XmlElement(name = "productName", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
     private String productName;
 
-    /**
-     * @return the id
-     */
-    public Integer getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the productName
-     */
-    public String getProductName() {
-        return productName;
-    }
-
-    /**
-     * @param productName
-     *            the productName to set
-     */
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+    @XmlElementWrapper(name = "filterIds", namespace = Namespace.NAMESPACE_V1)
+    @XmlElement(name = "filterId", namespace = Namespace.NAMESPACE_V1)
+    private List<Integer> filterIds;
 
     /**
      * {@inheritDoc}

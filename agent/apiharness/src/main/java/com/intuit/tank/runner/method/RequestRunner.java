@@ -53,6 +53,7 @@ import com.intuit.tank.vm.common.util.ValidationUtil;
 public class RequestRunner implements Runner {
 
     private static Logger LOG = LogManager.getLogger(RequestRunner.class);
+    private static final String EQUALS_ANY_DELIMITER = "||";
 
     private String uniqueName;
     private BaseRequest baseRequest;
@@ -535,7 +536,9 @@ public class RequestRunner implements Runner {
      */
     private String validateBody(ValidationData original, ValidationData item, Variables variables,
             BaseResponse reqResponse, String uniqueName) {
-        String actualValue = reqResponse.getValue(item.getKey());
+        String actualValue = ValidationUtil.isFunction(item.getKey())
+                ? FunctionHandler.executeFunction(item.getKey(), variables, reqResponse.getResponseBody())
+                : reqResponse.getValue(item.getKey());
         LOG.debug("Body compare actual value: " + actualValue);
         boolean result = evaluateResult(actualValue, item.getValue(), item.getCondition(),
                 variables);
@@ -604,6 +607,8 @@ public class RequestRunner implements Runner {
             testResult = !StringUtils.isEmpty(actualValue);
         } else if (validationType == ValidationType.equals) { // Process Equals
             testResult = expectedValue.equalsIgnoreCase(actualValue);
+        } else if (validationType == ValidationType.equalsany) {
+            testResult = equalsAny(actualValue, expectedValue);
         } else if (validationType == ValidationType.notequals) { // Process Equals
             testResult = !expectedValue.equalsIgnoreCase(actualValue);
         } else if (validationType == ValidationType.contains) { // Process Equals
@@ -619,6 +624,18 @@ public class RequestRunner implements Runner {
             testResult = false;
         }
         return testResult;
+    }
+
+    private boolean equalsAny(String actualValue, String expectedValue) {
+        if (actualValue == null || expectedValue == null) {
+            return false;
+        }
+        for (String candidate : expectedValue.split("\\Q" + EQUALS_ANY_DELIMITER + "\\E", -1)) {
+            if (candidate.equalsIgnoreCase(actualValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int compare(String actualValue, String expected) {

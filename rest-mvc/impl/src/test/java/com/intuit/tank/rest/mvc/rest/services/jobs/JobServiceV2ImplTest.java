@@ -26,7 +26,10 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.JobQueueEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
+import com.intuit.tank.dao.util.ProjectDaoUtil;
+import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.util.JobDetailFormatter;
@@ -240,8 +243,14 @@ class JobServiceV2ImplTest {
         Project project = createProject(workload);
         JobQueue queue = new JobQueue(project.getId());
 
+        JobQueueEventSender queueEvents = mock(JobQueueEventSender.class);
         try (MockedStatic<JobDetailFormatter> jdf = Mockito.mockStatic(JobDetailFormatter.class);
              MockedStatic<TestParamUtil> tpu = Mockito.mockStatic(TestParamUtil.class);
+             MockedStatic<ProjectDaoUtil> scriptStore = Mockito.mockStatic(ProjectDaoUtil.class);
+             MockedStatic<ConverterUtil> converter = Mockito.mockStatic(ConverterUtil.class);
+             MockedConstruction<ServletInjector> injector = Mockito.mockConstruction(ServletInjector.class,
+                     (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobQueueEventSender.class)))
+                             .thenReturn(queueEvents));
              MockedConstruction<ProjectDao> projDaoMock = Mockito.mockConstruction(ProjectDao.class,
                      (mock, ctx) -> {
                          when(mock.findByIdEager(7)).thenReturn(project);
@@ -273,6 +282,8 @@ class JobServiceV2ImplTest {
 
             assertEquals("555", result.get("JobId"));
             assertEquals("created", result.get("status"));
+            verify(queueEvents).jobQueued(555);
+            scriptStore.verify(() -> ProjectDaoUtil.storeScriptFile(eq("555"), any()));
         }
     }
 
@@ -383,8 +394,8 @@ class JobServiceV2ImplTest {
 
             assertNotNull(result);
             assertEquals(2, result.size());
-            assertEquals("1", result.get(0).get("jobId"));
-            assertEquals("Running", result.get(0).get("status"));
+            assertEquals("1", result.getFirst().get("jobId"));
+            assertEquals("Running", result.getFirst().get("status"));
             assertEquals("2", result.get(1).get("jobId"));
             assertEquals("Completed", result.get(1).get("status"));
         }
@@ -600,7 +611,7 @@ class JobServiceV2ImplTest {
         setField(request, "rampTime", "300");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -613,7 +624,7 @@ class JobServiceV2ImplTest {
         setField(request, "simulationTime", "600");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -626,7 +637,7 @@ class JobServiceV2ImplTest {
         setField(request, "workloadType", IncrementStrategy.increasing);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -639,7 +650,7 @@ class JobServiceV2ImplTest {
         setField(request, "stopBehavior", StopBehavior.END_OF_TEST.name());
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -652,7 +663,7 @@ class JobServiceV2ImplTest {
         setField(request, "stopBehavior", "");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -665,7 +676,7 @@ class JobServiceV2ImplTest {
         setField(request, "stopBehavior", null);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -678,7 +689,7 @@ class JobServiceV2ImplTest {
         setField(request, "vmInstance", "c5.xlarge");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -691,7 +702,7 @@ class JobServiceV2ImplTest {
         setField(request, "numUsersPerAgent", 50);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -704,7 +715,7 @@ class JobServiceV2ImplTest {
         setField(request, "simulationTime", "600");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -717,7 +728,7 @@ class JobServiceV2ImplTest {
         setField(request, "simulationTime", "0");
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.setSimulationTimeExpression("0");
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -733,7 +744,7 @@ class JobServiceV2ImplTest {
         setField(request, "jobRegions", regions);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         // Ensure jobRegions is initialized
         jc.getJobRegions().add(new JobRegion(VMRegion.US_EAST, "10", "100"));
 
@@ -754,7 +765,7 @@ class JobServiceV2ImplTest {
         setField(request, "jobRegions", regions);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.getJobRegions().add(new JobRegion(VMRegion.US_EAST, "10", "100"));
 
         try (MockedConstruction<JobRegionDao> jrdMock = Mockito.mockConstruction(JobRegionDao.class,
@@ -777,7 +788,7 @@ class JobServiceV2ImplTest {
         setField(request, "jobRegions", regions);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.getJobRegions().add(new JobRegion(VMRegion.US_EAST, "10", "100"));
 
         try (MockedConstruction<JobRegionDao> jrdMock = Mockito.mockConstruction(JobRegionDao.class)) {
@@ -795,7 +806,7 @@ class JobServiceV2ImplTest {
         setField(request, "jobRegions", null);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.getJobRegions().add(new JobRegion(VMRegion.US_EAST, "10", "100"));
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -812,7 +823,7 @@ class JobServiceV2ImplTest {
         setField(request, "targetRatePerAgent", 1.5);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
 
@@ -827,7 +838,7 @@ class JobServiceV2ImplTest {
         // rampTime is null by default
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.setRampTimeExpression("existing");
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -841,7 +852,7 @@ class JobServiceV2ImplTest {
         // simulationTime is null by default
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.setSimulationTimeExpression("existing");
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -855,7 +866,7 @@ class JobServiceV2ImplTest {
         // vmInstance is null by default
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.setVmInstanceType("original");
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -869,7 +880,7 @@ class JobServiceV2ImplTest {
         setField(request, "workloadType", null);
 
         Project project = createProjectWithJobConfig();
-        JobConfiguration jc = project.getWorkloads().get(0).getJobConfiguration();
+        JobConfiguration jc = project.getWorkloads().getFirst().getJobConfiguration();
         jc.setIncrementStrategy(IncrementStrategy.increasing);
 
         JobServiceV2Impl.buildJobConfiguration(request, project);
@@ -1104,16 +1115,22 @@ class JobServiceV2ImplTest {
     }
 
     private static Script getOnlyScript(Workload workload) {
-        return workload.getTestPlans().get(0).getScriptGroups().get(0).getScriptGroupSteps().get(0).getScript();
+        return workload.getTestPlans().getFirst().getScriptGroups().getFirst().getScriptGroupSteps().getFirst().getScript();
     }
 
     private static JobInstance runAddJobToQueue(CreateJobRequest request) {
         Script loadedScript = createScript("loaded-script", 11);
         Workload loadedWorkload = createWorkload("loaded-workload", 111, loadedScript);
+        // createJob applies the request's workload type to the project before queueing
+        if (request.getWorkloadType() != null) {
+            loadedWorkload.getJobConfiguration().setIncrementStrategy(request.getWorkloadType());
+        }
         Project project = createProject(loadedWorkload);
         JobQueue queue = new JobQueue(project.getId());
 
-        try (MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
+        try (MockedStatic<ProjectDaoUtil> ignoredScriptStore = Mockito.mockStatic(ProjectDaoUtil.class);
+             MockedStatic<ConverterUtil> ignoredConverter = Mockito.mockStatic(ConverterUtil.class);
+             MockedStatic<ResponseUtil> responseUtil = Mockito.mockStatic(ResponseUtil.class);
              MockedStatic<JobDetailFormatter> jobDetailFormatter = Mockito.mockStatic(JobDetailFormatter.class);
              MockedStatic<TestParamUtil> testParamUtil = Mockito.mockStatic(TestParamUtil.class);
              MockedConstruction<JobValidator> ignoredValidator = Mockito.mockConstruction(JobValidator.class,

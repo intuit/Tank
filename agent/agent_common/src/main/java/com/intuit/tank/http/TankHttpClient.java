@@ -87,4 +87,11 @@ public interface TankHttpClient {
      * @param httpClient
      */
     public void setHttpClient(Object httpClient);
+
+    /**
+     * Releases any resources (threads, connections) held by the underlying client.
+     * Called once per virtual-user thread when its test plan finishes. Default is a
+     * no-op for pooled/shared-client implementations.
+     */
+    default void close() {}
 }

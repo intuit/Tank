@@ -96,7 +96,7 @@ public class LoginFilterTest {
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_tankSsoHandlerMock, times(1)).HandleSsoAuthorization(any(String.class));
+        verify(_tankSsoHandlerMock, times(1)).HandleSsoAuthorization(any(String.class), any(), any());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class LoginFilterTest {
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_tankSsoHandlerMock, times(0)).HandleSsoAuthorization(any(String.class));
+        verify(_tankSsoHandlerMock, times(0)).HandleSsoAuthorization(any(String.class), any(), any());
     }
 
     @Test
@@ -118,12 +118,28 @@ public class LoginFilterTest {
         when(_tankSecurityContextMock.getCallerPrincipal()).thenReturn(_principalMock);
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession()).thenReturn(_mockHttpSession);
-        doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class));
+        doThrow(new IllegalArgumentException()).when(_tankSsoHandlerMock).HandleSsoAuthorization(any(String.class), any(), any());
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
         verify(_httpServletResponseMock, times(1)).sendRedirect(any(String.class));
+    }
+
+    @Test
+    public void DoFilter_Given_SSO_Login_Started_From_Rest_Redirects_To_Return_Path() throws IOException, ServletException {
+        // Arrange
+        when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
+        when(_httpServletRequestMock.getSession(false)).thenReturn(_mockHttpSession);
+        when(_httpServletRequestMock.getContextPath()).thenReturn("/tank");
+        when(_tankSsoHandlerMock.consumeReturnPath(_mockHttpSession)).thenReturn("/app/projects");
+
+        // Act
+        _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
+
+        // Assert
+        verify(_httpServletResponseMock).sendRedirect("/tank/app/projects");
+        verify(_tankConfigMock, never()).getOidcSsoConfig();
     }
 }

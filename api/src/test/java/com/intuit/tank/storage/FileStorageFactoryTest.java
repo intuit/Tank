@@ -51,7 +51,7 @@ public class FileStorageFactoryTest {
     	config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME).setLevel(Level.INFO);
     	ctx.updateLoggers();  // This causes all Loggers to refetch information from their LoggerConfig.
         mockStatic_S3Client = mockStatic(S3Client.class);
-        mock_S3ClientBuilder = mock(S3ClientBuilder.class);
+        mock_S3ClientBuilder = mock(S3ClientBuilder.class, RETURNS_SELF);
         mock_S3Client = mock(S3Client.class);
         when(S3Client.builder()).thenReturn(mock_S3ClientBuilder);
         when(mock_S3ClientBuilder.build()).thenReturn(mock_S3Client);
@@ -125,7 +125,7 @@ public class FileStorageFactoryTest {
 
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
         FileStorage storage = FileStorageFactory.getFileStorage("s3:systemstorage/extra/", false);
-        assertTrue(storage instanceof S3FileStorage);
+        assertInstanceOf(S3FileStorage.class, storage);
         verify(mock_S3Client, times(1))
                 .createBucket(CreateBucketRequest.builder().bucket("systemstorage").build());
 
@@ -164,7 +164,7 @@ public class FileStorageFactoryTest {
         }
         assertTrue(storage.exists(fd));
         storage.delete(fd);
-        assertTrue(!storage.exists(fd));
+        assertFalse(storage.exists(fd));
     }
     
     /**
@@ -199,15 +199,15 @@ public class FileStorageFactoryTest {
         storage.delete(fd2);
         assertTrue(listFileData.contains(fd));
         assertTrue(listFileData.contains(fd1));
-        assertTrue(!listFileData.contains(fd2));
-        
-        assertTrue(!listFileData1.contains(fd));
-        assertTrue(!listFileData1.contains(fd1));
+        assertFalse(listFileData.contains(fd2));
+
+        assertFalse(listFileData1.contains(fd));
+        assertFalse(listFileData1.contains(fd1));
         assertTrue(listFileData1.contains(fd2));
-        
-        assertTrue(!storage.exists(fd));
-        assertTrue(!storage.exists(fd1));
-        assertTrue(!storage.exists(fd2));
+
+        assertFalse(storage.exists(fd));
+        assertFalse(storage.exists(fd1));
+        assertFalse(storage.exists(fd2));
     }
     /**
      * set the enviroment variables AWS_SECRET_KEY_ID and AWS_SECRET_KEY before
@@ -243,15 +243,15 @@ public class FileStorageFactoryTest {
         storage.delete(fd2);
         assertTrue(listFileData.contains(fd));
         assertTrue(listFileData.contains(fd1));
-        assertTrue(!listFileData.contains(fd2));
-        
-        assertTrue(!listFileData1.contains(fd));
-        assertTrue(!listFileData1.contains(fd1));
+        assertFalse(listFileData.contains(fd2));
+
+        assertFalse(listFileData1.contains(fd));
+        assertFalse(listFileData1.contains(fd1));
         assertTrue(listFileData1.contains(fd2));
-        
-        assertTrue(!storage.exists(fd));
-        assertTrue(!storage.exists(fd1));
-        assertTrue(!storage.exists(fd2));
+
+        assertFalse(storage.exists(fd));
+        assertFalse(storage.exists(fd1));
+        assertFalse(storage.exists(fd2));
     }
 
     private File getFile(String base, FileData fd) {
