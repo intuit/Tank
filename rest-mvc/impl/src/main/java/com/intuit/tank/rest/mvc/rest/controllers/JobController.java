@@ -104,7 +104,7 @@ public class JobController {
             "  - jobRegions.regions correspond to AWS regions in lowercase i.e us-west-2, us-east-2 \n\n" +
             "  - jobRegions.users and jobRegions.percentage are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary =  "Create a new job")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully created job", content = @Content),
+            @ApiResponse(responseCode = "201", description = "Successfully created job"),
             @ApiResponse(responseCode = "400", description = "Could not create job due to bad request", content = @Content)
     })
     public ResponseEntity<Map<String, String>> createJob(
@@ -119,7 +119,7 @@ public class JobController {
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     @Operation(description = "Returns all current job statuses", summary = "Get all job statuses")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found all job statuses", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found all job statuses"),
             @ApiResponse(responseCode = "404", description = "All job statuses could not be found", content = @Content)
     })
     public ResponseEntity<List<Map<String, String>>> getAllJobStatus() {
@@ -131,7 +131,7 @@ public class JobController {
     @RequestMapping(value = "/status/{jobId}", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE })
     @Operation(description = "Returns a specific job status by job id", summary = "Get a specific job status")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found specific job status", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found specific job status"),
             @ApiResponse(responseCode = "404", description = "Job status could not be found", content = @Content)
     })
     public ResponseEntity<String> getJobStatus(@PathVariable @Parameter(description = "The job ID associated with the job", required = true) Integer jobId) {

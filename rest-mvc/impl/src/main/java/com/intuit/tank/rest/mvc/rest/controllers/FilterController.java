@@ -203,7 +203,7 @@ public class FilterController {
     @Operation(description = "Given an apply filters request payload with list of filters and filter groups to apply, " +
                              "returns success message if filters successfully applied to an existing script", summary = "Apply filters to an existing script")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully applied filters", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully applied filters"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
     public ResponseEntity<String> applyFilters(@PathVariable @Parameter(description = "The script ID", required = true) Integer scriptId,

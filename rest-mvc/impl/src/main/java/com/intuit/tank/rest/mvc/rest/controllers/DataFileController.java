@@ -70,7 +70,7 @@ public class DataFileController {
     @RequestMapping(value = "/names", method = RequestMethod.GET)
     @Operation(description = "Returns all datafile names with corresponding datafile IDs", summary = "Get all datafile names with datafile IDs")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found all datafile names with IDs", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found all datafile names with IDs"),
             @ApiResponse(responseCode = "404", description = "All datafile names with IDs could not be found", content = @Content)
     })
     public ResponseEntity<Map<Integer, String>> getAllDatafileNames() {
@@ -92,7 +92,7 @@ public class DataFileController {
     @RequestMapping(value = "/content", method = RequestMethod.GET, produces = { MediaType.TEXT_PLAIN_VALUE } )
     @Operation(description = "Returns datafile content by datafile ID, with optional offset and lines parameters to adjust number of total lines returned", summary = "Get datafile content")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found datafile content; the X-Total-Lines header gives the file's line count", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found datafile content; the X-Total-Lines header gives the file's line count"),
             @ApiResponse(responseCode = "404", description = "Datafile content could not be found", content = @Content)
     })
     public ResponseEntity<String> getDatafileContent(@RequestParam(required = true) @Parameter(description = "Datafile ID", required = true) Integer id,
@@ -142,7 +142,7 @@ public class DataFileController {
             " - Datafile id is an optional parameter \n\n" +
             " - Passing in an existing Tank Datafile ID will overwrite the existing datafile in Tank, but will otherwise create a new datafile", summary = "Upload datafile to Tank")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully uploaded datafile", content = @Content),
+            @ApiResponse(responseCode = "201", description = "Successfully uploaded datafile"),
             @ApiResponse(responseCode = "400", description = "Datafile could not be uploaded", content = @Content)
     })
     public ResponseEntity<Map<String, String>> uploadDatafile(@RequestHeader(value = HttpHeaders.CONTENT_ENCODING, required = false) @Parameter(description = "Content-Encoding", required = false) String contentEncoding,

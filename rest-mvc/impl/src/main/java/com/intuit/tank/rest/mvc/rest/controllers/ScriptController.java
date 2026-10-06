@@ -83,7 +83,7 @@ public class ScriptController {
     @RequestMapping(value = "/names", method = RequestMethod.GET)
     @Operation(description = "Returns all script names with corresponding script IDs", summary = "Get all script names with script IDs")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found all script names with IDs", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found all script names with IDs"),
             @ApiResponse(responseCode = "404", description = "All script names with IDs could not be found", content = @Content)
     })
     public ResponseEntity<Map<Integer, String>> getAllScriptNames() {
@@ -123,7 +123,7 @@ public class ScriptController {
             " - **Copying**: You must pass a value for the name parameter to successfully create a copy of an existing script.\n\n " +
             "\n\n", summary = "Creates a new Tank script")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully uploaded or copied the script to Tank", content = @Content),
+            @ApiResponse(responseCode = "201", description = "Successfully uploaded or copied the script to Tank"),
             @ApiResponse(responseCode = "400", description = "Script file could not be uploaded or copied", content = @Content)
     })
     public ResponseEntity<Map<String, String>> createScript(@RequestHeader(value = HttpHeaders.CONTENT_ENCODING, required = false) @Parameter(description = "Content-Encoding", required = false) String contentEncoding,
