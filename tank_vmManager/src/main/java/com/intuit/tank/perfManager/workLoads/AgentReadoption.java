@@ -40,7 +40,6 @@ public class AgentReadoption {
     // JobRequest.connectAndBootstrapAgent drops and reopens an agent's session during launch bootstrap,
     // which normally finishes within a minute; connecting in that gap would take its session mid-bootstrap.
     private static final long MIN_AGENT_AGE_MS = Long.getLong("tank.ws.readopt.minAgentAgeMs", 5 * 60_000L);
-    private static final long INTERVAL_MS = Math.max(5_000L, Long.getLong("tank.ws.readopt.intervalMs", 30_000L));
     private static final long HELLO_TIMEOUT_MS = 10_000L;
     // Each connect can block for its connect and hello timeouts; keep that off the common ForkJoinPool,
     // which JobManager.sendCommand uses to deliver pause and kill.
@@ -65,16 +64,17 @@ public class AgentReadoption {
     void onStartup(@Observes @Initialized(ApplicationScoped.class) Object ignored) {
         try {
             AgentConfig agentConfig = tankConfig.getAgentConfig();
-            if (!agentConfig.isCommandWsEnabled() || !agentConfig.isAgentReadoptionEnabled() || tankConfig.getStandalone()) {
+            int intervalSeconds = agentConfig.getAgentReadoptionIntervalSeconds();
+            if (!agentConfig.isCommandWsEnabled() || intervalSeconds <= 0 || tankConfig.getStandalone()) {
                 LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent re-adoption disabled")));
                 return;
             }
             jobManager.getControllerInitiatedAgentWsClient().setCloseStaleSessions(true);
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(daemonThread("ws-agent-readoption"));
-            scheduler.scheduleWithFixedDelay(this::reconcile, 0, INTERVAL_MS, TimeUnit.MILLISECONDS);
+            scheduler.scheduleWithFixedDelay(this::reconcile, 0, intervalSeconds, TimeUnit.SECONDS);
             executor = scheduler;
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent re-adoption enabled for controller "
-                    + tankConfig.getInstanceName() + " every " + INTERVAL_MS + "ms")));
+                    + tankConfig.getInstanceName() + " every " + intervalSeconds + "s")));
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Agent re-adoption failed to start: " + e.getMessage())), e);
         }

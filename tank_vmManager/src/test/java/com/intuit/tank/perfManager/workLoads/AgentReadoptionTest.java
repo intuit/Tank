@@ -155,8 +155,17 @@ public class AgentReadoptionTest {
     }
 
     @Test
-    void startupDoesNothingWhenReadoptionIsOff() {
-        AgentReadoption disabled = new AgentReadoption(jobManager, tankConfig(true, false));
+    void startupDoesNothingWhenReadoptionIntervalIsZero() {
+        AgentReadoption disabled = new AgentReadoption(jobManager, tankConfig(true, 0));
+
+        disabled.onStartup(null);
+
+        verify(jobManager, never()).getControllerInitiatedAgentWsClient();
+    }
+
+    @Test
+    void startupDoesNothingWhenReadoptionIntervalIsNegative() {
+        AgentReadoption disabled = new AgentReadoption(jobManager, tankConfig(true, -1));
 
         disabled.onStartup(null);
 
@@ -165,7 +174,7 @@ public class AgentReadoptionTest {
 
     @Test
     void startupDoesNothingWhenWsCommandModeIsOff() {
-        AgentReadoption disabled = new AgentReadoption(jobManager, tankConfig(false, true));
+        AgentReadoption disabled = new AgentReadoption(jobManager, tankConfig(false, 300));
 
         disabled.onStartup(null);
 
@@ -173,9 +182,9 @@ public class AgentReadoptionTest {
     }
 
     @Test
-    void startupTurnsOnStaleSessionClosingWhenReadoptionIsOn() {
+    void startupTurnsOnStaleSessionClosingWhenReadoptionIntervalIsSet() {
         when(jobManager.getControllerInitiatedAgentWsClient()).thenReturn(wsClient);
-        AgentReadoption enabled = new AgentReadoption(jobManager, tankConfig(true, true));
+        AgentReadoption enabled = new AgentReadoption(jobManager, tankConfig(true, 300));
 
         try {
             enabled.onStartup(null);
@@ -193,10 +202,10 @@ public class AgentReadoptionTest {
         assertDoesNotThrow(() -> new AgentReadoption(jobManager, tankConfig).onStartup(null));
     }
 
-    private TankConfig tankConfig(boolean wsEnabled, boolean readoptionEnabled) {
+    private TankConfig tankConfig(boolean wsEnabled, int readoptionIntervalSeconds) {
         AgentConfig agentConfig = mock(AgentConfig.class);
         when(agentConfig.isCommandWsEnabled()).thenReturn(wsEnabled);
-        when(agentConfig.isAgentReadoptionEnabled()).thenReturn(readoptionEnabled);
+        when(agentConfig.getAgentReadoptionIntervalSeconds()).thenReturn(readoptionIntervalSeconds);
         VmManagerConfig vmManagerConfig = mock(VmManagerConfig.class);
         when(vmManagerConfig.getRegions()).thenReturn(Set.of());
         TankConfig tankConfig = mock(TankConfig.class);

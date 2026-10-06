@@ -343,8 +343,8 @@ public class AgentConfig implements Serializable {
         return config.getBoolean(KEY_COMMAND_WS_ENABLED, false);
     }
 
-    public boolean isAgentReadoptionEnabled() {
-        return config.getBoolean(KEY_AGENT_READOPTION_ENABLED, false);
+    public int getAgentReadoptionIntervalSeconds() {
+        return config.getInt(KEY_AGENT_READOPTION_ENABLED, 0);
     }
 
 }
