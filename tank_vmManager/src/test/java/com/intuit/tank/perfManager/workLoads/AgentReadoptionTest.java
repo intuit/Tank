@@ -29,7 +29,7 @@ public class AgentReadoptionTest {
 
     private static final long NOW = 1_800_000_000_000L;
     private static final long TWENTY_MINUTES = 20 * 60_000L;
-    private static final long MIN_AGE = 15 * 60_000L;
+    private static final long MIN_AGE = 5 * 60_000L;
     private static final String TOKEN = "agent-token";
     private static final int PORT = 8090;
 

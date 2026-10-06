@@ -37,10 +37,9 @@ public class AgentReadoption {
 
     private static final Logger LOG = LogManager.getLogger(AgentReadoption.class);
 
-    // JobRequest.connectAndBootstrapAgent owns an agent's WS session for max(10 min, max-agent-wait-time)
-    // after launch; connecting before then would replace its session mid-bootstrap.
-    private static final long MIN_AGENT_AGE_MS = Long.getLong("tank.ws.readopt.minAgentAgeMs", 15 * 60_000L);
-    private static final long BOOTSTRAP_MARGIN_MS = 5 * 60_000L;
+    // JobRequest.connectAndBootstrapAgent drops and reopens an agent's session during launch bootstrap,
+    // which normally finishes within a minute; connecting in that gap would take its session mid-bootstrap.
+    private static final long MIN_AGENT_AGE_MS = Long.getLong("tank.ws.readopt.minAgentAgeMs", 5 * 60_000L);
     private static final long INTERVAL_MS = Math.max(5_000L, Long.getLong("tank.ws.readopt.intervalMs", 30_000L));
     private static final long HELLO_TIMEOUT_MS = 10_000L;
     // Each connect can block for its connect and hello timeouts; keep that off the common ForkJoinPool,
@@ -96,9 +95,8 @@ public class AgentReadoption {
                 runningAgents.addAll(new AmazonInstance(region).findRunningAgents(tankConfig.getInstanceName()));
             }
             AgentConfig agentConfig = tankConfig.getAgentConfig();
-            long minAgentAgeMs = Math.max(MIN_AGENT_AGE_MS, agentConfig.getMaxAgentWaitTime() + BOOTSTRAP_MARGIN_MS);
             adopt(runningAgents, jobManager.getControllerInitiatedAgentWsClient(),
-                    agentConfig.getAgentToken(), agentConfig.getAgentPort(), System.currentTimeMillis(), minAgentAgeMs);
+                    agentConfig.getAgentToken(), agentConfig.getAgentPort(), System.currentTimeMillis(), MIN_AGENT_AGE_MS);
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Agent re-adoption pass failed: " + e.getMessage())), e);
         }
