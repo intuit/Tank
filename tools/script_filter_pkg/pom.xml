@@ -73,6 +73,7 @@
             <manifestEntries>
               <Permissions>all-permissions</Permissions>
               <Application-Name>Intuit Tank Script Filter Editor</Application-Name>
+              <Multi-Release>true</Multi-Release>
             </manifestEntries>
           </archive>
         </configuration>

@@ -64,6 +64,9 @@
             <manifest>
               <mainClass>com.intuit.tank.harness.APITestHarness</mainClass>
             </manifest>
+            <manifestEntries>
+              <Multi-Release>true</Multi-Release>
+            </manifestEntries>
           </archive>
         </configuration>
         <executions>

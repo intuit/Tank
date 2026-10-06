@@ -62,6 +62,9 @@
             <manifest>
               <mainClass>com.intuit.tank.standalone.agent.StandaloneAgentStartup</mainClass>
             </manifest>
+            <manifestEntries>
+              <Multi-Release>true</Multi-Release>
+            </manifestEntries>
           </archive>
         </configuration>
         <executions>
