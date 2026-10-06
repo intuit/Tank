@@ -1,3 +1,20 @@
+# 4.5.7 (Tue Oct 06 2026)
+
+#### 🐛 Bug Fix
+
+- Bump com.fasterxml.jackson.core:jackson-databind from 2.22.1 to 2.22.3 in /test_support [#515](https://github.com/intuit/Tank/pull/515) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump org.bouncycastle:bcprov-jdk18on from 1.84 to 1.85 in /proxy-parent/owasp-proxy [#511](https://github.com/intuit/Tank/pull/511) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.6 (Mon Oct 05 2026)
 
 #### 🐛 Bug Fix
