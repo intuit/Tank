@@ -262,6 +262,102 @@ public class ControllerInitiatedAgentWsClientTest {
         verify(vmTracker).setStatus(status);
     }
 
+    @Test
+    void testKeepaliveClosesSessionThatStoppedAnsweringPings() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        client.setCloseStaleSessions(true);
+        Session session = openSession();
+        installSilentSession(client, "i-silent", session);
+
+        invokePingOpenSessions(client);
+
+        assertFalse(client.hasSession("i-silent"));
+        assertEquals("disconnected", client.getWsState("i-silent"));
+        verify(session, never()).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testKeepaliveLeavesSilentSessionOpenWhenStaleCloseIsOff() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSilentSession(client, "i-silent", session);
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-silent"));
+        verify(session).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testKeepaliveKeepsNewSessionEvenIfPreviousSessionWentSilent() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        client.setCloseStaleSessions(true);
+        Session session = openSession();
+        installSession(client, "i-reconnected", session);
+        lastSeen(client).put("i-reconnected", System.currentTimeMillis() - 5 * 60_000L);
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-reconnected"));
+    }
+
+    @Test
+    void testKeepalivePingsSessionThatAnsweredRecently() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSession(client, "i-alive", session);
+        lastSeen(client).put("i-alive", System.currentTimeMillis());
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-alive"));
+        verify(session).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testDisconnectClosesAndForgetsSession() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSession(client, "i-agent", session);
+
+        client.disconnect("i-agent");
+
+        assertFalse(client.hasSession("i-agent"));
+        assertEquals("disconnected", client.getWsState("i-agent"));
+    }
+
+    private void installSilentSession(ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {
+        Object context = installSession(client, instanceId, session);
+        long fiveMinutesAgo = System.currentTimeMillis() - 5 * 60_000L;
+        Field openedAt = context.getClass().getDeclaredField("openedAtMs");
+        openedAt.setAccessible(true);
+        openedAt.set(context, fiveMinutesAgo);
+        lastSeen(client).put(instanceId, fiveMinutesAgo);
+    }
+
+    private Session openSession() {
+        Session session = mock(Session.class);
+        when(session.isOpen()).thenReturn(true);
+        doAnswer(invocation -> {
+            ((Callback) invocation.getArgument(1)).succeed();
+            return null;
+        }).when(session).sendText(anyString(), any(Callback.class));
+        return session;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ConcurrentHashMap<String, Long> lastSeen(ControllerInitiatedAgentWsClient client) throws Exception {
+        Field field = ControllerInitiatedAgentWsClient.class.getDeclaredField("agentLastSeen");
+        field.setAccessible(true);
+        return (ConcurrentHashMap<String, Long>) field.get(client);
+    }
+
+    private void invokePingOpenSessions(ControllerInitiatedAgentWsClient client) throws Exception {
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod("pingOpenSessions");
+        method.setAccessible(true);
+        method.invoke(client);
+    }
+
     private void invokeHandleStatusUpdate(ControllerInitiatedAgentWsClient client, String instanceId,
                                           AgentWsEnvelope envelope) throws Exception {
         Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(

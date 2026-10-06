@@ -486,5 +486,15 @@ public class AgentConfigCpTest {
         AgentConfig fixture = new AgentConfig(new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration());
 
         assertFalse(fixture.isCommandWsEnabled());
+        assertEquals(0, fixture.getAgentReadoptionIntervalSeconds());
+    }
+
+    @Test
+    public void testAgentReadoptionIntervalIsReadInSeconds() throws Exception {
+        XMLConfiguration configuration = new BasicConfigurationBuilder<>(XMLConfiguration.class).getConfiguration();
+        configuration.setProperty("agent-readoption-enabled", "300");
+        AgentConfig fixture = new AgentConfig(configuration);
+
+        assertEquals(300, fixture.getAgentReadoptionIntervalSeconds());
     }
 }

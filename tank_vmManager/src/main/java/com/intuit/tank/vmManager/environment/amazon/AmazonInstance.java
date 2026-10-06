@@ -389,7 +389,9 @@ public class AmazonInstance implements IEnvironmentInstance {
                     if (response.instances().size() < requestCount) {
                         LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
                         RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
-                        return response.toBuilder().instances(res.instances()).build();
+                        List<Instance> launched = new ArrayList<>(response.instances());
+                        launched.addAll(res.instances());
+                        return response.toBuilder().instances(launched).build();
                     }
                     return response;
                 });
@@ -653,6 +655,45 @@ public class AmazonInstance implements IEnvironmentInstance {
             this.address = address;
         }
 
+    }
+
+    /**
+     * Running agents this controller launched, identified by the Controller and JobId tags set in buildTags.
+     */
+    public List<VMInformation> findRunningAgents(String controllerName) {
+        List<VMInformation> agents = new ArrayList<>();
+        DescribeInstancesRequest.Builder request = DescribeInstancesRequest.builder().filters(
+                Filter.builder().name("tag:Controller").values(controllerName).build(),
+                Filter.builder().name("tag-key").values("JobId").build(),
+                Filter.builder().name("instance-state-name").values(InstanceStateName.RUNNING.toString()).build());
+        try {
+            String nextToken = null;
+            do {
+                DescribeInstancesResponse response = ec2AsyncClient.describeInstances(request.nextToken(nextToken).build()).get();
+                for (Reservation reservation : response.reservations()) {
+                    for (Instance instance : reservation.instances()) {
+                        VMInformation info = AmazonDataConverter.instanceToVmInformation(reservation.requesterId(), instance, vmRegion);
+                        instance.tags().stream()
+                                .filter(tag -> "JobId".equals(tag.key()))
+                                .findFirst()
+                                .ifPresent(tag -> info.setJobId(tag.value()));
+                        if (instance.launchTime() != null) {
+                            Calendar launchTime = Calendar.getInstance();
+                            launchTime.setTimeInMillis(instance.launchTime().toEpochMilli());
+                            info.setLaunchTime(launchTime);
+                        }
+                        agents.add(info);
+                    }
+                }
+                nextToken = response.nextToken();
+            } while (StringUtils.isNotEmpty(nextToken));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted finding running agents in {}", vmRegion);
+        } catch (ExecutionException e) {
+            LOG.error("Error finding running agents in {}: {}", vmRegion, e.getMessage(), e);
+        }
+        return agents;
     }
 
     public Optional<String> findDNSName(String instanceId) {

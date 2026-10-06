@@ -80,6 +80,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     // dead ones early (well under WS_IDLE_TIMEOUT_MS).
     private static final long WS_KEEPALIVE_PING_MS =
             Math.max(5_000L, Long.getLong("tank.ws.keepAlivePingMs", 10_000L));
+    // A half-open TCP connection still accepts writes, so silence from the agent is the only reliable
+    // sign the session is dead. Closing it lets AgentReadoption reconnect.
+    private static final long WS_STALE_SESSION_MS =
+            Math.max(3 * WS_KEEPALIVE_PING_MS, Long.getLong("tank.ws.staleSessionMs", 60_000L));
 
     private final java.net.http.HttpClient httpClient =
             java.net.http.HttpClient.newBuilder().build();
@@ -97,6 +101,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private volatile VMTracker vmTracker;
     private volatile VMTerminator vmTerminator;
+    private volatile boolean closeStaleSessions;
 
     public ControllerInitiatedAgentWsClient() {
     }
@@ -107,6 +112,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     public void setVmTerminator(VMTerminator vmTerminator) {
         this.vmTerminator = vmTerminator;
+    }
+
+    public void setCloseStaleSessions(boolean closeStaleSessions) {
+        this.closeStaleSessions = closeStaleSessions;
     }
 
     private WebSocketClient webSocketClient() throws Exception {
@@ -153,6 +162,17 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         for (Map.Entry<String, SessionContext> entry : sessions.entrySet()) {
             SessionContext context = entry.getValue();
             if (context == null || !context.isOpen()) {
+                continue;
+            }
+            long lastSeen = Math.max(context.openedAtMs, agentLastSeen.getOrDefault(entry.getKey(), 0L));
+            if (closeStaleSessions && System.currentTimeMillis() - lastSeen > WS_STALE_SESSION_MS) {
+                LOG.warn(new ObjectMessage(Map.of("Message",
+                        "[WS] No traffic from " + entry.getKey() + " for " + WS_STALE_SESSION_MS + "ms — closing stale session")));
+                if (sessions.remove(entry.getKey(), context)) {
+                    context.abort();
+                    fileTransferReady.remove(entry.getKey());
+                    agentWsState.put(entry.getKey(), "disconnected");
+                }
                 continue;
             }
             try {
@@ -206,6 +226,15 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
         agentWsState.put(instanceId, "disconnected");
         return Optional.empty();
+    }
+
+    public void disconnect(String instanceId) {
+        SessionContext context = sessions.remove(instanceId);
+        if (context != null) {
+            context.close();
+        }
+        fileTransferReady.remove(instanceId);
+        agentWsState.put(instanceId, "disconnected");
     }
 
     public boolean connectAndBootstrap(JobManager jobManager, String instanceId, String instanceUrl, String wsUrl,
