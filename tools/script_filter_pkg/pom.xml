@@ -82,6 +82,9 @@
             <manifest>
               <mainClass>com.intuit.tank.tools.script.ScriptFilterRunner</mainClass>
             </manifest>
+            <manifestEntries>
+              <Multi-Release>true</Multi-Release>
+            </manifestEntries>
           </archive>
         </configuration>
         <executions>
