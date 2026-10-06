@@ -1,3 +1,16 @@
+# 4.5.8 (Tue Oct 06 2026)
+
+#### 🐛 Bug Fix
+
+- fix: re-adopt running WS agents after controller restart (SRE-39861) [#526](https://github.com/intuit/Tank/pull/526) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.5.7 (Tue Oct 06 2026)
 
 #### 🐛 Bug Fix
