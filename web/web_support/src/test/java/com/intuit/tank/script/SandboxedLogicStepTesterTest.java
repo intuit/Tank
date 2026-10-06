@@ -37,19 +37,30 @@ class SandboxedLogicStepTesterTest {
         assertTrue(result.output().contains("action = goto"), "outputs are listed: " + result.output());
     }
 
+    private String blocked(String escape) {
+        String output = tester.test(request(escape + "; log('escaped');")).output();
+        assertTrue(output.contains("Exception thrown"), output);
+        assertFalse(output.contains("escaped"), output);
+        return output;
+    }
+
     @Test
     void javaIsNotAvailable() {
-        String output = tester.test(request("var Runtime = Java.type('java.lang.Runtime'); log('escaped');")).output();
-        assertTrue(output.contains("\"Java\" is not defined"), output);
-        assertFalse(output.contains("escaped"), output);
+        String output = blocked("var Runtime = Java.type('java.lang.Runtime')");
+        assertTrue(output.contains("Access to host class java.lang.Runtime is not allowed"), output);
     }
 
     @Test
     void reflectionThroughGivenObjectsIsBlocked() {
-        String output = tester.test(request(
-                "var c = getRequest().getClass().forName('java.lang.Runtime'); log('escaped ' + c);")).output();
-        assertTrue(output.toLowerCase().contains("reflection"), "blocked by the class filter: " + output);
-        assertFalse(output.contains("escaped"), output);
+        blocked("getRequest().getClass().forName('java.lang.Runtime')");
+        blocked("getRequest().getClass().class.forName('java.lang.Runtime')");
+        blocked("ioBean.getClass().getClassLoader().loadClass('java.lang.Runtime')");
+        blocked("ioBean.getClass().class.getClassLoader().loadClass('java.lang.Runtime')");
+    }
+
+    @Test
+    void filesCannotBeRead() {
+        blocked("load('/etc/hosts')");
     }
 
     @Test
@@ -67,5 +78,13 @@ class SandboxedLogicStepTesterTest {
         assertTrue(result.durationMs() >= SandboxedLogicStepTester.TIME_LIMIT_MS - 20, "waited " + result.durationMs() + " ms");
         assertTrue(result.output().contains("before"), "partial output is returned: " + result.output());
         assertTrue(result.output().contains("did not finish"), result.output());
+    }
+
+    @Test
+    void runawayScriptIsCancelledAndFreesItsSlot() {
+        for (int i = 0; i <= SandboxedLogicStepTester.MAX_RUNNING; i++) {
+            assertTrue(tester.test(request("while (true) {}")).timedOut());
+        }
+        assertFalse(tester.test(request("log('still accepting tests');")).timedOut());
     }
 }
