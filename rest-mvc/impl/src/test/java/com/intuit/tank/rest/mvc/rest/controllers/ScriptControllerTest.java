@@ -390,6 +390,19 @@ public class ScriptControllerTest {
                 9, "c", null, null, "alice", null, null, 0));
         ResponseEntity<com.intuit.tank.rest.mvc.rest.models.ScriptSummary> copied = scriptController.copyScript(1, copyRequest);
         assertEquals(201, copied.getStatusCode().value());
+
+        com.intuit.tank.rest.mvc.rest.models.NewScriptRequest blank =
+                new com.intuit.tank.rest.mvc.rest.models.NewScriptRequest("b", "Shop", null);
+        when(scriptService.createBlankScript(blank)).thenReturn(new com.intuit.tank.rest.mvc.rest.models.ScriptSummary(
+                10, "b", "Shop", null, "alice", null, null, 0));
+        ResponseEntity<com.intuit.tank.rest.mvc.rest.models.ScriptSummary> created = scriptController.createBlankScript(blank);
+        assertEquals(201, created.getStatusCode().value());
+        assertTrue(created.getHeaders().getLocation().toString().endsWith("/v2/scripts/10/steps"));
+
+        com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult deleted =
+                new com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult(List.of(1), List.of(2));
+        when(scriptService.deleteScripts(List.of(1, 2))).thenReturn(deleted);
+        assertSame(deleted, scriptController.deleteScripts(List.of(1, 2)).getBody());
         assertTrue(copied.getHeaders().getLocation().toString().endsWith("/v2/scripts/9/steps"));
 
         when(scriptService.getStepResponse(1, "u1")).thenReturn("<html/>");

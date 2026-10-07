@@ -16,6 +16,8 @@ import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
 import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+import com.intuit.tank.rest.mvc.rest.models.NewScriptRequest;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
 import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
@@ -31,6 +33,7 @@ import com.intuit.tank.rest.mvc.rest.services.scripts.ScriptServiceV2;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.SchemaProperty;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -121,7 +124,13 @@ public class ScriptController {
             " - **Tank Script Upload**: Only accepts Tank script XML files for an existing Tank script to update. The script ID and script name defined in the first few lines of script XML file should match an existing script entry in Tank to update that script, but setting the script ID to 0 will create a new script with any name.\n\n" +
             " - **Tank Proxy Recording Upload**: Only accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional. productName sets the script's product, and filterIds applies those script filters to the recording, in order \n\n " +
             " - **Copying**: You must pass a value for the name parameter to successfully create a copy of an existing script.\n\n " +
-            "\n\n", summary = "Creates a new Tank script")
+            "\n\n", summary = "Creates a new Tank script",
+            // documented by hand: springdoc made the file a JSON string body, but uploads are multipart and a copy has no body
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = false,
+                    description = "The script file for an upload; omit it when copying",
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "object"),
+                            schemaProperties = @SchemaProperty(name = "file",
+                                    schema = @Schema(type = "string", format = "binary", description = "Script file")))))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully uploaded or copied the script to Tank"),
             @ApiResponse(responseCode = "400", description = "Script file could not be uploaded or copied", content = @Content)
@@ -132,7 +141,7 @@ public class ScriptController {
                                                  @RequestParam(name = "recording", required = false) @Parameter(description = "Enables Tank Proxy Recording file upload mode", required = false) String recording,
                                                  @RequestParam(required = false) @Parameter(description = "Enables copying from existing Tank Script", required = false) String copy,
                                                  @RequestParam(required = false) @Parameter(description = "Source ScriptId to copy from", required = false) Integer sourceId,
-                                                 @RequestParam(value = "file", required = false) @Parameter(schema = @Schema(type = "string", format = "binary", description = "Script file")) MultipartFile file,
+                                                 @RequestParam(value = "file", required = false) @Parameter(hidden = true) MultipartFile file,
                                                  @RequestParam(required = false) @Parameter(description = "Recording upload: the script's product", required = false) String productName,
                                                  @RequestParam(required = false) @Parameter(description = "Recording upload: script filter IDs to apply, in order", required = false) List<Integer> filterIds) throws IOException{
         Map<String, String> response = scriptService.createScript(name, id, recording, copy, sourceId, contentEncoding, file,
@@ -310,6 +319,34 @@ public class ScriptController {
             @PathVariable @Parameter(description = "Script ID", required = true) Integer scriptId,
             @RequestBody ScriptDocument document) {
         return ResponseEntity.ok(scriptService.updateScriptDocument(scriptId, document));
+    }
+
+    @RequestMapping(value = "/blank", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Creates a script with no steps, owned by the caller. Add steps in the script editor",
+            summary = "Create a blank script")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created; returns the new script"),
+            @ApiResponse(responseCode = "400", description = "Name missing or too long", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs CREATE_SCRIPT", content = @Content)
+    })
+    public ResponseEntity<ScriptSummary> createBlankScript(@RequestBody NewScriptRequest request) {
+        ScriptSummary script = scriptService.createBlankScript(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/v2/scripts/{id}/steps").buildAndExpand(script.id()).toUri();
+        return ResponseEntity.created(location).body(script);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, params = "ids")
+    @Operation(description = "Deletes several scripts. Nothing is deleted unless the caller may delete every one that exists",
+            summary = "Delete scripts")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Deleted; lists the ids deleted and those not found"),
+            @ApiResponse(responseCode = "400", description = "No ids, or more than 100", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Not allowed to delete one of the scripts", content = @Content)
+    })
+    public ResponseEntity<BulkDeleteResult> deleteScripts(
+            @RequestParam @Parameter(description = "Script IDs to delete", required = true) List<Integer> ids) {
+        return ResponseEntity.ok(scriptService.deleteScripts(ids));
     }
 
     @RequestMapping(value = "/{scriptId}/copy", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })

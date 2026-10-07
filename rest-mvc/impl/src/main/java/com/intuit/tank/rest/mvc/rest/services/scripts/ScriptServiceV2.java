@@ -10,6 +10,8 @@ package com.intuit.tank.rest.mvc.rest.services.scripts;
 import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.NewScriptRequest;
 import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
 
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
@@ -248,6 +250,21 @@ public interface ScriptServiceV2 {
      * Copies a script under a new name, owned by the caller. Needs {@code CREATE_SCRIPT}.
      */
     ScriptSummary copyScript(Integer scriptId, CopyRequest request);
+
+    /**
+     * Creates a script with no steps (ScriptCreationBean's "Blank Script"). Needs CREATE_SCRIPT.
+     *
+     * @return the new script
+     */
+    ScriptSummary createBlankScript(NewScriptRequest request);
+
+    /**
+     * Deletes several scripts. Every script that exists is checked first, so nothing is deleted
+     * unless the caller may delete all of them (DELETE_SCRIPT or owner).
+     *
+     * @return the ids deleted and those that did not exist
+     */
+    BulkDeleteResult deleteScripts(List<Integer> scriptIds);
 
     /**
      * @return the response recorded for a step, as stored

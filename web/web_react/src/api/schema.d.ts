@@ -1737,6 +1737,30 @@ export interface paths {
          *       - **Copying**: You must pass a value for the name parameter to successfully create a copy of an existing script.
          */
         post: operations["createScript"];
+        /**
+         * Delete scripts
+         * @description Deletes several scripts. Nothing is deleted unless the caller may delete every one that exists
+         */
+        delete: operations["deleteScripts"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scripts/blank": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a blank script
+         * @description Creates a script with no steps, owned by the caller. Add steps in the script editor
+         */
+        post: operations["createBlankScript"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2643,6 +2667,11 @@ export interface components {
         LoginRequest: {
             password?: string;
             username?: string;
+        };
+        NewScriptRequest: {
+            comments?: string;
+            name?: string;
+            productName?: string;
         };
         Option: {
             description?: string;
@@ -6317,9 +6346,16 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
+        /** @description The script file for an upload; omit it when copying */
         requestBody?: {
             content: {
-                "application/json": string;
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description Script file
+                     */
+                    file?: string;
+                };
             };
         };
         responses: {
@@ -6336,6 +6372,81 @@ export interface operations {
             };
             /** @description Script file could not be uploaded or copied */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteScripts: {
+        parameters: {
+            query: {
+                /** @description Script IDs to delete */
+                ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted; lists the ids deleted and those not found */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkDeleteResult"];
+                };
+            };
+            /** @description No ids, or more than 100 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not allowed to delete one of the scripts */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    createBlankScript: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewScriptRequest"];
+            };
+        };
+        responses: {
+            /** @description Created; returns the new script */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScriptSummary"];
+                };
+            };
+            /** @description Name missing or too long */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Needs CREATE_SCRIPT */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
