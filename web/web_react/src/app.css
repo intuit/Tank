@@ -394,7 +394,8 @@ body {
   width: 100%;
 }
 
-.kv-table td:last-child {
+/* the remove-button column, when there is one */
+.kv-table td:has(> .p-button) {
   width: 3rem;
 }
 
@@ -713,4 +714,46 @@ body {
 .form-grid .p-password,
 .form-grid .p-password input {
   width: 100%;
+}
+
+.kv-table-wide {
+  max-width: none;
+}
+
+.kv-readonly {
+  display: block;
+  padding: 4px 0;
+  overflow-wrap: anywhere;
+  color: var(--text-color-secondary);
+}
+
+.request-dialog {
+  width: min(64rem, calc(100vw - 32px));
+}
+
+.request-general {
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+}
+
+.request-tabs {
+  margin-top: 12px;
+}
+
+.payload {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+}
+
+.response-body {
+  max-height: 22rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* the request's general fields sit two to a row when there's room */
+@media (min-width: 900px) {
+  .request-general {
+    grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+  }
 }

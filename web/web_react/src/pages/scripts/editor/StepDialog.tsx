@@ -5,6 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Password } from 'primereact/password';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { focusOnShow } from '../../../components/focusOnShow';
 import { useConfigOptions } from '../../../hooks/useConfigOptions';
 import {
   authenticationData,
@@ -73,7 +74,7 @@ export function StepDialog({
       className="form-dialog"
       modal
       draggable={false}
-      onShow={() => first.current?.focus()}
+      onShow={focusOnShow(first)}
     >
       <form onSubmit={submit} className="form-grid">
         <Form.Fields values={values} set={set} first={first} readOnly={readOnly} editing={!!step} />

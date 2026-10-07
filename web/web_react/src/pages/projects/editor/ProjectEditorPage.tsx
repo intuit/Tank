@@ -27,6 +27,7 @@ import { Field } from '../../../components/Field';
 import { UsersAndTimesTab } from './UsersAndTimesTab';
 import type { ProjectDetail, Section } from './validation';
 import { VariablesTab } from './VariablesTab';
+import { focusOnShow } from '../../../components/focusOnShow';
 
 type TabKey = Section | 'jobQueue';
 
@@ -362,7 +363,7 @@ function SaveAsDialog({
       className="form-dialog"
       modal
       draggable={false}
-      onShow={() => nameInput.current?.select()}
+      onShow={focusOnShow(nameInput, true)}
     >
       <form onSubmit={submit} className="form-grid">
         <label htmlFor="save-as-name">Name</label>

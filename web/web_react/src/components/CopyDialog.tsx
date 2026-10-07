@@ -5,6 +5,7 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { useRef, useState, type FormEvent } from 'react';
 import { useNotify } from '../notify';
+import { focusOnShow } from './focusOnShow';
 
 /** Copies something under a new name; `copy` makes the call and returns the copy's name */
 export function CopyDialog({
@@ -48,7 +49,7 @@ export function CopyDialog({
       className="form-dialog"
       modal
       draggable={false}
-      onShow={() => nameInput.current?.focus()}
+      onShow={focusOnShow(nameInput)}
     >
       <form onSubmit={submit} className="form-grid">
         <label htmlFor="copy-name">New name</label>

@@ -17,6 +17,7 @@ import { useSession } from '../../../session';
 import { Field } from '../../../components/Field';
 import type { Update } from './useProjectDraft';
 import { testPlanPercentageWarning, type ProjectDetail } from './validation';
+import { focusOnShow } from '../../../components/focusOnShow';
 
 type ScriptGroup = Schemas['ScriptGroupDetail'];
 type ScriptRef = Schemas['ScriptRef'];
@@ -239,7 +240,7 @@ function TestPlanDialog({
       className="form-dialog"
       modal
       draggable={false}
-      onShow={() => nameInput.current?.focus()}
+      onShow={focusOnShow(nameInput)}
     >
       <form onSubmit={submit} className="form-grid">
         <label htmlFor="new-plan-name">Name</label>
@@ -303,7 +304,7 @@ function ScriptGroupDialog({
       className="wide-dialog"
       modal
       draggable={false}
-      onShow={() => nameInput.current?.focus()}
+      onShow={focusOnShow(nameInput)}
     >
       <form onSubmit={submit}>
         <div className="form-columns">

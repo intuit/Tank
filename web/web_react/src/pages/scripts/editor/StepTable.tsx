@@ -10,6 +10,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTablePreferences, type ColumnPreference } from '../../../hooks/useTablePreferences';
 import { useNotify } from '../../../notify';
 import { copySteps, useCopiedSteps } from './clipboard';
+import { RequestDialog } from './RequestDialog';
 import { isSimpleType, StepDialog, type SimpleType } from './StepDialog';
 import {
   copiesOf,
@@ -24,6 +25,7 @@ import {
   type ScriptStep,
 } from './steps';
 import type { ScriptUpdate } from './useScriptDraft';
+import { focusOnShow } from '../../../components/focusOnShow';
 
 /**
  * Past this many steps the table scrolls virtually, which keeps large recordings responsive but
@@ -33,6 +35,11 @@ export const VIRTUAL_SCROLL_FROM = 300;
 const ROW_HEIGHT = 41;
 
 type Cell = (step: ScriptStep, position: number, open: (step: ScriptStep) => void) => ReactNode;
+
+/** Steps this editor can open: the simple types and requests */
+function isEditable(step: ScriptStep) {
+  return isSimpleType(step.type) || step.type === 'request';
+}
 
 const check = (on: boolean) => (on ? <i className="pi pi-check" aria-label="Yes" /> : null);
 
@@ -53,7 +60,7 @@ const CELLS: Record<string, Cell> = {
         {s.label}
       </>
     );
-    return isSimpleType(s.type) ? (
+    return isEditable(s) ? (
       <button type="button" className="cell-link" title={s.label} onClick={() => open(s)}>
         {content}
       </button>
@@ -71,12 +78,14 @@ const CELLS: Record<string, Cell> = {
 
 /** The script's steps (ScriptEditor's step table), edited in the draft */
 export function StepTable({
+  scriptId,
   steps,
   update,
   readOnly,
   selection,
   onSelectionChange,
 }: {
+  scriptId: number;
   steps: ScriptStep[];
   update: ScriptUpdate;
   readOnly: boolean;
@@ -89,7 +98,7 @@ export function StepTable({
   const addMenu = useRef<Menu>(null);
   const [moving, setMoving] = useState(false);
   /** The step being edited, or the type of one being added */
-  const [editing, setEditing] = useState<{ type: SimpleType; step?: ScriptStep }>();
+  const [editing, setEditing] = useState<{ type: SimpleType | 'request'; step?: ScriptStep }>();
   const virtual = steps.length > VIRTUAL_SCROLL_FROM;
   const positions = new Map(steps.map((s, i) => [s.uuid, i + 1]));
   const selected = new Set(selection.map((s) => s.uuid ?? ''));
@@ -104,14 +113,34 @@ export function StepTable({
   const where = at < steps.length ? `before step ${at + 1}` : 'at the end';
   const add = (added: ScriptStep[]) =>
     update((d) => void (d.steps = insertSteps(d.steps ?? [], added, insertIndex(d.steps ?? [], selected))));
-  const open = (step: ScriptStep) => isSimpleType(step.type) && setEditing({ type: step.type, step });
+  const open = (step: ScriptStep) => {
+    if (step.type === 'request' || isSimpleType(step.type)) {
+      setEditing({ type: step.type, step });
+    }
+  };
   const addItems: MenuItem[] = [
+    { label: STEP_TYPES.request, command: () => setEditing({ type: 'request' }) },
     ...(['variable', 'thinkTime', 'sleep', 'cookie', 'authentication'] as SimpleType[]).map((type) => ({
       label: STEP_TYPES[type],
       command: () => setEditing({ type }),
     })),
     { label: STEP_TYPES.clear, command: () => add([createStep.clear()]) },
   ];
+
+  /** Replaces the edited step (by uuid), or adds a new one */
+  const save = (step: ScriptStep) => {
+    if (editing?.step) {
+      update((d) => {
+        const i = (d.steps ?? []).findIndex((s) => s.uuid === step.uuid);
+        if (i >= 0) {
+          d.steps![i] = step;
+        }
+      });
+    } else {
+      add([step]);
+    }
+    setEditing(undefined);
+  };
 
   const hideable = preferences.columns.filter((c) => c.hideable && CELLS[c.colName ?? '']);
   const visible = preferences.columns.filter((c) => c.visible && (CELLS[c.colName ?? ''] || c.colName === 'actionsColumn'));
@@ -220,26 +249,11 @@ export function StepTable({
         {visible.map((pref) => columnFor(pref, positions, readOnly, (uuid) => remove(new Set([uuid])), open))}
       </DataTable>
 
-      {editing && (
-        <StepDialog
-          type={editing.type}
-          step={editing.step}
-          readOnly={readOnly}
-          onHide={() => setEditing(undefined)}
-          onSave={(step) => {
-            if (editing.step) {
-              update((d) => {
-                const i = (d.steps ?? []).findIndex((s) => s.uuid === step.uuid);
-                if (i >= 0) {
-                  d.steps![i] = step;
-                }
-              });
-            } else {
-              add([step]);
-            }
-            setEditing(undefined);
-          }}
-        />
+      {editing?.type === 'request' && (
+        <RequestDialog scriptId={scriptId} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />
+      )}
+      {editing && editing.type !== 'request' && (
+        <StepDialog type={editing.type} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />
       )}
       {moving && (
         <MoveDialog
@@ -274,7 +288,7 @@ function columnFor(
         resizeable={false}
         body={(step: ScriptStep) => (
           <div className="row-actions">
-            {isSimpleType(step.type) && (
+            {isEditable(step) && (
               <Button
                 icon={readOnly ? 'pi pi-eye' : 'pi pi-pencil'}
                 rounded
@@ -343,7 +357,7 @@ function MoveDialog({
       className="form-dialog"
       modal
       draggable={false}
-      onShow={() => input.current?.focus()}
+      onShow={focusOnShow(input)}
     >
       <form onSubmit={submit} className="form-grid">
         <label htmlFor="move-position">New position of the first selected step</label>

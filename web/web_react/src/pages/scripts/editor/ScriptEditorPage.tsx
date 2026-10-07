@@ -169,6 +169,7 @@ function ScriptEditor({ scriptId }: { scriptId: number }) {
       </div>
 
       <StepTable
+        scriptId={scriptId}
         steps={draft.steps ?? []}
         update={script.update}
         readOnly={readOnly}

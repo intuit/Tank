@@ -58,7 +58,8 @@ export function capturePut(bodies: ScriptDocument[]) {
 
 export async function open(h: Handlers) {
   const app = renderApp('/scripts/7', h);
-  await screen.findByText('GET /cart');
+  // the data columns appear once the script's column preferences have loaded
+  await screen.findByRole('columnheader', { name: 'Data' });
   return app;
 }
 

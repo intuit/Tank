@@ -14,6 +14,7 @@ import { useConfigOptions } from '../../hooks/useConfigOptions';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
 import { SCRIPT_FILE_TYPES, uploadScript } from './scriptUpload';
+import { focusOnShow } from '../../components/focusOnShow';
 
 type Mode = 'blank' | 'recording';
 const MODES = [
@@ -103,7 +104,7 @@ export function NewScriptDialog({ onHide }: { onHide: () => void }) {
       className={mode === 'recording' ? 'wide-dialog' : 'form-dialog'}
       modal
       draggable={false}
-      onShow={() => nameInput.current?.focus()}
+      onShow={focusOnShow(nameInput)}
     >
       <form onSubmit={submit} className="form-grid">
         <SelectButton

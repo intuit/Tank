@@ -231,3 +231,31 @@ export function isTimeValue(value: string): boolean {
   const v = value.trim();
   return /^\d+$/.test(v) || v.startsWith('@') || v.startsWith('#function') || /^#\{[^}]+\}$/.test(v);
 }
+
+export const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+export const PROTOCOLS = ['http', 'https'];
+
+/** Request data types for entries added in the editor (RequestHeaderEditor, QueryStringEditor, PostDataEditor) */
+export const ENTRY_TYPES = {
+  header: 'requestHeader',
+  queryString: 'queryString',
+  postData: 'requestPostData',
+} as const;
+
+/** A new request (ScriptRequestEditor.insertRequest), with the editor's usual choices filled in */
+export function newRequest(): ScriptStep {
+  return {
+    uuid: newUuid(),
+    type: 'request',
+    protocol: 'https',
+    method: 'GET',
+    reqFormat: 'nvp',
+    requestheaders: [],
+    queryStrings: [],
+    postDatas: [],
+    requestCookies: [],
+    responseheaders: [],
+    responseCookies: [],
+    responseData: [],
+  };
+}

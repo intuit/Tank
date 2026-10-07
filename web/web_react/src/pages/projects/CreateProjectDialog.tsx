@@ -11,6 +11,7 @@ import { toApiError } from '../../api/errors';
 import { useConfigOptions } from '../../hooks/useConfigOptions';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
+import { focusOnShow } from '../../components/focusOnShow';
 
 /** Creates a project with the default "Main" test plan, then opens it (CreateProjectBean). */
 export function CreateProjectDialog({ onHide }: { onHide: () => void }) {
@@ -60,7 +61,7 @@ export function CreateProjectDialog({ onHide }: { onHide: () => void }) {
 
   return (
     <Dialog header="New project" visible onHide={onHide} className="form-dialog" modal draggable={false}
-      onShow={() => nameInput.current?.focus()}>
+      onShow={focusOnShow(nameInput)}>
       <form onSubmit={submit} className="form-grid">
         <label htmlFor="project-name">Name</label>
         <InputText
