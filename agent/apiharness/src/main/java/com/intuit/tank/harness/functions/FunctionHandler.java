@@ -14,8 +14,8 @@ package com.intuit.tank.harness.functions;
  */
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +25,6 @@ import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.vm.common.util.ValidationUtil;
 
 /**
- * 
  * FunctionHandler handles functions in strings. Functions start with #function and use dot notation to pass parameters.
  * The first parameter is the class of function. Valid values are:
  * <ul>
@@ -37,74 +36,65 @@ import com.intuit.tank.vm.common.util.ValidationUtil;
  * <li>datatype - @see DataTypeFunctions</li>
  * <li>tax - @see TaxFunctions</li>
  * </ul>
- * 
+ *
  * e.g. #function.date...
- * 
+ *
  * @author dangleton
- * 
+ *
  */
 public class FunctionHandler {
 
-    /**
-     * 
-     */
     private static final String ESCAPE_DELIM = "-dot-";
     static final String delimeters = "[.]";
-    static private Logger logger = LogManager.getLogger(FunctionHandler.class);
+    private static final Pattern DELIM_PATTERN = Pattern.compile(delimeters);
+    private static final Logger logger = LogManager.getLogger(FunctionHandler.class);
 
     /**
      * Is the string a valid function
-     * 
+     *
      * @param function
      *            The function string to evaluate
      * @return TRUE if that is an actual function; FALSE otherwise
      */
     static public boolean validFunction(String function) {
         try {
-            String[] values = getValues(function);
-            if (values[0].equalsIgnoreCase(ValidationUtil.functionIdentifier)) {
-                if (values[1].equalsIgnoreCase("date"))
-                    return DateFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("monetary"))
-                    return MonetaryFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("numeric"))
-                    return NumericFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("generic"))
-                    return GenericFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("string"))
-                    return StringFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("datatype"))
-                    return DataTypeFunctions.isValid(values);
-                else if (values[1].equalsIgnoreCase("tax"))
-                    return TaxFunctions.isValid(values);
-                else
-                    return false;
-            } else
-                return false;
+            return isValidFunction(getValues(function));
         } catch (Exception ex) {
             logger.error(LogUtil.getLogMessage(ex.toString()), ex);
             return false;
         }
     }
 
-    /**
-     * @param function
-     * @return
-     */
+    private static boolean isValidFunction(String[] values) {
+        if (!values[0].equalsIgnoreCase(ValidationUtil.functionIdentifier)) {
+            return false;
+        }
+        return switch (values[1].toLowerCase()) {
+            case "date" -> DateFunctions.isValid(values);
+            case "monetary" -> MonetaryFunctions.isValid(values);
+            case "numeric" -> NumericFunctions.isValid(values);
+            case "generic" -> GenericFunctions.isValid(values);
+            case "string" -> StringFunctions.isValid(values);
+            case "datatype" -> DataTypeFunctions.isValid(values);
+            case "tax" -> TaxFunctions.isValid(values);
+            default -> false;
+        };
+    }
+
     private static String[] getValues(String function) {
-        String[] split = function.split(delimeters);
+        String[] split = DELIM_PATTERN.split(function);
         for (int i = 0; i < split.length; i++) {
             split[i] = cleanArg(split[i]);
         }
         if (split.length < 10) {
-            split = Arrays.<String> copyOf(split, 10);
+            split = Arrays.copyOf(split, 10);
         }
         return split;
     }
 
     /**
      * Execute a function
-     * 
+     *
      * @param function
      *            The function string to execute
      * @return The response value from the function
@@ -115,82 +105,59 @@ public class FunctionHandler {
 
     /**
      * Execute a function
-     * 
+     *
      * @param function
      *            The function string to execute
      * @return The response value from the function
      */
     static public String executeFunction(String function, Variables variables, String addtlString) {
         try {
-            if (!FunctionHandler.validFunction(function))
+            String[] values = getValues(function);
+            if (!isValidFunction(values))
                 return null;
 
-            String[] values = getValues(function);
             substituteVariables(values, variables);
-            if (values[1].equalsIgnoreCase("date"))
-                return DateFunctions.executeFunction(values);
-            else if (values[1].equalsIgnoreCase("monetary"))
-                return MonetaryFunctions.executeFunction(values);
-            else if (values[1].equalsIgnoreCase("numeric"))
-                return NumericFunctions.executeFunction(values, variables);
-            else if (values[1].equalsIgnoreCase("string"))
-                return StringFunctions.executeFunction(values, variables, addtlString);
-            else if (values[1].equalsIgnoreCase("generic"))
-                return GenericFunctions.executeFunction(values, variables);
-            else if (values[1].equalsIgnoreCase("datatype"))
-                return DataTypeFunctions.executeFunction(values);
-            else if (values[1].equalsIgnoreCase("tax"))
-                return TaxFunctions.executeFunction(values, variables);
-            return null;
+            return switch (values[1].toLowerCase()) {
+                case "date" -> DateFunctions.executeFunction(values);
+                case "monetary" -> MonetaryFunctions.executeFunction(values);
+                case "numeric" -> NumericFunctions.executeFunction(values, variables);
+                case "string" -> StringFunctions.executeFunction(values, variables, addtlString);
+                case "generic" -> GenericFunctions.executeFunction(values, variables);
+                case "datatype" -> DataTypeFunctions.executeFunction(values);
+                case "tax" -> TaxFunctions.executeFunction(values, variables);
+                default -> null;
+            };
         } catch (Exception ex) {
             logger.error(LogUtil.getLogMessage(ex.toString()), ex);
             return null;
         }
     }
 
-    private static final String cleanArg(String arg) {
-        if (!StringUtils.isEmpty(arg)) {
-            arg = arg.replaceAll(FunctionHandler.ESCAPE_DELIM, ".");
-        }
-        return arg;
+    private static String cleanArg(String arg) {
+        return (arg == null || arg.isEmpty()) ? arg : arg.replace(ESCAPE_DELIM, ".");
     }
 
-    /**
-     * @param values
-     * @param variables
-     */
     private static void substituteVariables(String[] values, Variables variables) {
         for (int i = 0; i < values.length; i++) {
             if (ValidationUtil.isVariable(values[i])) {
                 values[i] = variables.getVariable(values[i]);
             }
         }
-
     }
     
-    /**
-     * 
-     * @param o
-     * @return
-     */
-    public static final int getInt(Object o) {
+    public static int getInt(Object o) {
         return getNumber(o).intValue();
     }
 
-    public static final double getDouble(Object o) {
+    public static double getDouble(Object o) {
         return getNumber(o).doubleValue();
     }
-    public static final long getLong(Object o) {
+
+    public static long getLong(Object o) {
         return getNumber(o).longValue();
     }
 
-    public static final Number getNumber(Object o) {
-        Number ret = null;
-        if (o instanceof Number) {
-            ret = ((Number) o);
-        } else {
-            ret = NumberUtils.createNumber(o.toString());
-        }
-        return ret;
+    public static Number getNumber(Object o) {
+        return (o instanceof Number number) ? number : NumberUtils.createNumber(o.toString());
     }
 }

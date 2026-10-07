@@ -1,3 +1,89 @@
+# 4.4.6 (Thu Sep 24 2026)
+
+#### 🐛 Bug Fix
+
+- feat: add last substring response extraction (SRE-39717) [#513](https://github.com/intuit/Tank/pull/513) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.4.5 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- JDK httpclient rewrite [#510](https://github.com/intuit/Tank/pull/510) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.4.4 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- fix: restore substring body extraction (SRE-39717) [#512](https://github.com/intuit/Tank/pull/512) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.4.3 (Wed Sep 09 2026)
+
+#### 🐛 Bug Fix
+
+- Bump org.apache.tomcat:tomcat-catalina from 11.0.24 to 11.0.25 [#507](https://github.com/intuit/Tank/pull/507) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
+# 4.4.2 (Tue Sep 01 2026)
+
+#### 🐛 Bug Fix
+
+- Performance Optimizations on Agent Threads [#506](https://github.com/intuit/Tank/pull/506) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.4.1 (Tue Aug 25 2026)
+
+#### 🐛 Bug Fix
+
+- Optimize FunctionHandler.java [#505](https://github.com/intuit/Tank/pull/505) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.4.0 (Sat Aug 22 2026)
+
+#### 🚀 Enhancement
+
+- Java21 & Virtual Threads [#504](https://github.com/intuit/Tank/pull/504) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.3.11 (Fri Jul 31 2026)
 
 #### 🐛 Bug Fix

@@ -10,7 +10,6 @@ package com.intuit.tank.tools.headless;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.*;
@@ -115,7 +114,7 @@ public class HeadlessDebuggerSetup implements Serializable {
         int projectId = -1;
 
         for (String argument : args) {
-            LOG.info(new ObjectMessage(ImmutableMap.of("Message", "checking arg " + argument)));
+            LOG.info(new ObjectMessage(Map.of("Message", "checking arg " + argument)));
 
             String[] values = argument.split("=");
             if (values[0].equalsIgnoreCase("-p")) {
@@ -579,7 +578,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                                                     request.getHeaderInformation(),
                                                     request.getCookies(),
                                                     true);
-                    context.getResponse().logResponse(); // log full response
+                    LOG.info(context.getResponse().getLogMsg()); // log full response
                     variablesOutput.displayVars(); // log variables
                 }
                 
