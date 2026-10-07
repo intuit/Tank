@@ -8,8 +8,9 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
-import { useMemo, useState } from 'react';
-import type { Schemas } from '../../api/client';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router';
+import { contextPath, type Schemas } from '../../api/client';
 import { toApiError } from '../../api/errors';
 import { formatDateTime } from '../../format';
 import { useNotify } from '../../notify';
@@ -18,6 +19,7 @@ import { JobCharts } from './JobCharts';
 
 type JobTree = Schemas['JobTree'];
 type JobNode = Schemas['JobNode'];
+type ProjectJobs = Schemas['ProjectJobs'];
 type AgentNode = Schemas['AgentNode'];
 type Actions = Schemas['Actions'];
 
@@ -37,12 +39,18 @@ const ACTIONS = [
 ] as const;
 
 type Row =
+  /** a project, or (no projectId) the jobs whose project no longer exists */
+  | { kind: 'project'; project: ProjectJobs; orphans?: boolean }
   | { kind: 'job'; job: JobNode }
   | { kind: 'agent'; agent: AgentNode; job: JobNode };
 
+/** The rows actions can be sent to */
+type Target = Exclude<Row, { kind: 'project' }>;
+
 /**
- * Jobs and their agents, live (JobTreeTableBean and projectjobqueue.xhtml). Figures come from the
- * controller serving the request, as in the JSF UI.
+ * Jobs and their agents, live (JobTreeTableBean, projectjobqueue.xhtml and agents/index.xhtml). With
+ * a projectId it lists that project's jobs; without one, every project with recent jobs, each
+ * expandable to its jobs. Figures come from the controller serving the request, as in the JSF UI.
  */
 export function JobQueue({ projectId }: { projectId?: number }) {
   const { client } = useSession();
@@ -70,7 +78,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   });
 
   const act = useMutation({
-    mutationFn: async ({ target, action }: { target: Row; action: string }) => {
+    mutationFn: async ({ target, action }: { target: Target; action: string }) => {
       const result =
         target.kind === 'job'
           ? await client.POST('/v2/jobs/{jobId}/{action}', {
@@ -106,24 +114,18 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: ['jobs', 'tree'] }),
   });
 
-  const jobs = useMemo(() => {
-    const data = tree.data;
-    if (!data) {
-      return [];
+  const nodes = useMemo(() => (tree.data ? toNodes(tree.data, projectId === undefined) : []), [tree.data, projectId]);
+
+  // Projects start expanded so their jobs show; agents start collapsed
+  const expandedOnce = useRef(false);
+  useEffect(() => {
+    if (!expandedOnce.current && tree.data && projectId === undefined) {
+      expandedOnce.current = true;
+      setExpanded(Object.fromEntries(nodes.map((n) => [n.key as string, true])));
     }
-    return [...(data.projects ?? []).flatMap((p) => p.jobs ?? []), ...(data.otherJobs ?? [])];
-  }, [tree.data]);
+  }, [tree.data, nodes, projectId]);
 
-  const nodes: TreeNode[] = jobs.map((job) => ({
-    key: `job-${job.jobId}`,
-    data: { kind: 'job', job } satisfies Row,
-    children: (job.agents ?? []).map((agent) => ({
-      key: `agent-${agent.instanceId}`,
-      data: { kind: 'agent', agent, job } satisfies Row,
-    })),
-  }));
-
-  const confirmThen = (target: Row, action: string, label: string) => {
+  const confirmThen = (target: Target, action: string, label: string) => {
     const what = target.kind === 'job' ? `job "${target.job.name}"` : `agent ${target.agent.instanceId}`;
     confirmDialog({
       header: `${label} ${target.kind}`,
@@ -141,6 +143,20 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   };
 
   const actionsFor = (row: Row) => {
+    if (row.kind === 'project') {
+      return row.orphans ? null : (
+        <div className="row-actions">
+          <a
+            className="p-button p-button-icon-only p-button-text p-button-rounded plain-link"
+            href={`${contextPath()}/v2/projects/download/${row.project.projectId}`}
+            aria-label={`Download harness XML for ${row.project.name}`}
+            title="Download harness XML"
+          >
+            <i className="pi pi-download" aria-hidden />
+          </a>
+        </div>
+      );
+    }
     const allowed: Actions = (row.kind === 'job' ? row.job.actions : row.agent.actions) ?? {};
     const name = row.kind === 'job' ? row.job.name : row.agent.instanceId;
     return (
@@ -185,7 +201,15 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   };
 
   const nameCell = (row: Row) =>
-    row.kind === 'job' ? (
+    row.kind === 'project' ? (
+      row.orphans ? (
+        <em>{row.project.name}</em>
+      ) : (
+        <Link to={`/projects/${row.project.projectId}`} className="project-cell">
+          {row.project.name}
+        </Link>
+      )
+    ) : row.kind === 'job' ? (
       <Button label={row.job.name} link className="link-cell" onClick={() => setDetailsFor({ job: row.job })} />
     ) : (
       <span title={row.agent.instanceId}>{row.agent.instanceId}</span>
@@ -224,15 +248,21 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           value={nodes}
           expandedKeys={expanded}
           onToggle={(e) => setExpanded(e.value as Record<string, boolean>)}
-          emptyMessage={includeFinished ? 'No jobs for this project yet' : 'No queued or running jobs. Turn on "Show finished jobs" to see past ones.'}
+          emptyMessage={
+            includeFinished
+              ? projectId === undefined
+                ? 'No jobs in the last week'
+                : 'No jobs for this project yet'
+              : 'No queued or running jobs. Turn on "Show finished jobs" to see past ones.'
+          }
           loading={tree.isPending}
           tableStyle={{ minWidth: '56rem' }}
           className="p-treetable-sm job-tree"
         >
           <Column field="name" header="Name" expander body={(n: TreeNode) => nameCell(n.data as Row)} style={{ minWidth: '12rem' }} />
-          <Column header="ID" body={(n: TreeNode) => ((n.data as Row).kind === 'job' ? (n.data as Row).job.jobId : '')} style={{ width: '4rem' }} />
+          <Column header="ID" body={(n: TreeNode) => idOf(n.data as Row)} style={{ width: '4rem' }} />
           <Column header="Status" body={(n: TreeNode) => statusCell(n.data as Row)} style={{ minWidth: '11rem' }} />
-          <Column header="Region" body={(n: TreeNode) => ((n.data as Row).kind === 'agent' ? (n.data as { agent: AgentNode }).agent.region : '')} style={{ minWidth: '9rem' }} />
+          <Column header="Region" body={(n: TreeNode) => regionOf(n.data as Row)} style={{ minWidth: '9rem' }} />
           <Column header="Users" body={(n: TreeNode) => usersCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
           <Column header="TPS" body={(n: TreeNode) => figures(n.data as Row).tps ?? 0} />
           <Column header="Failures" body={(n: TreeNode) => figures(n.data as Row).failures?.total ?? 0} />
@@ -248,11 +278,75 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   );
 }
 
-function figures(row: Row): JobNode | AgentNode {
-  return row.kind === 'job' ? row.job : row.agent;
+function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
+  const jobNode = (job: JobNode): TreeNode => ({
+    key: `job-${job.jobId}`,
+    data: { kind: 'job', job } satisfies Row,
+    children: (job.agents ?? []).map((agent) => ({
+      key: `agent-${agent.instanceId}`,
+      data: { kind: 'agent', agent, job } satisfies Row,
+    })),
+  });
+  if (!byProject) {
+    return [...(data.projects ?? []).flatMap((p) => p.jobs ?? []), ...(data.otherJobs ?? [])].map(jobNode);
+  }
+  const projects: TreeNode[] = (data.projects ?? []).map((project) => ({
+    key: `project-${project.projectId}`,
+    data: { kind: 'project', project } satisfies Row,
+    children: (project.jobs ?? []).map(jobNode),
+  }));
+  const others = data.otherJobs ?? [];
+  if (others.length) {
+    const sum = (pick: (j: JobNode) => number | undefined) => others.reduce((total, j) => total + (pick(j) ?? 0), 0);
+    projects.push({
+      key: 'project-none',
+      data: {
+        kind: 'project',
+        orphans: true,
+        project: {
+          name: 'Jobs without a project',
+          jobs: others,
+          activeUsers: sum((j) => j.activeUsers),
+          totalUsers: sum((j) => j.totalUsers),
+          tps: sum((j) => j.tps),
+          failures: { total: sum((j) => j.failures?.total) },
+        },
+      } satisfies Row,
+      children: others.map(jobNode),
+    });
+  }
+  return projects;
+}
+
+type Figures = Pick<JobNode, 'activeUsers' | 'totalUsers' | 'tps' | 'failures' | 'startTime'>;
+
+function figures(row: Row): Figures {
+  return row.kind === 'project' ? row.project : row.kind === 'job' ? row.job : row.agent;
+}
+
+/** Job IDs only; a project's ID would read as one (as in the JSF tree) */
+function idOf(row: Row) {
+  return row.kind === 'job' ? row.job.jobId : '';
+}
+
+function regionOf(row: Row) {
+  return row.kind === 'agent' ? row.agent.region : '';
 }
 
 function statusCell(row: Row) {
+  if (row.kind === 'project') {
+    const jobs = row.project.jobs ?? [];
+    const running = jobs.filter((j) => j.status === 'Running').length;
+    const completed = jobs.length > 0 && jobs.every((j) => j.status === 'Completed');
+    return (
+      <span className="status-cell">
+        <Tag
+          value={completed ? 'Completed' : `${running}/${jobs.length} jobs running`}
+          severity={running > 0 ? 'success' : completed ? 'secondary' : 'info'}
+        />
+      </span>
+    );
+  }
   if (row.kind === 'agent') {
     const { agent } = row;
     return (
@@ -293,7 +387,7 @@ function usersCell(row: Row) {
 }
 
 /** Colours JobQueueStatus and VMStatus (vmManager) names; unknown ones stay neutral */
-export function severityOf(status: string | undefined): 'success' | 'info' | 'warning' | 'danger' | undefined {
+export function severityOf(status: string | undefined): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
   switch (status?.toLowerCase()) {
     case 'running':
       return 'success';
@@ -314,8 +408,8 @@ export function severityOf(status: string | undefined): 'success' | 'info' | 'wa
     case 'replaced':
       return 'danger';
     default:
-      // Completed, Stopped, Deleted, shutting_down, unknown
-      return undefined;
+      // Completed, Stopped, Deleted, shutting_down, unknown: neutral, not the primary blue
+      return 'secondary';
   }
 }
 

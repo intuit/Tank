@@ -620,3 +620,19 @@ body {
   color: var(--viz-text-secondary);
   font-weight: 600;
 }
+
+.job-tree a.project-cell {
+  color: var(--primary-color);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.job-tree a.project-cell:hover {
+  text-decoration: underline;
+}
+
+/* lara-light-blue styles only success/info/warning/danger tags; neutral statuses (Completed, Stopped) */
+.p-tag.p-tag-secondary {
+  background: var(--surface-200);
+  color: var(--text-color-secondary);
+}
