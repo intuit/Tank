@@ -125,6 +125,18 @@ describe('filter group editor', () => {
     expect(await screen.findByRole('heading', { name: 'store v2' })).toBeInTheDocument();
   });
 
+  it('says why a new group was not created', async () => {
+    const { requests } = renderApp(
+      '/filters/groups/new',
+      handlers({ 'POST /v2/filters/groups': () => ({ status: 400, body: { message: 'Resource could not be created or updated: filter group' } }) }),
+    );
+    await screen.findByRole('heading', { name: 'New filter group' });
+    await userEvent.type(screen.getByLabelText('Name'), 'payroll');
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    expect(await screen.findByText(/could not be created or updated: filter group/)).toBeInTheDocument();
+    expect(requests.map((r) => new URL(r.url).pathname)).not.toContain('/tank/v2/filters/groups/new');
+  });
+
   it('offers to reload when someone else saved first', async () => {
     renderApp('/filters/groups/9', handlers({ 'PUT /v2/filters/groups/9': () => ({ status: 409, body: { message: 'changed' } }) }));
     await members();

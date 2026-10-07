@@ -758,17 +758,22 @@ class FilterServiceV2ImplTest {
         ScriptFilter f2 = filter(2, "b");
         FilterGroupTO request = FilterGroupTO.builder().withId(77).withName(" grp ").withProductName("prod")
                 .withCreator("mallory").withFilterIds(java.util.Arrays.asList(2, 1, 2, null)).build();
+        List<String> saves = new java.util.ArrayList<>();
 
         try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
                 (mock, ctx) -> when(mock.findForIds(List.of(2, 1))).thenReturn(List.of(f2, f1)));
              MockedConstruction<ScriptFilterGroupDao> groupDaoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
                      (mock, ctx) -> when(mock.saveOrUpdate(any(ScriptFilterGroup.class))).thenAnswer(i -> {
                          ScriptFilterGroup g = i.getArgument(0);
+                         saves.add((g.getId() == 0 ? "new" : "existing") + " with " + g.getFilters().size() + " filters");
                          g.setId(8);
                          return g;
                      }))) {
 
             FilterGroupDetailTO result = service.createFilterGroup(request);
+
+            // persisting a new group with filters from another session fails ("detached entity passed to persist")
+            assertEquals(List.of("new with 0 filters", "existing with 2 filters"), saves);
 
             assertEquals(8, result.getId());
             assertEquals("grp", result.getName());

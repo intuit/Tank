@@ -344,7 +344,17 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
 
     private static FilterGroupDetailTO saveFilterGroup(ScriptFilterGroup group, String what) {
         try {
-            return FilterServiceUtil.filterGroupToDetailTO(new ScriptFilterGroupDao().saveOrUpdate(group));
+            ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
+            if (group.getId() == 0 && !group.getFilters().isEmpty()) {
+                // a new group is saved before it holds its filters, as FilterGroupCreationBean.saveAs does: they come
+                // from another session, and only an update (a merge) takes them; persisting them fails as
+                // "detached entity passed to persist"
+                Set<ScriptFilter> filters = new HashSet<>(group.getFilters());
+                group.getFilters().clear();
+                group = dao.saveOrUpdate(group);
+                group.getFilters().addAll(filters);
+            }
+            return FilterServiceUtil.filterGroupToDetailTO(dao.saveOrUpdate(group));
         } catch (RuntimeException e) {
             LOGGER.error("Error saving {}: {}", what, e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException(SERVICE, what, e);
