@@ -250,7 +250,14 @@ export function StepTable({
       </DataTable>
 
       {editing?.type === 'request' && (
-        <RequestDialog scriptId={scriptId} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />
+        <RequestDialog
+          scriptId={scriptId}
+          groups={[...new Set(steps.map((s) => s.scriptGroupName?.trim()).filter((g): g is string => !!g))].sort()}
+          step={editing.step}
+          readOnly={readOnly}
+          onHide={() => setEditing(undefined)}
+          onSave={save}
+        />
       )}
       {editing && editing.type !== 'request' && (
         <StepDialog type={editing.type} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />

@@ -13,6 +13,8 @@ import { Field } from '../../../components/Field';
 import { KeyValueTable } from '../../../components/KeyValueTable';
 import { useConfigOptions } from '../../../hooks/useConfigOptions';
 import { useSession } from '../../../session';
+import { AssignmentsEditor, ResponseFormat, rulesProblem, ValidationsEditor } from './ResponseRulesEditor';
+import { encodeOnFail, encodeRules, parseOnFail, parseRules, type Assignment, type Validation } from './responseRules';
 import { ENTRY_TYPES, METHODS, newRequest, PROTOCOLS, withLabel, type ScriptStep } from './steps';
 import { focusOnShow } from '../../../components/focusOnShow';
 
@@ -27,17 +29,20 @@ const DEFAULT_FORMATS = [
 
 /**
  * Adds or edits a request (ScriptRequestEditor and request-editor.xhtml): its address and method,
- * headers, query string and post data, with the recorded cookies and response to look at. Validations,
- * assignments and the on-failure action are edited separately.
+ * headers, query string and post data, validations, assignments and what happens on failure, with
+ * the recorded cookies and response to look at.
  */
 export function RequestDialog({
   scriptId,
+  groups,
   step,
   readOnly,
   onHide,
   onSave,
 }: {
   scriptId: number;
+  /** The script's group names, for "go to group" */
+  groups: string[];
   /** The request to edit; a new one is added when absent */
   step?: ScriptStep;
   readOnly: boolean;
@@ -53,12 +58,30 @@ export function RequestDialog({
     setDraft((d) => ({ ...d, ...change }));
   };
   const formats = options.data?.stepOptions?.['requestFormats'] ?? DEFAULT_FORMATS;
+  const failureTypes = options.data?.stepOptions?.['failureTypes'] ?? [{ label: 'Abort script, goto next script', value: 'abort' }];
+  const [rules, setRules] = useState(() => parseRules(draft.responseData));
+  const [onFail, setOnFail] = useState(() => parseOnFail(draft.onFail));
+  const setValidations = (validations: Validation[]) => {
+    setError(undefined);
+    setRules((r) => ({ ...r, validations }));
+  };
+  const setAssignments = (assignments: Assignment[]) => {
+    setError(undefined);
+    setRules((r) => ({ ...r, assignments }));
+  };
   const format = draft.reqFormat ?? 'nvp';
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (!draft.hostname?.trim()) {
       setError('Host is required');
+      return;
+    }
+    const problem =
+      rulesProblem(rules.validations, rules.assignments) ??
+      (onFail.action === 'goto' && !onFail.group.trim() ? 'Choose the group to go to on failure' : undefined);
+    if (problem) {
+      setError(problem);
       return;
     }
     onSave(
@@ -70,6 +93,8 @@ export function RequestDialog({
         requestheaders: (draft.requestheaders ?? []).filter((e) => e.key?.trim()),
         queryStrings: (draft.queryStrings ?? []).filter((e) => e.key?.trim()),
         postDatas: (draft.postDatas ?? []).filter((e) => e.key?.trim()),
+        responseData: encodeRules(rules.validations, rules.assignments),
+        onFail: encodeOnFail(onFail.action, onFail.group),
       }),
     );
   };
@@ -104,6 +129,30 @@ export function RequestDialog({
           <Field label="Path" htmlFor="req-path">
             <InputText id="req-path" value={draft.simplePath ?? ''} onChange={(e) => set({ simplePath: e.target.value })} placeholder="/" disabled={readOnly} />
           </Field>
+          <Field label="On failure" htmlFor="req-onfail" help="What a user does when a validation fails">
+            <Dropdown
+              inputId="req-onfail"
+              value={onFail.action}
+              options={failureTypes}
+              optionLabel="label"
+              optionValue="value"
+              onChange={(e) => setOnFail((f) => ({ ...f, action: e.value as string }))}
+              disabled={readOnly}
+            />
+          </Field>
+          {onFail.action === 'goto' && (
+            <Field label="Go to group" htmlFor="req-goto">
+              <Dropdown
+                inputId="req-goto"
+                value={onFail.group || null}
+                options={[...new Set([...groups, ...(onFail.group ? [onFail.group] : [])])]}
+                onChange={(e) => setOnFail((f) => ({ ...f, group: (e.value as string) ?? '' }))}
+                editable
+                placeholder="Group name"
+                disabled={readOnly}
+              />
+            </Field>
+          )}
           <Field label="Logging key" htmlFor="req-logging" help="Groups this request's timings in the results">
             <InputText id="req-logging" value={draft.loggingKey ?? ''} onChange={(e) => set({ loggingKey: e.target.value })} disabled={readOnly} />
           </Field>
@@ -189,6 +238,14 @@ export function RequestDialog({
                 {format === 'multipart' && <small className="field-help">A multipart body is shown as recorded and can't be edited here.</small>}
               </>
             )}
+          </TabPanel>
+          <TabPanel header={`Validations (${rules.validations.length})`}>
+            <ResponseFormat value={draft.respFormat} onChange={(respFormat) => set({ respFormat })} readOnly={readOnly} />
+            <ValidationsEditor rules={rules.validations} onChange={setValidations} readOnly={readOnly} />
+          </TabPanel>
+          <TabPanel header={`Assignments (${rules.assignments.length})`}>
+            <ResponseFormat value={draft.respFormat} onChange={(respFormat) => set({ respFormat })} readOnly={readOnly} />
+            <AssignmentsEditor rules={rules.assignments} onChange={setAssignments} readOnly={readOnly} />
           </TabPanel>
           <TabPanel header="Recorded">
             <RecordedResponse scriptId={scriptId} step={draft} isNew={!step} />

@@ -757,3 +757,12 @@ body {
     grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
   }
 }
+
+.rules-table td .p-dropdown,
+.rules-table td .p-inputtext {
+  width: 100%;
+}
+
+.rules-table td:first-child {
+  min-width: 10rem;
+}
