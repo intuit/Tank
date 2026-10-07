@@ -792,7 +792,7 @@ export interface paths {
         get: operations["getFilterGroup"];
         /**
          * Update a filter group
-         * @description Replaces a filter group's name, product and members. Send the modified time from the last GET; the owner is unchanged
+         * @description Replaces a filter group's name, product and members. Send the modified time from the last GET. A different creator gives the group to that user, which only its owner or an admin may do
          */
         put: operations["updateFilterGroup"];
         post?: never;
@@ -860,7 +860,7 @@ export interface paths {
         get: operations["getFilter"];
         /**
          * Update a filter
-         * @description Replaces a filter's settings, conditions and actions. Send the modified time from the last GET; the owner is unchanged
+         * @description Replaces a filter's settings, conditions and actions. Send the modified time from the last GET. A different creator gives the filter to that user, which only its owner or an admin may do
          */
         put: operations["updateFilter"];
         post?: never;

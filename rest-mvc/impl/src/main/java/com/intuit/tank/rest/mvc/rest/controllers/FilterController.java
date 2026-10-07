@@ -87,7 +87,7 @@ public class FilterController {
 
     @RequestMapping(value = "/{filterId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Replaces a filter's settings, conditions and actions. Send the modified time from the "
-            + "last GET; the owner is unchanged", summary = "Update a filter")
+            + "last GET. A different creator gives the filter to that user, which only its owner or an admin may do", summary = "Update a filter")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Saved; returns the filter"),
             @ApiResponse(responseCode = "400", description = "Invalid filter or modified missing", content = @Content),
@@ -133,7 +133,7 @@ public class FilterController {
 
     @RequestMapping(value = "/groups/{filterGroupId}", method = RequestMethod.PUT, consumes = { MediaType.APPLICATION_JSON_VALUE })
     @Operation(description = "Replaces a filter group's name, product and members. Send the modified time from the "
-            + "last GET; the owner is unchanged", summary = "Update a filter group")
+            + "last GET. A different creator gives the group to that user, which only its owner or an admin may do", summary = "Update a filter group")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Saved; returns the group with its filters"),
             @ApiResponse(responseCode = "400", description = "Name missing, unknown filter IDs or modified missing", content = @Content),

@@ -896,3 +896,32 @@ body {
 .count-link.p-button {
   padding: 0 4px;
 }
+
+/* a filter action's value, after its = or validation check */
+.action-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-value .p-inputtext {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.action-prefix {
+  font-family: var(--font-family-monospace, monospace);
+  font-weight: 600;
+}
+
+.action-check {
+  flex: 0 0 11rem;
+}
+
+.filter-if {
+  align-items: center;
+}
+
+.filter-if .form-section {
+  margin: 0;
+}
