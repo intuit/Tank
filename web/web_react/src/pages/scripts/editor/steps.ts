@@ -80,3 +80,154 @@ export function validateScript(doc: ScriptDocument): Problem[] {
   });
   return problems;
 }
+
+/** The value ScriptDocument.MASKED_PASSWORD gives a stored password; sending it back keeps the stored one */
+export const MASKED_PASSWORD = '********';
+
+/** Data keys (ScriptConstants) */
+export const KEYS = {
+  minTime: 'minTime',
+  maxTime: 'maxTime',
+  time: 'time',
+  cookieName: 'cookie-name',
+  cookieValue: 'cookie-value',
+  cookieDomain: 'cookie-domain',
+  cookiePath: 'cookie-path',
+  userName: 'userName',
+  password: 'password',
+  realm: 'realm',
+  scheme: 'scheme',
+  host: 'host',
+  port: 'port',
+  loggingKey: 'logging-key',
+  isStart: 'is-start',
+} as const;
+
+export function dataValue(step: ScriptStep, key: string): string | undefined {
+  return step.data?.find((d) => d.key === key)?.value;
+}
+
+export function newUuid(): string {
+  return crypto.randomUUID();
+}
+
+/**
+ * The label the server would give the step (ScriptUtil.getStepLabel), so steps added or changed in
+ * the draft read the same as saved ones; think and sleep times also get their comment, as there.
+ */
+export function withLabel(step: ScriptStep): ScriptStep {
+  const value = (key: string) => dataValue(step, key);
+  let label = '';
+  let comments = step.comments;
+  switch (step.type?.toLowerCase()) {
+    case 'request':
+      label =
+        `${step.protocol ?? ''}://${step.hostname ?? ''}${step.simplePath ?? ''}` +
+        (step.queryStrings ?? []).map((q, i) => `${i === 0 ? '?' : '&'}${q.key}=${q.value}`).join('');
+      break;
+    case 'variable':
+      label = (step.data ?? []).map((d) => `Variable definition ${d.key}=>${d.value}`).join('');
+      break;
+    case 'authentication':
+      label = `Authentication ${value(KEYS.scheme) ?? 'ALL'} [host: ${value(KEYS.host) ?? ''} user: ${value(KEYS.userName) ?? ''}]`;
+      break;
+    case 'thinktime':
+      label = `Think time ${value(KEYS.minTime) ?? '0'}-${value(KEYS.maxTime) ?? '0'}`;
+      comments = `ThinkTime ${value(KEYS.minTime)}-${value(KEYS.maxTime)}`;
+      break;
+    case 'logic':
+      label = `Logic Step: ${step.name}`;
+      break;
+    case 'cookie':
+      label = `Set Cookie: ${value(KEYS.cookieName) ?? ''} = ${value(KEYS.cookieValue) ?? ''}`;
+      break;
+    case 'sleep':
+      label = (step.data ?? []).map((d) => `Sleep for ${d.value}`).join('');
+      comments = `SLEEP ${value(KEYS.time)}`;
+      break;
+    case 'clear':
+      label = 'Clear session';
+      break;
+    case 'timer':
+      label = `${value(KEYS.loggingKey)}:${value(KEYS.isStart)}`;
+      break;
+  }
+  return { ...step, label: label.length > 1024 ? `${label.slice(0, 1021)}...` : label, comments };
+}
+
+function data(type: string | undefined, entries: Record<string, string | undefined>): Schemas['StepDataTO'][] {
+  return Object.entries(entries)
+    .filter(([, v]) => v !== undefined && v !== '')
+    .map(([key, value]) => ({ key, value, ...(type ? { type } : {}) }));
+}
+
+/** New steps as ScriptStepFactory builds them */
+export const createStep = {
+  variable: (name: string, value: string): ScriptStep =>
+    withLabel({ uuid: newUuid(), type: 'variable', data: [{ key: name, value }] }),
+  thinkTime: (min: string, max: string): ScriptStep =>
+    withLabel({ uuid: newUuid(), type: 'thinkTime', data: data('thinkTime', { [KEYS.minTime]: min, [KEYS.maxTime]: max }) }),
+  sleep: (time: string): ScriptStep => withLabel({ uuid: newUuid(), type: 'sleep', data: data('sleep', { [KEYS.time]: time }) }),
+  cookie: (c: { name: string; value: string; domain?: string; path?: string }): ScriptStep =>
+    withLabel({
+      uuid: newUuid(),
+      type: 'cookie',
+      data: data('cookie', {
+        [KEYS.cookieName]: c.name,
+        [KEYS.cookieValue]: c.value,
+        [KEYS.cookieDomain]: c.domain,
+        [KEYS.cookiePath]: c.path,
+      }),
+    }),
+  authentication: (a: Authentication): ScriptStep =>
+    withLabel({ uuid: newUuid(), type: 'authentication', data: authenticationData(a) }),
+  clear: (): ScriptStep => withLabel({ uuid: newUuid(), type: 'clear', data: [] }),
+};
+
+export interface Authentication {
+  userName: string;
+  /** MASKED_PASSWORD keeps the stored password */
+  password: string;
+  realm?: string;
+  scheme?: string;
+  host?: string;
+  port?: string;
+}
+
+export function authenticationData(a: Authentication): Schemas['StepDataTO'][] {
+  return data('authentication', {
+    [KEYS.userName]: a.userName,
+    [KEYS.password]: a.password,
+    [KEYS.realm]: a.realm,
+    [KEYS.scheme]: a.scheme,
+    [KEYS.host]: a.host,
+    [KEYS.port]: a.port,
+  });
+}
+
+/** Where a new or pasted step goes: before the first selected step, else at the end (ScriptEditor.getInsertIndex) */
+export function insertIndex(steps: ScriptStep[], selected: Set<string>): number {
+  const first = steps.findIndex((s) => selected.has(s.uuid ?? ''));
+  return first >= 0 ? first : steps.length;
+}
+
+export function insertSteps(steps: ScriptStep[], added: ScriptStep[], index: number): ScriptStep[] {
+  return [...steps.slice(0, index), ...added, ...steps.slice(index)];
+}
+
+/**
+ * Copies of steps to paste (ScriptUtil.copyScriptStep): new uuids, so the server treats them as new
+ * steps. A copy doesn't carry its recorded response, which the editor never loads.
+ */
+export function copiesOf(steps: ScriptStep[]): ScriptStep[] {
+  return steps.map((s) => ({ ...structuredClone(s), uuid: newUuid(), stepIndex: undefined, response: undefined }));
+}
+
+/**
+ * A think or sleep time: a whole number of milliseconds, a variable (@name), a function (#function...)
+ * or an expression (#{...}), as ThinkTimeEditor and SleepTimeEditor accept.
+ */
+export function isTimeValue(value: string): boolean {
+  const v = value.trim();
+  return /^\d+$/.test(v) || v.startsWith('@') || v.startsWith('#function') || /^#\{[^}]+\}$/.test(v);
+}

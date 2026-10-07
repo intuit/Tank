@@ -2,72 +2,9 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp, type Handlers } from '../../../test/renderApp';
-import type { ScriptDocument, ScriptStep } from './steps';
+import { capturePut, doc, handlers, MODIFIED, open, rowOf, steps } from './testFixtures';
+import type { ScriptDocument } from './steps';
 import { VIRTUAL_SCROLL_FROM } from './StepTable';
-
-const MODIFIED = '2026-10-05T12:00:00Z';
-
-/** TableColumnDefaults.SCRIPT_STEPS_COL_PREFS */
-const STEP_COLUMNS = [
-  { colName: 'indexColumn', displayName: 'Index', size: 50, visible: true, hideable: false },
-  { colName: 'groupColumn', displayName: 'Group Name', size: 125, visible: false, hideable: true },
-  { colName: 'nameColumn', displayName: 'Request Name', size: 125, visible: true, hideable: true },
-  { colName: 'methodColumn', displayName: 'Method', size: 125, visible: true, hideable: true },
-  { colName: 'dataColumn', displayName: 'Data', size: 250, visible: true, hideable: true },
-  { colName: 'commentsColumn', displayName: 'Comments', size: 110, visible: true, hideable: true },
-  { colName: 'validationColumn', displayName: 'Validation', size: 75, visible: true, hideable: true },
-  { colName: 'actionsColumn', displayName: 'Actions', size: 75, visible: true, hideable: false },
-];
-
-function steps(): ScriptStep[] {
-  return [
-    { uuid: 'u1', type: 'request', name: 'home', method: 'GET', label: 'GET /', responseData: [{ type: 'bodyValidation', value: '==200' }] },
-    { uuid: 'u2', type: 'thinkTime', label: '1000 - 3000' },
-    { uuid: 'u3', type: 'request', name: 'cart', method: 'GET', label: 'GET /cart' },
-    { uuid: 'u4', type: 'variable', label: 'host = store.test' },
-  ];
-}
-
-function doc(overrides: Partial<ScriptDocument> = {}): ScriptDocument {
-  return {
-    id: 7,
-    name: 'checkout',
-    productName: 'Store',
-    owner: 'alice',
-    modified: MODIFIED,
-    permissions: { edit: true, delete: true },
-    steps: steps(),
-    ...overrides,
-  };
-}
-
-function handlers(script: ScriptDocument = doc(), overrides: Handlers = {}): Handlers {
-  return {
-    'GET /v2/me': () => ({ status: 200, body: { name: 'alice', rights: { CREATE_SCRIPT: true } } }),
-    'GET /v2/scripts/7/steps': () => ({ status: 200, body: script }),
-    'GET /v2/me/preferences': () => ({ status: 200, body: { tables: { scriptSteps: STEP_COLUMNS } } }),
-    'GET /v2/config/options': () => ({ status: 200, body: { products: [{ label: 'Store', value: 'Store' }] } }),
-    ...overrides,
-  };
-}
-
-function capturePut(bodies: ScriptDocument[]) {
-  return async (request: Request) => {
-    const body = (await request.json()) as ScriptDocument;
-    bodies.push(body);
-    return { status: 200, body: { ...body, modified: '2026-10-07T09:00:00Z' } };
-  };
-}
-
-async function open(h: Handlers) {
-  const app = renderApp('/scripts/7', h);
-  await screen.findByText('GET /cart');
-  return app;
-}
-
-function rowOf(text: string) {
-  return screen.getByText(text).closest('tr')!;
-}
 
 const uuids = (body: ScriptDocument) => (body.steps ?? []).map((s) => s.uuid);
 

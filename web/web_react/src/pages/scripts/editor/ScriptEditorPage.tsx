@@ -21,9 +21,14 @@ import { StepTable } from './StepTable';
 import type { ScriptStep } from './steps';
 import { useScriptDraft } from './useScriptDraft';
 
-/** The script editor (ScriptEditor and script-edit-view.xhtml) */
+/** The script editor (ScriptEditor and script-edit-view.xhtml), fresh for each script */
 export function ScriptEditorPage() {
   const scriptId = Number(useParams().scriptId);
+  // opening another script (Save as, a link) must not carry over this one's selection or dialogs
+  return <ScriptEditor key={scriptId} scriptId={scriptId} />;
+}
+
+function ScriptEditor({ scriptId }: { scriptId: number }) {
   const { client, user } = useSession();
   const notify = useNotify();
   const queryClient = useQueryClient();
@@ -172,7 +177,13 @@ export function ScriptEditorPage() {
       />
 
       <p className="field-help">
-        Owned by {saved.owner} · Created {formatDateTime(saved.created)} · Last saved {formatDateTime(saved.modified)}
+        {[
+          `Owned by ${saved.owner}`,
+          saved.created && `Created ${formatDateTime(saved.created)}`,
+          saved.modified && `Last saved ${formatDateTime(saved.modified)}`,
+        ]
+          .filter(Boolean)
+          .join(' · ')}
       </p>
 
       <ConflictDialog

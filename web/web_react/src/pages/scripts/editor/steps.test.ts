@@ -43,3 +43,47 @@ describe('validateScript', () => {
     expect(validateScript({ name: 'ok', comments: 'x'.repeat(1025), steps: [] })).toHaveLength(1);
   });
 });
+
+describe('labels', () => {
+  it('match the server for each simple step type', async () => {
+    const { createStep, withLabel } = await import('./steps');
+    expect(createStep.variable('host', 'store.test').label).toBe('Variable definition host=>store.test');
+    const think = createStep.thinkTime('1000', '3000');
+    expect(think.label).toBe('Think time 1000-3000');
+    expect(think.comments).toBe('ThinkTime 1000-3000');
+    expect(createStep.sleep('500').label).toBe('Sleep for 500');
+    expect(createStep.cookie({ name: 'sid', value: 'abc' }).label).toBe('Set Cookie: sid = abc');
+    expect(createStep.authentication({ userName: 'bob', password: 'p', scheme: 'Basic', host: 'h' }).label).toBe(
+      'Authentication Basic [host: h user: bob]',
+    );
+    expect(createStep.clear().label).toBe('Clear session');
+    expect(
+      withLabel({ type: 'request', protocol: 'https', hostname: 'h', simplePath: '/p', queryStrings: [{ key: 'q', value: '1' }, { key: 'r', value: '2' }] }).label,
+    ).toBe('https://h/p?q=1&r=2');
+  });
+});
+
+describe('insert and paste', () => {
+  it('goes before the first selected step, else at the end', async () => {
+    const { insertIndex, insertSteps } = await import('./steps');
+    expect(insertIndex(steps, new Set(['d', 'b']))).toBe(1);
+    expect(insertIndex(steps, new Set())).toBe(5);
+    expect(order(insertSteps(steps, [{ uuid: 'x' }], 1))).toBe('axbcde');
+  });
+
+  it('gives copies new uuids and no response', async () => {
+    const { copiesOf } = await import('./steps');
+    const [copy] = copiesOf([{ uuid: 'a', type: 'request', response: 'html', stepIndex: 3, requestheaders: [{ key: 'k' }] }]);
+    expect(copy!.uuid).not.toBe('a');
+    expect(copy!.response).toBeUndefined();
+    expect(copy!.requestheaders).toEqual([{ key: 'k' }]);
+  });
+});
+
+describe('isTimeValue', () => {
+  it('accepts numbers, variables, functions and expressions', async () => {
+    const { isTimeValue } = await import('./steps');
+    for (const ok of ['1000', '@delay', '#function.int.random.1.5', '#{x}']) expect(isTimeValue(ok)).toBe(true);
+    for (const bad of ['', '1.5s', 'ten', '#{', '-1']) expect(isTimeValue(bad)).toBe(false);
+  });
+});

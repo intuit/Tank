@@ -3,10 +3,26 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
+import { Menu } from 'primereact/menu';
+import type { MenuItem } from 'primereact/menuitem';
 import { MultiSelect } from 'primereact/multiselect';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTablePreferences, type ColumnPreference } from '../../../hooks/useTablePreferences';
-import { deleteSteps, hasAssignment, hasValidation, moveSteps, STEP_TYPES, type ScriptStep } from './steps';
+import { useNotify } from '../../../notify';
+import { copySteps, useCopiedSteps } from './clipboard';
+import { isSimpleType, StepDialog, type SimpleType } from './StepDialog';
+import {
+  copiesOf,
+  createStep,
+  deleteSteps,
+  hasAssignment,
+  hasValidation,
+  insertIndex,
+  insertSteps,
+  moveSteps,
+  STEP_TYPES,
+  type ScriptStep,
+} from './steps';
 import type { ScriptUpdate } from './useScriptDraft';
 
 /**
@@ -16,7 +32,7 @@ import type { ScriptUpdate } from './useScriptDraft';
 export const VIRTUAL_SCROLL_FROM = 300;
 const ROW_HEIGHT = 41;
 
-type Cell = (step: ScriptStep, position: number) => ReactNode;
+type Cell = (step: ScriptStep, position: number, open: (step: ScriptStep) => void) => ReactNode;
 
 const check = (on: boolean) => (on ? <i className="pi pi-check" aria-label="Yes" /> : null);
 
@@ -30,12 +46,21 @@ const CELLS: Record<string, Cell> = {
   hostColumn: (s) => s.hostname,
   pathColumn: (s) => s.simplePath,
   // the server's label for the step, e.g. "GET /cart" or "Think time: 1000 - 3000"
-  dataColumn: (s) => (
-    <span title={s.label}>
-      {s.type && s.type !== 'request' && <span className="step-type">{STEP_TYPES[s.type] ?? s.type}</span>}
-      {s.label}
-    </span>
-  ),
+  dataColumn: (s, _p, open) => {
+    const content = (
+      <>
+        {s.type && s.type !== 'request' && <span className="step-type">{STEP_TYPES[s.type] ?? s.type}</span>}
+        {s.label}
+      </>
+    );
+    return isSimpleType(s.type) ? (
+      <button type="button" className="cell-link" title={s.label} onClick={() => open(s)}>
+        {content}
+      </button>
+    ) : (
+      <span title={s.label}>{content}</span>
+    );
+  },
   mimeColumn: (s) => s.mimetype,
   loggingColumn: (s) => s.loggingKey,
   failureColumn: (s) => s.onFail,
@@ -59,7 +84,12 @@ export function StepTable({
   onSelectionChange: (steps: ScriptStep[]) => void;
 }) {
   const preferences = useTablePreferences('scriptSteps');
+  const notify = useNotify();
+  const copied = useCopiedSteps();
+  const addMenu = useRef<Menu>(null);
   const [moving, setMoving] = useState(false);
+  /** The step being edited, or the type of one being added */
+  const [editing, setEditing] = useState<{ type: SimpleType; step?: ScriptStep }>();
   const virtual = steps.length > VIRTUAL_SCROLL_FROM;
   const positions = new Map(steps.map((s, i) => [s.uuid, i + 1]));
   const selected = new Set(selection.map((s) => s.uuid ?? ''));
@@ -68,6 +98,20 @@ export function StepTable({
     update((d) => void (d.steps = deleteSteps(d.steps ?? [], uuids)));
     onSelectionChange(selection.filter((s) => !uuids.has(s.uuid ?? '')));
   };
+
+  // new and pasted steps go before the first selected step (ScriptEditor.getInsertIndex)
+  const at = insertIndex(steps, selected);
+  const where = at < steps.length ? `before step ${at + 1}` : 'at the end';
+  const add = (added: ScriptStep[]) =>
+    update((d) => void (d.steps = insertSteps(d.steps ?? [], added, insertIndex(d.steps ?? [], selected))));
+  const open = (step: ScriptStep) => isSimpleType(step.type) && setEditing({ type: step.type, step });
+  const addItems: MenuItem[] = [
+    ...(['variable', 'thinkTime', 'sleep', 'cookie', 'authentication'] as SimpleType[]).map((type) => ({
+      label: STEP_TYPES[type],
+      command: () => setEditing({ type }),
+    })),
+    { label: STEP_TYPES.clear, command: () => add([createStep.clear()]) },
+  ];
 
   const hideable = preferences.columns.filter((c) => c.hideable && CELLS[c.colName ?? '']);
   const visible = preferences.columns.filter((c) => c.visible && (CELLS[c.colName ?? ''] || c.colName === 'actionsColumn'));
@@ -79,6 +123,44 @@ export function StepTable({
           {steps.length} {steps.length === 1 ? 'step' : 'steps'}
           {selection.length > 0 && `, ${selection.length} selected`}
         </span>
+        {!readOnly && (
+          <>
+            <Menu model={addItems} popup ref={addMenu} id="add-step-menu" />
+            <Button
+              label="Add step"
+              icon="pi pi-plus"
+              size="small"
+              onClick={(e) => addMenu.current?.toggle(e)}
+              aria-controls="add-step-menu"
+              aria-haspopup
+              tooltip={`Adds ${where}`}
+              tooltipOptions={{ position: 'top' }}
+            />
+          </>
+        )}
+        {selection.length > 0 && (
+          <Button
+            label="Copy"
+            icon="pi pi-copy"
+            outlined
+            size="small"
+            onClick={() => {
+              copySteps(steps.filter((s) => selected.has(s.uuid ?? '')));
+              notify.success(`Copied ${selection.length} ${selection.length === 1 ? 'step' : 'steps'}`);
+            }}
+          />
+        )}
+        {!readOnly && copied.length > 0 && (
+          <Button
+            label={`Paste ${copied.length} ${copied.length === 1 ? 'step' : 'steps'}`}
+            icon="pi pi-clone"
+            outlined
+            size="small"
+            tooltip={`Pastes ${where}`}
+            tooltipOptions={{ position: 'top' }}
+            onClick={() => add(copiesOf(copied))}
+          />
+        )}
         {!readOnly && selection.length > 0 && (
           <>
             <Button label="Move to…" icon="pi pi-sort" outlined size="small" onClick={() => setMoving(true)} />
@@ -135,9 +217,30 @@ export function StepTable({
       >
         {!readOnly && !virtual && <Column rowReorder style={{ width: '2.5rem' }} />}
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
-        {visible.map((pref) => columnFor(pref, positions, readOnly, (uuid) => remove(new Set([uuid]))))}
+        {visible.map((pref) => columnFor(pref, positions, readOnly, (uuid) => remove(new Set([uuid])), open))}
       </DataTable>
 
+      {editing && (
+        <StepDialog
+          type={editing.type}
+          step={editing.step}
+          readOnly={readOnly}
+          onHide={() => setEditing(undefined)}
+          onSave={(step) => {
+            if (editing.step) {
+              update((d) => {
+                const i = (d.steps ?? []).findIndex((s) => s.uuid === step.uuid);
+                if (i >= 0) {
+                  d.steps![i] = step;
+                }
+              });
+            } else {
+              add([step]);
+            }
+            setEditing(undefined);
+          }}
+        />
+      )}
       {moving && (
         <MoveDialog
           count={selection.length}
@@ -158,28 +261,42 @@ function columnFor(
   positions: Map<string | undefined, number>,
   readOnly: boolean,
   onDelete: (uuid: string) => void,
+  open: (step: ScriptStep) => void,
 ) {
   const key = pref.colName!;
   const width = pref.size ? `${pref.size}px` : undefined;
   if (key === 'actionsColumn') {
-    return readOnly ? null : (
+    return (
       <Column
         key={key}
         columnKey={key}
-        style={{ width: '4rem' }}
+        style={{ width: readOnly ? '3rem' : '6rem' }}
         resizeable={false}
         body={(step: ScriptStep) => (
           <div className="row-actions">
-            <Button
-              icon="pi pi-trash"
-              rounded
-              text
-              severity="danger"
-              aria-label={`Delete step ${positions.get(step.uuid)}`}
-              tooltip="Delete"
-              tooltipOptions={{ position: 'top' }}
-              onClick={() => onDelete(step.uuid ?? '')}
-            />
+            {isSimpleType(step.type) && (
+              <Button
+                icon={readOnly ? 'pi pi-eye' : 'pi pi-pencil'}
+                rounded
+                text
+                aria-label={`${readOnly ? 'View' : 'Edit'} step ${positions.get(step.uuid)}`}
+                tooltip={readOnly ? 'View' : 'Edit'}
+                tooltipOptions={{ position: 'top' }}
+                onClick={() => open(step)}
+              />
+            )}
+            {!readOnly && (
+              <Button
+                icon="pi pi-trash"
+                rounded
+                text
+                severity="danger"
+                aria-label={`Delete step ${positions.get(step.uuid)}`}
+                tooltip="Delete"
+                tooltipOptions={{ position: 'top' }}
+                onClick={() => onDelete(step.uuid ?? '')}
+              />
+            )}
           </div>
         )}
       />
@@ -191,7 +308,7 @@ function columnFor(
       key={key}
       columnKey={key}
       header={pref.displayName}
-      body={(step: ScriptStep) => cell(step, positions.get(step.uuid) ?? 0)}
+      body={(step: ScriptStep) => cell(step, positions.get(step.uuid) ?? 0, open)}
       // the data summary takes whatever room the other columns leave
       style={key === 'dataColumn' ? undefined : { width }}
       bodyClassName="ellipsis"

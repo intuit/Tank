@@ -40,9 +40,14 @@ const TABS: { section: TabKey; header: string }[] = [
 ];
 const JOB_QUEUE_TAB = TABS.findIndex((t) => t.section === 'jobQueue');
 
-/** The project editor (ProjectBean and projectview.xhtml) */
+/** The project editor (ProjectBean and projectview.xhtml), fresh for each project */
 export function ProjectEditorPage() {
   const projectId = Number(useParams().projectId);
+  // opening another project (Save as) must not carry over this one's tab, dialogs or problems
+  return <ProjectEditor key={projectId} projectId={projectId} />;
+}
+
+function ProjectEditor({ projectId }: { projectId: number }) {
   const { user } = useSession();
   const notify = useNotify();
   const project = useProjectDraft(projectId);

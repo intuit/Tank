@@ -689,3 +689,28 @@ body {
 .step-table .p-datatable-tbody > tr > td {
   padding: 4px 6px;
 }
+
+/* a table cell that opens its row, styled as plain text with a hover underline */
+.cell-link {
+  max-width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cell-link:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.form-grid .p-password,
+.form-grid .p-password input {
+  width: 100%;
+}
