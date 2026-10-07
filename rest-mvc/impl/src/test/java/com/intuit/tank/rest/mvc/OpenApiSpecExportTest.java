@@ -24,6 +24,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.ProjectJobController;
 import com.intuit.tank.rest.mvc.rest.controllers.ScriptController;
 import com.intuit.tank.rest.mvc.rest.controllers.UserController;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericExceptionHandler;
+import com.intuit.tank.rest.mvc.rest.docs.PagedListsOpenApiCustomizer;
 import com.intuit.tank.rest.mvc.rest.services.admin.AdminServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.auth.AuthServiceV2;
@@ -52,6 +53,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,7 +79,8 @@ public class OpenApiSpecExportTest {
     @Import({ AdminController.class, AgentController.class, AuthController.class, ConfigController.class,
             DataFileController.class, DefaultController.class, FilterController.class, JobController.class,
             LogController.class, MeController.class, ProjectController.class, ProjectJobController.class,
-            ScriptController.class, UserController.class, GenericExceptionHandler.class })
+            ScriptController.class, UserController.class, GenericExceptionHandler.class,
+            PagedListsOpenApiCustomizer.class })
     static class SpecConfig {
         // A bean (not an @Import) so springdoc sees its @OpenAPIDefinition and @SecurityScheme
         // without its @ComponentScan pulling in the real services
@@ -114,6 +117,22 @@ public class OpenApiSpecExportTest {
         assertTrue(paths.has("/v2/auth/login"), "spec is missing the session endpoints");
         assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree"),
                 "spec is missing controllers: only " + paths.size() + " paths");
+
+        // the paged list forms (PagedListsOpenApiCustomizer)
+        JsonNode root = new ObjectMapper().readTree(spec);
+        for (String[] list : new String[][] { { "/v2/projects", "ProjectSummary" }, { "/v2/scripts", "ScriptSummary" },
+                { "/v2/datafiles", "DataFileSummary" } }) {
+            JsonNode get = paths.path(list[0]).path("get");
+            String oneOf = get.path("responses").path("200").path("content").path("application/json")
+                    .path("schema").path("oneOf").toString();
+            assertTrue(oneOf.contains("#/components/schemas/PageResponse" + list[1]), list[0] + ": " + oneOf);
+            assertTrue(root.path("components").path("schemas").has("PageResponse" + list[1]), list[1]);
+            for (JsonNode parameter : get.path("parameters")) {
+                if ("page".equals(parameter.path("name").asText())) {
+                    assertFalse(parameter.path("required").asBoolean(), list[0] + " page must be optional");
+                }
+            }
+        }
 
         Files.createDirectories(SPEC_FILE.getParent());
         Files.writeString(SPEC_FILE, spec + "\n", StandardCharsets.UTF_8);

@@ -1,19 +1,21 @@
 import { Button } from 'primereact/button';
 import { Menubar } from 'primereact/menubar';
 import type { MenuItem } from 'primereact/menuitem';
-import { Link, Outlet } from 'react-router';
-import { ADMIN_PAGE, CLASSIC_PAGES, classicUrl } from './classicPages';
+import { ConfirmDialog } from 'primereact/confirmdialog';
+import { Link, Outlet, useNavigate } from 'react-router';
+import { ADMIN_PAGE, PAGES, classicUrl } from './classicPages';
 import { useSession } from './session';
 
 export function Layout() {
   const { config, user, signOut } = useSession();
+  const navigate = useNavigate();
 
   const items: MenuItem[] = user
-    ? [...CLASSIC_PAGES, ...(user.admin ? [ADMIN_PAGE] : [])].map((page) => ({
-        label: page.label,
-        icon: page.icon,
-        url: classicUrl(page.path),
-      }))
+    ? [...PAGES, ...(user.admin ? [ADMIN_PAGE] : [])].map((page) =>
+        page.classic
+          ? { label: page.label, icon: page.icon, url: classicUrl(page.path) }
+          : { label: page.label, icon: page.icon, command: () => void navigate(page.path) },
+      )
     : [];
 
   return (
@@ -38,6 +40,7 @@ export function Layout() {
           )
         }
       />
+      <ConfirmDialog />
       <main className="main">
         <Outlet />
       </main>

@@ -1,49 +1,16 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryRouter, RouterProvider } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
-import { createTankClient } from './api/client';
-import { routes } from './routes';
-import { SessionProvider } from './session';
+import { describe, expect, it } from 'vitest';
+import { renderApp, type Handlers } from './test/renderApp';
 
-type Handler = (request: Request) => { status: number; body?: unknown };
-
-/** A client whose fetch answers from `handlers`, keyed by "METHOD /path" */
-function fakeClient(handlers: Record<string, Handler>) {
-  const fetch = vi.fn(async (request: Request) => {
-    const key = `${request.method} ${new URL(request.url).pathname.replace(/^\/tank/, '')}`;
-    const handler = handlers[key];
-    if (!handler) {
-      return new Response(null, { status: 404 });
-    }
-    const { status, body } = handler(request);
-    return new Response(body === undefined ? null : JSON.stringify(body), {
-      status,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  });
-  const client = createTankClient({ baseUrl: 'https://tank.test/tank', fetch: fetch as unknown as typeof globalThis.fetch });
-  return { client, fetch };
+function renderAt(path: string, handlers: Handlers) {
+  return renderApp(path, handlers);
 }
 
-function renderAt(path: string, handlers: Record<string, Handler>) {
-  const { client, fetch } = fakeClient({
-    'GET /v2/auth/config': () => ({ status: 200, body: { version: '4.5.9', ssoEnabled: false } }),
-    ...handlers,
-  });
-  const router = createMemoryRouter(routes, { initialEntries: [path] });
-  render(
-    <SessionProvider client={client}>
-      <RouterProvider router={router} />
-    </SessionProvider>,
-  );
-  return { router, fetch };
-}
-
-const signedIn: Record<string, Handler> = {
+const signedIn: Handlers = {
   'GET /v2/me': () => ({ status: 200, body: { name: 'alice', admin: false } }),
 };
-const signedOut: Record<string, Handler> = {
+const signedOut: Handlers = {
   'GET /v2/me': () => ({ status: 401, body: { message: 'Not authenticated' } }),
 };
 

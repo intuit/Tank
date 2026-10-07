@@ -2380,6 +2380,17 @@ export interface components {
             /** Format: int32 */
             totalLines?: number;
         };
+        DataFileSummary: {
+            comments?: string;
+            /** Format: date-time */
+            created?: string;
+            /** Format: int32 */
+            id?: number;
+            /** Format: date-time */
+            modified?: string;
+            name?: string;
+            owner?: string;
+        };
         DraftSteps: {
             /** Format: int32 */
             changed?: number;
@@ -2647,6 +2658,33 @@ export interface components {
             /** Format: int64 */
             total?: number;
         };
+        PageResponseDataFileSummary: {
+            items?: components["schemas"]["DataFileSummary"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+        };
+        PageResponseProjectSummary: {
+            items?: components["schemas"]["ProjectSummary"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+        };
+        PageResponseScriptSummary: {
+            items?: components["schemas"]["ScriptSummary"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+        };
         Permissions: {
             delete?: boolean;
             edit?: boolean;
@@ -2689,6 +2727,18 @@ export interface components {
             totalUsers?: number;
             /** Format: int32 */
             tps?: number;
+        };
+        ProjectSummary: {
+            comments?: string;
+            /** Format: date-time */
+            created?: string;
+            /** Format: int32 */
+            id?: number;
+            /** Format: date-time */
+            modified?: string;
+            name?: string;
+            owner?: string;
+            productName?: string;
         };
         ProjectTO: {
             comments?: string;
@@ -3877,9 +3927,9 @@ export interface operations {
     };
     getDatafiles: {
         parameters: {
-            query: {
-                /** @description Zero-based page number */
-                page: number;
+            query?: {
+                /** @description Zero-based page number. Selects the paged form of the response */
+                page?: number;
                 /** @description Page size, 1 to 200 (default 25) */
                 size?: number;
                 /** @description id, name, owner, created or modified, optionally followed by ,asc or ,desc (default modified,desc) */
@@ -3895,13 +3945,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successfully retrieved the page */
+            /** @description With page, one page of summaries; without it, every item */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DataFileDescriptorContainer"];
+                    "application/json": components["schemas"]["DataFileDescriptorContainer"] | components["schemas"]["PageResponseDataFileSummary"];
                 };
             };
             /** @description Invalid page, size or sort */
@@ -5656,9 +5706,9 @@ export interface operations {
     };
     getAllProjects: {
         parameters: {
-            query: {
-                /** @description Zero-based page number */
-                page: number;
+            query?: {
+                /** @description Zero-based page number. Selects the paged form of the response */
+                page?: number;
                 /** @description Page size, 1 to 200 (default 25) */
                 size?: number;
                 /** @description id, name, productName, owner, created or modified, optionally followed by ,asc or ,desc (default modified,desc) */
@@ -5674,13 +5724,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successfully retrieved the page */
+            /** @description With page, one page of summaries; without it, every item */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProjectContainer"];
+                    "application/json": components["schemas"]["ProjectContainer"] | components["schemas"]["PageResponseProjectSummary"];
                 };
             };
             /** @description Invalid page, size or sort */
@@ -6199,9 +6249,9 @@ export interface operations {
     };
     getScripts: {
         parameters: {
-            query: {
-                /** @description Zero-based page number */
-                page: number;
+            query?: {
+                /** @description Zero-based page number. Selects the paged form of the response */
+                page?: number;
                 /** @description Page size, 1 to 200 (default 25) */
                 size?: number;
                 /** @description id, name, productName, owner, created, modified or runtime, optionally followed by ,asc or ,desc (default modified,desc) */
@@ -6217,13 +6267,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Successfully retrieved the page */
+            /** @description With page, one page of summaries; without it, every item */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ScriptDescriptionContainer"];
+                    "application/json": components["schemas"]["ScriptDescriptionContainer"] | components["schemas"]["PageResponseScriptSummary"];
                 };
             };
             /** @description Invalid page, size or sort */
