@@ -299,7 +299,7 @@ function LocalList<T extends Row>({
           header="Name"
           field="name"
           sortable
-          sortFunction={(e) => [...e.data].sort((a: T, b: T) => e.order! * (a.name ?? '').localeCompare(b.name ?? '', undefined, { sensitivity: 'base' }))}
+          sortFunction={(e) => [...e.data].sort((a: T, b: T) => e.order! * (a.name ?? '').trim().localeCompare((b.name ?? '').trim(), undefined, { sensitivity: 'base' }))}
           body={(r: T) => (
             <Link to={filterHref(kind, r.id)} title={`${r.name} (id ${r.id})`}>
               {r.name}

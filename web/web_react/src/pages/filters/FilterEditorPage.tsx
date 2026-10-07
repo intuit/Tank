@@ -8,6 +8,7 @@ import { SelectButton } from 'primereact/selectbutton';
 import { useCallback, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { toApiError } from '../../api/errors';
+import { classicUrl } from '../../classicPages';
 import { CopyDialog } from '../../components/CopyDialog';
 import { ConflictDialog, useUnsavedGuard } from '../../components/editorGuards';
 import { Field } from '../../components/Field';
@@ -115,10 +116,10 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
       <section>
         <Message
           severity="info"
-          text={`"${saved.name}" runs an external script. Only internal filters can be edited here; use the classic UI for this one.`}
+          text={`"${saved.name}" runs an external script. Only internal filters can be edited here.`}
         />
         <p>
-          <Link to="/filters">Back to filters</Link>
+          <a href={classicUrl('/filters/')}>Edit it in the classic Filters page</a> · <Link to="/filters">Back to filters</Link>
         </p>
       </section>
     );
@@ -347,7 +348,7 @@ function ConditionsTable({
             <tr key={i}>
               <td>
                 <Dropdown
-                  value={c.scope}
+                  value={sameIgnoringCase(scopes, c.scope)}
                   options={withCurrent(scopes, c.scope)}
                   onChange={(e) => set(i, { scope: e.value as string })}
                   disabled={readOnly}
@@ -356,7 +357,7 @@ function ConditionsTable({
               </td>
               <td>
                 <Dropdown
-                  value={c.condition}
+                  value={sameIgnoringCase(matches, c.condition)}
                   options={withCurrent(matches, c.condition)}
                   onChange={(e) => set(i, { condition: e.value as string })}
                   disabled={readOnly}
@@ -545,7 +546,17 @@ function ActionsTable({
   );
 }
 
-/** The options, plus a stored value they don't have, so an old filter shows what it holds */
+/**
+ * The option a stored condition value means. The filter engine ignores case (ScriptFilterUtil), and
+ * older filters hold "Post Data" for "Post data", so a row shows the option without being changed.
+ */
+function sameIgnoringCase(options: Option[], current: string | undefined): string | undefined {
+  return options.find((o) => o.value?.toLowerCase() === current?.toLowerCase())?.value ?? current;
+}
+
+/** The options, plus a stored value they don't have in any case, so an old filter shows what it holds */
 function withCurrent(options: Option[], current: string | undefined): Option[] {
-  return current && !options.some((o) => o.value === current) ? [...options, { label: current, value: current }] : options;
+  return current && !options.some((o) => o.value?.toLowerCase() === current.toLowerCase())
+    ? [...options, { label: current, value: current }]
+    : options;
 }

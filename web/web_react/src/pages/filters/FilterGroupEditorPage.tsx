@@ -348,7 +348,7 @@ function Members({
           field="name"
           sortable
           sortFunction={(e) =>
-            [...e.data].sort((a: Filter, b: Filter) => e.order! * (a.name ?? '').localeCompare(b.name ?? '', undefined, { sensitivity: 'base' }))
+            [...e.data].sort((a: Filter, b: Filter) => e.order! * (a.name ?? '').trim().localeCompare((b.name ?? '').trim(), undefined, { sensitivity: 'base' }))
           }
           body={(f: Filter) => (
             <Link to={`/filters/${f.id}`} title={`${f.name} (id ${f.id})`}>

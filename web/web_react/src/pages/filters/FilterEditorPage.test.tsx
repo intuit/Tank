@@ -214,6 +214,21 @@ describe('filter editor', () => {
     expect(await screen.findByRole('heading', { name: 'Token SignIn v2' })).toBeInTheDocument();
   });
 
+  it('shows an older stored case as its option, keeping it unless changed', async () => {
+    const bodies: Filter[] = [];
+    await openFilter(
+      handlers({
+        'GET /v2/filters/7': () => ({ status: 200, body: { ...FILTER, conditions: [{ scope: 'Post Data', condition: 'contains', value: 'cmd=create' }] } }),
+        'PUT /v2/filters/7': capture(bodies),
+      }),
+    );
+    expect(dropdown('Condition 1 part')).toHaveTextContent('Post data');
+    expect(dropdown('Condition 1 test')).toHaveTextContent('Contains');
+    await userEvent.type(screen.getByLabelText('Name'), ' v2');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(bodies[0]?.conditions).toEqual([{ scope: 'Post Data', condition: 'contains', value: 'cmd=create' }]));
+  });
+
   it('offers to reload when someone else saved first', async () => {
     await openFilter(handlers({ 'PUT /v2/filters/7': () => ({ status: 409, body: { message: 'changed' } }) }));
     await userEvent.type(screen.getByLabelText('Name'), '!');
@@ -224,5 +239,6 @@ describe('filter editor', () => {
   it('sends external filters to the classic UI', async () => {
     await openFilter(handlers({ 'GET /v2/filters/7': () => ({ status: 200, body: { ...FILTER, filterType: 'EXTERNAL' } }) })).catch(() => undefined);
     expect(await screen.findByText(/runs an external script/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edit it in the classic Filters page' })).toHaveAttribute('href', expect.stringMatching(/\/filters\/$/));
   });
 });

@@ -6,7 +6,7 @@ import { renderApp, type Handlers } from '../../test/renderApp';
 const FILTERS = [
   { id: 1, name: 'Strip images', productName: 'Store', creator: 'alice', modified: '2026-10-01T10:00:00Z' },
   { id: 2, name: 'set host', productName: 'Store', creator: 'bob', modified: '2026-09-30T10:00:00Z' },
-  { id: 3, name: 'Add logging keys', productName: 'Payroll', creator: 'bob', modified: '2026-09-29T10:00:00Z' },
+  { id: 3, name: ' Add logging keys', productName: 'Payroll', creator: 'bob', modified: '2026-09-29T10:00:00Z' },
 ];
 const GROUPS = [{ id: 9, name: 'store defaults', productName: 'Store', creator: 'alice', filterIds: [1, 2] }];
 
@@ -29,8 +29,8 @@ describe('filters page', () => {
     renderApp('/filters', handlers());
     const filters = await table('Filters');
     await within(filters).findByText('Strip images');
-    // case-insensitive name order
-    expect(within(filters).getAllByRole('link').map((a) => a.textContent)).toEqual(['Add logging keys', 'set host', 'Strip images']);
+    // name order ignoring case and a stray leading space
+    expect(within(filters).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['Add logging keys', 'set host', 'Strip images']);
     expect(within(filters).getByText('Strip images').closest('a')).toHaveAttribute('href', expect.stringContaining('/filters/1'));
     expect(within(await table('Filter groups')).getByText('store defaults').closest('a')).toHaveAttribute(
       'href',
@@ -38,12 +38,12 @@ describe('filters page', () => {
     );
 
     await userEvent.type(screen.getByLabelText('Search filters'), 'host');
-    expect(within(filters).getAllByRole('link').map((a) => a.textContent)).toEqual(['set host']);
+    expect(within(filters).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['set host']);
     await userEvent.clear(screen.getByLabelText('Search filters'));
 
     // a group's count shows just its filters
     await userEvent.click(screen.getByRole('button', { name: 'Show the filters in store defaults' }));
-    expect(within(filters).getAllByRole('link').map((a) => a.textContent)).toEqual(['set host', 'Strip images']);
+    expect(within(filters).getAllByRole('link').map((a) => a.textContent?.trim())).toEqual(['set host', 'Strip images']);
   });
 
   it('deletes a filter after confirming', async () => {
