@@ -438,3 +438,185 @@ body {
 .job-tree th {
   vertical-align: middle;
 }
+
+/* Charts: chrome tokens from the dataviz reference palette (light; the app has no dark theme) */
+.viz-root {
+  --viz-surface: #ffffff;
+  --viz-text-primary: #0b0b0b;
+  --viz-text-secondary: #52514e;
+  --viz-muted: #898781;
+  --viz-grid: #e1e0d9;
+  --viz-baseline: #c3c2b7;
+  position: relative;
+  margin: 0 0 16px;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--viz-text-primary);
+}
+
+.viz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.viz-title {
+  font-weight: 600;
+}
+
+.viz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 4px 0 8px;
+  padding: 0;
+  list-style: none;
+  color: var(--viz-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.viz-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* line keys, not boxes */
+.viz-key {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.viz-plot {
+  position: relative;
+  width: 100%;
+  transition: opacity 0.15s;
+}
+
+.is-loading .viz-plot {
+  opacity: 0.6;
+}
+
+.viz-plot svg {
+  display: block;
+  overflow: visible;
+}
+
+.viz-plot svg:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.viz-grid {
+  stroke: var(--viz-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.viz-baseline {
+  stroke: var(--viz-baseline);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.viz-tick {
+  fill: var(--viz-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.viz-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* the 2px surface ring keeps dots legible where they cross a line */
+.viz-dot {
+  stroke: var(--viz-surface);
+  stroke-width: 2;
+}
+
+.viz-crosshair {
+  stroke: var(--viz-muted);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.viz-tooltip {
+  position: absolute;
+  min-width: 140px;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: var(--viz-surface);
+  border: 1px solid rgba(11, 11, 11, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(11, 11, 11, 0.08);
+  font-size: 0.8125rem;
+  pointer-events: none;
+}
+
+.viz-tooltip-time {
+  margin-bottom: 4px;
+  color: var(--viz-text-secondary);
+}
+
+.viz-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.viz-tooltip-row strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.viz-tooltip-name {
+  overflow: hidden;
+  color: var(--viz-text-secondary);
+  text-overflow: ellipsis;
+}
+
+.viz-empty {
+  margin: 0;
+  padding: 32px 0;
+  color: var(--viz-text-secondary);
+  text-align: center;
+}
+
+.viz-table-wrap {
+  max-height: 220px;
+  overflow: auto;
+}
+
+.viz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.viz-table th,
+.viz-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--viz-grid);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.viz-table th:first-child,
+.viz-table td:first-child {
+  text-align: left;
+}
+
+.viz-table th {
+  position: sticky;
+  top: 0;
+  background: var(--viz-surface);
+  color: var(--viz-text-secondary);
+  font-weight: 600;
+}

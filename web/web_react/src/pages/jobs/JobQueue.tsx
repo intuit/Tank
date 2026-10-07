@@ -14,6 +14,7 @@ import { toApiError } from '../../api/errors';
 import { formatDateTime } from '../../format';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
+import { JobCharts } from './JobCharts';
 
 type JobTree = Schemas['JobTree'];
 type JobNode = Schemas['JobNode'];
@@ -49,7 +50,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const queryClient = useQueryClient();
   const [includeFinished, setIncludeFinished] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [detailsFor, setDetailsFor] = useState<JobNode>();
+  const [detailsFor, setDetailsFor] = useState<{ job: JobNode; agent?: AgentNode }>();
   const queryKey = ['jobs', 'tree', { projectId, includeFinished }] as const;
 
   const tree = useQuery({
@@ -144,6 +145,15 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     const name = row.kind === 'job' ? row.job.name : row.agent.instanceId;
     return (
       <div className="row-actions">
+        <Button
+          icon="pi pi-chart-line"
+          rounded
+          text
+          aria-label={`Charts for ${name}`}
+          tooltip={row.kind === 'job' ? 'Users and TPS' : 'TPS for this agent'}
+          tooltipOptions={{ position: 'top' }}
+          onClick={() => setDetailsFor(row.kind === 'job' ? { job: row.job } : { job: row.job, agent: row.agent })}
+        />
         {ACTIONS.filter((a) => allowed[a.flag]).map((a) => (
           <Button
             key={a.action}
@@ -176,7 +186,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
 
   const nameCell = (row: Row) =>
     row.kind === 'job' ? (
-      <Button label={row.job.name} link className="link-cell" onClick={() => setDetailsFor(row.job)} />
+      <Button label={row.job.name} link className="link-cell" onClick={() => setDetailsFor({ job: row.job })} />
     ) : (
       <span title={row.agent.instanceId}>{row.agent.instanceId}</span>
     );
@@ -231,7 +241,9 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         </TreeTable>
       )}
 
-      {detailsFor && <JobDetailsDialog job={detailsFor} onHide={() => setDetailsFor(undefined)} />}
+      {detailsFor && (
+        <JobDetailsDialog job={detailsFor.job} agent={detailsFor.agent} onHide={() => setDetailsFor(undefined)} />
+      )}
     </div>
   );
 }
@@ -312,11 +324,12 @@ function formatTime(iso: string): string {
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
 }
 
-/** The validated job's summary and failure counts (GET /v2/jobs/{id}/details) */
-function JobDetailsDialog({ job, onHide }: { job: JobNode; onHide: () => void }) {
+/** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its TPS */
+function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentNode; onHide: () => void }) {
   const { client } = useSession();
   const details = useQuery({
     queryKey: ['jobs', job.jobId, 'details'],
+    enabled: !agent,
     queryFn: async ({ signal }) => {
       const { data, error, response } = await client.GET('/v2/jobs/{jobId}/details', {
         params: { path: { jobId: Number(job.jobId) } },
@@ -331,7 +344,14 @@ function JobDetailsDialog({ job, onHide }: { job: JobNode; onHide: () => void })
   const d = details.data;
   const failures = d?.failures ?? {};
   return (
-    <Dialog header={`Job ${job.jobId}: ${job.name}`} visible onHide={onHide} className="form-dialog" modal draggable={false}>
+    <Dialog
+      header={agent ? `Agent ${agent.instanceId} (job ${job.jobId})` : `Job ${job.jobId}: ${job.name}`}
+      visible
+      onHide={onHide}
+      className="wide-dialog"
+      modal
+      draggable={false}
+    >
       {details.error && <Message severity="error" text={details.error.message} />}
       {d && (
         <dl className="facts">
@@ -357,6 +377,7 @@ function JobDetailsDialog({ job, onHide }: { job: JobNode; onHide: () => void })
           </dd>
         </dl>
       )}
+      <JobCharts jobId={Number(job.jobId)} instanceId={agent?.instanceId} />
     </Dialog>
   );
 }

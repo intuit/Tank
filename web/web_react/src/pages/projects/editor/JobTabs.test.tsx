@@ -152,6 +152,57 @@ describe('job queue tab', () => {
   });
 });
 
+describe('job charts', () => {
+  const TIMES = ['2026-10-07T10:00:00Z', '2026-10-07T10:01:00Z'];
+  const chartHandlers = queueHandlers({
+    'GET /v2/jobs/12/details': () => ({ status: 200, body: { jobId: 12, name: 'Checkout load 1', status: 'Running', failures: { total: 3 } } }),
+    'GET /v2/jobs/12/users-timeseries': () => ({
+      status: 200,
+      body: { times: TIMES, series: [{ name: 'checkout', values: [10, 40] }, { name: 'login', values: [20, 40] }] },
+    }),
+    'GET /v2/jobs/12/tps-timeseries': () => ({
+      status: 200,
+      body: {
+        times: TIMES,
+        series: [
+          { name: 'Total TPS', values: [30, 50] },
+          { name: 'GET /cart', values: [10, 15] },
+          { name: 'POST /pay', values: [20, 35] },
+        ],
+      },
+    }),
+  });
+
+  it("shows a job's users and TPS, with every request in the table view", async () => {
+    await openTab('Job queue', chartHandlers);
+    await userEvent.click(await screen.findByRole('button', { name: 'Charts for Checkout load 1' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Job 12: Checkout load 1' });
+
+    expect(await within(dialog).findByText('Active users by script')).toBeInTheDocument();
+    expect(within(dialog).getByRole('list', { name: 'Active users by script series' })).toHaveTextContent('checkoutlogin');
+    expect(within(dialog).getByText('Transactions per second')).toBeInTheDocument();
+    // one line for the total: no legend
+    expect(within(dialog).queryByRole('list', { name: 'Transactions per second series' })).not.toBeInTheDocument();
+
+    const showTables = within(dialog).getAllByRole('button', { name: 'Show table' });
+    await userEvent.click(showTables[1]!);
+    const rows = within(dialog).getAllByRole('row').map((r) => r.textContent);
+    expect(rows).toContain('POST /pay353527.5');
+    expect(rows.indexOf('POST /pay353527.5')).toBeLessThan(rows.indexOf('GET /cart151512.5'));
+  });
+
+  it("charts one agent's TPS", async () => {
+    const { calls } = await openTab('Job queue', chartHandlers);
+    await screen.findByRole('button', { name: 'Checkout load 1' });
+    await userEvent.click(screen.getAllByRole('button', { name: /toggle|expand/i })[0]!);
+    await userEvent.click(await screen.findByRole('button', { name: 'Charts for i-0abc' }));
+
+    expect(await screen.findByText('Transactions per second on i-0abc')).toBeInTheDocument();
+    await waitFor(() => expect(calls('GET /v2/jobs/12/tps-timeseries').at(-1)?.get('instanceId')).toBe('i-0abc'));
+    expect(calls('GET /v2/jobs/12/users-timeseries')).toHaveLength(0);
+  });
+});
+
 describe('create job tab', () => {
   const PREVIEW = {
     name: 'Checkout load 3',
