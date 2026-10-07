@@ -87,3 +87,39 @@ describe('isTimeValue', () => {
     for (const bad of ['', '1.5s', 'ten', '#{', '-1']) expect(isTimeValue(bad)).toBe(false);
   });
 });
+
+describe('timer groups', () => {
+  it('needs two or more neighbouring steps', async () => {
+    const { timerGroupProblem } = await import('./steps');
+    expect(timerGroupProblem(steps, new Set(['b']))).toMatch(/two or more/);
+    expect(timerGroupProblem(steps, new Set(['b', 'd']))).toMatch(/next to each other/);
+    expect(timerGroupProblem(steps, new Set(['c', 'b']))).toBeUndefined();
+  });
+
+  it('wraps the selection in a paired start and stop', async () => {
+    const { addTimerGroup, isTimerStart, timerPairId } = await import('./steps');
+    const timed = addTimerGroup(steps, new Set(['b', 'c']), 'browse');
+    expect(timed.map((s) => s.type === 'timer' ? (isTimerStart(s) ? 'S' : 'E') : s.uuid).join('')).toBe('aSbcEde');
+    const [start, stop] = [timed[1]!, timed[4]!];
+    expect(timerPairId(start)).toBe(stop.uuid);
+    expect(timerPairId(stop)).toBe(start.uuid);
+    expect(start.label).toBe('browse:START');
+    expect(stop.label).toBe('browse:STOP');
+  });
+
+  it('renames and deletes both halves together', async () => {
+    const { addTimerGroup, deleteSteps, renameTimer } = await import('./steps');
+    const timed = addTimerGroup(steps, new Set(['b', 'c']), 'browse');
+    const renamed = renameTimer(timed, timed[4]!.uuid!, 'catalog');
+    expect([renamed[1]!.label, renamed[4]!.label]).toEqual(['catalog:START', 'catalog:STOP']);
+    expect(order(deleteSteps(timed, new Set([timed[1]!.uuid!])))).toBe('abcde');
+  });
+
+  it('points copied halves at each other', async () => {
+    const { addTimerGroup, copiesOf, timerPairId } = await import('./steps');
+    const timed = addTimerGroup(steps, new Set(['b', 'c']), 'browse');
+    const [start, , , stop] = copiesOf(timed.slice(1, 5));
+    expect(timerPairId(start!)).toBe(stop!.uuid);
+    expect(timerPairId(stop!)).toBe(start!.uuid);
+  });
+});

@@ -15,8 +15,16 @@ export function moveSteps(steps: ScriptStep[], uuids: Set<string>, position: num
   return [...staying.slice(0, at), ...moving, ...staying.slice(at)];
 }
 
+/** Deletes the steps, and the other half of any timer among them (ScriptEditor.doDelete) */
 export function deleteSteps(steps: ScriptStep[], uuids: Set<string>): ScriptStep[] {
-  return steps.filter((s) => !uuids.has(s.uuid ?? ''));
+  const all = new Set(uuids);
+  for (const step of steps) {
+    if (all.has(step.uuid ?? '') && step.type === 'timer') {
+      const pair = timerPairId(step);
+      if (pair) all.add(pair);
+    }
+  }
+  return steps.filter((s) => !all.has(s.uuid ?? ''));
 }
 
 /**
@@ -101,6 +109,7 @@ export const KEYS = {
   port: 'port',
   loggingKey: 'logging-key',
   isStart: 'is-start',
+  aggregatorPair: 'aggregator-pair',
 } as const;
 
 export function dataValue(step: ScriptStep, key: string): string | undefined {
@@ -220,7 +229,15 @@ export function insertSteps(steps: ScriptStep[], added: ScriptStep[], index: num
  * steps. A copy doesn't carry its recorded response, which the editor never loads.
  */
 export function copiesOf(steps: ScriptStep[]): ScriptStep[] {
-  return steps.map((s) => ({ ...structuredClone(s), uuid: newUuid(), stepIndex: undefined, response: undefined }));
+  const uuids = new Map(steps.map((s) => [s.uuid, newUuid()]));
+  return steps.map((s) => {
+    const copy = { ...structuredClone(s), uuid: uuids.get(s.uuid)!, stepIndex: undefined, response: undefined };
+    // a timer copied with its other half points at that half's copy
+    copy.data = copy.data?.map((d) =>
+      d.key === KEYS.aggregatorPair && uuids.has(d.value) ? { ...d, value: uuids.get(d.value) } : d,
+    );
+    return copy;
+  });
 }
 
 /**
@@ -347,4 +364,62 @@ export function logicStep(
     responseheaders: testEntries(fields.testData.responseHeaders),
     payload: fields.testData.requestBody || undefined,
   });
+}
+
+/** The uuid of a timer's other half (AggregatorEditor.getAggregatorPair) */
+export function timerPairId(step: ScriptStep): string | undefined {
+  return dataValue(step, KEYS.aggregatorPair);
+}
+
+export function isTimerStart(step: ScriptStep): boolean {
+  return dataValue(step, KEYS.isStart) === 'START';
+}
+
+function timer(uuid: string, pair: string, name: string, start: boolean): ScriptStep {
+  return withLabel({
+    uuid,
+    type: 'timer',
+    data: [
+      { key: KEYS.loggingKey, value: name, type: 'timer' },
+      { key: KEYS.isStart, value: start ? 'START' : 'STOP', type: 'timer' },
+      { key: KEYS.aggregatorPair, value: pair, type: 'timer' },
+    ],
+  });
+}
+
+/**
+ * Why the selected steps can't be timed together, or undefined: a timer group needs two or more
+ * steps next to each other (AggregatorEditor.aggregateCheck).
+ */
+export function timerGroupProblem(steps: ScriptStep[], selected: Set<string>): string | undefined {
+  const positions = steps.flatMap((s, i) => (selected.has(s.uuid ?? '') ? [i] : []));
+  if (positions.length < 2) return 'Select two or more steps next to each other';
+  if (positions.some((p, i) => p !== positions[0]! + i)) return 'The selected steps have to be next to each other';
+  return undefined;
+}
+
+/** Wraps the selected steps in a timer: a start before the first, a stop after the last (AggregatorEditor.insert) */
+export function addTimerGroup(steps: ScriptStep[], selected: Set<string>, name: string): ScriptStep[] {
+  const first = steps.findIndex((s) => selected.has(s.uuid ?? ''));
+  const last = steps.length - 1 - [...steps].reverse().findIndex((s) => selected.has(s.uuid ?? ''));
+  const startId = newUuid();
+  const stopId = newUuid();
+  return [
+    ...steps.slice(0, first),
+    timer(startId, stopId, name, true),
+    ...steps.slice(first, last + 1),
+    timer(stopId, startId, name, false),
+    ...steps.slice(last + 1),
+  ];
+}
+
+/** Renames a timer and its other half (AggregatorEditor.edit) */
+export function renameTimer(steps: ScriptStep[], uuid: string, name: string): ScriptStep[] {
+  const step = steps.find((s) => s.uuid === uuid);
+  const both = new Set([uuid, step ? timerPairId(step) : undefined]);
+  return steps.map((s) =>
+    both.has(s.uuid) && s.type === 'timer'
+      ? withLabel({ ...s, data: s.data?.map((d) => (d.key === KEYS.loggingKey ? { ...d, value: name } : d)) })
+      : s,
+  );
 }

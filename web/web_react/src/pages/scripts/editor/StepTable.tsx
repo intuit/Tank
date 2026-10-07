@@ -3,7 +3,9 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
+import { InputText } from 'primereact/inputtext';
 import { Menu } from 'primereact/menu';
+import { Message } from 'primereact/message';
 import type { MenuItem } from 'primereact/menuitem';
 import { MultiSelect } from 'primereact/multiselect';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
@@ -14,15 +16,20 @@ import { LogicDialog } from './LogicDialog';
 import { RequestDialog } from './RequestDialog';
 import { isSimpleType, StepDialog, type SimpleType } from './StepDialog';
 import {
+  addTimerGroup,
   copiesOf,
   createStep,
+  dataValue,
   deleteSteps,
   hasAssignment,
   hasValidation,
   insertIndex,
   insertSteps,
+  KEYS,
   moveSteps,
+  renameTimer,
   STEP_TYPES,
+  timerGroupProblem,
   type ScriptStep,
 } from './steps';
 import type { ScriptUpdate } from './useScriptDraft';
@@ -37,9 +44,9 @@ const ROW_HEIGHT = 41;
 
 type Cell = (step: ScriptStep, position: number, open: (step: ScriptStep) => void) => ReactNode;
 
-/** Steps this editor can open: the simple types, requests and logic */
+/** Steps this editor can open: the simple types, requests, logic and timers */
 function isEditable(step: ScriptStep) {
-  return isSimpleType(step.type) || step.type === 'request' || step.type === 'logic';
+  return isSimpleType(step.type) || step.type === 'request' || step.type === 'logic' || step.type === 'timer';
 }
 
 const check = (on: boolean) => (on ? <i className="pi pi-check" aria-label="Yes" /> : null);
@@ -99,15 +106,18 @@ export function StepTable({
   const addMenu = useRef<Menu>(null);
   const [moving, setMoving] = useState(false);
   /** The step being edited, or the type of one being added */
-  const [editing, setEditing] = useState<{ type: SimpleType | 'request' | 'logic'; step?: ScriptStep }>();
+  const [editing, setEditing] = useState<{ type: SimpleType | 'request' | 'logic' | 'timer'; step?: ScriptStep }>();
   const virtual = steps.length > VIRTUAL_SCROLL_FROM;
   const positions = new Map(steps.map((s, i) => [s.uuid, i + 1]));
   const selected = new Set(selection.map((s) => s.uuid ?? ''));
 
   const remove = (uuids: Set<string>) => {
+    // a timer goes with its other half
+    const kept = new Set(deleteSteps(steps, uuids).map((s) => s.uuid));
     update((d) => void (d.steps = deleteSteps(d.steps ?? [], uuids)));
-    onSelectionChange(selection.filter((s) => !uuids.has(s.uuid ?? '')));
+    onSelectionChange(selection.filter((s) => kept.has(s.uuid)));
   };
+  const timerProblem = timerGroupProblem(steps, selected);
 
   // new and pasted steps go before the first selected step (ScriptEditor.getInsertIndex)
   const at = insertIndex(steps, selected);
@@ -115,7 +125,7 @@ export function StepTable({
   const add = (added: ScriptStep[]) =>
     update((d) => void (d.steps = insertSteps(d.steps ?? [], added, insertIndex(d.steps ?? [], selected))));
   const open = (step: ScriptStep) => {
-    if (step.type === 'request' || step.type === 'logic' || isSimpleType(step.type)) {
+    if (step.type === 'request' || step.type === 'logic' || step.type === 'timer' || isSimpleType(step.type)) {
       setEditing({ type: step.type, step });
     }
   };
@@ -195,6 +205,17 @@ export function StepTable({
         {!readOnly && selection.length > 0 && (
           <>
             <Button label="Move to…" icon="pi pi-sort" outlined size="small" onClick={() => setMoving(true)} />
+            {/* a span of our own carries the hint: showOnDisabled wraps the button in DOM React can't remove */}
+            <span title={timerProblem ?? 'Times the selected steps together, reported under the name you give'}>
+              <Button
+                label="Timer group"
+                icon="pi pi-stopwatch"
+                outlined
+                size="small"
+                disabled={!!timerProblem}
+                onClick={() => setEditing({ type: 'timer' })}
+              />
+            </span>
             <Button
               label={`Delete ${selection.length} selected`}
               icon="pi pi-trash"
@@ -272,7 +293,20 @@ export function StepTable({
           onSave={save}
         />
       )}
-      {editing && editing.type !== 'request' && editing.type !== 'logic' && (
+      {editing?.type === 'timer' && (
+        <TimerDialog
+          step={editing.step}
+          count={selection.length}
+          readOnly={readOnly}
+          onHide={() => setEditing(undefined)}
+          onSave={(name) => {
+            const timer = editing.step;
+            update((d) => void (d.steps = timer ? renameTimer(d.steps ?? [], timer.uuid ?? '', name) : addTimerGroup(d.steps ?? [], selected, name)));
+            setEditing(undefined);
+          }}
+        />
+      )}
+      {editing && editing.type !== 'request' && editing.type !== 'logic' && editing.type !== 'timer' && (
         <StepDialog type={editing.type} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />
       )}
       {moving && (
@@ -394,6 +428,69 @@ function MoveDialog({
         <div className="form-actions">
           <Button type="button" label="Cancel" text onClick={onHide} />
           <Button type="submit" label="Move" disabled={!position} />
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
+/** Names a new timer group, or renames one (AggregatorEditor, aggregator-editor.xhtml) */
+function TimerDialog({
+  step,
+  count,
+  readOnly,
+  onHide,
+  onSave,
+}: {
+  /** A start or stop step of the timer to rename; a new timer wraps the selection when absent */
+  step?: ScriptStep;
+  count: number;
+  readOnly: boolean;
+  onHide: () => void;
+  onSave: (name: string) => void;
+}) {
+  const [name, setName] = useState(step ? (dataValue(step, KEYS.loggingKey) ?? '') : '');
+  const [error, setError] = useState<string>();
+  const input = useRef<HTMLInputElement>(null);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (!name.trim()) {
+      setError('Name is required');
+      return;
+    }
+    onSave(name.trim());
+  };
+  return (
+    <Dialog
+      header={step ? `${readOnly ? 'Timer' : 'Rename timer'} ${dataValue(step, KEYS.loggingKey) ?? ''}`.trim() : `Time ${count} steps`}
+      visible
+      onHide={onHide}
+      className="form-dialog"
+      modal
+      draggable={false}
+      onShow={focusOnShow(input)}
+    >
+      <form onSubmit={submit} className="form-grid">
+        <label htmlFor="timer-name">Name</label>
+        <InputText
+          id="timer-name"
+          ref={input}
+          value={name}
+          onChange={(e) => {
+            setError(undefined);
+            setName(e.target.value);
+          }}
+          disabled={readOnly}
+        />
+        <small className="field-help">
+          {step
+            ? 'Renames both the start and stop steps.'
+            : 'Adds a start step before the selection and a stop step after it; results report the time between them under this name.'}
+        </small>
+        {error && <Message severity="error" text={error} />}
+        <div className="form-actions">
+          <Button type="button" label={readOnly ? 'Close' : 'Cancel'} text onClick={onHide} />
+          {!readOnly && <Button type="submit" label={step ? 'Done' : 'Add'} />}
         </div>
       </form>
     </Dialog>
