@@ -3,7 +3,7 @@ import type { Schemas } from '../../../api/client';
 export type ProjectDetail = Schemas['ProjectDetail'];
 
 /** Which tab a problem is on, so the editor can point at it */
-export type Section = 'general' | 'usersAndTimes' | 'scripts' | 'dataFiles' | 'variables';
+export type Section = 'general' | 'usersAndTimes' | 'scripts' | 'dataFiles' | 'variables' | 'createJob';
 
 export interface Problem {
   section: Section;
@@ -42,6 +42,13 @@ export function validateProject(detail: ProjectDetail): Problem[] {
   }
   if ((settings.targetRampRate ?? 0) < 0) {
     add('usersAndTimes', 'Target users per second must not be negative');
+  }
+  // agent sizing, set on the Create job tab
+  if ((settings.numUsersPerAgent ?? 1) < 1) {
+    add('createJob', 'Users per agent must be at least 1');
+  }
+  if ((settings.targetRatePerAgent ?? 1) <= 0) {
+    add('createJob', 'Target rate per agent must be greater than 0');
   }
   // the server checks both values for every region, whichever the workload type uses
   for (const region of detail.regions ?? []) {

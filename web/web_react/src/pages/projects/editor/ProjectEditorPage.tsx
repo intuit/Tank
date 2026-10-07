@@ -14,6 +14,9 @@ import { Link, useBlocker, useNavigate, useParams } from 'react-router';
 import { toApiError } from '../../../api/errors';
 import { formatDateTime } from '../../../format';
 import { useNotify } from '../../../notify';
+import { hasRightOrOwns } from '../../../rights';
+import { JobQueue } from '../../jobs/JobQueue';
+import { CreateJobTab } from './CreateJobTab';
 import { useSession } from '../../../session';
 import { useConfigOptions } from '../../../hooks/useConfigOptions';
 import { DataFilesTab } from './DataFilesTab';
@@ -23,12 +26,17 @@ import { Field, UsersAndTimesTab } from './UsersAndTimesTab';
 import type { ProjectDetail, Section } from './validation';
 import { VariablesTab } from './VariablesTab';
 
-const TABS: { section: Section; header: string }[] = [
+type TabKey = Section | 'jobQueue';
+
+const TABS: { section: TabKey; header: string }[] = [
   { section: 'usersAndTimes', header: 'Users and times' },
   { section: 'scripts', header: 'Scripts' },
   { section: 'dataFiles', header: 'Data files' },
   { section: 'variables', header: 'Variables' },
+  { section: 'createJob', header: 'Create job' },
+  { section: 'jobQueue', header: 'Job queue' },
 ];
+const JOB_QUEUE_TAB = TABS.findIndex((t) => t.section === 'jobQueue');
 
 /** The project editor (ProjectBean and projectview.xhtml) */
 export function ProjectEditorPage() {
@@ -98,19 +106,41 @@ export function ProjectEditorPage() {
   }
 
   const canChangeOwner = !readOnly && (!!user?.admin || user?.name === saved.owner);
-  const problemCount = (section: Section) => problems.filter((p) => p.section === section).length;
+  const problemCount = (section: TabKey) => problems.filter((p) => p.section === section).length;
+  const canQueue = hasRightOrOwns(user, 'CONTROL_JOB', saved.owner);
 
-  const save = () => {
+  /** @returns whether the edits may be saved; if not, shows the problems and their first tab */
+  const checkProblems = () => {
     if (problems.length) {
       setShowProblems(true);
       const first = TABS.findIndex((t) => problemCount(t.section) > 0);
       if (first >= 0) {
         setTab(first);
       }
-      return;
+      return false;
     }
     setShowProblems(false);
-    project.save();
+    return true;
+  };
+  const save = () => {
+    if (checkProblems()) {
+      project.save();
+    }
+  };
+  /** Queueing reads the stored project, so pending edits are saved first */
+  const ensureSaved = async () => {
+    if (!dirty) {
+      return true;
+    }
+    if (readOnly || !checkProblems()) {
+      return false;
+    }
+    try {
+      await project.saveAsync(draft);
+      return true;
+    } catch {
+      return false; // shown by the editor (error message or conflict dialog)
+    }
   };
 
   return (
@@ -175,6 +205,17 @@ export function ProjectEditorPage() {
             {section === 'scripts' && <ScriptsTab detail={draft} update={project.update} readOnly={readOnly} />}
             {section === 'dataFiles' && <DataFilesTab detail={draft} update={project.update} readOnly={readOnly} />}
             {section === 'variables' && <VariablesTab detail={draft} update={project.update} readOnly={readOnly} />}
+            {section === 'createJob' && (
+              <CreateJobTab
+                detail={draft}
+                update={project.update}
+                readOnly={readOnly}
+                canQueue={canQueue}
+                ensureSaved={ensureSaved}
+                onQueued={() => setTab(JOB_QUEUE_TAB)}
+              />
+            )}
+            {section === 'jobQueue' && <JobQueue projectId={projectId} />}
           </TabPanel>
         ))}
       </TabView>

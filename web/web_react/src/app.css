@@ -420,3 +420,21 @@ body {
   grid-column: 1 / -1;
   margin: 0 0 4px;
 }
+
+/* Job queue */
+.status-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: center;
+}
+
+/* PrimeReact's tree table lays out fixed, which squeezes unsized columns to nothing */
+.job-tree table {
+  table-layout: auto;
+}
+
+.job-tree td,
+.job-tree th {
+  vertical-align: middle;
+}

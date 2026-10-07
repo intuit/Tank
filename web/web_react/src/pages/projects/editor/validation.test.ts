@@ -67,6 +67,16 @@ describe('validateProject', () => {
   });
 });
 
+it('checks agent sizing', () => {
+  const problems = validateProject(
+    project({ settings: { incrementStrategy: 'increasing', terminationPolicy: 'time', userIntervalIncrement: 1, numUsersPerAgent: 0, targetRatePerAgent: 0 } }),
+  );
+  expect(problems).toEqual([
+    { section: 'createJob', message: 'Users per agent must be at least 1' },
+    { section: 'createJob', message: 'Target rate per agent must be greater than 0' },
+  ]);
+});
+
 describe('totalUsers', () => {
   it('adds plain numbers', () => {
     expect(totalUsers(project({ regions: [{ users: '10' }, { users: '5' }] }))).toBe(15);
