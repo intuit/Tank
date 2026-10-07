@@ -4,6 +4,7 @@ import type { MenuItem } from 'primereact/menuitem';
 import { ConfirmDialog } from 'primereact/confirmdialog';
 import { Link, Outlet, useNavigate } from 'react-router';
 import { ADMIN_PAGE, PAGES, classicUrl } from './classicPages';
+import tankLogo from './assets/TankLogo.svg';
 import { useSession } from './session';
 
 export function Layout() {
@@ -26,7 +27,7 @@ export function Layout() {
         model={items}
         start={
           <Link to="/" className="brand">
-            Tank
+            <img src={tankLogo} alt="Tank" className="brand-logo" />
           </Link>
         }
         end={

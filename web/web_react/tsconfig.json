@@ -16,7 +16,8 @@
     "verbatimModuleSyntax": true,
     "jsx": "react-jsx",
     "types": [
-      "node"
+      "node",
+      "vite/client"
     ]
   },
   "include": [

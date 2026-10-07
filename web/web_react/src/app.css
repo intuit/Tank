@@ -26,11 +26,16 @@ body {
 }
 
 .brand {
+  display: flex;
+  align-items: center;
   margin-right: 16px;
-  color: var(--primary-color);
-  font-size: 1.25rem;
-  font-weight: 700;
   text-decoration: none;
+}
+
+.brand-logo {
+  display: block;
+  height: 36px;
+  width: auto;
 }
 
 .header-user {
