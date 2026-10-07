@@ -955,3 +955,87 @@ body {
 .cell-link.name-link:hover {
   text-decoration: underline;
 }
+
+/* tools and account */
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tool {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-card);
+}
+
+.tool > div {
+  flex: 1 1 24rem;
+  min-width: 0;
+}
+
+.tool-name {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.tool-description {
+  margin: 0 0 8px;
+}
+
+.tool-run {
+  font-size: 0.85rem;
+}
+
+.account-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.account-section .form-columns {
+  width: 100%;
+}
+
+.token-shown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-shown code {
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.form-actions-start {
+  display: flex;
+  gap: 8px;
+}
+
+.header-account {
+  color: inherit;
+  text-decoration: none;
+}
+
+.header-account:hover {
+  color: var(--primary-color);
+}
+
+.account-section .p-password,
+.account-section .p-password .p-icon-field,
+.account-section .p-password input {
+  width: 100%;
+}

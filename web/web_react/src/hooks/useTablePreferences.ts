@@ -11,7 +11,7 @@ type ColumnUpdate = Schemas['ColumnPreferenceUpdate'];
 /** Table keys known to the server (TableColumnDefaults.Table) */
 export type TableName = 'projects' | 'scripts' | 'scriptSteps' | 'datafiles' | 'jobs';
 
-const PREFERENCES_KEY = ['me', 'preferences'] as const;
+export const PREFERENCES_KEY = ['me', 'preferences'] as const;
 
 /**
  * The signed-in user's column visibility and widths for one table. Changes show at once and are saved

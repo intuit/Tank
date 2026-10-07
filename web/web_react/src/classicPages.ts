@@ -15,7 +15,7 @@ export const PAGES: AppPage[] = [
   { label: 'Scripts', path: '/scripts', icon: 'pi pi-file' },
   { label: 'Filters', path: '/filters', icon: 'pi pi-filter' },
   { label: 'Data files', path: '/datafiles', icon: 'pi pi-database' },
-  { label: 'Tools', path: '/tools/', icon: 'pi pi-wrench', classic: true },
+  { label: 'Tools', path: '/tools', icon: 'pi pi-wrench' },
 ];
 
 export const ADMIN_PAGE: AppPage = { label: 'Admin', path: '/admin/', icon: 'pi pi-cog', classic: true };

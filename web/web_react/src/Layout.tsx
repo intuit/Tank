@@ -32,9 +32,9 @@ export function Layout() {
         end={
           user && (
             <div className="header-user">
-              <span>
+              <Link to="/account" className="header-account" title="Your account">
                 <i className="pi pi-user" aria-hidden /> {user.name}
-              </span>
+              </Link>
               <Button label="Sign out" icon="pi pi-sign-out" text size="small" onClick={() => void signOut()} />
             </div>
           )
