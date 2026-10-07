@@ -37,6 +37,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.intuit.tank.rest.mvc.rest.security.JobAuthorization;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -69,6 +72,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String getSettings() {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         String settings;
         try {
             File configFile = new TankConfig().getSourceConfigFile();
@@ -86,6 +90,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public File getSupportFiles() {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         String filename = "agent-support-files.zip";
         File supportFiles = new File(new TankConfig().getTmpDir(), filename);
         if (!supportFiles.exists()) {
@@ -139,6 +144,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Nonnull
     @Override
     public AgentTestStartData agentReady(AgentData data) {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         AgentTestStartData response;
         LOGGER.info(new ObjectMessage(Map.of("Message", "Agent ready: " + data)));
         AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
@@ -189,6 +195,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public void setStandaloneAgentAvailability(AgentAvailability availability) {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         try {
             StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
             LOGGER.info("Adding agent availability: " + availability);
@@ -214,6 +221,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public void setInstanceStatus(String instanceId, CloudVmStatus status) {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         Segment segment = AWSXRay.getCurrentSegment();
         segment.putAnnotation("instanceId", instanceId);
         segment.putAnnotation("jobId", status.getJobId());
@@ -238,6 +246,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public String stopInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -252,6 +261,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public String pauseInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -266,6 +276,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public String resumeInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -280,6 +291,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public String killInstance(String instanceId) {
         AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -291,4 +303,12 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         }
     }
 
+
+    private void requireInstanceControl(String instanceId) {
+        if (RestAuthorization.hasRight(AccessRight.CONTROL_JOB)) {
+            return;
+        }
+        CloudVmStatus status = getInstanceStatus(instanceId);
+        JobAuthorization.requireJobControl(status != null ? status.getJobId() : null);
+    }
 }

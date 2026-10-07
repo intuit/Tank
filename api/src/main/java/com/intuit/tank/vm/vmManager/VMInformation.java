@@ -210,6 +210,10 @@ public class VMInformation implements Serializable {
 
     public VMImageType getImageType() { return (VMImageType) this.items.get("imageType"); }
 
+    public void setJobId(String jobId) { this.items.put("jobId", jobId); }
+
+    public String getJobId() { return (String) this.items.get("jobId"); }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

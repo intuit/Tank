@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.intuit.tank</groupId>
         <artifactId>tank-rest-api</artifactId>
-        <version>4.4.7-SNAPSHOT</version>
+        <version>4.5.9-SNAPSHOT</version>
     </parent>
 
     <artifactId>tank-rest-api-impl</artifactId>
@@ -44,6 +44,17 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tank-vm-manager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <!-- zip archives of data files and scripts -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <dependency>
+            <!-- TPS series for the job tree charts -->
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reporting-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -14,6 +14,7 @@ import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -221,5 +222,68 @@ public class FilterControllerTest {
         result = filterController.deleteFilterGroup(4);
         assertTrue(result.getBody().contains("not exist"));
         assertEquals(404, result.getStatusCodeValue());
+    }
+
+    @Test
+    public void testUpdateFilterById() {
+        FilterTO request = FilterTO.builder().withName("f").build();
+        FilterTO saved = FilterTO.builder().withId(3).withName("f").build();
+        when(filterService.updateFilter(3, request)).thenReturn(saved);
+
+        ResponseEntity<FilterTO> result = filterController.updateFilter(3, request);
+
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals(3, result.getBody().getId());
+    }
+
+    @Test
+    public void testCopyFilter() {
+        CopyRequest request = new CopyRequest("copy");
+        when(filterService.copyFilter(3, request)).thenReturn(FilterTO.builder().withId(11).withName("copy").build());
+
+        ResponseEntity<FilterTO> result = filterController.copyFilter(3, request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertEquals(11, result.getBody().getId());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/11"));
+    }
+
+    @Test
+    public void testCreateFilterGroup() {
+        FilterGroupTO request = FilterGroupTO.builder().withName("grp").withFilterIds(List.of(1)).build();
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(6);
+        when(filterService.createFilterGroup(request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.createFilterGroup(request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/groups/6"));
+    }
+
+    @Test
+    public void testUpdateFilterGroup() {
+        FilterGroupTO request = FilterGroupTO.builder().withName("grp").build();
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(6);
+        when(filterService.updateFilterGroup(6, request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.updateFilterGroup(6, request);
+
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals(6, result.getBody().getId());
+    }
+
+    @Test
+    public void testCopyFilterGroup() {
+        CopyRequest request = new CopyRequest("copy");
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(12);
+        when(filterService.copyFilterGroup(6, request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.copyFilterGroup(6, request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/groups/12"));
     }
 }

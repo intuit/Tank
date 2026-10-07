@@ -9,6 +9,7 @@ package com.intuit.tank.rest.mvc.rest.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,39 @@ import java.util.Set;
 
     public static File primaryRoot() {
         return candidateRoots().get(0);
+    }
+
+    /**
+     * The names of the files in every log directory, without duplicates. Tank app logs come first so they are easy
+     * to find among the Tomcat access logs, then the rest by name.
+     */
+    public static List<String> listFileNames() {
+        Set<String> names = new LinkedHashSet<>();
+        for (File root : candidateRoots()) {
+            File[] files = root.listFiles();
+            if (files == null) {
+                continue;
+            }
+            for (File file : files) {
+                if (file.isFile()) {
+                    names.add(file.getName());
+                }
+            }
+        }
+        List<String> sorted = new ArrayList<>(names);
+        sorted.sort(Comparator.comparingInt(LogDirectory::tankLogRank).thenComparing(String.CASE_INSENSITIVE_ORDER));
+        return sorted;
+    }
+
+    private static int tankLogRank(String name) {
+        String lower = name.toLowerCase();
+        if (lower.equals("tank.log")) {
+            return 0;
+        }
+        if (lower.startsWith("tank") && lower.endsWith(".log")) {
+            return 1;
+        }
+        return 2;
     }
 
     public static File findFile(String fileName) {

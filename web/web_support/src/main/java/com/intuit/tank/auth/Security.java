@@ -17,18 +17,14 @@ package com.intuit.tank.auth;
  */
 
 import java.io.Serializable;
-import java.util.List;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.intuit.tank.project.OwnableEntity;
-import com.intuit.tank.vm.common.TankConstants;
+import com.intuit.tank.rest.mvc.rest.security.AccessRules;
 import com.intuit.tank.vm.settings.AccessRight;
-import com.intuit.tank.vm.settings.SecurityConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 
 /**
@@ -55,11 +51,8 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isOwner(OwnableEntity entity) {
-        if ( StringUtils.isNotEmpty(entity.getCreator()) &&
-                securityContext.getCallerPrincipal() != null ) {
-            return entity.getCreator().equals(securityContext.getCallerPrincipal().getName());
-        }
-        return false;
+        return securityContext.getCallerPrincipal() != null
+                && AccessRules.isOwner(securityContext.getCallerPrincipal().getName(), entity);
     }
 
     /**
@@ -67,19 +60,11 @@ public class Security implements Serializable {
      * @return
      */
     public boolean isAdmin() {
-        return securityContext.isCallerInRole(TankConstants.TANK_GROUP_ADMIN);
+        return AccessRules.isAdmin(securityContext::isCallerInRole);
     }
 
     public boolean hasRight(AccessRight right) {
-        if (isAdmin()) {
-            return true;
-        }
-        SecurityConfig config = tankConfig.getSecurityConfig();
-        List<String> associatedGroups = config.getRestrictionMap().get(right.name());
-        if (associatedGroups != null) {
-            return associatedGroups.stream().anyMatch(role -> securityContext.isCallerInRole(role));
-        }
-        return false;
+        return AccessRules.hasRight(right, securityContext::isCallerInRole, tankConfig.getSecurityConfig());
     }
 
     public String getName() {

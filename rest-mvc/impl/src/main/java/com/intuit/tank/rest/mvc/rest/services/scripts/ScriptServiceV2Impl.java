@@ -8,7 +8,20 @@
 package com.intuit.tank.rest.mvc.rest.services.scripts;
 
 import com.intuit.tank.common.ScriptUtil;
+import com.intuit.tank.dao.PagedQuery;
+import com.intuit.tank.dao.PagedResult;
 import com.intuit.tank.dao.ScriptDao;
+import com.intuit.tank.dao.ScriptFilterDao;
+import com.intuit.tank.project.OwnableEntity;
+import com.intuit.tank.project.ScriptFilter;
+import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
+import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+import com.intuit.tank.rest.mvc.rest.util.PageRequests;
+import com.intuit.tank.rest.mvc.rest.util.ScriptDocumentMapper;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.harness.data.HDWorkload;
 import com.intuit.tank.project.BaseEntity;
@@ -32,6 +45,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -60,9 +76,16 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                                             String recording, String copy,
                                             Integer sourceId, String contentEncoding,
                                             MultipartFile file) throws IOException {
+        return createScript(name, id, recording, copy, sourceId, contentEncoding, file, null, null);
+    }
+
+    @Override
+    public Map<String, String> createScript(String name, Integer id, String recording, String copy, Integer sourceId,
+                                            String contentEncoding, MultipartFile file, String productName,
+                                            List<Integer> filterIds) throws IOException {
         try {
             if(recording != null) {
-                return uploadProxyScript(name, id, contentEncoding, file);
+                return uploadProxyScript(name, id, contentEncoding, file, productName, filterIds);
             } else if(copy != null) {
                 if(sourceId == null) {
                     throw new IllegalArgumentException("SourceId must be provided when copying a script");
@@ -71,8 +94,10 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             } else {
                 return updateTankScript(contentEncoding, file);
             }
+        } catch (GenericServiceForbiddenAccessException | GenericServiceBadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error creating script: " + e.getMessage(), e);
+            LOGGER.error("Error creating script: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "script", e);
         }
     }
@@ -81,13 +106,14 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         Map<String, String> payload = new HashMap<>();
         try {
 
+            RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, "scripts");
             if (StringUtils.isEmpty(name)) {
                 throw new IllegalArgumentException("Must provide a script name to copy from existing script");
             } else {
                 Script script = new ScriptDao().findById(sourceId);
                 if (script != null) {
                     Script copyScript = ScriptUtil.copyScript(
-                            "System"
+                            RestAuthorization.currentUserName()
                             , name, script);
                     copyScript = new ScriptDao().saveOrUpdate(copyScript);
                     payload.put("message", "Script " + copyScript.getName() + " with script ID " + copyScript.getId() + " created successfully (copied from script ID " + sourceId + " - " + script.getName());
@@ -95,15 +121,19 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                     throw new IllegalArgumentException("Source script cannot be found");
                 }
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error copying script: " + e.getMessage(), e);
+            LOGGER.error("Error copying script: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "script", e);
         }
         return payload;
     }
 
 
-    private Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file) throws IOException {
+    private Map<String, String> uploadProxyScript(String name, Integer scriptId, String contentEncoding, MultipartFile file,
+                                                  String productName, List<Integer> filterIds) throws IOException {
+        List<ScriptFilter> filters = findFilters(filterIds);
         Map<String, String> payload = new HashMap<>();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
@@ -112,10 +142,12 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             Script script = new ScriptDao().findById(scriptId);
             if (script == null){
+                RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, "scripts");
                 script = new Script();
                 script.setName("New");
-                script.setCreator("System");
+                script.setCreator(RestAuthorization.currentUserName());
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, script, "scripts");
                 payload.put("message", "Script with script ID " + scriptId + " overwritten with new script content");
             }
 
@@ -126,8 +158,10 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             if (StringUtils.isNotEmpty(name)) {
                 script.setName(name);
             }
-
-            scriptProcessor.getScriptSteps(bufferedReader, new ArrayList<>());
+            if (productName != null) {
+                script.setProductName(productName);
+            }
+            scriptProcessor.getScriptSteps(bufferedReader, filters);
             script = new ScriptDao().saveOrUpdate(script);
             sendMsg(script, ModificationType.UPDATE);
             if (scriptId.equals(0)) {
@@ -138,8 +172,10 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 }
             }
             payload.put("scriptId", Integer.toString(script.getId()));
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error uploading script file: " + e.getMessage(), e);
+            LOGGER.error("Error uploading script file: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "new script via script upload", e);
         }
         return payload;
@@ -168,12 +204,20 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 if (!existing.getName().equals(script.getName())) {
                     throw new GenericServiceBadRequestException("scripts", "updating script", "updating script - Cannot change the name of the existing script " + existing.getName());
                 }
+                // ownership comes from the stored script, never from the uploaded XML
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, existing, "scripts");
+                script.setCreator(existing.getCreator());
                 script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
+            } else {
+                RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, "scripts");
+                script.setCreator(RestAuthorization.currentUserName());
             }
             script = dao.saveOrUpdate(script);
             payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error updating script file: " + e.getMessage(), e);
+            LOGGER.error("Error updating script file: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", e.getMessage(), e);
         }
 
@@ -190,7 +234,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             }
             return null;
         } catch (Exception e) {
-            LOGGER.error("Error returning script description: " + e.getMessage(), e);
+            LOGGER.error("Error returning script description: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "script", e);
         }
     }
@@ -203,7 +247,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             List<ScriptDescription> result = all.stream().map(ScriptServiceUtil::scriptToScriptDescription).collect(Collectors.toList());
             return ScriptDescriptionContainer.builder().withScripts(result).build();
         } catch (Exception e) {
-            LOGGER.error("Error returning all script: " + e.getMessage(), e);
+            LOGGER.error("Error returning all script: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "all script", e);
         }
     }
@@ -215,7 +259,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             return all.stream().sorted(Comparator.comparing(Script::getModified).reversed())
                                .collect(Collectors.toMap(Script::getId, Script::getName, (e1, e2) -> e1, LinkedHashMap::new));
         } catch (Exception e) {
-            LOGGER.error("Error returning all script names: " + e.getMessage(), e);
+            LOGGER.error("Error returning all script names: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "all script names", e);
         }
     }
@@ -237,7 +281,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 return payload;
             }
         } catch (Exception e) {
-            LOGGER.error("Error downloading Tank XML script file: " + e.getMessage(), e);
+            LOGGER.error("Error downloading Tank XML script file: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "Tank XML script file", e);
         }
     }
@@ -259,7 +303,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 return payload;
             }
         } catch (Exception e) {
-            LOGGER.error("Error downloading Tank Harness script file: " + e.getMessage(), e);
+            LOGGER.error("Error downloading Tank Harness script file: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "Tank Harness script file", e);
         }
     }
@@ -273,11 +317,14 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 LOGGER.warn("Script with script id " +  scriptId + " does not exist");
                 return "Script with script id " +  scriptId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_SCRIPT, script, "scripts");
                 dao.delete(script);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error deleting script : " + e, e);
+            LOGGER.error("Error deleting script : {}", e, e);
             throw new GenericServiceDeleteException("script", "script", e);
         }
     }
@@ -294,7 +341,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                             .map(ScriptServiceUtil::externalScriptToTO).collect(Collectors.toList()))
                     .build();
         } catch (Exception e) {
-            LOGGER.error("Error returning all external script : " + e, e);
+            LOGGER.error("Error returning all external script : {}", e, e);
             throw new GenericServiceResourceNotFoundException("script", "all external scripts", e);
         }
     }
@@ -310,7 +357,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 return null;
             }
         } catch (Exception e) {
-            LOGGER.error("Error returning the external script : " + e, e);
+            LOGGER.error("Error returning the external script : {}", e, e);
             throw new GenericServiceResourceNotFoundException("script", "external script", e);
         }
     }
@@ -318,12 +365,20 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
     @Override
     public ExternalScriptTO createExternalScript(ExternalScriptTO ExternalScriptRequest) {
         ExternalScriptDao dao = new ExternalScriptDao();
+        ExternalScript existing = ExternalScriptRequest != null && ExternalScriptRequest.getId() > 0
+                ? dao.findById(ExternalScriptRequest.getId()) : null;
+        if (existing != null) {
+            RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, existing, "scripts");
+        } else {
+            RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, "scripts");
+        }
         try {
             ExternalScript script = ScriptServiceUtil.TOToExternalScript(ExternalScriptRequest);
+            script.setCreator(existing != null ? existing.getCreator() : RestAuthorization.currentUserName());
             script = dao.saveOrUpdate(script);
             return ScriptServiceUtil.externalScriptToTO(script);
         } catch (Exception e) {
-            LOGGER.error("Error saving external script: " + e.getMessage(), e);
+            LOGGER.error("Error saving external script: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("scripts", "external script", e);
         }
     }
@@ -345,7 +400,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 return payload;
             }
         } catch (Exception e) {
-            LOGGER.error("Error downloading Tank XML external script file: " + e.getMessage(), e);
+            LOGGER.error("Error downloading Tank XML external script file: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("scripts", "Tank XML external script file", e);
         }
     }
@@ -359,12 +414,162 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
                 LOGGER.warn("External script with external script id " +  externalScriptId + " does not exist");
                 return "External script with external script id " +  externalScriptId + " does not exist";
             } else {
+                RestAuthorization.requireRightOrOwner(AccessRight.DELETE_SCRIPT, script, "scripts");
                 dao.delete(script);
                 return "";
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (RuntimeException e) {
-            LOGGER.error("Error deleting external script : " + e, e);
+            LOGGER.error("Error deleting external script : {}", e, e);
             throw new GenericServiceDeleteException("script", "external script", e);
         }
+    }
+
+    private static final String SERVICE = "scripts";
+
+    private static final Map<String, String> SORTABLE_FIELDS = Map.of(
+            "id", BaseEntity.PROPERTY_ID,
+            "name", "name",
+            "productName", "productName",
+            "owner", OwnableEntity.PROPERTY_CREATOR,
+            "created", BaseEntity.PROPERTY_CREATE,
+            "modified", BaseEntity.PROPERTY_MODIFIED,
+            "runtime", "runtime");
+
+    @Override
+    public PageResponse<ScriptSummary> listScripts(Integer page, Integer size, String sort, String owner, String q) {
+        RestAuthorization.requireUser(SERVICE);
+        Map<String, Object> filters = new HashMap<>();
+        filters.put(OwnableEntity.PROPERTY_CREATOR, owner);
+        PagedQuery query = PageRequests.toQuery(SERVICE, page, size, sort, SORTABLE_FIELDS, "modified,desc", filters, q,
+                List.of("name", "productName", "comments"));
+        PagedResult<Script> result = new ScriptDao().findPaged(query);
+        return new PageResponse<>(result.items().stream().map(ScriptServiceV2Impl::summary).collect(Collectors.toList()),
+                result.total(), query.page(), query.size());
+    }
+
+    @Override
+    public ScriptDocument getScriptDocument(Integer scriptId) {
+        RestAuthorization.requireUser(SERVICE);
+        return document(findScript(scriptId));
+    }
+
+    @Override
+    public synchronized ScriptDocument updateScriptDocument(Integer scriptId, ScriptDocument document) {
+        RestAuthorization.requireUser(SERVICE);
+        if (document == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "script", "request body is required");
+        }
+        Script script = findScript(scriptId);
+        RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, script, SERVICE);
+        if (document.modified() == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "modified",
+                    "modified is required; send the value from the last GET");
+        }
+        if (!sameSecond(document.modified(), script.getModified())) {
+            throw new GenericServiceConflictException(SERVICE,
+                    "Script " + scriptId + " was changed by someone else since it was loaded; reload it and try again");
+        }
+        List<String> errors = ScriptDocumentMapper.validate(document);
+        if (errors.isEmpty()) {
+            errors = ScriptDocumentMapper.apply(document, script);
+        }
+        if (!errors.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "script", String.join("; ", errors));
+        }
+        try {
+            script = new ScriptDao().saveOrUpdate(script);
+        } catch (RuntimeException e) {
+            LOGGER.error("Error saving script {}: {}", scriptId, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, "script", e);
+        }
+        sendMsg(script, ModificationType.UPDATE);
+        LOGGER.info("{} saved script {} with {} steps", RestAuthorization.currentUserName(), scriptId,
+                script.getScriptSteps().size());
+        return document(findScript(scriptId));
+    }
+
+    @Override
+    public ScriptSummary copyScript(Integer scriptId, CopyRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, SERVICE);
+        String name = request != null ? StringUtils.trimToNull(request.name()) : null;
+        if (name == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name is required");
+        }
+        if (name.length() > 255) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name must be at most 255 characters");
+        }
+        Script source = findScript(scriptId);
+        Script copy = ScriptUtil.copyScript(RestAuthorization.currentUserName(), name, source);
+        // the copy is new (id 0), so this gives its steps their own uuids
+        ScriptUtil.setScriptStepLabels(copy);
+        try {
+            copy = new ScriptDao().saveOrUpdate(copy);
+        } catch (RuntimeException e) {
+            LOGGER.error("Error copying script {}: {}", scriptId, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, "script copy", e);
+        }
+        sendMsg(copy, ModificationType.ADD);
+        LOGGER.info("{} copied script {} to {} ({})", RestAuthorization.currentUserName(), scriptId, copy.getId(), name);
+        return summary(copy);
+    }
+
+    @Override
+    public String getStepResponse(Integer scriptId, String stepUuid) {
+        RestAuthorization.requireUser(SERVICE);
+        Script script = findScript(scriptId);
+        ScriptStep step = script.getScriptSteps().stream()
+                .filter(s -> s.getUuid() != null && s.getUuid().equals(stepUuid))
+                .findFirst()
+                .orElseThrow(() -> new GenericServiceResourceNotFoundException(SERVICE, "step " + stepUuid, null));
+        if (step.getResponse() == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "recorded response for step " + stepUuid, null);
+        }
+        return step.getResponse();
+    }
+
+    private ScriptDocument document(Script script) {
+        boolean owner = RestAuthorization.isOwner(script);
+        return ScriptDocumentMapper.toDocument(script, new ScriptDocument.Permissions(
+                owner || RestAuthorization.hasRight(AccessRight.EDIT_SCRIPT),
+                owner || RestAuthorization.hasRight(AccessRight.DELETE_SCRIPT)));
+    }
+
+    private static ScriptSummary summary(Script s) {
+        return new ScriptSummary(s.getId(), s.getName(), s.getProductName(), s.getComments(), s.getCreator(),
+                s.getCreated(), s.getModified(), s.getRuntime());
+    }
+
+    private static Script findScript(Integer scriptId) {
+        Script script = scriptId != null ? new ScriptDao().findById(scriptId) : null;
+        if (script == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "script " + scriptId, null);
+        }
+        return script;
+    }
+
+    /**
+     * @return the filters with these ids, in the order given
+     * @throws GenericServiceBadRequestException when an id has no filter
+     */
+    private static List<ScriptFilter> findFilters(List<Integer> filterIds) {
+        if (filterIds == null || filterIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Integer> ids = filterIds.stream().distinct().collect(Collectors.toList());
+        Map<Integer, ScriptFilter> byId = new ScriptFilterDao().findForIds(ids).stream()
+                .collect(Collectors.toMap(ScriptFilter::getId, f -> f, (a, b) -> a));
+        List<Integer> missing = ids.stream().filter(id -> !byId.containsKey(id)).collect(Collectors.toList());
+        if (!missing.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "filterIds", "no script filters with ids " + missing);
+        }
+        return ids.stream().map(byId::get).collect(Collectors.toList());
+    }
+
+    /** Compares save times to the second: the database may not store milliseconds. */
+    static boolean sameSecond(java.util.Date a, java.util.Date b) {
+        return a != null && b != null && a.getTime() / 1000 == b.getTime() / 1000;
     }
 }

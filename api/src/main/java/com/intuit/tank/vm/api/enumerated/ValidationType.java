@@ -24,7 +24,8 @@ public enum ValidationType {
     contains(ValidationTypeConstants.CONTAINS, ValidationTypeConstants.REPRESENTATION_CONTAINS),
     doesnotcontain(ValidationTypeConstants.DOESNOTCONTAIN, ValidationTypeConstants.REPRESENTATION_DOESNOTCONTAIN),
     lessthan(ValidationTypeConstants.LESS_THAN, ValidationTypeConstants.REPRESENTATION_LESS_THAN),
-    greaterthan(ValidationTypeConstants.GREATER_THAN, ValidationTypeConstants.REPRESENTATION_GREATER_THAN);
+    greaterthan(ValidationTypeConstants.GREATER_THAN, ValidationTypeConstants.REPRESENTATION_GREATER_THAN),
+    equalsany(ValidationTypeConstants.EQUALS_ANY, ValidationTypeConstants.REPRESENTATION_EQUALS_ANY);
 
     private String value;
     private String representation;
@@ -46,7 +47,9 @@ public enum ValidationType {
     }
 
     public static ValidationType getValidationType(String value) {
-        if (value.startsWith(ValidationTypeConstants.EQUALS)) {
+        if (value.startsWith(ValidationTypeConstants.EQUALS_ANY)) {
+            return ValidationType.equalsany;
+        } else if (value.startsWith(ValidationTypeConstants.EQUALS)) {
             return ValidationType.equals;
         } else if (value.startsWith(ValidationTypeConstants.NOTEQUALS)) {
             return ValidationType.notequals;
@@ -68,7 +71,11 @@ public enum ValidationType {
     }
 
     public static ValidationType getValidationTypeFromRepresentation(String representation) {
-        if (representation.equalsIgnoreCase(ValidationTypeConstants.EQUALS)) {
+        if (representation.equalsIgnoreCase(ValidationTypeConstants.EQUALS_ANY)) {
+            return ValidationType.equalsany;
+        } else if (representation.equalsIgnoreCase(ValidationTypeConstants.REPRESENTATION_EQUALS_ANY)) {
+            return ValidationType.equalsany;
+        } else if (representation.equalsIgnoreCase(ValidationTypeConstants.EQUALS)) {
             return ValidationType.equals;
         } else if (representation.equalsIgnoreCase(ValidationTypeConstants.NOTEQUALS)) {
             return ValidationType.notequals;

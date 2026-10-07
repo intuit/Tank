@@ -8,16 +8,19 @@ import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.OidcSsoConfig;
 import com.intuit.tank.vm.settings.TankConfig;
+import jakarta.servlet.http.HttpSession;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,8 +47,13 @@ public class TankSsoHandlerTest {
     private UserDao _userDaoMock;
     @Mock
     private UserCreate _userCreateMock;
+    @Mock
+    private HttpSession _sessionMock;
 
     private final String AUTHORIZATION_CODE_STUB = "testAuthorizationCode";
+    private final String STATE_STUB = "testState";
+    private final String NONCE_STUB = "testNonce";
+    private final String CLIENT_ID_STUB = "client-id";
     private Token TOKEN_STUB;
     private UserInfo USERINFO_STUB;
     private User USER_STUB;
@@ -66,6 +74,14 @@ public class TankSsoHandlerTest {
         TOKEN_STUB.setIdToken("testIdToken");
         TOKEN_STUB.setAccessToken("testAccessToken");
         USERINFO_STUB.setEmail("user@intuit.com");
+        USERINFO_STUB.setNonce(NONCE_STUB);
+        USERINFO_STUB.setAudience(CLIENT_ID_STUB);
+        USERINFO_STUB.setExpirationTimeUtc(Instant.now().plusSeconds(300).getEpochSecond());
+
+        when(_sessionMock.getAttribute(TankSsoHandler.STATE_SESSION_ATTRIBUTE)).thenReturn(STATE_STUB);
+        when(_sessionMock.getAttribute(TankSsoHandler.NONCE_SESSION_ATTRIBUTE)).thenReturn(NONCE_STUB);
+        when(_tankConfigMock.getOidcSsoConfig()).thenReturn(_oidcSsoConfigMock);
+        when(_oidcSsoConfigMock.getClientId()).thenReturn(CLIENT_ID_STUB);
     }
 
     @AfterEach
@@ -85,7 +101,7 @@ public class TankSsoHandlerTest {
         when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("https://www.redirect-url.com");
 
         // Act
-        var authorizationRequestString = _sut.GetOnLoadAuthorizationRequest();
+        var authorizationRequestString = _sut.GetOnLoadAuthorizationRequest(_sessionMock);
 
         // Assert
         assertNotNull(authorizationRequestString);
@@ -105,7 +121,7 @@ public class TankSsoHandlerTest {
 
         // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            _sut.GetOnLoadAuthorizationRequest();
+            _sut.GetOnLoadAuthorizationRequest(_sessionMock);
         });
     }
 
@@ -120,7 +136,7 @@ public class TankSsoHandlerTest {
         when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_tankOidcAuthorizationMock, times(1)).GetAccessToken(any(String.class));
@@ -133,7 +149,7 @@ public class TankSsoHandlerTest {
         when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_tankOidcAuthorizationMock, times(1)).DecodeIdToken(any(Token.class));
@@ -146,7 +162,7 @@ public class TankSsoHandlerTest {
         when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_userDaoMock, times(1)).findByEmail(any(String.class));
@@ -160,7 +176,7 @@ public class TankSsoHandlerTest {
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(null);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_userCreateMock, times(1)).CreateUser(any(UserInfo.class));
@@ -174,7 +190,7 @@ public class TankSsoHandlerTest {
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(USER_STUB);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_userCreateMock, times(0)).CreateUser(any(UserInfo.class));
@@ -188,7 +204,7 @@ public class TankSsoHandlerTest {
         when(_userDaoMock.findByEmail(any(String.class))).thenReturn(USER_STUB);
 
         // Act
-        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+        _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
 
         // Assert
         verify(_tankSecurityContextMock, times(1)).ssoSecurityContext(any(User.class));
@@ -202,7 +218,7 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_Invalid_AuthorizationCode_Throws_Exception() throws IllegalArgumentException {
         // Arrange + Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            _sut.HandleSsoAuthorization(null);
+            _sut.HandleSsoAuthorization(null, STATE_STUB, _sessionMock);
         });
     }
 
@@ -210,8 +226,74 @@ public class TankSsoHandlerTest {
     public void HandleSsoAuthorization_Given_Invalid_OidcConfig_Throws_Exception() throws IllegalArgumentException {
         // Arrange + Act + Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB);
+            _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock);
         });
+    }
+
+    //endregion
+    //region State, nonce and claim validation
+
+    @Test
+    public void GetOnLoadAuthorizationRequest_Stores_Random_State_And_Nonce_In_Session() {
+        when(_oidcSsoConfigMock.getConfiguration()).thenReturn(_hierarchicalConfigurationMock);
+        when(_oidcSsoConfigMock.getAuthorizationUrl()).thenReturn("https://www.authorization-url.com/auth");
+        when(_oidcSsoConfigMock.getRedirectUrl()).thenReturn("https://www.redirect-url.com");
+
+        String first = _sut.GetOnLoadAuthorizationRequest(_sessionMock);
+        String second = _sut.GetOnLoadAuthorizationRequest(_sessionMock);
+
+        ArgumentCaptor<Object> states = ArgumentCaptor.forClass(Object.class);
+        verify(_sessionMock, times(2)).setAttribute(eq(TankSsoHandler.STATE_SESSION_ATTRIBUTE), states.capture());
+        verify(_sessionMock, times(2)).setAttribute(eq(TankSsoHandler.NONCE_SESSION_ATTRIBUTE), any());
+        assertNotEquals(states.getAllValues().get(0), states.getAllValues().get(1));
+        assertTrue(first.contains("state=" + states.getAllValues().get(0)));
+        assertTrue(first.contains("nonce="));
+        assertNotEquals(first, second);
+    }
+
+    @Test
+    public void HandleSsoAuthorization_Given_Wrong_State_Throws_Without_Token_Exchange() throws IOException {
+        assertThrows(IllegalArgumentException.class,
+                () -> _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, "forged-state", _sessionMock));
+        verify(_tankOidcAuthorizationMock, never()).GetAccessToken(any(String.class));
+        verify(_sessionMock).removeAttribute(TankSsoHandler.STATE_SESSION_ATTRIBUTE);
+    }
+
+    @Test
+    public void HandleSsoAuthorization_Given_No_Session_Throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, null));
+    }
+
+    @Test
+    public void HandleSsoAuthorization_Given_Wrong_Nonce_Throws() throws IOException {
+        USERINFO_STUB.setNonce("other-nonce");
+        when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock));
+        verify(_tankSecurityContextMock, never()).ssoSecurityContext(any(User.class));
+    }
+
+    @Test
+    public void HandleSsoAuthorization_Given_Wrong_Audience_Throws() throws IOException {
+        USERINFO_STUB.setAudience("another-client");
+        when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock));
+    }
+
+    @Test
+    public void HandleSsoAuthorization_Given_Expired_Token_Throws() throws IOException {
+        USERINFO_STUB.setExpirationTimeUtc(Instant.now().minusSeconds(3600).getEpochSecond());
+        when(_tankOidcAuthorizationMock.GetAccessToken(any(String.class))).thenReturn(TOKEN_STUB);
+        when(_tankOidcAuthorizationMock.DecodeIdToken(any(Token.class))).thenReturn(USERINFO_STUB);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> _sut.HandleSsoAuthorization(AUTHORIZATION_CODE_STUB, STATE_STUB, _sessionMock));
     }
 
     //endregion

@@ -110,18 +110,22 @@ public class DataFileControllerTest {
 
     @Test
     public void testGetDatafileContent() throws IOException {
-        File testCSV = new File("src/test/resources/test.csv");
-        StreamingResponseBody responseBody = outputStream -> {
-            Files.copy(testCSV.toPath(), outputStream);
-        };
-        when(datafileService.getDatafileContent(2, 5, 10)).thenReturn(responseBody);
+        when(datafileService.readDatafileContent(2, 5, 10)).thenReturn(
+                new DataFileServiceV2.ContentPage("test, 1, 2\ncsv, 3, 4\nfile, 5, 6\n", 42));
         ResponseEntity<String> result = datafileController.getDatafileContent(2, 5, 10);
         String response = result.getBody();
         assertEquals("test, 1, 2\n" +
                 "csv, 3, 4\n" +
                 "file, 5, 6\n", response);
         assertEquals(200, result.getStatusCodeValue());
-        verify(datafileService).getDatafileContent(2, 5, 10);
+        assertEquals("42", result.getHeaders().getFirst(DataFileController.TOTAL_LINES_HEADER));
+        verify(datafileService).readDatafileContent(2, 5, 10);
+    }
+
+    @Test
+    public void testGetDatafileContent_NotFound() throws IOException {
+        when(datafileService.readDatafileContent(3, null, null)).thenReturn(null);
+        assertEquals(404, datafileController.getDatafileContent(3, null, null).getStatusCodeValue());
     }
 
     @Test
@@ -169,4 +173,30 @@ public class DataFileControllerTest {
         assertEquals(404, error.getStatusCodeValue());
     }
 
+
+    @Test
+    public void testUiRoutes() {
+        com.intuit.tank.rest.mvc.rest.models.PageResponse<com.intuit.tank.rest.mvc.rest.models.DataFileSummary> page =
+                new com.intuit.tank.rest.mvc.rest.models.PageResponse<>(java.util.List.of(), 0, 0, 25);
+        when(datafileService.listDatafiles(0, 25, null, "alice", null)).thenReturn(page);
+        assertSame(page, datafileController.listDatafiles(0, 25, null, "alice", null).getBody());
+
+        com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult batch =
+                new com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult(java.util.List.of(), java.util.List.of("x.png"));
+        when(datafileService.uploadDatafiles(java.util.List.of())).thenReturn(batch);
+        ResponseEntity<com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult> uploaded =
+                datafileController.uploadDatafiles(java.util.List.of());
+        assertEquals(201, uploaded.getStatusCodeValue());
+        assertSame(batch, uploaded.getBody());
+
+        com.intuit.tank.rest.mvc.rest.models.DataFilePreview preview =
+                new com.intuit.tank.rest.mvc.rest.models.DataFilePreview(1, "a.csv", 0, java.util.List.of("h"), 1);
+        when(datafileService.previewDatafile(1, 0, 10)).thenReturn(preview);
+        assertSame(preview, datafileController.previewDatafile(1, 0, 10).getBody());
+
+        com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult deleted =
+                new com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult(java.util.List.of(1), java.util.List.of());
+        when(datafileService.deleteDatafiles(java.util.List.of(1))).thenReturn(deleted);
+        assertSame(deleted, datafileController.deleteDatafiles(java.util.List.of(1)).getBody());
+    }
 }

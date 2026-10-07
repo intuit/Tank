@@ -13,6 +13,8 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteExce
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.FilterGroupDetailTO;
+import com.intuit.tank.filters.models.FilterGroupTO;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.filters.models.FilterContainer;
 import com.intuit.tank.filters.models.FilterTO;
 
@@ -70,6 +72,62 @@ public interface FilterServiceV2 {
     public FilterTO createOrUpdateFilter(FilterTO request);
 
     /**
+     * Creates a filter owned by the caller. Any ID or creator in the request is ignored.
+     *
+     * @param request the filter
+     * @return the new filter
+     */
+    public FilterTO createFilter(FilterTO request);
+
+    /**
+     * Replaces a filter's settings, conditions and actions. Needs {@code EDIT_FILTER} or ownership; the owner is
+     * unchanged.
+     *
+     * @param filterId the filter to update
+     * @param request  the filter, with the {@code modified} time from the last GET
+     * @throws GenericServiceResourceNotFoundException if there is no such filter
+     * @return the saved filter
+     */
+    public FilterTO updateFilter(Integer filterId, FilterTO request);
+
+    /**
+     * Copies a filter, with its conditions and actions, under a new name owned by the caller.
+     *
+     * @param filterId the filter to copy
+     * @param request  the name of the copy
+     * @return the new filter
+     */
+    public FilterTO copyFilter(Integer filterId, CopyRequest request);
+
+    /**
+     * Creates a filter group owned by the caller from a name, product and member filter IDs.
+     *
+     * @param request the group; {@code filterIds} must all exist
+     * @return the new group with its filters
+     */
+    public FilterGroupDetailTO createFilterGroup(FilterGroupTO request);
+
+    /**
+     * Replaces a filter group's name, product and members. Needs {@code EDIT_FILTER} or ownership; the owner is
+     * unchanged.
+     *
+     * @param filterGroupId the group to update
+     * @param request       the group, with the {@code modified} time from the last GET
+     * @throws GenericServiceResourceNotFoundException if there is no such group
+     * @return the saved group with its filters
+     */
+    public FilterGroupDetailTO updateFilterGroup(Integer filterGroupId, FilterGroupTO request);
+
+    /**
+     * Copies a filter group under a new name owned by the caller. The copy holds the same filters.
+     *
+     * @param filterGroupId the group to copy
+     * @param request       the name of the copy
+     * @return the new group with its filters
+     */
+    public FilterGroupDetailTO copyFilterGroup(Integer filterGroupId, CopyRequest request);
+
+    /**
      * Gets the list of filter groups
      *
      * @throws GenericServiceCreateOrUpdateException
@@ -97,7 +155,7 @@ public interface FilterServiceV2 {
 
 
     /**
-     * Deletes a specific filter
+     * Deletes a specific filter, first removing it from every filter group that holds it
      *
      * @param filterId Filter ID
      *

@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>4.4.7-SNAPSHOT</version>
+  <version>4.5.9-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -51,7 +51,7 @@
     <version.jaxb>4.0.3</version.jaxb>
     <version.spring-webmvc>6.2.19</version.spring-webmvc>
     <version.wiremock>3.13.2</version.wiremock>
-    <version.jackson>2.22.1</version.jackson>
+    <version.jackson>2.22.3</version.jackson>
     <version.log4j>2.26.1</version.log4j>
     <version.jetty>12.0.35</version.jetty>
 

@@ -9,7 +9,14 @@ package com.intuit.tank.rest.mvc.rest.controllers;
 
 import com.intuit.tank.projects.models.*;
 import com.intuit.tank.projects.models.AutomationRequest.AutomationRequestBuilder;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.PageResponse;
+import com.intuit.tank.rest.mvc.rest.models.ProjectCopyRequest;
+import com.intuit.tank.rest.mvc.rest.models.ProjectDetail;
+import com.intuit.tank.rest.mvc.rest.models.ProjectSummary;
+import com.intuit.tank.rest.mvc.rest.models.ProjectValidation;
 import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
+import com.intuit.tank.rest.mvc.rest.util.ProjectFixtures;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -180,4 +187,47 @@ public class ProjectControllerTest {
         assertEquals(404, error.getStatusCode().value());
     }
 
+    @Test
+    public void testListProjects() {
+        PageResponse<ProjectSummary> page = new PageResponse<>(List.of(), 0, 1, 10);
+        when(projectService.listProjects(1, 10, "name", "alice", "q")).thenReturn(page);
+        assertSame(page, projectController.listProjects(1, 10, "name", "alice", "q").getBody());
+    }
+
+    @Test
+    public void testProjectDetail() {
+        ProjectDetail detail = ProjectFixtures.detail("Load", "alice");
+        when(projectService.getProjectDetail(1)).thenReturn(detail);
+        when(projectService.updateProjectDetail(1, detail)).thenReturn(detail);
+        assertSame(detail, projectController.getProjectDetail(1).getBody());
+        ResponseEntity<ProjectDetail> saved = projectController.updateProjectDetail(1, detail);
+        assertEquals(200, saved.getStatusCode().value());
+        assertSame(detail, saved.getBody());
+    }
+
+    @Test
+    public void testCopyProject() {
+        ProjectDetail copy = ProjectFixtures.detail("Copy", "alice");
+        ProjectCopyRequest request = new ProjectCopyRequest("Copy");
+        when(projectService.copyProject(1, request)).thenReturn(copy);
+        ResponseEntity<ProjectDetail> result = projectController.copyProject(1, request);
+        assertEquals(201, result.getStatusCode().value());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/projects/1/full"));
+        assertSame(copy, result.getBody());
+    }
+
+    @Test
+    public void testDeleteProjects() {
+        BulkDeleteResult deleted = new BulkDeleteResult(List.of(1), List.of(2));
+        when(projectService.deleteProjects(List.of(1, 2))).thenReturn(deleted);
+        assertSame(deleted, projectController.deleteProjects(List.of(1, 2)).getBody());
+    }
+
+    @Test
+    public void testValidateProject() {
+        ProjectValidation validation = new ProjectValidation(true, List.of(), List.of(), 1, 2, 3, List.of(), List.of(),
+                List.of(), List.of());
+        when(projectService.validateProject(1)).thenReturn(validation);
+        assertSame(validation, projectController.validateProject(1).getBody());
+    }
 }

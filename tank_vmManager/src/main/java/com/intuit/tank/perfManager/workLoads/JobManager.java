@@ -92,6 +92,8 @@ public class JobManager implements Serializable {
 
     private Map<String, JobInfo> jobInfoMapLocalCache = new ConcurrentHashMap<>();
 
+    private final Map<String, String> adoptedAgentJobs = new ConcurrentHashMap<>();
+
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
     @Inject
@@ -356,6 +358,10 @@ public class JobManager implements Serializable {
                         }
                     }
                 }
+                String adoptedJobId = adoptedAgentJobs.get(instanceId);
+                if (adoptedJobId != null) {
+                    instanceJobMap.putIfAbsent(instanceId, adoptedJobId);
+                }
             }
         }
 
@@ -528,6 +534,13 @@ public class JobManager implements Serializable {
         controllerInitiatedAgentWsClient.setVmTerminator(vmTerminator);
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(controllerInitiatedAgentWsClient);
         return controllerInitiatedAgentWsClient;
+    }
+
+    /**
+     * Routes commands to a running agent that this controller process did not launch (e.g. after a restart).
+     */
+    public void adoptAgent(String instanceId, String jobId) {
+        adoptedAgentJobs.put(instanceId, jobId);
     }
 
     public void startAgents(String jobId){

@@ -60,6 +60,18 @@ public class GenericExceptionHandler {
     }
 
     @ExceptionHandler
+    public SimpleErrorResponse handleUnauthorizedException(GenericServiceUnauthorizedException e) {
+        LOGGER.warn("Unauthenticated request to the {} service: {}", e.getService(), e.getMessage());
+        return genericErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+    }
+
+    @ExceptionHandler
+    public SimpleErrorResponse handleConflictException(GenericServiceConflictException e) {
+        LOGGER.warn("Conflict in the {} service: {}", e.getService(), e.getMessage());
+        return genericErrorResponse(HttpStatus.CONFLICT, e.getMessage(), e);
+    }
+
+    @ExceptionHandler
     public SimpleErrorResponse handleInternalServerException(GenericServiceInternalServerException e) {
         LOGGER.error("handling an error from the " + e.getService() + " service", e);
         return genericErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Server error thrown by " + e.getService() + " service while processing " + e.getResource(), e);

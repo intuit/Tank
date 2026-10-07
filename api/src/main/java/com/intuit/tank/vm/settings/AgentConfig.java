@@ -65,6 +65,7 @@ public class AgentConfig implements Serializable {
     private static final String KEY_CONNECTION_TIMEOUT = "connection-timeout";
 
     private static final String KEY_COMMAND_WS_ENABLED = "command-ws-enabled";
+    private static final String KEY_AGENT_READOPTION_ENABLED = "agent-readoption-enabled";
 
     private static final String KEY_REQUEST_HEADERS = "request-headers/header";
     // private static final String KEY_RESULT_PROVIDERS =
@@ -340,6 +341,10 @@ public class AgentConfig implements Serializable {
 
     public boolean isCommandWsEnabled() {
         return config.getBoolean(KEY_COMMAND_WS_ENABLED, false);
+    }
+
+    public int getAgentReadoptionIntervalSeconds() {
+        return config.getInt(KEY_AGENT_READOPTION_ENABLED, 0);
     }
 
 }
