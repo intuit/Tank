@@ -17,7 +17,10 @@ import { useNotify } from '../../../notify';
 import { hasRight } from '../../../rights';
 import { useSession } from '../../../session';
 import { Field } from '../../../components/Field';
+import { ApplyFiltersDialog } from './ApplyFiltersDialog';
+import { SearchDialog } from './SearchDialog';
 import { StepTable } from './StepTable';
+import { ValidateDialog } from './ValidateDialog';
 import type { ScriptStep } from './steps';
 import { useScriptDraft } from './useScriptDraft';
 
@@ -37,6 +40,7 @@ function ScriptEditor({ scriptId }: { scriptId: number }) {
   const [selection, setSelection] = useState<ScriptStep[]>([]);
   const [savingAs, setSavingAs] = useState(false);
   const [showProblems, setShowProblems] = useState(false);
+  const [tool, setTool] = useState<'search' | 'filters' | 'validate'>();
 
   const { draft, saved, dirty, problems } = script;
   const readOnly = !saved?.permissions?.edit;
@@ -66,6 +70,12 @@ function ScriptEditor({ scriptId }: { scriptId: number }) {
     }
     setShowProblems(false);
     script.save();
+  };
+  /** Steps the server rewrote (replace, filters): an unsaved change, keeping what's still selected */
+  const replaceSteps = (steps: ScriptStep[]) => {
+    script.update((d) => void (d.steps = steps));
+    const uuids = new Set(steps.map((s) => s.uuid));
+    setSelection((current) => steps.filter((s) => current.some((c) => c.uuid === s.uuid) && uuids.has(s.uuid)));
   };
   const products = options.data?.products ?? [];
   const productOptions =
@@ -175,6 +185,13 @@ function ScriptEditor({ scriptId }: { scriptId: number }) {
         readOnly={readOnly}
         selection={selection}
         onSelectionChange={setSelection}
+        tools={
+          <>
+            <Button label="Search" icon="pi pi-search" text size="small" onClick={() => setTool('search')} />
+            {!readOnly && <Button label="Apply filters" icon="pi pi-filter" text size="small" onClick={() => setTool('filters')} />}
+            <Button label="Validate" icon="pi pi-check-circle" text size="small" onClick={() => setTool('validate')} />
+          </>
+        }
       />
 
       <p className="field-help">
@@ -198,6 +215,13 @@ function ScriptEditor({ scriptId }: { scriptId: number }) {
           })
         }
       />
+      {tool === 'search' && (
+        <SearchDialog steps={draft.steps ?? []} readOnly={readOnly} onReplaced={replaceSteps} onHide={() => setTool(undefined)} />
+      )}
+      {tool === 'filters' && (
+        <ApplyFiltersDialog steps={draft.steps ?? []} onApplied={replaceSteps} onHide={() => setTool(undefined)} />
+      )}
+      {tool === 'validate' && <ValidateDialog name={draft.name ?? ''} steps={draft.steps ?? []} onHide={() => setTool(undefined)} />}
       {savingAs && (
         <CopyDialog
           noun="script"

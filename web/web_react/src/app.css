@@ -795,3 +795,68 @@ body {
 .logic-output {
   margin-top: 8px;
 }
+
+/* search and replace, validate (script editor) */
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.search-text {
+  flex: 1 1 14rem;
+}
+
+.search-sections {
+  flex: 0 1 16rem;
+  min-width: 12rem;
+}
+
+.search-anywhere,
+.search-help {
+  flex-basis: 100%;
+}
+
+.replace-form {
+  margin-top: 12px;
+}
+
+.match-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.match-list li {
+  overflow-wrap: anywhere;
+}
+
+.validation-summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+}
+
+.validation-summary dt {
+  font-weight: 600;
+}
+
+.validation-summary dd {
+  margin: 0;
+}
+
+.warning-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.warning-list .pi {
+  color: var(--orange-500, #f59e0b);
+}

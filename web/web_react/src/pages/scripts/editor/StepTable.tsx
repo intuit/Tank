@@ -92,6 +92,7 @@ export function StepTable({
   readOnly,
   selection,
   onSelectionChange,
+  tools,
 }: {
   scriptId: number;
   steps: ScriptStep[];
@@ -99,6 +100,8 @@ export function StepTable({
   readOnly: boolean;
   selection: ScriptStep[];
   onSelectionChange: (steps: ScriptStep[]) => void;
+  /** Buttons for the whole script, at the end of the toolbar */
+  tools?: ReactNode;
 }) {
   const preferences = useTablePreferences('scriptSteps');
   const notify = useNotify();
@@ -227,6 +230,7 @@ export function StepTable({
           </>
         )}
         <div className="list-toolbar-end">
+          {tools}
           <MultiSelect
             value={hideable.filter((c) => c.visible).map((c) => c.colName)}
             options={hideable.map((c) => ({ label: c.displayName, value: c.colName }))}
