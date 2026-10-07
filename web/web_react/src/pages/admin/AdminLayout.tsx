@@ -1,6 +1,5 @@
 import { Message } from 'primereact/message';
 import { NavLink, Outlet } from 'react-router';
-import { classicUrl } from '../../classicPages';
 import { useSession } from '../../session';
 
 /** The admin section (admin/index.xhtml): its pages, for admins only (AdminFilter) */
@@ -16,9 +15,7 @@ export function AdminLayout() {
       </div>
       <nav className="admin-tabs" aria-label="Administration">
         <NavLink to="/admin/users">Users</NavLink>
-        <a href={classicUrl('/admin/logs.jsf')}>
-          Logs <span className="classic-tag">classic</span>
-        </a>
+        <NavLink to="/admin/logs">Logs</NavLink>
       </nav>
       <Outlet />
     </section>

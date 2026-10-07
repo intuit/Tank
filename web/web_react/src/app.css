@@ -1061,14 +1061,6 @@ body {
   font-weight: 600;
 }
 
-.classic-tag {
-  margin-left: 4px;
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--surface-200, #eee);
-  font-size: 0.75rem;
-  font-weight: 400;
-}
 
 .user-token {
   display: flex;
@@ -1085,4 +1077,50 @@ body {
   flex-wrap: wrap;
   gap: 4px 0;
   white-space: normal;
+}
+
+/* admin logs */
+.log-level {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.log-level label {
+  font-weight: 600;
+}
+
+.log-file {
+  min-width: 16rem;
+}
+
+.log-toolbar .field-inline {
+  gap: 6px;
+}
+
+.log-lines {
+  height: 60vh;
+  overflow: auto;
+  white-space: pre;
+}
+
+.log-lines.log-wrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.log-line.log-warn {
+  color: var(--orange-700, #b45309);
+}
+
+.log-line.log-error,
+.log-line.log-fatal {
+  color: var(--red-700, #b91c1c);
+}
+
+.log-line.log-debug,
+.log-line.log-trace {
+  color: var(--text-color-secondary);
 }

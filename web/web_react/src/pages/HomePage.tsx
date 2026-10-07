@@ -9,7 +9,7 @@ export function HomePage() {
   return (
     <section>
       <h1>Welcome, {user?.name}</h1>
-      <p>The new Tank UI is in progress. Pages marked "classic" open in the previous UI.</p>
+      {pages.some((p) => p.classic) && <p>The new Tank UI is in progress. Pages marked "classic" open in the previous UI.</p>}
       <div className="page-grid">
         {pages.map((page) => {
           const card = (
