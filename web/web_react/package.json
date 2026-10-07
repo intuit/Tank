@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",
+    "immer": "^11.1.21",
     "openapi-fetch": "^0.17.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.9",

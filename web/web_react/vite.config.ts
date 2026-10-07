@@ -10,22 +10,25 @@ export default defineConfig(({ command }) => ({
   // WAR's context path, so one build works under /tank or at the root
   base: command === 'build' ? './' : '/app/',
   plugins: [react()],
-  // esbuild writes CSS as ASCII, keeping escapes such as primeicons' content: "\e963". lightningcss (the
-  // default) turns them into raw UTF-8 glyphs, which garble whenever a browser decodes the stylesheet
-  // with another charset. Escaping inside the minifier also keeps the content hash in the file name honest.
-  esbuild: { charset: 'ascii' },
   build: {
     // Packaged into the tank-web-react jar, which Tomcat and Spring serve as /app/**
     outDir: 'target/classes/META-INF/resources/app',
     emptyOutDir: true,
+    // esbuild writes CSS as ASCII (its default charset), keeping escapes such as primeicons'
+    // content: "\e963". lightningcss, Vite's default, turns them into raw UTF-8 glyphs, which garble
+    // whenever a browser decodes the stylesheet with another charset. Escaping inside the minifier
+    // also keeps the content hash in the file name honest.
     cssMinify: 'esbuild',
     rolldownOptions: {
       output: {
-        // Libraries change less often than the app, so they get their own long-cached chunk
+        // The core libraries every page needs change less often than the app, so they get their own
+        // long-cached chunk; the rest (PrimeReact included) splits along the lazily loaded routes
         codeSplitting: {
           groups: [
-            { name: 'primereact', test: /node_modules[\\/]primereact/ },
-            { name: 'vendor', test: /node_modules/ },
+            {
+              name: 'vendor',
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router|@tanstack|openapi-fetch)[\\/]/,
+            },
           ],
         },
       },

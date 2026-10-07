@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
@@ -8,6 +8,7 @@ import { Message } from 'primereact/message';
 import { useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { toApiError } from '../../api/errors';
+import { useConfigOptions } from '../../hooks/useConfigOptions';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
 
@@ -98,20 +99,4 @@ export function CreateProjectDialog({ onHide }: { onHide: () => void }) {
       </form>
     </Dialog>
   );
-}
-
-/** Reference data for pickers (GET /v2/config/options), shared by every page */
-export function useConfigOptions() {
-  const { client } = useSession();
-  return useQuery({
-    queryKey: ['config', 'options'],
-    queryFn: async ({ signal }) => {
-      const { data, error, response } = await client.GET('/v2/config/options', { signal });
-      if (!data) {
-        throw toApiError(error, response, 'load the form options');
-      }
-      return data;
-    },
-    staleTime: Infinity,
-  });
 }

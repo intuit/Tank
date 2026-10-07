@@ -227,3 +227,196 @@ body {
 .p-datatable a:hover {
   text-decoration: underline;
 }
+
+/* Project editor */
+.editor-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.unsaved {
+  color: var(--text-color-secondary);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.editor-message {
+  width: 100%;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+}
+
+.problem-list {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+
+.editor-general {
+  margin-bottom: 8px;
+}
+
+.editor-tabs {
+  margin-bottom: 12px;
+}
+
+.tab-badge {
+  margin-left: 6px;
+}
+
+.tab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.tab-message {
+  width: 100%;
+  margin-bottom: 8px;
+  justify-content: flex-start;
+}
+
+/* Label-left forms that wrap to label-above on narrow screens */
+.form-columns {
+  display: grid;
+  grid-template-columns: minmax(10rem, max-content) minmax(0, 32rem);
+  gap: 10px 20px;
+  align-items: start;
+}
+
+.field {
+  display: contents;
+}
+
+.field > label {
+  padding-top: 0.6rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.field-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-input > .p-inputtext,
+.field-input > .p-dropdown,
+.field-input > .p-inputnumber,
+.field-input > .p-inputtextarea {
+  width: 100%;
+}
+
+.field-help {
+  color: var(--text-color-secondary);
+  font-size: 0.8125rem;
+}
+
+.field-value {
+  padding-top: 0.6rem;
+}
+
+.form-section {
+  grid-column: 1 / -1;
+  margin: 16px 0 4px;
+  font-size: 1rem;
+}
+
+.field-inline {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+  .form-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .field > label {
+    padding-top: 8px;
+  }
+}
+
+.wide-dialog {
+  width: min(52rem, calc(100vw - 32px));
+}
+
+.picker {
+  margin-top: 8px;
+}
+
+.picker-search {
+  width: 100%;
+}
+
+.picker .p-iconfield {
+  margin-bottom: 8px;
+}
+
+.loop-input {
+  width: 5rem;
+}
+
+.file-preview {
+  max-height: 24rem;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  background: var(--surface-100);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  white-space: pre;
+}
+
+.kv-table {
+  width: 100%;
+  max-width: 48rem;
+  margin-bottom: 8px;
+  border-collapse: collapse;
+}
+
+.kv-table th {
+  padding: 6px 4px;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.kv-table td {
+  padding: 3px 4px;
+}
+
+.kv-table td .p-inputtext {
+  width: 100%;
+}
+
+.kv-table td:last-child {
+  width: 3rem;
+}
+
+.breadcrumb a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.plain-link:hover {
+  text-decoration: underline;
+}
+
+.plain-link {
+  text-decoration: none;
+}
+
+.p-button.p-button-link.link-cell {
+  padding: 0;
+}
+
+.form-note {
+  grid-column: 1 / -1;
+  margin: 0 0 4px;
+}

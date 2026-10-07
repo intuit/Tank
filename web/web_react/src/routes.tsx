@@ -4,8 +4,6 @@ import { Layout } from './Layout';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { ProjectPage } from './pages/projects/ProjectPage';
-import { ProjectsPage } from './pages/projects/ProjectsPage';
 import { useSession } from './session';
 
 /** Sends signed-out users to /login, remembering where they were going. */
@@ -30,8 +28,16 @@ export const routes: RouteObject[] = [
         element: <RequireUser />,
         children: [
           { index: true, element: <HomePage /> },
-          { path: 'projects', element: <ProjectsPage /> },
-          { path: 'projects/:projectId', element: <ProjectPage /> },
+          {
+            path: 'projects',
+            lazy: async () => ({ Component: (await import('./pages/projects/ProjectsPage')).ProjectsPage }),
+          },
+          {
+            path: 'projects/:projectId',
+            lazy: async () => ({
+              Component: (await import('./pages/projects/editor/ProjectEditorPage')).ProjectEditorPage,
+            }),
+          },
         ],
       },
       { path: '*', element: <NotFoundPage /> },
