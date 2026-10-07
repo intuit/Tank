@@ -43,6 +43,10 @@ export const routes: RouteObject[] = [
             }),
           },
           {
+            path: 'datafiles',
+            lazy: async () => ({ Component: (await import('./pages/datafiles/DataFilesPage')).DataFilesPage }),
+          },
+          {
             path: 'filters',
             lazy: async () => ({ Component: (await import('./pages/filters/FiltersPage')).FiltersPage }),
           },

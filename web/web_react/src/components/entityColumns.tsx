@@ -20,9 +20,12 @@ export interface OwnedSummary {
  */
 export function ownedColumns<T extends OwnedSummary>({
   href,
+  onName,
   actions,
 }: {
-  href: (row: T) => string;
+  href?: (row: T) => string;
+  /** What the name does instead of linking to `href`, for things with no page of their own */
+  onName?: (row: T) => void;
   actions: (row: T) => ReactNode;
 }): Record<string, ColumnDef<T>> {
   return {
@@ -31,11 +34,16 @@ export function ownedColumns<T extends OwnedSummary>({
     nameColumn: {
       field: 'name' as keyof T & string,
       sortable: true,
-      body: (row) => (
-        <Link to={href(row)} title={`${row.name} (id ${row.id})`}>
-          {row.name}
-        </Link>
-      ),
+      body: (row) =>
+        onName ? (
+          <button type="button" className="cell-link name-link" title={`${row.name} (id ${row.id})`} onClick={() => onName(row)}>
+            {row.name}
+          </button>
+        ) : (
+          <Link to={href?.(row) ?? ''} title={`${row.name} (id ${row.id})`}>
+            {row.name}
+          </Link>
+        ),
     },
     productColumn: { field: 'productName' as keyof T & string, sortable: true },
     commentsColumn: { field: 'comments' as keyof T & string, body: (row) => <span title={row.comments}>{row.comments}</span> },

@@ -925,3 +925,33 @@ body {
 .filter-if .form-section {
   margin: 0;
 }
+
+/* data file preview: numbered lines, kept as they are */
+.datafile-lines {
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre;
+}
+
+.line-number {
+  display: inline-block;
+  margin-right: 12px;
+  color: var(--text-color-secondary);
+  user-select: none;
+  white-space: pre;
+}
+
+.preview-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* a name that opens something in place, styled as the links beside it */
+.cell-link.name-link {
+  color: var(--primary-color);
+}
+
+.cell-link.name-link:hover {
+  text-decoration: underline;
+}

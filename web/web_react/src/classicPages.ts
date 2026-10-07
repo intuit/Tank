@@ -14,7 +14,7 @@ export const PAGES: AppPage[] = [
   { label: 'Job queue', path: '/jobs', icon: 'pi pi-server' },
   { label: 'Scripts', path: '/scripts', icon: 'pi pi-file' },
   { label: 'Filters', path: '/filters', icon: 'pi pi-filter' },
-  { label: 'Data files', path: '/datafiles/', icon: 'pi pi-database', classic: true },
+  { label: 'Data files', path: '/datafiles', icon: 'pi pi-database' },
   { label: 'Tools', path: '/tools/', icon: 'pi pi-wrench', classic: true },
 ];
 
