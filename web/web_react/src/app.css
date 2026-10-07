@@ -830,7 +830,9 @@ body {
 }
 
 .match-list li {
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .validation-summary {
@@ -859,4 +861,8 @@ body {
 
 .warning-list .pi {
   color: var(--orange-500, #f59e0b);
+}
+
+.search-results td {
+  vertical-align: top;
 }

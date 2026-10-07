@@ -16,6 +16,9 @@ import { useSession } from '../../../session';
 import { byStep, EVERYTHING, searchQuery, SECTION_GROUPS, sectionLabel, type StepMatches } from './search';
 import type { ScriptStep } from './steps';
 
+/** Matches listed per step; a recorded request can match in dozens of headers */
+const MATCHES_SHOWN = 5;
+
 const MODES = [
   { label: 'Values', value: 'VALUE' },
   { label: 'Keys', value: 'KEY' },
@@ -87,6 +90,7 @@ export function SearchDialog({
     }
   };
   const results = search.data;
+  const byUuid = new Map(steps.map((s) => [s.uuid, s]));
   const error = search.error ?? replace.error;
 
   return (
@@ -150,21 +154,34 @@ export function SearchDialog({
             scrollable
             scrollHeight="20rem"
             header={`${results.length} matching ${results.length === 1 ? 'step' : 'steps'}`}
+            // fixed, so a long recorded URL can't push the matches out of view
+            tableStyle={{ tableLayout: 'fixed', width: '100%' }}
             className="search-results"
           >
             {!readOnly && <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />}
             <Column header="Step" field="position" style={{ width: '4rem' }} />
-            <Column header="Label" body={(r: StepMatches) => steps.find((s) => s.uuid === r.uuid)?.label} bodyClassName="ellipsis" />
+            <Column
+              header="Label"
+              body={(r: StepMatches) => {
+                const label = byUuid.get(r.uuid)?.label;
+                return <span title={label}>{label}</span>;
+              }}
+              style={{ width: '40%' }}
+              bodyClassName="ellipsis"
+            />
             <Column
               header="Matches"
               body={(r: StepMatches) => (
                 <ul className="match-list">
-                  {r.matches.map((m, i) => (
-                    <li key={i}>
+                  {r.matches.slice(0, MATCHES_SHOWN).map((m, i) => (
+                    <li key={i} title={m.key ? `${m.key} = ${m.value ?? ''}` : m.value}>
                       <span className="step-type">{sectionLabel(m.section)}</span>
                       {m.key ? `${m.key} = ${m.value ?? ''}` : m.value}
                     </li>
                   ))}
+                  {r.matches.length > MATCHES_SHOWN && (
+                    <li className="field-help">and {r.matches.length - MATCHES_SHOWN} more</li>
+                  )}
                 </ul>
               )}
             />

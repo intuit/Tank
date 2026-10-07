@@ -94,6 +94,18 @@ describe('search and replace', () => {
     expect(screen.queryByText('(unsaved)')).not.toBeInTheDocument();
   });
 
+  it('lists the first few matches of a step', async () => {
+    const headers = Array.from({ length: 8 }, (_, i) => ({ uuid: 'u1', position: 0, section: 'requestHeaderValue', key: `X-${i}`, value: 'v' }));
+    await open(handlers(undefined, { 'POST /v2/scripts/steps/search': () => ({ status: 200, body: headers }) }));
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.type(within(dialog).getByLabelText('Find'), 'v{Enter}');
+
+    expect(await within(dialog).findByText('and 3 more')).toBeInTheDocument();
+    expect(within(dialog).getByText('X-4 = v')).toBeInTheDocument();
+    expect(within(dialog).queryByText('X-5 = v')).not.toBeInTheDocument();
+  });
+
   it('shows the server error', async () => {
     await open(handlers(undefined, { 'POST /v2/scripts/steps/search': () => ({ status: 400, body: { message: 'query is required' } }) }));
     await userEvent.click(screen.getByRole('button', { name: 'Search' }));
