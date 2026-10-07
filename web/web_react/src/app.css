@@ -766,3 +766,32 @@ body {
 .rules-table td:first-child {
   min-width: 10rem;
 }
+
+.code-editor {
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+}
+
+.code-editor .cm-editor.cm-focused {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -1px;
+}
+
+.code-editor-loading {
+  padding: 12px;
+  color: var(--text-color-secondary);
+}
+
+.logic-heading {
+  margin: 0;
+}
+
+.logic-help {
+  margin-bottom: 8px;
+}
+
+.logic-output {
+  margin-top: 8px;
+}

@@ -10,6 +10,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTablePreferences, type ColumnPreference } from '../../../hooks/useTablePreferences';
 import { useNotify } from '../../../notify';
 import { copySteps, useCopiedSteps } from './clipboard';
+import { LogicDialog } from './LogicDialog';
 import { RequestDialog } from './RequestDialog';
 import { isSimpleType, StepDialog, type SimpleType } from './StepDialog';
 import {
@@ -36,9 +37,9 @@ const ROW_HEIGHT = 41;
 
 type Cell = (step: ScriptStep, position: number, open: (step: ScriptStep) => void) => ReactNode;
 
-/** Steps this editor can open: the simple types and requests */
+/** Steps this editor can open: the simple types, requests and logic */
 function isEditable(step: ScriptStep) {
-  return isSimpleType(step.type) || step.type === 'request';
+  return isSimpleType(step.type) || step.type === 'request' || step.type === 'logic';
 }
 
 const check = (on: boolean) => (on ? <i className="pi pi-check" aria-label="Yes" /> : null);
@@ -98,7 +99,7 @@ export function StepTable({
   const addMenu = useRef<Menu>(null);
   const [moving, setMoving] = useState(false);
   /** The step being edited, or the type of one being added */
-  const [editing, setEditing] = useState<{ type: SimpleType | 'request'; step?: ScriptStep }>();
+  const [editing, setEditing] = useState<{ type: SimpleType | 'request' | 'logic'; step?: ScriptStep }>();
   const virtual = steps.length > VIRTUAL_SCROLL_FROM;
   const positions = new Map(steps.map((s, i) => [s.uuid, i + 1]));
   const selected = new Set(selection.map((s) => s.uuid ?? ''));
@@ -114,12 +115,13 @@ export function StepTable({
   const add = (added: ScriptStep[]) =>
     update((d) => void (d.steps = insertSteps(d.steps ?? [], added, insertIndex(d.steps ?? [], selected))));
   const open = (step: ScriptStep) => {
-    if (step.type === 'request' || isSimpleType(step.type)) {
+    if (step.type === 'request' || step.type === 'logic' || isSimpleType(step.type)) {
       setEditing({ type: step.type, step });
     }
   };
   const addItems: MenuItem[] = [
     { label: STEP_TYPES.request, command: () => setEditing({ type: 'request' }) },
+    { label: STEP_TYPES.logic, command: () => setEditing({ type: 'logic' }) },
     ...(['variable', 'thinkTime', 'sleep', 'cookie', 'authentication'] as SimpleType[]).map((type) => ({
       label: STEP_TYPES[type],
       command: () => setEditing({ type }),
@@ -259,7 +261,18 @@ export function StepTable({
           onSave={save}
         />
       )}
-      {editing && editing.type !== 'request' && (
+      {editing?.type === 'logic' && (
+        <LogicDialog
+          scriptId={scriptId}
+          step={editing.step}
+          steps={steps}
+          position={editing.step ? steps.findIndex((s) => s.uuid === editing.step!.uuid) : at}
+          readOnly={readOnly}
+          onHide={() => setEditing(undefined)}
+          onSave={save}
+        />
+      )}
+      {editing && editing.type !== 'request' && editing.type !== 'logic' && (
         <StepDialog type={editing.type} step={editing.step} readOnly={readOnly} onHide={() => setEditing(undefined)} onSave={save} />
       )}
       {moving && (

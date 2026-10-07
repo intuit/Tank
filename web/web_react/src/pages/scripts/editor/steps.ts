@@ -259,3 +259,92 @@ export function newRequest(): ScriptStep {
     responseData: [],
   };
 }
+
+/** ScriptConstants.SCRIPT and TEST_DATA */
+const SCRIPT_KEY = 'script';
+const TEST_DATA = 'test-data';
+
+/** Made-up inputs for trying a logic step, stored in the step as JSF's LogicTestData does */
+export interface LogicTestData {
+  variables: Record<string, string>;
+  requestHeaders: Record<string, string>;
+  responseHeaders: Record<string, string>;
+  requestBody: string;
+  responseBody: string;
+}
+
+export function logicScript(step: ScriptStep): string {
+  return step.data?.find((d) => d.key === SCRIPT_KEY)?.value ?? '';
+}
+
+const toMap = (entries: Schemas['StepDataTO'][] | undefined, only: (e: Schemas['StepDataTO']) => boolean) =>
+  Object.fromEntries((entries ?? []).filter(only).map((e) => [e.key ?? '', e.value ?? '']));
+const testEntries = (map: Record<string, string>) =>
+  Object.entries(map)
+    .filter(([key]) => key.trim())
+    .map(([key, value]) => ({ key, value, type: TEST_DATA }));
+
+/** The test data a logic step keeps (variables in its data, headers in its header lists) */
+export function readTestData(step: ScriptStep): LogicTestData {
+  return {
+    variables: toMap(step.data, (d) => d.key !== SCRIPT_KEY && d.type !== SCRIPT_KEY),
+    requestHeaders: toMap(step.requestheaders, () => true),
+    responseHeaders: toMap(step.responseheaders, () => true),
+    requestBody: step.payload ?? '',
+    // a recorded response isn't loaded with the script; LogicDialog fetches it
+    responseBody: '',
+  };
+}
+
+/** Variables the script declares (ScriptUtil.getDeclaredVariables), plus those its assignments set */
+export function declaredVariables(steps: ScriptStep[]): string[] {
+  const names = new Set<string>();
+  for (const step of steps) {
+    if (step.type === 'variable') {
+      step.data?.forEach((d) => d.key && names.add(d.key));
+    }
+    step.responseData?.filter(isAssignment).forEach((d) => d.key && names.add(d.key));
+  }
+  return [...names].sort();
+}
+
+/** The last request before a position, whose exchange a new logic step is tested against */
+export function previousRequest(steps: ScriptStep[], index: number): ScriptStep | undefined {
+  return steps.slice(0, index).reverse().find((s) => s.type === 'request');
+}
+
+/** Test data from a request (new LogicTestData(previousRequest, script)) */
+export function testDataFrom(request: ScriptStep | undefined, steps: ScriptStep[]): LogicTestData {
+  const variables: Record<string, string> = { mode: 'test', THREAD_ID: '1' };
+  for (const name of declaredVariables(steps)) {
+    variables[name] ??= '';
+  }
+  const body =
+    request?.payload ||
+    (request?.postDatas ?? []).map((p) => `${encodeURIComponent(p.key ?? '')}=${encodeURIComponent(p.value ?? '')}`).join('&');
+  return {
+    variables,
+    requestHeaders: toMap(request?.requestheaders, () => true),
+    responseHeaders: toMap(request?.responseheaders, () => true),
+    requestBody: body,
+    responseBody: '',
+  };
+}
+
+/** A logic step with its script and test data (ScriptStepFactory.createLogic, LogicTestData.setInStep) */
+export function logicStep(
+  base: ScriptStep | undefined,
+  fields: { name: string; group: string; script: string; testData: LogicTestData },
+): ScriptStep {
+  return withLabel({
+    ...(base ?? { uuid: newUuid(), type: 'logic' }),
+    type: 'logic',
+    name: fields.name,
+    scriptGroupName: fields.group || undefined,
+    comments: `Logic Step: ${fields.name}`,
+    data: [{ key: SCRIPT_KEY, value: fields.script, type: SCRIPT_KEY }, ...testEntries(fields.testData.variables)],
+    requestheaders: testEntries(fields.testData.requestHeaders),
+    responseheaders: testEntries(fields.testData.responseHeaders),
+    payload: fields.testData.requestBody || undefined,
+  });
+}
