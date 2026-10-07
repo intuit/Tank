@@ -31,8 +31,7 @@ export function readCookie(name: string, cookies: string = document.cookie): str
  * Empty when the SPA runs at the root (the Vite dev server).
  */
 export function contextPath(pathname: string = window.location.pathname): string {
-  const i = pathname.indexOf('/app/');
-  return i >= 0 ? pathname.slice(0, i) : '';
+  return /^(.*?)\/app(?:\/|$)/.exec(pathname)?.[1] ?? '';
 }
 
 /** Echoes the XSRF-TOKEN cookie in the X-XSRF-TOKEN header on state-changing requests. */

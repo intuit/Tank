@@ -139,6 +139,13 @@
       <artifactId>web-support</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <!-- the React UI, served under /app -->
+      <groupId>${project.groupId}</groupId>
+      <artifactId>web-react</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>

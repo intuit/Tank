@@ -33,6 +33,8 @@ describe('readCookie', () => {
 describe('contextPath', () => {
   it('is the part before /app/', () => {
     expect(contextPath('/tank/app/projects/12')).toBe('/tank');
+    expect(contextPath('/tank/app')).toBe('/tank');
+    expect(contextPath('/tank/apps/x')).toBe('');
   });
 
   it('is empty at the root', () => {

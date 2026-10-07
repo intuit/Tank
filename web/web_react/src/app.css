@@ -1,0 +1,107 @@
+/* Layout only; colors and components come from the PrimeReact lara-light-blue theme */
+body {
+  margin: 0;
+  background: var(--surface-ground);
+  color: var(--text-color);
+  font-family: var(--font-family);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.banner {
+  padding: 4px 16px;
+  text-align: center;
+  background: var(--yellow-100);
+  font-size: 0.875rem;
+}
+
+.header.p-menubar {
+  border-radius: 0;
+  border-width: 0 0 1px;
+  padding: 8px 16px;
+}
+
+.brand {
+  margin-right: 16px;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.header-user {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.footer {
+  padding: 12px 16px;
+  color: var(--text-color-secondary);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.login {
+  max-width: 380px;
+  margin: 48px auto;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-form .p-password,
+.login-form .p-password input {
+  width: 100%;
+}
+
+.login-form .p-button {
+  margin-top: 8px;
+}
+
+.login .sso {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.page-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-link .p-card:hover {
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.loading {
+  display: block;
+  margin: 48px auto;
+}

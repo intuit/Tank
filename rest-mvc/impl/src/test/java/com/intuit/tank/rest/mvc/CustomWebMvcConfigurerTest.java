@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistration;
@@ -39,19 +40,24 @@ class CustomWebMvcConfigurerTest {
 
         configurer.addViewControllers(registry);
 
-        // Should register root "/" plus entries for each resource path
+        // root "/" plus a redirect and a forward for each folder; /app is registered once, by itself
         verify(registry).addViewController("/");
-        verify(registry, atLeast(4)).addViewController(anyString()); // root + 2 redirects + 2 forwards
+        verify(registry).addViewController("/docs");
+        verify(registry).addViewController("/docs/");
+        verify(registry, times(1)).addViewController("/app");
+        verify(registry, times(1)).addViewController("/app/");
+        verify(registry, times(5)).addViewController(anyString());
     }
 
     @Test
     void addInterceptors_registersLoggingInterceptor() {
         InterceptorRegistry registry = mock(InterceptorRegistry.class);
         InterceptorRegistration registration = mock(InterceptorRegistration.class);
-        when(registry.addInterceptor(any(LoggingInterceptor.class))).thenReturn(registration);
+        when(registry.addInterceptor(any(HandlerInterceptor.class))).thenReturn(registration);
 
         configurer.addInterceptors(registry);
 
         verify(registry).addInterceptor(any(LoggingInterceptor.class));
+        verify(registry).addInterceptor(any(CustomWebMvcConfigurer.Utf8Interceptor.class));
     }
 }
