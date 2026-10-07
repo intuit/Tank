@@ -18,7 +18,7 @@ export const PAGES: AppPage[] = [
   { label: 'Tools', path: '/tools', icon: 'pi pi-wrench' },
 ];
 
-export const ADMIN_PAGE: AppPage = { label: 'Admin', path: '/admin/', icon: 'pi pi-cog', classic: true };
+export const ADMIN_PAGE: AppPage = { label: 'Admin', path: '/admin', icon: 'pi pi-cog' };
 
 export function classicUrl(path: string): string {
   return contextPath() + path;

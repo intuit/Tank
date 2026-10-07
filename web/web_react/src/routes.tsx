@@ -55,6 +55,17 @@ export const routes: RouteObject[] = [
             lazy: async () => ({ Component: (await import('./pages/tools/AccountPage')).AccountPage }),
           },
           {
+            path: 'admin',
+            lazy: async () => ({ Component: (await import('./pages/admin/AdminLayout')).AdminLayout }),
+            children: [
+              { index: true, element: <Navigate to="users" replace /> },
+              {
+                path: 'users',
+                lazy: async () => ({ Component: (await import('./pages/admin/AdminUsersPage')).AdminUsersPage }),
+              },
+            ],
+          },
+          {
             path: 'filters',
             lazy: async () => ({ Component: (await import('./pages/filters/FiltersPage')).FiltersPage }),
           },

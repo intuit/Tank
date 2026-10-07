@@ -1039,3 +1039,50 @@ body {
 .account-section .p-password input {
   width: 100%;
 }
+
+/* admin */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.admin-tabs a {
+  padding: 8px 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-color-secondary);
+  text-decoration: none;
+}
+
+.admin-tabs a.active {
+  border-bottom-color: var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.classic-tag {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--surface-200, #eee);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.user-token {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-weight: 600;
+}
+
+/* a multi-select whose chosen chips wrap rather than hide behind "..." */
+.wrap-chips .p-multiselect-label {
+  flex-wrap: wrap;
+  gap: 4px 0;
+  white-space: normal;
+}

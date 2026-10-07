@@ -27,7 +27,7 @@ describe('app shell', () => {
     renderAt('/', { 'GET /v2/me': () => ({ status: 200, body: { name: 'root', admin: true } }) });
 
     await screen.findByRole('heading', { name: 'Welcome, root' });
-    expect(screen.getAllByRole('link', { name: /Admin/ }).map((a) => a.getAttribute('href'))).toContain('/admin/');
+    expect(screen.getAllByRole('link', { name: /Admin/ }).map((a) => a.getAttribute('href'))).toContain('/admin');
   });
 
   it('sends a signed-out user to sign in, then back where they were going', async () => {
