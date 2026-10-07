@@ -665,3 +665,27 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
 }
+
+/* Script editor */
+.step-type {
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--surface-200);
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+}
+
+.step-table .pi-check {
+  color: var(--primary-color);
+}
+
+/* recorded steps have long URLs: the script editor gets more width than other pages */
+.main:has(> .editor-wide) {
+  max-width: 1600px;
+}
+
+.step-table .p-datatable-thead > tr > th,
+.step-table .p-datatable-tbody > tr > td {
+  padding: 4px 6px;
+}

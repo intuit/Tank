@@ -1,7 +1,7 @@
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
-import type { ReactNode } from 'react';
+import { Field } from '../../../components/Field';
 import type { Update } from './useProjectDraft';
 import { totalUsers, type ProjectDetail } from './validation';
 
@@ -147,28 +147,6 @@ export function UsersAndTimesTab({
           <span className="field-value">{total ?? 'Depends on the expressions'}</span>
         </Field>
       )}
-    </div>
-  );
-}
-
-export function Field({
-  label,
-  htmlFor,
-  help,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  help?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="field">
-      <label htmlFor={htmlFor}>{label}</label>
-      <div className="field-input">
-        {children}
-        {help && <small className="field-help">{help}</small>}
-      </div>
     </div>
   );
 }

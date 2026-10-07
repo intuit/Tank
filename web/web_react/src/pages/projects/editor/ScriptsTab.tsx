@@ -14,7 +14,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { contextPath, type Schemas } from '../../../api/client';
 import { toApiError } from '../../../api/errors';
 import { useSession } from '../../../session';
-import { Field } from './UsersAndTimesTab';
+import { Field } from '../../../components/Field';
 import type { Update } from './useProjectDraft';
 import { testPlanPercentageWarning, type ProjectDetail } from './validation';
 

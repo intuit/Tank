@@ -12,7 +12,7 @@ import { toApiError } from '../../../api/errors';
 import { useConfigOptions } from '../../../hooks/useConfigOptions';
 import { useNotify } from '../../../notify';
 import { useSession } from '../../../session';
-import { Field } from './UsersAndTimesTab';
+import { Field } from '../../../components/Field';
 import type { Update } from './useProjectDraft';
 import type { ProjectDetail } from './validation';
 

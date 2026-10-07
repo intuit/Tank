@@ -9,10 +9,11 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { TabPanel, TabView } from 'primereact/tabview';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useBlocker, useNavigate, useParams } from 'react-router';
+import { useRef, useState, type FormEvent } from 'react';
+import { Link, useParams } from 'react-router';
 import { toApiError } from '../../../api/errors';
 import { formatDateTime } from '../../../format';
+import { ConflictDialog, useUnsavedGuard } from '../../../components/editorGuards';
 import { useNotify } from '../../../notify';
 import { hasRightOrOwns } from '../../../rights';
 import { JobQueue } from '../../jobs/JobQueue';
@@ -22,7 +23,8 @@ import { useConfigOptions } from '../../../hooks/useConfigOptions';
 import { DataFilesTab } from './DataFilesTab';
 import { ScriptsTab } from './ScriptsTab';
 import { useProjectDraft } from './useProjectDraft';
-import { Field, UsersAndTimesTab } from './UsersAndTimesTab';
+import { Field } from '../../../components/Field';
+import { UsersAndTimesTab } from './UsersAndTimesTab';
 import type { ProjectDetail, Section } from './validation';
 import { VariablesTab } from './VariablesTab';
 
@@ -42,51 +44,14 @@ const JOB_QUEUE_TAB = TABS.findIndex((t) => t.section === 'jobQueue');
 export function ProjectEditorPage() {
   const projectId = Number(useParams().projectId);
   const { user } = useSession();
-  const navigate = useNavigate();
   const notify = useNotify();
   const project = useProjectDraft(projectId);
   const [tab, setTab] = useState(0);
   const [savingAs, setSavingAs] = useState(false);
   const [showProblems, setShowProblems] = useState(false);
-  /** Set when leaving is the user's decision already (deleted, or saved as a copy) */
-  const leaving = useRef(false);
-  const leaveTo = (path: string) => {
-    leaving.current = true;
-    void navigate(path);
-  };
-
   const { draft, saved, dirty, problems } = project;
   const readOnly = !saved?.permissions?.edit;
-
-  // Leaving with unsaved changes: ask first, inside the app and when closing the tab
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      dirty && !leaving.current && currentLocation.pathname !== nextLocation.pathname,
-  );
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      confirmDialog({
-        header: 'Unsaved changes',
-        message: `Leave ${draft?.name ?? 'this project'} without saving your changes?`,
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Leave without saving',
-        rejectLabel: 'Keep editing',
-        acceptClassName: 'p-button-danger',
-        defaultFocus: 'reject',
-        accept: () => blocker.proceed(),
-        reject: () => blocker.reset(),
-        onHide: () => blocker.state === 'blocked' && blocker.reset(),
-      });
-    }
-  }, [blocker, draft?.name]);
-  useEffect(() => {
-    if (!dirty) {
-      return;
-    }
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [dirty]);
+  const { leaveTo } = useUnsavedGuard(dirty, draft?.name);
 
   if (!Number.isInteger(projectId)) {
     return <Message severity="error" text="That isn't a project ID" />;
@@ -224,30 +189,12 @@ export function ProjectEditorPage() {
         Created {formatDateTime(saved.created)} · Last saved {formatDateTime(saved.modified)}
       </p>
 
-      <Dialog
-        header="Someone else saved this project"
+      <ConflictDialog
         visible={project.conflict}
-        onHide={() => undefined}
-        closable={false}
-        className="form-dialog"
-        modal
-        draggable={false}
-        footer={
-          <div className="form-actions">
-            <Button
-              label="Reload and lose my changes"
-              severity="danger"
-              outlined
-              onClick={() => void project.reload().then(() => notify.success('Project reloaded'))}
-            />
-          </div>
-        }
-      >
-        <p>
-          {saved.name} was changed since you opened it, so your changes weren't saved. Reload it to see the
-          latest version, then make your changes again.
-        </p>
-      </Dialog>
+        noun="project"
+        name={saved.name}
+        onReload={() => void project.reload().then(() => notify.success('Project reloaded'))}
+      />
 
       {savingAs && (
         <SaveAsDialog
