@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * A search over an unsaved step list, for {@code POST /v2/scripts/steps/search}.
  *
- * @param query    the text to find; {@code *} and {@code ?} are wildcards, and the whole value must match
+ * @param query    the text to find; {@code *} matches any text (every other character, {@code ?} included, is literal), case is ignored, and the whole value must match
  * @param sections the parts of each step to search, by name, such as {@code host}, {@code requestHeaderValue},
  *                 {@code variableKey}, {@code minTime} or {@code search} (everything)
  */

@@ -80,7 +80,7 @@ describe('search and replace', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Search' }));
     const dialog = await screen.findByRole('dialog');
-    await userEvent.type(within(dialog).getByLabelText('Find'), 'ho?t{Enter}');
+    await userEvent.type(within(dialog).getByLabelText('Find'), 'host*{Enter}');
 
     expect(await within(dialog).findByText('host = store.test', { selector: 'li' })).toBeInTheDocument();
     await userEvent.type(within(dialog).getByLabelText('Replace with'), 'server');
@@ -88,7 +88,7 @@ describe('search and replace', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Replace in all 1' }));
 
     await waitFor(() => expect(replaces).toHaveLength(1));
-    expect(replaces[0]).toMatchObject({ query: 'ho?t', mode: 'KEY' });
+    expect(replaces[0]).toMatchObject({ query: 'host*', mode: 'KEY' });
     expect(replaces[0]!.uuids).toBeUndefined();
     expect(await screen.findByText('Nothing was replaced')).toBeInTheDocument();
     expect(screen.queryByText('(unsaved)')).not.toBeInTheDocument();

@@ -382,7 +382,7 @@ public class ScriptController {
     // Operations on an unsaved step list; nothing is saved
 
     @RequestMapping(value = "/steps/search", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
-    @Operation(description = "Finds steps whose chosen parts match the query (* and ? are wildcards; the whole value must "
+    @Operation(description = "Finds steps whose chosen parts match the query (* matches any text and other characters are literal; case is ignored and the whole value must "
             + "match)", summary = "Search a step list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returns every match"),

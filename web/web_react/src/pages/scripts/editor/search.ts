@@ -50,12 +50,13 @@ export function sectionLabel(section: string | undefined): string {
 }
 
 /**
- * The query as the server matches it: the whole value, ignoring case, with * and ? as wildcards. To
- * find text anywhere in a value, it's wrapped in *.
+ * The query as the server matches it: the whole value, ignoring case, with * matching any text and
+ * everything else, ? included, literal (RegexUtil.wildcardToRegexp). To find text anywhere in a
+ * value, it's wrapped in *.
  */
 export function searchQuery(text: string, anywhere: boolean): string {
   const q = text.trim();
-  return anywhere && !/[*?]/.test(q) ? `*${q}*` : q;
+  return anywhere && !q.includes('*') ? `*${q}*` : q;
 }
 
 export interface StepMatches {

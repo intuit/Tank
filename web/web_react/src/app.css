@@ -649,7 +649,9 @@ body {
   gap: 12px;
 }
 
+/* min-width: a fieldset otherwise grows to its widest label and overflows the dialog */
 .filter-picker fieldset {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -659,6 +661,12 @@ body {
   overflow: auto;
   border: 1px solid var(--surface-border);
   border-radius: 6px;
+}
+
+/* filter names are often one long_underscored_word */
+.filter-picker label {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .filter-picker legend {

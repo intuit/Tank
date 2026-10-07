@@ -5,6 +5,8 @@ describe('step search', () => {
   it('finds text anywhere unless the query has wildcards', () => {
     expect(searchQuery(' store.test ', true)).toBe('*store.test*');
     expect(searchQuery('store.*', true)).toBe('store.*');
+    // the server escapes ?, so it's text to find, not a wildcard (RegexUtil.wildcardToRegexp)
+    expect(searchQuery('page?id', true)).toBe('*page?id*');
     expect(searchQuery('store.test', false)).toBe('store.test');
   });
 

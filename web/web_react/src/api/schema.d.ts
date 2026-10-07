@@ -1986,7 +1986,7 @@ export interface paths {
         put?: never;
         /**
          * Search a step list
-         * @description Finds steps whose chosen parts match the query (* and ? are wildcards; the whole value must match)
+         * @description Finds steps whose chosen parts match the query (* matches any text and other characters are literal; case is ignored and the whole value must match)
          */
         post: operations["searchSteps"];
         delete?: never;

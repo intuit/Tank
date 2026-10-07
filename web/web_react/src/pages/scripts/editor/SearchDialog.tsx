@@ -135,8 +135,8 @@ export function SearchDialog({
         </div>
         <small className="field-help search-help">
           {anywhere
-            ? 'Ignores case. Use * for any text and ? for one character to match a pattern instead.'
-            : 'Matches whole values, ignoring case. Use * for any text and ? for one character.'}
+            ? 'Ignores case. Use * for any text to match a pattern instead.'
+            : 'Matches whole values, ignoring case. Use * for any text.'}
         </small>
       </form>
 
