@@ -34,6 +34,16 @@ export function LoginPage() {
 
   return (
     <Card title={<h1 className="login-title">Sign in</h1>} className="login">
+      {/* single sign-on first, as on the JSF login page */}
+      {config?.ssoEnabled && (
+        <>
+          <a href={ssoHref} className="p-button sso">
+            <i className="pi pi-angle-double-right" aria-hidden />
+            &nbsp;Sign in with SSO
+          </a>
+          <Divider align="center">or</Divider>
+        </>
+      )}
       <form onSubmit={(e) => void submit(e)} className="login-form">
         <label htmlFor="username">Username</label>
         <InputText
@@ -56,14 +66,6 @@ export function LoginPage() {
         {error && <Message severity="error" text={error} />}
         <Button type="submit" label="Sign in" loading={busy} />
       </form>
-      {config?.ssoEnabled && (
-        <>
-          <Divider align="center">or</Divider>
-          <a href={ssoHref} className="p-button p-button-outlined sso">
-            Sign in with SSO
-          </a>
-        </>
-      )}
     </Card>
   );
 }

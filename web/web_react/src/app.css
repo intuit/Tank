@@ -89,6 +89,7 @@ body {
 .login .sso {
   display: flex;
   justify-content: center;
+  font-weight: 700;
   text-decoration: none;
 }
 
