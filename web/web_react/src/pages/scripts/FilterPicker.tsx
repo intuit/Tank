@@ -1,30 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
 import { Checkbox } from 'primereact/checkbox';
 import { Message } from 'primereact/message';
 import { useState } from 'react';
-import { toApiError } from '../../api/errors';
-import { useSession } from '../../session';
+import { useFilters } from '../filters/useFilters';
 
 /**
  * Picks script filters, directly or by filter group (as ScriptCreationBean does: a group selects or
  * clears its filters). Reports the chosen ids in list order, the order the server applies them in.
  */
 export function FilterPicker({ value, onChange }: { value: number[]; onChange: (filterIds: number[]) => void }) {
-  const { client } = useSession();
   const [groupIds, setGroupIds] = useState<number[]>([]);
-  const filters = useQuery({
-    queryKey: ['filters', 'all'],
-    queryFn: async ({ signal }) => {
-      const [all, groups] = await Promise.all([
-        client.GET('/v2/filters', { signal }),
-        client.GET('/v2/filters/groups', { signal }),
-      ]);
-      if (!all.data || !groups.data) {
-        throw toApiError(all.error ?? groups.error, all.data ? groups.response : all.response, 'load the filters');
-      }
-      return { filters: all.data.filters ?? [], groups: groups.data.filterGroups ?? [] };
-    },
-  });
+  const filters = useFilters();
 
   const ordered = (ids: number[]) => (filters.data?.filters ?? []).map((f) => f.id!).filter((id) => ids.includes(id));
   const toggleGroup = (id: number, members: number[], on: boolean) => {

@@ -72,6 +72,7 @@ body {
 }
 
 .login-form .p-password,
+.login-form .p-password .p-icon-field,
 .login-form .p-password input {
   width: 100%;
 }
@@ -720,6 +721,7 @@ body {
 }
 
 .form-grid .p-password,
+.form-grid .p-password .p-icon-field,
 .form-grid .p-password input {
   width: 100%;
 }
@@ -873,4 +875,24 @@ body {
 
 .search-results td {
   vertical-align: top;
+}
+
+/* filters page: groups and filters side by side, stacked when narrow */
+.filter-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 34rem), 1fr));
+  gap: 24px;
+}
+
+.filter-list {
+  min-width: 0;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.count-link.p-button {
+  padding: 0 4px;
 }
