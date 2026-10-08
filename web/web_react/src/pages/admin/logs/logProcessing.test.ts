@@ -138,6 +138,17 @@ describe('log processing', () => {
     ]);
   });
 
+  it('keeps a quoted phrase with a colon in it a phrase, so Exclude excludes', () => {
+    const xray = parse('2026-10-08 00:57:10 ERROR LogErrorContextMissingStrategy:34 - Suppressing AWS X-Ray context missing exception (SegmentNotFoundException): Failed to begin subsegment');
+    const other = parse('2026-10-08 00:57:11 INFO Main:1 - started');
+    const query = '-"Suppressing AWS X-Ray context missing exception (SegmentNotFoundException): Fail"';
+    expect(parseQuery(query)).toEqual([{ field: null, value: 'suppressing aws x-ray context missing exception (segmentnotfoundexception): fail', negated: true }]);
+    expect(matchesQuery(xray, query)).toBe(false);
+    expect(matchesQuery(other, query)).toBe(true);
+    // a plain word before the colon is still a field
+    expect(parseQuery('logger:Main')[0]).toEqual({ field: 'logger', value: 'main', negated: false });
+  });
+
   it('fingerprints collapse repeated noise and merge validation bursts', () => {
     const warn = parse(
       JSON.stringify({

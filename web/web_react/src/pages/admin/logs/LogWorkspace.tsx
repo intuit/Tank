@@ -135,8 +135,10 @@ export function LogWorkspace({ file, initialLines, pollSeconds }: { file: string
       setNewEntries((n) => n + 1);
     }
   }, [stream.appended]);
+  // a view opened while following starts at its newest lines
   useLayoutEffect(() => {
-    if (follow && entriesRef.current) entriesRef.current.scrollTop = entriesRef.current.scrollHeight;
+    if (!follow) return;
+    for (const el of [entriesRef.current, rawRef.current]) if (el) el.scrollTop = el.scrollHeight;
   }, [view, visible.length === 0]);
 
   const jumpToEnd = () => {

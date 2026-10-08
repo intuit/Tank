@@ -465,7 +465,9 @@ export function parseQuery(query: string): QueryToken[] {
   return (text.match(/(?:[^\s"]+|"[^"]*")+/g) ?? []).map((part) => {
     const negated = part.charAt(0) === '-';
     const token = negated ? part.slice(1) : part;
-    const colon = token.indexOf(':');
+    // field:value only when the field is a plain word, so a quoted phrase with a colon in it (as
+    // Exclude adds) stays a phrase; the JSF viewer read "...: Fail" as a field and excluded nothing
+    const colon = /^[A-Za-z]+:/.test(token) ? token.indexOf(':') : -1;
     return colon > 0
       ? { field: token.slice(0, colon).toLowerCase(), value: token.slice(colon + 1).replace(/^"|"$/g, '').toLowerCase(), negated }
       : { field: null, value: token.replace(/^"|"$/g, '').toLowerCase(), negated };
