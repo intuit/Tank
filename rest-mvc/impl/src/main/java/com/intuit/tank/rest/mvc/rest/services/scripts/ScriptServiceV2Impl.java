@@ -20,6 +20,8 @@ import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
 import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+import com.intuit.tank.rest.mvc.rest.models.NewScriptRequest;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
 import com.intuit.tank.rest.mvc.rest.util.PageRequests;
 import com.intuit.tank.rest.mvc.rest.util.ScriptDocumentMapper;
 import com.intuit.tank.dao.ExternalScriptDao;
@@ -214,6 +216,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             }
             script = dao.saveOrUpdate(script);
             payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
+            payload.put("scriptId", Integer.toString(script.getId()));
         } catch (GenericServiceForbiddenAccessException e) {
             throw e;
         } catch (Exception e) {
@@ -426,6 +429,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         }
     }
 
+    static final int MAX_BULK_DELETE = 100;
     private static final String SERVICE = "scripts";
 
     private static final Map<String, String> SORTABLE_FIELDS = Map.of(
@@ -535,6 +539,75 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         return ScriptDocumentMapper.toDocument(script, new ScriptDocument.Permissions(
                 owner || RestAuthorization.hasRight(AccessRight.EDIT_SCRIPT),
                 owner || RestAuthorization.hasRight(AccessRight.DELETE_SCRIPT)));
+    }
+
+    @Override
+    public ScriptSummary createBlankScript(NewScriptRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, SERVICE);
+        String name = request != null ? StringUtils.trimToNull(request.name()) : null;
+        if (name == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name is required");
+        }
+        if (name.length() > 255) {
+            throw new GenericServiceBadRequestException(SERVICE, "name", "name must be at most 255 characters");
+        }
+        Script script = new Script();
+        script.setName(name);
+        script.setProductName(StringUtils.trimToNull(request.productName()));
+        script.setComments(StringUtils.trimToNull(request.comments()));
+        script.setCreator(RestAuthorization.currentUserName());
+        try {
+            script = new ScriptDao().saveOrUpdate(script);
+        } catch (RuntimeException e) {
+            LOGGER.error("Error creating script {}: {}", name, e.getMessage(), e);
+            throw new GenericServiceCreateOrUpdateException(SERVICE, "script", e);
+        }
+        sendMsg(script, ModificationType.ADD);
+        LOGGER.info("{} created blank script {} ({})", RestAuthorization.currentUserName(), script.getId(), name);
+        return summary(script);
+    }
+
+    @Override
+    public BulkDeleteResult deleteScripts(List<Integer> scriptIds) {
+        RestAuthorization.requireUser(SERVICE);
+        if (scriptIds == null || scriptIds.isEmpty()) {
+            throw new GenericServiceBadRequestException(SERVICE, "ids", "at least one id is required");
+        }
+        List<Integer> ids = scriptIds.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.size() > MAX_BULK_DELETE) {
+            throw new GenericServiceBadRequestException(SERVICE, "ids", "at most " + MAX_BULK_DELETE + " ids at a time");
+        }
+        ScriptDao dao = new ScriptDao();
+        List<Script> found = new ArrayList<>();
+        List<Integer> notFound = new ArrayList<>();
+        for (Integer id : ids) {
+            Script script = dao.findById(id);
+            if (script == null) {
+                notFound.add(id);
+            } else {
+                found.add(script);
+            }
+        }
+        // check every script before deleting any, so a forbidden one leaves all of them in place
+        for (Script script : found) {
+            RestAuthorization.requireRightOrOwner(AccessRight.DELETE_SCRIPT, script, SERVICE);
+        }
+        List<Integer> deleted = new ArrayList<>();
+        for (Script script : found) {
+            try {
+                dao.delete(script);
+            } catch (RuntimeException e) {
+                // e.g. a project still runs the script
+                LOGGER.error("Error deleting script {}: {}", script.getId(), e.getMessage(), e);
+                throw new GenericServiceDeleteException(SERVICE, "script " + script.getId()
+                        + (deleted.isEmpty() ? "" : " (already deleted: " + deleted + ")"), e);
+            }
+            deleted.add(script.getId());
+            sendMsg(script, ModificationType.DELETE);
+        }
+        LOGGER.info("{} deleted scripts {}", RestAuthorization.currentUserName(), deleted);
+        return new BulkDeleteResult(deleted, notFound);
     }
 
     private static ScriptSummary summary(Script s) {

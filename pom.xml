@@ -50,6 +50,8 @@
     <version.httpclient>4.5.14</version.httpclient>
     <version.jaxb>4.0.3</version.jaxb>
     <version.spring-webmvc>6.2.19</version.spring-webmvc>
+    <!-- matches the spring-boot that springdoc-openapi 2.8.6 brings in -->
+    <version.spring-boot>3.4.4</version.spring-boot>
     <version.wiremock>3.13.2</version.wiremock>
     <version.jackson>2.22.3</version.jackson>
     <version.log4j>2.26.1</version.log4j>
@@ -794,6 +796,24 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-websocket</artifactId>
         <version>${version.spring-webmvc}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${version.spring-webmvc}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-test</artifactId>
+        <version>${version.spring-boot}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-test-autoconfigure</artifactId>
+        <version>${version.spring-boot}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.wiremock</groupId>

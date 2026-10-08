@@ -116,6 +116,9 @@ public class AdminServiceV2Impl implements AdminServiceV2 {
             throw new GenericServiceConflictException(SERVICE, "A user named " + name + " already exists");
         }
         User user = User.builder().name(name).email(email).password(password).build();
+        // saved before it joins its groups, as UserEdit does: the groups come from another session, and only an
+        // update (a merge) takes them; persisting a new user with them fails as "detached entity passed to persist"
+        user = save(dao, user, "user");
         setGroups(user, groups);
         user = save(dao, user, "user");
         LOGGER.info("{} created user {} with groups {}", caller.getName(), name, groups);

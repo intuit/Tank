@@ -297,9 +297,9 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
         try {
             ProjectDao projectDao = new ProjectDao();
             if(projectDao.findByName(name) != null){
-                LOGGER.error("project - Cannot change the name of the existing project {}", name);
-                throw new GenericServiceBadRequestException("projects", "updating project",
-                        "project - Cannot change the name of the existing project " + name);
+                LOGGER.error("project - A project named {} already exists", name);
+                throw new GenericServiceBadRequestException("projects", "creating project",
+                        "A project named " + name + " already exists");
             }
         } catch (GenericServiceBadRequestException e) {
             throw e;

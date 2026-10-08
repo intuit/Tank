@@ -25,6 +25,8 @@ import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;
 import com.intuit.tank.rest.mvc.rest.models.ScriptSummary;
+import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
+import com.intuit.tank.rest.mvc.rest.models.NewScriptRequest;
 import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.script.processor.ScriptProcessor;
 import com.intuit.tank.vm.settings.AccessRight;
@@ -223,6 +225,46 @@ class ScriptServiceV2ImplEditorTest {
         actAs(user("alice", "authors"));
         assertThrows(GenericServiceBadRequestException.class, () -> service.copyScript(1, new CopyRequest(" ")));
         assertThrows(GenericServiceResourceNotFoundException.class, () -> service.copyScript(404, new CopyRequest("y")));
+    }
+
+    @Test
+    void createBlank() {
+        ScriptSummary created = service.createBlankScript(new NewScriptRequest(" Checkout v2 ", "Shop", " "));
+        assertEquals(99, created.id());
+        assertEquals("Checkout v2", created.name());
+        assertEquals("Shop", created.productName());
+        assertEquals("alice", created.owner());
+        assertNull(saved.get(0).getComments(), "blank comments are not stored");
+        assertTrue(saved.get(0).getScriptSteps().isEmpty());
+        assertEquals(ModificationType.ADD, lastEvent());
+
+        assertThrows(GenericServiceBadRequestException.class, () -> service.createBlankScript(new NewScriptRequest(" ", null, null)));
+        assertThrows(GenericServiceBadRequestException.class, () -> service.createBlankScript(null));
+        actAs(user("bob"));
+        assertThrows(GenericServiceForbiddenAccessException.class,
+                () -> service.createBlankScript(new NewScriptRequest("x", null, null)));
+    }
+
+    @Test
+    void deleteSeveral() {
+        BulkDeleteResult result = service.deleteScripts(List.of(1, 404, 1));
+        assertEquals(List.of(1), result.deleted());
+        assertEquals(List.of(404), result.notFound());
+        assertEquals(ModificationType.DELETE, lastEvent());
+    }
+
+    @Test
+    void deleteSeveralIsAllOrNothing() {
+        // alice owns script 1 but not carol's script 2, and has no DELETE_SCRIPT right
+        assertThrows(GenericServiceForbiddenAccessException.class, () -> service.deleteScripts(List.of(1, 2)));
+        for (MockedConstruction<?> construction : constructions) {
+            for (Object dao : construction.constructed()) {
+                if (dao instanceof ScriptDao scriptDao) {
+                    verify(scriptDao, never()).delete(any(Script.class));
+                }
+            }
+        }
+        assertThrows(GenericServiceBadRequestException.class, () -> service.deleteScripts(List.of()));
     }
 
     @Test

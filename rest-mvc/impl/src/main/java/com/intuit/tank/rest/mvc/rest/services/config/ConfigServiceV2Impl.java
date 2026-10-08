@@ -145,13 +145,15 @@ public class ConfigServiceV2Impl implements ConfigServiceV2 {
     private static Map<String, List<Option>> filterOptions() {
         Map<String, List<Option>> options = new LinkedHashMap<>();
         options.put("filterTypes", options(ScriptFilterType.values(), Enum::name, ScriptFilterType::getDisplay, null));
-        options.put("conditionScopes", options(ConditionScope.values(), Enum::name, ConditionScope::getValue, null));
-        options.put("conditionMatches", options(ConditionMatch.values(), Enum::name, ConditionMatch::getValue, null));
+        // conditions store their scope and match as this text, which ScriptFilterUtil compares (ignoring case)
+        options.put("conditionScopes", options(ConditionScope.values(), ConditionScope::getValue, ConditionScope::getValue, null));
+        options.put("conditionMatches", options(ConditionMatch.values(), ConditionMatch::getValue, ConditionMatch::getValue, null));
         options.put("actionTypes", options(ScriptFilterActionType.values(), Enum::name, Enum::name, null));
         options.put("addActionScopes", options(AddActionScope.values(), AddActionScope::getValue, AddActionScope::getValue, null));
         options.put("removeActionScopes", options(RemoveActionScope.values(), RemoveActionScope::getValue, RemoveActionScope::getValue, null));
         options.put("replaceActionScopes", options(ReplaceActionScope.values(), ReplaceActionScope::getValue, ReplaceActionScope::getValue, null));
-        options.put("validationTypes", validationTypes());
+        // a validation action's value starts with this prefix (==, !=, Contains...), as the JSF filter editor saves it
+        options.put("validationTypes", options(ValidationType.values(), ValidationType::getValue, ValidationType::getRepresentation, null));
         // filters cannot jump to a group, so that failure type is not offered (as in the JSF filter editor)
         options.put("onFailOptions", Arrays.stream(FailureTypes.values())
                 .filter(t -> t != FailureTypes.gotoGroupRequest)

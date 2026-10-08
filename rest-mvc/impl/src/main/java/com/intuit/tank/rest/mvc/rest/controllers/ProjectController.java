@@ -69,7 +69,7 @@ public class ProjectController {
     @RequestMapping(value = "/names", method = RequestMethod.GET)
     @Operation(description = "Returns all project names with corresponding project IDs", summary = "Get all project names with project IDs")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully found all project names with IDs"),
             @ApiResponse(responseCode = "404", description = "All project names with IDs could not be found", content = @Content)
     })
     public ResponseEntity<Map<Integer, String>> getAllProjectNames() {
@@ -100,7 +100,7 @@ public class ProjectController {
                              "  - jobRegions.regions correspond to AWS regions in uppercase i.e US_WEST_2, US_EAST_2 \n\n" +
                              "  - jobRegions.users are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary = "Create a new project")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully created project", content = @Content),
+            @ApiResponse(responseCode = "201", description = "Successfully created project"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
     public ResponseEntity<Map<String, String>> createProject(
@@ -126,7 +126,7 @@ public class ProjectController {
                              "  - jobRegions.regions correspond to AWS regions in uppercase i.e US_WEST_2, US_EAST_2 \n\n" +
                              "  - jobRegions.users are accepted as integer strings i.e \"100\", \"4000\" \n\n", summary = "Update a specific project")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully updated project", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successfully updated project"),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content)
     })
     public ResponseEntity<Map<String, String>> updateProject(

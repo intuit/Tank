@@ -9,10 +9,12 @@ package com.intuit.tank.rest.mvc.rest.services.filters;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ScriptDao;
+import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.dao.ScriptFilterGroupDao;
 import com.intuit.tank.dao.FilterGroupDao;
 import com.intuit.tank.project.BaseEntity;
+import com.intuit.tank.project.OwnableEntity;
 import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.project.Script;
@@ -159,7 +161,7 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         RestAuthorization.requireRightOrOwner(AccessRight.EDIT_FILTER, filter, SERVICE);
         requireValidFilter(request);
         requireCurrent(request.getModified(), filter.getModified(), "Filter " + filterId);
-        String creator = filter.getCreator();
+        String creator = changedOwner(request.getCreator(), filter);
         FilterServiceUtil.toScriptFilter(request, filter);
         filter.setCreator(creator);
         return saveFilter(filter, "filter");
@@ -202,7 +204,9 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
             throw new GenericServiceBadRequestException(SERVICE, "filterGroup", "request body is required");
         }
         requireCurrent(request.getModified(), group.getModified(), "Filter group " + filterGroupId);
+        String creator = changedOwner(request.getCreator(), group);
         applyGroup(request, group);
+        group.setCreator(creator);
         return saveFilterGroup(group, "filter group");
     }
 
@@ -281,6 +285,24 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     /**
      * Copies the name, product and members from the request; the creator is left to the caller.
      */
+    /**
+     * The owner an update leaves the entity with: the requested creator when it differs, which as in the web UI
+     * only the owner or an admin may do, and only to an existing user. A blank creator keeps the current one.
+     */
+    private static String changedOwner(String requested, OwnableEntity entity) {
+        String owner = StringUtils.trimToNull(requested);
+        if (owner == null || owner.equals(entity.getCreator())) {
+            return entity.getCreator();
+        }
+        if (!RestAuthorization.isOwner(entity)) {
+            RestAuthorization.requireAdmin(SERVICE);
+        }
+        if (new UserDao().findByUserName(owner) == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "creator", "no user named " + owner);
+        }
+        return owner;
+    }
+
     private static void applyGroup(FilterGroupTO request, ScriptFilterGroup group) {
         group.setName(requireName(request.getName()));
         group.setProductName(StringUtils.trimToNull(request.getProductName()));
@@ -322,7 +344,17 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
 
     private static FilterGroupDetailTO saveFilterGroup(ScriptFilterGroup group, String what) {
         try {
-            return FilterServiceUtil.filterGroupToDetailTO(new ScriptFilterGroupDao().saveOrUpdate(group));
+            ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
+            if (group.getId() == 0 && !group.getFilters().isEmpty()) {
+                // a new group is saved before it holds its filters, as FilterGroupCreationBean.saveAs does: they come
+                // from another session, and only an update (a merge) takes them; persisting them fails as
+                // "detached entity passed to persist"
+                Set<ScriptFilter> filters = new HashSet<>(group.getFilters());
+                group.getFilters().clear();
+                group = dao.saveOrUpdate(group);
+                group.getFilters().addAll(filters);
+            }
+            return FilterServiceUtil.filterGroupToDetailTO(dao.saveOrUpdate(group));
         } catch (RuntimeException e) {
             LOGGER.error("Error saving {}: {}", what, e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException(SERVICE, what, e);

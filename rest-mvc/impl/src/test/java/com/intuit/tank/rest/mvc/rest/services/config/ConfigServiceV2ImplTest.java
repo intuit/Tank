@@ -108,6 +108,11 @@ class ConfigServiceV2ImplTest {
         assertFalse(values(options.filterOptions().get("onFailOptions")).contains(FailureTypes.gotoGroupRequest.getValue()));
         assertTrue(options.filterOptions().keySet().containsAll(
                 List.of("conditionScopes", "conditionMatches", "actionTypes", "addActionScopes", "removeActionScopes", "replaceActionScopes")));
+        // the text filters store and ScriptFilterUtil compares, not the enum names
+        assertTrue(values(options.filterOptions().get("conditionScopes")).contains("Query String"));
+        assertTrue(values(options.filterOptions().get("conditionMatches")).contains("Does not contain"));
+        assertEquals(List.of("==", "!=", "Empty", "Not empty", "Contains", "Does not contain", "Less Than", "Greater Than", "==Any"),
+                values(options.filterOptions().get("validationTypes")));
     }
 
     @Test

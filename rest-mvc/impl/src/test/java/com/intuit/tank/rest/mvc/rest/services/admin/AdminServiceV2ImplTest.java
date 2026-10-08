@@ -79,6 +79,8 @@ class AdminServiceV2ImplTest {
     /** users by id, as the mocked UserDao finds them */
     private final Map<Integer, User> users = new HashMap<>();
     private final AtomicReference<User> saved = new AtomicReference<>();
+    /** For each save, whether the user was new and how many groups it had then */
+    private final List<String> saves = new java.util.ArrayList<>();
     private final List<Project> ownedByBob = new ArrayList<>();
     private Preferences bobPreferences;
     private User bob;
@@ -105,6 +107,7 @@ class AdminServiceV2ImplTest {
                     .filter(u -> u.getName().equals(i.getArgument(0))).findFirst().orElse(null));
             when(mock.saveOrUpdate(any())).thenAnswer(i -> {
                 User u = i.getArgument(0);
+                saves.add((u.getId() == 0 ? "new" : "existing") + " with " + u.getGroups().size() + " groups");
                 if (u.getId() == 0) {
                     u.setId(99);
                 }
@@ -209,6 +212,13 @@ class AdminServiceV2ImplTest {
         assertFalse(created.hasApiToken());
         assertTrue(PasswordEncoder.validatePassword("long-enough", saved.get().getPassword()));
         verify(bridge).userChanged(saved.get());
+    }
+
+    @Test
+    void createUser_savesTheUserBeforeItJoinsItsGroups() {
+        // a new user persisted with groups loaded in another session fails ("detached entity passed to persist")
+        service.createUser(new AdminUserRequest("carol", "carol@example.com", "long-enough", List.of("projects", "admin")));
+        assertEquals(List.of("new with 0 groups", "existing with 2 groups"), saves);
     }
 
     @Test
