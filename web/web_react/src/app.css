@@ -19,10 +19,65 @@ body {
   font-size: 0.875rem;
 }
 
+/* the JSF header: PrimeFaces redmond's ui-widget-header, gloss-wave over blue */
 .header.p-menubar {
+  min-height: 54px;
+  padding: 2px 16px;
+  border: 1px solid #4297d7;
   border-radius: 0;
-  border-width: 0 0 1px;
-  padding: 8px 16px;
+  background: #5c9ccc url('./assets/header-gloss-wave.png') 50% 50% repeat-x;
+  color: #fff;
+}
+
+.header .p-menubar-button {
+  color: #fff;
+}
+
+.header .p-menubar-button:hover {
+  background: rgb(255 255 255 / 0.15);
+  color: #fff;
+}
+
+.header-account,
+.header-user .p-button.p-button-text {
+  color: #fff;
+  font-weight: 700;
+}
+
+.header-user .p-button.p-button-text:hover,
+.header-account:hover {
+  background: none;
+  color: #e17009;
+}
+
+/* on wide screens the menu sits on the header: white, orange when current or hovered (tank.css) */
+@media (min-width: 961px) {
+  .header .p-menubar-root-list > .p-menuitem > .p-menuitem-content {
+    background: none;
+  }
+
+  .header .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-text,
+  .header .p-menubar-root-list > .p-menuitem > .p-menuitem-content .p-menuitem-link .p-menuitem-icon {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .header .p-menubar-root-list > .p-menuitem:not(.p-highlight) > .p-menuitem-content:hover,
+  .header .p-menubar-root-list > .p-menuitem.p-focus > .p-menuitem-content {
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  .header .p-menubar-root-list > .p-menuitem.nav-current > .p-menuitem-content .p-menuitem-link .p-menuitem-text,
+  .header .p-menubar-root-list > .p-menuitem.nav-current > .p-menuitem-content .p-menuitem-link .p-menuitem-icon,
+  .header .p-menubar-root-list > .p-menuitem > .p-menuitem-content:hover .p-menuitem-link .p-menuitem-text,
+  .header .p-menubar-root-list > .p-menuitem > .p-menuitem-content:hover .p-menuitem-link .p-menuitem-icon {
+    color: #e17009;
+  }
+}
+
+/* in the collapsed menu, the current section reads as current */
+.header .p-menuitem.nav-current > .p-menuitem-content .p-menuitem-text {
+  font-weight: 700;
 }
 
 .brand {
@@ -1032,12 +1087,7 @@ body {
 }
 
 .header-account {
-  color: inherit;
   text-decoration: none;
-}
-
-.header-account:hover {
-  color: var(--primary-color);
 }
 
 .account-section .p-password,

@@ -2,7 +2,7 @@ import { Button } from 'primereact/button';
 import { Menubar } from 'primereact/menubar';
 import type { MenuItem } from 'primereact/menuitem';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import { Link, Outlet, useNavigate } from 'react-router';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { ADMIN_PAGE, PAGES, classicUrl } from './classicPages';
 import tankLogo from './assets/TankLogo.svg';
 import { useSession } from './session';
@@ -10,12 +10,20 @@ import { useSession } from './session';
 export function Layout() {
   const { config, user, signOut } = useSession();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  /** The section a path belongs to, highlighted as the JSF header highlights it */
+  const current = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
   const items: MenuItem[] = user
     ? [...PAGES, ...(user.admin ? [ADMIN_PAGE] : [])].map((page) =>
         page.classic
           ? { label: page.label, icon: page.icon, url: classicUrl(page.path) }
-          : { label: page.label, icon: page.icon, command: () => void navigate(page.path) },
+          : {
+              label: page.label,
+              icon: page.icon,
+              command: () => void navigate(page.path),
+              className: current(page.path) ? 'nav-current' : undefined,
+            },
       )
     : [];
 

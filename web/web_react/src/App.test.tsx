@@ -23,6 +23,16 @@ describe('app shell', () => {
     expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
   });
 
+  it('marks the current section in the header, as the JSF header does', async () => {
+    renderAt('/tools', { ...signedIn, 'HEAD /tools/Tank-Debugger-all.jar': () => ({ status: 404 }) });
+    await screen.findByRole('heading', { name: 'Tools' });
+    // jsdom gets the collapsed menu, which lists its items once opened
+    await userEvent.click(screen.getByRole('button', { name: 'Navigation' }));
+    const item = (label: string) => screen.getAllByRole('menuitem', { name: new RegExp(label), hidden: true })[0]!;
+    expect(item('Tools')).toHaveClass('nav-current');
+    expect(item('Scripts')).not.toHaveClass('nav-current');
+  });
+
   it('links admins to the admin pages', async () => {
     renderAt('/', { 'GET /v2/me': () => ({ status: 200, body: { name: 'root', admin: true } }) });
 
