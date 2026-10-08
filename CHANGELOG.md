@@ -1,3 +1,15 @@
+# 4.6.0 (Thu Oct 08 2026)
+
+#### 🚀 Enhancement
+
+- Add a React UI for every Tank section, served from tank.war under /app [#529](https://github.com/intuit/Tank/pull/529) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.5.8 (Tue Oct 06 2026)
 
 #### 🐛 Bug Fix
