@@ -4,11 +4,12 @@ import type { components, paths } from './schema';
 export type { components, paths };
 export type Schemas = components['schemas'];
 
-/** Body of every /v2 error response (GenericExceptionHandler → SimpleErrorResponseBody). */
-export interface TankApiError {
-  message: string;
-  debugInfo?: string;
-}
+/**
+ * The JSON body of a /v2 error response (GenericExceptionHandler's SimpleErrorResponseBody), as the
+ * OpenAPI spec documents it. Some framework errors answer with a plain string instead; openapi-fetch
+ * hands those over as the string, so an error is `ErrorResponse | string`.
+ */
+export type ErrorResponse = Schemas['ErrorResponse'];
 
 /** Names fixed by rest-mvc's CsrfTokens. */
 export const CSRF_COOKIE = 'XSRF-TOKEN';

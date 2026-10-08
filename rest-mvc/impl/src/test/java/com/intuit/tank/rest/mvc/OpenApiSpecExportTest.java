@@ -24,6 +24,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.ProjectJobController;
 import com.intuit.tank.rest.mvc.rest.controllers.ScriptController;
 import com.intuit.tank.rest.mvc.rest.controllers.UserController;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericExceptionHandler;
+import com.intuit.tank.rest.mvc.rest.docs.ErrorResponsesOpenApiCustomizer;
 import com.intuit.tank.rest.mvc.rest.docs.PagedListsOpenApiCustomizer;
 import com.intuit.tank.rest.mvc.rest.services.admin.AdminServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.agent.AgentServiceV2;
@@ -80,7 +81,7 @@ public class OpenApiSpecExportTest {
             DataFileController.class, DefaultController.class, FilterController.class, JobController.class,
             LogController.class, MeController.class, ProjectController.class, ProjectJobController.class,
             ScriptController.class, UserController.class, GenericExceptionHandler.class,
-            PagedListsOpenApiCustomizer.class })
+            PagedListsOpenApiCustomizer.class, ErrorResponsesOpenApiCustomizer.class })
     static class SpecConfig {
         // A bean (not an @Import) so springdoc sees its @OpenAPIDefinition and @SecurityScheme
         // without its @ComponentScan pulling in the real services
@@ -133,6 +134,31 @@ public class OpenApiSpecExportTest {
                 }
             }
         }
+
+        // every error response documents its body (ErrorResponsesOpenApiCustomizer)
+        JsonNode error = root.path("components").path("schemas").path("ErrorResponse");
+        assertTrue(error.path("required").toString().contains("message"), "ErrorResponse: " + error);
+        assertTrue(error.path("properties").path("debugInfo").path("type").toString().contains("null"),
+                "debugInfo must be nullable: " + error);
+        int errorResponses = 0;
+        for (var path : paths.properties()) {
+            for (var operation : path.getValue().properties()) {
+                for (var response : operation.getValue().path("responses").properties()) {
+                    if (!response.getKey().startsWith("4") && !response.getKey().startsWith("5")) {
+                        continue;
+                    }
+                    errorResponses++;
+                    JsonNode content = response.getValue().path("content");
+                    String where = operation.getKey() + " " + path.getKey() + " " + response.getKey();
+                    assertTrue(content.path("application/json").path("schema").path("$ref").asText()
+                            .endsWith("/ErrorResponse"), where + ": " + content);
+                    assertTrue(content.has("text/plain"), where + " can also answer with a plain message");
+                }
+            }
+        }
+        assertTrue(errorResponses > 100, "only " + errorResponses + " error responses documented");
+        assertTrue(paths.path("/v2/me").path("get").path("responses").path("401").path("content")
+                .has("application/json"), "GET /v2/me 401 must carry ErrorResponse");
 
         Files.createDirectories(SPEC_FILE.getParent());
         Files.writeString(SPEC_FILE, spec + "\n", StandardCharsets.UTF_8);
