@@ -49,5 +49,7 @@ export default defineConfig(({ command }) => ({
   test: {
     environment: 'jsdom',
     setupFiles: ['src/test/setup.ts'],
+    // above the 5 s findBy wait in setup.ts, so a slow find fails with its own message
+    testTimeout: 15000,
   },
 }));

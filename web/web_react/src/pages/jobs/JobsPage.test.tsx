@@ -61,7 +61,7 @@ describe('job queue page', () => {
     renderApp('/jobs', handlers());
 
     expect(await screen.findByText('Jobs without a project')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Old job' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Old job' })).toBeInTheDocument();
   });
 
   it('opens a project from its row', async () => {
