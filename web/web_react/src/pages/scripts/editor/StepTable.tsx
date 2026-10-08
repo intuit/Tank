@@ -10,6 +10,7 @@ import type { MenuItem } from 'primereact/menuitem';
 import { MultiSelect } from 'primereact/multiselect';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTablePreferences, type ColumnPreference } from '../../../hooks/useTablePreferences';
+import { useFillHeight } from '../../../hooks/useFillHeight';
 import { useNotify } from '../../../notify';
 import { copySteps, useCopiedSteps } from './clipboard';
 import { LogicDialog } from './LogicDialog';
@@ -108,6 +109,7 @@ export function StepTable({
   const copied = useCopiedSteps();
   const addMenu = useRef<Menu>(null);
   const [moving, setMoving] = useState(false);
+  const fill = useFillHeight<ScriptStep[]>();
   /** The step being edited, or the type of one being added */
   const [editing, setEditing] = useState<{ type: SimpleType | 'request' | 'logic' | 'timer'; step?: ScriptStep }>();
   const virtual = steps.length > VIRTUAL_SCROLL_FROM;
@@ -254,7 +256,8 @@ export function StepTable({
         reorderableRows={!readOnly && !virtual}
         onRowReorder={(e) => update((d) => void (d.steps = e.value as ScriptStep[]))}
         scrollable={virtual}
-        scrollHeight={virtual ? '70vh' : undefined}
+        ref={fill.ref}
+        scrollHeight={virtual ? fill.scrollHeight : undefined}
         virtualScrollerOptions={virtual ? { itemSize: ROW_HEIGHT } : undefined}
         loading={preferences.isLoading}
         emptyMessage="No steps yet."

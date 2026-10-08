@@ -756,6 +756,12 @@ body {
   max-width: 1600px;
 }
 
+/* pages with a data table use the full window width, as the JSF pages do */
+.main:has(.p-datatable),
+.main:has(.p-treetable) {
+  max-width: none;
+}
+
 .step-table .p-datatable-thead > tr > th,
 .step-table .p-datatable-tbody > tr > td {
   padding: 4px 6px;

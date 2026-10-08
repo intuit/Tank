@@ -98,10 +98,10 @@ describe('job queue page', () => {
   it('is in the menu', async () => {
     const { router } = renderApp('/', handlers());
 
-    const item = await screen.findByRole('menuitem', { name: /Job queue/ });
-    await userEvent.click(within(item).getByText('Job queue'));
+    const item = await screen.findByRole('menuitem', { name: /Agent Tracker/ });
+    await userEvent.click(within(item).getByText('Agent Tracker'));
 
     await waitFor(() => expect(router.state.location.pathname).toBe('/jobs'));
-    expect(await screen.findByRole('heading', { name: 'Job queue' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Agent Tracker' })).toBeInTheDocument();
   });
 });
