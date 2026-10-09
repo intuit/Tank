@@ -5,7 +5,7 @@ export function JobsPage() {
   return (
     <section className="list-page">
       <div className="page-header">
-        <h1>Job queue</h1>
+        <h1>Agent Tracker</h1>
       </div>
       <JobQueue />
     </section>

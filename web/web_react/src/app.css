@@ -1,4 +1,4 @@
-/* Layout only; colors and components come from the PrimeReact lara-light-blue theme */
+/* Layout only; colors and components come from the PrimeReact lara-light-blue theme, recolored by vite.config.ts */
 body {
   margin: 0;
   background: var(--surface-ground);
@@ -17,6 +17,41 @@ body {
   text-align: center;
   background: var(--yellow-100);
   font-size: 0.875rem;
+}
+
+/*
+ * Primary buttons in PrimeFaces redmond's ui-state-default colors (vite.config.ts recolors the
+ * rest of lara). The theme is in @layer primereact, so these join it: as later rules with lara's
+ * selectors they beat its primary styles, while its more specific severity, outlined, text, plain
+ * and highlight rules still win, as does everything unlayered in this file.
+ */
+@layer primereact {
+  .p-button {
+    color: #2e6e9e;
+    background: #dfeffc;
+    border: 1px solid #a6c9e2;
+  }
+
+  .p-button:not(:disabled):hover {
+    color: #1d5987;
+    background: #d0e5f5;
+    border-color: #79b7e7;
+  }
+
+  .p-button:not(:disabled):active {
+    color: #1d5987;
+    background: #c5dbec;
+    border-color: #79b7e7;
+  }
+
+  .p-button.p-button-outlined,
+  .p-button.p-button-outlined:not(:disabled):hover,
+  .p-button.p-button-outlined:not(:disabled):active,
+  .p-button.p-button-text,
+  .p-button.p-button-text:not(:disabled):hover,
+  .p-button.p-button-text:not(:disabled):active {
+    color: #2e6e9e;
+  }
 }
 
 /* the JSF header: PrimeFaces redmond's ui-widget-header, gloss-wave over blue */
@@ -754,6 +789,12 @@ body {
 /* recorded steps have long URLs: the script editor gets more width than other pages */
 .main:has(> .editor-wide) {
   max-width: 1600px;
+}
+
+/* pages with a data table use the full window width, as the JSF pages do */
+.main:has(.p-datatable),
+.main:has(.p-treetable) {
+  max-width: none;
 }
 
 .step-table .p-datatable-thead > tr > th,

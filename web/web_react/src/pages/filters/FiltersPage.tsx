@@ -13,6 +13,7 @@ import { Link, useNavigate } from 'react-router';
 import { toApiError } from '../../api/errors';
 import { CopyDialog } from '../../components/CopyDialog';
 import { RowAction } from '../../components/entityColumns';
+import { useFillHeight } from '../../hooks/useFillHeight';
 import { useNotify } from '../../notify';
 import { hasRight, hasRightOrOwns } from '../../rights';
 import { useSession } from '../../session';
@@ -207,6 +208,7 @@ function LocalList<T extends Row>({
   const [search, setSearch] = useState('');
   const [product, setProduct] = useState<string | null>(null);
   const [selection, setSelection] = useState<T[]>([]);
+  const fill = useFillHeight<T[]>();
 
   const q = search.trim().toLowerCase();
   const products = [...new Set(rows.map((r) => r.productName).filter((p): p is string => !!p))].sort();
@@ -289,7 +291,8 @@ function LocalList<T extends Row>({
         // fixed, so a long filter name is cut short rather than widening the table
         tableStyle={{ tableLayout: 'fixed', width: '100%' }}
         scrollable
-        scrollHeight="60vh"
+        ref={fill.ref}
+        scrollHeight={fill.scrollHeight}
         // names the <table> itself, for screen readers moving between the two lists
         pt={{ table: { 'aria-label': title } }}
       >

@@ -19,6 +19,7 @@ import { Field } from '../../components/Field';
 import { formatDateTime } from '../../format';
 import { useConfigOptions } from '../../hooks/useConfigOptions';
 import { useDocumentDraft } from '../../hooks/useDocumentDraft';
+import { useFillHeight } from '../../hooks/useFillHeight';
 import { useNotify } from '../../notify';
 import { hasRight, hasRightOrOwns } from '../../rights';
 import { useSession } from '../../session';
@@ -294,6 +295,7 @@ function Members({
 
   const latest = useRef({ shown, memberIds, onChange });
   latest.current = { shown, memberIds, onChange };
+  const fill = useFillHeight<Filter[]>();
 
   return (
     <div className="filter-list">
@@ -339,7 +341,8 @@ function Members({
         stripedRows
         tableStyle={{ tableLayout: 'fixed', width: '100%' }}
         scrollable
-        scrollHeight="50vh"
+        ref={fill.ref}
+        scrollHeight={fill.scrollHeight}
         pt={{ table: { 'aria-label': 'Filters in the group' } }}
       >
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />

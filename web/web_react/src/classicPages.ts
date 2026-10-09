@@ -11,7 +11,7 @@ export interface AppPage {
 /** The main sections. Those not yet moved to React open in the JSF UI. */
 export const PAGES: AppPage[] = [
   { label: 'Projects', path: '/projects', icon: 'pi pi-folder' },
-  { label: 'Job queue', path: '/jobs', icon: 'pi pi-server' },
+  { label: 'Agent Tracker', path: '/jobs', icon: 'pi pi-server' },
   { label: 'Scripts', path: '/scripts', icon: 'pi pi-file' },
   { label: 'Filters', path: '/filters', icon: 'pi pi-filter' },
   { label: 'Data files', path: '/datafiles', icon: 'pi pi-database' },
