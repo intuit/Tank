@@ -1,3 +1,16 @@
+# 4.6.1 (Fri Oct 09 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: tables fill the window; rename Job queue to Agent Tracker [#530](https://github.com/intuit/Tank/pull/530) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Add integration tests for the React migration REST endpoints (phases 1-7) [#527](https://github.com/intuit/Tank/pull/527) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.0 (Thu Oct 08 2026)
 
 #### 🚀 Enhancement
