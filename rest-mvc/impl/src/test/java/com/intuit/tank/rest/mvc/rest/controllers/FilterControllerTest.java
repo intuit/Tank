@@ -61,7 +61,7 @@ public class FilterControllerTest {
         when(filterService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = filterController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).ping();
     }
 
@@ -79,7 +79,7 @@ public class FilterControllerTest {
         assertEquals(5, result.getBody().getFilters().get(0).getId());
         assertEquals("testFilterName", result.getBody().getFilters().get(0).getName());
         assertEquals("testProductName", result.getBody().getFilters().get(0).getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilters();
     }
 
@@ -98,7 +98,7 @@ public class FilterControllerTest {
 
         ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
 
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertEquals(5, result.getBody().getId());
         assertEquals("https://localhost/v2/filters/5", result.getHeaders().getLocation().toString());
         verify(filterService).createOrUpdateFilter(requestFilter);
@@ -114,8 +114,8 @@ public class FilterControllerTest {
 
         ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertFalse(result.getHeaders().containsKey("Location"));
+        assertEquals(200, result.getStatusCode().value());
+        assertFalse(result.getHeaders().containsHeader("Location"));
         verify(filterService).createOrUpdateFilter(requestFilter);
     }
 
@@ -135,7 +135,7 @@ public class FilterControllerTest {
         assertEquals("testFilterGroupName", result.getBody().getFilterGroups().get(0).getName());
         assertEquals("testProductName", result.getBody().getFilterGroups().get(0).getProductName());
         assertEquals(List.of(2, 5), result.getBody().getFilterGroups().get(0).getFilterIds());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilterGroups();
     }
 
@@ -152,7 +152,7 @@ public class FilterControllerTest {
         assertEquals(5, result.getBody().getId());
         assertEquals("testFilterName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilter(2);
     }
 
@@ -175,7 +175,7 @@ public class FilterControllerTest {
         assertEquals("testProductName", result.getBody().getProductName());
         assertEquals(List.of(5), result.getBody().getFilterIds());
         assertEquals("testFilterName", result.getBody().getFilters().get(0).getName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilterGroup(1);
     }
 
@@ -185,13 +185,13 @@ public class FilterControllerTest {
         when(filterService.applyFilters(1, request)).thenReturn("Filters applied");
         ResponseEntity<String> result = filterController.applyFilters(1, request);
         assertEquals("Filters applied", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).applyFilters(1, request);
 
         when(filterService.applyFilters(2, request)).thenReturn(null);
         result = filterController.applyFilters(2, request);
         assertEquals("Bad JSON request", result.getBody());
-        assertEquals(400, result.getStatusCodeValue());
+        assertEquals(400, result.getStatusCode().value());
     }
 
     @Test
@@ -200,13 +200,13 @@ public class FilterControllerTest {
         ResponseEntity<String> result = filterController.deleteFilter(3);
 
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(filterService).deleteFilter(3);
 
         when(filterService.deleteFilter(3)).thenReturn("Filter with filter id 3 does not exist");
         result = filterController.deleteFilter(3);
         assertTrue(result.getBody().contains("not exist"));
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -215,13 +215,13 @@ public class FilterControllerTest {
         ResponseEntity<String> result = filterController.deleteFilterGroup(4);
 
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(filterService).deleteFilterGroup(4);
 
         when(filterService.deleteFilterGroup(4)).thenReturn("Filter Group with filter group id 4 does not exist");
         result = filterController.deleteFilterGroup(4);
         assertTrue(result.getBody().contains("not exist"));
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test

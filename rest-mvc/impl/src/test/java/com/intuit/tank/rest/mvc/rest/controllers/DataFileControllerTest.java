@@ -56,7 +56,7 @@ public class DataFileControllerTest {
         when(datafileService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = datafileController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(datafileService).ping();
     }
 
@@ -76,7 +76,7 @@ public class DataFileControllerTest {
         List<DataFileDescriptor> expected = result.getBody().getDataFiles();
         assertEquals("testComments", expected.get(0).getComments());
         assertEquals("testName", expected.get(1).getName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(datafileService).getDatafiles();
     }
 
@@ -87,7 +87,7 @@ public class DataFileControllerTest {
         when(datafileService.getAllDatafileNames()).thenReturn(datafileMap);
         ResponseEntity<Map<Integer, String>> result = datafileController.getAllDatafileNames();
         assertEquals("testDatafile", result.getBody().get(3));
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(datafileService).getAllDatafileNames();
     }
 
@@ -100,12 +100,12 @@ public class DataFileControllerTest {
         ResponseEntity<DataFileDescriptor> result = datafileController.getDatafile(2);
         assertEquals("testPath", result.getBody().getName());
         assertEquals("testComments", result.getBody().getComments());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(datafileService).getDatafile(2);
 
         when(datafileService.getDatafile(2)).thenReturn(null);
         ResponseEntity<DataFileDescriptor> notFound = datafileController.getDatafile(2);
-        assertEquals(404, notFound.getStatusCodeValue());
+        assertEquals(404, notFound.getStatusCode().value());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class DataFileControllerTest {
         assertEquals("test, 1, 2\n" +
                 "csv, 3, 4\n" +
                 "file, 5, 6\n", response);
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         assertEquals("42", result.getHeaders().getFirst(DataFileController.TOTAL_LINES_HEADER));
         verify(datafileService).readDatafileContent(2, 5, 10);
     }
@@ -125,7 +125,7 @@ public class DataFileControllerTest {
     @Test
     public void testGetDatafileContent_NotFound() throws IOException {
         when(datafileService.readDatafileContent(3, null, null)).thenReturn(null);
-        assertEquals(404, datafileController.getDatafileContent(3, null, null).getStatusCodeValue());
+        assertEquals(404, datafileController.getDatafileContent(3, null, null).getStatusCode().value());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class DataFileControllerTest {
         ResponseEntity<StreamingResponseBody> result = datafileController.downloadDatafile(4);
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(filename, result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(datafileService).downloadDatafile(4);
     }
 
@@ -155,7 +155,7 @@ public class DataFileControllerTest {
         Map<String, String> response = result.getBody();
         assertEquals("6", response.get("datafileId"));
         assertTrue(response.get("message").contains("uploaded"));
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         verify(datafileService).uploadDatafile(0, "gzip", null);
     }
 
@@ -164,13 +164,13 @@ public class DataFileControllerTest {
         when(datafileService.deleteDatafile(1)).thenReturn("");
         ResponseEntity<String> result = datafileController.deleteDatafile(1);
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(datafileService).deleteDatafile(1);
 
         when(datafileService.deleteDatafile(1)).thenReturn("Datafile with datafile id 1 does not exist");
         ResponseEntity<String> error = datafileController.deleteDatafile(1);
         assertTrue(error.getBody().contains("not exist"));
-        assertEquals(404, error.getStatusCodeValue());
+        assertEquals(404, error.getStatusCode().value());
     }
 
 
@@ -186,7 +186,7 @@ public class DataFileControllerTest {
         when(datafileService.uploadDatafiles(java.util.List.of())).thenReturn(batch);
         ResponseEntity<com.intuit.tank.rest.mvc.rest.models.DataFileBatchResult> uploaded =
                 datafileController.uploadDatafiles(java.util.List.of());
-        assertEquals(201, uploaded.getStatusCodeValue());
+        assertEquals(201, uploaded.getStatusCode().value());
         assertSame(batch, uploaded.getBody());
 
         com.intuit.tank.rest.mvc.rest.models.DataFilePreview preview =

@@ -3002,7 +3002,7 @@ export interface components {
         };
         TankHttpClientDefinitionContainer: {
             defaultDefinition: string;
-            definitions?: components["schemas"]["TankHttpClientDefinition"][];
+            definitions: components["schemas"]["TankHttpClientDefinition"][];
         };
         TestPlanDetail: {
             name?: string;
@@ -3615,7 +3615,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TankHttpClientDefinitionContainer"];
                     "application/xml": components["schemas"]["TankHttpClientDefinitionContainer"];
                 };
             };
@@ -3646,7 +3645,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Headers"];
                     "application/xml": components["schemas"]["Headers"];
                 };
             };
@@ -3680,7 +3678,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -3714,7 +3711,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -3748,7 +3744,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -3815,7 +3810,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -4241,7 +4235,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -4587,7 +4580,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5284,7 +5276,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5318,7 +5309,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5403,7 +5393,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5437,7 +5426,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5503,7 +5491,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -5537,7 +5524,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };
@@ -7585,7 +7571,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
                     "text/plain": string;
                 };
             };

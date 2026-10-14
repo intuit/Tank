@@ -49,6 +49,8 @@
     <class>com.intuit.tank.project.User</class>
     <class>com.intuit.tank.project.Group</class>
 
+    <validation-mode>NONE</validation-mode>
+
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
       <property name="hibernate.hbm2ddl.auto" value="update" />

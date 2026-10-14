@@ -33,6 +33,10 @@
     <param-name>primefaces.UPLOADER</param-name>
     <param-value>native</param-value>
   </context-param>
+  <context-param>
+    <param-name>jakarta.faces.validator.DISABLE_DEFAULT_BEAN_VALIDATOR</param-name>
+    <param-value>true</param-value>
+  </context-param>
 
   <servlet>
     <servlet-name>Faces Servlet</servlet-name>
