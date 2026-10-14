@@ -1,3 +1,15 @@
+# 4.6.2 (Wed Oct 14 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: match JSF table text, post-login page, project width, job columns [#531](https://github.com/intuit/Tank/pull/531) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.1 (Fri Oct 09 2026)
 
 #### 🐛 Bug Fix
