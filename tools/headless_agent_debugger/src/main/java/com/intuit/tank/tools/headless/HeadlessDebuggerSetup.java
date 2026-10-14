@@ -20,6 +20,7 @@ import com.intuit.tank.clients.ProjectClient;
 import com.intuit.tank.projects.models.KeyPair;
 import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.runner.TestStepContext;
+import com.intuit.tank.vm.agent.messages.Header;
 import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import org.apache.commons.io.FileUtils;
@@ -71,7 +72,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private static File workingDir;
     private Thread runningThread;
     private VariablesOutput variablesOutput;
-    private static final String HEADERS_PATH = "v2/agent/headers";
+    private static final String HEADERS_PATH = "/v2/agent/headers";
     private static final char NEWLINE = '\n';
     private ProjectClient projectClient;
     private int executedStepCounter;
@@ -85,6 +86,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private ValidationReportData reportData;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
+        serviceUrl = StringUtils.stripEnd(serviceUrl, "/");
         try {
             workingDir = createWorkingDir(serviceUrl, token);
             variablesOutput = new VariablesOutput(this);
@@ -569,7 +571,7 @@ public class HeadlessDebuggerSetup implements Serializable {
             temp.mkdir();
             workingDir = temp;
             // create settings.xml
-            writeSettings(workingDir);
+            writeSettings(workingDir, getHeaders(baseUrl, token));
             System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         } catch (IOException e) {
             LOG.error("HeadlessDebugger - Error creating temp working dir: " + e);
@@ -577,7 +579,37 @@ public class HeadlessDebuggerSetup implements Serializable {
         return workingDir;
     }
 
-    private static void writeSettings(File workingDir) throws IOException {
+    private static Headers getHeaders(String serviceUrl, String token) {
+        if (StringUtils.isNotBlank(serviceUrl)) {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(serviceUrl + HEADERS_PATH))
+                    .header(HttpHeaders.AUTHORIZATION, "bearer " + token)
+                    .build();
+            try (InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body()) {
+                LOG.info("Starting up: making call to tank service url to get settings.xml " + serviceUrl + HEADERS_PATH);
+
+                SAXParserFactory spf = SAXParserFactory.newInstance();
+                spf.setNamespaceAware(true);
+                spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                spf.setXIncludeAware(false);
+
+                Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(settingsStream));
+
+                JAXBContext ctx = JAXBContext.newInstance(Headers.class.getPackage().getName());
+                return (Headers) ctx.createUnmarshaller().unmarshal(xmlSource);
+            } catch (Exception e) {
+                LOG.error("Error getting headers: " + e, e);
+            }
+        }
+        return null;
+    }
+
+    private static void writeSettings(File workingDir, Headers headers) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>").append(NEWLINE);
         s.append("<tank-settings>").append(NEWLINE);
@@ -591,6 +623,14 @@ public class HeadlessDebuggerSetup implements Serializable {
         s.append("<mime-type-regex>.*json.*</mime-type-regex>").append(NEWLINE);
         s.append("<mime-type-regex>.*xml.*</mime-type-regex>").append(NEWLINE);
         s.append("</valid-mime-types>").append(NEWLINE);
+        if (headers != null) {
+            s.append("<request-headers>").append(NEWLINE);
+            for (Header h : headers.getHeaders()) {
+                s.append("<header key=\"").append(h.getKey()).append("\">").append(h.getValue()).append("</header>")
+                        .append(NEWLINE);
+            }
+            s.append("</request-headers>").append(NEWLINE);
+        }
         s.append("</agent-config>");
         s.append("<logic-step>").append(NEWLINE);
         s.append("<insert-before><![CDATA[").append(NEWLINE);
