@@ -56,7 +56,6 @@
             <includeOnlyProperty>^git.dirty$</includeOnlyProperty>
           </includeOnlyProperties>
           <failOnNoGitDirectory>false</failOnNoGitDirectory>
-          <useNativeGit>true</useNativeGit>
         </configuration>
       </plugin>
     </plugins>
