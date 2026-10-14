@@ -262,11 +262,13 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           <Column field="name" header="Name" expander body={(n: TreeNode) => nameCell(n.data as Row)} style={{ minWidth: '12rem' }} />
           <Column header="ID" body={(n: TreeNode) => idOf(n.data as Row)} style={{ width: '4rem' }} />
           <Column header="Status" body={(n: TreeNode) => statusCell(n.data as Row)} style={{ minWidth: '11rem' }} />
+          <Column header="WS State" body={(n: TreeNode) => wsStateCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
           <Column header="Region" body={(n: TreeNode) => regionOf(n.data as Row)} style={{ minWidth: '9rem' }} />
           <Column header="Users" body={(n: TreeNode) => usersCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
           <Column header="TPS" body={(n: TreeNode) => figures(n.data as Row).tps ?? 0} />
           <Column header="Failures" body={(n: TreeNode) => figures(n.data as Row).failures?.total ?? 0} />
           <Column header="Started" body={(n: TreeNode) => formatDateTime(figures(n.data as Row).startTime)} style={{ whiteSpace: 'nowrap' }} />
+          <Column header="Completed" body={(n: TreeNode) => formatDateTime(endTimeOf(n.data as Row))} style={{ whiteSpace: 'nowrap' }} />
           <Column body={(n: TreeNode) => actionsFor(n.data as Row)} />
         </TreeTable>
       )}
@@ -318,7 +320,7 @@ function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
   return projects;
 }
 
-type Figures = Pick<JobNode, 'activeUsers' | 'totalUsers' | 'tps' | 'failures' | 'startTime'>;
+type Figures = Pick<JobNode, 'activeUsers' | 'totalUsers' | 'tps' | 'failures' | 'startTime' | 'endTime'>;
 
 function figures(row: Row): Figures {
   return row.kind === 'project' ? row.project : row.kind === 'job' ? row.job : row.agent;
@@ -327,6 +329,35 @@ function figures(row: Row): Figures {
 /** Job IDs only; a project's ID would read as one (as in the JSF tree) */
 function idOf(row: Row) {
   return row.kind === 'job' ? row.job.jobId : '';
+}
+
+/** Projects have no end time of their own */
+function endTimeOf(row: Row) {
+  return row.kind === 'project' ? undefined : figures(row).endTime;
+}
+
+/** An agent's WebSocket state, labelled as JobNodeBean.getWsStateDisplay labels it */
+function wsStateCell(row: Row) {
+  if (row.kind !== 'agent' || !row.agent.wsState) {
+    return '';
+  }
+  const { wsState, transferProgress, status } = row.agent;
+  const closed = ['completed', 'stopped', 'terminated', 'replaced', 'successful'].includes(status?.toLowerCase() ?? '');
+  const [label, severity]: [string, ReturnType<typeof severityOf>] =
+    wsState === 'connected' || wsState === 'running'
+      ? ['Connected', 'success']
+      : wsState === 'registered'
+        ? ['Registered', 'info']
+        : wsState === 'bootstrap_transferring' || wsState === 'bootstrap_sent' || wsState === 'transferring'
+          ? [transferProgress ? `Setting Up (${transferProgress})` : 'Setting Up', 'info']
+          : wsState === 'ready'
+            ? ['Ready', 'success']
+            : wsState === 'disconnected'
+              ? closed
+                ? ['Closed', 'secondary']
+                : ['Disconnected', 'danger']
+              : [wsState, 'secondary'];
+  return <Tag value={label} severity={severity} />;
 }
 
 function regionOf(row: Row) {
@@ -352,7 +383,6 @@ function statusCell(row: Row) {
     return (
       <span className="status-cell">
         <Tag value={agent.status} severity={severityOf(agent.status)} />
-        {agent.wsState && <span className="field-help">{agent.wsState}</span>}
         {agent.lastSeenMs && <span className="field-help">seen {formatTime(new Date(agent.lastSeenMs).toISOString())}</span>}
       </span>
     );

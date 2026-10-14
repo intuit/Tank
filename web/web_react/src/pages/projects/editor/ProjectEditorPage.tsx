@@ -115,7 +115,7 @@ function ProjectEditor({ projectId }: { projectId: number }) {
   };
 
   return (
-    <section className="editor">
+    <section className="editor editor-full">
       <p className="breadcrumb">
         <Link to="/projects">Projects</Link> / {saved.name}
       </p>
