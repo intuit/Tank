@@ -79,6 +79,9 @@ public class HeadlessDebuggerCli implements Callable<Integer> {
         LOG.info("Headless Agent Debugger - STARTING EXECUTION");
 
         HeadlessDebuggerSetup runner = new HeadlessDebuggerSetup(url, projectId, token);
+        if (runner.isHostnameCheckFailed()) {
+            return EXIT_HOSTNAME_CHECK_FAILED;
+        }
         if (!runner.isReady()) {
             return EXIT_TANK_API_ERROR;
         }
@@ -89,7 +92,7 @@ public class HeadlessDebuggerCli implements Callable<Integer> {
             LOG.error("Error running headless debugger: " + e.getMessage(), e);
         } finally {
             runner.stop();
-            runner.quit(); // reports the result and exits the JVM
+            runner.quit();
         }
         return EXIT_OK;
     }

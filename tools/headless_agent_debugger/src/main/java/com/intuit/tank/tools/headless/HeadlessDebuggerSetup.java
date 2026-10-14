@@ -81,6 +81,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private String srsVersion;
     private boolean filingStatus;
     private boolean taxhubFlow;
+    private boolean hostnameCheckFailed;
     private ValidationReportData reportData;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
@@ -106,7 +107,11 @@ public class HeadlessDebuggerSetup implements Serializable {
 
     /** @return true when the project script was downloaded and the debugger can run */
     public boolean isReady() {
-        return currentWorkload != null;
+        return currentWorkload != null && !hostnameCheckFailed;
+    }
+
+    public boolean isHostnameCheckFailed() {
+        return hostnameCheckFailed;
     }
 
     public void setProject(Integer projectId) throws IOException, InterruptedException {
@@ -177,7 +182,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     }
 
     /**
-     * Attempts to delete the working dir and exits program
+     * Logs the summary, writes the JSON report and deletes the working dir
      */
     public void quit() {
         LOG.info("Headless Agent Debugger - FINISHED EXECUTION");
@@ -225,10 +230,9 @@ public class HeadlessDebuggerSetup implements Serializable {
             try {
                 FileUtils.deleteDirectory(workingDir);
             } catch (IOException e) {
-                System.out.println("Error deleting directory " + workingDir.getAbsolutePath() + ": " + e);
+                LOG.error("Error deleting directory " + workingDir.getAbsolutePath() + ": " + e, e);
             }
         }
-        System.exit(HeadlessDebuggerCli.EXIT_OK);
     }
 
     /**
@@ -539,12 +543,12 @@ public class HeadlessDebuggerSetup implements Serializable {
                     reportData.recordStep(debugStep, success_status, context.getErrors());
                 }
             } catch (Exception e1) {
-                e1.printStackTrace();
+                LOG.error("Error recording step result: " + e1.getMessage(), e1);
             }
 
             fireStepExited(context.getTestStep().getStepIndex());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("Error finishing step: " + e.getMessage(), e);
         }
     }
 
@@ -616,7 +620,8 @@ public class HeadlessDebuggerSetup implements Serializable {
                 setCurrentWorkload(workload);
                 if(!hostnameReplacementCheck()) { // check if prod filters applied; < 95% of hostname should be replaced to pass
                     LOG.error("ERROR - script failed hostname replacement check and is not properly filtered, exiting...");
-                    System.exit(HeadlessDebuggerCli.EXIT_HOSTNAME_CHECK_FAILED);
+                    hostnameCheckFailed = true;
+                    return;
                 }
                 LOG.info("\n");
                 LOG.info("------------------------------------------------------");

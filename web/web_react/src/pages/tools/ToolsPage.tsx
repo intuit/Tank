@@ -15,7 +15,7 @@ export const TOOLS = [
   {
     file: 'Headless-Debugger-all.jar',
     name: 'Headless debugger',
-    description: 'Replays a project from the command line, checks that it passed and filed, and prints the authid.',
+    description: 'Replays a project from the command line and writes the authid and each step’s result to output.log.',
     run: 'java -jar Headless-Debugger-all.jar -h=<controller_url> -p=<project_id> -t=<token>',
   },
   {

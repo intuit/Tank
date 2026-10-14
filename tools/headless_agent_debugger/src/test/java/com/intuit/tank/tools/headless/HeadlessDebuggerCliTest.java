@@ -47,6 +47,11 @@ public class HeadlessDebuggerCliTest {
     }
 
     @Test
+    public void unreachableTankExitsWithTankApiError() {
+        assertEquals(HeadlessDebuggerCli.EXIT_TANK_API_ERROR, run("-h=http://localhost:1/tank", "-p=1", "-t=tok"));
+    }
+
+    @Test
     public void nonNumericProjectExitsWithInvalidArguments() {
         assertEquals(HeadlessDebuggerCli.EXIT_INVALID_ARGUMENTS, run("-h=http://x", "-p=abc", "-t=tok"));
     }

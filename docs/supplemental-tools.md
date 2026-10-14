@@ -36,6 +36,9 @@ Downloadable Tools are meant to be run from your local machine. They require tha
 #### Tank Agent Visual Debugger
 The Tank Agent Visual Debugger is downloaded as an executable jar file. It may be run by double clicking on the jar or by running from the command line. If run from the command line, you can additionally specify the url of Intuit Tank you wish to connect to. e.g. java -jar Tank-Debugger-all.jar http://my.tank/tank  
 
+#### Tank Headless Debugger
+The Tank Headless Debugger replays a project from the command line, with no window. It writes the authid and the result of each step to `output.log` in the current directory. Download it from `<tank_url>/tools/Headless-Debugger-all.jar`, then run it with your Tank url, project id and API token: `java -jar Headless-Debugger-all.jar -h=http://my.tank/tank -p=<project_id> -t=<token>`. Run it with `--help` for the options and exit codes.
+
 #### Tank Script Filter Editor
 The Tank Script Filter Editor allows for the editing and creation and testing of filter scripts (external scripts) in a visual environment
 

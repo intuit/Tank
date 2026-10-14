@@ -25,10 +25,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/**
- * Collects rich validation data and outputs it as JSON for external report generation.
- * This enables pipeline scripts to generate detailed HTML reports with full request/response data.
- */
 public class ValidationReportData {
     private static final Logger LOG = LogManager.getLogger(ValidationReportData.class);
     private static final int BODY_MAX_LENGTH = 10000; // Truncate very large bodies
