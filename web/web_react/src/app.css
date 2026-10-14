@@ -791,10 +791,19 @@ body {
   max-width: 1600px;
 }
 
-/* pages with a data table use the full window width, as the JSF pages do */
+/*
+ * pages with a data table use the full window width, as the JSF pages do; so does the project
+ * editor on every tab, not only those with a table
+ */
+.main:has(> .editor-full),
 .main:has(.p-datatable),
 .main:has(.p-treetable) {
   max-width: none;
+}
+
+.p-datatable,
+.p-treetable {
+  font-size: 14px;
 }
 
 .step-table .p-datatable-thead > tr > th,

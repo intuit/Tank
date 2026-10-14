@@ -12,7 +12,8 @@ import { useSession } from '../session';
 export function LoginPage() {
   const { config, user, signIn } = useSession();
   const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? '/';
+  const requested = (location.state as { from?: string } | null)?.from;
+  const from = requested && requested !== '/' ? requested : '/projects';
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string>();

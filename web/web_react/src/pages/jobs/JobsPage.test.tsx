@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Schemas } from '../../api/client';
+import { formatDateTime } from '../../format';
 import { renderApp, type Handlers } from '../../test/renderApp';
 
 const NONE = {
@@ -93,6 +94,42 @@ describe('job queue page', () => {
     await userEvent.click(within(row).getAllByRole('button')[0]!);
 
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Search soak 1' })).not.toBeInTheDocument());
+  });
+
+  it("shows WS State and Completed columns, as JSF does", async () => {
+    const tree: Schemas['JobTree'] = {
+      generatedAt: TREE.generatedAt,
+      projects: [
+        {
+          projectId: 7,
+          name: 'Checkout load',
+          jobs: [
+            {
+              jobId: '12',
+              name: 'Checkout load 1',
+              status: 'Completed',
+              endTime: '2026-10-07T09:30:00Z',
+              actions: { ...NONE },
+              agents: [
+                { instanceId: 'i-123', status: 'stopped', wsState: 'disconnected', actions: { ...NONE } },
+                { instanceId: 'i-456', status: 'running', wsState: 'transferring', transferProgress: '3/5', actions: { ...NONE } },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    renderApp('/jobs', handlers({ 'GET /v2/jobs/tree': () => ({ status: 200, body: tree }) }));
+
+    const jobRow = (await screen.findByRole('button', { name: 'Checkout load 1' })).closest('tr')!;
+    expect(screen.getByRole('columnheader', { name: 'WS State' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Completed' })).toBeInTheDocument();
+    expect(jobRow).toHaveTextContent(formatDateTime('2026-10-07T09:30:00Z'));
+
+    await userEvent.click(within(jobRow).getAllByRole('button')[0]!);
+
+    expect(await screen.findByText('Closed')).toBeInTheDocument();
+    expect(screen.getByText('Setting Up (3/5)')).toBeInTheDocument();
   });
 
   it('is in the menu', async () => {

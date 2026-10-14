@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp, type Handlers } from './test/renderApp';
@@ -57,6 +57,19 @@ describe('app shell', () => {
     expect(router.state.location.search).toBe('?tab=recent');
   });
 
+  it('opens the projects page after a fresh sign-in, as JSF does', async () => {
+    const { router } = renderAt('/login', {
+      ...signedOut,
+      'POST /v2/auth/login': () => ({ status: 200, body: { name: 'alice' } }),
+    });
+
+    await userEvent.type(await screen.findByLabelText('Username'), 'alice');
+    await userEvent.type(screen.getByLabelText('Password'), 'secret');
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/projects'));
+  });
+
   it('shows an error for a wrong password', async () => {
     renderAt('/login', {
       ...signedOut,
@@ -86,7 +99,7 @@ describe('app shell', () => {
     });
 
     const sso = await screen.findByRole('link', { name: 'Sign in with SSO' });
-    expect(sso.getAttribute('href')).toBe('/v2/auth/sso/authorize?returnTo=%2Fapp%2F');
+    expect(sso.getAttribute('href')).toBe('/v2/auth/sso/authorize?returnTo=%2Fapp%2Fprojects');
   });
 
   it('shows not found for an unknown route', async () => {
