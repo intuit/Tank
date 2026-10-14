@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>proxy-parent</artifactId>
-    <version>4.6.3-SNAPSHOT</version>
+    <version>4.6.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>owasp-proxy</artifactId>
@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>6.2.0</version>
+      <version>${version.spring-webmvc}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

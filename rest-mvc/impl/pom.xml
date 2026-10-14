@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.intuit.tank</groupId>
         <artifactId>tank-rest-api</artifactId>
-        <version>4.6.3-SNAPSHOT</version>
+        <version>4.6.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>tank-rest-api-impl</artifactId>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -85,6 +89,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

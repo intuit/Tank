@@ -1,3 +1,15 @@
+# 4.6.3 (Wed Oct 14 2026)
+
+#### 🐛 Bug Fix
+
+- Upgrade to Spring Framework 7.0.9 for CVE-2026-47884 and CVE-2026-47890 [#532](https://github.com/intuit/Tank/pull/532) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.2 (Wed Oct 14 2026)
 
 #### 🐛 Bug Fix

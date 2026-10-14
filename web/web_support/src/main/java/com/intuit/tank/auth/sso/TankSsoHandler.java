@@ -71,7 +71,7 @@ public class TankSsoHandler {
         session.removeAttribute(RETURN_PATH_SESSION_ATTRIBUTE);
 
         URI uri = UriComponentsBuilder
-                .fromHttpUrl(oidcSsoConfig.getAuthorizationUrl())
+                .fromUriString(oidcSsoConfig.getAuthorizationUrl())
                 .queryParam(OidcConstants.CLIENT_ID_KEY, oidcSsoConfig.getClientId())
                 .queryParam(OidcConstants.RESPONSE_TYPE_KEY, OidcConstants.RESPONSE_TYPE_VALUE)
                 .queryParam(OidcConstants.REDIRECT_URL_KEY, oidcSsoConfig.getRedirectUrl())

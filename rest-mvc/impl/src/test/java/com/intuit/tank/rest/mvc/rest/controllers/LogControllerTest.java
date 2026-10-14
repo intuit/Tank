@@ -56,7 +56,7 @@ public class LogControllerTest {
                 .thenReturn(new LogFileResponse(responseBody, testCSV.length(), 0));
         ResponseEntity<StreamingResponseBody> result = logController.getFile("testCSV", "0");
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         assertEquals(Long.toString(testCSV.length()),
                 result.getHeaders().getFirst(LogController.TOTAL_LENGTH_HEADER));
         assertEquals("0", result.getHeaders().getFirst(LogController.CONTENT_START_HEADER));
