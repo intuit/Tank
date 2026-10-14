@@ -94,6 +94,13 @@
                       </includes>
                       <targetPath>${project.build.directory}/tank/tools</targetPath>
                     </resource>
+                    <resource>
+                      <directory>${project.parent.parent.basedir}/tools/headless_agent_debugger_pkg/target</directory>
+                      <includes>
+                        <include>Headless-Debugger-all.jar</include>
+                      </includes>
+                      <targetPath>${project.build.directory}/tank/tools</targetPath>
+                    </resource>
                   </resources>
                 </configuration>
               </execution>

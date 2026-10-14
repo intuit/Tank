@@ -13,6 +13,12 @@ export const TOOLS = [
     run: 'java -jar Tank-Debugger-all.jar',
   },
   {
+    file: 'Headless-Debugger-all.jar',
+    name: 'Headless debugger',
+    description: 'Replays a project from the command line, checks that it passed and filed, and prints the authid.',
+    run: 'java -jar Headless-Debugger-all.jar -h=<controller_url> -p=<project_id> -t=<token>',
+  },
+  {
     file: 'Tank-Script-Runner-all.jar',
     name: 'Script filter editor',
     description: 'Writes and tests JavaScript filters that change a script’s steps, for filters the filter editor can’t express.',
