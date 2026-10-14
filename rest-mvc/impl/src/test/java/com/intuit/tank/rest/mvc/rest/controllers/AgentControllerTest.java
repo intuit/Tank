@@ -62,7 +62,7 @@ public class AgentControllerTest {
         when(agentService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = agentController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).ping();
     }
 
@@ -71,7 +71,7 @@ public class AgentControllerTest {
         when(agentService.getSettings()).thenReturn("testSettings");
         ResponseEntity<String> result = agentController.getSettings();
         assertEquals("testSettings", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).getSettings();
     }
 
@@ -83,7 +83,7 @@ public class AgentControllerTest {
         ResponseEntity<Headers> result = agentController.getHeaders();
         assertEquals("testKey", result.getBody().getHeaders().get(0).getKey());
         assertEquals("testValue", result.getBody().getHeaders().get(0).getValue());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).getHeaders();
     }
 
@@ -97,7 +97,7 @@ public class AgentControllerTest {
         assertEquals("testClientName", result.getBody().getDefinitions().get(0).getName());
         assertEquals("testClientClassName", result.getBody().getDefinitions().get(0).getClassName());
         assertEquals("testDefaultDefinition", result.getBody().getDefaultDefinition());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).getClients();
 
     }
@@ -111,7 +111,7 @@ public class AgentControllerTest {
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
         assertEquals(testSupport.length(), result.getHeaders().getContentLength());
         assertEquals(testSupport.getName(), result.getHeaders().getContentDisposition().getFilename());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).getSupportFiles();
     }
 
@@ -127,7 +127,7 @@ public class AgentControllerTest {
         assertEquals("2", result.getBody().getJobId());
         assertEquals(1L, result.getBody().getRampTime());
         assertEquals(1000, result.getBody().getTotalAgents());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).agentReady(testAgentData);
     }
 
@@ -137,7 +137,7 @@ public class AgentControllerTest {
                 "testInstanceUrl", 5,
                 AgentAvailabilityStatus.AVAILABLE);
         ResponseEntity<Void> result = agentController.setStandaloneAgentAvailability(availability);
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
     }
 
     // Instance status operations
@@ -153,12 +153,12 @@ public class AgentControllerTest {
         assertEquals(JobStatus.Starting, result.getBody().getJobStatus());
         assertEquals(VMImageType.AGENT, result.getBody().getRole());
         assertEquals(VMRegion.US_WEST_2, result.getBody().getVmRegion());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).getInstanceStatus("testInstanceId");
 
         when(agentService.getInstanceStatus("testInstanceId")).thenReturn(null);
         result = agentController.getInstanceStatus("testInstanceId");
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class AgentControllerTest {
                 VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
 
         ResponseEntity<Void> result = agentController.setInstanceStatus("testInstanceStatusIdAPIV2", testStatus);
-        assertEquals(202, result.getStatusCodeValue());
+        assertEquals(202, result.getStatusCode().value());
         verify(agentService).setInstanceStatus("testInstanceStatusIdAPIV2", testStatus);
     }
 
@@ -176,7 +176,7 @@ public class AgentControllerTest {
         when(agentService.stopInstance("testInstanceIdAPIV2")).thenReturn("stopping");
         ResponseEntity<String> result = agentController.stopInstance("testInstanceIdAPIV2");
         assertEquals("stopping", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).stopInstance("testInstanceIdAPIV2");
     }
 
@@ -185,7 +185,7 @@ public class AgentControllerTest {
         when(agentService.pauseInstance("testInstanceIdAPIV2")).thenReturn("rampPaused");
         ResponseEntity<String> result = agentController.pauseInstance("testInstanceIdAPIV2");
         assertEquals("rampPaused", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).pauseInstance("testInstanceIdAPIV2");
     }
 
@@ -194,7 +194,7 @@ public class AgentControllerTest {
         when(agentService.resumeInstance("testInstanceIdAPIV2")).thenReturn("running");
         ResponseEntity<String> result = agentController.resumeInstance("testInstanceIdAPIV2");
         assertEquals("running", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).resumeInstance("testInstanceIdAPIV2");
     }
 
@@ -203,7 +203,7 @@ public class AgentControllerTest {
         when(agentService.killInstance("testInstanceIdAPIV2")).thenReturn("shutting_down");
         ResponseEntity<String> result = agentController.killInstance("testInstanceIdAPIV2");
         assertEquals("shutting_down", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(agentService).killInstance("testInstanceIdAPIV2");
     }
 }
