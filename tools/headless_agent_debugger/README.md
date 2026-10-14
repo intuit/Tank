@@ -4,7 +4,16 @@ Replays a Tank project from the command line. It writes the `authid` used to pul
 
 ## Get it
 
-Download it from the controller: `GET <tank_url>/tools/Headless-Debugger-all.jar` (listed on the Tank Tools page). The jar matches the Tank version that served it. Check with `--version`.
+The jar matches the Tank version that serves it. Check with `--version`.
+
+- With a Tank API token (for Jenkins and scripts):
+
+  ```
+  curl -fsS -H "Authorization: Bearer $TANK_TOKEN" -o Headless-Debugger-all.jar <tank_url>/v2/tools/headless-debugger
+  ```
+
+  The token must belong to a user. The agent token gets 403. A Tank built without `-P release` returns 404.
+- In a browser: the Tank Tools page, or `<tank_url>/tools/Headless-Debugger-all.jar`. This path needs a web login and does not accept a token.
 
 ## Run
 
