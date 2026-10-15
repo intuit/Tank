@@ -29,37 +29,63 @@ import java.io.File;
 
 /**
  * Downloads of the tools on the Tools page, for callers that use an API token instead of a web session.
+ * Each endpoint names its file, so the API cannot serve anything else in /tools.
  */
 @RestController
 @RequestMapping(value = "/v2/tools")
 @Tag(name = "Tools")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Returns the file", content = @Content),
+        @ApiResponse(responseCode = "401", description = "No user is signed in or the token is invalid", content = @Content),
+        @ApiResponse(responseCode = "403", description = "The agent token cannot download tools", content = @Content),
+        @ApiResponse(responseCode = "404", description = "This Tank was built without the release profile, so it has no tools", content = @Content)
+})
 public class ToolsController {
-
-    private static final String HEADLESS_DEBUGGER_JAR = "Headless-Debugger-all.jar";
 
     @Autowired
     private ServletContext servletContext;
 
+    @GetMapping(value = "/debugger", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @Operation(summary = "Download the agent visual debugger", description = "Returns Tank-Debugger-all.jar built with this Tank version")
+    public ResponseEntity<Resource> getDebugger() {
+        return download("Tank-Debugger-all.jar");
+    }
+
     @GetMapping(value = "/headless-debugger", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
-    @Operation(description = "Returns the Headless-Debugger-all.jar built with this Tank version. Requires a user API token.",
-            summary = "Download the headless debugger jar")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Returns the jar", content = @Content),
-            @ApiResponse(responseCode = "401", description = "No user is signed in or the token is invalid", content = @Content),
-            @ApiResponse(responseCode = "403", description = "The agent token cannot download tools", content = @Content),
-            @ApiResponse(responseCode = "404", description = "This Tank was built without the release profile, so it has no tools", content = @Content)
-    })
+    @Operation(summary = "Download the headless debugger", description = "Returns Headless-Debugger-all.jar built with this Tank version")
     public ResponseEntity<Resource> getHeadlessDebugger() {
+        return download("Headless-Debugger-all.jar");
+    }
+
+    @GetMapping(value = "/script-runner", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @Operation(summary = "Download the script filter editor", description = "Returns Tank-Script-Runner-all.jar built with this Tank version")
+    public ResponseEntity<Resource> getScriptRunner() {
+        return download("Tank-Script-Runner-all.jar");
+    }
+
+    @GetMapping(value = "/proxy", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @Operation(summary = "Download the Tank Proxy", description = "Returns Tank-Proxy-pkg.zip built with this Tank version")
+    public ResponseEntity<Resource> getProxy() {
+        return download("Tank-Proxy-pkg.zip");
+    }
+
+    @GetMapping(value = "/api-harness", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @Operation(summary = "Download the API test harness", description = "Returns apiharness-1.0-all.jar built with this Tank version")
+    public ResponseEntity<Resource> getApiHarness() {
+        return download("apiharness-1.0-all.jar");
+    }
+
+    private ResponseEntity<Resource> download(String fileName) {
         RestAuthorization.requireUser("tools");
-        String path = servletContext.getRealPath("/tools/" + HEADLESS_DEBUGGER_JAR);
-        File jar = path == null ? null : new File(path);
-        if (jar == null || !jar.isFile()) {
-            throw new GenericServiceResourceNotFoundException("tools", HEADLESS_DEBUGGER_JAR, null);
+        String path = servletContext.getRealPath("/tools/" + fileName);
+        File file = path == null ? null : new File(path);
+        if (file == null || !file.isFile()) {
+            throw new GenericServiceResourceNotFoundException("tools", fileName, null);
         }
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + HEADLESS_DEBUGGER_JAR + "\"")
-                .contentLength(jar.length())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .contentLength(file.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new FileSystemResource(jar));
+                .body(new FileSystemResource(file));
     }
 }

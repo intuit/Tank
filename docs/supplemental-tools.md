@@ -47,3 +47,16 @@ The proxy package is a zip file that contains the proxy recorder. See the readme
 
 #### API Test Harness Debugger Package
 Command line debugger for agent scripts.
+
+### Downloading Tools with an API token
+Scripts and CI jobs can download each tool from the REST API with a user's API token, instead of a web login. The agent token gets 403. A Tank built without `-P release` has no tools and returns 404.
+
+| Tool | Endpoint | File |
+|---|---|---|
+| Agent Visual Debugger | `/v2/tools/debugger` | `Tank-Debugger-all.jar` |
+| Headless Debugger | `/v2/tools/headless-debugger` | `Headless-Debugger-all.jar` |
+| Script Filter Editor | `/v2/tools/script-runner` | `Tank-Script-Runner-all.jar` |
+| Proxy Package | `/v2/tools/proxy` | `Tank-Proxy-pkg.zip` |
+| API Test Harness | `/v2/tools/api-harness` | `apiharness-1.0-all.jar` |
+
+e.g. `curl -fsS -H "Authorization: Bearer <token>" -o Tank-Proxy-pkg.zip <tank_url>/v2/tools/proxy`
