@@ -2143,26 +2143,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v2/tools/headless-debugger": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Download the headless debugger
-         * @description Returns Headless-Debugger-all.jar built with this Tank version
-         */
-        get: operations["getHeadlessDebugger"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v2/tools/proxy": {
         parameters: {
             query?: never;
@@ -7735,54 +7715,6 @@ export interface operations {
         };
     };
     getDebugger: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns the file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No user is signed in or the token is invalid */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                    "text/plain": string;
-                };
-            };
-            /** @description The agent token cannot download tools */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                    "text/plain": string;
-                };
-            };
-            /** @description This Tank was built without the release profile, so it has no tools */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                    "text/plain": string;
-                };
-            };
-        };
-    };
-    getHeadlessDebugger: {
         parameters: {
             query?: never;
             header?: never;

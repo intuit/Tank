@@ -1,5 +1,8 @@
 package com.intuit.tank.tools.headless;
 
+import com.intuit.tank.tools.debugger.DebugStep;
+import com.intuit.tank.tools.debugger.ScriptChangedListener;
+import com.intuit.tank.tools.debugger.StepListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

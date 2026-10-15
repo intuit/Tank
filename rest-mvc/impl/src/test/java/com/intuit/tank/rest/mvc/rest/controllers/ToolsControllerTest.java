@@ -62,7 +62,6 @@ class ToolsControllerTest {
     static Stream<Arguments> tools() {
         return Stream.of(
                 Arguments.of("Tank-Debugger-all.jar", (Function<ToolsController, ResponseEntity<Resource>>) ToolsController::getDebugger),
-                Arguments.of("Headless-Debugger-all.jar", (Function<ToolsController, ResponseEntity<Resource>>) ToolsController::getHeadlessDebugger),
                 Arguments.of("Tank-Script-Runner-all.jar", (Function<ToolsController, ResponseEntity<Resource>>) ToolsController::getScriptRunner),
                 Arguments.of("Tank-Proxy-pkg.zip", (Function<ToolsController, ResponseEntity<Resource>>) ToolsController::getProxy),
                 Arguments.of("apiharness-1.0-all.jar", (Function<ToolsController, ResponseEntity<Resource>>) ToolsController::getApiHarness));

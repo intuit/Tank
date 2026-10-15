@@ -26,6 +26,7 @@ public class HeadlessDebuggerCliTest {
     public void helpListsOptionsAndExitCodes() {
         assertEquals(0, run("--help"));
         String usage = out.toString();
+        assertTrue(usage.contains("java -jar Tank-Debugger-all.jar --headless"));
         assertTrue(usage.contains("-h, --host"));
         assertTrue(usage.contains("-p, --project"));
         assertTrue(usage.contains("-t, --token"));
@@ -36,7 +37,7 @@ public class HeadlessDebuggerCliTest {
     @Test
     public void versionPrintsBuildVersionAndGitCommit() {
         assertEquals(0, run("--version"));
-        assertTrue(out.toString().contains("Headless Debugger"));
+        assertTrue(out.toString().contains("Tank Debugger"));
         assertTrue(out.toString().contains("git commit"));
     }
 

@@ -65,18 +65,24 @@ public class PanelBuilder {
 
     public static File createWorkingDir(AgentDebuggerFrame frame, String baseUrl, String token) {
         try {
-            File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-            temp.delete();
-            temp = new File(temp.getAbsolutePath() + ".d");
-            temp.mkdir();
-            workingDir = temp;
-            // create settings.xml
-            writeSettings(workingDir, getHeaders(baseUrl, token));
-            System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
+            return createWorkingDir(baseUrl, token);
         } catch (IOException e) {
             LOG.error("Error creating temp working dir: " + e);
             frame.showError("Error creating temp working dir: " + e);
         }
+        return workingDir;
+    }
+
+    /** Creates a temp dir with a settings.xml that has the controller's agent headers, and points the harness at it */
+    public static File createWorkingDir(String baseUrl, String token) throws IOException {
+        File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+        temp.delete();
+        temp = new File(temp.getAbsolutePath() + ".d");
+        temp.mkdir();
+        workingDir = temp;
+        // create settings.xml
+        writeSettings(workingDir, getHeaders(baseUrl, token));
+        System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         return workingDir;
     }
 

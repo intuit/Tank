@@ -51,12 +51,6 @@ public class ToolsController {
         return download("Tank-Debugger-all.jar");
     }
 
-    @GetMapping(value = "/headless-debugger", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
-    @Operation(summary = "Download the headless debugger", description = "Returns Headless-Debugger-all.jar built with this Tank version")
-    public ResponseEntity<Resource> getHeadlessDebugger() {
-        return download("Headless-Debugger-all.jar");
-    }
-
     @GetMapping(value = "/script-runner", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
     @Operation(summary = "Download the script filter editor", description = "Returns Tank-Script-Runner-all.jar built with this Tank version")
     public ResponseEntity<Resource> getScriptRunner() {

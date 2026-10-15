@@ -1,4 +1,4 @@
-package com.intuit.tank.tools.headless;
+package com.intuit.tank.tools.debugger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

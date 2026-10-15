@@ -117,7 +117,7 @@ public class OpenApiSpecExportTest {
 
         JsonNode paths = new ObjectMapper().readTree(spec).path("paths");
         assertTrue(paths.has("/v2/auth/login"), "spec is missing the session endpoints");
-        assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree") && paths.has("/v2/tools/headless-debugger"),
+        assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree") && paths.has("/v2/tools/debugger"),
                 "spec is missing controllers: only " + paths.size() + " paths");
 
         // the paged list forms (PagedListsOpenApiCustomizer)

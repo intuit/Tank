@@ -29,7 +29,7 @@ import picocli.CommandLine.Option;
 /**
  * Command line entry point. The exit codes are a stable contract for callers such as Jenkins.
  */
-@Command(name = "java -jar Headless-Debugger-all.jar",
+@Command(name = "java -jar Tank-Debugger-all.jar --headless",
         description = "Replays a Tank project and writes the authid and step results to output.log.",
         versionProvider = HeadlessDebuggerCli.BuildVersion.class,
         sortOptions = false,
@@ -70,7 +70,7 @@ public class HeadlessDebuggerCli implements Callable<Integer> {
         return new CommandLine(new HeadlessDebuggerCli()); // picocli exits 2 on invalid input
     }
 
-    static int run(String[] args) {
+    public static int run(String[] args) {
         return newCommandLine().execute(args);
     }
 
@@ -102,13 +102,13 @@ public class HeadlessDebuggerCli implements Callable<Integer> {
         @Override
         public String[] getVersion() throws IOException {
             Properties props = new Properties();
-            try (InputStream in = HeadlessDebuggerCli.class.getResourceAsStream("/headless-debugger-build.properties")) {
+            try (InputStream in = HeadlessDebuggerCli.class.getResourceAsStream("/debugger-build.properties")) {
                 if (in != null) {
                     props.load(in);
                 }
             }
             return new String[] {
-                    "Headless Debugger " + props.getProperty("git.build.version", "unknown"),
+                    "Tank Debugger " + props.getProperty("git.build.version", "unknown"),
                     "git commit " + props.getProperty("git.commit.id.abbrev", "unknown")
                             + ("true".equals(props.getProperty("git.dirty")) ? " (dirty)" : "") };
         }

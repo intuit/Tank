@@ -10,15 +10,10 @@ export const TOOLS = [
     file: 'Tank-Debugger-all.jar',
     endpoint: 'debugger',
     name: 'Agent visual debugger',
-    description: 'Steps through a script request by request on your machine, showing each request, response and variable.',
+    description:
+      'Steps through a script request by request on your machine, showing each request, response and variable. ' +
+      'With --headless it replays a project from the command line and writes each step’s result to output.log.',
     run: 'java -jar Tank-Debugger-all.jar',
-  },
-  {
-    file: 'Headless-Debugger-all.jar',
-    endpoint: 'headless-debugger',
-    name: 'Headless debugger',
-    description: 'Replays a project from the command line and writes the authid and each step’s result to output.log.',
-    run: 'java -jar Headless-Debugger-all.jar -h=<controller_url> -p=<project_id> -t=<token>',
   },
   {
     file: 'Tank-Script-Runner-all.jar',

@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.tools.headless;
 
+import com.intuit.tank.tools.debugger.DebugStep;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
