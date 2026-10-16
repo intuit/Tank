@@ -4,16 +4,17 @@ import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
+import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { MultiSelect } from 'primereact/multiselect';
 import { SelectButton } from 'primereact/selectbutton';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { toApiError } from '../../../api/errors';
 import { focusOnShow } from '../../../components/focusOnShow';
 import { useNotify } from '../../../notify';
 import { useSession } from '../../../session';
-import { byStep, EVERYTHING, searchQuery, SECTION_GROUPS, sectionLabel, type StepMatches } from './search';
+import { byStep, EVERYTHING, replacedMatch, searchQuery, SECTION_GROUPS, sectionLabel, type StepMatches } from './search';
 import type { ScriptStep } from './steps';
 
 /** Matches listed per step; a recorded request can match in dozens of headers */
@@ -25,8 +26,9 @@ const MODES = [
 ];
 
 /**
- * Finds steps by the parts chosen, and replaces what matched (ScriptSearchBean). Works on the draft:
- * replacing is an unsaved change like any other.
+ * Finds steps by the parts chosen, and replaces what matched (ScriptSearchBean): in the checked steps or
+ * all of them, or one step at a time with Previous and Next, previewing the step's change. Works on the
+ * draft: replacing is an unsaved change like any other.
  */
 export function SearchDialog({
   steps,
@@ -48,6 +50,11 @@ export function SearchDialog({
   const [checked, setChecked] = useState<StepMatches[]>([]);
   const [replacement, setReplacement] = useState('');
   const [mode, setMode] = useState('VALUE');
+  /** The step being stepped through, an index into the results */
+  const [current, setCurrent] = useState(0);
+  const [nextX, setNextX] = useState<number | null>(5);
+  /** After a replace, the step to carry on from: the first match after this position */
+  const resumeAfter = useRef<number>(undefined);
   /** The query and sections of the results shown, so replace changes what was found */
   const [searched, setSearched] = useState<{ query: string; sections: string[] }>();
   const looksIn = sections.length ? sections : [EVERYTHING];
@@ -58,21 +65,27 @@ export function SearchDialog({
       if (!data) throw toApiError(error, response, 'search the steps');
       return byStep(data);
     },
-    onSuccess: (_d, args) => {
+    onSuccess: (found, args) => {
       setSearched({ query: args.query, sections: args.sections });
       setChecked([]);
+      const after = resumeAfter.current;
+      resumeAfter.current = undefined;
+      // like ScriptSearchBean.next(), wrapping to the first match
+      const next = after === undefined ? 0 : found.findIndex((r) => r.position > after);
+      setCurrent(Math.max(0, next));
     },
   });
 
   const replace = useMutation({
-    mutationFn: async (uuids: string[] | undefined) => {
+    mutationFn: async ({ uuids }: { uuids?: string[]; resumeAfter?: number }) => {
       const { data, error, response } = await client.POST('/v2/scripts/steps/replace', {
         body: { steps, ...searched!, replacement, mode, uuids },
       });
       if (!data) throw toApiError(error, response, 'replace');
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, args) => {
+      resumeAfter.current = args.resumeAfter;
       const changed = data.changed ?? 0;
       notify.success(changed ? `Replaced in ${changed} ${changed === 1 ? 'step' : 'steps'}` : 'Nothing was replaced');
       if (changed) {
@@ -92,6 +105,20 @@ export function SearchDialog({
   const results = search.data;
   const byUuid = new Map(steps.map((s) => [s.uuid, s]));
   const error = search.error ?? replace.error;
+  const at = results?.length ? Math.min(current, results.length - 1) : -1;
+  const currentStep = at >= 0 ? results![at] : undefined;
+  const move = (by: number) => results?.length && setCurrent((at + by + results.length) % results.length);
+  /** Replaces in the current step and the next count - 1 steps (ScriptSearchBean.replaceNextX) */
+  const replaceFromCurrent = (count: number) => {
+    const targets = results!.slice(at, at + count);
+    replace.mutate({ uuids: targets.map((t) => t.uuid), resumeAfter: targets[targets.length - 1]!.position });
+  };
+
+  // keep the current step in view as Previous and Next move through a long list
+  const table = useRef<DataTable<StepMatches[]>>(null);
+  useEffect(() => {
+    table.current?.getElement()?.querySelector('.search-current')?.scrollIntoView?.({ block: 'nearest' });
+  }, [at, results]);
 
   return (
     <Dialog
@@ -144,7 +171,9 @@ export function SearchDialog({
       {results && (
         <>
           <DataTable
+            ref={table}
             value={results}
+            rowClassName={(r: StepMatches) => (r.uuid === currentStep?.uuid ? 'search-current p-highlight' : '')}
             dataKey="uuid"
             selectionMode="checkbox"
             selection={checked}
@@ -153,13 +182,39 @@ export function SearchDialog({
             size="small"
             scrollable
             scrollHeight="20rem"
-            header={`${results.length} matching ${results.length === 1 ? 'step' : 'steps'}`}
+            header={
+              <div className="search-results-header">
+                <span>{`${results.length} matching ${results.length === 1 ? 'step' : 'steps'}`}</span>
+                {results.length > 0 && (
+                  <span className="search-stepper">
+                    <Button type="button" icon="pi pi-chevron-up" text rounded size="small" aria-label="Previous match" onClick={() => move(-1)} />
+                    <span aria-live="polite">
+                      Step {currentStep?.position} ({at + 1} of {results.length})
+                    </span>
+                    <Button type="button" icon="pi pi-chevron-down" text rounded size="small" aria-label="Next match" onClick={() => move(1)} />
+                  </span>
+                )}
+              </div>
+            }
             // fixed, so a long recorded URL can't push the matches out of view
             tableStyle={{ tableLayout: 'fixed', width: '100%' }}
             className="search-results"
           >
             {!readOnly && <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />}
-            <Column header="Step" field="position" style={{ width: '4rem' }} />
+            <Column
+              header="Step"
+              body={(r: StepMatches) => (
+                <Button
+                  type="button"
+                  link
+                  label={String(r.position)}
+                  className="search-goto"
+                  onClick={() => setCurrent(results.indexOf(r))}
+                  aria-label={`Go to step ${r.position}`}
+                />
+              )}
+              style={{ width: '4rem' }}
+            />
             <Column
               header="Label"
               body={(r: StepMatches) => {
@@ -187,6 +242,39 @@ export function SearchDialog({
             />
           </DataTable>
 
+          {currentStep && (
+            <table className="kv-table kv-table-wide search-preview" aria-label="Before and after">
+              <caption>
+                {readOnly ? 'Matches in' : 'Replacing in'} step {currentStep.position}: {byUuid.get(currentStep.uuid)?.label}
+              </caption>
+              <thead>
+                <tr>
+                  <th>Part</th>
+                  <th>Before</th>
+                  {!readOnly && <th>After</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {currentStep.matches.map((m, i) => {
+                  const after = replacedMatch(m, replacement, mode);
+                  return (
+                    <tr key={i}>
+                      <td>{sectionLabel(m.section)}</td>
+                      <td className="ellipsis" title={showMatch(m)}>
+                        {showMatch(m)}
+                      </td>
+                      {!readOnly && (
+                        <td className="ellipsis" title={showMatch(after)}>
+                          {showMatch(after)}
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
           {!readOnly && results.length > 0 && (
             <div className="search-form replace-form">
               <InputText
@@ -205,11 +293,37 @@ export function SearchDialog({
               />
               <Button
                 type="button"
+                label={`Replace in step ${currentStep?.position}`}
+                icon="pi pi-arrow-right"
+                loading={replace.isPending}
+                onClick={() => replaceFromCurrent(1)}
+              />
+              <span className="field-inline">
+                <Button
+                  type="button"
+                  label="Replace next"
+                  outlined
+                  disabled={!nextX || replace.isPending}
+                  onClick={() => replaceFromCurrent(nextX!)}
+                />
+                <InputNumber
+                  value={nextX}
+                  onValueChange={(e) => setNextX(e.value ?? null)}
+                  min={1}
+                  max={results.length}
+                  showButtons={false}
+                  inputStyle={{ width: '4rem' }}
+                  aria-label="Steps to replace in"
+                />
+                <span className="field-help">steps</span>
+              </span>
+              <Button
+                type="button"
                 label={checked.length ? `Replace in ${checked.length} checked` : `Replace in all ${results.length}`}
                 icon="pi pi-sync"
                 outlined
                 loading={replace.isPending}
-                onClick={() => replace.mutate(checked.length ? checked.map((c) => c.uuid) : undefined)}
+                onClick={() => replace.mutate({ uuids: checked.length ? checked.map((c) => c.uuid) : undefined })}
               />
               <small className="field-help search-help">
                 Each match is replaced whole.{' '}
@@ -227,4 +341,8 @@ export function SearchDialog({
       </div>
     </Dialog>
   );
+}
+
+function showMatch(m: { key?: string; value?: string }): string {
+  return m.key ? `${m.key} = ${m.value ?? ''}` : (m.value ?? '');
 }

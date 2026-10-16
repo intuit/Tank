@@ -184,6 +184,16 @@ export function CreateJobTab({
             />
           </Field>
         )}
+        {!config?.standalone && (
+          <Field label="Assign Elastic IPs" htmlFor="use-eips" help="Gives each agent an unassigned Elastic IP in its region">
+            <InputSwitch
+              inputId="use-eips"
+              checked={!!settings.useEips}
+              onChange={(e) => set({ useEips: !!e.value })}
+              disabled={readOnly}
+            />
+          </Field>
+        )}
         <Field label="Two-step start" htmlFor="two-step" help={TWO_STEP_HELP}>
           <InputSwitch
             inputId="two-step"
