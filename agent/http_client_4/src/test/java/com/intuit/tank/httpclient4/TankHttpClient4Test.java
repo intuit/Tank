@@ -202,6 +202,27 @@ public class TankHttpClient4Test {
     }
 
     @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void keepsAllRepeatedResponseHeaders() {
+        wireMockServer.stubFor(post(urlEqualTo("/init"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Set-Cookie", "first=1; Path=/")
+                        .withHeader("Set-Cookie", "second=2; Path=/")
+                        .withHeader("Set-Cookie", "third=3; Path=/"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/init");
+        request.doPost(null);
+        BaseResponse response = request.getResponse();
+
+        assertEquals("first=1; Path=/,second=2; Path=/,third=3; Path=/", response.getHttpHeader("Set-Cookie"));
+        assertEquals("1", response.getCookies().get("first"));
+        assertEquals("2", response.getCookies().get("second"));
+        assertEquals("3", response.getCookies().get("third"));
+    }
+
+    @Test
     @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {

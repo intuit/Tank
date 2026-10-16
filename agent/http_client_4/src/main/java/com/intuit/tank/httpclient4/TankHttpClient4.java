@@ -426,9 +426,10 @@ public class TankHttpClient4 implements TankHttpClient {
             response.setHttpCode(httpCode);
 
             // Get response header information
-            for (Header header : headers) {
-                response.setHeader(header.getName(), header.getValue());
-            }
+            Arrays.stream(headers)
+                    .collect(Collectors.groupingBy(h -> h.getName().toLowerCase(), LinkedHashMap::new,
+                            Collectors.mapping(Header::getValue, Collectors.joining(","))))
+                    .forEach(response::setHeader);
 
             // Extract proxy response/service time header
             String proxyResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
