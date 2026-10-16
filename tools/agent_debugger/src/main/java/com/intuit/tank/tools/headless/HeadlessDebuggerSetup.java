@@ -71,6 +71,7 @@ public class HeadlessDebuggerSetup implements Serializable {
     private boolean filingStatus;
     private boolean taxhubFlow;
     private boolean hostnameCheckFailed;
+    private boolean ready;
     private ValidationReportData reportData;
 
     public HeadlessDebuggerSetup(String serviceUrl, Integer projectId, String token) {
@@ -86,14 +87,15 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.error("Error retrieving project scripts for project with projectId: " + projectId);
                 throw new RuntimeException("Error: Empty or Invalid Test Plan");
             }
+            ready = !hostnameCheckFailed;
         } catch (Exception e) {
             LOG.error("Error setting up project: " + e.getMessage(), e);
         }
     }
 
-    /** @return true when the project script was downloaded and the debugger can run */
+    /** @return true when the project script was downloaded, passed the hostname check, and the debugger can run */
     public boolean isReady() {
-        return currentWorkload != null && !hostnameCheckFailed;
+        return ready;
     }
 
     public boolean isHostnameCheckFailed() {
@@ -292,7 +294,7 @@ public class HeadlessDebuggerSetup implements Serializable {
 
         long replacedCount = steps.stream()
                 .map(step -> step.getStepRun().getInfo())
-                .filter(url -> url.contains("#{"))
+                .filter(url -> StringUtils.contains(url, "#{"))
                 .count();
 
         double replacementPercentage = (double) replacedCount / stepCount * 100;
@@ -497,7 +499,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.info(sb);
 
                 if(debugStep != null && debugStep.getStepRun() != null) {
-                    if(debugStep.getStepRun().getInfo().contains("filing-return")) {
+                    if(StringUtils.contains(debugStep.getStepRun().getInfo(), "filing-return")) {
                         LOG.info("filing-return response body: {}", debugStep.getResponse().getBody());
 
                         try {
@@ -512,7 +514,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                             LOG.error("Error parsing JSON response body", e);
                         }
                     }
-                    if(debugStep.getStepRun().getInfo().contains("taxhub")) {
+                    if(StringUtils.contains(debugStep.getStepRun().getInfo(), "taxhub")) {
                         taxhubFlow = true;
                     }
                 }

@@ -12,6 +12,7 @@ import com.intuit.tank.harness.data.SleepTimeStep;
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.data.ThinkTimeStep;
 import com.intuit.tank.runner.TestStepContext;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -100,7 +101,7 @@ public class AutomationFlowController implements FlowController {
         context.setTestStep(debuggerSetup.getStep(context.getTestStep().getStepIndex()));
         TestStep step = context.getTestStep();
         if (!toSkip.contains(context.getTestStep().getStepIndex())) {// move if skiplist does not contain line
-            if (!(step instanceof ThinkTimeStep) && (!step.getInfo().contains("EFE Logic Step"))) { // automation skips think time steps and EFE logic step (custom logic, similar to setting EFE to 100%)
+            if (!(step instanceof ThinkTimeStep) && !StringUtils.contains(step.getInfo(), "EFE Logic Step")) { // automation skips think time steps and EFE logic step (custom logic, similar to setting EFE to 100%)
                 return true;
             } else {
                 TestStep skippedStep = debuggerSetup.getStep(context.getTestStep().getStepIndex());
