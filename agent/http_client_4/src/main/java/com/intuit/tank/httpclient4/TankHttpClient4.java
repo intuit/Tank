@@ -119,7 +119,7 @@ public class TankHttpClient4 implements TankHttpClient {
 
     public void setConnectionTimeout(long connectionTimeout) {
         RequestConfig requestConfig =
-                context.getRequestConfig().custom().setConnectTimeout((int) connectionTimeout).build();
+                RequestConfig.copy(context.getRequestConfig()).setConnectTimeout((int) connectionTimeout).build();
         context.setRequestConfig(requestConfig);
     }
 
