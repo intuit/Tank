@@ -119,7 +119,7 @@ public class TankHttpClient4 implements TankHttpClient {
 
     public void setConnectionTimeout(long connectionTimeout) {
         RequestConfig requestConfig =
-                context.getRequestConfig().custom().setConnectTimeout((int) connectionTimeout).build();
+                RequestConfig.copy(context.getRequestConfig()).setConnectTimeout((int) connectionTimeout).build();
         context.setRequestConfig(requestConfig);
     }
 
@@ -288,16 +288,8 @@ public class TankHttpClient4 implements TankHttpClient {
 
     @Override
     public void setProxy(String proxyhost, int proxyport) {
-        if (StringUtils.isNotBlank(proxyhost)) {
-            HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(proxy).build();
-            context.setRequestConfig(requestConfig);
-        } else {
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(null).build();
-            context.setRequestConfig(requestConfig);
-        }
+        HttpHost proxy = StringUtils.isNotBlank(proxyhost) ? new HttpHost(proxyhost, proxyport) : null;
+        context.setRequestConfig(RequestConfig.copy(context.getRequestConfig()).setProxy(proxy).build());
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
@@ -426,9 +418,10 @@ public class TankHttpClient4 implements TankHttpClient {
             response.setHttpCode(httpCode);
 
             // Get response header information
-            for (Header header : headers) {
-                response.setHeader(header.getName(), header.getValue());
-            }
+            Arrays.stream(headers)
+                    .collect(Collectors.groupingBy(h -> h.getName().toLowerCase(), LinkedHashMap::new,
+                            Collectors.mapping(Header::getValue, Collectors.joining(","))))
+                    .forEach(response::setHeader);
 
             // Extract proxy response/service time header
             String proxyResponseTimeHeader = response.getHttpHeader("x-envoy-upstream-service-time");
