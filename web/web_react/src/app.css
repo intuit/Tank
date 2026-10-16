@@ -160,6 +160,11 @@ body {
   font-size: 1.5rem;
 }
 
+.login-expired {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -367,6 +372,38 @@ body {
   gap: 8px;
   align-items: center;
   margin: 12px 0;
+}
+
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-toolbar-end {
+  margin-left: auto;
+}
+
+.job-recorded-details {
+  margin: 12px 0;
+}
+
+.job-recorded-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.job-details-text {
+  max-height: 24rem;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-ground);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
 }
 
 .tab-message {
@@ -988,6 +1025,35 @@ body {
   vertical-align: top;
 }
 
+.search-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: normal;
+}
+
+.search-goto.p-button {
+  padding: 0;
+}
+
+.search-preview {
+  margin-top: 12px;
+  table-layout: fixed;
+}
+
+.search-preview caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 6px;
+}
+
 /* filters page: groups and filters side by side, stacked when narrow */
 .filter-lists {
   display: grid;
@@ -1105,6 +1171,13 @@ body {
 
 .tool-run {
   font-size: 0.85rem;
+}
+
+.tool > .help-links {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .account-section {

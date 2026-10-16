@@ -73,6 +73,7 @@ public final class ProjectDetailMapper {
                 config.getVmInstanceType(),
                 config.getNumUsersPerAgent(),
                 config.getTargetRatePerAgent() != null ? config.getTargetRatePerAgent() : 1.0,
+                config.isUseEips(),
                 config.isUseTwoStep(),
                 config.getTankClientClass(),
                 config.getReportingMode(),
@@ -299,6 +300,9 @@ public final class ProjectDetailMapper {
         }
         config.setNumUsersPerAgent(s.numUsersPerAgent());
         config.setTargetRatePerAgent(s.targetRatePerAgent());
+        if (s.useEips() != null) {
+            config.setUseEips(s.useEips());
+        }
         config.setUseTwoStep(s.useTwoStep());
         if (s.tankClientClass() != null) {
             config.setTankClientClass(s.tankClientClass());

@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import { Dialog } from 'primereact/dialog';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
@@ -12,6 +11,8 @@ import type { Schemas } from '../../../api/client';
 import { toApiError } from '../../../api/errors';
 import { formatDateTime } from '../../../format';
 import { useSession } from '../../../session';
+import { PreviewDialog } from '../../datafiles/PreviewDialog';
+import { UploadDialog } from '../../datafiles/UploadDialogs';
 import type { Update } from './useProjectDraft';
 import type { ProjectDetail } from './validation';
 
@@ -22,7 +23,9 @@ const PICKER_SIZE = 10;
 export function DataFilesTab({ detail, update, readOnly }: { detail: ProjectDetail; update: Update; readOnly: boolean }) {
   const { client } = useSession();
   const ids = detail.dataFileIds ?? [];
+  const queryClient = useQueryClient();
   const [previewing, setPreviewing] = useState<{ id: number; name: string }>();
+  const [uploading, setUploading] = useState(false);
 
   const names = useQuery({
     queryKey: ['datafiles', 'names'],
@@ -39,7 +42,12 @@ export function DataFilesTab({ detail, update, readOnly }: { detail: ProjectDeta
 
   return (
     <div>
-      <h3 className="form-section">Data files used by this project</h3>
+      <div className="section-header">
+        <h3 className="form-section">Data files used by this project</h3>
+        {!readOnly && (
+          <Button label="Upload data files" icon="pi pi-upload" size="small" outlined onClick={() => setUploading(true)} />
+        )}
+      </div>
       <DataTable
         value={associated}
         size="small"
@@ -82,7 +90,20 @@ export function DataFilesTab({ detail, update, readOnly }: { detail: ProjectDeta
           onPreview={(file) => setPreviewing({ id: file.id!, name: file.name ?? '' })}
         />
       )}
-      {previewing && <DataFilePreview file={previewing} onHide={() => setPreviewing(undefined)} />}
+      {previewing && <PreviewDialog dataFile={previewing} onHide={() => setPreviewing(undefined)} />}
+      {uploading && (
+        <UploadDialog
+          onHide={() => setUploading(false)}
+          onUploaded={(created) => {
+            void queryClient.invalidateQueries({ queryKey: ['datafiles'] });
+            // files uploaded here are for this project, so use them in it
+            const added = created.map((file) => file.id).filter((id): id is number => id !== undefined && !ids.includes(id));
+            if (added.length) {
+              update((d) => void (d.dataFileIds = [...(d.dataFileIds ?? []), ...added]));
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -162,61 +183,5 @@ function DataFilePicker({
         </small>
       )}
     </div>
-  );
-}
-
-const PREVIEW_LINES = 25;
-
-/** A page of a data file's lines (DataFileBrowser), using the X-Total-Lines header for paging */
-function DataFilePreview({ file, onHide }: { file: { id: number; name: string }; onHide: () => void }) {
-  const { client } = useSession();
-  const [offset, setOffset] = useState(0);
-  const content = useQuery({
-    queryKey: ['datafiles', file.id, 'content', offset],
-    queryFn: async ({ signal }) => {
-      const { data, error, response } = await client.GET('/v2/datafiles/content', {
-        params: { query: { id: file.id, offset, lines: PREVIEW_LINES } },
-        parseAs: 'text',
-        signal,
-      });
-      if (data === undefined) {
-        throw toApiError(error, response, 'preview the data file');
-      }
-      const total = Number(response.headers.get('X-Total-Lines'));
-      return { text: data, total: Number.isFinite(total) ? total : undefined };
-    },
-  });
-  const total = content.data?.total;
-  return (
-    <Dialog header={file.name} visible onHide={onHide} className="wide-dialog" modal draggable={false}>
-      {content.error ? (
-        <Message severity="error" text={content.error.message} />
-      ) : (
-        <pre className="file-preview" aria-busy={content.isFetching}>
-          {content.data?.text ?? 'Loading…'}
-        </pre>
-      )}
-      <div className="form-actions">
-        <span className="field-help">
-          {total !== undefined
-            ? `Lines ${Math.min(offset + 1, total)}–${Math.min(offset + PREVIEW_LINES, total)} of ${total}`
-            : ''}
-        </span>
-        <Button
-          icon="pi pi-angle-left"
-          text
-          aria-label="Previous lines"
-          disabled={offset === 0}
-          onClick={() => setOffset(Math.max(0, offset - PREVIEW_LINES))}
-        />
-        <Button
-          icon="pi pi-angle-right"
-          text
-          aria-label="Next lines"
-          disabled={total === undefined || offset + PREVIEW_LINES >= total}
-          onClick={() => setOffset(offset + PREVIEW_LINES)}
-        />
-      </div>
-    </Dialog>
   );
 }
