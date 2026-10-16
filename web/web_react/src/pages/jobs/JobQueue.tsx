@@ -3,16 +3,19 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Message } from 'primereact/message';
+import { MultiSelect } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { contextPath, type Schemas } from '../../api/client';
 import { toApiError } from '../../api/errors';
-import { formatDateTime } from '../../format';
+import { formatDateTime, htmlToText } from '../../format';
+import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
 import { JobCharts } from './JobCharts';
@@ -23,8 +26,30 @@ type ProjectJobs = Schemas['ProjectJobs'];
 type AgentNode = Schemas['AgentNode'];
 type Actions = Schemas['Actions'];
 
-/** The server asks for no faster than this (GET /v2/jobs/tree) */
+/** The server asks for no faster than this (GET /v2/jobs/tree), as JobTreeTableBean's MIN_REFRESH */
 export const REFRESH_MS = 10_000;
+
+/** Refresh intervals to choose from, in seconds; 0 turns refreshing off, as an empty JSF interval does */
+export const REFRESH_CHOICES = [10, 15, 30, 60, 120, 0];
+const REFRESH_STORAGE_KEY = 'tank.jobs.refreshSeconds';
+
+/** The interval this browser last chose; storage can be missing or blocked */
+function storedRefreshSeconds(): number {
+  try {
+    const stored = Number(localStorage.getItem(REFRESH_STORAGE_KEY) ?? NaN);
+    return REFRESH_CHOICES.includes(stored) ? stored : REFRESH_MS / 1000;
+  } catch {
+    return REFRESH_MS / 1000;
+  }
+}
+
+function storeRefreshSeconds(seconds: number) {
+  try {
+    localStorage.setItem(REFRESH_STORAGE_KEY, String(seconds));
+  } catch {
+    // the choice lasts only for this page
+  }
+}
 
 /** Actions as the REST API names them, with the flag in Actions that allows each */
 const ACTIONS = [
@@ -59,6 +84,8 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const [includeFinished, setIncludeFinished] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [detailsFor, setDetailsFor] = useState<{ job: JobNode; agent?: AgentNode }>();
+  const [refreshSeconds, setRefreshSeconds] = useState(storedRefreshSeconds);
+  const preferences = useTablePreferences('jobs');
   const queryKey = ['jobs', 'tree', { projectId, includeFinished }] as const;
 
   const tree = useQuery({
@@ -73,7 +100,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
       }
       return data;
     },
-    refetchInterval: REFRESH_MS,
+    refetchInterval: refreshSeconds ? refreshSeconds * 1000 : false,
     staleTime: 0,
   });
 
@@ -124,6 +151,12 @@ export function JobQueue({ projectId }: { projectId?: number }) {
       setExpanded(Object.fromEntries(nodes.map((n) => [n.key as string, true])));
     }
   }, [tree.data, nodes, projectId]);
+
+  // Saved column visibility and widths (the JSF tablePrefs); columns stay shown if they can't load
+  const prefOf = (key: string | undefined) => preferences.columns.find((c) => c.colName === key);
+  const shown = (key: string | undefined) => prefOf(key)?.visible !== false;
+  const widthOf = (key: string | undefined) => (prefOf(key)?.size ? `${prefOf(key)!.size}px` : undefined);
+  const hideable = preferences.columns.filter((c) => c.hideable && COLUMNS.some((col) => col.pref === c.colName));
 
   const confirmThen = (target: Target, action: string, label: string) => {
     const what = target.kind === 'job' ? `job "${target.job.name}"` : `agent ${target.agent.instanceId}`;
@@ -210,7 +243,14 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         </Link>
       )
     ) : row.kind === 'job' ? (
-      <Button label={row.job.name} link className="link-cell" onClick={() => setDetailsFor({ job: row.job })} />
+      <Button
+        label={row.job.name}
+        link
+        className="link-cell"
+        tooltip="Job details"
+        tooltipOptions={{ position: 'top', showDelay: 500 }}
+        onClick={() => setDetailsFor({ job: row.job })}
+      />
     ) : (
       <span title={row.agent.instanceId}>{row.agent.instanceId}</span>
     );
@@ -234,11 +274,32 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           loading={tree.isFetching}
           onClick={() => void tree.refetch()}
         />
-        {tree.data?.generatedAt && (
-          <span className="field-help">
-            Updated {formatTime(tree.data.generatedAt)}; refreshes every {REFRESH_MS / 1000}s
-          </span>
-        )}
+        <div className="field-inline">
+          <label htmlFor="refresh-interval">Refresh every</label>
+          <Dropdown
+            inputId="refresh-interval"
+            value={refreshSeconds}
+            options={REFRESH_CHOICES.map((seconds) => ({ label: seconds ? `${seconds}s` : 'Off', value: seconds }))}
+            onChange={(e) => {
+              setRefreshSeconds(e.value as number);
+              storeRefreshSeconds(e.value as number);
+            }}
+            className="p-inputtext-sm"
+          />
+        </div>
+        {tree.data?.generatedAt && <span className="field-help">Updated {formatTime(tree.data.generatedAt)}</span>}
+        <MultiSelect
+          value={hideable.filter((c) => c.visible).map((c) => c.colName)}
+          options={hideable.map((c) => ({ label: c.displayName, value: c.colName }))}
+          onChange={(e) => preferences.setVisible(e.value as string[])}
+          placeholder="Columns"
+          selectedItemsLabel="Columns"
+          maxSelectedLabels={0}
+          aria-label="Visible columns"
+          dropdownIcon="pi pi-table"
+          className="list-columns tab-toolbar-end"
+          disabled={hideable.length === 0}
+        />
       </div>
 
       {tree.error && !tree.data ? (
@@ -257,19 +318,27 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           }
           loading={tree.isPending}
           tableStyle={{ minWidth: '56rem' }}
+          resizableColumns
+          columnResizeMode="expand"
+          onColumnResizeEnd={(e) => {
+            const key = (e.column.props.columnKey ?? '') as string;
+            if (key) {
+              preferences.setWidth(key, e.element.offsetWidth);
+            }
+          }}
           className="p-treetable-sm job-tree"
         >
-          <Column field="name" header="Name" expander body={(n: TreeNode) => nameCell(n.data as Row)} style={{ minWidth: '12rem' }} />
-          <Column header="ID" body={(n: TreeNode) => idOf(n.data as Row)} style={{ width: '4rem' }} />
-          <Column header="Status" body={(n: TreeNode) => statusCell(n.data as Row)} style={{ minWidth: '11rem' }} />
-          <Column header="WS State" body={(n: TreeNode) => wsStateCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="Region" body={(n: TreeNode) => regionOf(n.data as Row)} style={{ minWidth: '9rem' }} />
-          <Column header="Users" body={(n: TreeNode) => usersCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="TPS" body={(n: TreeNode) => figures(n.data as Row).tps ?? 0} />
-          <Column header="Failures" body={(n: TreeNode) => figures(n.data as Row).failures?.total ?? 0} />
-          <Column header="Started" body={(n: TreeNode) => formatDateTime(figures(n.data as Row).startTime)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="Completed" body={(n: TreeNode) => formatDateTime(endTimeOf(n.data as Row))} style={{ whiteSpace: 'nowrap' }} />
-          <Column body={(n: TreeNode) => actionsFor(n.data as Row)} />
+          {COLUMNS.filter((c) => shown(c.pref)).map((c) => (
+            <Column
+              key={c.pref ?? c.header ?? 'actions'}
+              columnKey={c.pref}
+              field={c.expander ? 'name' : undefined}
+              header={c.header}
+              expander={c.expander}
+              body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row))}
+              style={{ ...c.style, width: widthOf(c.pref) }}
+            />
+          ))}
         </TreeTable>
       )}
 
@@ -279,6 +348,36 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     </div>
   );
 }
+
+interface JobColumn {
+  /** The column's key in the user's saved jobs table settings (TableColumnDefaults.JOBS_COL_PREFS) */
+  pref?: string;
+  header?: string;
+  body?: (row: Row) => ReactNode;
+  style?: CSSProperties;
+  expander?: boolean;
+  actions?: boolean;
+}
+
+const COLUMNS: JobColumn[] = [
+  { pref: 'nameColumn', header: 'Name', expander: true, style: { minWidth: '12rem' } },
+  { pref: 'idColumn', header: 'ID', body: idOf, style: { width: '4rem' } },
+  { pref: 'statusColumn', header: 'Status', body: statusCell, style: { minWidth: '11rem' } },
+  { header: 'WS State', body: wsStateCell, style: { whiteSpace: 'nowrap' } },
+  { pref: 'regionColumn', header: 'Region', body: regionOf, style: { minWidth: '9rem' } },
+  { pref: 'activeUsersColumn', header: 'Active users', body: (row) => figures(row).activeUsers ?? 0 },
+  { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers },
+  { pref: 'tpsColumn', header: 'TPS', body: (row) => figures(row).tps ?? 0 },
+  { pref: 'validationColumn', header: 'Failures', body: (row) => figures(row).failures?.total ?? 0 },
+  {
+    pref: 'startTimeColumn',
+    header: 'Started',
+    body: (row) => formatDateTime(figures(row).startTime),
+    style: { whiteSpace: 'nowrap' },
+  },
+  { pref: 'endTimeColumn', header: 'Completed', body: (row) => formatDateTime(endTimeOf(row)), style: { whiteSpace: 'nowrap' } },
+  { pref: 'actionsColumn', actions: true },
+];
 
 function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
   const jobNode = (job: JobNode): TreeNode => ({
@@ -410,12 +509,12 @@ function statusCell(row: Row) {
   );
 }
 
-function usersCell(row: Row) {
-  const f = figures(row);
+/** A nonlinear job has no fixed target, so JSF shows its steady state instead, which the tree doesn't carry */
+function targetUsers(row: Row) {
   if (row.kind === 'job' && row.job.incrementStrategy?.toLowerCase().startsWith('non')) {
-    return `${f.activeUsers ?? 0} active`;
+    return '';
   }
-  return `${f.activeUsers ?? 0} / ${f.totalUsers ?? 0}`;
+  return figures(row).totalUsers ?? 0;
 }
 
 /** The JSF tree's moving stripes for work in progress (tank.css status-badge-running and -starting) */
@@ -514,6 +613,13 @@ function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentN
             {failures.skipGroups ?? 0} group skips
           </dd>
         </dl>
+      )}
+      {d?.detailsHtml && (
+        <details className="job-recorded-details">
+          <summary>Job details as queued</summary>
+          {/* the server's HTML report, shown as text: it carries user-entered names and values */}
+          <pre className="job-details-text">{htmlToText(d.detailsHtml)}</pre>
+        </details>
       )}
       <JobCharts jobId={Number(job.jobId)} instanceId={agent?.instanceId} />
     </Dialog>

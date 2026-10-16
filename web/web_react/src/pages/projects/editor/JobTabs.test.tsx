@@ -82,7 +82,10 @@ describe('job queue tab', () => {
 
     expect(await screen.findByRole('button', { name: 'Checkout load 1' })).toBeInTheDocument();
     expect(screen.getByText('1/2 agents running')).toBeInTheDocument();
-    expect(screen.getByText('80 / 150')).toBeInTheDocument();
+    const row = screen.getByRole('button', { name: 'Checkout load 1' }).closest('tr')!;
+    expect(row).toHaveTextContent('80');
+    expect(row).toHaveTextContent('150');
+    expect(screen.getByRole('columnheader', { name: 'Target users' })).toBeInTheDocument();
     const query = calls('GET /v2/jobs/tree')[0]!;
     expect(query.get('projectId')).toBe('7');
     expect(query.get('includeFinished')).toBe('false');
@@ -260,11 +263,13 @@ describe('create job tab', () => {
     );
 
     await userEvent.click(screen.getByLabelText('Two-step start'));
+    await userEvent.click(screen.getByLabelText('Assign Elastic IPs'));
     await userEvent.click(screen.getByRole('button', { name: 'Validate and queue…' }));
 
     await screen.findByRole('dialog', { name: 'Queue this job?' });
     expect(order).toEqual(['save', 'preview']);
     expect(bodies[0]!.settings!.useTwoStep).toBe(true);
+    expect(bodies[0]!.settings!.useEips).toBe(true);
   });
 
   it("explains a job that can't run", async () => {

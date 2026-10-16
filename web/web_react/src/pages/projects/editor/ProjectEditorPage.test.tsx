@@ -139,6 +139,40 @@ describe('project editor', () => {
     expect(bodies[0]!.variables).toEqual({ env: 'qa', region: 'east' });
   });
 
+  it('uploads data files from its tab and uses them in the project', async () => {
+    const bodies: ProjectDetail[] = [];
+    await openEditor(
+      editorHandlers(detail(), {
+        'PUT /v2/projects/7/full': capturePut(bodies),
+        'POST /v2/datafiles/batch': () => ({ status: 200, body: { created: [{ id: 20, name: 'orders.csv' }], skipped: [] } }),
+      }),
+    );
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Data files' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Upload data files' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Upload data files' });
+    await userEvent.upload(within(dialog).getByLabelText('Files'), new File(['a,b'], 'orders.csv'));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Upload' }));
+    expect(await screen.findByText('Added orders.csv')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    expect(bodies[0]!.dataFileIds).toEqual([11, 20]);
+  });
+
+  it("previews a data file with the data files page's viewer", async () => {
+    await openEditor(
+      editorHandlers(detail(), {
+        'GET /v2/datafiles/11/preview': () => ({ status: 200, body: { lines: ['id,name', '1,alice'], totalLines: 2 } }),
+      }),
+    );
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Data files' }));
+    await userEvent.click((await screen.findAllByRole('button', { name: 'Preview users.csv' }))[0]!);
+
+    expect(await screen.findByText('Lines 1 to 2 of 2')).toBeInTheDocument();
+  });
+
   it('asks before leaving with unsaved changes', async () => {
     const { router } = await openEditor(editorHandlers());
 

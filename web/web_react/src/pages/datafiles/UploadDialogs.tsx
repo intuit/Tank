@@ -9,7 +9,14 @@ import { useSession } from '../../session';
 import { DATA_FILE_TYPES, MAX_FILES, REPLACEMENT_TYPES, replaceDataFile, unsupported, uploadDataFiles } from './dataFileUpload';
 
 /** Uploads data files, or zips of them (FileUploadBean and the JSF upload dialog) */
-export function UploadDialog({ onHide, onUploaded }: { onHide: () => void; onUploaded: () => void }) {
+export function UploadDialog({
+  onHide,
+  onUploaded,
+}: {
+  onHide: () => void;
+  /** Called with the files added, even when some were skipped */
+  onUploaded: (created: Schemas['Created'][]) => void;
+}) {
   const { client } = useSession();
   const notify = useNotify();
   const [files, setFiles] = useState<File[]>([]);
@@ -25,7 +32,7 @@ export function UploadDialog({ onHide, onUploaded }: { onHide: () => void; onUpl
     mutationFn: () => uploadDataFiles(client, files),
     onSuccess: (result) => {
       const created = result.created?.length ?? 0;
-      onUploaded();
+      onUploaded(result.created ?? []);
       if (created) {
         notify.success(created === 1 ? `Added ${result.created![0]!.name}` : `Added ${created} data files`);
       }
