@@ -20,6 +20,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import com.intuit.tank.tools.script.JsEngineFactory;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -89,7 +90,11 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     }
 
     public ScriptEngine getEngine() {
-        return new ScriptEngineManager().getEngineByExtension(FilenameUtils.getExtension(name));
+        String ext = FilenameUtils.getExtension(name);
+        if ("js".equalsIgnoreCase(ext)) {
+            return JsEngineFactory.createJsEngine();
+        }
+        return new ScriptEngineManager().getEngineByExtension(ext);
     }
 
     /**
