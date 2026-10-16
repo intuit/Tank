@@ -288,16 +288,8 @@ public class TankHttpClient4 implements TankHttpClient {
 
     @Override
     public void setProxy(String proxyhost, int proxyport) {
-        if (StringUtils.isNotBlank(proxyhost)) {
-            HttpHost proxy = new HttpHost(proxyhost, proxyport);
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(proxy).build();
-            context.setRequestConfig(requestConfig);
-        } else {
-            RequestConfig requestConfig =
-                    context.getRequestConfig().custom().setProxy(null).build();
-            context.setRequestConfig(requestConfig);
-        }
+        HttpHost proxy = StringUtils.isNotBlank(proxyhost) ? new HttpHost(proxyhost, proxyport) : null;
+        context.setRequestConfig(RequestConfig.copy(context.getRequestConfig()).setProxy(proxy).build());
     }
 
     private void sendRequest(BaseRequest request, @Nonnull HttpRequestBase method, String requestBody) {
