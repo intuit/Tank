@@ -8,23 +8,29 @@ import { useSession } from '../../session';
 export const TOOLS = [
   {
     file: 'Tank-Debugger-all.jar',
+    endpoint: 'debugger',
     name: 'Agent visual debugger',
-    description: 'Steps through a script request by request on your machine, showing each request, response and variable.',
+    description:
+      'Steps through a script request by request on your machine, showing each request, response and variable. ' +
+      'With --headless it replays a project from the command line and writes each step’s result to output.log.',
     run: 'java -jar Tank-Debugger-all.jar',
   },
   {
     file: 'Tank-Script-Runner-all.jar',
+    endpoint: 'script-runner',
     name: 'Script filter editor',
     description: 'Writes and tests JavaScript filters that change a script’s steps, for filters the filter editor can’t express.',
     run: 'java -jar Tank-Script-Runner-all.jar',
   },
   {
     file: 'Tank-Proxy-pkg.zip',
+    endpoint: 'proxy',
     name: 'Tank Proxy',
     description: 'Records a browser session as XML to upload as a new script. Unzip it and follow its README.',
   },
   {
     file: 'apiharness-1.0-all.jar',
+    endpoint: 'api-harness',
     name: 'API test harness',
     description: 'The agent’s harness, for running a script locally from the command line while debugging it.',
     run: 'java -jar apiharness-1.0-all.jar',
@@ -32,10 +38,11 @@ export const TOOLS = [
 ];
 
 /** Whether the war has the file: a release build copies the tools in, a development build doesn't */
-function useAvailable(file: string) {
+function useAvailable(endpoint: string) {
   return useQuery({
-    queryKey: ['tool', file],
-    queryFn: async ({ signal }) => (await fetch(`${contextPath()}/tools/${file}`, { method: 'HEAD', signal })).ok,
+    queryKey: ['tool', endpoint],
+    queryFn: async ({ signal }) =>
+      (await fetch(`${contextPath()}/v2/tools/${endpoint}`, { method: 'HEAD', signal })).status !== 404,
     staleTime: Infinity,
     retry: false,
   });
@@ -67,8 +74,8 @@ export function ToolsPage() {
   );
 }
 
-function Tool({ file, name, description, run }: (typeof TOOLS)[number]) {
-  const available = useAvailable(file);
+function Tool({ file, endpoint, name, description, run }: (typeof TOOLS)[number]) {
+  const available = useAvailable(endpoint);
   return (
     <li className="tool">
       <div>
@@ -81,7 +88,7 @@ function Tool({ file, name, description, run }: (typeof TOOLS)[number]) {
           Not included in this build
         </span>
       ) : (
-        <a className="p-button p-button-outlined plain-link" href={`${contextPath()}/tools/${file}`} download>
+        <a className="p-button p-button-outlined plain-link" href={`${contextPath()}/v2/tools/${endpoint}`} download>
           <i className="pi pi-download" aria-hidden />
           &nbsp;{file}
         </a>

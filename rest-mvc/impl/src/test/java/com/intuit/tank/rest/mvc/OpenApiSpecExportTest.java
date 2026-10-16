@@ -22,6 +22,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.MeController;
 import com.intuit.tank.rest.mvc.rest.controllers.ProjectController;
 import com.intuit.tank.rest.mvc.rest.controllers.ProjectJobController;
 import com.intuit.tank.rest.mvc.rest.controllers.ScriptController;
+import com.intuit.tank.rest.mvc.rest.controllers.ToolsController;
 import com.intuit.tank.rest.mvc.rest.controllers.UserController;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericExceptionHandler;
 import com.intuit.tank.rest.mvc.rest.docs.ErrorResponsesOpenApiCustomizer;
@@ -80,7 +81,7 @@ public class OpenApiSpecExportTest {
     @Import({ AdminController.class, AgentController.class, AuthController.class, ConfigController.class,
             DataFileController.class, DefaultController.class, FilterController.class, JobController.class,
             LogController.class, MeController.class, ProjectController.class, ProjectJobController.class,
-            ScriptController.class, UserController.class, GenericExceptionHandler.class,
+            ScriptController.class, ToolsController.class, UserController.class, GenericExceptionHandler.class,
             PagedListsOpenApiCustomizer.class, ErrorResponsesOpenApiCustomizer.class })
     static class SpecConfig {
         // A bean (not an @Import) so springdoc sees its @OpenAPIDefinition and @SecurityScheme
@@ -116,7 +117,7 @@ public class OpenApiSpecExportTest {
 
         JsonNode paths = new ObjectMapper().readTree(spec).path("paths");
         assertTrue(paths.has("/v2/auth/login"), "spec is missing the session endpoints");
-        assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree"),
+        assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree") && paths.has("/v2/tools/debugger"),
                 "spec is missing controllers: only " + paths.size() + " paths");
 
         // the paged list forms (PagedListsOpenApiCustomizer)

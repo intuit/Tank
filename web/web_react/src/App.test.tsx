@@ -24,7 +24,7 @@ describe('app shell', () => {
   });
 
   it('marks the current section in the header, as the JSF header does', async () => {
-    renderAt('/tools', { ...signedIn, 'HEAD /tools/Tank-Debugger-all.jar': () => ({ status: 404 }) });
+    renderAt('/tools', { ...signedIn, 'HEAD /v2/tools/debugger': () => ({ status: 404 }) });
     await screen.findByRole('heading', { name: 'Tools' });
     // jsdom gets the collapsed menu, which lists its items once opened
     await userEvent.click(screen.getByRole('button', { name: 'Navigation' }));
