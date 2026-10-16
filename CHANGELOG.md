@@ -1,3 +1,16 @@
+# 4.6.4 (Fri Oct 16 2026)
+
+#### 🐛 Bug Fix
+
+- feat: add --headless debugger mode and /v2/tools downloads (SRE-39128) [#533](https://github.com/intuit/Tank/pull/533) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.6.3 (Wed Oct 14 2026)
 
 #### 🐛 Bug Fix
