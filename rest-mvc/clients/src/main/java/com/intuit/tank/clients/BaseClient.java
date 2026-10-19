@@ -14,14 +14,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
 
+import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 public abstract class BaseClient {
     private static final Logger LOGGER = LogManager.getLogger(BaseClient.class);
@@ -57,6 +66,7 @@ public abstract class BaseClient {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + token)
+                .header("Accept-Encoding", "gzip")
                 .timeout(Duration.ofSeconds(3));
     }
 
@@ -66,7 +76,112 @@ public abstract class BaseClient {
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Authorization", "Bearer " + token)
+                .header("Accept-Encoding", "gzip")
                 .timeout(Duration.ofSeconds(30));
+    }
+
+    /**
+     * Like {@link HttpResponse.BodyHandlers#ofString()}, but gunzips the body when the response is gzip encoded.
+     * java.net.http.HttpClient does not decompress responses itself.
+     */
+    protected static HttpResponse.BodyHandler<String> ofString() {
+        return responseInfo -> {
+            if (!isGzip(responseInfo.headers())) {
+                return HttpResponse.BodyHandlers.ofString().apply(responseInfo);
+            }
+            Charset charset = charsetFrom(responseInfo.headers());
+            return HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofByteArray(), body -> {
+                try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(body))) {
+                    return new String(in.readAllBytes(), charset);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        };
+    }
+
+    /**
+     * Like {@link HttpResponse.BodyHandlers#ofInputStream()}, but gunzips the body when the response is gzip encoded.
+     */
+    protected static HttpResponse.BodyHandler<InputStream> ofInputStream() {
+        return responseInfo -> {
+            HttpResponse.BodySubscriber<InputStream> subscriber = HttpResponse.BodySubscribers.ofInputStream();
+            if (!isGzip(responseInfo.headers())) {
+                return subscriber;
+            }
+            // GZIPInputStream reads the gzip header in its constructor, so open it on first read
+            // rather than blocking the client's executor while the body is mapped
+            return HttpResponse.BodySubscribers.mapping(subscriber, LazyGzipInputStream::new);
+        };
+    }
+
+    private static boolean isGzip(HttpHeaders headers) {
+        return headers.firstValue("Content-Encoding").map(v -> v.trim().equalsIgnoreCase("gzip")).orElse(false);
+    }
+
+    private static Charset charsetFrom(HttpHeaders headers) {
+        String contentType = headers.firstValue("Content-Type").orElse("");
+        for (String param : contentType.split(";")) {
+            String[] pair = param.trim().split("=", 2);
+            if (pair.length == 2 && pair[0].trim().equalsIgnoreCase("charset")) {
+                try {
+                    return Charset.forName(pair[1].trim().replace("\"", ""));
+                } catch (IllegalArgumentException e) {
+                    break;
+                }
+            }
+        }
+        return StandardCharsets.UTF_8;
+    }
+
+    private static final class LazyGzipInputStream extends FilterInputStream {
+        private final InputStream compressed;
+
+        private LazyGzipInputStream(InputStream compressed) {
+            super(null);
+            this.compressed = compressed;
+        }
+
+        private InputStream delegate() throws IOException {
+            if (in == null) {
+                in = new GZIPInputStream(compressed);
+            }
+            return in;
+        }
+
+        @Override
+        public int read() throws IOException {
+            return delegate().read();
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            return delegate().read(b, off, len);
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            return delegate().skip(n);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return delegate().available();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return false;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (in != null) {
+                in.close();
+            } else {
+                compressed.close();
+            }
+        }
     }
 
     public void setBaseUrl(String baseUrl, String token) {
@@ -91,7 +206,7 @@ public abstract class BaseClient {
     public String ping() {
         HttpRequest request = requestBuilder("/ping").GET().build();
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {

@@ -49,7 +49,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -77,7 +77,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -105,7 +105,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -143,7 +143,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
                 return objectMapper.readValue(response.body(), Map.class);
@@ -165,7 +165,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -192,7 +192,7 @@ public class JobClient extends BaseClient{
                 .GET()
                 .build();
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
 
             if (checkStatusCode(response.statusCode())) {
                 return response.body();
@@ -213,7 +213,7 @@ public class JobClient extends BaseClient{
                 .GET()
                 .build();
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
 
             if (checkStatusCode(response.statusCode())) {
                 return response.body();
@@ -237,7 +237,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -258,7 +258,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -279,7 +279,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -300,7 +300,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -321,7 +321,7 @@ public class JobClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
