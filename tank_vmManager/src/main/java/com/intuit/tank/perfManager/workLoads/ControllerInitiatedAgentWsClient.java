@@ -36,7 +36,10 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,18 +68,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final long FILE_OFFER_ACK_TIMEOUT_MS = 10_000L;
-    // Only small text envelopes are received from agents.
     private static final long MAX_WS_MESSAGE_BYTES = 1024L * 1024;
-    // Jetty's default WS idle timeout is 30s. The controller holds connections idle while waiting for
-    // a whole fleet of agents to become ready before broadcasting START — raise it well past that.
     private static final long WS_IDLE_TIMEOUT_MS =
             Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
-    // Interval for the application-level keepalive ping that holds idle connections open and detects
-    // dead ones early (well under WS_IDLE_TIMEOUT_MS).
     private static final long WS_KEEPALIVE_PING_MS =
             Math.max(5_000L, Long.getLong("tank.ws.keepAlivePingMs", 10_000L));
-    // A half-open TCP connection still accepts writes, so silence from the agent is the only reliable
-    // sign the session is dead. Closing it lets AgentReadoption reconnect.
     private static final long WS_STALE_SESSION_MS =
             Math.max(3 * WS_KEEPALIVE_PING_MS, Long.getLong("tank.ws.staleSessionMs", 60_000L));
 
@@ -89,7 +85,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private final ConcurrentHashMap<String, String> agentWsState = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> agentTransferProgress = new ConcurrentHashMap<>();
     private final java.util.Set<String> terminationRequestedInstances = ConcurrentHashMap.newKeySet();
-    private volatile byte[] cachedHarnessJarBytes;
+    private volatile MappedByteBuffer cachedHarnessJar;
     private volatile Optional<byte[]> cachedStartupScript;
     private volatile WebSocketClient wsClient;
     private volatile java.util.concurrent.ScheduledExecutorService keepAliveExecutor;
@@ -387,18 +383,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             return false;
         }
 
-        byte[] jarBytes = cachedHarnessJarBytes;
-        if (jarBytes == null) {
-            synchronized (this) {
-                jarBytes = cachedHarnessJarBytes;
-                if (jarBytes == null) {
-                    jarBytes = Files.readAllBytes(harnessJar.toPath());
-                    cachedHarnessJarBytes = jarBytes;
-                    LOG.info(new ObjectMessage(Map.of("Message",
-                            "[WS] Cached harness JAR bytes: " + jarBytes.length + " bytes")));
-                }
-            }
-        }
+        ByteBuffer jarBytes = mapHarnessJar(harnessJar);
         Optional<byte[]> startupScript = loadStartupScript();
         List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(jarBytes, startupScript);
         int bootstrapFileCount = bootstrapFiles.size();
@@ -437,12 +422,31 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         return false;
     }
 
+    private ByteBuffer mapHarnessJar(File harnessJar) throws IOException {
+        MappedByteBuffer mapped = cachedHarnessJar;
+        if (mapped == null) {
+            synchronized (this) {
+                mapped = cachedHarnessJar;
+                if (mapped == null) {
+                    // The mapping stays valid after the channel is closed.
+                    try (FileChannel channel = FileChannel.open(harnessJar.toPath(), StandardOpenOption.READ)) {
+                        mapped = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+                    }
+                    cachedHarnessJar = mapped;
+                    LOG.info(new ObjectMessage(Map.of("Message",
+                            "[WS] Memory-mapped harness JAR: " + mapped.capacity() + " bytes")));
+                }
+            }
+        }
+        return mapped.asReadOnlyBuffer();
+    }
+
     private Optional<byte[]> loadStartupScript() throws IOException {
         Optional<byte[]> startupScript = cachedStartupScript;
-        if (startupScript == null) {
+        if (startupScript.isEmpty()) {
             synchronized (this) {
                 startupScript = cachedStartupScript;
-                if (startupScript == null) {
+                if (startupScript.isEmpty()) {
                     FileStorage fileStorage =
                             FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
                     startupScript = readStartupScript(fileStorage);
@@ -467,7 +471,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    static List<TransferFile> buildStartupBootstrapFiles(byte[] jarBytes, Optional<byte[]> startupScript) {
+    static List<TransferFile> buildStartupBootstrapFiles(ByteBuffer jarBytes, Optional<byte[]> startupScript) {
         List<TransferFile> files = new ArrayList<>();
         startupScript.ifPresent(content ->
                 files.add(new TransferFile(STARTUP_SCRIPT_FILE_TYPE, START_AGENT_SCRIPT, content, false)));
@@ -558,7 +562,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private void sendFile(SessionContext context, String instanceId, String jobId, TransferFile file,
                           long transferTimeoutMillis) throws IOException, InterruptedException {
-        byte[] content = file.content() != null ? file.content() : new byte[0];
+        // Each transfer gets its own position/limit over the shared content.
+        ByteBuffer content = file.content().duplicate();
+        long totalBytes = content.remaining();
         String fileId = UUID.randomUUID().toString();
         long transferStartedAtNs = System.nanoTime();
 
@@ -571,9 +577,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 fileId,
                 file.fileType(),
                 file.fileName(),
-                content.length,
+                totalBytes,
                 1,
-                content.length,
+                (int) totalBytes,
                 file.defaultDataFile()));
 
         try {
@@ -603,14 +609,14 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         } finally {
             context.inFlightFile = null;
         }
-        logFileTransferComplete(instanceId, file, content.length, transferStartedAtNs);
+        logFileTransferComplete(instanceId, file, totalBytes, transferStartedAtNs);
     }
 
     /**
-     * Sends the header and the file content as one binary message. The content buffer wraps the shared
-     * byte array (no copy); Jetty auto-fragments it and HTTP/2 flow control bounds what is buffered.
+     * Sends the header and the file content as one binary message. The content is a view over shared
+     * bytes (no copy); Jetty auto-fragments it and HTTP/2 flow control bounds what is buffered.
      */
-    private void sendFileMessage(SessionContext context, String fileId, byte[] content, long timeoutMillis)
+    private void sendFileMessage(SessionContext context, String fileId, ByteBuffer content, long timeoutMillis)
             throws IOException, InterruptedException {
         ByteBuffer header = AgentWsEnvelope.binaryFileHeader(fileId);
         context.binaryInProgress = true;
@@ -621,7 +627,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 context.session.sendPartialBinary(header, false, headerSent);
                 awaitSend(headerSent, timeoutMillis);
                 Callback.Completable contentSent = new Callback.Completable();
-                context.session.sendPartialBinary(ByteBuffer.wrap(content), true, contentSent);
+                context.session.sendPartialBinary(content, true, contentSent);
                 awaitSend(contentSent, timeoutMillis);
             }
         } finally {
@@ -934,7 +940,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
+    record TransferFile(String fileType, String fileName, ByteBuffer content, boolean defaultDataFile) {
+        TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
+            this(fileType, fileName, ByteBuffer.wrap(content != null ? content : new byte[0]), defaultDataFile);
+        }
     }
 
     /** The file whose {@code complete}/{@code failed} ack the sender is waiting on for a session. */

@@ -55,15 +55,15 @@ public class ControllerInitiatedAgentWsClientTest {
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.of(startupScript));
+                        ByteBuffer.wrap(harnessJar), Optional.of(startupScript));
 
         assertEquals(2, files.size());
         assertEquals("startup_script", files.get(0).fileType());
         assertEquals("startAgent.sh", files.get(0).fileName());
-        assertArrayEquals(startupScript, files.get(0).content());
+        assertArrayEquals(startupScript, bytes(files.get(0).content()));
         assertEquals("support_jar", files.get(1).fileType());
         assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
-        assertArrayEquals(harnessJar, files.get(1).content());
+        assertArrayEquals(harnessJar, bytes(files.get(1).content()));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ControllerInitiatedAgentWsClientTest {
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.empty());
+                        ByteBuffer.wrap(harnessJar), Optional.empty());
 
         assertEquals(1, files.size());
         assertEquals("support_jar", files.get(0).fileType());
@@ -449,5 +449,11 @@ public class ControllerInitiatedAgentWsClientTest {
                 jobStatus == JobStatus.Completed ? 0 : 1,
                 new Date(),
                 jobStatus == JobStatus.Completed ? new Date() : null);
+    }
+
+    private static byte[] bytes(ByteBuffer buffer) {
+        byte[] out = new byte[buffer.remaining()];
+        buffer.duplicate().get(out);
+        return out;
     }
 }
