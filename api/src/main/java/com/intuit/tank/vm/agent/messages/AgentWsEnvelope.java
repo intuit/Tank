@@ -236,27 +236,23 @@ public class AgentWsEnvelope {
         return MAPPER.readValue(json, AgentWsEnvelope.class);
     }
 
-    public static ByteBuffer binaryFileChunk(String fileId, int chunkIndex, byte[] bytes, int offset, int len)
-            throws IOException {
+    /**
+     * Header of a binary file message. The file bytes follow it in the same WebSocket message, so
+     * {@link #fromBinaryFileChunk} parses header plus payload once the message is reassembled.
+     */
+    public static ByteBuffer binaryFileChunkHeader(String fileId, int chunkIndex) throws IOException {
         if (fileId == null || fileId.isBlank()) {
             throw new IOException("fileId is required for binary file chunk");
-        }
-        if (bytes == null) {
-            bytes = new byte[0];
-        }
-        if (offset < 0 || len < 0 || offset + len > bytes.length) {
-            throw new IOException("Invalid binary file chunk range");
         }
         byte[] fileIdBytes = fileId.getBytes(StandardCharsets.UTF_8);
         if (fileIdBytes.length > 0xFFFF) {
             throw new IOException("fileId too long for binary file chunk");
         }
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES + Integer.BYTES + Short.BYTES + fileIdBytes.length + len);
+        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES + Integer.BYTES + Short.BYTES + fileIdBytes.length);
         buffer.putInt(BINARY_FILE_CHUNK_MAGIC);
         buffer.putInt(chunkIndex);
         buffer.putShort((short) fileIdBytes.length);
         buffer.put(fileIdBytes);
-        buffer.put(bytes, offset, len);
         buffer.flip();
         return buffer;
     }
