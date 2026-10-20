@@ -16,8 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -32,8 +34,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
@@ -120,16 +124,25 @@ public class ControllerInitiatedAgentWsClientTest {
             }
             return null;
         }).when(session).sendText(anyString(), any(Callback.class));
+        ByteArrayOutputStream message = new ByteArrayOutputStream();
         doAnswer(invocation -> {
-            AgentWsEnvelope.BinaryFileChunk chunk =
-                    AgentWsEnvelope.fromBinaryFileChunk(((ByteBuffer) invocation.getArgument(0)).duplicate());
-            Callback callback = invocation.getArgument(1);
+            ByteBuffer fragment = ((ByteBuffer) invocation.getArgument(0)).duplicate();
+            boolean last = invocation.getArgument(1);
+            Callback callback = invocation.getArgument(2);
+            byte[] bytes = new byte[fragment.remaining()];
+            fragment.get(bytes);
+            message.write(bytes);
             callback.succeed();
-            invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
-                    "i-agent", "bootstrap", chunk.fileId(), chunk.chunkIndex(),
-                    AgentWsEnvelope.AckStatus.complete, null));
+            if (last) {
+                AgentWsEnvelope.BinaryFileChunk chunk =
+                        AgentWsEnvelope.fromBinaryFileChunk(ByteBuffer.wrap(message.toByteArray()));
+                message.reset();
+                invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                        "i-agent", "bootstrap", chunk.fileId(), chunk.chunkIndex(),
+                        AgentWsEnvelope.AckStatus.complete, null));
+            }
             return null;
-        }).when(session).sendBinary(any(ByteBuffer.class), any(Callback.class));
+        }).when(session).sendPartialBinary(any(ByteBuffer.class), anyBoolean(), any(Callback.class));
 
         try {
             boolean result = invokePushStartupBootstrap(client, context);
@@ -137,6 +150,117 @@ public class ControllerInitiatedAgentWsClientTest {
             assertFalse(result);
             assertEquals(List.of("startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
             assertEquals("1/1 files", client.getTransferProgress("i-agent"));
+        } finally {
+            if (previousCatalinaHome == null) {
+                System.clearProperty("catalina.home");
+            } else {
+                System.setProperty("catalina.home", previousCatalinaHome);
+            }
+        }
+    }
+
+    @Test
+    void testStartupBootstrapSendsWholeHarnessJarAsOneWebSocketMessage() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = mock(Session.class);
+        Object context = installSession(client, "i-agent", session);
+        byte[] harnessJar = new byte[5 * 1024 * 1024 + 123];
+        new java.util.Random(42).nextBytes(harnessJar);
+        setField(client, "cachedStartupScript", Optional.empty());
+        setField(client, "cachedHarnessJarBytes", harnessJar);
+
+        Path toolsDir = tempDir.resolve("webapps/ROOT/tools");
+        Files.createDirectories(toolsDir);
+        Files.write(toolsDir.resolve("apiharness-1.0-all.jar"), new byte[] { 2 });
+        String previousCatalinaHome = System.getProperty("catalina.home");
+        System.setProperty("catalina.home", tempDir.toString());
+
+        List<AgentWsEnvelope> offers = new ArrayList<>();
+        doAnswer(invocation -> {
+            AgentWsEnvelope offer = AgentWsEnvelope.fromJson(invocation.getArgument(0));
+            ((Callback) invocation.getArgument(1)).succeed();
+            if (offer.getType() == AgentWsEnvelope.Type.file_offer) {
+                offers.add(offer);
+                invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                        "i-agent", "bootstrap", offer.getFileId(), null, AgentWsEnvelope.AckStatus.ok, null));
+            }
+            return null;
+        }).when(session).sendText(anyString(), any(Callback.class));
+
+        List<ByteBuffer> fragments = new ArrayList<>();
+        List<Boolean> lastFlags = new ArrayList<>();
+        ByteArrayOutputStream message = new ByteArrayOutputStream();
+        doAnswer(invocation -> {
+            ByteBuffer fragment = invocation.getArgument(0);
+            boolean last = invocation.getArgument(1);
+            fragments.add(fragment);
+            lastFlags.add(last);
+            ByteBuffer copy = fragment.duplicate();
+            byte[] bytes = new byte[copy.remaining()];
+            copy.get(bytes);
+            message.write(bytes);
+            ((Callback) invocation.getArgument(2)).succeed();
+            if (last) {
+                AgentWsEnvelope.BinaryFileChunk chunk =
+                        AgentWsEnvelope.fromBinaryFileChunk(ByteBuffer.wrap(message.toByteArray()));
+                invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                        "i-agent", "bootstrap", chunk.fileId(), chunk.chunkIndex(),
+                        AgentWsEnvelope.AckStatus.complete, null));
+            }
+            return null;
+        }).when(session).sendPartialBinary(any(ByteBuffer.class), anyBoolean(), any(Callback.class));
+
+        try {
+            invokePushStartupBootstrap(client, context);
+
+            assertEquals(1, offers.size());
+            assertEquals(harnessJar.length, offers.get(0).getTotalBytes().longValue());
+            assertEquals(1, offers.get(0).getTotalChunks().intValue());
+            assertEquals(harnessJar.length, offers.get(0).getChunkBytes().intValue());
+
+            assertEquals(List.of(false, true), lastFlags);
+            ByteBuffer jarFragment = fragments.get(1);
+            assertTrue(jarFragment.isReadOnly());
+            assertEquals(harnessJar.length, jarFragment.remaining());
+
+            AgentWsEnvelope.BinaryFileChunk received =
+                    AgentWsEnvelope.fromBinaryFileChunk(ByteBuffer.wrap(message.toByteArray()));
+            assertEquals(offers.get(0).getFileId(), received.fileId());
+            assertEquals(0, received.chunkIndex());
+            assertArrayEquals(harnessJar, received.payload());
+
+            verify(session, never()).sendBinary(any(ByteBuffer.class), any(Callback.class));
+            assertEquals("1/1 files", client.getTransferProgress("i-agent"));
+        } finally {
+            if (previousCatalinaHome == null) {
+                System.clearProperty("catalina.home");
+            } else {
+                System.setProperty("catalina.home", previousCatalinaHome);
+            }
+        }
+    }
+
+    @Test
+    void testFileLargerThanAgentMessageLimitFailsBeforeAnythingIsSent() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = mock(Session.class);
+        Object context = installSession(client, "i-agent", session);
+        setField(client, "cachedStartupScript", Optional.empty());
+        setField(client, "cachedHarnessJarBytes", new byte[64 * 1024 * 1024]);
+
+        Path toolsDir = tempDir.resolve("webapps/ROOT/tools");
+        Files.createDirectories(toolsDir);
+        Files.write(toolsDir.resolve("apiharness-1.0-all.jar"), new byte[] { 2 });
+        String previousCatalinaHome = System.getProperty("catalina.home");
+        System.setProperty("catalina.home", tempDir.toString());
+
+        try {
+            InvocationTargetException thrown = assertThrows(
+                    InvocationTargetException.class, () -> invokePushStartupBootstrap(client, context));
+
+            assertTrue(thrown.getCause().getMessage().contains("limited to 67108864 bytes per file"));
+            verify(session, never()).sendText(anyString(), any(Callback.class));
+            verify(session, never()).sendPartialBinary(any(ByteBuffer.class), anyBoolean(), any(Callback.class));
         } finally {
             if (previousCatalinaHome == null) {
                 System.clearProperty("catalina.home");
