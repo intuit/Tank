@@ -11,6 +11,7 @@ import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -322,5 +323,27 @@ public class AgentWsEnvelopeTest {
         assertEquals(AckStatus.duplicate, parsed.getStatus());
         assertEquals("already applied", parsed.getError());
         assertEquals("sess-1", parsed.getAgentSessionId());
+    }
+
+    @Test
+    public void testBinaryFileHeaderRoundTripAcrossFrames() throws Exception {
+        ByteBuffer header = AgentWsEnvelope.binaryFileHeader("file-1");
+        byte[] content = {7, 8, 9};
+        ByteBuffer message = ByteBuffer.allocate(header.remaining() + content.length).put(header).put(content).flip();
+
+        AgentWsEnvelope.BinaryFileHeaderReader reader = new AgentWsEnvelope.BinaryFileHeaderReader();
+        // Split mid-header to prove the reader tolerates any frame boundary.
+        ByteBuffer first = message.slice(0, 5);
+        ByteBuffer second = message.slice(5, message.remaining() - 5);
+        assertNull(reader.read(first));
+        assertEquals("file-1", reader.read(second));
+        assertEquals(content.length, second.remaining());
+        assertEquals(7, second.get());
+    }
+
+    @Test
+    public void testBinaryFileHeaderRejectsUnknownMagic() {
+        AgentWsEnvelope.BinaryFileHeaderReader reader = new AgentWsEnvelope.BinaryFileHeaderReader();
+        assertThrows(IOException.class, () -> reader.read(ByteBuffer.wrap(new byte[16])));
     }
 }

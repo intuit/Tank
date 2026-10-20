@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -55,8 +54,8 @@ public class AgentCommandWebSocketServer {
     private static final String AGENT_HOME_DIR = "/opt/tank_agent";
     private static final String SUPPORT_ARCHIVE_FILE_TYPE = "support_archive";
     private static final String DEFAULT_SUPPORT_ARCHIVE_NAME = "agent-support-files.zip";
-    // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
-    private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
+    // Only text envelopes are aggregated; file content is streamed frame by frame to disk.
+    private static final long MAX_WS_MESSAGE_BYTES = 1024L * 1024;
     // Jetty's default WS idle timeout is 30s. The controller may hold the connection idle while it
     // waits for a whole fleet of agents to become ready before broadcasting START, so raise it well
     // past that window to avoid the connection being closed with "Connection Idle Timeout".
@@ -85,7 +84,6 @@ public class AgentCommandWebSocketServer {
     private volatile AgentTestStartData receivedJobConfig;
     private volatile Session transferCompleteAckWebSocket;
     private volatile String transferCompleteAckFileId;
-    private volatile Integer transferCompleteAckChunkIndex;
 
     public AgentCommandWebSocketServer(int port, String instanceId, String jobId, int capacity) {
         this.port = port;
@@ -157,7 +155,6 @@ public class AgentCommandWebSocketServer {
                 case ping -> handlePing(connection, envelope);
                 case job_config -> handleJobConfig(envelope);
                 case file_offer -> handleFileOffer(connection, envelope);
-                case file_chunk -> handleFileChunk(connection, envelope);
                 case ack -> LOG.info(new ObjectMessage(Map.of("Message", "Received WS ack: " + envelope.getAckForType())));
                 case close -> {
                     LOG.info(new ObjectMessage(Map.of("Message", "Controller closed WS: " + envelope.getReason())));
@@ -257,73 +254,50 @@ public class AgentCommandWebSocketServer {
                     envelope.getFileName(),
                     targetFile,
                     tempFile,
-                    envelope.getTotalBytes() != null ? envelope.getTotalBytes() : 0L,
-                    envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0,
+                    envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L,
                     Boolean.TRUE.equals(envelope.getDefaultDataFile()),
                     new FileOutputStream(tempFile)
             );
             incomingFiles.put(fileId, state);
-            sendFileAck(connection, fileId, 0, AckStatus.ok, null);
+            sendFileAck(connection, fileId, AckStatus.ok, null);
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed handling file_offer " + envelope.getFileName() + ": " + e.getMessage())));
-            sendFileAck(connection, fileId, 0, AckStatus.failed, e.getMessage());
+            sendFileAck(connection, fileId, AckStatus.failed, e.getMessage());
         }
     }
 
-    private void handleFileChunk(Session connection, AgentWsEnvelope envelope) {
-        String fileId = envelope.getFileId();
-        byte[] payload;
-        try {
-            payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
-                    ? new byte[0]
-                    : Base64.getDecoder().decode(envelope.getChunkData());
-        } catch (Exception e) {
-            sendFileAck(connection, fileId, envelope.getChunkIndex(), AckStatus.failed, e.getMessage());
-            return;
-        }
-        handleFileChunk(connection, fileId, envelope.getChunkIndex(), payload);
-    }
-
-    private void handleFileChunk(Session connection, String fileId, Integer chunkIndex, byte[] payload) {
-        IncomingFileState state = fileId != null ? incomingFiles.get(fileId) : null;
+    /** Writes one frame of a file message; on the final frame finalizes the file and acks. */
+    private void handleFileData(Session connection, String fileId, ByteBuffer data, boolean last) {
+        IncomingFileState state = incomingFiles.get(fileId);
         if (state == null) {
-            sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
+            if (last) {
+                sendFileAck(connection, fileId, AckStatus.failed, "file_offer_not_found");
+            }
             return;
         }
 
         try {
-            if (state.totalChunks < 0 && payload.length == 0) {
-                finalizeFile(state);
-                incomingFiles.remove(fileId);
-                sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
-                markFileComplete(connection, fileId, chunkIndex);
+            state.receivedBytes += data.remaining();
+            state.outputStream.getChannel().write(data);
+            if (!last) {
                 return;
             }
-
-            state.outputStream.write(payload);
-            state.receivedBytes += payload.length;
-            state.receivedChunks++;
-
-            sendFileAck(connection, fileId, chunkIndex, AckStatus.chunk_received, null);
-
-            if (state.totalChunks >= 0 && state.receivedChunks >= state.totalChunks) {
-                finalizeFile(state);
-                incomingFiles.remove(fileId);
-                sendFileAck(connection, fileId, chunkIndex, AckStatus.complete, null);
-                markFileComplete(connection, fileId, chunkIndex);
-            }
+            finalizeFile(state);
+            incomingFiles.remove(fileId);
+            sendFileAck(connection, fileId, AckStatus.complete, null);
+            markFileComplete(connection, fileId);
         } catch (Exception e) {
             incomingFiles.remove(fileId);
             state.closeQuietly();
-            sendFileAck(connection, fileId, chunkIndex, AckStatus.failed, e.getMessage());
+            sendFileAck(connection, fileId, AckStatus.failed, e.getMessage());
         }
     }
 
-    private void markFileComplete(Session connection, String fileId, Integer chunkIndex) {
+    private void markFileComplete(Session connection, String fileId) {
         int done = completedFiles.incrementAndGet();
         CompletableFuture<Void> currentTransferCompleteFuture = transferCompleteFuture;
         if (expectedFiles > 0 && done >= expectedFiles && !currentTransferCompleteFuture.isDone()) {
-            prepareTransferCompleteAck(connection, fileId, chunkIndex);
+            prepareTransferCompleteAck(connection, fileId);
             currentTransferCompleteFuture.complete(null);
             sendTransferCompleteAckIfReady();
         }
@@ -351,7 +325,6 @@ public class AgentCommandWebSocketServer {
                 "WS file received file=" + state.fileName
                         + " type=" + state.fileType
                         + " bytes=" + state.receivedBytes + "/" + state.totalBytes
-                        + " chunks=" + state.receivedChunks + "/" + state.totalChunks
                         + " durationMs=" + durationMs
                         + " throughputMiBps=" + throughputMiBps)));
 
@@ -421,19 +394,18 @@ public class AgentCommandWebSocketServer {
         return new File(envelope.getFileName());
     }
 
-    private void sendFileAck(Session connection, String fileId, Integer chunkIndex, AckStatus status, String error) {
+    private void sendFileAck(Session connection, String fileId, AckStatus status, String error) {
         try {
-            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, null, status, error);
             sendText(connection, ack.toJson());
         } catch (IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send file ack for " + fileId + ": " + e.getMessage())));
         }
     }
 
-    private void prepareTransferCompleteAck(Session connection, String fileId, Integer chunkIndex) {
+    private void prepareTransferCompleteAck(Session connection, String fileId) {
         transferCompleteAckWebSocket = connection;
         transferCompleteAckFileId = fileId;
-        transferCompleteAckChunkIndex = chunkIndex;
     }
 
     private void sendTransferCompleteAckIfReady() {
@@ -442,7 +414,7 @@ public class AgentCommandWebSocketServer {
             return;
         }
         if (transferCompleteAckSent.compareAndSet(false, true)) {
-            sendFileAck(connection, transferCompleteAckFileId, transferCompleteAckChunkIndex, AckStatus.all_files_complete, null);
+            sendFileAck(connection, transferCompleteAckFileId, AckStatus.all_files_complete, null);
         }
     }
 
@@ -531,6 +503,8 @@ public class AgentCommandWebSocketServer {
 
         private final AgentCommandWebSocketServer owner;
         private Session session;
+        private AgentWsEnvelope.BinaryFileHeaderReader headerReader = new AgentWsEnvelope.BinaryFileHeaderReader();
+        private String fileId;
 
         private CommandEndpoint(AgentCommandWebSocketServer owner) {
             this.owner = owner;
@@ -547,15 +521,30 @@ public class AgentCommandWebSocketServer {
             owner.onTextMessage(session, message);
         }
 
+        /**
+         * Receives a file message frame by frame (Jetty does not aggregate it), so memory use is bounded by
+         * the frame size regardless of file size. The first bytes of each message are the file header.
+         */
         @Override
-        public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
+        public void onWebSocketPartialBinary(ByteBuffer payload, boolean last, Callback callback) {
             try {
-                AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
-                owner.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+                if (fileId == null) {
+                    fileId = headerReader.read(payload);
+                }
+                if (fileId != null) {
+                    owner.handleFileData(session, fileId, payload, last);
+                } else if (last) {
+                    throw new IOException("Binary file message ended before header was complete");
+                }
                 callback.succeed();
             } catch (IOException e) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
+                LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file message: " + e.getMessage())));
                 callback.fail(e);
+            } finally {
+                if (last) {
+                    headerReader = new AgentWsEnvelope.BinaryFileHeaderReader();
+                    fileId = null;
+                }
             }
         }
 
@@ -576,22 +565,18 @@ public class AgentCommandWebSocketServer {
         private final File targetFile;
         private final File tempFile;
         private final long totalBytes;
-        private final int totalChunks;
         private final boolean defaultDataFile;
-        private final OutputStream outputStream;
+        private final FileOutputStream outputStream;
         private final long transferStartedAtNs;
         private long receivedBytes;
-        private int receivedChunks;
 
         private IncomingFileState(String fileType, String fileName, File targetFile, File tempFile,
-                                  long totalBytes, int totalChunks, boolean defaultDataFile,
-                                  OutputStream outputStream) {
+                                  long totalBytes, boolean defaultDataFile, FileOutputStream outputStream) {
             this.fileType = fileType;
             this.fileName = fileName;
             this.targetFile = targetFile;
             this.tempFile = tempFile;
             this.totalBytes = totalBytes;
-            this.totalChunks = totalChunks;
             this.defaultDataFile = defaultDataFile;
             this.outputStream = outputStream;
             this.transferStartedAtNs = System.nanoTime();

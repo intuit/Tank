@@ -120,16 +120,25 @@ public class ControllerInitiatedAgentWsClientTest {
             }
             return null;
         }).when(session).sendText(anyString(), any(Callback.class));
+        AgentWsEnvelope.BinaryFileHeaderReader[] headerReader = { new AgentWsEnvelope.BinaryFileHeaderReader() };
+        String[] fileId = new String[1];
         doAnswer(invocation -> {
-            AgentWsEnvelope.BinaryFileChunk chunk =
-                    AgentWsEnvelope.fromBinaryFileChunk(((ByteBuffer) invocation.getArgument(0)).duplicate());
-            Callback callback = invocation.getArgument(1);
+            ByteBuffer frame = ((ByteBuffer) invocation.getArgument(0)).duplicate();
+            boolean last = invocation.getArgument(1);
+            Callback callback = invocation.getArgument(2);
+            if (fileId[0] == null) {
+                fileId[0] = headerReader[0].read(frame);
+            }
             callback.succeed();
-            invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
-                    "i-agent", "bootstrap", chunk.fileId(), chunk.chunkIndex(),
-                    AgentWsEnvelope.AckStatus.complete, null));
+            if (last) {
+                invokeHandleText(client, "i-agent", session, AgentWsEnvelope.fileAck(
+                        "i-agent", "bootstrap", fileId[0], null,
+                        AgentWsEnvelope.AckStatus.complete, null));
+                headerReader[0] = new AgentWsEnvelope.BinaryFileHeaderReader();
+                fileId[0] = null;
+            }
             return null;
-        }).when(session).sendBinary(any(ByteBuffer.class), any(Callback.class));
+        }).when(session).sendPartialBinary(any(ByteBuffer.class), any(Boolean.class), any(Callback.class));
 
         try {
             boolean result = invokePushStartupBootstrap(client, context);

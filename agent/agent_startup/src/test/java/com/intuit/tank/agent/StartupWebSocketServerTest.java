@@ -8,6 +8,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,7 +39,7 @@ class StartupWebSocketServerTest {
 
         server.handleFileOffer(session, fileOffer(
                 "script-id", "startup_script", "startAgent.sh", script.length));
-        server.handleFileChunk(session, "script-id", 0, script);
+        server.handleFileData(session, "script-id", ByteBuffer.wrap(script), true);
 
         Path receivedScript = agentDir.resolve("startAgent.sh");
         assertArrayEquals(script, Files.readAllBytes(receivedScript));
@@ -48,10 +49,27 @@ class StartupWebSocketServerTest {
         byte[] harnessJar = new byte[] { 1, 2, 3 };
         server.handleFileOffer(session, fileOffer(
                 "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
-        server.handleFileChunk(session, "jar-id", 0, harnessJar);
+        server.handleFileData(session, "jar-id", ByteBuffer.wrap(harnessJar), true);
 
         File receivedHarness = server.awaitHarnessJar(100);
         assertEquals(agentDir.resolve("apiharness-1.0-all.jar").toFile(), receivedHarness);
+        assertArrayEquals(harnessJar, Files.readAllBytes(receivedHarness.toPath()));
+    }
+
+    @Test
+    void streamsHarnessJarAcrossFrames() throws Exception {
+        StartupWebSocketServer server =
+                new StartupWebSocketServer(0, "i-agent", "job-1", 1, agentDir.toFile());
+        Session session = sessionThatCompletesCallbacks();
+        byte[] harnessJar = new byte[] { 1, 2, 3, 4, 5 };
+
+        server.handleFileOffer(session, fileOffer(
+                "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
+        server.handleFileData(session, "jar-id", ByteBuffer.wrap(harnessJar, 0, 2), false);
+        assertFalse(isHarnessJarReady(server));
+        server.handleFileData(session, "jar-id", ByteBuffer.wrap(harnessJar, 2, 3), true);
+
+        File receivedHarness = server.awaitHarnessJar(100);
         assertArrayEquals(harnessJar, Files.readAllBytes(receivedHarness.toPath()));
     }
 
@@ -75,7 +93,7 @@ class StartupWebSocketServerTest {
 
         server.handleFileOffer(session, fileOffer(
                 "script-id", "startup_script", "startAgent.sh", 1));
-        server.handleFileChunk(session, "script-id", 0, new byte[] { 1, 2 });
+        server.handleFileData(session, "script-id", ByteBuffer.wrap(new byte[] { 1, 2 }), true);
 
         assertFalse(isHarnessJarReady(server));
         verify(session).sendText(contains("file size mismatch"), any(Callback.class));
@@ -83,7 +101,7 @@ class StartupWebSocketServerTest {
         byte[] harnessJar = new byte[] { 3 };
         server.handleFileOffer(session, fileOffer(
                 "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
-        server.handleFileChunk(session, "jar-id", 0, harnessJar);
+        server.handleFileData(session, "jar-id", ByteBuffer.wrap(harnessJar), true);
 
         assertEquals(agentDir.resolve("apiharness-1.0-all.jar").toFile(), server.awaitHarnessJar(100));
     }
@@ -101,7 +119,7 @@ class StartupWebSocketServerTest {
 
         server.handleFileOffer(session, fileOffer(
                 "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
-        server.handleFileChunk(session, "jar-id", 0, harnessJar);
+        server.handleFileData(session, "jar-id", ByteBuffer.wrap(harnessJar), true);
 
         assertArrayEquals(packagedScript, Files.readAllBytes(startupScript));
         assertTrue(Files.isExecutable(startupScript));

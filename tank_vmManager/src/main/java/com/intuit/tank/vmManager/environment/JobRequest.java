@@ -15,6 +15,7 @@ package com.intuit.tank.vmManager.environment;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient;
 import com.intuit.tank.perfManager.workLoads.JobManager;
@@ -45,6 +46,12 @@ import org.apache.logging.log4j.message.ObjectMessage;
 public class JobRequest implements Runnable {
 
     static Logger logger = LogManager.getLogger(JobRequest.class);
+
+    // Caps concurrent agent connect + file transfer attempts across all jobs so a large launch doesn't
+    // push to every agent at once; the rest queue in FIFO order.
+    static final int MAX_CONCURRENT_BOOTSTRAPS =
+            Math.max(1, Integer.getInteger("tank.ws.maxConcurrentBootstraps", 10));
+    private static final Semaphore BOOTSTRAP_SLOTS = new Semaphore(MAX_CONCURRENT_BOOTSTRAPS, true);
 
     private VMJobRequest request = null;
     private VMTracker vmTracker;
@@ -156,6 +163,15 @@ public class JobRequest implements Runnable {
         long start = System.currentTimeMillis();
         int attempt = 1;
         while (System.currentTimeMillis() - start < maxConnectWaitMillis) {
+            long queuedAt = System.currentTimeMillis();
+            try {
+                BOOTSTRAP_SLOTS.acquire();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+            // Time spent queued behind other agents doesn't count against this agent's connect deadline.
+            start += System.currentTimeMillis() - queuedAt;
             try {
                 boolean complete = wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
                         token, helloTimeoutMillis, transferTimeoutMillis);
@@ -169,6 +185,8 @@ public class JobRequest implements Runnable {
                 logger.warn(new ObjectMessage(Map.of("Message",
                         "[WS] Controller initiated connect attempt " + attempt + " failed for "
                                 + info.getInstanceId() + " at " + wsUrl + ": " + e.getMessage())));
+            } finally {
+                BOOTSTRAP_SLOTS.release();
             }
             try {
                 Thread.sleep(Math.min(10_000L, 2_000L * attempt));

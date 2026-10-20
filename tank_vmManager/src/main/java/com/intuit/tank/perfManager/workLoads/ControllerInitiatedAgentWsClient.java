@@ -50,8 +50,9 @@ import java.util.zip.GZIPInputStream;
 
 /**
  * Controller-side client that pushes bootstrap and job files to agents over WebSocket-over-HTTP/2
- * (RFC 8441) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
- * (sliding) window rather than a fixed stop-and-wait ack gate, so throughput is independent of RTT.
+ * (RFC 8441) using the Jetty 12 WebSocket client. Each file is sent as a single binary message; Jetty
+ * fragments it into frames and HTTP/2 flow control paces the transfer, so no application-level chunking
+ * or chunk acks are needed and the content is never copied per agent.
  */
 @ApplicationScoped
 public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
@@ -63,15 +64,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
-    private static final int DEFAULT_CHUNK_BYTES =
-            Math.max(1, Integer.getInteger("tank.ws.chunkBytes", 2 * 1024 * 1024));
-    // Bounded number of unacked chunks allowed in flight before the sender blocks for credit.
-    private static final int CHUNK_WINDOW =
-            Math.max(1, Integer.getInteger("tank.ws.chunkWindow", 32));
-    private static final long MAX_BOOTSTRAP_CONNECTION_MS =
-            Long.getLong("tank.ws.bootstrap.maxConnectionMs", 180_000L);
-    // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
-    private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
+    private static final long FILE_OFFER_ACK_TIMEOUT_MS = 10_000L;
+    // Only small text envelopes are received from agents.
+    private static final long MAX_WS_MESSAGE_BYTES = 1024L * 1024;
     // Jetty's default WS idle timeout is 30s. The controller holds connections idle while waiting for
     // a whole fleet of agents to become ready before broadcasting START — raise it well past that.
     private static final long WS_IDLE_TIMEOUT_MS =
@@ -162,6 +157,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         for (Map.Entry<String, SessionContext> entry : sessions.entrySet()) {
             SessionContext context = entry.getValue();
             if (context == null || !context.isOpen()) {
+                continue;
+            }
+            // A file message is streaming: the agent is silent until it completes and the session lock
+            // is held, so neither the stale check nor a ping applies.
+            if (context.binaryInProgress) {
                 continue;
             }
             long lastSeen = Math.max(context.openedAtMs, agentLastSeen.getOrDefault(entry.getKey(), 0L));
@@ -275,7 +275,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             agentTransferProgress.put(agentId, "0/" + files.size() + " files");
 
             sendEnvelope(context, AgentWsEnvelope.jobConfig(agentId, startData.getJobId(), startData, files.size()));
-            sendFiles(context, agentId, startData.getJobId(), files, DEFAULT_CHUNK_BYTES);
+            sendFiles(context, agentId, startData.getJobId(), files, transferTimeoutMillis);
 
             context.transferCompleteFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
             fileTransferReady.put(agentId, true);
@@ -404,10 +404,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         int bootstrapFileCount = bootstrapFiles.size();
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
                 + " needs startup bootstrap — pushing " + bootstrapFileCount + " files"
-                + " customStartAgent=" + startupScript.isPresent()
-                + " chunkBytes=" + DEFAULT_CHUNK_BYTES
-                + " window=" + CHUNK_WINDOW
-                + " maxConnectionMs=" + MAX_BOOTSTRAP_CONNECTION_MS)));
+                + " customStartAgent=" + startupScript.isPresent())));
 
         context.jobId = "bootstrap";
         context.expectedFiles = bootstrapFileCount;
@@ -416,11 +413,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentWsState.put(agentId, "bootstrap_transferring");
         agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
 
-        long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
-        boolean sentAllChunks;
         try {
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+            sendFiles(context, agentId, "bootstrap", bootstrapFiles, transferTimeoutMillis);
         } catch (UnsupportedStartupScriptException e) {
             bootstrapFiles = buildStartupBootstrapFiles(jarBytes, Optional.empty());
             bootstrapFileCount = bootstrapFiles.size();
@@ -429,18 +423,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
             LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
                     + " does not support startup_script — retrying bootstrap with harness JAR only")));
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
-        }
-
-        if (!sentAllChunks) {
-            LOG.info(new ObjectMessage(Map.of("Message",
-                    "[WS] Bootstrap connection budget reached for " + agentId
-                            + " — closing cleanly to resume on next connection")));
-            agentWsState.put(agentId, "bootstrap_transferring");
-            sessions.remove(agentId, context);
-            context.closeGracefully("bootstrap_connection_budget_reached");
-            return false;
+            sendFiles(context, agentId, "bootstrap", bootstrapFiles, transferTimeoutMillis);
         }
 
         context.transferCompleteFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
@@ -566,175 +549,92 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         return token != null && !token.isBlank() ? "bearer " + token : null;
     }
 
-    private void sendFiles(SessionContext context, String instanceId, String jobId, List<TransferFile> files, int chunkBytes)
-            throws IOException, InterruptedException {
+    private void sendFiles(SessionContext context, String instanceId, String jobId, List<TransferFile> files,
+                           long transferTimeoutMillis) throws IOException, InterruptedException {
         for (TransferFile file : files) {
-            sendFile(context, instanceId, jobId, file, chunkBytes, 0L);
+            sendFile(context, instanceId, jobId, file, transferTimeoutMillis);
         }
     }
 
-    private boolean sendFilesWithBudget(SessionContext context, String instanceId, String jobId,
-                                        List<TransferFile> files, int chunkBytes, long connectionDeadlineMs)
-            throws IOException, InterruptedException {
-        try {
-            for (TransferFile file : files) {
-                if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (BootstrapBudgetExceededException e) {
-            LOG.info(new ObjectMessage(Map.of("Message",
-                    "[WS] Bootstrap transfer budget reached for " + instanceId
-                            + " during ack wait — closing cleanly to resume")));
-            return false;
-        }
-    }
-
-    private boolean sendFile(SessionContext context, String instanceId, String jobId, TransferFile file,
-                             int chunkBytes, long connectionDeadlineMs)
-            throws IOException, InterruptedException {
-        byte[] content = file.content();
-        long totalBytes = content != null ? content.length : 0L;
-        int totalChunks = Math.max(1, (int) Math.ceil((double) totalBytes / chunkBytes));
+    private void sendFile(SessionContext context, String instanceId, String jobId, TransferFile file,
+                          long transferTimeoutMillis) throws IOException, InterruptedException {
+        byte[] content = file.content() != null ? file.content() : new byte[0];
         String fileId = UUID.randomUUID().toString();
         long transferStartedAtNs = System.nanoTime();
 
-        // Send offer and wait for ack (may include resume offset)
         CompletableFuture<AgentWsEnvelope> offerAckFuture = new CompletableFuture<>();
         pendingAcks.put(fileId, offerAckFuture);
+        // totalChunks=1 / chunkBytes=totalBytes keep older agents, which still expect chunk fields, working.
         sendEnvelope(context, AgentWsEnvelope.fileOffer(
                 instanceId,
                 jobId,
                 fileId,
                 file.fileType(),
                 file.fileName(),
-                totalBytes,
-                totalChunks,
-                chunkBytes,
+                content.length,
+                1,
+                content.length,
                 file.defaultDataFile()));
 
-        // Fresh in-flight window state for this file.
-        ChunkWindow window = new ChunkWindow(fileId);
-        context.chunkWindow = window;
-
-        if (content == null || content.length == 0) {
-            pendingAcks.remove(fileId);
-            sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, 0, new byte[0], 0, 0));
-            return true;
-        }
-
-        // Check for offer ack (ok, resume, or failed)
-        int startOffset = 0;
-        int startChunk = 0;
         try {
-            AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
-            if (offerAck != null) {
-                if (offerAck.getStatus() == AckStatus.failed) {
-                    if (isLegacyStartupScriptRejection(file, offerAck)) {
-                        throw new UnsupportedStartupScriptException();
-                    }
-                    throw new IOException("File offer rejected by agent: " + offerAck.getError());
+            AgentWsEnvelope offerAck = offerAckFuture.get(FILE_OFFER_ACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            if (offerAck.getStatus() == AckStatus.failed) {
+                if (isLegacyStartupScriptRejection(file, offerAck)) {
+                    throw new UnsupportedStartupScriptException();
                 }
-                if (offerAck.getStatus() == AckStatus.resume
-                        && offerAck.getResumeOffset() != null && offerAck.getResumeOffset() > 0) {
-                    startOffset = offerAck.getResumeOffset().intValue();
-                    startChunk = offerAck.getChunkIndex() != null ? offerAck.getChunkIndex() : 0;
-                    LOG.info(new ObjectMessage(Map.of("Message",
-                            "[WS] Resuming file transfer for " + instanceId + " from offset=" + startOffset
-                                    + " chunk=" + startChunk + " (" + startOffset + "/" + totalBytes + " bytes)")));
-                }
+                throw new IOException("File offer rejected by agent: " + offerAck.getError());
             }
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            // No ack or timeout — start from beginning (backward compatible)
-            LOG.info(new ObjectMessage(Map.of("Message",
-                    "[WS] No file offer ack from " + instanceId + " — starting transfer from beginning")));
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException e) {
+            throw new IOException("No file offer ack from " + instanceId + " for " + file.fileName(), e);
         } finally {
             pendingAcks.remove(fileId);
         }
 
-        int chunkIndex = startChunk;
-        for (int offset = startOffset; offset < content.length; offset += chunkBytes) {
-            if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
-                LOG.info(new ObjectMessage(Map.of("Message",
-                        "[WS] Bootstrap transfer budget reached for " + instanceId
-                                + " at chunk=" + chunkIndex + " offset=" + offset
-                                + "/" + totalBytes + " — will reconnect and resume")));
-                return false;
+        CompletableFuture<AgentWsEnvelope> completeFuture = new CompletableFuture<>();
+        context.inFlightFile = new InFlightFile(fileId, completeFuture);
+        try {
+            sendFileMessage(context, fileId, content, transferTimeoutMillis);
+            AgentWsEnvelope result = completeFuture.get(transferTimeoutMillis, TimeUnit.MILLISECONDS);
+            if (result.getStatus() == AckStatus.failed) {
+                throw new IOException("File transfer failed on agent: " + result.getError());
             }
-            // Bounded in-flight window: block only when too many chunks are unacked.
-            awaitWindowCredit(window, chunkIndex, connectionDeadlineMs, instanceId);
-            int len = Math.min(chunkBytes, content.length - offset);
-            sendBinaryChunk(context, AgentWsEnvelope.binaryFileChunk(fileId, chunkIndex, content, offset, len));
-            window.onSent(chunkIndex);
-            chunkIndex++;
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException e) {
+            throw new IOException("File transfer of " + file.fileName() + " to " + instanceId + " failed", e);
+        } finally {
+            context.inFlightFile = null;
         }
-        // Drain the window: wait until all sent chunks have been acked.
-        awaitWindowDrained(window, chunkIndex - 1, connectionDeadlineMs, instanceId);
-        logFileTransferComplete(instanceId, file, totalBytes, totalChunks, chunkBytes,
-                startOffset, chunkIndex - startChunk, transferStartedAtNs);
-        return true;
+        logFileTransferComplete(instanceId, file, content.length, transferStartedAtNs);
     }
 
-    /** Blocks until fewer than CHUNK_WINDOW chunks are outstanding (unacked) for this file. */
-    private void awaitWindowCredit(ChunkWindow window, int nextChunkIndex, long connectionDeadlineMs, String instanceId)
+    /**
+     * Sends the header and the file content as one binary message. The content buffer wraps the shared
+     * byte array (no copy); Jetty auto-fragments it and HTTP/2 flow control bounds what is buffered.
+     */
+    private void sendFileMessage(SessionContext context, String fileId, byte[] content, long timeoutMillis)
             throws IOException, InterruptedException {
-        int lowestAllowed = nextChunkIndex - CHUNK_WINDOW + 1;
-        waitForAckedThrough(window, lowestAllowed - 1, connectionDeadlineMs, instanceId);
-    }
-
-    /** Blocks until every chunk up through lastChunkIndex has been acked. */
-    private void awaitWindowDrained(ChunkWindow window, int lastChunkIndex, long connectionDeadlineMs, String instanceId)
-            throws IOException, InterruptedException {
-        if (lastChunkIndex < 0) {
-            return;
+        ByteBuffer header = AgentWsEnvelope.binaryFileHeader(fileId);
+        context.binaryInProgress = true;
+        try {
+            // Hold the session lock so no text envelope can interleave with the fragmented message.
+            synchronized (context.session) {
+                Callback.Completable headerSent = new Callback.Completable();
+                context.session.sendPartialBinary(header, false, headerSent);
+                awaitSend(headerSent, timeoutMillis);
+                Callback.Completable contentSent = new Callback.Completable();
+                context.session.sendPartialBinary(ByteBuffer.wrap(content), true, contentSent);
+                awaitSend(contentSent, timeoutMillis);
+            }
+        } finally {
+            context.binaryInProgress = false;
         }
-        waitForAckedThrough(window, lastChunkIndex, connectionDeadlineMs, instanceId);
     }
 
-    private void waitForAckedThrough(ChunkWindow window, int requiredAckedIndex, long connectionDeadlineMs,
-                                     String instanceId) throws IOException, InterruptedException {
-        while (true) {
-            // Atomically re-check the window and obtain the future to await, closing the race where an
-            // ack could land between the check and the wait.
-            CompletableFuture<Void> advance = window.awaitAdvanceIfBelow(requiredAckedIndex);
-            if (advance == null) {
-                if (window.failure() != null) {
-                    throw new IOException(window.failure());
-                }
-                return;
-            }
-            long ackTimeoutMs = 30_000L;
-            if (connectionDeadlineMs > 0) {
-                long remainingMs = connectionDeadlineMs - System.currentTimeMillis();
-                if (remainingMs <= 0) {
-                    throw new BootstrapBudgetExceededException(
-                            "Bootstrap connection budget reached during chunk ack wait");
-                }
-                ackTimeoutMs = Math.min(ackTimeoutMs, remainingMs);
-            }
-            try {
-                advance.get(ackTimeoutMs, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw e;
-            } catch (java.util.concurrent.TimeoutException e) {
-                if (connectionDeadlineMs > 0 && System.currentTimeMillis() >= connectionDeadlineMs) {
-                    throw new BootstrapBudgetExceededException(
-                            "Bootstrap connection budget reached while waiting for chunk ack");
-                }
-                if (window.failure() != null) {
-                    throw new IOException(window.failure());
-                }
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
-            } catch (Exception e) {
-                if (window.failure() != null) {
-                    throw new IOException(window.failure());
-                }
-                throw new IOException("Timed out waiting for WS chunk ack for " + instanceId, e);
-            }
+    private static void awaitSend(Callback.Completable sent, long timeoutMillis)
+            throws IOException, InterruptedException {
+        try {
+            sent.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException e) {
+            throw new IOException("WS binary send failed", e);
         }
     }
 
@@ -746,31 +646,18 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 && "unsupported_startup_file".equals(offerAck.getError());
     }
 
-    private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes, int totalChunks,
-                                         int chunkBytes, int startOffset, int chunksSent, long transferStartedAtNs) {
+    private void logFileTransferComplete(String instanceId, TransferFile file, long totalBytes,
+                                         long transferStartedAtNs) {
         long durationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - transferStartedAtNs);
-        long sentBytes = Math.max(0L, totalBytes - startOffset);
         double throughputMiBps = durationMs > 0
-                ? Math.round(((sentBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
+                ? Math.round(((totalBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
                 : 0.0;
         LOG.info(new ObjectMessage(Map.of("Message",
                 "[WS] File transfer complete for " + instanceId
                         + " file=" + file.fileName()
                         + " bytes=" + totalBytes
-                        + " chunks=" + chunksSent + "/" + totalChunks
-                        + " chunkBytes=" + chunkBytes
-                        + " resumed=" + (startOffset > 0)
-                        + " resumeOffset=" + startOffset
                         + " durationMs=" + durationMs
                         + " throughputMiBps=" + throughputMiBps)));
-    }
-
-    private void sendBinaryChunk(SessionContext context, ByteBuffer payload) {
-        Callback.Completable callback = new Callback.Completable();
-        synchronized (context.session) {
-            context.session.sendBinary(payload, callback);
-        }
-        callback.join();
     }
 
     private void sendEnvelope(SessionContext context, AgentWsEnvelope envelope) throws IOException {
@@ -832,7 +719,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             return;
         }
 
-        // Route offer-level acks (ok, resume, failed) to the pending offer future
+        // Offer-level acks (ok, failed; resume from older agents means "start at 0") go to the offer future
         if (envelope.getFileId() != null && (envelope.getStatus() == AckStatus.ok
                 || envelope.getStatus() == AckStatus.resume
                 || envelope.getStatus() == AckStatus.failed)) {
@@ -846,10 +733,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         if (envelope.getStatus() == AckStatus.all_files_complete) {
             fileTransferReady.put(instanceId, true);
             agentWsState.put(instanceId, "ready");
-            ChunkWindow window = context.chunkWindow;
-            if (window != null && window.matchesFile(envelope.getFileId())) {
-                window.onAck(envelope.getChunkIndex());
-            }
             context.transferCompleteFuture.complete(null);
             return;
         }
@@ -857,22 +740,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         if (envelope.getStatus() == AckStatus.complete) {
             int completed = context.completedFiles.merge(instanceId, 1, Integer::sum);
             agentTransferProgress.put(instanceId, completed + "/" + context.expectedFiles + " files");
+            completeInFlightFile(context, envelope);
             if (context.bootstrapTransfer && completed >= context.expectedFiles) {
                 context.transferCompleteFuture.complete(null);
             }
-        }
-
-        if (envelope.getStatus() == AckStatus.complete || envelope.getStatus() == AckStatus.chunk_received) {
-            ChunkWindow window = context.chunkWindow;
-            if (window != null && window.matchesFile(envelope.getFileId())) {
-                window.onAck(envelope.getChunkIndex());
-            }
         } else if (envelope.getStatus() == AckStatus.failed) {
-            ChunkWindow window = context.chunkWindow;
-            if (window != null && window.matchesFile(envelope.getFileId())) {
-                window.onFailure(envelope.getError());
-            }
+            completeInFlightFile(context, envelope);
             context.transferCompleteFuture.completeExceptionally(new IOException(envelope.getError()));
+        }
+    }
+
+    private void completeInFlightFile(SessionContext context, AgentWsEnvelope envelope) {
+        InFlightFile inFlight = context.inFlightFile;
+        if (inFlight != null && inFlight.fileId().equals(envelope.getFileId())) {
+            inFlight.result().complete(envelope);
         }
     }
 
@@ -945,10 +826,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         terminationRequestedInstances.remove(instanceId);
         context.markClosed();
         fileTransferReady.remove(instanceId);
-        ChunkWindow window = context.chunkWindow;
-        if (window != null) {
-            window.onFailure("WS connection closed for " + instanceId);
-        }
         agentWsState.put(instanceId, "disconnected");
     }
 
@@ -1006,7 +883,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         private volatile int expectedFiles;
         private volatile boolean bootstrapTransfer;
         private volatile AgentWsEnvelope hello;
-        private volatile ChunkWindow chunkWindow;
+        private volatile InFlightFile inFlightFile;
+        private volatile boolean binaryInProgress;
 
         private SessionContext(Session session, Endpoint endpoint, CompletableFuture<AgentWsEnvelope> helloFuture) {
             this.session = session;
@@ -1030,100 +908,37 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
                 } catch (Exception e) {
                     try { session.disconnect(); } catch (Exception ignored) {}
                 }
-                helloFuture.completeExceptionally(new IllegalStateException(reason));
-                transferCompleteFuture.completeExceptionally(new IllegalStateException(reason));
+                failPending(new IllegalStateException(reason));
             }
         }
 
         private void abort() {
             if (closed.compareAndSet(false, true)) {
                 try { session.disconnect(); } catch (Exception ignored) {}
-                helloFuture.completeExceptionally(new IllegalStateException("Aborted"));
-                transferCompleteFuture.completeExceptionally(new IllegalStateException("Aborted"));
+                failPending(new IllegalStateException("Aborted"));
             }
         }
 
         private void markClosed() {
             closed.set(true);
-            helloFuture.completeExceptionally(new IllegalStateException("Closed"));
-            transferCompleteFuture.completeExceptionally(new IllegalStateException("Closed"));
+            failPending(new IllegalStateException("Closed"));
+        }
+
+        private void failPending(Exception cause) {
+            helloFuture.completeExceptionally(cause);
+            transferCompleteFuture.completeExceptionally(cause);
+            InFlightFile inFlight = inFlightFile;
+            if (inFlight != null) {
+                inFlight.result().completeExceptionally(cause);
+            }
         }
     }
 
     record TransferFile(String fileType, String fileName, byte[] content, boolean defaultDataFile) {
     }
 
-    /**
-     * Tracks the sliding send window for a single file transfer. The sender advances
-     * {@code highestAckedChunk} as contiguous {@code chunk_received}/{@code complete} acks arrive and
-     * blocks only when the number of unacked chunks reaches {@link #CHUNK_WINDOW}.
-     */
-    private static class ChunkWindow {
-        private final String fileId;
-        private final java.util.BitSet ackedChunks = new java.util.BitSet();
-        private int highestContiguousAcked = -1;
-        private volatile String failure;
-        private volatile CompletableFuture<Void> advance = new CompletableFuture<>();
-
-        private ChunkWindow(String fileId) {
-            this.fileId = fileId;
-        }
-
-        private boolean matchesFile(String otherFileId) {
-            return fileId.equals(otherFileId);
-        }
-
-        private synchronized void onSent(int chunkIndex) {
-            // no-op bookkeeping hook; kept for symmetry / future metrics
-        }
-
-        private synchronized void onAck(Integer chunkIndex) {
-            if (chunkIndex == null || chunkIndex < 0) {
-                return;
-            }
-            ackedChunks.set(chunkIndex);
-            while (ackedChunks.get(highestContiguousAcked + 1)) {
-                highestContiguousAcked++;
-            }
-            signal();
-        }
-
-        private synchronized void onFailure(String error) {
-            this.failure = error != null ? error : "chunk transfer failed";
-            signal();
-        }
-
-        private synchronized String failure() {
-            return failure;
-        }
-
-        /**
-         * If the window has already acked through {@code requiredAckedIndex} (or failed), returns null.
-         * Otherwise returns a fresh future that completes the next time an ack advances the window or a
-         * failure occurs. Synchronized so the check and future handoff are atomic with {@link #onAck}.
-         */
-        private synchronized CompletableFuture<Void> awaitAdvanceIfBelow(int requiredAckedIndex) {
-            if (highestContiguousAcked >= requiredAckedIndex || failure != null) {
-                return null;
-            }
-            if (advance.isDone()) {
-                advance = new CompletableFuture<>();
-            }
-            return advance;
-        }
-
-        private void signal() {
-            CompletableFuture<Void> current = advance;
-            if (!current.isDone()) {
-                current.complete(null);
-            }
-        }
-    }
-
-    private static class BootstrapBudgetExceededException extends IOException {
-        private BootstrapBudgetExceededException(String message) {
-            super(message);
-        }
+    /** The file whose {@code complete}/{@code failed} ack the sender is waiting on for a session. */
+    private record InFlightFile(String fileId, CompletableFuture<AgentWsEnvelope> result) {
     }
 
     private static class UnsupportedStartupScriptException extends IOException {

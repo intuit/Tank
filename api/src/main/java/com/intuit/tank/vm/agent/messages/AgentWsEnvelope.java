@@ -19,7 +19,8 @@ public class AgentWsEnvelope {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static final int PROTOCOL_VERSION = 1;
-    private static final int BINARY_FILE_CHUNK_MAGIC = 0x54574331;
+    private static final int BINARY_FILE_MAGIC = 0x54574331;
+    private static final int BINARY_FILE_HEADER_FIXED_BYTES = Integer.BYTES + Integer.BYTES + Short.BYTES;
 
     public enum Type {
         hello, command, ack, ping, pong, close,
@@ -236,53 +237,65 @@ public class AgentWsEnvelope {
         return MAPPER.readValue(json, AgentWsEnvelope.class);
     }
 
-    public static ByteBuffer binaryFileChunk(String fileId, int chunkIndex, byte[] bytes, int offset, int len)
-            throws IOException {
+    /**
+     * Header that prefixes a binary file message: magic, a reserved int (always 0), the fileId length
+     * and the UTF-8 fileId. The file content follows in the same WebSocket message, which the library
+     * fragments into frames on send and the receiver consumes frame by frame.
+     */
+    public static ByteBuffer binaryFileHeader(String fileId) throws IOException {
         if (fileId == null || fileId.isBlank()) {
-            throw new IOException("fileId is required for binary file chunk");
-        }
-        if (bytes == null) {
-            bytes = new byte[0];
-        }
-        if (offset < 0 || len < 0 || offset + len > bytes.length) {
-            throw new IOException("Invalid binary file chunk range");
+            throw new IOException("fileId is required for binary file message");
         }
         byte[] fileIdBytes = fileId.getBytes(StandardCharsets.UTF_8);
         if (fileIdBytes.length > 0xFFFF) {
-            throw new IOException("fileId too long for binary file chunk");
+            throw new IOException("fileId too long for binary file message");
         }
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES + Integer.BYTES + Short.BYTES + fileIdBytes.length + len);
-        buffer.putInt(BINARY_FILE_CHUNK_MAGIC);
-        buffer.putInt(chunkIndex);
+        ByteBuffer buffer = ByteBuffer.allocate(BINARY_FILE_HEADER_FIXED_BYTES + fileIdBytes.length);
+        buffer.putInt(BINARY_FILE_MAGIC);
+        buffer.putInt(0);
         buffer.putShort((short) fileIdBytes.length);
         buffer.put(fileIdBytes);
-        buffer.put(bytes, offset, len);
         buffer.flip();
         return buffer;
     }
 
-    public static BinaryFileChunk fromBinaryFileChunk(ByteBuffer message) throws IOException {
-        ByteBuffer buffer = message.slice();
-        if (buffer.remaining() < Integer.BYTES + Integer.BYTES + Short.BYTES) {
-            throw new IOException("Invalid binary file chunk header");
-        }
-        int magic = buffer.getInt();
-        if (magic != BINARY_FILE_CHUNK_MAGIC) {
-            throw new IOException("Unsupported binary file chunk frame");
-        }
-        int chunkIndex = buffer.getInt();
-        int fileIdLength = Short.toUnsignedInt(buffer.getShort());
-        if (fileIdLength <= 0 || fileIdLength > buffer.remaining()) {
-            throw new IOException("Invalid binary file chunk fileId length");
-        }
-        byte[] fileIdBytes = new byte[fileIdLength];
-        buffer.get(fileIdBytes);
-        byte[] payload = new byte[buffer.remaining()];
-        buffer.get(payload);
-        return new BinaryFileChunk(new String(fileIdBytes, StandardCharsets.UTF_8), chunkIndex, payload);
-    }
+    /**
+     * Incrementally reads the {@link #binaryFileHeader} from the frames of a binary message, so the
+     * header may span frame boundaries. Bytes after the header are left in the frame for the caller.
+     */
+    public static class BinaryFileHeaderReader {
+        private ByteBuffer header = ByteBuffer.allocate(BINARY_FILE_HEADER_FIXED_BYTES);
+        private boolean fixedPartRead;
 
-    public record BinaryFileChunk(String fileId, int chunkIndex, byte[] payload) {
+        /** Consumes header bytes from {@code frame}; returns the fileId once the header is complete, else null. */
+        public String read(ByteBuffer frame) throws IOException {
+            while (frame.hasRemaining()) {
+                int n = Math.min(header.remaining(), frame.remaining());
+                header.put(frame.slice(frame.position(), n));
+                frame.position(frame.position() + n);
+                if (header.hasRemaining()) {
+                    return null;
+                }
+                if (fixedPartRead) {
+                    header.flip();
+                    header.position(BINARY_FILE_HEADER_FIXED_BYTES);
+                    return StandardCharsets.UTF_8.decode(header).toString();
+                }
+                header.flip();
+                if (header.getInt() != BINARY_FILE_MAGIC) {
+                    throw new IOException("Unsupported binary file frame");
+                }
+                header.getInt();
+                int fileIdLength = Short.toUnsignedInt(header.getShort());
+                if (fileIdLength == 0) {
+                    throw new IOException("Invalid binary file fileId length");
+                }
+                header = ByteBuffer.allocate(BINARY_FILE_HEADER_FIXED_BYTES + fileIdLength)
+                        .put(header.rewind());
+                fixedPartRead = true;
+            }
+            return null;
+        }
     }
 
     // Factory methods for common frame types
