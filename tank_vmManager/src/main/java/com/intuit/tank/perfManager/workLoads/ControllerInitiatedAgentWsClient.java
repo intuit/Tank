@@ -63,7 +63,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String SETTINGS_FILE_NAME = "settings.xml";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
-    // Each file is one WS message, so this must exceed the largest file (the ~41 MB harness JAR).
+    // Agents reject WS messages over 64 MB (StartupWebSocketServer, AgentCommandWebSocketServer), and each
+    // file is sent as one message, so no file may exceed this.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
     // Jetty's default WS idle timeout is 30s. The controller holds connections idle while waiting for
     // a whole fleet of agents to become ready before broadcasting START — raise it well past that.
@@ -554,6 +555,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             throws IOException {
         byte[] content = file.content() != null ? file.content() : new byte[0];
         String fileId = UUID.randomUUID().toString();
+        ByteBuffer header = AgentWsEnvelope.binaryFileChunkHeader(fileId, 0);
+        if ((long) header.remaining() + content.length > MAX_WS_MESSAGE_BYTES) {
+            throw new IOException("File " + file.fileName() + " is " + content.length
+                    + " bytes; whole-file WS transfer is limited to " + MAX_WS_MESSAGE_BYTES + " bytes per file");
+        }
         long transferStartedAtNs = System.nanoTime();
 
         CompletableFuture<AgentWsEnvelope> offerAckFuture = new CompletableFuture<>();
@@ -587,7 +593,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             pendingAcks.remove(fileId);
         }
 
-        sendWholeFile(context, fileId, content);
+        sendWholeFile(context, header, content);
         logFileSent(instanceId, file, content.length, transferStartedAtNs);
     }
 
@@ -617,11 +623,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
      * Sends the file as one WebSocket message: the binary file header, then the whole file. Both fragments
      * are queued under the session lock so no other message can interleave between them.
      */
-    private void sendWholeFile(SessionContext context, String fileId, byte[] content) throws IOException {
+    private void sendWholeFile(SessionContext context, ByteBuffer header, byte[] content) {
         Callback.Completable headerSent = new Callback.Completable();
         Callback.Completable fileSent = new Callback.Completable();
         synchronized (context.session) {
-            context.session.sendPartialBinary(AgentWsEnvelope.binaryFileChunkHeader(fileId, 0), false, headerSent);
+            context.session.sendPartialBinary(header, false, headerSent);
             headerSent.join();
             // The harness JAR bytes are shared by every concurrent push; read-only keeps Jetty from mutating them.
             context.session.sendPartialBinary(ByteBuffer.wrap(content).asReadOnlyBuffer(), true, fileSent);

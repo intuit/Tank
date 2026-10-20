@@ -84,6 +84,13 @@
       <groupId>org.eclipse.jetty.http2</groupId>
       <artifactId>jetty-http2-client-transport</artifactId>
     </dependency>
+    <!-- Real agent WS receiver for the end-to-end whole-file transfer test -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>agent-startup</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 </project>

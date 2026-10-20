@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -229,6 +231,36 @@ public class ControllerInitiatedAgentWsClientTest {
 
             verify(session, never()).sendBinary(any(ByteBuffer.class), any(Callback.class));
             assertEquals("1/1 files", client.getTransferProgress("i-agent"));
+        } finally {
+            if (previousCatalinaHome == null) {
+                System.clearProperty("catalina.home");
+            } else {
+                System.setProperty("catalina.home", previousCatalinaHome);
+            }
+        }
+    }
+
+    @Test
+    void testFileLargerThanAgentMessageLimitFailsBeforeAnythingIsSent() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = mock(Session.class);
+        Object context = installSession(client, "i-agent", session);
+        setField(client, "cachedStartupScript", Optional.empty());
+        setField(client, "cachedHarnessJarBytes", new byte[64 * 1024 * 1024]);
+
+        Path toolsDir = tempDir.resolve("webapps/ROOT/tools");
+        Files.createDirectories(toolsDir);
+        Files.write(toolsDir.resolve("apiharness-1.0-all.jar"), new byte[] { 2 });
+        String previousCatalinaHome = System.getProperty("catalina.home");
+        System.setProperty("catalina.home", tempDir.toString());
+
+        try {
+            InvocationTargetException thrown = assertThrows(
+                    InvocationTargetException.class, () -> invokePushStartupBootstrap(client, context));
+
+            assertTrue(thrown.getCause().getMessage().contains("limited to 67108864 bytes per file"));
+            verify(session, never()).sendText(anyString(), any(Callback.class));
+            verify(session, never()).sendPartialBinary(any(ByteBuffer.class), anyBoolean(), any(Callback.class));
         } finally {
             if (previousCatalinaHome == null) {
                 System.clearProperty("catalina.home");
