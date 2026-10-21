@@ -1,3 +1,15 @@
+# 4.6.6 (Wed Oct 21 2026)
+
+#### 🐛 Bug Fix
+
+- fix: push agent files over WebSocket on HTTP/1.1 to stop direct memory OOM [#538](https://github.com/intuit/Tank/pull/538) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.5 (Mon Oct 19 2026)
 
 #### 🐛 Bug Fix
