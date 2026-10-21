@@ -20,8 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.http2.client.HTTP2Client;
-import org.eclipse.jetty.http2.client.transport.HttpClientTransportOverHTTP2;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
@@ -49,8 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Controller-side client that pushes bootstrap and job files to agents over WebSocket-over-HTTP/2
- * (RFC 8441) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
+ * Controller-side client that pushes bootstrap and job files to agents over WebSocket (HTTP/1.1
+ * upgrade) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
  * (sliding) window rather than a fixed stop-and-wait ack gate, so throughput is independent of RTT.
  */
 @ApplicationScoped
@@ -124,8 +122,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             synchronized (this) {
                 client = wsClient;
                 if (client == null) {
-                    HTTP2Client http2Client = new HTTP2Client();
-                    HttpClient jettyHttpClient = new HttpClient(new HttpClientTransportOverHTTP2(http2Client));
+                    // WebSocket over HTTP/1.1, not HTTP/2 (RFC 8441): Jetty's HTTP2StreamEndPoint copies every
+                    // outgoing WebSocket frame into a new unpooled direct buffer, so pushing files to many
+                    // agents at once piled up GBs of direct memory awaiting GC. Each agent is its own host,
+                    // so HTTP/2 multiplexing gave no benefit; agents accept both upgrades on the same port.
+                    HttpClient jettyHttpClient = new HttpClient();
                     client = new WebSocketClient(jettyHttpClient);
                     client.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
                     client.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
