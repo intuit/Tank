@@ -11,7 +11,6 @@ import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -326,24 +325,16 @@ public class AgentWsEnvelopeTest {
     }
 
     @Test
-    public void testBinaryFileHeaderRoundTripAcrossFrames() throws Exception {
-        ByteBuffer header = AgentWsEnvelope.binaryFileHeader("file-1");
-        byte[] content = {7, 8, 9};
-        ByteBuffer message = ByteBuffer.allocate(header.remaining() + content.length).put(header).put(content).flip();
+    public void testBinaryFileChunkFromBufferMatchesByteArrayFrame() throws Exception {
+        byte[] content = {1, 2, 3, 4, 5};
+        java.nio.ByteBuffer fromArray = AgentWsEnvelope.binaryFileChunk("file-1", 3, content, 1, 3);
+        java.nio.ByteBuffer direct = java.nio.ByteBuffer.allocateDirect(content.length).put(content).flip();
+        java.nio.ByteBuffer fromBuffer = AgentWsEnvelope.binaryFileChunk("file-1", 3, direct.slice(1, 3));
 
-        AgentWsEnvelope.BinaryFileHeaderReader reader = new AgentWsEnvelope.BinaryFileHeaderReader();
-        // Split mid-header to prove the reader tolerates any frame boundary.
-        ByteBuffer first = message.slice(0, 5);
-        ByteBuffer second = message.slice(5, message.remaining() - 5);
-        assertNull(reader.read(first));
-        assertEquals("file-1", reader.read(second));
-        assertEquals(content.length, second.remaining());
-        assertEquals(7, second.get());
-    }
-
-    @Test
-    public void testBinaryFileHeaderRejectsUnknownMagic() {
-        AgentWsEnvelope.BinaryFileHeaderReader reader = new AgentWsEnvelope.BinaryFileHeaderReader();
-        assertThrows(IOException.class, () -> reader.read(ByteBuffer.wrap(new byte[16])));
+        assertEquals(fromArray, fromBuffer);
+        AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(fromBuffer);
+        assertEquals("file-1", chunk.fileId());
+        assertEquals(3, chunk.chunkIndex());
+        assertArrayEquals(new byte[] {2, 3, 4}, chunk.payload());
     }
 }

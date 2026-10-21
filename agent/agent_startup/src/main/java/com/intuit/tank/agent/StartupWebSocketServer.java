@@ -38,8 +38,8 @@ public class StartupWebSocketServer {
     private static final String SUPPORT_JAR_FILE_TYPE = "support_jar";
     private static final String START_AGENT_SCRIPT = "startAgent.sh";
     private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
-    // Only small text envelopes are aggregated; file content is streamed frame by frame to disk.
-    private static final long MAX_WS_MESSAGE_BYTES = 1024L * 1024;
+    // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
+    private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
     // Raise Jetty's 30s default WS idle timeout so a slow/paused bootstrap transfer isn't dropped.
     private static final long WS_IDLE_TIMEOUT_MS =
             Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
@@ -62,6 +62,8 @@ public class StartupWebSocketServer {
     private File targetFile;
     private String currentFileName;
     private String currentFileId;
+    private int receivedChunks;
+    private int expectedChunks;
     private long receivedBytes;
     private long expectedBytes;
     private long transferStartedAtNs;
@@ -178,11 +180,14 @@ public class StartupWebSocketServer {
         boolean startupScript = START_AGENT_SCRIPT.equals(fileName)
                 && STARTUP_SCRIPT_FILE_TYPE.equalsIgnoreCase(fileType);
         if (!offeredFileName.equals(fileName) || (!harnessJar && !startupScript)) {
-            sendFileAck(conn, envelope.getFileId(), AckStatus.failed, "unsupported_startup_file");
+            sendFileAck(conn, envelope.getFileId(), null, AckStatus.failed, "unsupported_startup_file");
             return;
         }
 
         closeCurrentFileQuietly();
+        long offerTotalBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L;
+        int offerTotalChunks = envelope.getTotalChunks() != null ? envelope.getTotalChunks() : 0;
+        int offerChunkBytes = envelope.getChunkBytes() != null ? envelope.getChunkBytes() : 0;
         try {
             if (!agentDir.exists() && !agentDir.mkdirs()) {
                 throw new IOException("Unable to create " + agentDir.getAbsolutePath());
@@ -191,41 +196,78 @@ public class StartupWebSocketServer {
             currentFileName = fileName;
             targetFile = new File(agentDir, fileName);
             currentTempFile = new File(targetFile.getAbsolutePath() + ".part");
+
+            // Check for resumable partial file from a previous failed transfer
+            if (currentTempFile.exists() && offerTotalBytes > 0 && offerChunkBytes > 0
+                    && currentTempFile.length() > 0 && currentTempFile.length() < offerTotalBytes) {
+                long partialBytes = currentTempFile.length();
+                // Truncate to safe chunk boundary
+                long safeResumeOffset = partialBytes - (partialBytes % offerChunkBytes);
+                if (safeResumeOffset != partialBytes) {
+                    logger.info("Truncating .part from {} to {} (chunk boundary alignment, chunkBytes={})",
+                            partialBytes, safeResumeOffset, offerChunkBytes);
+                    try (java.io.RandomAccessFile raf = new java.io.RandomAccessFile(currentTempFile, "rw")) {
+                        raf.setLength(safeResumeOffset);
+                    }
+                    partialBytes = safeResumeOffset;
+                }
+                int resumeChunk = (int) (partialBytes / offerChunkBytes);
+                logger.info("Resumable .part file found: {} bytes={}/{} resumeChunk={} chunkBytes={}",
+                        currentTempFile.getAbsolutePath(), partialBytes, offerTotalBytes, resumeChunk, offerChunkBytes);
+                currentFileStream = new FileOutputStream(currentTempFile, true); // append
+                currentFileId = envelope.getFileId();
+                receivedChunks = resumeChunk;
+                expectedChunks = offerTotalChunks;
+                receivedBytes = partialBytes;
+                expectedBytes = offerTotalBytes;
+                if (transferStartedAtNs == 0L) {
+                    transferStartedAtNs = System.nanoTime();
+                }
+                sendFileAckWithResume(conn, envelope.getFileId(), AckStatus.resume, partialBytes, resumeChunk);
+                return;
+            }
+
+            // Fresh transfer — delete stale .part if any
+            if (currentTempFile.exists()) {
+                currentTempFile.delete();
+            }
             currentFileStream = new FileOutputStream(currentTempFile);
             currentFileId = envelope.getFileId();
+            receivedChunks = 0;
+            expectedChunks = offerTotalChunks;
             receivedBytes = 0;
-            expectedBytes = envelope.getTotalBytes() != null ? envelope.getTotalBytes() : -1L;
+            expectedBytes = offerTotalBytes;
             transferStartedAtNs = System.nanoTime();
-            sendFileAck(conn, envelope.getFileId(), AckStatus.ok, null);
+            // Send explicit ok ack so controller doesn't wait 10s
+            sendFileAck(conn, envelope.getFileId(), 0, AckStatus.ok, null);
         } catch (IOException e) {
             closeCurrentFileQuietly();
-            sendFileAck(conn, envelope.getFileId(), AckStatus.failed, e.getMessage());
+            sendFileAck(conn, envelope.getFileId(), null, AckStatus.failed, e.getMessage());
         }
     }
 
-    /** Writes one frame of the current file message; on the final frame finalizes the file and acks. */
-    synchronized void handleFileData(Session conn, String fileId, ByteBuffer data, boolean last) {
+    synchronized void handleFileChunk(Session conn, String fileId, Integer chunkIndex, byte[] payload) {
         if (currentFileStream == null || currentFileId == null || !currentFileId.equals(fileId)) {
-            if (last) {
-                sendFileAck(conn, fileId, AckStatus.failed, "file_offer_not_found");
-            }
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, "file_offer_not_found");
             return;
         }
 
         try {
-            receivedBytes += data.remaining();
-            currentFileStream.getChannel().write(data);
-            if (!last) {
-                return;
-            }
-            boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
-            File completedFile = finalizeStartupFile();
-            sendFileAckSync(conn, fileId, AckStatus.complete, null);
-            if (harnessJar) {
-                harnessJarFuture.complete(completedFile);
+            currentFileStream.write(payload);
+            receivedBytes += payload.length;
+            receivedChunks++;
+            sendFileAck(conn, fileId, chunkIndex, AckStatus.chunk_received, null);
+
+            if (expectedBytes >= 0 && receivedBytes >= expectedBytes) {
+                boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
+                File completedFile = finalizeStartupFile();
+                sendFileAckSync(conn, fileId, chunkIndex, AckStatus.complete, null);
+                if (harnessJar) {
+                    harnessJarFuture.complete(completedFile);
+                }
             }
         } catch (Exception e) {
-            failCurrentFileTransfer(conn, fileId, e);
+            failCurrentFileTransfer(conn, fileId, chunkIndex, e);
         }
     }
 
@@ -260,8 +302,8 @@ public class StartupWebSocketServer {
         double throughputMiBps = durationMs > 0
                 ? Math.round(((receivedBytes / (1024.0 * 1024.0)) / (durationMs / 1000.0)) * 100.0) / 100.0
                 : 0.0;
-        logger.info("Startup WS file received file={} bytes={} durationMs={} throughputMiBps={}",
-                currentFileName, receivedBytes, durationMs, throughputMiBps);
+        logger.info("Startup WS file received file={} bytes={} chunks={}/{} durationMs={} throughputMiBps={}",
+                currentFileName, receivedBytes, receivedChunks, expectedChunks, durationMs, throughputMiBps);
         currentTempFile = null;
         targetFile = null;
         currentFileName = null;
@@ -270,9 +312,9 @@ public class StartupWebSocketServer {
         return completedFile;
     }
 
-    private void sendFileAck(Session conn, String fileId, AckStatus status, String error) {
+    private void sendFileAck(Session conn, String fileId, Integer chunkIndex, AckStatus status, String error) {
         try {
-            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, null, status, error);
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
             sendText(conn, ack.toJson());
         } catch (Exception e) {
             logger.warn("Failed to send startup WS file ack for {}: {}", fileId, e.getMessage());
@@ -280,9 +322,9 @@ public class StartupWebSocketServer {
     }
 
     /** Sends a file ack and blocks until the frame is flushed, so it cannot be lost on shutdown. */
-    private void sendFileAckSync(Session conn, String fileId, AckStatus status, String error) {
+    private void sendFileAckSync(Session conn, String fileId, Integer chunkIndex, AckStatus status, String error) {
         try {
-            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, null, status, error);
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
             Callback.Completable callback = new Callback.Completable();
             conn.sendText(ack.toJson(), callback);
             callback.get(10, TimeUnit.SECONDS);
@@ -291,15 +333,25 @@ public class StartupWebSocketServer {
         }
     }
 
+    private void sendFileAckWithResume(Session conn, String fileId, AckStatus status, long resumeOffset, int resumeChunk) {
+        try {
+            AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, resumeChunk, status, null);
+            ack.setResumeOffset(resumeOffset);
+            sendText(conn, ack.toJson());
+        } catch (Exception e) {
+            logger.warn("Failed to send startup WS resume ack for {}: {}", fileId, e.getMessage());
+        }
+    }
+
     private void sendText(Session conn, String text) {
         conn.sendText(text, Callback.NOOP);
     }
 
-    private synchronized void failCurrentFileTransfer(Session conn, String fileId, Exception error) {
+    private synchronized void failCurrentFileTransfer(
+            Session conn, String fileId, Integer chunkIndex, Exception error) {
         boolean harnessJar = API_HARNESS_JAR.equals(currentFileName);
         closeCurrentFileQuietly();
-        currentFileId = null;
-        sendFileAck(conn, fileId, AckStatus.failed, error.getMessage());
+        sendFileAck(conn, fileId, chunkIndex, AckStatus.failed, error.getMessage());
         if (harnessJar) {
             harnessJarFuture.completeExceptionally(error);
         }
@@ -307,6 +359,10 @@ public class StartupWebSocketServer {
 
     private synchronized void handleFatalError(Exception ex) {
         closeCurrentFileQuietly();
+        if (currentTempFile != null && currentTempFile.exists()) {
+            logger.info("Keeping partial bootstrap file after startup WS server error {} chunks={}/{} bytes={}/{}",
+                    currentTempFile.getAbsolutePath(), receivedChunks, expectedChunks, receivedBytes, expectedBytes);
+        }
         currentFileConnection = null;
         currentFileId = null;
         serverStoppedFuture.completeExceptionally(ex);
@@ -328,10 +384,15 @@ public class StartupWebSocketServer {
             return;
         }
         closeCurrentFileQuietly();
+        if (currentTempFile != null && currentTempFile.exists()) {
+            logger.info("Keeping partial bootstrap file for resume {} chunks={}/{} bytes={}/{}",
+                    currentTempFile.getAbsolutePath(), receivedChunks, expectedChunks, receivedBytes, expectedBytes);
+        }
         currentFileConnection = null;
+        // Keep currentTempFile, targetFile, receivedBytes, expectedBytes for resume
+        // Reset only the stream and connection-specific state
         currentFileId = null;
-        // The next connection re-offers the file from the start and overwrites the .part file.
-        logger.info("Startup WS connection state reset");
+        logger.info("Startup WS connection state reset — .part file preserved for resume");
     }
 
     /**
@@ -342,8 +403,6 @@ public class StartupWebSocketServer {
 
         private final StartupWebSocketServer server;
         private Session session;
-        private AgentWsEnvelope.BinaryFileHeaderReader headerReader = new AgentWsEnvelope.BinaryFileHeaderReader();
-        private String fileId;
 
         private StartupEndpoint(StartupWebSocketServer server) {
             this.server = server;
@@ -373,6 +432,7 @@ public class StartupWebSocketServer {
                 }
                 switch (envelope.getType()) {
                     case file_offer -> server.handleFileOffer(session, envelope);
+                    case file_chunk -> handleTextFileChunk(session, envelope);
                     case ping -> server.handlePing(session, envelope);
                     case ack -> logger.info("Startup WS received ack: {}", envelope.getAckForType());
                     case close -> session.close();
@@ -383,30 +443,27 @@ public class StartupWebSocketServer {
             }
         }
 
-        /**
-         * Receives a file message frame by frame (Jetty does not aggregate it), so memory use is bounded by
-         * the frame size regardless of file size. The first bytes of each message are the file header.
-         */
         @Override
-        public void onWebSocketPartialBinary(ByteBuffer payload, boolean last, Callback callback) {
+        public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
             try {
-                if (fileId == null) {
-                    fileId = headerReader.read(payload);
-                }
-                if (fileId != null) {
-                    server.handleFileData(session, fileId, payload, last);
-                } else if (last) {
-                    throw new IOException("Binary file message ended before header was complete");
-                }
+                AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
+                server.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
                 callback.succeed();
             } catch (Exception e) {
                 logger.warn("Failed handling startup WS binary message: {}", e.getMessage(), e);
                 callback.fail(e);
-            } finally {
-                if (last) {
-                    headerReader = new AgentWsEnvelope.BinaryFileHeaderReader();
-                    fileId = null;
-                }
+            }
+        }
+
+        private void handleTextFileChunk(Session conn, AgentWsEnvelope envelope) {
+            try {
+                byte[] payload = envelope.getChunkData() == null || envelope.getChunkData().isEmpty()
+                        ? new byte[0]
+                        : java.util.Base64.getDecoder().decode(envelope.getChunkData());
+                server.handleFileChunk(conn, envelope.getFileId(), envelope.getChunkIndex(), payload);
+            } catch (Exception e) {
+                server.failCurrentFileTransfer(
+                        conn, envelope.getFileId(), envelope.getChunkIndex(), e);
             }
         }
 
