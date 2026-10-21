@@ -12,6 +12,7 @@ import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -64,6 +65,22 @@ public class ControllerInitiatedAgentWsClientTest {
         assertEquals("support_jar", files.get(1).fileType());
         assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
         assertArrayEquals(harnessJar, files.get(1).content());
+    }
+
+    @Test
+    void testWebSocketClientUsesHttp11Transport() throws Exception {
+        // WebSocket over HTTP/2 copies every outgoing frame into a new direct buffer in Jetty's
+        // HTTP2StreamEndPoint, which exhausted direct memory when pushing files to many agents.
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod("webSocketClient");
+        method.setAccessible(true);
+        WebSocketClient wsClient = (WebSocketClient) method.invoke(client);
+        try {
+            assertTrue(wsClient.getHttpClient().getTransport()
+                    instanceof org.eclipse.jetty.client.transport.HttpClientTransportOverHTTP);
+        } finally {
+            wsClient.stop();
+        }
     }
 
     @Test
