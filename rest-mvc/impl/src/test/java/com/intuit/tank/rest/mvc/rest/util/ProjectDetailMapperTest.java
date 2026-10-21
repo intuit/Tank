@@ -11,6 +11,8 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.rest.mvc.rest.models.ProjectDetail;
 import com.intuit.tank.rest.mvc.rest.models.ProjectDetail.RegionUsers;
@@ -156,6 +158,45 @@ class ProjectDetailMapperTest {
         assertSame(s43, plans.get(0).getScriptGroups().get(0).getScriptGroupSteps().get(1).getScript());
         assertEquals(5, plans.get(0).getScriptGroups().get(0).getScriptGroupSteps().get(1).getLoop());
         assertEquals(1, config.getNotifications().size(), "notifications are not part of the editor and are kept");
+    }
+
+    @Test
+    void apply_updatesExistingPlanRowsInPlace() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        TestPlan plan = project.getWorkloads().get(0).getTestPlans().get(0);
+        ScriptGroup group = plan.getScriptGroups().get(0);
+        ScriptGroupStep step = group.getScriptGroupSteps().get(0);
+        ProjectDetail d = ProjectFixtures.detail("Load", "alice");
+        ProjectDetail changed = new ProjectDetail(d.id(), d.name(), d.productName(), d.comments(), d.owner(), null,
+                d.modified(), d.settings(), d.regions(),
+                List.of(new TestPlanDetail("Renamed", 100, List.of(new ScriptGroupDetail("G1", 4,
+                        List.of(new ScriptRef(42, null, 7), new ScriptRef(43, null, 1)))))),
+                d.variables(), d.dataFileIds(), null);
+
+        ProjectDetailMapper.apply(changed, project,
+                Map.of(42, ProjectFixtures.script(42, "a"), 43, ProjectFixtures.script(43, "b")));
+
+        assertSame(plan, project.getWorkloads().get(0).getTestPlans().get(0));
+        assertEquals("Renamed", plan.getName());
+        assertSame(group, plan.getScriptGroups().get(0));
+        assertEquals(4, group.getLoop());
+        assertSame(step, group.getScriptGroupSteps().get(0), "the step is updated, not deleted and re-inserted");
+        assertEquals(7, step.getLoop());
+        assertEquals(2, group.getScriptGroupSteps().size());
+        assertEquals(43, group.getScriptGroupSteps().get(1).getScript().getId());
+    }
+
+    @Test
+    void apply_dropsTrailingRows() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ProjectDetail d = ProjectFixtures.detail("Load", "alice");
+        ProjectDetail changed = new ProjectDetail(d.id(), d.name(), d.productName(), d.comments(), d.owner(), null,
+                d.modified(), d.settings(), d.regions(),
+                List.of(new TestPlanDetail("Main", 100, List.of())), d.variables(), d.dataFileIds(), null);
+
+        ProjectDetailMapper.apply(changed, project, Map.of());
+
+        assertTrue(project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().isEmpty());
     }
 
     @Test
