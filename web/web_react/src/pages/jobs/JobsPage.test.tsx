@@ -58,6 +58,17 @@ describe('job queue page', () => {
     expect(calls('GET /v2/jobs/tree')[0]!.has('projectId')).toBe(false);
   });
 
+  it('stripes running work as the JSF tree does', async () => {
+    renderApp('/jobs', handlers());
+
+    expect(tagOf(await screen.findByText('1/2 jobs running'))).toHaveClass('status-striped-running');
+    expect(tagOf(screen.getByText('0/1 jobs running'))).not.toHaveClass('status-striped');
+    const running = screen.getByRole('button', { name: 'Checkout load 1' }).closest('tr')!;
+    expect(tagOf(within(running).getByText('Running'))).toHaveClass('status-striped-running');
+    const finished = screen.getByRole('button', { name: 'Checkout load 0' }).closest('tr')!;
+    expect(tagOf(within(finished).getByText('Completed'))).not.toHaveClass('status-striped');
+  });
+
   it('groups jobs whose project is gone', async () => {
     renderApp('/jobs', handlers());
 
@@ -128,8 +139,9 @@ describe('job queue page', () => {
 
     await userEvent.click(within(jobRow).getAllByRole('button')[0]!);
 
-    expect(await screen.findByText('Closed')).toBeInTheDocument();
-    expect(screen.getByText('Setting Up (3/5)')).toBeInTheDocument();
+    expect(tagOf(await screen.findByText('Closed'))).not.toHaveClass('status-striped');
+    expect(tagOf(screen.getByText('Setting Up (3/5)'))).toHaveClass('status-striped-starting');
+    expect(tagOf(screen.getByText('running'))).toHaveClass('status-striped-running');
   });
 
   it('is in the menu', async () => {
@@ -142,3 +154,8 @@ describe('job queue page', () => {
     expect(await screen.findByRole('heading', { name: 'Agent Tracker' })).toBeInTheDocument();
   });
 });
+
+/** The PrimeReact Tag around a tag's text */
+function tagOf(text: HTMLElement): Element {
+  return text.closest('.p-tag')!;
+}

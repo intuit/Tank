@@ -9,14 +9,14 @@ package com.intuit.tank.rest.mvc.rest.util;
 
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobQueue;
+import com.intuit.tank.dao.QueuedJob;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.rest.mvc.rest.models.Failures;
 import com.intuit.tank.rest.mvc.rest.models.JobTree;
 import com.intuit.tank.rest.mvc.rest.models.JobTree.Actions;
 import com.intuit.tank.rest.mvc.rest.models.JobTree.JobNode;
 import com.intuit.tank.vm.agent.messages.AgentWsCommandSender;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -52,19 +52,19 @@ class JobTreeBuilderTest {
     private Predicate<Project> canControl = p -> p != null && "alice".equals(p.getCreator());
 
     private Project load;
-    private JobQueue loadQueue;
+    private List<QueuedJob> loadJobs;
 
     @BeforeEach
     void setUp() {
         load = ProjectFixtures.project(1, "Load", "alice");
-        loadQueue = new JobQueue(1);
-        loadQueue.getJobs().add(job(10, JobQueueStatus.Running, null));
-        loadQueue.getJobs().add(job(11, JobQueueStatus.Created, null));
-        loadQueue.getJobs().add(job(9, JobQueueStatus.Completed, new Date(NOW.getTime() - 1000)));
-        loadQueue.getJobs().add(job(8, JobQueueStatus.Deleted, null));
+        // the DAO filters in SQL, but may return deleted and ended jobs that agents still report
+        loadJobs = List.of(
+                job(10, JobQueueStatus.Running, null),
+                job(11, JobQueueStatus.Created, null),
+                job(9, JobQueueStatus.Completed, new Date(NOW.getTime() - 1000)),
+                job(8, JobQueueStatus.Deleted, null));
         when(projectDao.findForIds(anyList())).thenReturn(List.of(load));
-        when(queueDao.findRecent(any())).thenReturn(List.of(loadQueue));
-        when(queueDao.getForProjectIds(List.of(1))).thenReturn(List.of(loadQueue));
+        when(queueDao.findQueuedJobs(any(), any(), anyBoolean(), anyCollection())).thenReturn(loadJobs);
         when(tracker.getAllJobs()).thenReturn(Set.of());
 
         CloudVmStatus agentA = agent("i-a", "10", VMStatus.running, JobStatus.Running, 40, 50, 7);
@@ -79,14 +79,9 @@ class JobTreeBuilderTest {
         return new JobTreeBuilder(tracker, ws, canControl, queueDao, projectDao);
     }
 
-    private static JobInstance job(int id, JobQueueStatus status, Date end) {
-        JobInstance job = new JobInstance();
-        job.setId(id);
-        job.setName("job" + id);
-        job.setStatus(status);
-        job.setEndTime(end);
-        job.setTotalVirtualUsers(100);
-        return job;
+    private static QueuedJob job(int id, JobQueueStatus status, Date end) {
+        return new QueuedJob(1, id, "job" + id, status, IncrementStrategy.increasing, 100, null, end, null,
+                "None", 0, null, 1, 0, null);
     }
 
     private static CloudVmStatus agent(String instanceId, String jobId, VMStatus vmStatus, JobStatus jobStatus,
@@ -113,7 +108,7 @@ class JobTreeBuilderTest {
         assertEquals(List.of("11", "10"), project.jobs().stream().map(JobNode::jobId).toList(),
                 "deleted and finished jobs are hidden, newest first");
         assertEquals(NOW, tree.generatedAt());
-        verify(queueDao).findRecent(new Date(NOW.getTime() - JobTreeBuilder.RECENT_MS));
+        verify(queueDao).findQueuedJobs(null, new Date(NOW.getTime() - JobTreeBuilder.RECENT_MS), false, List.of());
     }
 
     @Test
@@ -146,7 +141,7 @@ class JobTreeBuilderTest {
         JobTree tree = builder().build(1, false, NOW);
         assertEquals(1, tree.projects().size());
         verify(queueDao, never()).findOrCreateForProjectId(anyInt());
-        verify(queueDao, never()).findRecent(any());
+        verify(queueDao).findQueuedJobs(1, null, false, List.of());
     }
 
     @Test
@@ -179,7 +174,7 @@ class JobTreeBuilderTest {
         CloudVmStatusContainer known = container("10");
         when(tracker.getAllJobs()).thenReturn(Set.of(strayContainer, known));
         when(tracker.getVmStatusForJob("77")).thenReturn(strayContainer);
-        when(queueDao.findForJobId(77)).thenReturn(null);
+        when(queueDao.findProjectIdForJobId(77)).thenReturn(null);
 
         JobTree tree = builder().build(null, false, NOW);
 
@@ -196,11 +191,27 @@ class JobTreeBuilderTest {
         CloudVmStatusContainer strayContainer = container("12", agent("i-y", "12", VMStatus.running, JobStatus.Running, 1, 1, 0));
         when(tracker.getAllJobs()).thenReturn(Set.of(strayContainer));
         when(tracker.getVmStatusForJob("12")).thenReturn(strayContainer);
-        when(queueDao.findForJobId(12)).thenReturn(loadQueue);
+        when(queueDao.findProjectIdForJobId(12)).thenReturn(1);
 
         JobTree tree = builder().build(null, false, NOW);
         assertEquals(List.of("11", "10", "12"), tree.projects().get(0).jobs().stream().map(JobNode::jobId).toList());
         assertTrue(tree.projects().get(0).jobs().get(2).actions().control());
+    }
+
+    @Test
+    void asksForTrackedJobsSoFinishedOnesAreNotShownAsOther() {
+        CloudVmStatusContainer ended = container("9");
+        when(tracker.getAllJobs()).thenReturn(Set.of(ended, container("not-a-number")));
+        when(tracker.getVmStatusForJob("not-a-number")).thenReturn(null);
+
+        JobTree tree = builder().build(null, false, NOW);
+
+        verify(queueDao).findQueuedJobs(null, new Date(NOW.getTime() - JobTreeBuilder.RECENT_MS), false, List.of(9));
+        assertEquals(List.of("11", "10"), tree.projects().get(0).jobs().stream().map(JobNode::jobId).toList(),
+                "job 9 ended, so it is hidden");
+        assertEquals(List.of("not-a-number"), tree.otherJobs().stream().map(JobNode::jobId).toList(),
+                "job 9 is in a queue, so it is not other");
+        verify(queueDao, never()).findProjectIdForJobId(9);
     }
 
     @Test

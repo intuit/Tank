@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -23,11 +24,13 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.project.JobQueue;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 /**
  * ProductDao
@@ -115,7 +118,78 @@ public class JobQueueDao extends BaseDao<JobQueue> {
     }
 
     /**
-     * 
+     * The jobs the job tree shows, read as columns so that no queue's whole job history is loaded. Selects the
+     * jobs of one project's queue, or of every queue modified after since, that are not deleted and, unless
+     * includeFinished, have not ended; plus any of jobIds in those queues whatever their state.
+     *
+     * @param projectId the project whose queue to read, or null to read the queues modified after since
+     * @param since     used when projectId is null
+     * @param jobIds    jobs to include even when deleted or ended, such as those agents still report
+     * @return the jobs, in no particular order
+     */
+    public List<QueuedJob> findQueuedJobs(Integer projectId, Date since, boolean includeFinished,
+                                          @Nonnull Collection<Integer> jobIds) {
+        List<QueuedJob> results = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            String jql = "SELECT NEW " + QueuedJob.class.getName() + "(q.projectId, j.id, j.name, j.status,"
+                    + " j.incrementStrategy, j.totalVirtualUsers, j.startTime, j.endTime, j.useTwoStep,"
+                    + " j.reportingMode, j.baselineVirtualUsers, j.targetRampRate, j.numAgents, j.rampTimeSeconds,"
+                    + " j.rampTime)"
+                    + " FROM " + JobQueue.class.getName() + " q JOIN q.jobs j"
+                    + " WHERE " + (projectId != null ? "q.projectId = :projectId" : "q.modified > :since")
+                    + " AND ((j.status <> :deleted" + (includeFinished ? "" : " AND j.endTime IS NULL") + ")"
+                    + (jobIds.isEmpty() ? "" : " OR j.id IN :jobIds") + ")";
+            TypedQuery<QueuedJob> query = em.createQuery(jql, QueuedJob.class)
+                    .setParameter("deleted", JobQueueStatus.Deleted);
+            if (projectId != null) {
+                query.setParameter("projectId", projectId);
+            } else {
+                query.setParameter("since", since);
+            }
+            if (!jobIds.isEmpty()) {
+                query.setParameter("jobIds", jobIds);
+            }
+            results = query.getResultList();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return results;
+    }
+
+    /**
+     * @param jobId
+     * @return the project id of the queue holding the job, or null when no queue holds it
+     */
+    public Integer findProjectIdForJobId(int jobId) {
+        List<Integer> results = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            results = em.createQuery("SELECT q.projectId FROM " + JobQueue.class.getName()
+                            + " q JOIN q.jobs j WHERE j.id = :jobId", Integer.class)
+                    .setParameter("jobId", jobId)
+                    .setMaxResults(1)
+                    .getResultList();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    /**
+     *
      * @param jobId
      * @return JobQueue
      */
