@@ -80,7 +80,8 @@ class JobTreeBuilderTest {
     }
 
     private static QueuedJob job(int id, JobQueueStatus status, Date end) {
-        return new QueuedJob(1, id, "job" + id, status, IncrementStrategy.increasing, 100, null, end, null);
+        return new QueuedJob(1, id, "job" + id, status, IncrementStrategy.increasing, 100, null, end, null,
+                "None", 0, null, 1, 0, null);
     }
 
     private static CloudVmStatus agent(String instanceId, String jobId, VMStatus vmStatus, JobStatus jobStatus,

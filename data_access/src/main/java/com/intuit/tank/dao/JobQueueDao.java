@@ -134,7 +134,9 @@ public class JobQueueDao extends BaseDao<JobQueue> {
         try {
             begin();
             String jql = "SELECT NEW " + QueuedJob.class.getName() + "(q.projectId, j.id, j.name, j.status,"
-                    + " j.incrementStrategy, j.totalVirtualUsers, j.startTime, j.endTime, j.useTwoStep)"
+                    + " j.incrementStrategy, j.totalVirtualUsers, j.startTime, j.endTime, j.useTwoStep,"
+                    + " j.reportingMode, j.baselineVirtualUsers, j.targetRampRate, j.numAgents, j.rampTimeSeconds,"
+                    + " j.rampTime)"
                     + " FROM " + JobQueue.class.getName() + " q JOIN q.jobs j"
                     + " WHERE " + (projectId != null ? "q.projectId = :projectId" : "q.modified > :since")
                     + " AND ((j.status <> :deleted" + (includeFinished ? "" : " AND j.endTime IS NULL") + ")"

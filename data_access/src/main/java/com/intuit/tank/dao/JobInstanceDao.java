@@ -65,4 +65,28 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         return listWithJQL(sb, parameter);
     }
 
+    /**
+     * Reads one job's details text without loading the job and its eager collections.
+     *
+     * @param jobId
+     * @return the job's details, or null when there is no such job
+     */
+    public String findJobDetails(int jobId) {
+        List<String> results = null;
+        try {
+            begin();
+            results = getEntityManager().createQuery("SELECT j.jobDetails FROM " + JobInstance.class.getName()
+                            + " j WHERE j.id = :jobId", String.class)
+                    .setParameter("jobId", jobId)
+                    .getResultList();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return results.isEmpty() ? null : results.get(0);
+    }
+
 }

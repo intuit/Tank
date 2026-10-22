@@ -108,6 +108,10 @@ public class JobQueueDaoTest {
                 .jobConfiguration(JobConfiguration.builder().jobRegion(jobRegion).build()).build();
         JobInstance running = new JobInstance(workload, "RUNNING");
         running.setStatus(JobQueueStatus.Running);
+        running.setNumAgents(3);
+        running.setTargetRampRate(2.5);
+        running.setRampTime(60_000);
+        running.setJobDetails("the details");
         JobInstance ended = new JobInstance(workload, "ENDED");
         ended.setStatus(JobQueueStatus.Completed);
         ended.setEndTime(new Date());
@@ -131,6 +135,9 @@ public class JobQueueDaoTest {
             assertEquals(1, job.projectId());
             assertEquals(ids.get("RUNNING"), job.jobId());
             assertEquals(JobQueueStatus.Running, job.status());
+            assertEquals(3, job.numAgents());
+            assertEquals(2.5, job.getTargetRampRate());
+            assertEquals(60_000, job.getRampTime());
 
             assertEquals(Set.of("RUNNING", "ENDED"), names(dao.findQueuedJobs(1, null, true, List.of())));
             assertEquals(Set.of("RUNNING", "DELETED"),
@@ -142,6 +149,9 @@ public class JobQueueDaoTest {
 
             assertEquals(1, dao.findProjectIdForJobId(ids.get("ENDED")));
             assertNull(dao.findProjectIdForJobId(-1));
+
+            assertEquals("the details", jobDao.findJobDetails(ids.get("RUNNING")));
+            assertNull(jobDao.findJobDetails(-1));
         } finally {
             // Cleanup
             dao.delete(queue);
