@@ -41,6 +41,9 @@ export function Layout() {
         end={
           user && (
             <div className="header-user">
+              <Link to="/help" className="header-account" title="Documentation">
+                <i className="pi pi-question-circle" aria-hidden /> Help
+              </Link>
               <Link to="/account" className="header-account" title="Your account">
                 <i className="pi pi-user" aria-hidden /> {user.name}
               </Link>

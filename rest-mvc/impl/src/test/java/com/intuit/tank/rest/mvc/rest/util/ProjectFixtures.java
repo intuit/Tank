@@ -65,6 +65,7 @@ public final class ProjectFixtures {
         config.setRampTimeExpression("5m");
         config.setBaselineVirtualUsers(2);
         config.setUserIntervalIncrement(3);
+        config.setUseEips(true);
         config.setVmInstanceType("c5.large");
         config.setAllowOverride(true);
         config.getVariables().put("host", "example.com");
@@ -101,7 +102,7 @@ public final class ProjectFixtures {
     public static ProjectDetail detail(String name, String owner) {
         return new ProjectDetail(1, name, "Payroll", "comments", owner, null, MODIFIED,
                 new ProjectDetail.Settings(IncrementStrategy.increasing, TerminationPolicy.time, "30m", "5m", 2, 3, 1.0,
-                        "unspecified", "END_OF_SCRIPT_GROUP", "STANDARD", "c5.large", 4000, 1.0, false,
+                        "unspecified", "END_OF_SCRIPT_GROUP", "STANDARD", "c5.large", 4000, 1.0, null, false,
                         "com.intuit.tank.httpclient4.TankHttpClient4", "none", true),
                 List.of(new ProjectDetail.RegionUsers(VMRegion.US_EAST, "100", "0")),
                 List.of(new ProjectDetail.TestPlanDetail("Main", 100, List.of(

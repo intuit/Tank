@@ -8,6 +8,7 @@
 package com.intuit.tank.rest.mvc.rest.services.filters;
 
 import com.intuit.tank.common.ScriptUtil;
+import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.dao.ScriptFilterDao;
@@ -227,8 +228,8 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     }
 
     /**
-     * The first problem with a filter request, or null when it can be saved. Only internal filters can be saved
-     * through REST.
+     * The first problem with a filter request, or null when it can be saved. An external filter must name an
+     * existing external script; an internal one must not name any.
      */
     private static String filterError(FilterTO request) {
         if (request == null) {
@@ -240,8 +241,17 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         if (request.getName().length() > MAX_NAME_LENGTH) {
             return "Filter name must be at most " + MAX_NAME_LENGTH + " characters";
         }
+        if (ScriptFilterType.EXTERNAL.name().equals(request.getFilterType())) {
+            if (request.getExternalScriptId() == null) {
+                return "External filters need an external script";
+            }
+            if (new ExternalScriptDao().findById(request.getExternalScriptId()) == null) {
+                return "External script " + request.getExternalScriptId() + " does not exist";
+            }
+            return null;
+        }
         if (request.getFilterType() != null && !ScriptFilterType.INTERNAL.name().equals(request.getFilterType())) {
-            return "Only internal filters are supported";
+            return "Filter type must be INTERNAL or EXTERNAL";
         }
         if (request.getExternalScriptId() != null) {
             return "Internal filters cannot reference an external script";

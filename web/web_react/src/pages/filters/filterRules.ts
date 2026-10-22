@@ -96,5 +96,11 @@ export function filterProblems(filter: Filter): string[] {
   const name = filter.name?.trim() ?? '';
   if (!name) problems.push('Name is required');
   if (name.length > MAX_NAME_LENGTH) problems.push(`Name can be at most ${MAX_NAME_LENGTH} characters`);
+  if (isExternal(filter) && filter.externalScriptId == null) problems.push('Choose the external script the filter runs');
   return problems;
+}
+
+/** Whether a filter runs an external script (ScriptFilterType.EXTERNAL) instead of its own rules */
+export function isExternal(filter: Filter): boolean {
+  return filter.filterType === 'EXTERNAL';
 }

@@ -102,6 +102,49 @@ describe('app shell', () => {
     expect(sso.getAttribute('href')).toBe('/v2/auth/sso/authorize?returnTo=%2Fapp%2Fprojects');
   });
 
+  it('says the session expired when a signed-in request gets a 401', async () => {
+    let signedInCalls = 0;
+    renderAt('/tools', {
+      'GET /v2/me': () =>
+        signedInCalls++ === 0
+          ? { status: 200, body: { name: 'alice', admin: false } }
+          : { status: 401, body: { message: 'Not authenticated' } },
+      'HEAD /tools/Tank-Debugger-all.jar': () => ({ status: 404 }),
+    });
+    await screen.findByRole('heading', { name: 'Tools' });
+
+    // the account page loads /v2/me again, after the server session has ended
+    await userEvent.click(screen.getByRole('link', { name: /alice/ }));
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.getByText('Your session has expired. Please sign in again.')).toBeInTheDocument();
+  });
+
+  it("doesn't say the session expired after signing out", async () => {
+    renderAt('/', { ...signedIn, 'POST /v2/auth/logout': () => ({ status: 204 }) });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sign out' }));
+
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeInTheDocument();
+    expect(screen.queryByText(/session has expired/)).not.toBeInTheDocument();
+  });
+
+  it('links to the documentation from the header', async () => {
+    renderAt('/', signedIn);
+
+    await userEvent.click(await screen.findByRole('link', { name: /Help/ }));
+
+    expect(await screen.findByRole('heading', { name: 'Help' })).toBeInTheDocument();
+    expect(screen.getByText('Intuit Tank build 4.5.9')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Tank docs' })).toHaveAttribute('href', 'https://intuit.github.io/Tank/');
+    expect(screen.getByRole('link', { name: 'REST V2 API documentation' })).toHaveAttribute('href', '/swagger-ui.html');
+    expect(screen.getByRole('link', { name: 'Javadoc' })).toHaveAttribute('href', '/apidocs/index.html');
+    expect(screen.getAllByRole('link', { name: 'Single-page HTML' }).map((a) => a.getAttribute('href'))).toEqual([
+      '/docs/html_single/index.html',
+      '/docs/install-guide/html_single/index.html',
+    ]);
+  });
+
   it('shows not found for an unknown route', async () => {
     renderAt('/nope', signedIn);
 

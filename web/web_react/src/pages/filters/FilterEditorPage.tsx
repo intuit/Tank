@@ -8,7 +8,6 @@ import { SelectButton } from 'primereact/selectbutton';
 import { useCallback, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { toApiError } from '../../api/errors';
-import { classicUrl } from '../../classicPages';
 import { CopyDialog } from '../../components/CopyDialog';
 import { ConflictDialog, useUnsavedGuard } from '../../components/editorGuards';
 import { Field } from '../../components/Field';
@@ -24,6 +23,7 @@ import {
   changeAction,
   fieldFor,
   filterProblems,
+  isExternal,
   MAX_NAME_LENGTH,
   newAction,
   newCondition,
@@ -34,6 +34,11 @@ import {
   type Condition,
 } from './filterRules';
 import type { Filter } from './useFilters';
+
+const FILTER_TYPES = [
+  { label: 'Internal', value: 'INTERNAL' },
+  { label: 'External', value: 'EXTERNAL' },
+];
 
 const MATCH_ALL = [
   { label: 'All', value: true },
@@ -95,6 +100,17 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
     staleTime: 5 * 60_000,
   });
 
+  const external = !!draft && isExternal(draft);
+  const externalScripts = useQuery({
+    queryKey: ['externalScripts'],
+    enabled: external,
+    queryFn: async ({ signal }) => {
+      const { data, error, response } = await client.GET('/v2/scripts/external', { signal });
+      if (!data) throw toApiError(error, response, 'load the external scripts');
+      return data.scripts ?? [];
+    },
+  });
+
   if (!isNew && !Number.isInteger(filterId)) {
     return <Message severity="error" text="That isn't a filter ID" />;
   }
@@ -111,20 +127,6 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
       </section>
     );
   }
-  if (draft.filterType && draft.filterType !== 'INTERNAL') {
-    return (
-      <section>
-        <Message
-          severity="info"
-          text={`"${saved.name}" runs an external script. Only internal filters can be edited here.`}
-        />
-        <p>
-          <a href={classicUrl('/filters/')}>Edit it in the classic Filters page</a> · <Link to="/filters">Back to filters</Link>
-        </p>
-      </section>
-    );
-  }
-
   const readOnly = isNew ? !hasRight(user, 'CREATE_FILTER') : !hasRightOrOwns(user, 'EDIT_FILTER', saved.creator);
   const canChangeOwner = !isNew && !readOnly && (!!user?.admin || user?.name === saved.creator);
   const filterOptions = options.data?.filterOptions;
@@ -155,6 +157,16 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
       // shown below the header
     }
   };
+  const scriptOptions = (externalScripts.data ?? []).map((x) => ({ label: x.name ?? `Script ${x.id}`, value: x.id }));
+  if (draft.externalScriptId != null && !scriptOptions.some((o) => o.value === draft.externalScriptId)) {
+    scriptOptions.push({ label: `External script ${draft.externalScriptId}`, value: draft.externalScriptId });
+  }
+  const setType = (type: string) =>
+    update((d) => {
+      d.filterType = type;
+      // an internal filter can't reference a script (FilterServiceV2Impl)
+      if (type !== 'EXTERNAL') d.externalScriptId = undefined;
+    });
   const setConditions = (conditions: Condition[]) => update((d) => void (d.conditions = conditions));
   const setActions = (actions: Action[]) => update((d) => void (d.actions = actions));
 
@@ -253,34 +265,71 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
         )}
       </div>
 
-      <div className="tab-toolbar filter-if">
-        <h2 className="form-section">If</h2>
+      <div className="tab-toolbar">
+        <h2 className="form-section">Filter type</h2>
         <SelectButton
-          value={draft.allConditionsMustPass ?? true}
-          options={MATCH_ALL}
-          onChange={(e) => e.value !== null && update((d) => void (d.allConditionsMustPass = e.value as boolean))}
+          value={draft.filterType ?? 'INTERNAL'}
+          options={FILTER_TYPES}
+          onChange={(e) => e.value !== null && setType(e.value as string)}
           allowEmpty={false}
           disabled={readOnly}
-          aria-label="Conditions that must match"
+          aria-label="Filter type"
         />
-        <span className="field-help">of these conditions match a request</span>
+        <span className="field-help">
+          {external ? 'runs an uploaded script against each request' : 'changes requests that match its conditions'}
+        </span>
       </div>
-      <ConditionsTable
-        conditions={draft.conditions ?? []}
-        onChange={setConditions}
-        scopes={filterOptions?.['conditionScopes'] ?? []}
-        matches={filterOptions?.['conditionMatches'] ?? []}
-        readOnly={readOnly}
-      />
 
-      <h2 className="form-section">Then</h2>
-      <ActionsTable
-        actions={draft.actions ?? []}
-        onChange={setActions}
-        options={filterOptions}
-        fields={fields}
-        readOnly={readOnly}
-      />
+      {external ? (
+        <div className="form-columns">
+          <Field label="External script" htmlFor="filter-external-script">
+            <Dropdown
+              inputId="filter-external-script"
+              value={draft.externalScriptId ?? null}
+              options={scriptOptions}
+              optionLabel="label"
+              optionValue="value"
+              onChange={(e) => update((d) => void (d.externalScriptId = (e.value as number | null) ?? undefined))}
+              placeholder={externalScripts.isLoading ? 'Loading…' : 'Choose a script'}
+              emptyMessage="No external scripts have been uploaded"
+              filter
+              disabled={readOnly}
+            />
+          </Field>
+          {externalScripts.error && <Message severity="error" text={externalScripts.error.message} />}
+        </div>
+      ) : (
+        <>
+          <div className="tab-toolbar filter-if">
+            <h2 className="form-section">If</h2>
+            <SelectButton
+              value={draft.allConditionsMustPass ?? true}
+              options={MATCH_ALL}
+              onChange={(e) => e.value !== null && update((d) => void (d.allConditionsMustPass = e.value as boolean))}
+              allowEmpty={false}
+              disabled={readOnly}
+              aria-label="Conditions that must match"
+            />
+            <span className="field-help">of these conditions match a request</span>
+          </div>
+          <ConditionsTable
+            conditions={draft.conditions ?? []}
+            onChange={setConditions}
+            scopes={filterOptions?.['conditionScopes'] ?? []}
+            matches={filterOptions?.['conditionMatches'] ?? []}
+            readOnly={readOnly}
+          />
+
+          <h2 className="form-section">Then</h2>
+          <ActionsTable
+            actions={draft.actions ?? []}
+            onChange={setActions}
+            options={filterOptions}
+            fields={fields}
+            readOnly={readOnly}
+          />
+        </>
+      )}
 
       {!isNew && (
         <p className="field-help">

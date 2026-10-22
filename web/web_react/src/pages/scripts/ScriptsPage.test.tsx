@@ -2,6 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { renderApp, type Handlers } from '../../test/renderApp';
+import { storedZip } from './zipFixture';
 
 /** TableColumnDefaults.SCRIPTS_COL_PREFS */
 const SCRIPT_COLUMNS = [
@@ -55,6 +56,10 @@ describe('scripts list', () => {
     expect(within(others!).getByRole('link', { name: 'Download Tank XML search' })).toHaveAttribute(
       'href',
       '/v2/scripts/download/4',
+    );
+    expect(within(others!).getByRole('link', { name: 'Download Harness XML search' })).toHaveAttribute(
+      'href',
+      '/v2/scripts/harness/download/4',
     );
   });
 
@@ -152,12 +157,41 @@ describe('scripts list', () => {
     await rows();
 
     await userEvent.click(screen.getByRole('button', { name: 'Import Tank XML' }));
-    await userEvent.upload(await screen.findByLabelText('Script file'), new File(['<script/>'], 'login.xml'));
+    await userEvent.upload(await screen.findByLabelText('Script files'), new File(['<script/>'], 'login.xml'));
     await userEvent.click(screen.getByRole('button', { name: 'Import' }));
 
     expect(await screen.findByText('Script login with script ID 3 updated successfully')).toBeInTheDocument();
     expect(query!.has('recording')).toBe(false);
     await waitFor(() => expect(calls('GET /v2/scripts').length).toBeGreaterThan(1));
+  });
+
+  it('imports several files and the scripts in a zip, one upload each, and shows which failed', async () => {
+    const uploaded: string[] = [];
+    renderApp(
+      '/scripts',
+      handlers({
+        // jsdom's multipart bodies can't be read back here (scriptUpload.test.ts checks them), so go by order
+        'POST /v2/scripts': () => {
+          uploaded.push(`upload ${uploaded.length + 1}`);
+          return uploaded.length === 1
+            ? { status: 400, body: { message: 'Not a Tank script' } }
+            : { status: 201, body: { scriptId: '3', message: `${uploaded.length} saved` } };
+        },
+      }),
+    );
+    await rows();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Import Tank XML' }));
+    const zip = new File([storedZip({ 'a.xml': '<script/>', 'notes.txt': 'skip me', 'dir/b.xml': '<script/>' })], 'scripts.zip');
+    await userEvent.upload(await screen.findByLabelText('Script files'), [new File(['<script/>'], 'bad.xml'), zip]);
+    await userEvent.click(screen.getByRole('button', { name: 'Import' }));
+
+    expect(await screen.findByText(/Not a Tank script/)).toBeInTheDocument();
+    expect(uploaded).toHaveLength(3);
+    expect(screen.getByText('bad.xml')).toBeInTheDocument();
+    expect(screen.getByText('a.xml')).toBeInTheDocument();
+    expect(screen.getByText('b.xml')).toBeInTheDocument();
+    expect(screen.getByText(/3 saved/)).toBeInTheDocument();
   });
 
   it('copies a script', async () => {
@@ -188,3 +222,4 @@ describe('scripts list', () => {
     expect(screen.getByRole('button', { name: 'Import Tank XML' })).toBeDisabled();
   });
 });
+

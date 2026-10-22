@@ -94,6 +94,59 @@ describe('search and replace', () => {
     expect(screen.queryByText('(unsaved)')).not.toBeInTheDocument();
   });
 
+  it('steps through the matches, previewing and replacing one step or the next few', async () => {
+    const replaces: Body[] = [];
+    const all = [
+      { uuid: 'u1', position: 0, section: 'method', value: 'GET' },
+      { uuid: 'u3', position: 2, section: 'method', value: 'GET' },
+      { uuid: 'u4', position: 3, section: 'variableKey', key: 'host', value: 'GET' },
+    ];
+    let remaining = all;
+    await open(
+      handlers(undefined, {
+        'POST /v2/scripts/steps/search': () => ({ status: 200, body: remaining }),
+        'POST /v2/scripts/steps/replace': async (request: Request) => {
+          const body = await json(request);
+          replaces.push(body);
+          const uuids = body['uuids'] as string[];
+          remaining = remaining.filter((m) => !uuids.includes(m.uuid));
+          return { status: 200, body: { steps: body.steps, changed: uuids.length } };
+        },
+      }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.type(within(dialog).getByLabelText('Find'), 'get{Enter}');
+
+    expect(await within(dialog).findByText('Step 1 (1 of 3)')).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Previous match' }));
+    // wraps around, like ScriptSearchBean
+    expect(within(dialog).getByText('Step 4 (3 of 3)')).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Next match' }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Go to step 3' }));
+    expect(within(dialog).getByText('Step 3 (2 of 3)')).toBeInTheDocument();
+
+    await userEvent.type(within(dialog).getByLabelText('Replace with'), 'POST');
+    const preview = within(within(dialog).getByRole('table', { name: 'Before and after' }));
+    expect(preview.getByText('GET')).toBeInTheDocument();
+    expect(preview.getByText('POST')).toBeInTheDocument();
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Replace in step 3' }));
+    await waitFor(() => expect(replaces).toHaveLength(1));
+    expect(replaces[0]).toMatchObject({ replacement: 'POST', uuids: ['u3'] });
+    // carries on with the match after the one replaced
+    expect(await within(dialog).findByText('Step 4 (2 of 2)')).toBeInTheDocument();
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Next match' }));
+    expect(within(dialog).getByText('Step 1 (1 of 2)')).toBeInTheDocument();
+    await userEvent.clear(within(dialog).getByLabelText('Steps to replace in'));
+    await userEvent.type(within(dialog).getByLabelText('Steps to replace in'), '2');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Replace next' }));
+    await waitFor(() => expect(replaces).toHaveLength(2));
+    expect(replaces[1]!['uuids']).toEqual(['u1', 'u4']);
+    expect(await within(dialog).findByText('No steps match.')).toBeInTheDocument();
+  });
+
   it('lists the first few matches of a step', async () => {
     const headers = Array.from({ length: 8 }, (_, i) => ({ uuid: 'u1', position: 0, section: 'requestHeaderValue', key: `X-${i}`, value: 'v' }));
     await open(handlers(undefined, { 'POST /v2/scripts/steps/search': () => ({ status: 200, body: headers }) }));
@@ -102,8 +155,10 @@ describe('search and replace', () => {
     await userEvent.type(within(dialog).getByLabelText('Find'), 'v{Enter}');
 
     expect(await within(dialog).findByText('and 3 more')).toBeInTheDocument();
-    expect(within(dialog).getByText('X-4 = v')).toBeInTheDocument();
-    expect(within(dialog).queryByText('X-5 = v')).not.toBeInTheDocument();
+    expect(within(dialog).getByText('X-4 = v', { selector: 'li' })).toBeInTheDocument();
+    expect(within(dialog).queryByText('X-5 = v', { selector: 'li' })).not.toBeInTheDocument();
+    // the before/after preview of the current step shows them all
+    expect(within(dialog).getByText('X-7 = v', { selector: 'td' })).toBeInTheDocument();
   });
 
   it('shows the server error', async () => {

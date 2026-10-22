@@ -10,7 +10,7 @@ import { contextPath } from '../api/client';
 import { useSession } from '../session';
 
 export function LoginPage() {
-  const { config, user, signIn } = useSession();
+  const { config, user, expired, signIn } = useSession();
   const location = useLocation();
   const requested = (location.state as { from?: string } | null)?.from;
   const from = requested && requested !== '/' ? requested : '/projects';
@@ -35,6 +35,9 @@ export function LoginPage() {
 
   return (
     <Card title={<h1 className="login-title">Sign in</h1>} className="login">
+      {expired && (
+        <Message severity="warn" text="Your session has expired. Please sign in again." className="login-expired" />
+      )}
       {/* single sign-on first, as on the JSF login page */}
       {config?.ssoEnabled && (
         <>

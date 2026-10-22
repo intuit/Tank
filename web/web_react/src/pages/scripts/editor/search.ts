@@ -81,6 +81,14 @@ export function byStep(matches: StepMatch[]): StepMatches[] {
   return [...steps.values()].sort((a, b) => a.position - b.position);
 }
 
+/**
+ * What a match becomes when replaced: the whole value, or with Keys, the key of a match that has one
+ * (ScriptSearchBean.replaceInStep; the server's ReplaceMode).
+ */
+export function replacedMatch(match: StepMatch, replacement: string, mode: string): StepMatch {
+  return mode === 'KEY' && match.key ? { ...match, key: replacement } : { ...match, value: replacement };
+}
+
 /** "1 min 5 s", for the expected duration of a pass through the script */
 export function formatDuration(ms: number): string {
   const seconds = Math.round(ms / 1000);

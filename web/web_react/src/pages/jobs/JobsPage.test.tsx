@@ -132,6 +132,72 @@ describe('job queue page', () => {
     expect(screen.getByText('Setting Up (3/5)')).toBeInTheDocument();
   });
 
+  it('shows the details recorded when the job was queued, as text', async () => {
+    renderApp(
+      '/jobs',
+      handlers({
+        'GET /v2/jobs/12/details': () => ({
+          status: 200,
+          body: {
+            jobId: 12,
+            name: 'Checkout load 1',
+            status: 'Running',
+            detailsHtml: '<span style="font-weight: bold;">Users</span>: 150<br/>\n<img src=x onerror="alert(1)">Ramp:&nbsp;5m<br/>',
+          },
+        }),
+      }),
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Checkout load 1' }));
+    await userEvent.click(await screen.findByText('Job details as queued'));
+
+    const text = document.querySelector('.job-details-text')!;
+    expect(text.textContent).toBe('Users: 150\nRamp: 5m');
+    expect(text.querySelector('img')).toBeNull();
+  });
+
+  it('refreshes at the interval the user picks, and remembers it', async () => {
+    localStorage.removeItem('tank.jobs.refreshSeconds');
+    renderApp('/jobs', handlers());
+    await screen.findByRole('button', { name: 'Checkout load 1' });
+
+    await userEvent.click(screen.getByLabelText('Refresh every').closest('.p-dropdown')!);
+    await userEvent.click(await screen.findByRole('option', { name: 'Off', hidden: true }));
+
+    expect(localStorage.getItem('tank.jobs.refreshSeconds')).toBe('0');
+  });
+
+  it('hides the columns the user turned off', async () => {
+    const column = (colName: string, displayName: string, visible = true, hideable = true) => ({
+      colName,
+      displayName,
+      visible,
+      hideable,
+    });
+    renderApp(
+      '/jobs',
+      handlers({
+        'GET /v2/me/preferences': () => ({
+          status: 200,
+          body: {
+            tables: {
+              jobs: [
+                column('nameColumn', 'Name', true, false),
+                column('regionColumn', 'Region', false),
+                column('tpsColumn', 'TPS'),
+              ],
+            },
+          },
+        }),
+      }),
+    );
+
+    await screen.findByRole('button', { name: 'Checkout load 1' });
+    await waitFor(() => expect(screen.queryByRole('columnheader', { name: 'Region' })).not.toBeInTheDocument());
+    expect(screen.getByRole('columnheader', { name: 'TPS' })).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Visible columns').length).toBeGreaterThan(0);
+  });
+
   it('is in the menu', async () => {
     const { router } = renderApp('/', handlers());
 

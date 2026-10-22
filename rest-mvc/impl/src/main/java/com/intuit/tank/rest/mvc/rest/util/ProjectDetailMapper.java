@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +75,7 @@ public final class ProjectDetailMapper {
                 config.getVmInstanceType(),
                 config.getNumUsersPerAgent(),
                 config.getTargetRatePerAgent() != null ? config.getTargetRatePerAgent() : 1.0,
+                config.isUseEips(),
                 config.isUseTwoStep(),
                 config.getTankClientClass(),
                 config.getReportingMode(),
@@ -299,6 +302,9 @@ public final class ProjectDetailMapper {
         }
         config.setNumUsersPerAgent(s.numUsersPerAgent());
         config.setTargetRatePerAgent(s.targetRatePerAgent());
+        if (s.useEips() != null) {
+            config.setUseEips(s.useEips());
+        }
         config.setUseTwoStep(s.useTwoStep());
         if (s.tankClientClass() != null) {
             config.setTankClientClass(s.tankClientClass());
@@ -319,24 +325,46 @@ public final class ProjectDetailMapper {
             config.getDataFileIds().addAll(detail.dataFileIds());
         }
 
-        workload.getTestPlans().clear();
-        for (TestPlanDetail planDetail : detail.testPlans()) {
+        // Rows are updated in place by position rather than rebuilt: Hibernate flushes inserts before orphan
+        // deletes, so a rebuilt step would collide with the old one on databases that still carry the unique
+        // key on script_group_step.script_id that the former @OneToOne mapping generated.
+        syncByPosition(workload.getTestPlans(), detail.testPlans(), () -> {
             TestPlan plan = new TestPlan();
+            workload.addTestPlan(plan);
+            return plan;
+        }, (plan, planDetail) -> {
             plan.setName(planDetail.name());
             plan.setUserPercentage(planDetail.userPercentage());
-            for (ScriptGroupDetail groupDetail : nullToEmpty(planDetail.scriptGroups())) {
+            syncByPosition(plan.getScriptGroups(), nullToEmpty(planDetail.scriptGroups()), () -> {
                 ScriptGroup group = new ScriptGroup();
+                plan.addScriptGroup(group);
+                return group;
+            }, (group, groupDetail) -> {
                 group.setName(groupDetail.name());
                 group.setLoop(groupDetail.loop());
-                for (ScriptRef ref : nullToEmpty(groupDetail.scripts())) {
+                syncByPosition(group.getScriptGroupSteps(), nullToEmpty(groupDetail.scripts()), () -> {
                     ScriptGroupStep step = new ScriptGroupStep();
+                    group.addScriptGroupStep(step);
+                    return step;
+                }, (step, ref) -> {
                     step.setScript(scripts.get(ref.scriptId()));
                     step.setLoop(ref.loop());
-                    group.addScriptGroupStep(step);
-                }
-                plan.addScriptGroup(group);
-            }
-            workload.addTestPlan(plan);
+                });
+            });
+        });
+    }
+
+    /**
+     * Makes {@code rows} match {@code details} one-to-one by position: trailing rows are removed, each remaining
+     * row is updated, and {@code append} adds (to {@code rows}) and returns a new row for each extra detail.
+     */
+    private static <E, D> void syncByPosition(List<E> rows, List<D> details, Supplier<E> append,
+                                              BiConsumer<E, D> update) {
+        while (rows.size() > details.size()) {
+            rows.remove(rows.size() - 1);
+        }
+        for (int i = 0; i < details.size(); i++) {
+            update.accept(i < rows.size() ? rows.get(i) : append.get(), details.get(i));
         }
     }
 

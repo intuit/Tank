@@ -236,9 +236,48 @@ describe('filter editor', () => {
     expect(await screen.findByRole('button', { name: /Reload/ })).toBeInTheDocument();
   });
 
-  it('sends external filters to the classic UI', async () => {
-    await openFilter(handlers({ 'GET /v2/filters/7': () => ({ status: 200, body: { ...FILTER, filterType: 'EXTERNAL' } }) })).catch(() => undefined);
-    expect(await screen.findByText(/runs an external script/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Edit it in the classic Filters page' })).toHaveAttribute('href', expect.stringMatching(/\/filters\/$/));
+  it('edits an external filter: its script, not rules', async () => {
+    const bodies: Filter[] = [];
+    await openFilter(
+      handlers({
+        'GET /v2/filters/7': () => ({ status: 200, body: { ...FILTER, filterType: 'EXTERNAL', externalScriptId: 3 } }),
+        'GET /v2/scripts/external': () => ({ status: 200, body: { scripts: [{ id: 3, name: 'strip.groovy' }, { id: 4, name: 'sign.groovy' }] } }),
+        'PUT /v2/filters/7': capture(bodies),
+      }),
+    );
+    await waitFor(() => expect(dropdown('External script')).toHaveTextContent('strip.groovy'));
+    expect(screen.queryByRole('button', { name: 'Add action' })).not.toBeInTheDocument();
+    await choose('External script', 'sign.groovy');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(bodies[0]).toMatchObject({ filterType: 'EXTERNAL', externalScriptId: 4 }));
+  });
+
+  it('creates an external filter once a script is chosen, and switching back drops the script', async () => {
+    const bodies: Filter[] = [];
+    renderApp(
+      '/filters/new',
+      handlers({
+        'GET /v2/scripts/external': () => ({ status: 200, body: { scripts: [{ id: 3, name: 'strip.groovy' }] } }),
+        'POST /v2/filters': capture(bodies),
+        'GET /v2/filters/8': () => ({ status: 200, body: { ...FILTER, id: 8, name: 'Strip', filterType: 'EXTERNAL', externalScriptId: 3 } }),
+      }),
+    );
+    await screen.findByRole('heading', { name: 'New filter' });
+    await userEvent.type(screen.getByLabelText('Name'), 'Strip');
+    await userEvent.click(screen.getByRole('button', { name: 'External' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    expect(screen.getByText('Choose the external script the filter runs')).toBeInTheDocument();
+    expect(bodies).toHaveLength(0);
+
+    await choose('External script', 'strip.groovy');
+    await userEvent.click(screen.getByRole('button', { name: 'Internal' }));
+    expect(screen.getByRole('button', { name: 'Add action' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'External' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    expect(screen.getByText('Choose the external script the filter runs')).toBeInTheDocument();
+
+    await choose('External script', 'strip.groovy');
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await waitFor(() => expect(bodies[0]).toMatchObject({ name: 'Strip', filterType: 'EXTERNAL', externalScriptId: 3 }));
   });
 });
