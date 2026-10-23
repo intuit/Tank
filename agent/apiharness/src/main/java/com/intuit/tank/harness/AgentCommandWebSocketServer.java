@@ -45,8 +45,12 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Agent-side WebSocket server that receives job config, settings/script/data files, and control
- * commands pushed by the controller. Runs over WebSocket-over-HTTP/2 (RFC 8441) using Jetty 12; the
- * same connector also accepts HTTP/1.1 WebSocket upgrades for transition compatibility.
+ * commands pushed by the controller. Accepts HTTP/1.1 WebSocket upgrades and WebSocket-over-HTTP/2
+ * (RFC 8441) using Jetty 12.
+ * <p>
+ * The controller holds one connection; a new controller connection replaces the previous one.
+ * Emergency connections ({@code /ws/control?role=emergency}) get hello and status updates and may send
+ * pause, pause_ramp, resume, resume_ramp or stop, without replacing the controller connection.
  */
 public class AgentCommandWebSocketServer {
 
@@ -62,6 +66,8 @@ public class AgentCommandWebSocketServer {
     // past that window to avoid the connection being closed with "Connection Idle Timeout".
     private static final long WS_IDLE_TIMEOUT_MS =
             Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
+    private static final Set<String> ALLOWED_EMERGENCY_COMMANDS =
+            Set.of("pause", "pause_ramp", "resume", "resume_ramp", "stop");
 
     private final int port;
     private final String instanceId;
@@ -73,6 +79,7 @@ public class AgentCommandWebSocketServer {
     private boolean reuseAddr = true;
 
     private final AtomicReference<Session> activeConnection = new AtomicReference<>();
+    private final Set<Session> emergencyConnections = ConcurrentHashMap.newKeySet();
     private final Set<String> appliedCommandIds = ConcurrentHashMap.newKeySet();
     private final ConcurrentHashMap<String, IncomingFileState> incomingFiles = new ConcurrentHashMap<>();
     private final AtomicInteger completedFiles = new AtomicInteger(0);
@@ -116,7 +123,8 @@ public class AgentCommandWebSocketServer {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setIdleTimeout(java.time.Duration.ofMillis(WS_IDLE_TIMEOUT_MS));
-            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint(this));
+            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) ->
+                    new CommandEndpoint(this, isEmergencyRequest(upgradeRequest.getHttpURI().getQuery())));
         });
         server.setHandler(wsHandler);
 
@@ -142,6 +150,57 @@ public class AgentCommandWebSocketServer {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send WS hello: " + e.getMessage())));
             connection.close();
         }
+    }
+
+    private static boolean isEmergencyRequest(String query) {
+        if (query == null) {
+            return false;
+        }
+        for (String param : query.split("&")) {
+            if ("role=emergency".equals(param)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void onEmergencyConnectionEstablished(Session connection) {
+        LOG.info(new ObjectMessage(Map.of("Message",
+                "Emergency WS connected to agent " + instanceId + " from " + connection.getRemoteSocketAddress())));
+        emergencyConnections.add(connection);
+        try {
+            AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, capacity);
+            sendText(connection, hello.toJson());
+        } catch (IOException e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send emergency WS hello: " + e.getMessage())));
+            connection.close();
+        }
+    }
+
+    private void onEmergencyTextMessage(Session connection, String message) {
+        try {
+            AgentWsEnvelope envelope = AgentWsEnvelope.fromJson(message);
+            if (envelope.getType() == AgentWsEnvelope.Type.ping) {
+                handlePing(connection, envelope);
+            } else if (envelope.getType() == AgentWsEnvelope.Type.command) {
+                if (envelope.getCommand() == null || !ALLOWED_EMERGENCY_COMMANDS.contains(envelope.getCommand())) {
+                    sendAck(connection, envelope.getCommandId(), AckStatus.failed, "not_allowed_on_emergency_connection");
+                    return;
+                }
+                handleCommand(connection, envelope);
+            } else {
+                LOG.warn(new ObjectMessage(Map.of("Message",
+                        "Ignoring WS frame type " + envelope.getType() + " on emergency connection to agent " + instanceId)));
+            }
+        } catch (IOException e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing emergency WS message: " + e.getMessage())));
+        }
+    }
+
+    private void onEmergencyConnectionClosed(Session connection, int code, String reason) {
+        LOG.info(new ObjectMessage(Map.of("Message",
+                "Emergency WS disconnected from agent " + instanceId + " code=" + code + " reason=" + reason)));
+        emergencyConnections.remove(connection);
     }
 
     private void onTextMessage(Session connection, String message) {
@@ -490,15 +549,26 @@ public class AgentCommandWebSocketServer {
 
     public boolean sendStatusUpdate(CloudVmStatus instanceStatus) {
         Session connection = activeConnection.get();
-        if (connection == null || !connection.isOpen()) {
+        boolean controllerOpen = connection != null && connection.isOpen();
+        if (!controllerOpen && emergencyConnections.isEmpty()) {
             return false;
         }
         try {
             String statusJobId = instanceStatus != null && instanceStatus.getJobId() != null
                     ? instanceStatus.getJobId()
                     : jobId;
-            AgentWsEnvelope update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus);
-            sendText(connection, update.toJson());
+            String update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus).toJson();
+            for (Session emergency : emergencyConnections) {
+                if (emergency.isOpen()) {
+                    sendText(emergency, update);
+                } else {
+                    emergencyConnections.remove(emergency);
+                }
+            }
+            if (!controllerOpen) {
+                return false;
+            }
+            sendText(connection, update);
             return true;
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed sending WS status update: " + e.getMessage())));
@@ -516,6 +586,10 @@ public class AgentCommandWebSocketServer {
             }
             connection.close();
         }
+        for (Session emergency : emergencyConnections) {
+            emergency.close();
+        }
+        emergencyConnections.clear();
         try {
             server.stop();
         } catch (Exception e) {
@@ -530,25 +604,40 @@ public class AgentCommandWebSocketServer {
     public static class CommandEndpoint implements Session.Listener.AutoDemanding {
 
         private final AgentCommandWebSocketServer owner;
+        private final boolean emergency;
         private Session session;
 
-        private CommandEndpoint(AgentCommandWebSocketServer owner) {
+        private CommandEndpoint(AgentCommandWebSocketServer owner, boolean emergency) {
             this.owner = owner;
+            this.emergency = emergency;
         }
 
         @Override
         public void onWebSocketOpen(Session session) {
             this.session = session;
-            owner.onConnectionEstablished(session);
+            if (emergency) {
+                owner.onEmergencyConnectionEstablished(session);
+            } else {
+                owner.onConnectionEstablished(session);
+            }
         }
 
         @Override
         public void onWebSocketText(String message) {
-            owner.onTextMessage(session, message);
+            if (emergency) {
+                owner.onEmergencyTextMessage(session, message);
+            } else {
+                owner.onTextMessage(session, message);
+            }
         }
 
         @Override
         public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
+            if (emergency) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Ignoring binary frame on emergency WS connection")));
+                callback.succeed();
+                return;
+            }
             try {
                 AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
                 owner.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
@@ -561,7 +650,11 @@ public class AgentCommandWebSocketServer {
 
         @Override
         public void onWebSocketClose(int statusCode, String reason) {
-            owner.onConnectionClosed(session, statusCode, reason);
+            if (emergency) {
+                owner.onEmergencyConnectionClosed(session, statusCode, reason);
+            } else {
+                owner.onConnectionClosed(session, statusCode, reason);
+            }
         }
 
         @Override
