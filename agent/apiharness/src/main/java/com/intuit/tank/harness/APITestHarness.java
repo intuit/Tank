@@ -68,6 +68,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 public class APITestHarness {
     private static final Logger LOG = LogManager.getLogger(APITestHarness.class);
+    // Apache HttpClient 3.1 was removed; jobs saved with it run on the Apache HttpClient 5 client instead
+    private static final String REMOVED_HTTPCLIENT3_CLASS = "com.intuit.tank.httpclient3.TankHttpClient3";
+    private static final String HTTPCLIENT5_CLASS = "com.intuit.tank.httpclient5.TankHttpClient5";
     private static final int[] FIBONACCI = new int[] { 1, 1, 2, 3, 5, 8, 13 };
     private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     public static final int POLL_INTERVAL = 15000;
@@ -591,6 +594,10 @@ public class APITestHarness {
             HDWorkload hdWorkload = TestPlanSingleton.getInstance().getTestPlans().get(0);
             if (StringUtils.isBlank(tankHttpClientClass)) {
                 tankHttpClientClass = hdWorkload.getTankHttpClientClass();
+            }
+            if (REMOVED_HTTPCLIENT3_CLASS.equals(tankHttpClientClass)) {
+                LOG.warn(LogUtil.getLogMessage(REMOVED_HTTPCLIENT3_CLASS + " is no longer available, using " + HTTPCLIENT5_CLASS));
+                tankHttpClientClass = HTTPCLIENT5_CLASS;
             }
             agentRunData.setProjectName(hdWorkload.getName());
             agentRunData.setTankhttpClientClass(tankHttpClientClass);
