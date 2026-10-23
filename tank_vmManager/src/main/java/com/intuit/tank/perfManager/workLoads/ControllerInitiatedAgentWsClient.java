@@ -30,10 +30,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +85,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     // sign the session is dead. Closing it lets AgentReadoption reconnect.
     private static final long WS_STALE_SESSION_MS =
             Math.max(3 * WS_KEEPALIVE_PING_MS, Long.getLong("tank.ws.staleSessionMs", 60_000L));
+    private static final String CONTROLLER_NODE_ID = resolveNodeId();
 
     private final java.net.http.HttpClient httpClient =
             java.net.http.HttpClient.newBuilder().build();
@@ -185,6 +189,27 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
+    /**
+     * Names this controller to the agent, so a reconnect replaces only this controller's previous
+     * connection and leaves other controllers connected.
+     */
+    static String withNodeId(String wsUrl) {
+        String nodeParam = "node=" + URLEncoder.encode(CONTROLLER_NODE_ID, StandardCharsets.UTF_8);
+        return wsUrl + (wsUrl.contains("?") ? "&" : "?") + nodeParam;
+    }
+
+    private static String resolveNodeId() {
+        String configured = System.getProperty("tank.controller.nodeId");
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            return UUID.randomUUID().toString();
+        }
+    }
+
     public Optional<AgentWsEnvelope> connect(String instanceId, String wsUrl, String token, long helloTimeoutMillis) {
         try {
             SessionContext existing = sessions.get(instanceId);
@@ -199,7 +224,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             upgradeRequest.setHeader("Authorization", "bearer " + token);
 
             Session session = webSocketClient()
-                    .connect(endpoint, URI.create(wsUrl), upgradeRequest)
+                    .connect(endpoint, URI.create(withNodeId(wsUrl)), upgradeRequest)
                     .get(10, TimeUnit.SECONDS);
 
             SessionContext context = new SessionContext(session, endpoint, helloFuture);

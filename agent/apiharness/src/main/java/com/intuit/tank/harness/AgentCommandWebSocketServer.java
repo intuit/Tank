@@ -10,9 +10,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.websocket.api.Callback;
@@ -23,18 +27,23 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,6 +56,12 @@ import java.util.zip.ZipInputStream;
  * Agent-side WebSocket server that receives job config, settings/script/data files, and control
  * commands pushed by the controller. Runs over WebSocket-over-HTTP/2 (RFC 8441) using Jetty 12; the
  * same connector also accepts HTTP/1.1 WebSocket upgrades for transition compatibility.
+ * <p>
+ * Several controllers may be connected at once, and each gets hello and every status update. A
+ * controller names itself with {@code /ws/control?node=<id>}; a new connection from the same node
+ * replaces that node's previous one. Job config, files and start/run are accepted only from the
+ * bootstrap connection: the first connection to send one of them, until it closes. Connections the
+ * agent hears nothing from (the controller pings every 10s) are closed as dead.
  */
 public class AgentCommandWebSocketServer {
 
@@ -62,17 +77,28 @@ public class AgentCommandWebSocketServer {
     // past that window to avoid the connection being closed with "Connection Idle Timeout".
     private static final long WS_IDLE_TIMEOUT_MS =
             Math.max(60_000L, Long.getLong("tank.ws.idleTimeoutMs", 600_000L));
+    // A half-open TCP connection still accepts writes, so silence is the only reliable sign it is dead.
+    // Controllers ping every tank.ws.keepAlivePingMs (10s); allow several missed pings.
+    private static final long WS_SILENCE_TIMEOUT_MS =
+            Math.max(30_000L, Long.getLong("tank.ws.silenceTimeoutMs", 45_000L));
+    // Status updates are snapshots, so a slow connection skips updates rather than queueing them.
+    private static final int MAX_PENDING_STATUS_SENDS = 32;
+    private static final String NOT_BOOTSTRAP_CONNECTION = "not_bootstrap_connection";
 
     private final int port;
     private final String instanceId;
     private final String jobId;
     private final int capacity;
     private final String agentSessionId;
+    private final String agentToken;
 
     private final Server server;
     private boolean reuseAddr = true;
+    private long silenceTimeoutMs = WS_SILENCE_TIMEOUT_MS;
+    private volatile ScheduledExecutorService silenceMonitor;
 
-    private final AtomicReference<Session> activeConnection = new AtomicReference<>();
+    private final Map<Session, ControllerConnection> connections = new ConcurrentHashMap<>();
+    private final AtomicReference<Session> bootstrapConnection = new AtomicReference<>();
     private final Set<String> appliedCommandIds = ConcurrentHashMap.newKeySet();
     private final ConcurrentHashMap<String, IncomingFileState> incomingFiles = new ConcurrentHashMap<>();
     private final AtomicInteger completedFiles = new AtomicInteger(0);
@@ -88,16 +114,28 @@ public class AgentCommandWebSocketServer {
     private volatile Integer transferCompleteAckChunkIndex;
 
     public AgentCommandWebSocketServer(int port, String instanceId, String jobId, int capacity) {
+        this(port, instanceId, jobId, capacity, null);
+    }
+
+    /**
+     * @param agentToken when set, upgrades must carry {@code Authorization: bearer <agentToken>}
+     */
+    public AgentCommandWebSocketServer(int port, String instanceId, String jobId, int capacity, String agentToken) {
         this.port = port;
         this.instanceId = instanceId;
         this.jobId = jobId;
         this.capacity = capacity;
+        this.agentToken = agentToken;
         this.agentSessionId = UUID.randomUUID().toString();
         this.server = new Server();
     }
 
     public void setReuseAddr(boolean reuseAddr) {
         this.reuseAddr = reuseAddr;
+    }
+
+    void setSilenceTimeoutMs(long silenceTimeoutMs) {
+        this.silenceTimeoutMs = silenceTimeoutMs;
     }
 
     public void start() throws IOException {
@@ -116,7 +154,15 @@ public class AgentCommandWebSocketServer {
             container.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
             container.setIdleTimeout(java.time.Duration.ofMillis(WS_IDLE_TIMEOUT_MS));
-            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> new CommandEndpoint(this));
+            container.addMapping("/", (upgradeRequest, upgradeResponse, callback) -> {
+                if (!isAuthorized(upgradeRequest.getHeaders().get(HttpHeader.AUTHORIZATION))) {
+                    LOG.warn(new ObjectMessage(Map.of("Message",
+                            "Rejected unauthorized WS upgrade to agent " + instanceId + " from " + Request.getRemoteAddr(upgradeRequest))));
+                    Response.writeError(upgradeRequest, upgradeResponse, callback, HttpStatus.UNAUTHORIZED_401);
+                    return null;
+                }
+                return new CommandEndpoint(this, queryParam(upgradeRequest.getHttpURI().getQuery(), "node"));
+            });
         });
         server.setHandler(wsHandler);
 
@@ -125,15 +171,58 @@ public class AgentCommandWebSocketServer {
         } catch (Exception e) {
             throw new IOException("Failed to start agent WS control server on port " + port, e);
         }
+        ScheduledExecutorService monitor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "agent-ws-silence-monitor");
+            t.setDaemon(true);
+            return t;
+        });
+        long checkIntervalMs = Math.max(100L, silenceTimeoutMs / 3);
+        monitor.scheduleWithFixedDelay(this::closeSilentConnections, checkIntervalMs, checkIntervalMs, TimeUnit.MILLISECONDS);
+        silenceMonitor = monitor;
         LOG.info(new ObjectMessage(Map.of("Message", "Agent WS control server started for " + instanceId + " on port " + port)));
     }
 
-    private void onConnectionEstablished(Session connection) {
+    private boolean isAuthorized(String authorization) {
+        if (agentToken == null || agentToken.isBlank()) {
+            return true;
+        }
+        String prefix = "bearer ";
+        if (authorization == null || !authorization.regionMatches(true, 0, prefix, 0, prefix.length())) {
+            return false;
+        }
+        return MessageDigest.isEqual(
+                authorization.substring(prefix.length()).trim().getBytes(StandardCharsets.UTF_8),
+                agentToken.getBytes(StandardCharsets.UTF_8));
+    }
+
+    static String queryParam(String query, String name) {
+        if (query == null) {
+            return null;
+        }
+        for (String param : query.split("&")) {
+            int eq = param.indexOf('=');
+            if (eq > 0 && name.equals(param.substring(0, eq))) {
+                String value = URLDecoder.decode(param.substring(eq + 1), StandardCharsets.UTF_8);
+                return value.isBlank() ? null : value;
+            }
+        }
+        return null;
+    }
+
+    private void onConnectionEstablished(Session connection, String nodeId) {
         LOG.info(new ObjectMessage(Map.of("Message",
-                "Controller WS connected to agent " + instanceId + " from " + connection.getRemoteSocketAddress())));
-        Session previous = activeConnection.getAndSet(connection);
-        if (previous != null && previous != connection && previous.isOpen()) {
-            previous.close();
+                "Controller WS connected to agent " + instanceId + " from " + connection.getRemoteSocketAddress()
+                        + " node=" + nodeId)));
+        synchronized (connections) {
+            if (nodeId != null) {
+                for (Map.Entry<Session, ControllerConnection> entry : connections.entrySet()) {
+                    if (nodeId.equals(entry.getValue().nodeId)) {
+                        connections.remove(entry.getKey());
+                        entry.getKey().close();
+                    }
+                }
+            }
+            connections.put(connection, new ControllerConnection(nodeId));
         }
         try {
             AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, capacity);
@@ -144,7 +233,42 @@ public class AgentCommandWebSocketServer {
         }
     }
 
+    private void touch(Session connection) {
+        ControllerConnection controller = connections.get(connection);
+        if (controller != null) {
+            controller.lastHeardMs = System.currentTimeMillis();
+        }
+    }
+
+    /**
+     * Makes {@code connection} the bootstrap connection unless another open one already holds the role.
+     */
+    private boolean claimBootstrap(Session connection) {
+        Session holder = bootstrapConnection.get();
+        if (holder == connection) {
+            return true;
+        }
+        if (holder != null && holder.isOpen() && connections.containsKey(holder)) {
+            return false;
+        }
+        return bootstrapConnection.compareAndSet(holder, connection);
+    }
+
+    private void closeSilentConnections() {
+        long now = System.currentTimeMillis();
+        for (Map.Entry<Session, ControllerConnection> entry : connections.entrySet()) {
+            long silentMs = now - entry.getValue().lastHeardMs;
+            if (silentMs > silenceTimeoutMs && connections.remove(entry.getKey(), entry.getValue())) {
+                LOG.warn(new ObjectMessage(Map.of("Message", "Closing WS connection to agent " + instanceId
+                        + " node=" + entry.getValue().nodeId + " silent for " + silentMs + "ms")));
+                bootstrapConnection.compareAndSet(entry.getKey(), null);
+                entry.getKey().disconnect();
+            }
+        }
+    }
+
     private void onTextMessage(Session connection, String message) {
+        touch(connection);
         try {
             AgentWsEnvelope envelope = AgentWsEnvelope.fromJson(message);
             if (envelope.getType() == null) {
@@ -155,9 +279,28 @@ public class AgentCommandWebSocketServer {
             switch (envelope.getType()) {
                 case command -> handleCommand(connection, envelope);
                 case ping -> handlePing(connection, envelope);
-                case job_config -> handleJobConfig(envelope);
-                case file_offer -> handleFileOffer(connection, envelope);
-                case file_chunk -> handleFileChunk(connection, envelope);
+                case job_config -> {
+                    if (claimBootstrap(connection)) {
+                        handleJobConfig(envelope);
+                    } else {
+                        LOG.warn(new ObjectMessage(Map.of("Message",
+                                "Ignoring job_config from a non-bootstrap WS connection to agent " + instanceId)));
+                    }
+                }
+                case file_offer -> {
+                    if (claimBootstrap(connection)) {
+                        handleFileOffer(connection, envelope);
+                    } else {
+                        sendFileAck(connection, envelope.getFileId(), 0, AckStatus.failed, NOT_BOOTSTRAP_CONNECTION);
+                    }
+                }
+                case file_chunk -> {
+                    if (claimBootstrap(connection)) {
+                        handleFileChunk(connection, envelope);
+                    } else {
+                        sendFileAck(connection, envelope.getFileId(), envelope.getChunkIndex(), AckStatus.failed, NOT_BOOTSTRAP_CONNECTION);
+                    }
+                }
                 case ack -> LOG.info(new ObjectMessage(Map.of("Message", "Received WS ack: " + envelope.getAckForType())));
                 case close -> {
                     LOG.info(new ObjectMessage(Map.of("Message", "Controller closed WS: " + envelope.getReason())));
@@ -173,6 +316,11 @@ public class AgentCommandWebSocketServer {
     private void handleCommand(Session connection, AgentWsEnvelope envelope) {
         String commandId = envelope.getCommandId();
         String command = envelope.getCommand();
+
+        if (isStartCommand(command) && !claimBootstrap(connection)) {
+            sendAck(connection, commandId, AckStatus.failed, NOT_BOOTSTRAP_CONNECTION);
+            return;
+        }
 
         if (appliedCommandIds.size() > MAX_APPLIED_COMMAND_IDS) {
             appliedCommandIds.clear();
@@ -460,10 +608,20 @@ public class AgentCommandWebSocketServer {
         connection.sendText(text, Callback.NOOP);
     }
 
+    private void onBinaryFileChunk(Session connection, AgentWsEnvelope.BinaryFileChunk chunk) {
+        touch(connection);
+        if (claimBootstrap(connection)) {
+            handleFileChunk(connection, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+        } else {
+            sendFileAck(connection, chunk.fileId(), chunk.chunkIndex(), AckStatus.failed, NOT_BOOTSTRAP_CONNECTION);
+        }
+    }
+
     private void onConnectionClosed(Session connection, int code, String reason) {
         LOG.info(new ObjectMessage(Map.of("Message",
                 "Controller WS disconnected from agent " + instanceId + " code=" + code + " reason=" + reason)));
-        activeConnection.compareAndSet(connection, null);
+        connections.remove(connection);
+        bootstrapConnection.compareAndSet(connection, null);
     }
 
     public boolean awaitInitialTransfer(long timeoutMillis) {
@@ -488,18 +646,43 @@ public class AgentCommandWebSocketServer {
         sendTransferCompleteAckIfReady();
     }
 
+    /**
+     * Sends the status to every open connection.
+     *
+     * @return true if at least one connection was sent the update
+     */
     public boolean sendStatusUpdate(CloudVmStatus instanceStatus) {
-        Session connection = activeConnection.get();
-        if (connection == null || !connection.isOpen()) {
+        if (connections.isEmpty()) {
             return false;
         }
         try {
             String statusJobId = instanceStatus != null && instanceStatus.getJobId() != null
                     ? instanceStatus.getJobId()
                     : jobId;
-            AgentWsEnvelope update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus);
-            sendText(connection, update.toJson());
-            return true;
+            String update = AgentWsEnvelope.statusUpdate(instanceId, statusJobId, instanceStatus).toJson();
+            boolean sent = false;
+            for (Map.Entry<Session, ControllerConnection> entry : connections.entrySet()) {
+                Session connection = entry.getKey();
+                ControllerConnection controller = entry.getValue();
+                if (!connection.isOpen()) {
+                    continue;
+                }
+                if (controller.pendingStatusSends.get() >= MAX_PENDING_STATUS_SENDS) {
+                    if (!controller.droppingStatus) {
+                        controller.droppingStatus = true;
+                        LOG.warn(new ObjectMessage(Map.of("Message", "Skipping WS status updates to slow connection node="
+                                + controller.nodeId + " on agent " + instanceId)));
+                    }
+                    continue;
+                }
+                controller.droppingStatus = false;
+                controller.pendingStatusSends.incrementAndGet();
+                connection.sendText(update, Callback.from(
+                        controller.pendingStatusSends::decrementAndGet,
+                        failure -> controller.pendingStatusSends.decrementAndGet()));
+                sent = true;
+            }
+            return sent;
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed sending WS status update: " + e.getMessage())));
             return false;
@@ -507,14 +690,20 @@ public class AgentCommandWebSocketServer {
     }
 
     public void closeServer() {
-        Session connection = activeConnection.getAndSet(null);
-        if (connection != null && connection.isOpen()) {
-            try {
-                AgentWsEnvelope closeEnvelope = AgentWsEnvelope.close(instanceId, "agent_shutdown", "Agent shutting down");
-                sendText(connection, closeEnvelope.toJson());
-            } catch (IOException ignored) {
+        ScheduledExecutorService monitor = silenceMonitor;
+        if (monitor != null) {
+            monitor.shutdownNow();
+        }
+        for (Session connection : connections.keySet()) {
+            connections.remove(connection);
+            if (connection.isOpen()) {
+                try {
+                    AgentWsEnvelope closeEnvelope = AgentWsEnvelope.close(instanceId, "agent_shutdown", "Agent shutting down");
+                    sendText(connection, closeEnvelope.toJson());
+                } catch (IOException ignored) {
+                }
+                connection.close();
             }
-            connection.close();
         }
         try {
             server.stop();
@@ -530,16 +719,18 @@ public class AgentCommandWebSocketServer {
     public static class CommandEndpoint implements Session.Listener.AutoDemanding {
 
         private final AgentCommandWebSocketServer owner;
+        private final String nodeId;
         private Session session;
 
-        private CommandEndpoint(AgentCommandWebSocketServer owner) {
+        private CommandEndpoint(AgentCommandWebSocketServer owner, String nodeId) {
             this.owner = owner;
+            this.nodeId = nodeId;
         }
 
         @Override
         public void onWebSocketOpen(Session session) {
             this.session = session;
-            owner.onConnectionEstablished(session);
+            owner.onConnectionEstablished(session, nodeId);
         }
 
         @Override
@@ -551,7 +742,7 @@ public class AgentCommandWebSocketServer {
         public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
             try {
                 AgentWsEnvelope.BinaryFileChunk chunk = AgentWsEnvelope.fromBinaryFileChunk(payload);
-                owner.handleFileChunk(session, chunk.fileId(), chunk.chunkIndex(), chunk.payload());
+                owner.onBinaryFileChunk(session, chunk);
                 callback.succeed();
             } catch (IOException e) {
                 LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS binary file chunk: " + e.getMessage())));
@@ -567,6 +758,17 @@ public class AgentCommandWebSocketServer {
         @Override
         public void onWebSocketError(Throwable cause) {
             LOG.error(new ObjectMessage(Map.of("Message", "Agent WS server transport error: " + cause.getMessage())), cause);
+        }
+    }
+
+    private static class ControllerConnection {
+        private final String nodeId;
+        private final AtomicInteger pendingStatusSends = new AtomicInteger();
+        private volatile long lastHeardMs = System.currentTimeMillis();
+        private volatile boolean droppingStatus;
+
+        private ControllerConnection(String nodeId) {
+            this.nodeId = nodeId;
         }
     }
 
