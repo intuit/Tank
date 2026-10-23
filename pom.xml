@@ -48,6 +48,7 @@
     <version.junit>6.1.1</version.junit>
     <version.mockito>5.23.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
+    <version.httpclient5>5.6.1</version.httpclient5>
     <version.jaxb>4.0.3</version.jaxb>
     <version.spring-webmvc>7.0.9</version.spring-webmvc>
     <version.spring-boot>4.1.1</version.spring-boot>
@@ -537,9 +538,9 @@
       </dependency>
 
       <dependency>
-        <groupId>commons-httpclient</groupId>
-        <artifactId>commons-httpclient</artifactId>
-        <version>3.1</version>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${version.httpclient5}</version>
       </dependency>
 
       <dependency>
