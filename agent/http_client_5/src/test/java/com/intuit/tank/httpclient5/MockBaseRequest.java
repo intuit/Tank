@@ -1,4 +1,4 @@
-package com.intuit.tank.httpclient3;
+package com.intuit.tank.httpclient5;
 
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.TankHttpClient;

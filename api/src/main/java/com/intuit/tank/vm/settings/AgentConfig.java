@@ -100,12 +100,6 @@ public class AgentConfig implements Serializable {
             }
         }
         tankClientMap = new HashMap<String, String>();
-        // <tank-http-clients>
-        // <tank-client name="Apache HttpClient
-        // 3.1">com.intuit.tank.httpclient3.TankHttpClient3</tank-client>
-        // <tank-client name="apache HttpClient
-        // 4.5">com.intuit.tank.httpclient4.TankHttpClient4</tank-client>
-        // <tank-http-clients>
         List<HierarchicalConfiguration<ImmutableNode>> tankClients = config.configurationsAt(KEY_TANK_HTTP_CLIENTS);
         if (tankClients != null) {
             for (HierarchicalConfiguration<ImmutableNode> c : tankClients) {
@@ -113,8 +107,8 @@ public class AgentConfig implements Serializable {
             }
         }
         if (tankClientMap.isEmpty()) {
-            tankClientMap.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
             tankClientMap.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
+            tankClientMap.put("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5");
             tankClientMap.put("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK");
         }
         resultsProviderMap = new HashMap<String, String>();

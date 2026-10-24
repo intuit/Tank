@@ -127,7 +127,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doGet(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doGet(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -140,7 +140,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPut(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPut(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -162,7 +162,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doDelete(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doDelete(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -181,7 +181,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doOptions(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -200,7 +200,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPost(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPost(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -222,7 +222,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      *
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPatch(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -244,7 +244,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#addAuth(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#addAuth(com.intuit.tank.http.
      * AuthCredentials)
      */
     @Override
@@ -264,7 +264,7 @@ public class TankHttpClient4 implements TankHttpClient {
     /*
      * (non-Javadoc)
      * 
-     * @see com.intuit.tank.httpclient3.TankHttpClient#clearSession()
+     * @see com.intuit.tank.http.TankHttpClient#clearSession()
      */
     @Override
     public void clearSession() {
