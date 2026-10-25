@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -325,9 +326,9 @@ public final class ProjectDetailMapper {
             config.getDataFileIds().addAll(detail.dataFileIds());
         }
 
-        // Rows are updated in place by position rather than rebuilt: Hibernate flushes inserts before orphan
-        // deletes, so a rebuilt step would collide with the old one on databases that still carry the unique
-        // key on script_group_step.script_id that the former @OneToOne mapping generated.
+        // Rows are updated in place rather than rebuilt: Hibernate flushes inserts and updates before orphan
+        // deletes, so a rebuilt or reassigned step would collide with the old one on databases that still carry
+        // the unique key on script_group_step.script_id that the former @OneToOne mapping generated.
         syncByPosition(workload.getTestPlans(), detail.testPlans(), () -> {
             TestPlan plan = new TestPlan();
             workload.addTestPlan(plan);
@@ -342,16 +343,37 @@ public final class ProjectDetailMapper {
             }, (group, groupDetail) -> {
                 group.setName(groupDetail.name());
                 group.setLoop(groupDetail.loop());
-                syncByPosition(group.getScriptGroupSteps(), nullToEmpty(groupDetail.scripts()), () -> {
-                    ScriptGroupStep step = new ScriptGroupStep();
-                    group.addScriptGroupStep(step);
-                    return step;
-                }, (step, ref) -> {
-                    step.setScript(scripts.get(ref.scriptId()));
-                    step.setLoop(ref.loop());
-                });
+                applySteps(group, nullToEmpty(groupDetail.scripts()), scripts);
             });
         });
+    }
+
+    /**
+     * Matches steps to {@code refs} by script, as the JSF editor does: each script keeps its existing step and only
+     * the order changes, so no row's script_id is rewritten. Matching by position would move a script onto a row
+     * whose old script is still stored on another row until the flush finishes.
+     */
+    private static void applySteps(ScriptGroup group, List<ScriptRef> refs, Map<Integer, Script> scripts) {
+        Map<Integer, ScriptGroupStep> existing = new HashMap<>();
+        for (ScriptGroupStep step : group.getScriptGroupSteps()) {
+            if (step.getScript() != null) {
+                existing.putIfAbsent(step.getScript().getId(), step);
+            }
+        }
+        List<ScriptGroupStep> steps = new ArrayList<>();
+        for (ScriptRef ref : refs) {
+            ScriptGroupStep step = existing.remove(ref.scriptId());
+            if (step == null) {
+                step = new ScriptGroupStep();
+                step.setParent(group);
+                step.setScript(scripts.get(ref.scriptId()));
+            }
+            step.setLoop(ref.loop());
+            steps.add(step);
+        }
+        // the persistent list is kept, not replaced, so orphan removal deletes the steps left out
+        group.getScriptGroupSteps().clear();
+        group.getScriptGroupSteps().addAll(steps);
     }
 
     /**
