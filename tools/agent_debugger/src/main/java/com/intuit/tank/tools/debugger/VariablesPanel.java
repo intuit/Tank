@@ -14,7 +14,6 @@ package com.intuit.tank.tools.debugger;
  */
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,7 +33,6 @@ import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
 import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 
 public class VariablesPanel extends JPanel implements StepListener, ScriptChangedListener {
 
@@ -53,6 +50,7 @@ public class VariablesPanel extends JPanel implements StepListener, ScriptChange
         // this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         this.parent = parent;
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+        pane.setBorder(BorderFactory.createEmptyBorder());
 
         pane.setTopComponent(createVarsPanel(true));
 
@@ -64,26 +62,21 @@ public class VariablesPanel extends JPanel implements StepListener, ScriptChange
 
     private JPanel createVarsPanel(final boolean isInitialValues) {
         JPanel ret = new JPanel(new BorderLayout());
-        JPanel top = new JPanel(new BorderLayout());
-        top.add(BorderLayout.WEST, new JLabel(isInitialValues ? "Initial Varaible Values"
-                : "Completed Variable Values"));
-        JButton copyBtn = new JButton(ActionProducer.getIcon("copying_and_distribution.png", IconSize.SMALL));
+        SectionHeader top = new SectionHeader(isInitialValues ? "Initial Variable Values"
+                : "Completed Variable Values");
+        JButton copyBtn = new JButton(ActionProducer.getIcon("copy"));
+        copyBtn.setToolTipText("Show as text");
         copyBtn.addActionListener( (ActionEvent arg0) -> displayVars(isInitialValues));
-        top.add(BorderLayout.EAST, copyBtn);
+        top.addButton(copyBtn);
         ret.add(BorderLayout.NORTH, top);
         VarsTableModel model = new VarsTableModel();
-        JPanel panel = new JPanel(new BorderLayout());
         JTable table = new JTable(model);
-        table.setGridColor(Color.GRAY);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        table.setShowGrid(true);
         table.getTableHeader().setReorderingAllowed(false);
-        panel.add(BorderLayout.NORTH, table.getTableHeader());
         JScrollPane sp = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        panel.add(sp, BorderLayout.CENTER);
-        ret.add(panel, BorderLayout.CENTER);
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        ret.add(sp, BorderLayout.CENTER);
         if (isInitialValues) {
             initVarsModel = model;
         } else {
@@ -99,7 +92,7 @@ public class VariablesPanel extends JPanel implements StepListener, ScriptChange
         JTextArea ta = new JTextArea(sb);
         ta.setEditable(false);
         JScrollPane sp = new JScrollPane(ta);
-        JOptionPane.showMessageDialog(parent, sp, isInitialValues ? "Initial Varaible Values"
+        JOptionPane.showMessageDialog(parent, sp, isInitialValues ? "Initial Variable Values"
                 : "Completed Variable Values", JOptionPane.PLAIN_MESSAGE, null);
     }
 

@@ -135,7 +135,8 @@ public class InfiniteProgressPanel extends JComponent implements MouseListener {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHints(hints);
 
-            g2.setColor(new Color(255, 255, 255, (int) (alphaLevel * shield)));
+            Color veil = getBackground() != null ? getBackground() : Color.WHITE;
+            g2.setColor(new Color(veil.getRed(), veil.getGreen(), veil.getBlue(), (int) (alphaLevel * shield)));
             g2.fillRect(0, 0, getWidth(), getHeight());
 
             for (int i = 0; i < ticker.length; i++)
