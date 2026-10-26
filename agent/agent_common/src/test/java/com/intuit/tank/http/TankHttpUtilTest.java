@@ -15,11 +15,17 @@ import static org.junit.jupiter.api.Assertions.*;
  * #L%
  */
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.intuit.tank.http.binary.BinaryRequest;
 import com.intuit.tank.http.binary.BinaryResponse;
@@ -289,5 +295,68 @@ public class TankHttpUtilTest {
                 "filename=\"diamond-sword.png\"");
         boolean actual = partHolder.isContentTypeSet();
         assertFalse(actual);
+    }
+
+    private static final byte[] PLAIN = "{\"hello\":\"world\"}".getBytes(StandardCharsets.UTF_8);
+
+    private static byte[] gzip(byte[] data) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (GZIPOutputStream out = new GZIPOutputStream(bos)) {
+            out.write(data);
+        }
+        return bos.toByteArray();
+    }
+
+    private static byte[] deflate(byte[] data, boolean raw) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Deflater deflater = new Deflater(Deflater.DEFAULT_COMPRESSION, raw);
+        try (DeflaterOutputStream out = new DeflaterOutputStream(bos, deflater)) {
+            out.write(data);
+        } finally {
+            deflater.end();
+        }
+        return bos.toByteArray();
+    }
+
+    @Test
+    public void testDecodeContentGzip() throws IOException {
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(gzip(PLAIN), "gzip"));
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(gzip(PLAIN), "X-GZIP"));
+    }
+
+    @Test
+    public void testDecodeContentDeflate() throws IOException {
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(deflate(PLAIN, false), "deflate"));
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(deflate(PLAIN, true), "deflate"));
+    }
+
+    @Test
+    public void testDecodeContentStacked() throws IOException {
+        // deflate applied first, then gzip
+        byte[] encoded = gzip(deflate(PLAIN, false));
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(encoded, "deflate, gzip"));
+    }
+
+    @Test
+    public void testDecodeContentPassThrough() throws IOException {
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(PLAIN, null));
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(PLAIN, "identity"));
+        assertArrayEquals(PLAIN, TankHttpUtil.decodeContent(PLAIN, "zstd"));
+        assertNull(TankHttpUtil.decodeContent(null, "gzip"));
+    }
+
+    @Test
+    public void testDecodeContentInvalid() {
+        assertThrows(IOException.class, () -> TankHttpUtil.decodeContent(PLAIN, "gzip"));
+    }
+
+    @Test
+    public void testGetBoundary() {
+        assertEquals("abc", TankHttpUtil.getBoundary("multipart/form-data; boundary=abc"));
+        assertEquals("abc", TankHttpUtil.getBoundary("multipart/form-data;boundary=\"abc\""));
+        assertEquals("abc", TankHttpUtil.getBoundary("multipart/form-data; boundary=abc; charset=UTF-8"));
+        assertEquals("abc", TankHttpUtil.getBoundary("multipart/form-data; Boundary=abc"));
+        assertNull(TankHttpUtil.getBoundary("multipart/form-data"));
+        assertNull(TankHttpUtil.getBoundary(null));
     }
 }
