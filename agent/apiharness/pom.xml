@@ -47,7 +47,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>http_client_apache_3</artifactId>
+      <artifactId>http_client_apache_5</artifactId>
       <version>${project.version}</version>
     </dependency>
 

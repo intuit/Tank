@@ -67,7 +67,7 @@ public class AgentConfigCpTest {
         assertEquals("Apache HttpClient 4.5", result.getTankClientName("test"));
         empty.put("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4");
         empty.put("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK");
-        empty.put("Apache HttpClient 3.1", "com.intuit.tank.httpclient3.TankHttpClient3");
+        empty.put("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5");
         assertEquals(empty, result.getTankClientMap());
     }
 

@@ -13,16 +13,13 @@ package com.intuit.tank.httpclient4;
  * #L%
  */
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
-import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
@@ -127,7 +124,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doGet(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doGet(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -140,7 +137,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPut(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPut(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -162,7 +159,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doDelete(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doDelete(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -181,7 +178,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doOptions(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doOptions(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -200,7 +197,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPost(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPost(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -222,7 +219,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      *
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#doPatch(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#doPatch(com.intuit.tank.http.
      * BaseRequest)
      */
     @Override
@@ -244,7 +241,7 @@ public class TankHttpClient4 implements TankHttpClient {
      * (non-Javadoc)
      * 
      * @see
-     * com.intuit.tank.httpclient3.TankHttpClient#addAuth(com.intuit.tank.http.
+     * com.intuit.tank.http.TankHttpClient#addAuth(com.intuit.tank.http.
      * AuthCredentials)
      */
     @Override
@@ -264,7 +261,7 @@ public class TankHttpClient4 implements TankHttpClient {
     /*
      * (non-Javadoc)
      * 
-     * @see com.intuit.tank.httpclient3.TankHttpClient#clearSession()
+     * @see com.intuit.tank.http.TankHttpClient#clearSession()
      */
     @Override
     public void clearSession() {
@@ -416,7 +413,7 @@ public class TankHttpClient4 implements TankHttpClient {
             if (response == null) {
                 // Get response header information
                 String contentType = Arrays.stream(headers).filter(
-                        h -> "ContentType".equalsIgnoreCase(h.getName())).findFirst().map(NameValuePair::getValue).orElse("");
+                        h -> HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName())).findFirst().map(NameValuePair::getValue).orElse("");
                 response = TankHttpUtil.newResponseObject(contentType);
                 request.setResponse(response);
             }
@@ -452,34 +449,10 @@ public class TankHttpClient4 implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
-                try {
-                    switch (contentEncoding.toLowerCase()) {
-                        case "gzip":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
-                                bResponse = gzipStream.readAllBytes();
-                            }
-                            break;
-
-                        case "br":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
-                                bResponse = brotliStream.readAllBytes();
-                            }
-                            break;
-
-                        default:
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
-                            }
-                            break;
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
-                } catch (Exception e) {
-                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
-                }
+            try {
+                bResponse = TankHttpUtil.decodeContent(bResponse, contentEncoding);
+            } catch (IOException e) {
+                LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
             }
             response.setResponseBody(bResponse);
 
@@ -500,14 +473,14 @@ public class TankHttpClient4 implements TankHttpClient {
      * @param method
      * @param headerInformation
      */
-    @SuppressWarnings("rawtypes")
     private void setHeaders(BaseRequest request, HttpRequestBase method, HashMap<String, String> headerInformation) {
         try {
-            Set set = headerInformation.entrySet();
-
-            for (Object aSet : set) {
-                Map.Entry mapEntry = (Map.Entry) aSet;
-                method.setHeader((String) mapEntry.getKey(), (String) mapEntry.getValue());
+            for (Map.Entry<String, String> mapEntry : headerInformation.entrySet()) {
+                if (isMultipart(request) && HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(mapEntry.getKey())) {
+                    // the multipart entity supplies Content-Type with the boundary it actually uses
+                    continue;
+                }
+                method.setHeader(mapEntry.getKey(), mapEntry.getValue());
             }
         } catch (Exception ex) {
             LOG.warn(request.getLogUtil().getLogMessage("Unable to set header: " + ex.getMessage(), LogEventType.System));
@@ -515,11 +488,18 @@ public class TankHttpClient4 implements TankHttpClient {
     }
 
 
+    private static boolean isMultipart(BaseRequest request) {
+        return request.getContentType() != null
+                && request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART);
+    }
+
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         String contentType = request.getContentType();
-        String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
-        builder.setBoundary(boundary);
+        String boundary = TankHttpUtil.getBoundary(contentType);
+        if (boundary != null) {
+            builder.setBoundary(boundary);
+        }
 
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {
             ContentType partContentType = h.isContentTypeSet()

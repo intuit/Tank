@@ -128,9 +128,9 @@
 
 		<!-- configured TankHttpClients. -->
 		<tank-http-clients>
-			<tank-client name="Apache HttpClient 3.1">com.intuit.tank.httpclient3.TankHttpClient3
-			</tank-client>
 			<tank-client name="Apache HttpClient 4.5">com.intuit.tank.httpclient4.TankHttpClient4
+			</tank-client>
+			<tank-client name="Apache HttpClient 5">com.intuit.tank.httpclient5.TankHttpClient5
 			</tank-client>
 			<tank-client name="JDK HttpClient">com.intuit.tank.httpclientjdk.TankHttpClientJDK
 			</tank-client>
