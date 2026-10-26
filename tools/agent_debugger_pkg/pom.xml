@@ -97,6 +97,8 @@
 									<mainClass>com.intuit.tank.tools.debugger.DebuggerLauncher</mainClass>
 									<manifestEntries>
 										<Multi-Release>true</Multi-Release>
+										<!-- FlatLaf loads a native library for window decorations -->
+										<Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
 									</manifestEntries>
 								</transformer>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
