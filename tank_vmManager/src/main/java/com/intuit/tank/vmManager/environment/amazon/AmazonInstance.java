@@ -1,6 +1,7 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -553,7 +554,8 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        new Thread( () -> {
+        Entity segment = AWSXRay.getTraceEntity(); // carry the caller's Request.Agents subsegment into the worker thread
+        Runnable task = () -> {
             boolean associated = false;
 
             try {
@@ -596,7 +598,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                     latch.countDown();
                 }
             }
-        }).start();
+        };
+        new Thread(segment != null ? () -> segment.run(task) : task).start();
 
     }
 
