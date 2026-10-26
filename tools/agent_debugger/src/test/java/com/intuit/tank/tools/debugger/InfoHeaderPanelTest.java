@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.junit.jupiter.api.AfterAll;
@@ -59,14 +60,16 @@ public class InfoHeaderPanelTest {
     public void setup() throws Exception {
         SwingUtilities.invokeAndWait(() -> panel = new InfoHeaderPanel(frame));
         BorderLayout layout = (BorderLayout) panel.getLayout();
-        label = (JLabel) layout.getLayoutComponent(BorderLayout.WEST);
+        JPanel top = (JPanel) layout.getLayoutComponent(BorderLayout.NORTH);
+        BorderLayout topLayout = (BorderLayout) top.getLayout();
+        label = (JLabel) ((JPanel) topLayout.getLayoutComponent(BorderLayout.WEST)).getComponent(0);
         description = (JLabel) layout.getLayoutComponent(BorderLayout.SOUTH);
-        errorButton = (JButton) layout.getLayoutComponent(BorderLayout.EAST);
+        errorButton = (JButton) topLayout.getLayoutComponent(BorderLayout.EAST);
     }
 
     @Test
     public void startsWithoutAStep() {
-        assertEquals("Step #", label.getText());
+        assertEquals("No step selected", label.getText());
         assertEquals(" ", description.getText());
         assertFalse(errorButton.isVisible());
     }
@@ -77,7 +80,7 @@ public class InfoHeaderPanelTest {
 
         panel.stepChanged(step);
 
-        assertEquals("Step # 3", label.getText());
+        assertEquals("Step 3 of 0", label.getText());
         assertEquals("Set_Variable(k->v)", description.getText());
         assertFalse(errorButton.isVisible());
     }
@@ -93,7 +96,7 @@ public class InfoHeaderPanelTest {
         assertTrue(errorButton.isVisible());
 
         panel.stepChanged(null);
-        assertEquals("Step #", label.getText());
+        assertEquals("No step selected", label.getText());
         assertEquals(" ", description.getText());
         assertFalse(errorButton.isVisible());
     }
@@ -106,7 +109,7 @@ public class InfoHeaderPanelTest {
 
         panel.scriptChanged(new HDTestPlan());
 
-        assertEquals("Step #", label.getText());
+        assertEquals("No step selected", label.getText());
         assertEquals(" ", description.getText());
         assertFalse(errorButton.isVisible());
     }

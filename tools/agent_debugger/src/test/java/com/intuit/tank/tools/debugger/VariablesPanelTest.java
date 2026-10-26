@@ -22,7 +22,7 @@ import com.intuit.tank.harness.data.ThinkTimeStep;
 /** Uses a mock frame, so it runs headless */
 public class VariablesPanelTest {
 
-    private static final String INITIAL = "Initial Varaible Values";
+    private static final String INITIAL = "Initial Variable Values";
     private static final String COMPLETED = "Completed Variable Values";
 
     private AgentDebuggerFrame frame;

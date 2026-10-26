@@ -54,6 +54,7 @@ public class StepDialog extends JDialog {
         ta.setCaretPosition(0);
         RTextScrollPane sp = new RTextScrollPane(ta);
         sp.setIconRowHeaderEnabled(true);
+        DebuggerTheme.apply(ta);
         add(BorderLayout.CENTER, sp);
         add(createButtonPanel(), BorderLayout.SOUTH);
         setSize(new Dimension(800, 600));

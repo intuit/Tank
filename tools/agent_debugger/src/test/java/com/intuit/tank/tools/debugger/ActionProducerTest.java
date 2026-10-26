@@ -695,8 +695,7 @@ public class ActionProducerTest {
 
     @Test
     public void testGetIcon() {
-        assertNotNull(ActionProducer.getIcon("find.png", ActionProducer.IconSize.SMALL));
-        assertNull(ActionProducer.getIcon("no-such-icon.png", ActionProducer.IconSize.LARGE));
+        assertNotNull(ActionProducer.getIcon("search"));
     }
 
     private void verifyWorkloadLoadedInBackground() {

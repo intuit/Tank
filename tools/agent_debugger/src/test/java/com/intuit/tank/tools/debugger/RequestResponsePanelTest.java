@@ -51,8 +51,8 @@ public class RequestResponsePanelTest {
         when(frame.getSteps()).thenReturn(steps);
         panel = new RequestResponsePanel(frame);
         panel.init();
-        requestTA = textAreaUnder("Request:");
-        responseTA = textAreaUnder("Response:");
+        requestTA = textAreaUnder("Request");
+        responseTA = textAreaUnder("Response");
     }
 
     @Test
@@ -177,7 +177,7 @@ public class RequestResponsePanelTest {
     private RTextArea textAreaUnder(String title) {
         JLabel label = VariablesPanelTest.find(panel, JLabel.class, l -> title.equals(l.getText()));
         assertNotNull(label, title);
-        RTextArea ta = VariablesPanelTest.find(label.getParent(), RTextArea.class, t -> true);
+        RTextArea ta = VariablesPanelTest.find(label.getParent().getParent(), RTextArea.class, t -> true);
         assertNotNull(ta, title);
         return ta;
     }
