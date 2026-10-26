@@ -14,10 +14,16 @@ package com.intuit.tank.perfManager.workLoads;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
@@ -49,13 +55,10 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
-        AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId());
-        try {
+        try (Subsegment ignored = AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId())) {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
             LOG.error("Error starting agents: " + th.getMessage(), th);
-        } finally {
-            AWSXRay.endSubsegment();
         }
     }
 
@@ -69,38 +72,49 @@ public class IncreasingWorkLoad implements Runnable {
         LOG.debug("asking for agents...");
 
         // start the non region dependent reporting resources if needed
-        ArrayList<AgentMngrAPIRequest.UserRequest> urList = new ArrayList<AgentMngrAPIRequest.UserRequest>();
+        List<AgentMngrAPIRequest.UserRequest> urList = Collections.synchronizedList(new ArrayList<>());
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
-        job.getRegions().parallelStream().forEach(jobRegion -> segment.run(() -> {
-            Thread.currentThread().setContextClassLoader(classLoader);
-            int users;
-            if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                users = JobUtil.parseUserString(jobRegion.getUsers());
-                LOG.info(new ObjectMessage(Map.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
-                        + job.getId())));
-            } else {
-                int percentage = JobUtil.parseUserString(jobRegion.getPercentage());
-                // Calculate number of agents per region split for nonlinear workloads
-                Map<RegionRequest, Integer> agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumAgents(), job.getRegions());
-                LOG.info(new ObjectMessage(Map.of("Message","Starting " + percentage + "% of users in region " + jobRegion.getRegion().getDescription()
-                        + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId())));
-                users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region - nonlinear
-            }
-            if (users > 0) {
-                VMRegion region = jobRegion.getRegion();
-                urList.add(new AgentMngrAPIRequest.UserRequest(region, users));
-                // AgentRunner.setRequestedAgents(model);
-                RequestAgents request = new RequestAgents(job.getId(), job.getReportingMode(), job.getLoggingProfile(),
-                        region, job.getIncrementStrategy(), users, job.getStopBehavior());
-                request.setVmInstanceType(job.getVmInstanceType());
-                request.setUserEips(job.isUseEips());
-                request.setNumUsersPerAgent(job.getNumUsersPerAgent());
-                agentDispatcher.processAgentsMessage(request);
-            } else if (job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
-                LOG.warn("Attempt to start a job with no users.");
-            }
-        }));
+        // One thread per region: a parallelStream over the regions HashSet can hand every region to a
+        // single task (it splits by hash bucket, not element) and shares the common ForkJoinPool.
+        try (ExecutorService regionPool = Executors.newFixedThreadPool(Math.max(1, job.getRegions().size()))) {
+            CompletableFuture.allOf(job.getRegions().stream()
+                    .map(jobRegion -> CompletableFuture.runAsync(
+                            () -> segment.run(() -> requestAgentsForRegion(jobRegion, classLoader, urList)), regionPool))
+                    .toArray(CompletableFuture[]::new))
+                    .join();
+        }
+    }
+
+    private void requestAgentsForRegion(RegionRequest jobRegion, ClassLoader classLoader,
+                                        List<AgentMngrAPIRequest.UserRequest> urList) {
+        Thread.currentThread().setContextClassLoader(classLoader);
+        int users;
+        if(job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            users = JobUtil.parseUserString(jobRegion.getUsers());
+            LOG.info(new ObjectMessage(Map.of("Message","Starting " + users + " users in region " + jobRegion.getRegion().getDescription() + " for job "
+                    + job.getId())));
+        } else {
+            int percentage = JobUtil.parseUserString(jobRegion.getPercentage());
+            // Calculate number of agents per region split for nonlinear workloads
+            Map<RegionRequest, Integer> agentMapping = JobVmCalculator.getMachinesForAgentByUserPercentage(job.getNumAgents(), job.getRegions());
+            LOG.info(new ObjectMessage(Map.of("Message","Starting " + percentage + "% of users in region " + jobRegion.getRegion().getDescription()
+                    + " with " + agentMapping.get(jobRegion) + " allocated agents for job " + job.getId())));
+            users = agentMapping.get(jobRegion); // reassign users to the number of agents allocated for this region - nonlinear
+        }
+        if (users > 0) {
+            VMRegion region = jobRegion.getRegion();
+            urList.add(new AgentMngrAPIRequest.UserRequest(region, users));
+            // AgentRunner.setRequestedAgents(model);
+            RequestAgents request = new RequestAgents(job.getId(), job.getReportingMode(), job.getLoggingProfile(),
+                    region, job.getIncrementStrategy(), users, job.getStopBehavior());
+            request.setVmInstanceType(job.getVmInstanceType());
+            request.setUserEips(job.isUseEips());
+            request.setNumUsersPerAgent(job.getNumUsersPerAgent());
+            agentDispatcher.processAgentsMessage(request);
+        } else if (job.getIncrementStrategy().equals(IncrementStrategy.increasing)) {
+            LOG.warn("Attempt to start a job with no users.");
+        }
     }
 
 }
