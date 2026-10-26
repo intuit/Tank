@@ -298,13 +298,9 @@ public class TankHttpClient5Test {
                         .withBody("raw data"))
         );
 
+        // HttpClient 5 rejects content encodings it has no decoder for
         BaseRequest request = getRequest(new TankHttpClient5(), wireMockServer.baseUrl() + "/unknown-encoding");
-        assertDoesNotThrow(() -> request.doGet(null));
-        BaseResponse response = request.getResponse();
-        assertNotNull(response);
-        assertEquals(200, response.getHttpCode());
-        assertNotNull(response.getBody());
-        assertEquals("raw data", response.getBody());
+        assertThrows(RuntimeException.class, () -> request.doGet(null));
     }
 
     @Test

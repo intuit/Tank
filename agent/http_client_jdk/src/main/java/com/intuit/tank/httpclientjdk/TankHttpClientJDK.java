@@ -1,6 +1,5 @@
 package com.intuit.tank.httpclientjdk;
 
-import java.io.ByteArrayInputStream;
 
 /*
  * #%L
@@ -32,9 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
-import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
@@ -530,34 +527,10 @@ public class TankHttpClientJDK implements TankHttpClient {
             response.setResponseTime(waitTime);
 
             String contentEncoding = response.getHttpHeader("Content-Encoding");
-            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
-                try {
-                    switch (contentEncoding.toLowerCase()) {
-                        case "gzip":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
-                                bResponse = gzipStream.readAllBytes();
-                            }
-                            break;
-
-                        case "br":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
-                                bResponse = brotliStream.readAllBytes();
-                            }
-                            break;
-
-                        default:
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Unknown content encoding: {}, keeping raw response", contentEncoding);
-                            }
-                            break;
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Failed to decompress response with encoding '{}': {}", contentEncoding, e.getMessage());
-                } catch (Exception e) {
-                    LOG.error("Unexpected error during decompression: {}", e.getMessage(), e);
-                }
+            try {
+                bResponse = TankHttpUtil.decodeContent(bResponse, contentEncoding);
+            } catch (IOException e) {
+                LOG.warn("Failed to decompress response with encoding '{}': {}", contentEncoding, e.getMessage());
             }
             response.setResponseBody(bResponse);
 

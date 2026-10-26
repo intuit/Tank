@@ -491,7 +491,7 @@ public class ActionProducer {
             cb.addItem(new TankClientChoice("Apache HttpClient 4.5", "com.intuit.tank.httpclient4.TankHttpClient4"));
             cb.addItem(new TankClientChoice("Apache HttpClient 5", "com.intuit.tank.httpclient5.TankHttpClient5"));
             cb.addItem(new TankClientChoice("JDK Http Client", "com.intuit.tank.httpclientjdk.TankHttpClientJDK"));
-            cb.setSelectedIndex(1);
+            cb.setSelectedIndex(0);
         }
     }
 

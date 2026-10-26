@@ -13,7 +13,6 @@ package com.intuit.tank.httpclient5;
  * #L%
  */
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -21,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.vm.settings.TankConfig;
 import jakarta.annotation.Nonnull;
@@ -37,6 +35,8 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.entity.DeflateInputStream;
+import org.apache.hc.client5.http.entity.InputStreamFactory;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -59,6 +59,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -74,6 +75,18 @@ import com.intuit.tank.vm.settings.AgentConfig;
 public class TankHttpClient5 implements TankHttpClient {
 
     private static final Logger LOG = LogManager.getLogger(TankHttpClient5.class);
+
+    /**
+     * Response decoders, in the order advertised in Accept-Encoding. Brotli uses org.brotli:dec
+     * since HttpClient's built-in brotli support requires brotli4j.
+     */
+    private static final LinkedHashMap<String, InputStreamFactory> CONTENT_DECODERS = new LinkedHashMap<>();
+    static {
+        CONTENT_DECODERS.put("gzip", GZIPInputStream::new);
+        CONTENT_DECODERS.put("x-gzip", GZIPInputStream::new);
+        CONTENT_DECODERS.put("deflate", DeflateInputStream::new);
+        CONTENT_DECODERS.put("br", BrotliInputStream::new);
+    }
 
     private CloseableHttpClient httpclient;
     private final HttpClientContext context;
@@ -118,8 +131,7 @@ public class TankHttpClient5 implements TankHttpClient {
                         .build())
                 // Keep pooled connections tied to the virtual user that opened them
                 .setUserTokenHandler((route, httpContext) -> HttpClientContext.castOrCreate(httpContext).getUserToken())
-                // Response bodies are decoded in processResponse so the Content-Encoding header is preserved
-                .disableContentCompression()
+                .setContentDecoderRegistry(CONTENT_DECODERS)
                 .evictIdleConnections(TimeValue.ofMinutes(1))
                 .evictExpiredConnections()
                 .build();
@@ -394,7 +406,7 @@ public class TankHttpClient5 implements TankHttpClient {
             if (response == null) {
                 // Get response header information
                 String contentType = Arrays.stream(headers).filter(
-                        h -> "ContentType".equalsIgnoreCase(h.getName())).findFirst().map(NameValuePair::getValue).orElse("");
+                        h -> HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName())).findFirst().map(NameValuePair::getValue).orElse("");
                 response = TankHttpUtil.newResponseObject(contentType);
                 request.setResponse(response);
             }
@@ -429,36 +441,7 @@ public class TankHttpClient5 implements TankHttpClient {
             }
             response.setResponseTime(waitTime);
 
-            String contentEncoding = response.getHttpHeader("Content-Encoding");
-            if (contentEncoding != null && !contentEncoding.isEmpty() && bResponse != null && bResponse.length > 0) {
-                try {
-                    switch (contentEncoding.toLowerCase()) {
-                        case "gzip":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 GZIPInputStream gzipStream = new GZIPInputStream(bais)) {
-                                bResponse = gzipStream.readAllBytes();
-                            }
-                            break;
-
-                        case "br":
-                            try (ByteArrayInputStream bais = new ByteArrayInputStream(bResponse);
-                                 BrotliInputStream brotliStream = new BrotliInputStream(bais)) {
-                                bResponse = brotliStream.readAllBytes();
-                            }
-                            break;
-
-                        default:
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Unknown content encoding: " + contentEncoding + ", keeping raw response");
-                            }
-                            break;
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Failed to decompress response with encoding '" + contentEncoding + "': " + e.getMessage());
-                } catch (Exception e) {
-                    LOG.error("Unexpected error during decompression: " + e.getMessage(), e);
-                }
-            }
+            // body has already been decoded by the client's content decoders
             response.setResponseBody(bResponse);
 
         } catch (Exception ex) {
@@ -481,6 +464,10 @@ public class TankHttpClient5 implements TankHttpClient {
     private void setHeaders(BaseRequest request, HttpUriRequestBase method, HashMap<String, String> headerInformation) {
         try {
             for (Map.Entry<String, String> mapEntry : headerInformation.entrySet()) {
+                if (isMultipart(request) && HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(mapEntry.getKey())) {
+                    // the multipart entity supplies Content-Type with the boundary it actually uses
+                    continue;
+                }
                 method.setHeader(mapEntry.getKey(), mapEntry.getValue());
             }
         } catch (Exception ex) {
@@ -492,19 +479,24 @@ public class TankHttpClient5 implements TankHttpClient {
      * Builds the request body, either multipart or a string entity of the request's content type
      */
     private HttpEntity buildEntity(BaseRequest request, HttpUriRequestBase method, String requestBody) {
-        if (request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART)) {
+        if (isMultipart(request)) {
             return buildParts(request);
         }
         method.setHeader(HttpHeaders.CONTENT_TYPE, request.getContentType());
         return new StringEntity(requestBody, ContentType.create(request.getContentType(), request.getContentTypeCharSet()));
     }
 
+    private static boolean isMultipart(BaseRequest request) {
+        return request.getContentType() != null
+                && request.getContentType().toLowerCase().startsWith(BaseRequest.CONTENT_TYPE_MULTIPART);
+    }
+
     private HttpEntity buildParts(BaseRequest request) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         String contentType = request.getContentType();
-        int boundaryIndex = contentType.indexOf("boundary=");
-        if (boundaryIndex >= 0) {
-            builder.setBoundary(contentType.substring(boundaryIndex + 9));
+        String boundary = TankHttpUtil.getBoundary(contentType);
+        if (boundary != null) {
+            builder.setBoundary(boundary);
         }
 
         for (PartHolder h : TankHttpUtil.getPartsFromBody(request)) {

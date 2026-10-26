@@ -2,16 +2,22 @@ package com.intuit.tank.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.brotli.dec.BrotliInputStream;
 
 import com.intuit.tank.http.binary.BinaryResponse;
 import com.intuit.tank.http.json.JsonResponse;
@@ -74,6 +80,90 @@ public class TankHttpUtil {
                         new BinaryResponse();
     }
     
+    /**
+     * Decodes a response body according to its Content-Encoding header. Handles gzip, x-gzip, deflate
+     * (zlib-wrapped or raw), br and identity, including stacked encodings such as "gzip, br", which are
+     * removed in reverse order of application. If an unsupported coding is encountered the body is
+     * returned as decoded so far.
+     *
+     * @param body            the raw response body
+     * @param contentEncoding the Content-Encoding header value, may be null
+     * @return the decoded body
+     * @throws IOException if the body is not valid for its declared encoding
+     */
+    public static byte[] decodeContent(byte[] body, String contentEncoding) throws IOException {
+        if (body == null || body.length == 0 || StringUtils.isBlank(contentEncoding)) {
+            return body;
+        }
+        String[] codings = StringUtils.split(contentEncoding, ',');
+        for (int i = codings.length - 1; i >= 0; i--) {
+            String coding = codings[i].trim().toLowerCase();
+            switch (coding) {
+                case "gzip":
+                case "x-gzip":
+                    try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(body))) {
+                        body = in.readAllBytes();
+                    }
+                    break;
+                case "deflate":
+                    body = inflate(body);
+                    break;
+                case "br":
+                    try (InputStream in = new BrotliInputStream(new ByteArrayInputStream(body))) {
+                        body = in.readAllBytes();
+                    }
+                    break;
+                case "identity":
+                case "":
+                    break;
+                default:
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Unknown content encoding: " + coding + ", keeping remaining response encoded");
+                    }
+                    return body;
+            }
+        }
+        return body;
+    }
+
+    /**
+     * Inflates a deflate body. RFC 9110 specifies zlib-wrapped data, but some servers send raw deflate,
+     * so fall back to raw inflation when the zlib header is missing.
+     */
+    private static byte[] inflate(byte[] body) throws IOException {
+        try (InputStream in = new InflaterInputStream(new ByteArrayInputStream(body))) {
+            return in.readAllBytes();
+        } catch (IOException e) {
+            Inflater inflater = new Inflater(true);
+            try (InputStream in = new InflaterInputStream(new ByteArrayInputStream(body), inflater)) {
+                return in.readAllBytes();
+            } finally {
+                inflater.end();
+            }
+        }
+    }
+
+    /**
+     * Extracts the boundary parameter from a multipart Content-Type header value.
+     *
+     * @param contentType the Content-Type value, e.g. multipart/form-data; boundary="abc"
+     * @return the unquoted boundary, or null if the content type has none
+     */
+    public static String getBoundary(String contentType) {
+        if (contentType == null) {
+            return null;
+        }
+        for (String param : StringUtils.split(contentType, ';')) {
+            String name = StringUtils.substringBefore(param, "=").trim();
+            if ("boundary".equalsIgnoreCase(name) && param.contains("=")) {
+                String value = StringUtils.substringAfter(param, "=").trim();
+                value = StringUtils.strip(value, "\"");
+                return StringUtils.isNotBlank(value) ? value : null;
+            }
+        }
+        return null;
+    }
+
     public static List<PartHolder> getPartsFromBody(BaseRequest request) {
     	List<PartHolder> parameters = new ArrayList<PartHolder>();
         String s = new String(Base64.getDecoder().decode(request.getBody()), StandardCharsets.UTF_8);
