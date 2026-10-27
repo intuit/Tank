@@ -42,13 +42,12 @@ import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
 
 import com.intuit.tank.PreferencesBean;
-import com.intuit.tank.PropertyComparer;
-import com.intuit.tank.PropertyComparer.SortOrder;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.dao.QueuedJob;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.JobNodeBean;
@@ -107,6 +106,8 @@ public abstract class JobTreeTableBean implements Serializable {
     private ProjectDao projectDao = new ProjectDao();
 
     private JobQueueDao jobQueueDao = new JobQueueDao();
+
+    private JobInstanceDao jobInstanceDao = new JobInstanceDao();
 
     private boolean filterFinished = true;
     private String refreshTimeSeconds;
@@ -474,15 +475,19 @@ public abstract class JobTreeTableBean implements Serializable {
         Set<String> trackerJobs = getTrackerJobIds();
         Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
         if (rootJob == null || rootJob == 0) {
-            AWSXRay.beginSubsegment("Build.Tree.findRecent");
+            AWSXRay.beginSubsegment("Build.Tree.findQueuedJobs");
             Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
-            List<JobQueue> queuedJobs = jobQueueDao.findRecent(dateMinus1Week);
+            // the jobs the tracker reports are read too, so that they can be matched to their projects below
+            List<Integer> trackedIds = trackerJobs.stream().filter(NumberUtils::isDigits).map(Integer::valueOf).toList();
+            Map<Integer, List<QueuedJob>> jobsByProject = byProject(
+                    jobQueueDao.findQueuedJobs(null, dateMinus1Week, !filterFinished, trackedIds));
             AWSXRay.endSubsegment();
+            Map<Integer, Project> projects = projectsById(jobsByProject.keySet());
             rootNode = new DefaultTreeNode("root", null);
-            for (JobQueue jobQueue : queuedJobs) {
-                TreeNode projectNode = createJobNode(trackerJobs, jobQueue);
+            for (Map.Entry<Integer, List<QueuedJob>> entry : jobsByProject.entrySet()) {
+                TreeNode projectNode = createJobNode(trackerJobs, projects.get(entry.getKey()), entry.getValue());
                 if (projectNode != null && projectNode.getChildCount() != 0) {
-                    jobNodeMap.put(jobQueue.getProjectId(), projectNode);
+                    jobNodeMap.put(entry.getKey(), projectNode);
                     projectNode.setParent(rootNode);
                     rootNode.getChildren().add(projectNode);
                 }
@@ -499,10 +504,32 @@ public abstract class JobTreeTableBean implements Serializable {
                 }
             }
         } else {
-            JobQueue jobQueue = jobQueueDao.findOrCreateForProjectId(rootJob);
-            rootNode = createJobNode(trackerJobs, jobQueue);
+            List<QueuedJob> jobs = jobQueueDao.findQueuedJobs(rootJob, null, !filterFinished, List.of());
+            rootNode = createJobNode(trackerJobs, projectDao.findById(rootJob), sortedNewestFirst(jobs));
         }
         AWSXRay.endSubsegment();
+    }
+
+    /**
+     * @return the jobs by project, newest project and job first
+     */
+    private static Map<Integer, List<QueuedJob>> byProject(List<QueuedJob> jobs) {
+        return sortedNewestFirst(jobs).stream()
+                .collect(Collectors.groupingBy(QueuedJob::projectId, LinkedHashMap::new, Collectors.toList()));
+    }
+
+    private static List<QueuedJob> sortedNewestFirst(List<QueuedJob> jobs) {
+        return jobs.stream()
+                .sorted(Comparator.comparingInt(QueuedJob::projectId).thenComparingInt(QueuedJob::jobId).reversed())
+                .toList();
+    }
+
+    private Map<Integer, Project> projectsById(Collection<Integer> ids) {
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return projectDao.findForIds(new ArrayList<>(ids)).stream()
+                .collect(Collectors.toMap(Project::getId, p -> p, (a, b) -> a));
     }
 
     // private void buildTree() {
@@ -548,37 +575,37 @@ public abstract class JobTreeTableBean implements Serializable {
     // }
 
     /**
-     * @param trackerJobs
-     * @param jobQueue
+     * @param trackerJobs the jobs the tracker reports; those of this project are removed
+     * @param p           the project, or null when it no longer exists
+     * @param jobs        the project's jobs, newest first; deleted and (when filtering) finished ones are skipped
      */
-    private TreeNode createJobNode(Set<String> trackerJobs, JobQueue jobQueue) {
-        AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + jobQueue.getProjectId());
+    private TreeNode createJobNode(Set<String> trackerJobs, Project p, List<QueuedJob> jobs) {
+        AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + (p != null ? p.getId() : "missing"));
         TreeNode projectNode = null;
-        Project p = projectDao.findById(jobQueue.getProjectId());  // This is an expensive repetitive operation
         if (p != null) {
             // Map<Date, Map<String, TPSInfo>> totalTPSDetails = new HashMap<Date, Map<String, TPSInfo>>();
             ProjectNodeBean pnb = new ProjectNodeBean(p);
             boolean hasRights = security.isOwner(p);
             projectNode = new DefaultTreeNode(pnb, null);
-            List<JobInstance> jobs = new ArrayList<>(jobQueue.getJobs());
-            jobs.sort(new PropertyComparer<JobInstance>(JobInstance.PROPERTY_ID, SortOrder.DESCENDING));
             int projectActive = 0;
             int projectTotal = 0;
             ValidationStatus projectFailures = new ValidationStatus();
-            for (JobInstance jobInstance : jobs) {
+            for (QueuedJob jobInstance : jobs) {
 
-                trackerJobs.remove(Integer.toString(jobInstance.getId()));
-                if (jobInstance.getStatus() == JobQueueStatus.Deleted) {
+                trackerJobs.remove(Integer.toString(jobInstance.jobId()));
+                if (jobInstance.status() == JobQueueStatus.Deleted) {
                     continue; // never show deleted jobs in the tree
                 }
-                if (!filterFinished || jobInstance.getEndTime() == null) {
-                    ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights, preferencesBean.getDateTimeFormat());
+                if (!filterFinished || jobInstance.endTime() == null) {
+                    int jobId = jobInstance.jobId();
+                    ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights,
+                            preferencesBean.getDateTimeFormat(), () -> jobInstanceDao.findJobDetails(jobId));
                     pnb.addJob(jobInstanceNode);
                     TreeNode jobNode = new DefaultTreeNode(jobInstanceNode, null);
                     int jobInstanceActive = 0;
                     int jobInstanceTotal = 0;
                     ValidationStatus jobInstanceFailures = new ValidationStatus();
-                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobInstance.getId()));
+                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobId));
                     if ( container != null ) {
                         List<VMNodeBean> vmNodes = getVMStatus(container, hasRights);
 
@@ -602,7 +629,7 @@ public abstract class JobTreeTableBean implements Serializable {
                     }
                     jobInstanceNode.setNumFailures(jobInstanceFailures);
                     jobInstanceNode.setActiveUsers(Integer.toString(jobInstanceActive));
-                    jobInstanceNode.setIncrementStrategy(jobInstance.getIncrementStrategy().getDisplay());
+                    jobInstanceNode.setIncrementStrategy(jobInstance.incrementStrategy().getDisplay());
                     projectActive += jobInstanceActive;
                     projectTotal += jobInstanceTotal;
                     projectFailures.addFailures(jobInstanceFailures);
@@ -636,9 +663,9 @@ public abstract class JobTreeTableBean implements Serializable {
         // need to make new constructor for ActJobNodeBean that just sets empty strings?
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
-        JobQueue jq = jobQueueDao.findForJobId(Integer.valueOf(jobId));
-        if (jq != null) {
-            TreeNode projectNode = jobNodeMap.get(jq.getProjectId());
+        Integer projectId = NumberUtils.isDigits(jobId) ? jobQueueDao.findProjectIdForJobId(Integer.parseInt(jobId)) : null;
+        if (projectId != null) {
+            TreeNode projectNode = jobNodeMap.get(projectId);
             if (projectNode != null) {
                 parent = projectNode;
             }

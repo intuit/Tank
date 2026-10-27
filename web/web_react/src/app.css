@@ -527,6 +527,32 @@ body {
   align-items: center;
 }
 
+/* Running and starting work moves, in the JSF job tree's colours (tank.css .status-badge-running/-starting) */
+@keyframes status-stripe-slide {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 28px 0;
+  }
+}
+.p-tag.status-striped {
+  color: #fff;
+  background-size: 200% 100%;
+  animation: status-stripe-slide 1s linear infinite;
+}
+.p-tag.status-striped-running {
+  background-image: repeating-linear-gradient(-45deg, #43a047 0 10px, #66bb6a 10px 20px);
+}
+.p-tag.status-striped-starting {
+  background-image: repeating-linear-gradient(-45deg, #1976d2 0 10px, #42a5f5 10px 20px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .p-tag.status-striped {
+    animation: none;
+  }
+}
+
 /* PrimeReact's tree table lays out fixed, which squeezes unsized columns to nothing */
 .job-tree table {
   table-layout: auto;

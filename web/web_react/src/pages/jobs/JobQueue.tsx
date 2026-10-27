@@ -357,7 +357,8 @@ function wsStateCell(row: Row) {
                 ? ['Closed', 'secondary']
                 : ['Disconnected', 'danger']
               : [wsState, 'secondary'];
-  return <Tag value={label} severity={severity} />;
+  const settingUp = wsState === 'bootstrap_transferring' || wsState === 'bootstrap_sent' || wsState === 'transferring';
+  return <Tag value={label} severity={severity} className={settingUp ? stripeOf('starting') : undefined} />;
 }
 
 function regionOf(row: Row) {
@@ -374,6 +375,7 @@ function statusCell(row: Row) {
         <Tag
           value={completed ? 'Completed' : `${running}/${jobs.length} jobs running`}
           severity={running > 0 ? 'success' : completed ? 'secondary' : 'info'}
+          className={running > 0 ? stripeOf('running') : undefined}
         />
       </span>
     );
@@ -382,7 +384,7 @@ function statusCell(row: Row) {
     const { agent } = row;
     return (
       <span className="status-cell">
-        <Tag value={agent.status} severity={severityOf(agent.status)} />
+        <Tag value={agent.status} severity={severityOf(agent.status)} className={stripeOf(agent.status)} />
         {agent.lastSeenMs && <span className="field-help">seen {formatTime(new Date(agent.lastSeenMs).toISOString())}</span>}
       </span>
     );
@@ -396,7 +398,7 @@ function statusCell(row: Row) {
   const ready = count((a) => a.status === 'ready');
   return (
     <span className="status-cell">
-      <Tag value={job.status} severity={severityOf(job.status)} />
+      <Tag value={job.status} severity={severityOf(job.status)} className={stripeOf(job.status)} />
       {agents.length > 0 && (
         <span className="field-help">
           {job.useTwoStep && running === 0
@@ -414,6 +416,18 @@ function usersCell(row: Row) {
     return `${f.activeUsers ?? 0} active`;
   }
   return `${f.activeUsers ?? 0} / ${f.totalUsers ?? 0}`;
+}
+
+/** The JSF tree's moving stripes for work in progress (tank.css status-badge-running and -starting) */
+export function stripeOf(status: string | undefined): string | undefined {
+  switch (status?.toLowerCase()) {
+    case 'running':
+      return 'status-striped status-striped-running';
+    case 'starting':
+      return 'status-striped status-striped-starting';
+    default:
+      return undefined;
+  }
 }
 
 /** Colours JobQueueStatus and VMStatus (vmManager) names; unknown ones stay neutral */
