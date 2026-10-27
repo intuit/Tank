@@ -145,18 +145,19 @@ public class JobRequest implements Runnable {
     private void connectAndBootstrapAgent(ControllerInitiatedAgentWsClient wsClient, VMInstanceRequest instanceRequest,
                                           VMInformation info, String token, int port, long helloTimeoutMillis,
                                           long transferTimeoutMillis, long maxConnectWaitMillis) {
-        String host = resolveWsHost(request.getRegion(), info);
-        if (host == null || host.isBlank()) {
-            logger.warn(new ObjectMessage(Map.of("Message", "[WS] No reachable host found for " + info.getInstanceId())));
-            return;
-        }
-
-        String instanceUrl = "http://" + host + ":" + port;
-        String wsUrl = "ws://" + host + ":" + port + "/ws/control";
+        IEnvironmentInstance environment = getEnvironment();
         long start = System.currentTimeMillis();
         int attempt = 1;
         while (System.currentTimeMillis() - start < maxConnectWaitMillis) {
+            // The launch response has no public IP yet; pick it up here rather than holding up the launch
+            info = refreshPublicAddress(info, environment);
+            String host = resolveWsHost(request.getRegion(), info);
+            String wsUrl = "ws://" + host + ":" + port + "/ws/control";
             try {
+                if (host == null) {
+                    throw new IllegalStateException("No reachable host found");
+                }
+                String instanceUrl = "http://" + host + ":" + port;
                 boolean complete = wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
                         token, helloTimeoutMillis, transferTimeoutMillis);
                 if (complete) {
@@ -183,9 +184,23 @@ public class JobRequest implements Runnable {
                         + " for job " + instanceRequest.getJobId())));
     }
 
+    /**
+     * Re-describe an agent that has no public address yet; whether it gets one depends on its subnet, not its
+     * region. Stops once the instance is running: a public IP is assigned by then if it is getting one, so a
+     * private-only agent keeps its private IP without further lookups.
+     */
+    static VMInformation refreshPublicAddress(VMInformation info, IEnvironmentInstance environment) {
+        if (environment == null
+                || isNotBlank(info.getPublicIp()) || isNotBlank(info.getPublicDNS())
+                || "running".equalsIgnoreCase(info.getState())) {
+            return info;
+        }
+        List<VMInformation> described = environment.describeInstances(List.of(info.getInstanceId()));
+        return described.isEmpty() ? info : described.getFirst();
+    }
+
     public static String resolveWsHost(VMRegion region, VMInformation info) {
-        if ((region == VMRegion.US_EAST || region == VMRegion.US_EAST_2)
-                && isNotBlank(info.getPrivateIp())) {
+        if (isControllerRegion(region) && isNotBlank(info.getPrivateIp())) {
             return info.getPrivateIp();
         }
         if (isNotBlank(info.getPublicIp())) {
@@ -201,6 +216,13 @@ public class JobRequest implements Runnable {
             return info.getPrivateDNS();
         }
         return null;
+    }
+
+    /**
+     * Agents in these regions are reached on their private IP; elsewhere they need a public address.
+     */
+    private static boolean isControllerRegion(VMRegion region) {
+        return region == VMRegion.US_EAST || region == VMRegion.US_EAST_2;
     }
 
     private static boolean isNotBlank(String value) {

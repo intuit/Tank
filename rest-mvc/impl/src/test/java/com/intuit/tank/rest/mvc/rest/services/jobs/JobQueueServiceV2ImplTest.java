@@ -7,6 +7,8 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
@@ -262,6 +264,21 @@ class JobQueueServiceV2ImplTest {
         jobs.get(10).setStatus(JobQueueStatus.RampPaused);
         service.controlJob(10, "resume-ramp");
         verify(events).resumeRampJob("10");
+    }
+
+    @Test
+    void controlJob_annotatesTraceWithJobAndAction() {
+        try (Segment segment = AWSXRay.beginSegment("TEST")) {
+            service.controlJob(11, "start");
+
+            assertEquals("start", segment.getAnnotations().get("job.action"));
+            assertEquals("11", segment.getAnnotations().get("jobId"));
+        }
+    }
+
+    @Test
+    void controlJob_worksWithoutATrace() {
+        assertDoesNotThrow(() -> service.controlJob(11, "start"));
     }
 
     @Test
