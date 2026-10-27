@@ -157,8 +157,10 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
+        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
+        Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion());
         List<VMInformation> result = new ArrayList<>();
-        try (Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion())) {
+        try {
             ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             subsegment.putMetadata("count", instanceRequest.getNumberOfInstances());
@@ -322,6 +324,8 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception ex) {
             LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
             throw new RuntimeException(ex);
+        } finally {
+            AWSXRay.endSubsegment();
         }
         return result;
     }
@@ -592,9 +596,12 @@ public class AmazonInstance implements IEnvironmentInstance {
             }
         };
         Runnable traced = callerEntity != null ? () -> callerEntity.run(task) : () -> {
-            try (Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AssociateAddress")) {
+            Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AssociateAddress");
+            try {
                 segment.putAnnotation("instanceId", instanceId);
                 task.run();
+            } finally {
+                AWSXRay.endSegment();
             }
         };
         new Thread(traced).start();

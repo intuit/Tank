@@ -1,5 +1,7 @@
 package com.intuit.tank.rest.mvc.service;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
@@ -12,6 +14,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -46,6 +49,28 @@ class UserAutoDeletionServiceTest {
             for (UserDao dao : userDaoMock.constructed()) {
                 verify(dao, never()).deleteUserData(anyString());
             }
+        }
+    }
+
+    @Test
+    void performStartupUserDeletion_runsQueriesInsideItsOwnSegment() {
+        AtomicReference<Entity> entityDuringQuery = new AtomicReference<>();
+        try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
+                     (mock, ctx) -> {
+                         when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
+                         when(mock.getUserAutoDeletionRetentionDays()).thenReturn(730);
+                     });
+             MockedConstruction<UserDao> ignoredDao = Mockito.mockConstruction(UserDao.class,
+                     (mock, ctx) -> when(mock.countUsersEligibleForDeletion(730)).thenAnswer(invocation -> {
+                         entityDuringQuery.set(AWSXRay.getTraceEntity());
+                         return 0L;
+                     }))) {
+
+            new UserAutoDeletionService().performStartupUserDeletion();
+
+            // Sampled or not (a no-op segment), any segment stops the JDBC interceptor's context-missing errors
+            assertNotNull(entityDuringQuery.get(), "startup queries need a segment to avoid context-missing errors");
+            assertNull(AWSXRay.getTraceEntity(), "the segment is closed afterwards");
         }
     }
 

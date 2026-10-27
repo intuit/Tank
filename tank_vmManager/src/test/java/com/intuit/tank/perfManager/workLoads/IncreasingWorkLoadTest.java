@@ -100,6 +100,23 @@ public class IncreasingWorkLoadTest {
         verify(agentDispatcher, times(2)).processAgentsMessage(any(RequestAgents.class));
     }
 
+    @Test
+    public void testRun_unsampledRequestRestoresItsSegment() {
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        doReturn(Set.of()).when(job).getRegions();
+
+        Segment unsampled = AWSXRay.getGlobalRecorder().beginNoOpSegment();
+        try {
+            new IncreasingWorkLoad(null, mock(AgentDispatcher.class), job).run();
+
+            // A no-op subsegment's close() is empty, so run() must end it explicitly
+            assertSame(unsampled, AWSXRay.getTraceEntity());
+        } finally {
+            AWSXRay.endSegment();
+        }
+    }
+
     private RegionRequest mockRegion(VMRegion region) {
         RegionRequest regionRequest = mock(RegionRequest.class);
         when(regionRequest.getRegion()).thenReturn(region);
