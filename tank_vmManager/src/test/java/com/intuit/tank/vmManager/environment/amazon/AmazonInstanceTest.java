@@ -1,6 +1,7 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -23,9 +24,11 @@ import software.amazon.awssdk.services.ec2.model.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.intuit.tank.vmManager.environment.amazon.AmazonInstance.INSUFFICIENT_INSTANCE_CAPACITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -239,5 +242,69 @@ public class AmazonInstanceTest {
         List<RunInstancesRequest> requests = argumentCaptor.getAllValues();
         assertEquals("[m8g.xlarge:8, m8g.xlarge:8, m8g.xlarge:7]",
                 requests.stream().map(request -> request.instanceType() + ":" + request.maxCount() ).toList().toString());
+    }
+
+    @Test
+    public void createTest_doesNotWaitToDescribeInstances() {
+        InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
+        VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
+                VMImageType.AGENT, 1, false, "testZone", instanceDescription);
+        when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
+                .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder()
+                        .instances(Instance.builder().instanceId("i-1").state(InstanceState.builder().build()).build()).build()));
+
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
+
+        assertEquals(1, vmInfo.size());
+        verify(_mockEc2AsyncClient, never()).describeInstances(any(DescribeInstancesRequest.class));
+    }
+
+    @Test
+    public void describeInstances_requestsOnlyTheGivenIds() {
+        when(_mockEc2AsyncClient.describeInstances(any(DescribeInstancesRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(DescribeInstancesResponse.builder()
+                        .reservations(Reservation.builder().instances(Instance.builder().instanceId("i-1")
+                                .publicIpAddress("54.0.0.1").state(InstanceState.builder().build()).build()).build()).build()));
+
+        List<VMInformation> vmInfo = amazonInstance.describeInstances(List.of("i-1"));
+
+        assertEquals(1, vmInfo.size());
+        assertEquals("54.0.0.1", vmInfo.getFirst().getPublicIp());
+        ArgumentCaptor<DescribeInstancesRequest> captor = ArgumentCaptor.forClass(DescribeInstancesRequest.class);
+        verify(_mockEc2AsyncClient).describeInstances(captor.capture());
+        assertEquals(List.of("i-1"), captor.getValue().instanceIds());
+    }
+
+    @Test
+    public void createTest_ALTERNATIVE_keepsTraceEntityOnFallbackRequest() {
+        InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
+        VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
+                VMImageType.AGENT, 1, false, "testZone", instanceDescription);
+        List<Entity> traceEntities = new CopyOnWriteArrayList<>();
+        when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
+                .thenAnswer(invocation -> {
+                    traceEntities.add(AWSXRay.getTraceEntity());
+                    // Fail on another thread, the way the SDK completes futures, so the fallback runs off the caller thread
+                    return CompletableFuture.supplyAsync(() -> {
+                        throw new CompletionException(Ec2Exception.builder()
+                                .awsErrorDetails(AwsErrorDetails.builder().errorCode(INSUFFICIENT_INSTANCE_CAPACITY).build())
+                                .build());
+                    }, CompletableFuture.delayedExecutor(50, java.util.concurrent.TimeUnit.MILLISECONDS));
+                })
+                .thenAnswer(invocation -> {
+                    traceEntities.add(AWSXRay.getTraceEntity());
+                    return CompletableFuture.completedFuture(RunInstancesResponse.builder()
+                            .instances(Instance.builder().state(InstanceState.builder().build()).build()).build());
+                });
+
+        AWSXRay.beginSegment("TEST");
+        List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
+        AWSXRay.endSegment();
+
+        assertEquals(1, vmInfo.size());
+        assertEquals(2, traceEntities.size());
+        assertSame(traceEntities.get(0), traceEntities.get(1));
     }
 }

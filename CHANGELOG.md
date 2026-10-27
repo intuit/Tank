@@ -1,3 +1,27 @@
+# 4.6.8 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: cut agent launch latency when starting multi-region jobs [#546](https://github.com/intuit/Tank/pull/546) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.7 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- Stop the job queue trees loading every queue's whole job history [#539](https://github.com/intuit/Tank/pull/539) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.6 (Wed Oct 21 2026)
 
 #### 🐛 Bug Fix
