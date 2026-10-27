@@ -130,8 +130,17 @@ body {
 
 .header-user {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   align-items: center;
+}
+
+/* the text button has no background in the header, so its padding would only widen its gap */
+.header-user .p-button.p-button-text {
+  padding-inline: 0;
+}
+
+.header-help {
+  text-decoration: none;
 }
 
 .main {
