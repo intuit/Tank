@@ -2,6 +2,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -156,8 +157,10 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
+        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
+        Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion());
         List<VMInformation> result = new ArrayList<>();
-        try (Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion())) {
+        try {
             ControllerLoggingConfig.setupThreadContext();
             VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
             subsegment.putMetadata("count", instanceRequest.getNumberOfInstances());
@@ -321,6 +324,8 @@ public class AmazonInstance implements IEnvironmentInstance {
         } catch (Exception ex) {
             LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
             throw new RuntimeException(ex);
+        } finally {
+            AWSXRay.endSubsegment();
         }
         return result;
     }
@@ -543,7 +548,10 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        new Thread( () -> {
+        // Only join the caller's Request.Agents subsegment when the caller waits on the latch; otherwise it can be
+        // closed and emitted while this worker is still retrying, so the worker gets its own segment.
+        Entity callerEntity = latch != null ? AWSXRay.getTraceEntity() : null;
+        Runnable task = () -> {
             boolean associated = false;
 
             try {
@@ -586,7 +594,17 @@ public class AmazonInstance implements IEnvironmentInstance {
                     latch.countDown();
                 }
             }
-        }).start();
+        };
+        Runnable traced = callerEntity != null ? () -> callerEntity.run(task) : () -> {
+            Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AssociateAddress");
+            try {
+                segment.putAnnotation("instanceId", instanceId);
+                task.run();
+            } finally {
+                AWSXRay.endSegment();
+            }
+        };
+        new Thread(traced).start();
 
     }
 

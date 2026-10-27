@@ -2,6 +2,7 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -25,9 +26,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.intuit.tank.vmManager.environment.amazon.AmazonInstance.INSUFFICIENT_INSTANCE_CAPACITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -306,5 +313,54 @@ public class AmazonInstanceTest {
         assertEquals(1, vmInfo.size());
         assertEquals(2, traceEntities.size());
         assertSame(traceEntities.get(0), traceEntities.get(1));
+    }
+
+    @Test
+    public void associateAddress_withLatch_runsInCallersSubsegment() throws Exception {
+        AtomicReference<Entity> workerEntity = new AtomicReference<>();
+        stubAssociatedDescribe("54.0.0.1", workerEntity, null);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        AWSXRay.beginSegment("TEST");
+        try (Subsegment caller = AWSXRay.beginSubsegment("Request.Agents.test")) {
+            amazonInstance.associateAddress("i-1", Address.builder().publicIp("54.0.0.1").build(), latch);
+            assertTrue(latch.await(10, TimeUnit.SECONDS));
+            assertSame(caller, workerEntity.get());
+        } finally {
+            AWSXRay.endSegment();
+        }
+    }
+
+    @Test
+    public void associateAddress_withoutLatch_usesItsOwnSegment() throws Exception {
+        AtomicReference<Entity> workerEntity = new AtomicReference<>();
+        CountDownLatch described = new CountDownLatch(1);
+        stubAssociatedDescribe("54.0.0.1", workerEntity, described);
+
+        Entity caller;
+        AWSXRay.beginSegment("TEST");
+        try {
+            caller = AWSXRay.getTraceEntity();
+            amazonInstance.associateAddress("i-1", Address.builder().publicIp("54.0.0.1").build(), null);
+        } finally {
+            AWSXRay.endSegment();  // the caller does not wait for the worker
+        }
+
+        assertTrue(described.await(10, TimeUnit.SECONDS));
+        assertNotNull(workerEntity.get());
+        assertNotSame(caller, workerEntity.get());
+        assertNotSame(caller, workerEntity.get().getParentSegment());
+    }
+
+    private void stubAssociatedDescribe(String publicIp, AtomicReference<Entity> workerEntity, CountDownLatch described) {
+        when(_mockEc2AsyncClient.describeInstances(any(DescribeInstancesRequest.class))).thenAnswer(invocation -> {
+            workerEntity.set(AWSXRay.getTraceEntity());
+            if (described != null) {
+                described.countDown();
+            }
+            return CompletableFuture.completedFuture(DescribeInstancesResponse.builder()
+                    .reservations(Reservation.builder().instances(Instance.builder().instanceId("i-1")
+                            .publicIpAddress(publicIp).build()).build()).build());
+        });
     }
 }

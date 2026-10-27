@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
@@ -55,10 +54,14 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
-        try (Subsegment ignored = AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId())) {
+        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
+        AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId());
+        try {
             askForAgents(new JobInstanceAgentModel(job));
         } catch (Exception th) {
             LOG.error("Error starting agents: " + th.getMessage(), th);
+        } finally {
+            AWSXRay.endSubsegment();
         }
     }
 
