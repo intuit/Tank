@@ -245,25 +245,36 @@ public class AmazonInstanceTest {
     }
 
     @Test
-    public void createTest_stopsPollingOnceEveryInstanceHasAPublicIp() {
+    public void createTest_doesNotWaitToDescribeInstances() {
         InstanceDescription instanceDescription = new TankConfig().getVmManagerConfig().getInstanceForRegionAndType(VMRegion.US_WEST_2, VMImageType.AGENT);
         VMRequest vmRequest = new VMInstanceRequest(VMProvider.Amazon, VMRegion.US_WEST_2, "m.xlarge",
                 VMImageType.AGENT, 1, false, "testZone", instanceDescription);
         when(_mockEc2AsyncClient.runInstances((RunInstancesRequest) any()))
                 .thenReturn(CompletableFuture.completedFuture(RunInstancesResponse.builder()
                         .instances(Instance.builder().instanceId("i-1").state(InstanceState.builder().build()).build()).build()));
-        when(_mockEc2AsyncClient.describeInstances(any(DescribeInstancesRequest.class)))
-                .thenReturn(CompletableFuture.completedFuture(DescribeInstancesResponse.builder()
-                        .reservations(Reservation.builder().instances(Instance.builder().instanceId("i-1")
-                                .publicIpAddress("54.0.0.1").state(InstanceState.builder().build()).build()).build()).build()));
 
         AWSXRay.beginSegment("TEST");
         List<VMInformation> vmInfo = amazonInstance.create(vmRequest);
         AWSXRay.endSegment();
 
         assertEquals(1, vmInfo.size());
-        assertEquals("54.0.0.1", vmInfo.get(0).getPublicIp());
-        verify(_mockEc2AsyncClient, times(1)).describeInstances(any(DescribeInstancesRequest.class));
+        verify(_mockEc2AsyncClient, never()).describeInstances(any(DescribeInstancesRequest.class));
+    }
+
+    @Test
+    public void describeInstances_requestsOnlyTheGivenIds() {
+        when(_mockEc2AsyncClient.describeInstances(any(DescribeInstancesRequest.class)))
+                .thenReturn(CompletableFuture.completedFuture(DescribeInstancesResponse.builder()
+                        .reservations(Reservation.builder().instances(Instance.builder().instanceId("i-1")
+                                .publicIpAddress("54.0.0.1").state(InstanceState.builder().build()).build()).build()).build()));
+
+        List<VMInformation> vmInfo = amazonInstance.describeInstances(List.of("i-1"));
+
+        assertEquals(1, vmInfo.size());
+        assertEquals("54.0.0.1", vmInfo.getFirst().getPublicIp());
+        ArgumentCaptor<DescribeInstancesRequest> captor = ArgumentCaptor.forClass(DescribeInstancesRequest.class);
+        verify(_mockEc2AsyncClient).describeInstances(captor.capture());
+        assertEquals(List.of("i-1"), captor.getValue().instanceIds());
     }
 
     @Test

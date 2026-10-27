@@ -59,8 +59,6 @@ public class AmazonInstance implements IEnvironmentInstance {
     protected static String INSUFFICIENT_INSTANCE_CAPACITY = "InsufficientInstanceCapacity";
     protected static String INVALID_AMI_ID_UNAVAILABLE = "InvalidAMIID.Unavailable";
     protected static final long ASSOCIATE_IP_MAX_WAIT_MILIS = 1000 * 60 * 2;// 2 minutes
-    protected static final long PUBLIC_IP_MAX_WAIT_MILLIS = 3000;
-    protected static final long PUBLIC_IP_POLL_INTERVAL_MILLIS = 500;
     private static final Logger LOG = LogManager.getLogger(AmazonInstance.class);
     private static final Map<VMRegion, Ec2AsyncClient> CLIENT_CACHE = new ConcurrentHashMap<>();
 
@@ -137,14 +135,17 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public List<VMInformation> describeInstances(List<String> instanceIds) {
         try {
-            return ec2AsyncClient.describeInstances().get().reservations().stream()
+            return ec2AsyncClient.describeInstances(DescribeInstancesRequest.builder().instanceIds(instanceIds).build())
+                    .get().reservations().stream()
                     .flatMap(reservationDescription -> reservationDescription.instances()
                             .stream()
-                            .filter(instance -> instanceIds.contains(instance.instanceId()))
                             .map(instance -> AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
                     .collect(Collectors.toList());
-        } catch (ExecutionException | InterruptedException error) {
-            LOG.error("Error getting instances: {}", error.toString(), error);
+        } catch (ExecutionException error) {
+            // Freshly launched instances can briefly be unknown to DescribeInstances; callers retry
+            LOG.warn("Error describing instances {}: {}", instanceIds, error.getMessage());
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
         }
         return Collections.emptyList();
     }
@@ -314,23 +315,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // reboot(result);
             }
 
-            // Wait for instances to get public IPs assigned and refresh the details
-            if (!result.isEmpty()) {
-                try {
-                    List<VMInformation> updated = pollForPublicIps(result);
-                    if (updated != null) {
-                        result.clear();
-                        result.addAll(updated);
-                        LOG.debug("Refreshed {} instance details with public IP information", updated.size());
-                    }
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for public IP assignment", e);
-                    Thread.currentThread().interrupt();
-                } catch (ExecutionException e) {
-                    LOG.warn("Failed to refresh instance details for public IPs: {}", e.getMessage());
-                }
-            }
-
         } catch (SdkException ae) {
             LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
             throw new RuntimeException(ae);
@@ -389,40 +373,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                     }
                     return response;
                 });
-    }
-
-    /**
-     * Re-describe freshly launched instances until every one reports a public IP, or PUBLIC_IP_MAX_WAIT_MILLIS
-     * elapses (instances in private subnets never get one).
-     *
-     * @return the latest instance details, or null if they could not be described
-     */
-    private List<VMInformation> pollForPublicIps(List<VMInformation> launched)
-            throws InterruptedException, ExecutionException {
-        List<String> instanceIds = launched.stream()
-                .map(VMInformation::getInstanceId)
-                .collect(Collectors.toList());
-        long deadline = System.currentTimeMillis() + PUBLIC_IP_MAX_WAIT_MILLIS;
-        List<VMInformation> updated = null;
-        do {
-            Thread.sleep(PUBLIC_IP_POLL_INTERVAL_MILLIS);
-            CompletableFuture<DescribeInstancesResponse> future = ec2AsyncClient.describeInstances(
-                    DescribeInstancesRequest.builder().instanceIds(instanceIds).build());
-            DescribeInstancesResponse described = future != null ? future.get() : null;
-            if (described == null || described.reservations() == null) {
-                return updated;
-            }
-            updated = described.reservations().stream()
-                    .flatMap(reservation -> reservation.instances().stream()
-                            .map(instance -> AmazonDataConverter.instanceToVmInformation(
-                                    reservation.requesterId(), instance, vmRegion)))
-                    .toList();
-            if (updated.size() >= instanceIds.size()
-                    && updated.stream().allMatch(info -> StringUtils.isNotBlank(info.getPublicIp()))) {
-                return updated;
-            }
-        } while (System.currentTimeMillis() < deadline);
-        return updated;
     }
 
     /**
