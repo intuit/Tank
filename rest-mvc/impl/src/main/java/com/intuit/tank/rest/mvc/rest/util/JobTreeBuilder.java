@@ -9,9 +9,8 @@ package com.intuit.tank.rest.mvc.rest.util;
 
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.dao.QueuedJob;
 import com.intuit.tank.job.JobStatusHelper;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.rest.mvc.rest.models.Failures;
 import com.intuit.tank.rest.mvc.rest.models.JobTree;
@@ -72,39 +71,38 @@ public class JobTreeBuilder {
      * @param includeFinished whether to include jobs that have ended
      */
     public JobTree build(Integer projectId, boolean includeFinished, Date now) {
-        List<JobQueue> queues = projectId != null
-                ? queueDao.getForProjectIds(List.of(projectId))
-                : queueDao.findRecent(new Date(now.getTime() - RECENT_MS));
-        Map<Integer, Project> projects = projectsById(queues);
         Set<String> untracked = tracker.getAllJobs().stream()
                 .map(CloudVmStatusContainer::getJobId)
                 .collect(Collectors.toCollection(HashSet::new));
+        List<QueuedJob> jobs = projectId != null
+                ? queueDao.findQueuedJobs(projectId, null, includeFinished, List.of())
+                : queueDao.findQueuedJobs(null, new Date(now.getTime() - RECENT_MS), includeFinished,
+                        untracked.stream().filter(NumberUtils::isDigits).map(Integer::valueOf).toList());
+        Map<Integer, Project> projects = projectsById(jobs);
 
         Map<Integer, ProjectBuilder> byProject = new LinkedHashMap<>();
-        for (JobQueue queue : queues) {
-            Project project = projects.get(queue.getProjectId());
-            if (project == null) {
-                continue;
-            }
-            boolean control = canControl.test(project);
-            ProjectBuilder node = byProject.computeIfAbsent(project.getId(), id -> new ProjectBuilder(project));
-            queue.getJobs().stream()
-                    .sorted(Comparator.comparingInt(JobInstance::getId).reversed())
-                    .forEach(job -> {
-                        untracked.remove(Integer.toString(job.getId()));
-                        if (job.getStatus() == JobQueueStatus.Deleted || (!includeFinished && job.getEndTime() != null)) {
-                            return;
-                        }
-                        node.add(jobNode(job, control));
-                    });
-        }
+        jobs.stream()
+                .sorted(Comparator.comparingInt(QueuedJob::projectId).thenComparingInt(QueuedJob::jobId).reversed())
+                .forEach(job -> {
+                    Project project = projects.get(job.projectId());
+                    if (project == null) {
+                        return;
+                    }
+                    untracked.remove(Integer.toString(job.jobId()));
+                    if (job.status() == JobQueueStatus.Deleted || (!includeFinished && job.endTime() != null)) {
+                        return;
+                    }
+                    ProjectBuilder node = byProject.computeIfAbsent(project.getId(),
+                            id -> new ProjectBuilder(project, canControl.test(project)));
+                    node.add(jobNode(job, node.control));
+                });
 
         List<JobNode> otherJobs = new ArrayList<>();
         if (projectId == null) {
             for (String jobId : untracked.stream().sorted().toList()) {
-                JobQueue queue = NumberUtils.isDigits(jobId)
-                        ? queueDao.findForJobId(Integer.valueOf(jobId)) : null;
-                ProjectBuilder node = queue != null ? byProject.get(queue.getProjectId()) : null;
+                Integer queueProjectId = NumberUtils.isDigits(jobId)
+                        ? queueDao.findProjectIdForJobId(Integer.parseInt(jobId)) : null;
+                ProjectBuilder node = queueProjectId != null ? byProject.get(queueProjectId) : null;
                 Project project = node != null ? node.project : null;
                 JobNode adhoc = adhocJobNode(jobId, tracker.getVmStatusForJob(jobId), canControl.test(project));
                 if (node != null) {
@@ -122,24 +120,24 @@ public class JobTreeBuilder {
         return new JobTree(result, otherJobs, now);
     }
 
-    private Map<Integer, Project> projectsById(List<JobQueue> queues) {
-        List<Integer> ids = queues.stream().map(JobQueue::getProjectId).distinct().collect(Collectors.toList());
+    private Map<Integer, Project> projectsById(List<QueuedJob> jobs) {
+        List<Integer> ids = jobs.stream().map(QueuedJob::projectId).distinct().collect(Collectors.toList());
         if (ids.isEmpty()) {
             return Map.of();
         }
         return projectDao.findForIds(ids).stream().collect(Collectors.toMap(Project::getId, p -> p, (a, b) -> a));
     }
 
-    private JobNode jobNode(JobInstance job, boolean control) {
-        String status = job.getStatus().name();
-        CloudVmStatusContainer container = tracker.getVmStatusForJob(Integer.toString(job.getId()));
+    private JobNode jobNode(QueuedJob job, boolean control) {
+        String status = job.status().name();
+        CloudVmStatusContainer container = tracker.getVmStatusForJob(Integer.toString(job.jobId()));
         List<AgentNode> agents = agents(container, control);
-        return new JobNode(Integer.toString(job.getId()), job.getName(), status, job.getIncrementStrategy().getDisplay(),
+        return new JobNode(Integer.toString(job.jobId()), job.name(), status, job.incrementStrategy().getDisplay(),
                 agents.stream().mapToInt(AgentNode::activeUsers).sum(),
-                job.getTotalVirtualUsers(),
+                job.totalVirtualUsers(),
                 agents.stream().mapToInt(AgentNode::tps).sum(),
                 agents.stream().map(AgentNode::failures).reduce(Failures.NONE, Failures::plus),
-                job.getStartTime(), job.getEndTime(), job.isUseTwoStep(),
+                job.startTime(), job.endTime(), job.isUseTwoStep(),
                 jobActions(status, job.isUseTwoStep(), control), agents);
     }
 
@@ -217,10 +215,12 @@ public class JobTreeBuilder {
 
     private static final class ProjectBuilder {
         private final Project project;
+        private final boolean control;
         private final List<JobNode> jobs = new ArrayList<>();
 
-        ProjectBuilder(Project project) {
+        ProjectBuilder(Project project, boolean control) {
             this.project = project;
+            this.control = control;
         }
 
         void add(JobNode job) {
