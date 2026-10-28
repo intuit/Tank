@@ -44,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
 import com.intuit.tank.rest.mvc.rest.security.JobAuthorization;
@@ -245,8 +245,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String startJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("job.action", "start");
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
+        Tracing.annotate("job.action", "start");
+        Tracing.annotate("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -261,8 +261,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String stopJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("job.action", "stop");
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
+        Tracing.annotate("job.action", "stop");
+        Tracing.annotate("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -277,8 +277,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String pauseJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("job.action", "pause");
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
+        Tracing.annotate("job.action", "pause");
+        Tracing.annotate("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -293,8 +293,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String resumeJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("job.action", "resume");
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
+        Tracing.annotate("job.action", "resume");
+        Tracing.annotate("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -309,8 +309,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String killJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("job.action", "kill");
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
+        Tracing.annotate("job.action", "kill");
+        Tracing.annotate("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,

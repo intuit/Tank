@@ -19,10 +19,10 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.rest.mvc.rest.security.AuthenticatedRequest;
 import com.intuit.tank.rest.mvc.rest.security.CsrfTokens;
 import com.intuit.tank.rest.mvc.rest.security.PublicEndpoints;
@@ -89,7 +89,7 @@ public class RestSecurityFilter extends HttpFilter {
             return;
         }
 
-        AWSXRay.getCurrentSegmentOptional().ifPresent(segment -> segment.setUser(principal.getName()));
+        Tracing.setUser(principal.getName());
 
         if (principal.getAuthMethod() == TankPrincipal.AuthMethod.SESSION) {
             HttpSession session = request.getSession(false);

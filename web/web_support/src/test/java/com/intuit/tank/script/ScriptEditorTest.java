@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.auth.Security;
@@ -2960,9 +2959,7 @@ public class ScriptEditorTest {
             mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(facesContext);
 
             fixture.setScript(Script.builder().name("Name").build());
-            AWSXRay.beginSegment("test");
             assertEquals("success", fixture.reapplyFilters());
-            AWSXRay.endSegment();
         }
     }
 

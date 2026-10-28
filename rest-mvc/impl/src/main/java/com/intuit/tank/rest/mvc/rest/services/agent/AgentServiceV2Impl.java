@@ -28,9 +28,7 @@ import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -125,20 +123,20 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     private void addFileToZip(String name, InputStream in, ZipOutputStream zip) {
-        Subsegment subsegment = AWSXRay.beginSubsegment("Zip.File." + name);
-        try {
-            zip.putNextEntry(new ZipEntry(name));
-            IOUtils.copy(in, zip);
-            zip.closeEntry();
-        } catch (IOException e) {
-            LOGGER.error(e.toString());
-            subsegment.addException(e);
-        } finally {
-            AWSXRay.endSubsegment();
-            if (in != null) {
-                try { in.close(); } catch (IOException e) {}
+        Tracing.inSpan("Zip.File." + name, () -> {
+            try {
+                zip.putNextEntry(new ZipEntry(name));
+                IOUtils.copy(in, zip);
+                zip.closeEntry();
+            } catch (IOException e) {
+                LOGGER.error(e.toString());
+                Tracing.recordException(e);
+            } finally {
+                if (in != null) {
+                    try { in.close(); } catch (IOException e) {}
+                }
             }
-        }
+        });
     }
 
     @Nonnull
@@ -147,8 +145,8 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         AgentTestStartData response;
         LOGGER.info(new ObjectMessage(Map.of("Message", "Agent ready: " + data)));
-        AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
-        AWSXRay.getCurrentSegment().putAnnotation("InstanceId", data.getInstanceId());
+        Tracing.annotate("JobId", data.getJobId());
+        Tracing.annotate("InstanceId", data.getInstanceId());
         try {
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
             response = jobManager.registerAgentForJob(data);
@@ -208,7 +206,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public CloudVmStatus getInstanceStatus(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -222,12 +220,11 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public void setInstanceStatus(String instanceId, CloudVmStatus status) {
         RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
-        Segment segment = AWSXRay.getCurrentSegment();
-        segment.putAnnotation("instanceId", instanceId);
-        segment.putAnnotation("jobId", status.getJobId());
-        segment.putAnnotation("currentUsers", status.getCurrentUsers());
-        segment.putAnnotation("TotalUsers", status.getTotalUsers());
-        segment.putAnnotation("totalTps", status.getTotalTps());
+        Tracing.annotate("instanceId", instanceId);
+        Tracing.annotate("jobId", status.getJobId());
+        Tracing.annotate("currentUsers", status.getCurrentUsers());
+        Tracing.annotate("TotalUsers", status.getTotalUsers());
+        Tracing.annotate("totalTps", status.getTotalTps());
         
         LOGGER.debug("Agent " + instanceId + " reporting status - VMStatus: " + status.getVmStatus() + 
             ", JobStatus: " + status.getJobStatus() + ", Users: " + status.getCurrentUsers() + 
@@ -245,7 +242,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String stopInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
@@ -260,7 +257,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String pauseInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
@@ -275,7 +272,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String resumeInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
@@ -290,7 +287,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String killInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(

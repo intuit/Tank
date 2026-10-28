@@ -11,8 +11,7 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.auth.sso.OidcConstants;
 import com.intuit.tank.auth.sso.TankSsoHandler;
@@ -71,12 +70,7 @@ public class LoginFilter extends HttpFilter {
 
 
 		if (_securityContext.getCallerPrincipal() != null) {
-			try {
-				AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
-			} catch (SegmentNotFoundException ignored) {
-			} catch (Exception e) {
-                LOG.error("Failed to set User on current segment : {}", e.getMessage(), e);
-			}
+			Tracing.setUser(_securityContext.getCallerPrincipal().getName());
 			chain.doFilter(request, response);
 			return;
 		}

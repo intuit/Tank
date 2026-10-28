@@ -1,6 +1,5 @@
 package com.intuit.tank.vmManager;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMProvider;
@@ -14,8 +13,6 @@ import com.intuit.tank.vm.vmManager.VMUpdateStateRequest;
 import com.intuit.tank.vmManager.environment.CreateInstance;
 import com.intuit.tank.vmManager.environment.JobRequest;
 import com.intuit.tank.vmManager.environment.KillInstance;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,16 +36,6 @@ public class VmMessageProcessorImplTest {
     private JobManager jobManager;
     @InjectMocks
     private VmMessageProcessorImpl processor;
-
-    @BeforeEach
-    void beginSegment() {
-        AWSXRay.getGlobalRecorder().beginNoOpSegment();
-    }
-
-    @AfterEach
-    void endSegment() {
-        AWSXRay.getGlobalRecorder().clearTraceEntity();
-    }
 
     @Test
     public void instanceRequest_runsCreateInstance() {

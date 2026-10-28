@@ -1,7 +1,6 @@
 package com.intuit.tank.rest.mvc;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -427,72 +426,72 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     private void registerAndPushFiles(WebSocketSession session, AgentWsEnvelope hello, String authorizationHeader) {
         String agentId = hello.getInstanceId();
         String jobId = hello.getJobId();
-        // WS frames arrive after the upgrade request's segment has closed, so each transfer gets its own
-        Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AgentFileTransfer");
-        segment.putAnnotation("jobId", String.valueOf(jobId));
-        segment.putAnnotation("instanceId", String.valueOf(agentId));
-        try {
-            agentWsState.put(agentId, AgentWsState.TRANSFERRING);
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Resolving JobManager...")));
-            JobManager jobManager = resolveJobManager();
-            if (jobManager == null) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | Failed to resolve JobManager — cannot transfer files")));
-                try {
-                    sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "JobManager unavailable"));
-                    session.close(CloseStatus.SERVER_ERROR);
-                } catch (IOException ignored) {}
-                return;
-            }
-
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Registering agent for job " + jobId)));
-            AgentData agentData = jobManager.buildAgentDataForWsHello(
-                    jobId, agentId, resolveInstanceUrl(session), hello.getCapacity());
-
-            AgentTestStartData startData = jobManager.registerAgentForJob(agentData);
-            if (startData == null) {
-                LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | registerAgentForJob returned null — job " + jobId + " not in cache?")));
-                try {
-                    sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Job " + jobId + " not found in cache"));
-                    session.close(CloseStatus.SERVER_ERROR);
-                } catch (IOException ignored) {}
-                return;
-            }
-            agentJobs.put(agentId, jobId);
-            if (startData.getTotalAgents() > 0) {
-                jobExpectedAgents.put(jobId, startData.getTotalAgents());
-            }
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | Registered for job " + jobId
-                    + " users=" + startData.getConcurrentUsers() + " ramp=" + startData.getRampTime()
-                    + " scriptUrl=" + startData.getScriptUrl())));
-
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Building transfer files...")));
-            List<AgentWsFileTransferService.TransferFile> files =
-                    fileTransferService.buildTransferFiles(startData, authorizationHeader);
-            agentExpectedFiles.put(agentId, files.size());
-            agentCompletedFiles.put(agentId, 0);
-            agentTransferProgress.put(agentId, "0/" + files.size() + " files");
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Built " + files.size() + " files to transfer")));
-
-            for (AgentWsFileTransferService.TransferFile f : files) {
-                LOG.info(new ObjectMessage(Map.of("Message", "[WS]   • " + f.getFileType() + " | " + f.getFileName() + " | " + (f.getContent() != null ? f.getContent().length : 0) + " bytes")));
-            }
-
-            AgentWsEnvelope jobConfig = AgentWsEnvelope.jobConfig(agentId, jobId, startData, files.size());
-            sendEnvelope(session, jobConfig);
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ──► JOB_CONFIG to " + agentId + " | expectedFiles=" + files.size())));
-
-            int chunkBytes = 49152;
-            fileTransferService.sendFiles(session, agentId, jobId, files, chunkBytes, this::prepareChunkAckGate);
-            LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | All files sent — waiting for agent ack")));
-        } catch (Exception e) {
-            LOG.error(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | File transfer FAILED: " + e.getMessage())), e);
+        // WS frames arrive after the upgrade request's span has ended, so each transfer gets its own root span
+        Tracing.inRootSpan("Tank.AgentFileTransfer", () -> {
             try {
-                sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Transfer error: " + e.getMessage()));
-                session.close(CloseStatus.SERVER_ERROR);
-            } catch (IOException ignored) {}
-        } finally {
-            AWSXRay.endSegment();
-        }
+                Tracing.annotate("jobId", String.valueOf(jobId));
+                Tracing.annotate("instanceId", String.valueOf(agentId));
+                agentWsState.put(agentId, AgentWsState.TRANSFERRING);
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Resolving JobManager...")));
+                JobManager jobManager = resolveJobManager();
+                if (jobManager == null) {
+                    LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | Failed to resolve JobManager — cannot transfer files")));
+                    try {
+                        sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "JobManager unavailable"));
+                        session.close(CloseStatus.SERVER_ERROR);
+                    } catch (IOException ignored) {}
+                    return;
+                }
+
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Registering agent for job " + jobId)));
+                AgentData agentData = jobManager.buildAgentDataForWsHello(
+                        jobId, agentId, resolveInstanceUrl(session), hello.getCapacity());
+
+                AgentTestStartData startData = jobManager.registerAgentForJob(agentData);
+                if (startData == null) {
+                    LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | registerAgentForJob returned null — job " + jobId + " not in cache?")));
+                    try {
+                        sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Job " + jobId + " not found in cache"));
+                        session.close(CloseStatus.SERVER_ERROR);
+                    } catch (IOException ignored) {}
+                    return;
+                }
+                agentJobs.put(agentId, jobId);
+                if (startData.getTotalAgents() > 0) {
+                    jobExpectedAgents.put(jobId, startData.getTotalAgents());
+                }
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | Registered for job " + jobId
+                        + " users=" + startData.getConcurrentUsers() + " ramp=" + startData.getRampTime()
+                        + " scriptUrl=" + startData.getScriptUrl())));
+
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Building transfer files...")));
+                List<AgentWsFileTransferService.TransferFile> files =
+                        fileTransferService.buildTransferFiles(startData, authorizationHeader);
+                agentExpectedFiles.put(agentId, files.size());
+                agentCompletedFiles.put(agentId, 0);
+                agentTransferProgress.put(agentId, "0/" + files.size() + " files");
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Built " + files.size() + " files to transfer")));
+
+                for (AgentWsFileTransferService.TransferFile f : files) {
+                    LOG.info(new ObjectMessage(Map.of("Message", "[WS]   • " + f.getFileType() + " | " + f.getFileName() + " | " + (f.getContent() != null ? f.getContent().length : 0) + " bytes")));
+                }
+
+                AgentWsEnvelope jobConfig = AgentWsEnvelope.jobConfig(agentId, jobId, startData, files.size());
+                sendEnvelope(session, jobConfig);
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ──► JOB_CONFIG to " + agentId + " | expectedFiles=" + files.size())));
+
+                int chunkBytes = 49152;
+                fileTransferService.sendFiles(session, agentId, jobId, files, chunkBytes, this::prepareChunkAckGate);
+                LOG.info(new ObjectMessage(Map.of("Message", "[WS] ✓ " + agentId + " | All files sent — waiting for agent ack")));
+            } catch (Exception e) {
+                LOG.error(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | File transfer FAILED: " + e.getMessage())), e);
+                Tracing.recordException(e);
+                try {
+                    sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Transfer error: " + e.getMessage()));
+                    session.close(CloseStatus.SERVER_ERROR);
+                } catch (IOException ignored) {}
+            }
+        });
     }
 
     private void heartbeatTick() {

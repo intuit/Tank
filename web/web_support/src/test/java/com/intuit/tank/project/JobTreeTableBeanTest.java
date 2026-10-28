@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.JobNodeBean;
@@ -396,9 +395,7 @@ public class JobTreeTableBeanTest {
                 .thenReturn(List.of(queuedJob(10, 0)));
         Mockito.when(projectDao.findForIds(Mockito.anyList())).thenReturn(List.of(project(10)));
 
-        AWSXRay.beginSegment("test");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
@@ -411,9 +408,7 @@ public class JobTreeTableBeanTest {
         CloudVmStatusContainer container = new CloudVmStatusContainer();
         Mockito.when(vmTracker.getVmStatusForJob(Mockito.anyString())).thenReturn(container);
 
-        AWSXRay.beginSegment("test_vm_container");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
@@ -430,9 +425,7 @@ public class JobTreeTableBeanTest {
         Mockito.when(jobQueueDao.findProjectIdForJobId(Mockito.eq(999))).thenReturn(null);
         Mockito.when(preferencesBean.getDateTimeFormat()).thenReturn(FastDateFormat.getInstance("yyyy-MM-dd"));
 
-        AWSXRay.beginSegment("test_adhoc");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
@@ -614,10 +607,8 @@ public class JobTreeTableBeanTest {
         fixture.tablePrefs = new TablePreferences(new LinkedList());
         Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
                 .thenReturn(List.of());
-        AWSXRay.beginSegment("test_ff_diff");
         // default filterFinished is true; setting false triggers refreshData()
         fixture.setFilterFinished(false);
-        AWSXRay.endSegment();
         assertFalse(fixture.isFilterFinished());
     }
 
@@ -642,9 +633,7 @@ public class JobTreeTableBeanTest {
 
     @Test
     public void testBuildTree_ReadsJobDetailsOnlyWhenAsked() {
-        AWSXRay.beginSegment("test_job_details");
         TreeNode root = buildTreeAndGetRoot();
-        AWSXRay.endSegment();
         TreeNode projectNode = (TreeNode) root.getChildren().get(0);
         ActJobNodeBean job = (ActJobNodeBean) ((TreeNode) projectNode.getChildren().get(0)).getData();
         Mockito.verify(jobInstanceDao, Mockito.never()).findJobDetails(Mockito.anyInt());
@@ -657,7 +646,6 @@ public class JobTreeTableBeanTest {
 
     @Test
     public void testOnNodeExpand_SetsNodeExpanded() {
-        AWSXRay.beginSegment("test_expand");
         buildTreeAndGetRoot(); // populates nodeMap with "10"
 
         NodeExpandEvent event = Mockito.mock(NodeExpandEvent.class);
@@ -668,12 +656,10 @@ public class JobTreeTableBeanTest {
         Mockito.when(jnb.getId()).thenReturn("10"); // project node id is "10"
 
         assertDoesNotThrow(() -> fixture.onNodeExpand(event));
-        AWSXRay.endSegment();
     }
 
     @Test
     public void testOnNodeCollapse_SetsNodeCollapsedAndParentsExpanded() {
-        AWSXRay.beginSegment("test_collapse");
         buildTreeAndGetRoot(); // populates nodeMap with "10"
 
         NodeCollapseEvent event = Mockito.mock(NodeCollapseEvent.class);
@@ -684,7 +670,6 @@ public class JobTreeTableBeanTest {
         Mockito.when(jnb.getId()).thenReturn("10"); // project node id is "10"
 
         assertDoesNotThrow(() -> fixture.onNodeCollapse(event));
-        AWSXRay.endSegment();
     }
     private static QueuedJob queuedJob(int projectId, int jobId) {
         return new QueuedJob(projectId, jobId, "job" + jobId, JobQueueStatus.Created, IncrementStrategy.increasing, 10,

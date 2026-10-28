@@ -29,7 +29,7 @@ import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,18 +62,17 @@ public class JobEventSender {
     private Event<JobEvent> jobEventProducer;
 
     public String startJob(String jobId) {
-        AWSXRay.beginSubsegment("Start.Job." + jobId);
-        try {
+        Tracing.inSpan("Start.Job." + jobId, () -> {
             synchronized (JobLockManager.getLock(jobId)) {
                 JobInstanceDao jobInstanceDao = new JobInstanceDao();
                 JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
                 if (job == null) {
                     LOG.warn("startJob called for non-existent job id={} — skipping", jobId);
-                    return jobId;
+                    return;
                 }
                 if (job.getStatus() != JobQueueStatus.Created) {
                     LOG.warn("startJob called for job id={} with status={} — only Created jobs can be started", jobId, job.getStatus());
-                    return jobId;
+                    return;
                 }
                 job.setStatus(JobQueueStatus.Starting);
                 jobInstanceDao.saveOrUpdate(job);
@@ -87,34 +86,29 @@ public class JobEventSender {
                 jobManager.startJob(job.getId());
                 jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.AGENT_LAUNCHED));
             }
-        } finally {
-            AWSXRay.endSubsegment();
-        }
+        });
         return jobId;
     }
 
     public String startAgents(String jobId) {
-        AWSXRay.beginSubsegment("Start.Agents." + jobId);
-        try {
+        Tracing.inSpan("Start.Agents." + jobId, () -> {
             JobInstanceDao jobInstanceDao = new JobInstanceDao();
             JobInstance job = jobInstanceDao.findById(Integer.valueOf(jobId));
             if (job == null) {
                 LOG.warn("startAgents called for non-existent job id={} — skipping", jobId);
-                return jobId;
+                return;
             }
             if (job.getStatus() == JobQueueStatus.Deleted) {
                 LOG.warn("startAgents called for job id={} with status=Deleted — deleted jobs cannot start agents", jobId);
-                return jobId;
+                return;
             }
             if (job.getStatus() != JobQueueStatus.Starting) {
                 LOG.warn("startAgents called for job id={} with status={} — only Starting jobs can start agents", jobId, job.getStatus());
-                return jobId;
+                return;
             }
             jobManager.startAgents(jobId);
             jobEventProducer.fire(new JobEvent(jobId, "", JobLifecycleEvent.JOB_STARTED));
-        } finally {
-            AWSXRay.endSubsegment();
-        }
+        });
         return jobId;
     }
 
