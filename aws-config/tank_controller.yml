@@ -2,15 +2,21 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Controller Instance - Creates a Tank controller installing java tomcat and configuring the instances appropriately.
 Parameters:
   AmiId:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-    Description: The ID of the latest Amazon Linux 2 baseline AMI
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
+    Description: SSM parameter for the latest Amazon Linux 2023 arm64 baseline AMI (Graviton instance types only)
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC for the controller and its database; SubnetId and DBSubnetIds must belong to it
   SubnetId:
     Type: AWS::EC2::Subnet::Id
     Description: Private subnet for the internal instance ip
+  DBSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnets for the RDS database, in at least two Availability Zones
   TankWar:
     Type: String
     Description: File path to Tank tank.war Filename in S3 (ie. s3://bucket/keyname)
@@ -25,8 +31,8 @@ Parameters:
     Description: EC2 instance type
     Type: String
     Default: 't4g.large'
-    AllowedValues: [ 't3a.medium', 't4g.medium', 't3a.large', 't4g.large', 't3a.xlarge', 't4g.xlarge', 'm6i.large', 'm6i.xlarge', 'c6i.xlarge', 'c6i.2xlarge' ]
-    ConstraintDescription: 'Must be one of t4g.medium t4g.large t4g.xlarge m6i.large m6i.xlarge c6i.xlarge or c6i.2xlarge'
+    AllowedValues: [ 't4g.medium', 't4g.large', 't4g.xlarge', 'm7g.large', 'm7g.xlarge', 'c7g.xlarge', 'c7g.2xlarge' ]
+    ConstraintDescription: 'Must be a Graviton (arm64) type: t4g.medium t4g.large t4g.xlarge m7g.large m7g.xlarge c7g.xlarge or c7g.2xlarge'
 
 Resources:
   RDSInstance:
@@ -34,29 +40,42 @@ Resources:
     Properties:
       DBInstanceIdentifier: tank
       AutoMinorVersionUpgrade: true
-      DBInstanceClass: db.t3.large
+      DBInstanceClass: db.t4g.large
       Port: 3306
       AllocatedStorage: 100
       BackupRetentionPeriod: 30
       DBName: tank
       Engine: mysql
-      EngineVersion: 8.0.21
+      EngineVersion: '8.4.11'
       MasterUsername: admin
       MasterUserPassword: !Ref RdsPassword
-      DBSecurityGroups:
-        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !GetAtt RDSSecurityGroup.GroupId
+
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets for the Tank database
+      SubnetIds: !Ref DBSubnetIds
 
   RDSSecurityGroup:
-    Type: AWS::RDS::DBSecurityGroup
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Ingress for Amazon EC2 security group
-      DBSecurityGroupIngress:
-        - EC2SecurityGroupName: !Ref SecurityGroup
+      GroupDescription: Allow MySQL from the Tank controller
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !GetAtt SecurityGroup.GroupId
 
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow ssh and http tomcat to client host
+      VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -77,8 +96,6 @@ Resources:
           packages:
             yum:
               amazon-cloudwatch-agent: []
-            rpm:
-              xray-daemon: !Sub 'https://s3.dualstack.${AWS::Region}.amazonaws.com/aws-xray-assets.us-east-2/xray-daemon/aws-xray-daemon-3.x.rpm'
           groups: {}
           users: {}
           sources: {}
@@ -93,12 +110,14 @@ Resources:
                     {"file_path":"/var/log/messages","log_group_name":"/var/log/messages","log_stream_name":"{instance_id}"}]}}},
                   "metrics":{"append_dimensions":{"InstanceId":"${aws:InstanceId}","InstanceType":"${aws:InstanceType}"},"metrics_collected":{
                     "disk":{"measurement":["used_percent"],"resources":["/"],"append_dimensions":{"Service":"Tank"},"metrics_collection_interval":60},
-                    "mem":{"measurement":["mem_used_percent"],"append_dimensions":{"Service":"Tank"},"metrics_collection_interval":60}}}}
+                    "mem":{"measurement":["mem_used_percent"],"append_dimensions":{"Service":"Tank"},"metrics_collection_interval":60}}},
+                  "traces":{"traces_collected":{"otlp":{},"xray":{}}}}
               mode: '000644'
               owner: 'cwagent'
               group: 'cwagent'
           commands: {}
           services:
+            systemd:
               amazon-cloudwatch-agent:
                 enabled      : true
                 ensureRunning: true
@@ -108,72 +127,49 @@ Resources:
           packages:
             yum:
               tomcat-native: []
-              java-17-amazon-corretto-headless: []
+              java-25-amazon-corretto-headless: []
           users:
             tomcat: {}
           groups: {}
           sources:
-            /opt: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.16/bin/apache-tomcat-10.1.16.tar.gz
+            /opt: https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.27/bin/apache-tomcat-11.0.27.tar.gz
           files:
-            /etc/init.d/tomcat:
+            /etc/systemd/system/tomcat.service:
               content: |
-                #!/bin/bash
-                #
-                # tomcat         Start tomcat
-                #
-                #
-                # chkconfig: 345 88 12
-                # description: start stop tomcat
-                ### BEGIN INIT INFO
-                # Provides: $tomcat
-                ### END INIT INFO
-                # Source function library.
-                . /etc/init.d/functions
-                . /etc/init.d/java_opts
+                [Unit]
+                Description=Apache Tomcat (Tank controller)
+                After=network-online.target
+                Wants=network-online.target
 
-                ulimit -n 50000
-                export CATALINA_HOME=/opt/tomcat
-                RETVAL=0
-                umask 077
-                start() {
-                       cd $CATALINA_HOME
-                       echo -n $"Starting tomcat: "
-                       daemon $CATALINA_HOME/bin/startup.sh
-                       echo
-                       return $RETVAL
-                }
-                stop() {
-                       echo -n $"Shutting down tomcat: "
-                       daemon $CATALINA_HOME/bin/shutdown.sh
-                       echo
-                       return $RETVAL
-                }
-                restart() {
-                       stop
-                       start
-                }
-                case "$1" in
-                 start)
-                       start
-                       ;;
-                 stop)
-                       stop
-                       ;;
-                 restart|reload)
-                       restart
-                       ;;
-                 *)
-                       echo $"Usage: $0 {start|stop|restart}"
-                       exit 1
-                esac
-                exit $?
-              mode: '000755'
-              owner: 'tomcat'
-              group: 'tomcat'
-            /etc/init.d/java_opts:
+                [Service]
+                Type=simple
+                EnvironmentFile=/etc/sysconfig/tomcat
+                Environment=CATALINA_HOME=/opt/tomcat
+                WorkingDirectory=/opt/tomcat
+                ExecStart=/opt/tomcat/bin/catalina.sh run
+                # the JVM exits 143 on SIGTERM after a clean shutdown
+                SuccessExitStatus=143
+                LimitNOFILE=50000
+                UMask=0077
+
+                [Install]
+                WantedBy=multi-user.target
+              mode: '000644'
+              owner: 'root'
+              group: 'root'
+            /etc/sysconfig/tomcat:
               content: |
-                export CATALINA_OPTS="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m"
-              mode: '000755'
+                CATALINA_OPTS="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m -javaagent:/opt/aws-otel/aws-opentelemetry-agent.jar"
+                OTEL_SERVICE_NAME=Tank
+                OTEL_TRACES_SAMPLER=xray
+                OTEL_METRICS_EXPORTER=none
+                OTEL_LOGS_EXPORTER=none
+              mode: '000644'
+              owner: 'root'
+              group: 'root'
+            /opt/aws-otel/aws-opentelemetry-agent.jar:
+              source: https://github.com/aws-observability/aws-otel-java-instrumentation/releases/download/v2.31.0/aws-opentelemetry-agent.jar
+              mode: '000644'
               owner: 'tomcat'
               group: 'tomcat'
             /tmp/context.xml:
@@ -192,7 +188,6 @@ Resources:
                     removeAbandonedOnMaintenance="true"
                     removeAbandonedTimeout="60"
                     driverClassName="com.mysql.cj.jdbc.Driver"
-                    jdbcInterceptors="com.amazonaws.xray.sql.mysql.TracingInterceptor"
                     url="jdbc:mysql://${RDSInstance.Endpoint.Address}:${RDSInstance.Endpoint.Port}/tank"/>
                 </Context>
               mode: '000644'
@@ -200,7 +195,7 @@ Resources:
               group: 'tomcat'
           commands:
             010_tomcat_symboliclink:
-              command: 'ln -s /opt/apache-tomcat-10.1.16 /opt/tomcat'
+              command: 'ln -s /opt/apache-tomcat-11.0.27 /opt/tomcat'
             011_tomcat_symboliclink:
               command: 'ln -s /opt/tomcat/logs /var/log/tomcat'
             020_clear_out_builtin:
@@ -216,9 +211,11 @@ Resources:
             060_download_tank:
               command: !Sub 'aws s3 cp ${TankWar} /usr/share/tomcat/webapps/ROOT.war'
             070_permissions:
-              command: 'chown -R tomcat:tomcat /opt/apache-tomcat-10.1.16'
+              command: 'chown -R tomcat:tomcat /opt/apache-tomcat-11.0.27'
+            080_systemd_reload:
+              command: 'systemctl daemon-reload'
           services:
-            sysvinit:
+            systemd:
               tomcat:
                 enabled      : true
                 ensureRunning: true
@@ -239,7 +236,8 @@ Resources:
           #!/bin/bash -v
           # Ensure our PATH is set correctly (on Amazon Linux cfn-signal is in /opt/aws/bin)
           . ~/.bash_profile
-          yum update -y
+          dnf upgrade -y
+          dnf install -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v \
             --region  ${AWS::Region} \
             --stack   ${AWS::StackName} \

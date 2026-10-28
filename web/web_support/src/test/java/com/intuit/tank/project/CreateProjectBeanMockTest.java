@@ -115,7 +115,6 @@ public class CreateProjectBeanMockTest {
         bean.setScriptDriver(ScriptDriver.Tank.name());
 
         // ProjectDao.saveOrUpdateProject may throw with H2 or succeed
-        // openProject calls AWSXRay which would throw in unit test context
         // exceptionHandler should be called if exception occurs
         String result = bean.createNewProject();
         // Either "success" or null (exception handled)

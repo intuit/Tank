@@ -1,8 +1,5 @@
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
@@ -28,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -50,21 +46,14 @@ class AgentServiceV2ImplTest {
     private ServletContext servletContext;
 
     private AutoCloseable mocks;
-    private MockedStatic<AWSXRay> xrayMock;
 
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        xrayMock = Mockito.mockStatic(AWSXRay.class);
-        Segment mockSegment = mock(Segment.class);
-        Subsegment mockSubsegment = mock(Subsegment.class);
-        xrayMock.when(AWSXRay::getCurrentSegment).thenReturn(mockSegment);
-        xrayMock.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        xrayMock.close();
         mocks.close();
     }
 

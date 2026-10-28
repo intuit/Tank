@@ -1,7 +1,5 @@
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobNotificationDao;
@@ -76,19 +74,14 @@ class JobServiceV2ImplTest {
     private ServletContext servletContext;
 
     private AutoCloseable mocks;
-    private MockedStatic<AWSXRay> xrayMock;
 
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        xrayMock = Mockito.mockStatic(AWSXRay.class);
-        Segment mockSegment = mock(Segment.class);
-        xrayMock.when(AWSXRay::getCurrentSegment).thenReturn(mockSegment);
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        xrayMock.close();
         mocks.close();
     }
 

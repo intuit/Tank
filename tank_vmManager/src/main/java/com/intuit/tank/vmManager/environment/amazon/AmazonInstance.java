@@ -1,9 +1,9 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.dao.JobInstanceDao;
@@ -51,7 +51,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -157,176 +156,173 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
-        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
-        Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion());
         List<VMInformation> result = new ArrayList<>();
-        try {
-            ControllerLoggingConfig.setupThreadContext();
-            VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
-            subsegment.putMetadata("count", instanceRequest.getNumberOfInstances());
-            subsegment.putMetadata("instanceType", instanceRequest.getSize());
-            InstanceDescription instanceDescription = (instanceRequest.getInstanceDescription() != null)
-                    ? instanceRequest.getInstanceDescription()
-                    : config.getVmManagerConfig().getInstanceForRegionAndType(vmRegion, instanceRequest.getImage());
+        Tracing.inSpan("Request.Agents." + vmRegion.getRegion(), () -> {
+            try {
+                ControllerLoggingConfig.setupThreadContext();
+                VMInstanceRequest instanceRequest = (VMInstanceRequest) request;
+                Span.current().setAttribute("count", instanceRequest.getNumberOfInstances());
+                Span.current().setAttribute("instanceType", instanceRequest.getSize());
+                InstanceDescription instanceDescription = (instanceRequest.getInstanceDescription() != null)
+                        ? instanceRequest.getInstanceDescription()
+                        : config.getVmManagerConfig().getInstanceForRegionAndType(vmRegion, instanceRequest.getImage());
 
-            // Get the required data
-            if (instanceRequest.getReuseStoppedInstance()) {
-                List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
-                LOG.debug("looking for stopped instance with ami-id of {}", instanceRequest.getImage());
-                for (VMInformation vmInfo : instances) {
-                    LOG.debug("found instance with id {} with state of {}", vmInfo.getInstanceId(), vmInfo.getState());
-                    if ("stopped".equalsIgnoreCase(vmInfo.getState())) {
-                        StartInstancesRequest startInstancesRequest = StartInstancesRequest.builder().instanceIds(vmInfo.getInstanceId()).build();
-                        // restart this instance
-                        StartInstancesResponse startInstances = ec2AsyncClient.startInstances(startInstancesRequest).get();
-                        result.addAll(AmazonDataConverter.processStateChange(startInstances.startingInstances()));
-                        break;
+                // Get the required data
+                if (instanceRequest.getReuseStoppedInstance()) {
+                    List<VMInformation> instances = findAllInstancesOfType(this.vmRegion, instanceRequest.getImage());
+                    LOG.debug("looking for stopped instance with ami-id of {}", instanceRequest.getImage());
+                    for (VMInformation vmInfo : instances) {
+                        LOG.debug("found instance with id {} with state of {}", vmInfo.getInstanceId(), vmInfo.getState());
+                        if ("stopped".equalsIgnoreCase(vmInfo.getState())) {
+                            StartInstancesRequest startInstancesRequest = StartInstancesRequest.builder().instanceIds(vmInfo.getInstanceId()).build();
+                            // restart this instance
+                            StartInstancesResponse startInstances = ec2AsyncClient.startInstances(startInstancesRequest).get();
+                            result.addAll(AmazonDataConverter.processStateChange(startInstances.startingInstances()));
+                            break;
+                        }
                     }
                 }
-            }
-            if (result.isEmpty()) {
-                VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
-                String keyPair = instanceDescription.getKeypair();
-                if (instanceRequest.getJobId() != null) {
-                    instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
-                }
-                if (instanceRequest.getReportingMode() != null) {
-                    LOG.debug("Setting reporting mode to {}", instanceRequest.getReportingMode());
-                    instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
-                } else {
-                    LOG.debug("Reporting mode not set.");
-                }
-                if (vmType.getJvmArgs() != null) {
-                    instanceRequest.addUserData(TankConstants.KEY_JVM_ARGS, vmType.getJvmArgs());
-                }
-                CloudCredentials cloudCredentials = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-                if (StringUtils.isNotBlank(cloudCredentials.getKeyId()) && StringUtils.isNotBlank(cloudCredentials.getKey())) {
-                    instanceRequest.addUserData(TankConstants.KEY_AWS_SECRET_KEY_ID, cloudCredentials.getKeyId());
-                    instanceRequest.addUserData(TankConstants.KEY_AWS_SECRET_KEY, cloudCredentials.getKey());
-                }
+                if (result.isEmpty()) {
+                    VmInstanceType vmType = config.getVmManagerConfig().getInstanceType(instanceRequest.getSize());
+                    String keyPair = instanceDescription.getKeypair();
+                    if (instanceRequest.getJobId() != null) {
+                        instanceRequest.addUserData(TankConstants.KEY_JOB_ID, instanceRequest.getJobId());
+                    }
+                    if (instanceRequest.getReportingMode() != null) {
+                        LOG.debug("Setting reporting mode to {}", instanceRequest.getReportingMode());
+                        instanceRequest.addUserData(TankConstants.KEY_REPORTING_MODE, instanceRequest.getReportingMode());
+                    } else {
+                        LOG.debug("Reporting mode not set.");
+                    }
+                    if (vmType.getJvmArgs() != null) {
+                        instanceRequest.addUserData(TankConstants.KEY_JVM_ARGS, vmType.getJvmArgs());
+                    }
+                    CloudCredentials cloudCredentials = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
+                    if (StringUtils.isNotBlank(cloudCredentials.getKeyId()) && StringUtils.isNotBlank(cloudCredentials.getKey())) {
+                        instanceRequest.addUserData(TankConstants.KEY_AWS_SECRET_KEY_ID, cloudCredentials.getKeyId());
+                        instanceRequest.addUserData(TankConstants.KEY_AWS_SECRET_KEY, cloudCredentials.getKey());
+                    }
 
-                instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
-                instanceRequest.addUserData(TankConstants.KEY_AGENT_TOKEN, config.getAgentConfig().getAgentToken());
-                instanceRequest.addUserData(TankConstants.KEY_NUM_USERS_PER_AGENT, Integer.toString(instanceRequest.getNumUsersPerAgent()));
-                instanceRequest.addUserData(TankConstants.KEY_COMMAND_WS_ENABLED, Boolean.toString(config.getAgentConfig().isCommandWsEnabled()));
+                    instanceRequest.addUserData(TankConstants.KEY_CONTROLLER_URL, config.getControllerBase());
+                    instanceRequest.addUserData(TankConstants.KEY_AGENT_TOKEN, config.getAgentConfig().getAgentToken());
+                    instanceRequest.addUserData(TankConstants.KEY_NUM_USERS_PER_AGENT, Integer.toString(instanceRequest.getNumUsersPerAgent()));
+                    instanceRequest.addUserData(TankConstants.KEY_COMMAND_WS_ENABLED, Boolean.toString(config.getAgentConfig().isCommandWsEnabled()));
 
-                if (instanceRequest.isUseEips()) {
-                    instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
-                }
-                if (instanceRequest.getLoggingProfile() != null) {
-                    LOG.debug("Setting loggingProfile to {}", instanceRequest.getLoggingProfile());
-                    instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
-                } else {
-                    LOG.debug("Logging  profile not set.");
-                }
-                if (instanceRequest.getStopBehavior() != null) {
-                    LOG.debug("Setting stopBehavior to {}", instanceRequest.getStopBehavior());
-                    instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
-                } else {
-                    LOG.debug("stop Behavior not set.");
-                }
+                    if (instanceRequest.isUseEips()) {
+                        instanceRequest.addUserData(TankConstants.KEY_USING_BIND_EIP, Boolean.TRUE.toString());
+                    }
+                    if (instanceRequest.getLoggingProfile() != null) {
+                        LOG.debug("Setting loggingProfile to {}", instanceRequest.getLoggingProfile());
+                        instanceRequest.addUserData(TankConstants.KEY_LOGGING_PROFILE, instanceRequest.getLoggingProfile());
+                    } else {
+                        LOG.debug("Logging  profile not set.");
+                    }
+                    if (instanceRequest.getStopBehavior() != null) {
+                        LOG.debug("Setting stopBehavior to {}", instanceRequest.getStopBehavior());
+                        instanceRequest.addUserData(TankConstants.KEY_STOP_BEHAVIOR, instanceRequest.getStopBehavior());
+                    } else {
+                        LOG.debug("stop Behavior not set.");
+                    }
 
-                String userData = buildUserData(instanceRequest.getUserData());
+                    String userData = buildUserData(instanceRequest.getUserData());
 
-                int totalInstanceRequest = instanceRequest.getNumberOfInstances();
-                String image = getAMI(instanceDescription);
-                LOG.info("Requesting {} instances in {} with AMI={}", totalInstanceRequest, vmRegion.getName(), image);
+                    int totalInstanceRequest = instanceRequest.getNumberOfInstances();
+                    String image = getAMI(instanceDescription);
+                    LOG.info("Requesting {} instances in {} with AMI={}", totalInstanceRequest, vmRegion.getName(), image);
 
-                RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
-                runInstancesRequestTemplate.metadataOptions(
-                        InstanceMetadataOptionsRequest.builder().httpTokens(HttpTokensState.REQUIRED).build());
-                Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
-                runInstancesRequestTemplate.imageId(image)
-                        .keyName(keyPair)
-                        .placement(Placement.builder().tenancy(tenancy).build())
-                        .monitoring(RunInstancesMonitoringEnabled.builder().build())
-                        .userData(userData);
+                    RunInstancesRequest.Builder runInstancesRequestTemplate = RunInstancesRequest.builder();
+                    runInstancesRequestTemplate.metadataOptions(
+                            InstanceMetadataOptionsRequest.builder().httpTokens(HttpTokensState.REQUIRED).build());
+                    Tenancy tenancy = StringUtils.isEmpty(instanceDescription.getTenancy()) ? Tenancy.DEFAULT : Tenancy.fromValue(instanceDescription.getTenancy());
+                    runInstancesRequestTemplate.imageId(image)
+                            .keyName(keyPair)
+                            .placement(Placement.builder().tenancy(tenancy).build())
+                            .monitoring(RunInstancesMonitoringEnabled.builder().build())
+                            .userData(userData);
 
-                Collection<String> c = instanceDescription.getSecurityGroupIds();
-                if (!c.isEmpty()) {
-                    LOG.debug("Security Group IDs {}", c.toString());
-                    runInstancesRequestTemplate.securityGroupIds(c);
-                } else {
-                    runInstancesRequestTemplate.securityGroups(instanceDescription.getSecurityGroup());
-                }
-                if (StringUtils.isNotBlank(instanceDescription.getIamRole())) {
-                    runInstancesRequestTemplate.iamInstanceProfile(
-                            IamInstanceProfileSpecification.builder().name(instanceDescription.getIamRole()).build());
-                }
-                // add zone info if specified
-                if (!StringUtils.isEmpty(instanceDescription.getZone())) {
-                    runInstancesRequestTemplate.placement(Placement.builder().availabilityZone(instanceDescription.getZone()).build());
-                }
-                runInstancesRequestTemplate.tagSpecifications(buildTags(instanceRequest));
+                    Collection<String> c = instanceDescription.getSecurityGroupIds();
+                    if (!c.isEmpty()) {
+                        LOG.debug("Security Group IDs {}", c.toString());
+                        runInstancesRequestTemplate.securityGroupIds(c);
+                    } else {
+                        runInstancesRequestTemplate.securityGroups(instanceDescription.getSecurityGroup());
+                    }
+                    if (StringUtils.isNotBlank(instanceDescription.getIamRole())) {
+                        runInstancesRequestTemplate.iamInstanceProfile(
+                                IamInstanceProfileSpecification.builder().name(instanceDescription.getIamRole()).build());
+                    }
+                    // add zone info if specified
+                    if (!StringUtils.isEmpty(instanceDescription.getZone())) {
+                        runInstancesRequestTemplate.placement(Placement.builder().availabilityZone(instanceDescription.getZone()).build());
+                    }
+                    runInstancesRequestTemplate.tagSpecifications(buildTags(instanceRequest));
 
-                // Loop to request agent instances
-                List<String> subnetIds = instanceDescription.getSubnetIds();
-                Collections.shuffle(subnetIds, new Random());
-                int splitRequestBase = totalInstanceRequest / subnetIds.size();
-                int remainder = totalInstanceRequest % subnetIds.size();
-                List<CompletableFuture<RunInstancesResponse>> futures = new ArrayList<>();
-                for (String subnetId : subnetIds) {
-                    int requestCount = splitRequestBase + (remainder-- > 0 ? 1 : 0);
-                    if (requestCount > 0)
-                        futures.add(requestInstances(runInstancesRequestTemplate, subnetId, requestCount, vmType.getTypes()));
-                }
-                futures.stream().map(CompletableFuture::join).forEach(response -> {
-                    result.addAll(AmazonDataConverter.processReservation(response.requesterId(), response.instances(), vmRegion));
-                });
+                    // Loop to request agent instances
+                    List<String> subnetIds = instanceDescription.getSubnetIds();
+                    Collections.shuffle(subnetIds, new Random());
+                    int splitRequestBase = totalInstanceRequest / subnetIds.size();
+                    int remainder = totalInstanceRequest % subnetIds.size();
+                    List<CompletableFuture<RunInstancesResponse>> futures = new ArrayList<>();
+                    for (String subnetId : subnetIds) {
+                        int requestCount = splitRequestBase + (remainder-- > 0 ? 1 : 0);
+                        if (requestCount > 0)
+                            futures.add(requestInstances(runInstancesRequestTemplate, subnetId, requestCount, vmType.getTypes()));
+                    }
+                    futures.stream().map(CompletableFuture::join).forEach(response -> {
+                        result.addAll(AmazonDataConverter.processReservation(response.requesterId(), response.instances(), vmRegion));
+                    });
 
-                if (instanceRequest.isUseEips()) {
-                    Set<Address> availableEips = new HashSet<Address>();
-                    synchronized (instanceRequest.getRegion()) {
-                        DescribeAddressesResponse describeAddresses =
-                                ec2AsyncClient.describeAddresses(DescribeAddressesRequest.builder().build()).get();
-                        Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
-                        for (Address address : describeAddresses.addresses()) {
-                            String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
-                            if (elasticIPType.equalsIgnoreCase(address.domainAsString()) && StringUtils.isBlank(address.instanceId())) {
-                                String ip = address.publicIp();
-                                if (!reserved.contains(ip)) {
-                                    availableEips.add(address);
+                    if (instanceRequest.isUseEips()) {
+                        Set<Address> availableEips = new HashSet<Address>();
+                        synchronized (instanceRequest.getRegion()) {
+                            DescribeAddressesResponse describeAddresses =
+                                    ec2AsyncClient.describeAddresses(DescribeAddressesRequest.builder().build()).get();
+                            Set<String> reserved = config.getVmManagerConfig().getReservedElasticIps();
+                            for (Address address : describeAddresses.addresses()) {
+                                String elasticIPType = instanceDescription.isVPC() ? "vpc" : "standard";
+                                if (elasticIPType.equalsIgnoreCase(address.domainAsString()) && StringUtils.isBlank(address.instanceId())) {
+                                    String ip = address.publicIp();
+                                    if (!reserved.contains(ip)) {
+                                        availableEips.add(address);
+                                    }
                                 }
                             }
                         }
-                    }
-                    List<Address> randomizedIps = new ArrayList<Address>(availableEips);
-                    Collections.shuffle(randomizedIps);
+                        List<Address> randomizedIps = new ArrayList<Address>(availableEips);
+                        Collections.shuffle(randomizedIps);
 
-                    synchronized (instanceRequest.getRegion()) {
-                        Iterator<Address> iter = randomizedIps.iterator();
-                        List<AssociateContainer> bindIps = new ArrayList<AssociateContainer>();
-                        for (VMInformation info : result) {
-                            if (!iter.hasNext()) {
-                                break;
+                        synchronized (instanceRequest.getRegion()) {
+                            Iterator<Address> iter = randomizedIps.iterator();
+                            List<AssociateContainer> bindIps = new ArrayList<AssociateContainer>();
+                            for (VMInformation info : result) {
+                                if (!iter.hasNext()) {
+                                    break;
+                                }
+                                bindIps.add(new AssociateContainer(info.getInstanceId(), iter.next()));
                             }
-                            bindIps.add(new AssociateContainer(info.getInstanceId(), iter.next()));
+                            CountDownLatch latch = new CountDownLatch(bindIps.size());
+                            for (AssociateContainer container : bindIps) {
+                                associateAddress(container.instanceId, container.address, latch);
+                            }
+                            latch.await();
                         }
-                        CountDownLatch latch = new CountDownLatch(bindIps.size());
-                        for (AssociateContainer container : bindIps) {
-                            associateAddress(container.instanceId, container.address, latch);
-                        }
-                        latch.await();
                     }
                 }
+                if (instanceDescription.getPublicIp() != null && result.size() == 1) {
+                    // bind to the public ip
+                    String instanceId = result.get(0).getInstanceId();
+                    // wait for instance to be in running state
+                    associateAddress(instanceId, Address.builder().publicIp(instanceDescription.getPublicIp()).build(), null);
+                    // reboot(result);
+                }
+            } catch (SdkException ae) {
+                LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
+                throw new RuntimeException(ae);
+            } catch (Exception ex) {
+                LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
+                throw new RuntimeException(ex);
             }
-            if (instanceDescription.getPublicIp() != null && result.size() == 1) {
-                // bind to the public ip
-                String instanceId = result.get(0).getInstanceId();
-                // wait for instance to be in running state
-                associateAddress(instanceId, Address.builder().publicIp(instanceDescription.getPublicIp()).build(), null);
-                // reboot(result);
-            }
-
-        } catch (SdkException ae) {
-            LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
-            throw new RuntimeException(ae);
-        } catch (Exception ex) {
-            LOG.error("Error starting instances: {} : {}", vmRegion, ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        } finally {
-            AWSXRay.endSubsegment();
-        }
+        });
         return result;
     }
 
@@ -344,8 +340,8 @@ public class AmazonInstance implements IEnvironmentInstance {
         }
         String instanceType = instanceTypes.get(0);
         List<String> remainingTypes = instanceTypes.subList(1, instanceTypes.size());
-        // Callbacks run on SDK completion threads; carry the trace entity so fallback requests stay in the trace
-        Entity traceEntity = AWSXRay.getTraceEntity();
+        // Callbacks run on SDK completion threads; carry the trace context so fallback requests stay in the trace
+        Context traceContext = Context.current();
         return ec2AsyncClient.runInstances(
                 runInstancesRequest
                         .instanceType(instanceType)
@@ -357,7 +353,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                         String errorCode = ((Ec2Exception) cause).awsErrorDetails().errorCode();
                         if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
                             LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
-                            return withTraceEntity(traceEntity,
+                            return withContext(traceContext,
                                     () -> requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes)).join();
                         } else if ( errorCode.equals(INVALID_AMI_ID_UNAVAILABLE) ) {
                             LOG.error("AMI is not available in {}: {}", vmRegion, cause.getMessage());
@@ -370,7 +366,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {
                         LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
-                        RunInstancesResponse res = withTraceEntity(traceEntity,
+                        RunInstancesResponse res = withContext(traceContext,
                                 () -> requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes)).join();
                         List<Instance> launched = new ArrayList<>(response.instances());
                         launched.addAll(res.instances());
@@ -381,15 +377,12 @@ public class AmazonInstance implements IEnvironmentInstance {
     }
 
     /**
-     * Run the supplier with the given X-Ray trace entity on the current thread, restoring whatever was there before.
+     * Run the supplier with the given trace context current on this thread, restoring whatever was there before.
      */
-    private static <T> T withTraceEntity(Entity traceEntity, Supplier<T> supplier) {
-        if (traceEntity == null) {
+    private static <T> T withContext(Context traceContext, Supplier<T> supplier) {
+        try (Scope ignored = traceContext.makeCurrent()) {
             return supplier.get();
         }
-        AtomicReference<T> result = new AtomicReference<>();
-        traceEntity.run(() -> result.set(supplier.get()));
-        return result.get();
     }
 
     /**
@@ -548,9 +541,9 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        // Only join the caller's Request.Agents subsegment when the caller waits on the latch; otherwise it can be
-        // closed and emitted while this worker is still retrying, so the worker gets its own segment.
-        Entity callerEntity = latch != null ? AWSXRay.getTraceEntity() : null;
+        // Only join the caller's Request.Agents span when the caller waits on the latch; otherwise that span ends
+        // while this worker is still retrying for up to 2 minutes, so the worker gets its own root span.
+        Context callerContext = latch != null ? Context.current() : null;
         Runnable task = () -> {
             boolean associated = false;
 
@@ -595,15 +588,10 @@ public class AmazonInstance implements IEnvironmentInstance {
                 }
             }
         };
-        Runnable traced = callerEntity != null ? () -> callerEntity.run(task) : () -> {
-            Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AssociateAddress");
-            try {
-                segment.putAnnotation("instanceId", instanceId);
-                task.run();
-            } finally {
-                AWSXRay.endSegment();
-            }
-        };
+        Runnable traced = callerContext != null ? callerContext.wrap(task) : () -> Tracing.inRootSpan("Tank.AssociateAddress", () -> {
+            Tracing.annotate("instanceId", instanceId);
+            task.run();
+        });
         new Thread(traced).start();
 
     }

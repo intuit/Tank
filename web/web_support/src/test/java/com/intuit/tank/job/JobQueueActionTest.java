@@ -13,7 +13,6 @@ package com.intuit.tank.job;
  * #L%
  */
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
@@ -37,14 +36,10 @@ public class JobQueueActionTest {
     @BeforeEach
     void setUp() {
         closeable = MockitoAnnotations.openMocks(this);
-        AWSXRay.beginSegment("test-segment");
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        try {
-            AWSXRay.endSegment();
-        } catch (Exception ignored) {}
         closeable.close();
     }
 

@@ -7,7 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
@@ -288,12 +288,8 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
      * Tag the request's trace so it can be found by job, the same annotations the JSF job queue uses.
      */
     private static void annotateTrace(JobAction action, String jobId) {
-        AWSXRay.getCurrentSegmentOptional().ifPresent(segment -> {
-            segment.putAnnotation("job.action", action.getPath());
-            if (jobId != null) {
-                segment.putAnnotation("jobId", jobId);
-            }
-        });
+        Tracing.annotate("job.action", action.getPath());
+        Tracing.annotate("jobId", jobId);
     }
 
     private static Project findProject(Integer projectId) {

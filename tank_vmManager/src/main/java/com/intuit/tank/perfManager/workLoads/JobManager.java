@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -32,9 +31,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.contexts.SegmentContextExecutors;
-import com.amazonaws.xray.entities.Entity;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.api.enumerated.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
@@ -143,7 +141,7 @@ public class JobManager implements Serializable {
                 }
             }
         } else {
-            SegmentContextExecutors.newSegmentContextExecutor().execute(project);
+            project.run();
         }
     }
 
@@ -413,7 +411,7 @@ public class JobManager implements Serializable {
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        final Entity segment = AWSXRay.getTraceEntity(); // parallelStream workers don't inherit the caller's trace
+        final Context traceContext = Context.current(); // parallelStream workers don't inherit the caller's trace
         return instanceIds.parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .map(instanceId -> jobInfoMapLocalCache.values().stream()
@@ -422,12 +420,9 @@ public class JobManager implements Serializable {
                         .findFirst()
                         .orElseGet(() -> {
                             Thread.currentThread().setContextClassLoader(classLoader);
-                            if (segment == null) {
+                            try (Scope ignored = traceContext.makeCurrent()) {
                                 return findAgent(instanceId);
                             }
-                            AtomicReference<AgentData> agent = new AtomicReference<>();
-                            segment.run(() -> agent.set(findAgent(instanceId)));
-                            return agent.get();
                         })
                 )
                 .filter(Objects::nonNull)

@@ -29,7 +29,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -282,61 +282,61 @@ public abstract class JobTreeTableBean implements Serializable {
 
     private void initializeTpsModel() {
         LOG.info("Initializing TPS chart model...");
-        AWSXRay.beginSubsegment("Initialize TpsModel");
-        tpsChartModel = null;
-        if (currentJobInstance != null) {
-            List<String> labels = new ArrayList<>();
-            Map<String, List<Number>> datasetMap = new HashMap<>();
-            Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
-            tpsDetailMap.keySet().stream().sorted()
-                    .forEach(d -> {
-                        tpsDetailMap.get(d).values()
-                                .forEach(info -> {
-                                    datasetMap.computeIfAbsent(info.getKey(),k -> new ArrayList<>())
-                                            .add(labels.size()-1, info.getTPS());
-                                    datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
-                                });
-                        if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
-                        datasetMap.forEach((key, value) -> {
-                            while (value.size() < labels.size()) {
-                                value.add(null);
-                            }
+        Tracing.inSpan("Initialize TpsModel", () -> {
+            tpsChartModel = null;
+            if (currentJobInstance != null) {
+                List<String> labels = new ArrayList<>();
+                Map<String, List<Number>> datasetMap = new HashMap<>();
+                Map<Date, Map<String, TPSInfo>> tpsDetailMap = getTpsMap();
+                tpsDetailMap.keySet().stream().sorted()
+                        .forEach(d -> {
+                            tpsDetailMap.get(d).values()
+                                    .forEach(info -> {
+                                        datasetMap.computeIfAbsent(info.getKey(),k -> new ArrayList<>())
+                                                .add(labels.size()-1, info.getTPS());
+                                        datasetMap.get(TOTAL_TPS_SERIES_KEY).add(info.getTPS());
+                                    });
+                            if (!datasetMap.isEmpty()) labels.add(sdf.format(d.getTime()));
+                            datasetMap.forEach((key, value) -> {
+                                while (value.size() < labels.size()) {
+                                    value.add(null);
+                                }
+                            });
                         });
-                    });
 
-            List<Number> total = new ArrayList<>();
-            datasetMap.forEach((key, value) -> value
-                    .forEach(v -> {
-                        if (total.size() < value.size()) { total.add(0); }
-                        total.set(value.indexOf(v), (int) total.get(value.indexOf(v)) + (int) v);
-                    }));
-            datasetMap.put(TOTAL_TPS_SERIES_KEY, total);
+                List<Number> total = new ArrayList<>();
+                datasetMap.forEach((key, value) -> value
+                        .forEach(v -> {
+                            if (total.size() < value.size()) { total.add(0); }
+                            total.set(value.indexOf(v), (int) total.get(value.indexOf(v)) + (int) v);
+                        }));
+                datasetMap.put(TOTAL_TPS_SERIES_KEY, total);
 
-            LineData lineData = new LineData();
-            lineData.setLabels(labels);
-            datasetMap.forEach((key, value) -> {
-                lineData.addDataset(new LineDataset()
-                        .setData(value)
-                        .setLabel(key)
-                        .setLineTension(0.2f));
-            });
-            tpsChartModel = new LineChart()
-                    .setData(lineData)
-                    .setOptions(new LineOptions()
-                            .setResponsive(true)
-                            .setMaintainAspectRatio(false)
-                            .setPlugins(new Plugins()
-                                    .setLegend(new LegendOptions().setPosition("right"))
-                                    .setTitle(new Title()
-                                            .setDisplay(true)
-                                            .setText("TPS Chart")))
-                            .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
-                                    new LinearScaleOptions().setBeginAtZero(true)))
-                    ).toJson();
-        } else {
-            LOG.info("currentJobInstance is null");
-        }
-        AWSXRay.endSubsegment();
+                LineData lineData = new LineData();
+                lineData.setLabels(labels);
+                datasetMap.forEach((key, value) -> {
+                    lineData.addDataset(new LineDataset()
+                            .setData(value)
+                            .setLabel(key)
+                            .setLineTension(0.2f));
+                });
+                tpsChartModel = new LineChart()
+                        .setData(lineData)
+                        .setOptions(new LineOptions()
+                                .setResponsive(true)
+                                .setMaintainAspectRatio(false)
+                                .setPlugins(new Plugins()
+                                        .setLegend(new LegendOptions().setPosition("right"))
+                                        .setTitle(new Title()
+                                                .setDisplay(true)
+                                                .setText("TPS Chart")))
+                                .setScales(new Scales().addScale(Scales.ScaleAxis.Y,
+                                        new LinearScaleOptions().setBeginAtZero(true)))
+                        ).toJson();
+            } else {
+                LOG.info("currentJobInstance is null");
+            }
+        });
     }
 
     private Map<Date, Map<String, TPSInfo>> getTpsMap() {
@@ -470,44 +470,43 @@ public abstract class JobTreeTableBean implements Serializable {
     }
 
     private void buildTree() {
-        AWSXRay.beginSubsegment("Build.Tree");
-        Integer rootJob = getRootJobId();
-        Set<String> trackerJobs = getTrackerJobIds();
-        Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
-        if (rootJob == null || rootJob == 0) {
-            AWSXRay.beginSubsegment("Build.Tree.findQueuedJobs");
-            Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
-            // the jobs the tracker reports are read too, so that they can be matched to their projects below
-            List<Integer> trackedIds = trackerJobs.stream().filter(NumberUtils::isDigits).map(Integer::valueOf).toList();
-            Map<Integer, List<QueuedJob>> jobsByProject = byProject(
-                    jobQueueDao.findQueuedJobs(null, dateMinus1Week, !filterFinished, trackedIds));
-            AWSXRay.endSubsegment();
-            Map<Integer, Project> projects = projectsById(jobsByProject.keySet());
-            rootNode = new DefaultTreeNode("root", null);
-            for (Map.Entry<Integer, List<QueuedJob>> entry : jobsByProject.entrySet()) {
-                TreeNode projectNode = createJobNode(trackerJobs, projects.get(entry.getKey()), entry.getValue());
-                if (projectNode != null && projectNode.getChildCount() != 0) {
-                    jobNodeMap.put(entry.getKey(), projectNode);
-                    projectNode.setParent(rootNode);
-                    rootNode.getChildren().add(projectNode);
+        Tracing.inSpan("Build.Tree", () -> {
+            Integer rootJob = getRootJobId();
+            Set<String> trackerJobs = getTrackerJobIds();
+            Map<Integer, TreeNode> jobNodeMap = new HashMap<Integer, TreeNode>();
+            if (rootJob == null || rootJob == 0) {
+                Map<Integer, List<QueuedJob>> jobsByProject = Tracing.inSpan("Build.Tree.findQueuedJobs", () -> {
+                    Date dateMinus1Week = DateUtils.addWeeks(new Date(),-1);
+                    // the jobs the tracker reports are read too, so that they can be matched to their projects below
+                    List<Integer> trackedIds = trackerJobs.stream().filter(NumberUtils::isDigits).map(Integer::valueOf).toList();
+                    return byProject(jobQueueDao.findQueuedJobs(null, dateMinus1Week, !filterFinished, trackedIds));
+                });
+                Map<Integer, Project> projects = projectsById(jobsByProject.keySet());
+                rootNode = new DefaultTreeNode("root", null);
+                for (Map.Entry<Integer, List<QueuedJob>> entry : jobsByProject.entrySet()) {
+                    TreeNode projectNode = createJobNode(trackerJobs, projects.get(entry.getKey()), entry.getValue());
+                    if (projectNode != null && projectNode.getChildCount() != 0) {
+                        jobNodeMap.put(entry.getKey(), projectNode);
+                        projectNode.setParent(rootNode);
+                        rootNode.getChildren().add(projectNode);
+                    }
                 }
+                if (!trackerJobs.isEmpty()) {
+                    TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
+                    for (String id : trackerJobs) {// left over nodes that the tracker is tracking
+                        // create job nodes now
+                        createAdhocJobNode(jobNodeMap, unknownNode, id);
+                    }
+                    if (unknownNode.getChildCount() > 0) {
+                        unknownNode.setParent(rootNode);
+                        rootNode.getChildren().add(unknownNode);
+                    }
+                }
+            } else {
+                List<QueuedJob> jobs = jobQueueDao.findQueuedJobs(rootJob, null, !filterFinished, List.of());
+                rootNode = createJobNode(trackerJobs, projectDao.findById(rootJob), sortedNewestFirst(jobs));
             }
-            if (!trackerJobs.isEmpty()) {
-                TreeNode unknownNode = new DefaultTreeNode(new ProjectNodeBean("unknown"), null);
-                for (String id : trackerJobs) {// left over nodes that the tracker is tracking
-                    // create job nodes now
-                    createAdhocJobNode(jobNodeMap, unknownNode, id);
-                }
-                if (unknownNode.getChildCount() > 0) {
-                    unknownNode.setParent(rootNode);
-                    rootNode.getChildren().add(unknownNode);
-                }
-            }
-        } else {
-            List<QueuedJob> jobs = jobQueueDao.findQueuedJobs(rootJob, null, !filterFinished, List.of());
-            rootNode = createJobNode(trackerJobs, projectDao.findById(rootJob), sortedNewestFirst(jobs));
-        }
-        AWSXRay.endSubsegment();
+        });
     }
 
     /**
@@ -580,126 +579,127 @@ public abstract class JobTreeTableBean implements Serializable {
      * @param jobs        the project's jobs, newest first; deleted and (when filtering) finished ones are skipped
      */
     private TreeNode createJobNode(Set<String> trackerJobs, Project p, List<QueuedJob> jobs) {
-        AWSXRay.beginSubsegment("Create.JobNode.ProjectId." + (p != null ? p.getId() : "missing"));
-        TreeNode projectNode = null;
-        if (p != null) {
-            // Map<Date, Map<String, TPSInfo>> totalTPSDetails = new HashMap<Date, Map<String, TPSInfo>>();
-            ProjectNodeBean pnb = new ProjectNodeBean(p);
-            boolean hasRights = security.isOwner(p);
-            projectNode = new DefaultTreeNode(pnb, null);
-            int projectActive = 0;
-            int projectTotal = 0;
-            ValidationStatus projectFailures = new ValidationStatus();
-            for (QueuedJob jobInstance : jobs) {
+        return Tracing.inSpan("Create.JobNode.ProjectId." + (p != null ? p.getId() : "missing"), () -> {
+            TreeNode projectNode = null;
+            if (p != null) {
+                // Map<Date, Map<String, TPSInfo>> totalTPSDetails = new HashMap<Date, Map<String, TPSInfo>>();
+                ProjectNodeBean pnb = new ProjectNodeBean(p);
+                boolean hasRights = security.isOwner(p);
+                projectNode = new DefaultTreeNode(pnb, null);
+                int projectActive = 0;
+                int projectTotal = 0;
+                ValidationStatus projectFailures = new ValidationStatus();
+                for (QueuedJob jobInstance : jobs) {
 
-                trackerJobs.remove(Integer.toString(jobInstance.jobId()));
-                if (jobInstance.status() == JobQueueStatus.Deleted) {
-                    continue; // never show deleted jobs in the tree
-                }
-                if (!filterFinished || jobInstance.endTime() == null) {
-                    int jobId = jobInstance.jobId();
-                    ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights,
-                            preferencesBean.getDateTimeFormat(), () -> jobInstanceDao.findJobDetails(jobId));
-                    pnb.addJob(jobInstanceNode);
-                    TreeNode jobNode = new DefaultTreeNode(jobInstanceNode, null);
-                    int jobInstanceActive = 0;
-                    int jobInstanceTotal = 0;
-                    ValidationStatus jobInstanceFailures = new ValidationStatus();
-                    CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobId));
-                    if ( container != null ) {
-                        List<VMNodeBean> vmNodes = getVMStatus(container, hasRights);
-
-                        for (VMNodeBean vmNodeBean : vmNodes) {
-                            jobInstanceNode.addVMBean(vmNodeBean);
-                            new DefaultTreeNode(vmNodeBean, jobNode);
-                            if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
-                                jobInstanceActive += Integer.parseInt(vmNodeBean.getActiveUsers());
-                            }
-                            if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
-                                jobInstanceTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
-                            }
-                            jobInstanceFailures.addFailures(vmNodeBean.getNumFailures());
-                            jobInstanceNode.setTps(vmNodeBean.getTps() + jobInstanceNode.getTps());
-                        }
-
-                        jobInstanceNode.setUserDetails(container.getUserDetails());
-                        jobInstanceNode.setStatusDetailMap(container.getDetailMap());
-                        // jobInstanceNode.setTpsDetailMap(container.getTpsMap());
-                        // combineTpsDetails(totalTPSDetails, container.getTpsMap());
+                    trackerJobs.remove(Integer.toString(jobInstance.jobId()));
+                    if (jobInstance.status() == JobQueueStatus.Deleted) {
+                        continue; // never show deleted jobs in the tree
                     }
-                    jobInstanceNode.setNumFailures(jobInstanceFailures);
-                    jobInstanceNode.setActiveUsers(Integer.toString(jobInstanceActive));
-                    jobInstanceNode.setIncrementStrategy(jobInstance.incrementStrategy().getDisplay());
-                    projectActive += jobInstanceActive;
-                    projectTotal += jobInstanceTotal;
-                    projectFailures.addFailures(jobInstanceFailures);
-                    jobNode.setParent(projectNode);
-                    projectNode.getChildren().add(jobNode);
-                    jobInstanceNode.reCalculate();
-                    pnb.setTps(pnb.getTps() + jobInstanceNode.getTps());
-                }
-            }
-            pnb.setActiveUsers(Integer.toString(projectActive));
+                    if (!filterFinished || jobInstance.endTime() == null) {
+                        int jobId = jobInstance.jobId();
+                        ActJobNodeBean jobInstanceNode = new ActJobNodeBean(jobInstance, hasRights,
+                                preferencesBean.getDateTimeFormat(), () -> jobInstanceDao.findJobDetails(jobId));
+                        pnb.addJob(jobInstanceNode);
+                        TreeNode jobNode = new DefaultTreeNode(jobInstanceNode, null);
+                        int jobInstanceActive = 0;
+                        int jobInstanceTotal = 0;
+                        ValidationStatus jobInstanceFailures = new ValidationStatus();
+                        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(Integer.toString(jobId));
+                        if ( container != null ) {
+                            List<VMNodeBean> vmNodes = getVMStatus(container, hasRights);
 
-            pnb.setTotalUsers(Integer.toString(projectTotal));
-            // pnb.setTpsDetailMap(totalTPSDetails);
-            pnb.setNumFailures(projectFailures);
-            pnb.reCalculate();
-            ProjectStatusContainer projectStatusContainer = vmTracker.getProjectStatusContainer(Integer.toString(p
-                    .getId()));
-            if (projectStatusContainer != null) {
-                pnb.setUserDetails(projectStatusContainer.getUserDetails());
-                pnb.setStatusDetailMap(projectStatusContainer.getDetailMap());
+                            for (VMNodeBean vmNodeBean : vmNodes) {
+                                jobInstanceNode.addVMBean(vmNodeBean);
+                                new DefaultTreeNode(vmNodeBean, jobNode);
+                                if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
+                                    jobInstanceActive += Integer.parseInt(vmNodeBean.getActiveUsers());
+                                }
+                                if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
+                                    jobInstanceTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
+                                }
+                                jobInstanceFailures.addFailures(vmNodeBean.getNumFailures());
+                                jobInstanceNode.setTps(vmNodeBean.getTps() + jobInstanceNode.getTps());
+                            }
+
+                            jobInstanceNode.setUserDetails(container.getUserDetails());
+                            jobInstanceNode.setStatusDetailMap(container.getDetailMap());
+                            // jobInstanceNode.setTpsDetailMap(container.getTpsMap());
+                            // combineTpsDetails(totalTPSDetails, container.getTpsMap());
+                        }
+                        jobInstanceNode.setNumFailures(jobInstanceFailures);
+                        jobInstanceNode.setActiveUsers(Integer.toString(jobInstanceActive));
+                        jobInstanceNode.setIncrementStrategy(jobInstance.incrementStrategy().getDisplay());
+                        projectActive += jobInstanceActive;
+                        projectTotal += jobInstanceTotal;
+                        projectFailures.addFailures(jobInstanceFailures);
+                        jobNode.setParent(projectNode);
+                        projectNode.getChildren().add(jobNode);
+                        jobInstanceNode.reCalculate();
+                        pnb.setTps(pnb.getTps() + jobInstanceNode.getTps());
+                    }
+                }
+                pnb.setActiveUsers(Integer.toString(projectActive));
+
+                pnb.setTotalUsers(Integer.toString(projectTotal));
+                // pnb.setTpsDetailMap(totalTPSDetails);
+                pnb.setNumFailures(projectFailures);
+                pnb.reCalculate();
+                ProjectStatusContainer projectStatusContainer = vmTracker.getProjectStatusContainer(Integer.toString(p
+                        .getId()));
+                if (projectStatusContainer != null) {
+                    pnb.setUserDetails(projectStatusContainer.getUserDetails());
+                    pnb.setStatusDetailMap(projectStatusContainer.getDetailMap());
+                }
+                pnb.reCalculate();
             }
-            pnb.reCalculate();
-        }
-        AWSXRay.endSubsegment();
-        return projectNode;
+            return projectNode;
+        });
     }
 
     private TreeNode createAdhocJobNode(Map<Integer, TreeNode> jobNodeMap, TreeNode parent, String jobId) {
-        AWSXRay.beginSubsegment("Create.AdhocNode.JobId." + jobId);
-        // this needs to be a JobNode, not a projectNode
-        // need to make new constructor for ActJobNodeBean that just sets empty strings?
-        CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
-        ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
-        Integer projectId = NumberUtils.isDigits(jobId) ? jobQueueDao.findProjectIdForJobId(Integer.parseInt(jobId)) : null;
-        if (projectId != null) {
-            TreeNode projectNode = jobNodeMap.get(projectId);
-            if (projectNode != null) {
-                parent = projectNode;
+        return Tracing.inSpan("Create.AdhocNode.JobId." + jobId, () -> {
+            // this needs to be a JobNode, not a projectNode
+            // need to make new constructor for ActJobNodeBean that just sets empty strings?
+            CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
+            ActJobNodeBean jobBeanNode = new ActJobNodeBean(jobId, container, preferencesBean.getDateTimeFormat());
+            Integer projectId = NumberUtils.isDigits(jobId) ? jobQueueDao.findProjectIdForJobId(Integer.parseInt(jobId)) : null;
+            TreeNode attachTo = parent;
+            if (projectId != null) {
+                TreeNode projectNode = jobNodeMap.get(projectId);
+                if (projectNode != null) {
+                    attachTo = projectNode;
+                }
             }
-        }
-        TreeNode adhocNode = new DefaultTreeNode(jobBeanNode, null);
-        List<VMNodeBean> vmNodes = getVMStatus(container, true);
-        int nodeActive = 0;
-        int nodeTotal = 0;
-        ValidationStatus nodeFailures = new ValidationStatus();
-        for (VMNodeBean vmNodeBean : vmNodes) {
-            new DefaultTreeNode(vmNodeBean, adhocNode);
-            jobBeanNode.addVMBean(vmNodeBean);
-            if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
-                nodeActive += Integer.parseInt(vmNodeBean.getActiveUsers());
+            TreeNode adhocNode = new DefaultTreeNode(jobBeanNode, null);
+            List<VMNodeBean> vmNodes = getVMStatus(container, true);
+            int nodeActive = 0;
+            int nodeTotal = 0;
+            ValidationStatus nodeFailures = new ValidationStatus();
+            for (VMNodeBean vmNodeBean : vmNodes) {
+                new DefaultTreeNode(vmNodeBean, adhocNode);
+                jobBeanNode.addVMBean(vmNodeBean);
+                if (NumberUtils.isCreatable(vmNodeBean.getActiveUsers())) {
+                    nodeActive += Integer.parseInt(vmNodeBean.getActiveUsers());
+                }
+                if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
+                    nodeTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
+                }
+                nodeFailures.addFailures(vmNodeBean.getNumFailures());
+                jobBeanNode.setTps(jobBeanNode.getTps() + vmNodeBean.getTps());
             }
-            if (NumberUtils.isCreatable(vmNodeBean.getTotalUsers())) {
-                nodeTotal += Integer.parseInt(vmNodeBean.getTotalUsers());
-            }
-            nodeFailures.addFailures(vmNodeBean.getNumFailures());
-            jobBeanNode.setTps(jobBeanNode.getTps() + vmNodeBean.getTps());
-        }
-        jobBeanNode.setStatusDetailMap(container.getDetailMap());
-        jobBeanNode.setJobId(jobId);
-        jobBeanNode.setId(jobId);
-        // jobBeanNode.setTpsDetailMap(container.getTpsMap());
-        jobBeanNode.setActiveUsers(Integer.toString(nodeActive));
-        jobBeanNode.setTotalUsers(Integer.toString(nodeTotal));
-        jobBeanNode.setNumFailures(nodeFailures);
-        jobBeanNode.setUserDetails(container.getUserDetails());
-        jobBeanNode.reCalculate();
-        adhocNode.setParent(parent);
-        parent.getChildren().add(adhocNode);
-        AWSXRay.endSubsegment();
-        return adhocNode;
+            jobBeanNode.setStatusDetailMap(container.getDetailMap());
+            jobBeanNode.setJobId(jobId);
+            jobBeanNode.setId(jobId);
+            // jobBeanNode.setTpsDetailMap(container.getTpsMap());
+            jobBeanNode.setActiveUsers(Integer.toString(nodeActive));
+            jobBeanNode.setTotalUsers(Integer.toString(nodeTotal));
+            jobBeanNode.setNumFailures(nodeFailures);
+            jobBeanNode.setUserDetails(container.getUserDetails());
+            jobBeanNode.reCalculate();
+            adhocNode.setParent(attachTo);
+            attachTo.getChildren().add(adhocNode);
+            return adhocNode;
+        });
     }
 
     /**

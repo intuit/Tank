@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amazonaws.xray.AWSXRay;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -495,9 +494,7 @@ public class ConverterUtilTest {
     @Test
     public void testGetWorkloadXML_1() throws Exception {
         HDWorkload hdWorkload = new HDWorkload();
-        AWSXRay.beginSegment("test");
         String result = ConverterUtil.getWorkloadXML(hdWorkload);
-        AWSXRay.clearTraceEntity();
 
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
         assertTrue(result.contains("<ns2:workload xmlns:ns2=\"urn:com/intuit/tank/harness/data/v1\">"));
