@@ -22,7 +22,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 
 public class SaveTextAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
@@ -32,7 +31,7 @@ public class SaveTextAction extends AbstractAction {
     private OutputTextWriter writer;
 
     public SaveTextAction(Component parent, String text, String fileName, OutputTextWriter writer) {
-        super(text, ActionProducer.getIcon("save_as.png", IconSize.SMALL));
+        super(text, ActionProducer.getIcon("save"));
         this.parent = parent;
         this.writer = writer;
         saveAsChooser = new JFileChooser();

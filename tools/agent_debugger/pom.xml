@@ -14,6 +14,10 @@
   <packaging>jar</packaging>
   <name>Intuit Tank Agent Debugger</name>
 
+  <properties>
+    <version.flatlaf>3.7.2</version.flatlaf>
+  </properties>
+
 
   <dependencies>
 
@@ -32,6 +36,16 @@
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <version>4.7.6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.formdev</groupId>
+      <artifactId>flatlaf</artifactId>
+      <version>${version.flatlaf}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.formdev</groupId>
+      <artifactId>flatlaf-extras</artifactId>
+      <version>${version.flatlaf}</version>
     </dependency>
   </dependencies>
 

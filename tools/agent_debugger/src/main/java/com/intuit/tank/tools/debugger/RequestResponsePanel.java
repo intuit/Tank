@@ -19,14 +19,13 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import org.apache.commons.lang3.StringUtils;
-import org.fife.ui.rtextarea.RTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import com.intuit.tank.harness.data.HDTestPlan;
 
@@ -34,8 +33,8 @@ public class RequestResponsePanel extends JPanel implements StepListener, Script
 
     private static final long serialVersionUID = 1L;
 
-    private RTextArea requestTA;
-    private RTextArea responseTA;
+    private RSyntaxTextArea requestTA;
+    private RSyntaxTextArea responseTA;
     private AgentDebuggerFrame parent;
 
     public RequestResponsePanel(AgentDebuggerFrame parent) {
@@ -50,36 +49,37 @@ public class RequestResponsePanel extends JPanel implements StepListener, Script
         JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         pane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        requestTA = new RTextArea();
+        requestTA = new RSyntaxTextArea();
         requestTA.setEditable(false);
         requestTA.setAutoscrolls(true);
         requestTA.setHighlightCurrentLine(false);
+        requestTA.setHyperlinksEnabled(false);
+        DebuggerTheme.apply(requestTA);
         JScrollPane sp1 = new JScrollPane(requestTA, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp1.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         JPanel reqPane = new JPanel(new BorderLayout());
-        // JPanel titlePanel = new JPanel(new BorderLayout());
-        // titlePanel.add(BorderLayout.WEST, new JLabel("Request:"));
-        // JButton saveBT = new JButton(parent.getDebuggerActions().getSaveReqResponseAction());
-        // saveBT.setText("");
-        // titlePanel.add(BorderLayout.EAST, saveBT);
-        reqPane.add(BorderLayout.NORTH, new JLabel("Request:"));
+        SectionHeader requestHeader = new SectionHeader("Request");
+        requestHeader.addButton(parent.getDebuggerActions().getSaveReqResponseAction());
+        reqPane.add(BorderLayout.NORTH, requestHeader);
         reqPane.add(BorderLayout.CENTER, sp1);
         pane.setTopComponent(reqPane);
 
-        responseTA = new RTextArea();
+        responseTA = new RSyntaxTextArea();
         responseTA.setEditable(false);
         responseTA.setAutoscrolls(true);
         responseTA.setHighlightCurrentLine(false);
+        responseTA.setHyperlinksEnabled(false);
+        DebuggerTheme.apply(responseTA);
         JScrollPane sp2 = new JScrollPane(responseTA, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp2.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JPanel responsePane = new JPanel(new BorderLayout());
-        responsePane.add(BorderLayout.NORTH, new JLabel("Response:"));
+        responsePane.add(BorderLayout.NORTH, new SectionHeader("Response"));
         responsePane.add(BorderLayout.CENTER, sp2);
         pane.setBottomComponent(responsePane);
-        pane.setDividerLocation(0.5D);
+        WindowState.track("request", pane, -1);
         pane.setResizeWeight(0.5D);
 
         add(pane, BorderLayout.CENTER);
