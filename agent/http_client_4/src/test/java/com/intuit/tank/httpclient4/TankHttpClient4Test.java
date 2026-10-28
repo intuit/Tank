@@ -202,6 +202,69 @@ public class TankHttpClient4Test {
     }
 
     @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void keepsAllRepeatedResponseHeaders() {
+        wireMockServer.stubFor(post(urlEqualTo("/init"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Set-Cookie", "first=1; Path=/")
+                        .withHeader("Set-Cookie", "second=2; Path=/")
+                        .withHeader("Set-Cookie", "third=3; Path=/"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/init");
+        request.doPost(null);
+        BaseResponse response = request.getResponse();
+
+        assertEquals("first=1; Path=/,second=2; Path=/,third=3; Path=/", response.getHttpHeader("Set-Cookie"));
+        assertEquals("1", response.getCookies().get("first"));
+        assertEquals("2", response.getCookies().get("second"));
+        assertEquals("3", response.getCookies().get("third"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void keepsExpiringCookiesAfterSettingConnectionTimeout() {
+        wireMockServer.stubFor(get(urlEqualTo("/set"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Set-Cookie", "bm_sz=abc; Path=/; Expires=Fri, 01 Jan 2100 00:00:00 GMT; Max-Age=14400"))
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/next")).willReturn(aResponse().withStatus(200)));
+
+        TankHttpClient client = new TankHttpClient4();
+        client.setConnectionTimeout(30000);
+        BaseRequest request = getRequest(client, wireMockServer.baseUrl() + "/set");
+        request.doGet(null);
+        assertEquals("abc", request.getResponse().getCookies().get("bm_sz"));
+
+        request.setPath("/next");
+        request.doGet(null);
+        verify(getRequestedFor(urlEqualTo("/next")).withCookie("bm_sz", equalTo("abc")));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void keepsExpiringCookiesAfterClearingProxy() {
+        wireMockServer.stubFor(get(urlEqualTo("/set"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Set-Cookie", "bm_sz=abc; Path=/; Expires=Fri, 01 Jan 2100 00:00:00 GMT; Max-Age=14400"))
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/next")).willReturn(aResponse().withStatus(200)));
+
+        BaseRequest request = getRequest(new TankHttpClient4(), wireMockServer.baseUrl() + "/set");
+        request.getHttpclient().setProxy(null, -1);
+        request.doGet(null);
+        assertEquals("abc", request.getResponse().getCookies().get("bm_sz"));
+
+        request.setPath("/next");
+        request.getHttpclient().setProxy(null, -1);
+        request.doGet(null);
+        verify(getRequestedFor(urlEqualTo("/next")).withCookie("bm_sz", equalTo("abc")));
+    }
+
+    @Test
     @Disabled
     @Tag(TestGroups.FUNCTIONAL)
     public void setProxy() {
