@@ -1,6 +1,8 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.retry.AwsRetryStrategy;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.retry.RetryMode;
@@ -48,6 +51,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AmazonInstance implements IEnvironmentInstance {
@@ -93,7 +98,7 @@ public class AmazonInstance implements IEnvironmentInstance {
         CloudCredentials creds = new TankConfig().getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
         Ec2AsyncClientBuilder ec2ClientBuilder = Ec2AsyncClient.builder()
                 .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .retryStrategy(RetryMode.ADAPTIVE_V2)
+                        .retryStrategy(new CapacityAwareRetryStrategy(AwsRetryStrategy.forRetryMode(RetryMode.ADAPTIVE_V2)))
                         .build());
         if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
             try {
@@ -131,14 +136,17 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public List<VMInformation> describeInstances(List<String> instanceIds) {
         try {
-            return ec2AsyncClient.describeInstances().get().reservations().stream()
+            return ec2AsyncClient.describeInstances(DescribeInstancesRequest.builder().instanceIds(instanceIds).build())
+                    .get().reservations().stream()
                     .flatMap(reservationDescription -> reservationDescription.instances()
                             .stream()
-                            .filter(instance -> instanceIds.contains(instance.instanceId()))
                             .map(instance -> AmazonDataConverter.instanceToVmInformation(reservationDescription.requesterId(), instance, vmRegion)))
                     .collect(Collectors.toList());
-        } catch (ExecutionException | InterruptedException error) {
-            LOG.error("Error getting instances: {}", error.toString(), error);
+        } catch (ExecutionException error) {
+            // Freshly launched instances can briefly be unknown to DescribeInstances; callers retry
+            LOG.warn("Error describing instances {}: {}", instanceIds, error.getMessage());
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
         }
         return Collections.emptyList();
     }
@@ -149,6 +157,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     @Override
     public List<VMInformation> create(VMRequest request) {
+        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
         Subsegment subsegment = AWSXRay.beginSubsegment("Request.Agents." + vmRegion.getRegion());
         List<VMInformation> result = new ArrayList<>();
         try {
@@ -309,36 +318,6 @@ public class AmazonInstance implements IEnvironmentInstance {
                 // reboot(result);
             }
 
-            // Wait for instances to get public IPs assigned and refresh the details
-            if (!result.isEmpty()) {
-                try {
-                    // Brief wait to allow AWS to assign public IPs
-                    Thread.sleep(3000);
-                    List<String> instanceIds = result.stream()
-                            .map(VMInformation::getInstanceId)
-                            .collect(Collectors.toList());
-                    CompletableFuture<DescribeInstancesResponse> future = ec2AsyncClient.describeInstances(
-                            DescribeInstancesRequest.builder().instanceIds(instanceIds).build());
-                    DescribeInstancesResponse described = future != null ? future.get() : null;
-                    if (described != null && described.reservations() != null) {
-                        // Update result with fresh instance data that includes public IPs
-                        List<VMInformation> updated = described.reservations().stream()
-                                .flatMap(reservation -> reservation.instances().stream()
-                                        .map(instance -> AmazonDataConverter.instanceToVmInformation(
-                                                reservation.requesterId(), instance, vmRegion)))
-                                .toList();
-                        result.clear();
-                        result.addAll(updated);
-                        LOG.debug("Refreshed {} instance details with public IP information", updated.size());
-                    }
-                } catch (InterruptedException e) {
-                    LOG.warn("Interrupted while waiting for public IP assignment", e);
-                    Thread.currentThread().interrupt();
-                } catch (ExecutionException e) {
-                    LOG.warn("Failed to refresh instance details for public IPs: {}", e.getMessage());
-                }
-            }
-
         } catch (SdkException ae) {
             LOG.error("Amazon issue starting instances: {} : {}", vmRegion, ae.getMessage(), ae);
             throw new RuntimeException(ae);
@@ -365,6 +344,8 @@ public class AmazonInstance implements IEnvironmentInstance {
         }
         String instanceType = instanceTypes.get(0);
         List<String> remainingTypes = instanceTypes.subList(1, instanceTypes.size());
+        // Callbacks run on SDK completion threads; carry the trace entity so fallback requests stay in the trace
+        Entity traceEntity = AWSXRay.getTraceEntity();
         return ec2AsyncClient.runInstances(
                 runInstancesRequest
                         .instanceType(instanceType)
@@ -376,7 +357,8 @@ public class AmazonInstance implements IEnvironmentInstance {
                         String errorCode = ((Ec2Exception) cause).awsErrorDetails().errorCode();
                         if ( errorCode.equals(INSUFFICIENT_INSTANCE_CAPACITY) ) {
                             LOG.warn("Failure requesting instance type: {} : {} : {}", instanceType, vmRegion, cause.getMessage());
-                            return requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes).join();
+                            return withTraceEntity(traceEntity,
+                                    () -> requestInstances(runInstancesRequestTemplate, subnetId, requestCount, remainingTypes)).join();
                         } else if ( errorCode.equals(INVALID_AMI_ID_UNAVAILABLE) ) {
                             LOG.error("AMI is not available in {}: {}", vmRegion, cause.getMessage());
                             throw new CompletionException(cause);
@@ -388,13 +370,26 @@ public class AmazonInstance implements IEnvironmentInstance {
                 .thenApply(response -> {
                     if (response.instances().size() < requestCount) {
                         LOG.warn("Partial instance request: {} : {} : {}", response.instances().size(), instanceType, vmRegion);
-                        RunInstancesResponse res = requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes).join();
+                        RunInstancesResponse res = withTraceEntity(traceEntity,
+                                () -> requestInstances(runInstancesRequestTemplate, subnetId, requestCount - response.instances().size(), remainingTypes)).join();
                         List<Instance> launched = new ArrayList<>(response.instances());
                         launched.addAll(res.instances());
                         return response.toBuilder().instances(launched).build();
                     }
                     return response;
                 });
+    }
+
+    /**
+     * Run the supplier with the given X-Ray trace entity on the current thread, restoring whatever was there before.
+     */
+    private static <T> T withTraceEntity(Entity traceEntity, Supplier<T> supplier) {
+        if (traceEntity == null) {
+            return supplier.get();
+        }
+        AtomicReference<T> result = new AtomicReference<>();
+        traceEntity.run(() -> result.set(supplier.get()));
+        return result.get();
     }
 
     /**
@@ -553,7 +548,10 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void associateAddress(final String instanceId, final Address address, final CountDownLatch latch) {
 
-        new Thread( () -> {
+        // Only join the caller's Request.Agents subsegment when the caller waits on the latch; otherwise it can be
+        // closed and emitted while this worker is still retrying, so the worker gets its own segment.
+        Entity callerEntity = latch != null ? AWSXRay.getTraceEntity() : null;
+        Runnable task = () -> {
             boolean associated = false;
 
             try {
@@ -596,7 +594,17 @@ public class AmazonInstance implements IEnvironmentInstance {
                     latch.countDown();
                 }
             }
-        }).start();
+        };
+        Runnable traced = callerEntity != null ? () -> callerEntity.run(task) : () -> {
+            Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AssociateAddress");
+            try {
+                segment.putAnnotation("instanceId", instanceId);
+                task.run();
+            } finally {
+                AWSXRay.endSegment();
+            }
+        };
+        new Thread(traced).start();
 
     }
 

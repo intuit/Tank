@@ -1,5 +1,6 @@
 package com.intuit.tank.perfManager.workLoads;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.settings.AgentConfig;
@@ -89,6 +90,7 @@ public class AgentReadoption {
     }
 
     private void reconcile() {
+        AWSXRay.beginSegmentWithSampling("Tank.AgentReadoption"); // scheduled pass has no request segment to join
         try {
             List<VMInformation> runningAgents = new ArrayList<>();
             for (VMRegion region : tankConfig.getVmManagerConfig().getRegions()) {
@@ -99,6 +101,8 @@ public class AgentReadoption {
                     agentConfig.getAgentToken(), agentConfig.getAgentPort(), System.currentTimeMillis(), MIN_AGENT_AGE_MS);
         } catch (Exception e) {
             LOG.error(new ObjectMessage(Map.of("Message", "[WS] Agent re-adoption pass failed: " + e.getMessage())), e);
+        } finally {
+            AWSXRay.endSegment();
         }
     }
 

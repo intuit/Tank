@@ -1,3 +1,44 @@
+# 4.6.9 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: trace background AWS calls instead of dropping X-Ray context [#544](https://github.com/intuit/Tank/pull/544) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump undici from 8.11.2 to 8.12.3 in /web/web_react [#547](https://github.com/intuit/Tank/pull/547) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.8 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: cut agent launch latency when starting multi-region jobs [#546](https://github.com/intuit/Tank/pull/546) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.7 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- Stop the job queue trees loading every queue's whole job history [#539](https://github.com/intuit/Tank/pull/539) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.6 (Wed Oct 21 2026)
 
 #### 🐛 Bug Fix

@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.intuit.tank.project.*;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -94,6 +96,70 @@ public class JobQueueDaoTest {
 
         //Cleanup
         dao.delete(jobQueue);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_findQueuedJobs() {
+        // Arrange
+        JobQueue queue = dao.findOrCreateForProjectId(1);
+        Set<JobRegion> jobRegion = Collections.singleton(JobRegion.builder().region(VMRegion.US_EAST_2).build());
+        Workload workload = Workload.builder().name("TEST_WORKLOAD")
+                .jobConfiguration(JobConfiguration.builder().jobRegion(jobRegion).build()).build();
+        JobInstance running = new JobInstance(workload, "RUNNING");
+        running.setStatus(JobQueueStatus.Running);
+        running.setNumAgents(3);
+        running.setTargetRampRate(2.5);
+        running.setRampTime(60_000);
+        running.setJobDetails("the details");
+        JobInstance ended = new JobInstance(workload, "ENDED");
+        ended.setStatus(JobQueueStatus.Completed);
+        ended.setEndTime(new Date());
+        JobInstance deleted = new JobInstance(workload, "DELETED");
+        deleted.setStatus(JobQueueStatus.Deleted);
+        // saved first, as the jobs of an unsaved queue would all have id 0 and collapse in its set
+        JobInstanceDao jobDao = new JobInstanceDao();
+        queue.addJob(jobDao.saveOrUpdate(running));
+        queue.addJob(jobDao.saveOrUpdate(ended));
+        queue.addJob(jobDao.saveOrUpdate(deleted));
+        queue = dao.saveOrUpdate(queue);
+        Map<String, Integer> ids = new HashMap<>();
+        queue.getJobs().forEach(job -> ids.put(job.getName(), job.getId()));
+        Date hourAgo = new Date(System.currentTimeMillis() - 60 * 60 * 1000);
+
+        try {
+            // Act & Assert
+            List<QueuedJob> unfinished = dao.findQueuedJobs(1, null, false, List.of());
+            assertEquals(List.of("RUNNING"), unfinished.stream().map(QueuedJob::name).toList());
+            QueuedJob job = unfinished.get(0);
+            assertEquals(1, job.projectId());
+            assertEquals(ids.get("RUNNING"), job.jobId());
+            assertEquals(JobQueueStatus.Running, job.status());
+            assertEquals(3, job.numAgents());
+            assertEquals(2.5, job.getTargetRampRate());
+            assertEquals(60_000, job.getRampTime());
+
+            assertEquals(Set.of("RUNNING", "ENDED"), names(dao.findQueuedJobs(1, null, true, List.of())));
+            assertEquals(Set.of("RUNNING", "DELETED"),
+                    names(dao.findQueuedJobs(null, hourAgo, false, List.of(ids.get("DELETED")))),
+                    "jobs asked for by id are returned whatever their state");
+            assertEquals(Set.of(), names(dao.findQueuedJobs(null, new Date(System.currentTimeMillis() + 60_000),
+                    true, List.of(ids.get("RUNNING")))), "only queues modified since are read");
+            assertEquals(Set.of(), names(dao.findQueuedJobs(2, null, true, List.of())));
+
+            assertEquals(1, dao.findProjectIdForJobId(ids.get("ENDED")));
+            assertNull(dao.findProjectIdForJobId(-1));
+
+            assertEquals("the details", jobDao.findJobDetails(ids.get("RUNNING")));
+            assertNull(jobDao.findJobDetails(-1));
+        } finally {
+            // Cleanup
+            dao.delete(queue);
+        }
+    }
+
+    private static Set<String> names(List<QueuedJob> jobs) {
+        return jobs.stream().map(QueuedJob::name).collect(Collectors.toSet());
     }
 
 }

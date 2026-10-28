@@ -254,7 +254,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String startJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "start");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -269,7 +270,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String stopJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "stop");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -284,7 +286,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String pauseJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "pause");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -299,7 +302,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String resumeJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "resume");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
@@ -314,7 +318,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String killJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        AWSXRay.getCurrentSegment().putAnnotation("job.action", "kill");
+        AWSXRay.getCurrentSegment().putAnnotation("jobId", Integer.toString(jobId));
         JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,

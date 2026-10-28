@@ -3,6 +3,7 @@
  */
 package com.intuit.tank.rest.mvc.service;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -52,6 +53,16 @@ public class UserAutoDeletionService {
      */
     @PostConstruct
     public void performStartupUserDeletion() {
+        // Runs during startup, before any request segment exists, so its DB queries need a segment of their own
+        AWSXRay.beginSegmentWithSampling("Tank.UserAutoDeletion");
+        try {
+            deleteInactiveUsers();
+        } finally {
+            AWSXRay.endSegment();
+        }
+    }
+
+    private void deleteInactiveUsers() {
         boolean isEnabled = isAutoDeletionEnabled();
         String mode = isEnabled ? "DELETION" : "DRY RUN";
 

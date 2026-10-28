@@ -1,5 +1,7 @@
 package com.intuit.tank.rest.mvc;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -425,6 +427,10 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
     private void registerAndPushFiles(WebSocketSession session, AgentWsEnvelope hello, String authorizationHeader) {
         String agentId = hello.getInstanceId();
         String jobId = hello.getJobId();
+        // WS frames arrive after the upgrade request's segment has closed, so each transfer gets its own
+        Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AgentFileTransfer");
+        segment.putAnnotation("jobId", String.valueOf(jobId));
+        segment.putAnnotation("instanceId", String.valueOf(agentId));
         try {
             agentWsState.put(agentId, AgentWsState.TRANSFERRING);
             LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Resolving JobManager...")));
@@ -484,6 +490,8 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                 sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Transfer error: " + e.getMessage()));
                 session.close(CloseStatus.SERVER_ERROR);
             } catch (IOException ignored) {}
+        } finally {
+            AWSXRay.endSegment();
         }
     }
 

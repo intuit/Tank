@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
+import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
@@ -115,6 +116,7 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
     public JobActionResult controlJob(Integer jobId, String actionName) {
         RestAuthorization.requireUser(SERVICE);
         JobAction action = parseAction(actionName);
+        annotateTrace(action, Integer.toString(jobId));
         JobInstance job = findJob(jobId);
         JobAuthorization.requireJobControl(jobId);
         String status = job.getStatus().name();
@@ -151,6 +153,7 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
         if (vm == null) {
             throw new GenericServiceResourceNotFoundException(SERVICE, "agent " + instanceId, null);
         }
+        annotateTrace(action, vm.getJobId());
         JobAuthorization.requireJobControl(vm.getJobId());
         String vmStatus = vm.getVmStatus() != null ? vm.getVmStatus().name() : "";
         String jobStatus = vm.getJobStatus() != null ? vm.getJobStatus().name() : "";
@@ -279,6 +282,18 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
     private static JobAction parseAction(String name) {
         return JobAction.fromPath(name).orElseThrow(() -> new GenericServiceBadRequestException(SERVICE, "action",
                 "unknown action " + name + "; use start, start-load, pause, resume, pause-ramp, resume-ramp, stop or kill"));
+    }
+
+    /**
+     * Tag the request's trace so it can be found by job, the same annotations the JSF job queue uses.
+     */
+    private static void annotateTrace(JobAction action, String jobId) {
+        AWSXRay.getCurrentSegmentOptional().ifPresent(segment -> {
+            segment.putAnnotation("job.action", action.getPath());
+            if (jobId != null) {
+                segment.putAnnotation("jobId", jobId);
+            }
+        });
     }
 
     private static Project findProject(Integer projectId) {

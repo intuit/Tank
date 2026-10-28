@@ -24,9 +24,11 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
+import com.intuit.tank.dao.QueuedJob;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -70,6 +72,26 @@ public class ActJobNodeBeanTest {
         //       at com.intuit.tank.project.JobConfiguration.<init>(JobConfiguration.java:63)
         //       at com.intuit.tank.project.Workload.<init>(Workload.java:57)
         assertNotNull(result);
+    }
+
+    @Test
+    public void testActJobNodeBean_fromQueuedJob() {
+        Date start = new Date();
+        QueuedJob job = new QueuedJob(10, 42, "nightly", JobQueueStatus.Running, IncrementStrategy.standard, 500,
+                start, null, true, "Standard", 5, 2.0, 3, 0, 60_000L);
+
+        ActJobNodeBean result = new ActJobNodeBean(job, true, FastDateFormat.getInstance(), () -> "the details");
+
+        assertEquals("42", result.getId());
+        assertEquals("nightly", result.getName());
+        assertEquals("Running", result.getStatus());
+        assertEquals("5", result.getActiveUsers());
+        assertEquals("500", result.getTotalUsers());
+        assertEquals("6.0", result.getTargetRampRate());
+        assertEquals("360.00", result.getNonlinearSteadyStateUsers());
+        assertTrue(result.isUseTwoStep());
+        assertEquals(start, result.getStartTime());
+        assertEquals("the details", result.getJobDetails());
     }
 
     /**
