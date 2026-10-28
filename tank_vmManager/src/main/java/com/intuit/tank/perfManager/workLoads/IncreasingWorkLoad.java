@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.context.Context;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
@@ -54,15 +54,14 @@ public class IncreasingWorkLoad implements Runnable {
 
     @Override
     public void run() {
-        // Ended explicitly: an unsampled (no-op) subsegment's close() does nothing and would leave it current
-        AWSXRay.beginSubsegment("Request.Agents.JobId." + job.getId());
-        try {
-            askForAgents(new JobInstanceAgentModel(job));
-        } catch (Exception th) {
-            LOG.error("Error starting agents: " + th.getMessage(), th);
-        } finally {
-            AWSXRay.endSubsegment();
-        }
+        Tracing.inSpan("Request.Agents.JobId." + job.getId(), () -> {
+            try {
+                askForAgents(new JobInstanceAgentModel(job));
+            } catch (Exception th) {
+                LOG.error("Error starting agents: " + th.getMessage(), th);
+                Tracing.recordException(th);
+            }
+        });
     }
 
     public JobRequest getJob() {
@@ -77,13 +76,13 @@ public class IncreasingWorkLoad implements Runnable {
         // start the non region dependent reporting resources if needed
         List<AgentMngrAPIRequest.UserRequest> urList = Collections.synchronizedList(new ArrayList<>());
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Entity segment = AWSXRay.getGlobalRecorder().getTraceEntity();
+        Context traceContext = Context.current();
         // One thread per region: a parallelStream over the regions HashSet can hand every region to a
         // single task (it splits by hash bucket, not element) and shares the common ForkJoinPool.
         try (ExecutorService regionPool = Executors.newFixedThreadPool(Math.max(1, job.getRegions().size()))) {
             CompletableFuture.allOf(job.getRegions().stream()
                     .map(jobRegion -> CompletableFuture.runAsync(
-                            () -> segment.run(() -> requestAgentsForRegion(jobRegion, classLoader, urList)), regionPool))
+                            traceContext.wrap(() -> requestAgentsForRegion(jobRegion, classLoader, urList)), regionPool))
                     .toArray(CompletableFuture[]::new))
                     .join();
         }

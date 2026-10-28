@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
@@ -153,37 +153,40 @@ public class AgentWatchdog implements Runnable {
         ControllerLoggingConfig.setupThreadContext();
         String jobId = instanceRequest.getJobId();
         LOG.info(new ObjectMessage(Map.of("Message","Starting WatchDog: " + this.toString() + " for job " + jobId)));
-        AWSXRay.getGlobalRecorder().beginNoOpSegment(); //jdbcInterceptor will throw SegmentNotFoundException,RuntimeException without this
-        try {
-            startedInstances = new ArrayList<VMInformation>(vmInfo);
-            reportedInstances = new ArrayList<VMInformation>();
-            while (restartCount <= maxRestarts && !stopped) {
-                checkForReportingInstances();
-                LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": " + startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...")));
-                // When runningInstances is empty all instances have reported back.
-                // If not, check if its time for a restart.
-                if (!startedInstances.isEmpty()) {
-                    if (shouldRelaunchInstances()) {
-                        relaunch(startedInstances);
-                        startTime = System.currentTimeMillis();
+        // runs on its own thread, outside any request
+        Tracing.inRootSpan("Tank.AgentWatchdog", () -> {
+            try {
+                Tracing.annotate("jobId", jobId);
+                startedInstances = new ArrayList<VMInformation>(vmInfo);
+                reportedInstances = new ArrayList<VMInformation>();
+                while (restartCount <= maxRestarts && !stopped) {
+                    checkForReportingInstances();
+                    LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": " + startedInstances.size() + " instances started. " + reportedInstances.size() + " instances reported. Waiting for remaining " + startedInstances.size() + " agents to report back...")));
+                    // When runningInstances is empty all instances have reported back.
+                    // If not, check if its time for a restart.
+                    if (!startedInstances.isEmpty()) {
+                        if (shouldRelaunchInstances()) {
+                            relaunch(startedInstances);
+                            startTime = System.currentTimeMillis();
+                        }
+                        LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": " + "Waiting for " + startedInstances.size() + " agents to report: "
+                                + getInstanceIdList(startedInstances))));
+                        Thread.sleep(sleepTime);
+                    } else {
+                        LOG.info(new ObjectMessage(Map.of("Message","All Agents Reported back for job " + jobId + ".")));
+                        vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
+                                "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
+                        stopped = true;
                     }
-                    LOG.info(new ObjectMessage(Map.of("Message","Job " + jobId + ": " + "Waiting for " + startedInstances.size() + " agents to report: "
-                            + getInstanceIdList(startedInstances))));
-                    Thread.sleep(sleepTime);
-                } else {
-                    LOG.info(new ObjectMessage(Map.of("Message","All Agents Reported back for job " + jobId + ".")));
-                    vmTracker.publishEvent(new JobEvent(instanceRequest.getJobId(),
-                            "All Agents Reported Back and are ready to start load.", JobLifecycleEvent.AGENT_REPORTED));
-                    stopped = true;
                 }
+            } catch (Exception e) {
+                LOG.error(new ObjectMessage(Map.of("Message","Error in Watchdog: " + e.toString())), e);
+                Tracing.recordException(e);
+                // TODO Terminate all instances
+            } finally {
+                LOG.info(new ObjectMessage(Map.of("Message","Exiting Watchdog " + this.toString())));
             }
-        } catch (Exception e) {
-            LOG.error(new ObjectMessage(Map.of("Message","Error in Watchdog: " + e.toString())), e);
-            // TODO Terminate all instances
-        } finally {
-            LOG.info(new ObjectMessage(Map.of("Message","Exiting Watchdog " + this.toString())));
-            AWSXRay.endSegment();
-        }
+        });
     }
 
     /**

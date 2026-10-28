@@ -40,7 +40,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.context.Context;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
@@ -140,12 +141,12 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Runnable task = () -> setStatusThread(status);
+        // The reporting request has already returned 204; trace the update as part of that request's trace
+        Runnable task = Context.current().wrap(() -> Tracing.inSpan("VMTracker.SetStatus", () -> setStatusThread(status)));
         EXECUTOR.execute(task);
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
@@ -195,7 +196,6 @@ public class VMTrackerImpl implements VMTracker {
                 projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
             }
         }
-        AWSXRay.endSegment();
     }
 
     private String getProjectForJobId(String jobId) {

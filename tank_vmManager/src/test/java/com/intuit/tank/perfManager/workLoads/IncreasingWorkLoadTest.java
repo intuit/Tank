@@ -19,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.perfManager.workLoads.IncreasingWorkLoad;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -29,8 +27,16 @@ import com.intuit.tank.vm.scheduleManager.AgentDispatcher;
 import com.intuit.tank.vm.vmManager.JobRequest;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMChannel;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +46,9 @@ import java.util.concurrent.TimeUnit;
  * @generatedBy CodePro at 9/10/14 10:40 AM
  */
 public class IncreasingWorkLoadTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
     /**
      * Run the IncreasingWorkLoad(VMChannel,AgentDispatcher,JobRequest) constructor test.
      * 
@@ -89,32 +98,42 @@ public class IncreasingWorkLoadTest {
         // Each region's request blocks until the other arrives; run serially, the barrier times out
         CyclicBarrier bothRegions = new CyclicBarrier(2);
         AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
-        doAnswer(invocation -> bothRegions.await(5, TimeUnit.SECONDS))
-                .when(agentDispatcher).processAgentsMessage(any(RequestAgents.class));
+        List<String> regionSpanIds = new CopyOnWriteArrayList<>();
+        doAnswer(invocation -> {
+            regionSpanIds.add(Span.current().getSpanContext().getSpanId());
+            return bothRegions.await(5, TimeUnit.SECONDS);
+        }).when(agentDispatcher).processAgentsMessage(any(RequestAgents.class));
 
-        try (Segment ignored = AWSXRay.beginSegment("TEST")) {
-            new IncreasingWorkLoad(null, agentDispatcher, job).run();
-        }
+        Tracing.inSpan("TEST", () -> new IncreasingWorkLoad(null, agentDispatcher, job).run());
 
         assertFalse(bothRegions.isBroken());
         verify(agentDispatcher, times(2)).processAgentsMessage(any(RequestAgents.class));
+        // the region threads stay inside the Request.Agents span, which is a child of the caller's span
+        SpanData request = findSpan("Request.Agents.JobId.1");
+        assertEquals(findSpan("TEST").getSpanId(), request.getParentSpanId());
+        assertEquals(List.of(request.getSpanId(), request.getSpanId()), regionSpanIds);
     }
 
     @Test
-    public void testRun_unsampledRequestRestoresItsSegment() {
+    public void testRun_restoresTheCallersSpan() {
         JobRequest job = mock(JobRequest.class);
         when(job.getId()).thenReturn("1");
         doReturn(Set.of()).when(job).getRegions();
 
-        Segment unsampled = AWSXRay.getGlobalRecorder().beginNoOpSegment();
-        try {
+        Span caller = Tracing.startSpan("TEST");
+        try (Scope ignored = caller.makeCurrent()) {
             new IncreasingWorkLoad(null, mock(AgentDispatcher.class), job).run();
 
-            // A no-op subsegment's close() is empty, so run() must end it explicitly
-            assertSame(unsampled, AWSXRay.getTraceEntity());
+            assertSame(caller, Span.current());
         } finally {
-            AWSXRay.endSegment();
+            caller.end();
         }
+        assertNotNull(findSpan("Request.Agents.JobId.1"));
+    }
+
+    private static SpanData findSpan(String name) {
+        return otel.getSpans().stream().filter(span -> span.getName().equals(name)).findFirst()
+                .orElseThrow(() -> new AssertionError("No span named " + name));
     }
 
     private RegionRequest mockRegion(VMRegion region) {

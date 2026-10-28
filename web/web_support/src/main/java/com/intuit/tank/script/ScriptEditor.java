@@ -28,8 +28,7 @@ import jakarta.faces.context.Flash;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Subsegment;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -259,8 +258,8 @@ public class ScriptEditor implements Serializable {
         if (conversation != null && conversation.isTransient()) {
             conversation.begin();
         }
-        AWSXRay.createSubsegment("Open.Script." + scpt.getName(), (subsegment) -> {
-            subsegment.putAnnotation("script", scpt.getName());
+        Tracing.inSpan("Open.Script." + scpt.getName(), () -> {
+            Tracing.annotate("script", scpt.getName());
             this.script = new ScriptDao().findById(scpt.getId());
             ScriptUtil.setScriptStepLabels(this.script);
             steps = this.script.getScriptSteps();
@@ -291,22 +290,21 @@ public class ScriptEditor implements Serializable {
         Flash flash = facesContext.getExternalContext().getFlash();
         flash.setKeepMessages(true);
         List<Integer> selectedFilterIds = filterBean.getSelectedFilterIds();
-        Subsegment subsegment = AWSXRay.beginSubsegment("Apply.Filters.to." + script.getName());
-        try {
-            ScriptFilterUtil.applyFilters(selectedFilterIds, script);
-            ScriptUtil.setScriptStepLabels(script);
-            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Applied " + selectedFilterIds.size()
-                    + " filter(s) to \"" + script.getName() + "\".", null));
-            return "success";
-        } catch (Exception e) {
-            subsegment.addException(e);
-            e.printStackTrace();
-        } finally {
-            AWSXRay.endSubsegment();
-        }
-        facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error applying filters to \"" + script.getName()
-                + "\".", null));
-        return "failure";
+        return Tracing.inSpan("Apply.Filters.to." + script.getName(), () -> {
+            try {
+                ScriptFilterUtil.applyFilters(selectedFilterIds, script);
+                ScriptUtil.setScriptStepLabels(script);
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Applied " + selectedFilterIds.size()
+                        + " filter(s) to \"" + script.getName() + "\".", null));
+                return "success";
+            } catch (Exception e) {
+                Tracing.recordException(e);
+                e.printStackTrace();
+            }
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error applying filters to \"" + script.getName()
+                    + "\".", null));
+            return "failure";
+        });
     }
 
     public void selectAll() {
@@ -482,7 +480,7 @@ public class ScriptEditor implements Serializable {
      * Saves the script to persistent storage
      */
     public void save() {
-        AWSXRay.createSubsegment("Save.Script." + script.getName(), (subsegment) -> {
+        Tracing.inSpan("Save.Script." + script.getName(), () -> {
             new ScriptDao().saveOrUpdate(script);
         });
         scriptEvent.fire(new ModifiedScriptMessage(script, this));

@@ -25,7 +25,7 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.logging.log4j.LogManager;
@@ -137,17 +137,16 @@ public class ConverterUtil {
     }
 
     public static String getWorkloadXML(HDWorkload hdWorkload) {
-        AWSXRay.beginSubsegment("JAXB.Marshal." + HDWorkload.class.getSimpleName());
-        try (StringWriter stringWriter = new StringWriter()){
-            Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            marshaller.marshal(hdWorkload, stringWriter);
-            return stringWriter.toString();
-        } catch (JAXBException | IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            AWSXRay.endSubsegment();
-        }
+        return Tracing.inSpan("JAXB.Marshal." + HDWorkload.class.getSimpleName(), () -> {
+            try (StringWriter stringWriter = new StringWriter()){
+                Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
+                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                marshaller.marshal(hdWorkload, stringWriter);
+                return stringWriter.toString();
+            } catch (JAXBException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private static List<HDScriptGroup> convertScriptGroups(List<ScriptGroup> scriptGroups, StepCounter sc) {

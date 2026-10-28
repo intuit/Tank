@@ -1,12 +1,15 @@
 package com.intuit.tank.rest.mvc.service;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
@@ -22,6 +25,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class UserAutoDeletionServiceTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
 
     // =====================================================================
     // performStartupUserDeletion - DRY RUN mode (auto-deletion disabled)
@@ -53,8 +59,8 @@ class UserAutoDeletionServiceTest {
     }
 
     @Test
-    void performStartupUserDeletion_runsQueriesInsideItsOwnSegment() {
-        AtomicReference<Entity> entityDuringQuery = new AtomicReference<>();
+    void performStartupUserDeletion_runsQueriesInsideItsOwnRootSpan() {
+        AtomicReference<SpanContext> spanDuringQuery = new AtomicReference<>();
         try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
                      (mock, ctx) -> {
                          when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
@@ -62,15 +68,17 @@ class UserAutoDeletionServiceTest {
                      });
              MockedConstruction<UserDao> ignoredDao = Mockito.mockConstruction(UserDao.class,
                      (mock, ctx) -> when(mock.countUsersEligibleForDeletion(730)).thenAnswer(invocation -> {
-                         entityDuringQuery.set(AWSXRay.getTraceEntity());
+                         spanDuringQuery.set(Span.current().getSpanContext());
                          return 0L;
                      }))) {
 
             new UserAutoDeletionService().performStartupUserDeletion();
 
-            // Sampled or not (a no-op segment), any segment stops the JDBC interceptor's context-missing errors
-            assertNotNull(entityDuringQuery.get(), "startup queries need a segment to avoid context-missing errors");
-            assertNull(AWSXRay.getTraceEntity(), "the segment is closed afterwards");
+            SpanData span = otel.getSpans().get(0);
+            assertEquals("Tank.UserAutoDeletion", span.getName());
+            assertFalse(span.getParentSpanContext().isValid(), "startup work is a root span");
+            assertEquals(span.getSpanId(), spanDuringQuery.get().getSpanId(), "the queries run inside it");
+            assertFalse(Span.current().getSpanContext().isValid(), "the span is no longer current afterwards");
         }
     }
 

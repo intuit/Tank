@@ -7,8 +7,6 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
@@ -66,6 +64,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static com.intuit.tank.rest.mvc.rest.security.SecurityTestSupport.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,6 +80,9 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
 class JobQueueServiceV2ImplTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
 
     @InjectMocks
     private JobQueueServiceV2Impl service;
@@ -268,12 +274,12 @@ class JobQueueServiceV2ImplTest {
 
     @Test
     void controlJob_annotatesTraceWithJobAndAction() {
-        try (Segment segment = AWSXRay.beginSegment("TEST")) {
-            service.controlJob(11, "start");
+        Tracing.inSpan("TEST", () -> service.controlJob(11, "start"));
 
-            assertEquals("start", segment.getAnnotations().get("job.action"));
-            assertEquals("11", segment.getAnnotations().get("jobId"));
-        }
+        Attributes attributes = otel.getSpans().get(0).getAttributes();
+        assertEquals("start", attributes.get(AttributeKey.stringKey("job.action")));
+        assertEquals("11", attributes.get(AttributeKey.stringKey("jobId")));
+        assertTrue(attributes.get(Tracing.XRAY_ANNOTATIONS).containsAll(List.of("job.action", "jobId")));
     }
 
     @Test
