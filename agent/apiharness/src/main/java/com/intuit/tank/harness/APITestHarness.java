@@ -285,7 +285,8 @@ public class APITestHarness {
                         wsPort,
                         instanceId,
                         agentRunData.getJobId(),
-                        capacity);
+                        capacity,
+                        token);
                 commandWebSocketServer = wsServer;
                 wsServer.start();
 
