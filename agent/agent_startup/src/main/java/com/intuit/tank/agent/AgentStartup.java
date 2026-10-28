@@ -70,6 +70,9 @@ public class AgentStartup implements Runnable {
             if (wsEnabled) {
                 logger.info("Command WS enabled — starting startup WS server for controller-initiated bootstrap.");
                 harnessJar = receiveHarnessJarOverWs();
+                if (!new File(TANK_AGENT_DIR, "settings.xml").exists()) {
+                    logger.warn("settings.xml not received over startup WS — harness will use its packaged default settings");
+                }
             } else {
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(
                         controllerBaseUrl + SERVICE_RELATIVE_PATH + METHOD_SETTINGS))
