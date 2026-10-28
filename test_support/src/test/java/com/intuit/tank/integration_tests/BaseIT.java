@@ -36,6 +36,7 @@ public class BaseIT {
     protected static final String CONTENT_TYPE_VALUE = "application/json";
     protected static final String ACCEPT_HEADER = "Accept";
     protected static final String ACCEPT_VALUE = "application/json";
+    protected static final String HELPER_ACCEPT_VALUE = "application/json, */*;q=0.1";
     protected static final HttpClient httpClient = getHttpClient();
 
     protected final ObjectMapper objectMapper = new ObjectMapper();
@@ -128,7 +129,7 @@ public class BaseIT {
     protected HttpResponse<String> send(String method, String path, String jsonBody) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + path))
-                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(ACCEPT_HEADER, HELPER_ACCEPT_VALUE)
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
                 .timeout(Duration.ofSeconds(30));
         if (jsonBody != null) {
@@ -151,7 +152,7 @@ public class BaseIT {
             throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + path))
-                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(ACCEPT_HEADER, HELPER_ACCEPT_VALUE)
                 .timeout(Duration.ofSeconds(30));
         if (jsonBody != null) {
             builder.header(CONTENT_TYPE_HEADER, CONTENT_TYPE_VALUE)
@@ -194,7 +195,7 @@ public class BaseIT {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(QA_BASE_URL + path))
                 .header(AUTHORIZATION_HEADER, API_TOKEN_HEADER)
-                .header(ACCEPT_HEADER, ACCEPT_VALUE)
+                .header(ACCEPT_HEADER, HELPER_ACCEPT_VALUE)
                 .header(CONTENT_TYPE_HEADER, "multipart/form-data; boundary=" + boundary)
                 .timeout(Duration.ofSeconds(60))
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body.toByteArray()))

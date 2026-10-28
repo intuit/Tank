@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,7 +50,8 @@ public class ScriptUtilTest {
                 Arguments.of("#{ioFunctions.getCSVData('filename.csv')}", "'filename.csv'" ),
                 Arguments.of("#{ioFunctions.getCSVData(\"filename.csv\", 1)}", "\"filename.csv\"" ),
                 Arguments.of("#{ioFunctions.getCSVData('filename.csv', 1, true)}", "'filename.csv'" ),
-                Arguments.of("#{ioFunctions.getCSVData(myVariable)}", "myVariable" )
+                Arguments.of("#{ioFunctions.getCSVData(myVariable)}", "myVariable" ),
+                Arguments.of(null, null )
         );
     }
 
@@ -81,6 +83,13 @@ public class ScriptUtilTest {
         ScriptStep step = buildVariableStep(input);
         String dataFile = ScriptUtil.getDataFileUse(step);
         assertEquals(output, dataFile);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testVariableExtraction_noDataOrType() {
+        assertNull(ScriptUtil.getDataFileUse(ScriptStep.builder().type(ScriptConstants.VARIABLE).build()));
+        assertNull(ScriptUtil.getDataFileUse(ScriptStep.builder().build()));
     }
 
     private ScriptStep buildVariableStep(String input) {

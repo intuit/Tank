@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -95,6 +97,16 @@ public class GenericExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Object> handleNoResourceFound(HttpServletRequest request, Throwable ex) {
         return new ResponseEntity<>("Not Found", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<Object> handleMediaTypeNotAcceptable(HttpServletRequest request, HttpMediaTypeNotAcceptableException ex) {
+        return new ResponseEntity<>("Not Acceptable: this endpoint returns " + ex.getSupportedMediaTypes(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleArgumentTypeMismatch(HttpServletRequest request, MethodArgumentTypeMismatchException ex) {
+        return new ResponseEntity<>("Incorrect request parameter: " + ex.getName(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
