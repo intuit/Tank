@@ -1,3 +1,15 @@
+# 4.6.10 (Wed Oct 28 2026)
+
+#### 🐛 Bug Fix
+
+- Let agents keep connections from several controllers at once [#541](https://github.com/intuit/Tank/pull/541) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.9 (Tue Oct 27 2026)
 
 #### 🐛 Bug Fix
