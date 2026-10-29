@@ -1,3 +1,16 @@
+# 4.6.12 (Thu Oct 29 2026)
+
+#### 🐛 Bug Fix
+
+- Fix REST 500s, S3 zip uploads, rounded-time save conflicts and stale ITs [#551](https://github.com/intuit/Tank/pull/551) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Stop the CodeBuild cache from growing with every build [#549](https://github.com/intuit/Tank/pull/549) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.11 (Wed Oct 28 2026)
 
 #### 🐛 Bug Fix
