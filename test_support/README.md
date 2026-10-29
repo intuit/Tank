@@ -18,8 +18,11 @@ The integration tests are designed to test the Tank application's REST API funct
 `BaseIT.java` - Provides common functionality for all integration tests:
 - API token management (from properties file or AWS SSM)
 - HTTP client configuration
-- Request helpers (`send`, `get`, `sendAnonymous`, `expect`) and shared fixtures (`createRunnableProject`,
+- Request helpers (`send`, `get`, `sendAnonymous`, `postFiles`, `expect`) and shared fixtures (`createRunnableProject`,
   `currentUserName`, `uniqueName`) used by the React migration tests
+- The helpers send `Accept: application/json, */*;q=0.1`: JSON where an endpoint offers it, otherwise whatever it
+  returns. Several endpoints only produce `text/plain` (the single-item deletes, data file content, log files,
+  step responses) and answer a JSON-only `Accept` with 406, without running.
 
 ### React migration endpoint tests
 
@@ -45,7 +48,6 @@ They follow these rules so they are safe to run against the shared QA instance:
   `it-admin-...` and deletes them, and only sets the log level to the level it already has.
 
 Project tests run QA script 1, as the other project tests do.
-- Common constants and utilities
 
 ## Configuration
 
@@ -63,10 +65,15 @@ tank.api.token=your_api_token_here
 The tests automatically fetch the token from AWS SSM Parameter Store:
 - Parameter: `/Tank/qa/integration-tests/api/token`
 - Requires appropriate AWS credentials/IAM permissions
+- The SSM client uses the default region lookup, so set the region if your profile has none:
+  `export AWS_REGION=us-east-2`
+
+The properties file wins when both are present. Tests run as whichever user the token belongs to, so don't
+assume a particular user name.
 
 ### Test Environment
 
-- **Target Environment**: `https://qa-tank.perf.a.intuit.com`
+- **Target Environment**: `https://qa-tank.perf.a.intuit.com` (`BaseIT.QA_BASE_URL`)
 - **API Version**: v2
 - **Authentication**: Bearer token
 
@@ -78,11 +85,22 @@ The tests automatically fetch the token from AWS SSM Parameter Store:
 
 ### Execute Tests
 
+`mvn clean install` and `mvn verify` do **not** run these tests: this module has no parent POM and doesn't bind
+the failsafe plugin, and Surefire's default includes don't match `*IT` classes. Name them with `-Dtest` instead:
+
 ```bash
-# Run all integration tests
-By default, `mvn clean install` will run both unit and integration tests.
-You can run individual tests directly on IntelliJ/ or your preferred IDE.
+# All integration tests (about 2.5 minutes)
+mvn -pl test_support test -Dtest='*IT'
+
+# One class
+mvn -pl test_support test -Dtest=SessionApiIT
+
+# One method
+mvn -pl test_support test -Dtest='JobQueueApiIT#testQueueJob_appearsInTreeAndDetailsThenDeletes'
 ```
+
+Results are in `test_support/target/surefire-reports/`. You can also run a class or method from IntelliJ or
+another IDE.
 
 ### Test Tags
 - `@Tag("integration")` - All integration tests
@@ -91,6 +109,18 @@ You can run individual tests directly on IntelliJ/ or your preferred IDE.
 ## Test Data Management
 
 ### Cleanup Strategy
-- Tests create temporary scripts with unique names
-- Consider implementing cleanup in `@AfterEach` or `@AfterAll` methods
-- Use descriptive names to identify test-created resources
+- Name created resources with `uniqueName(...)` (or a per-run prefix), so runs don't collide and leftovers are easy
+  to spot.
+- Record each created ID and delete it in `@AfterEach`, ignoring failures so one bad delete doesn't hide the
+  test's own result. See `DataFileBatchApiIT.cleanup()`.
+- Check that cleanup actually worked when adding a new kind of resource: a delete that fails quietly leaves data
+  on the shared QA instance.
+
+## Writing Tests
+
+- Use the `BaseIT` helpers rather than building requests by hand, so every test sends the same headers.
+- Compare owners and creators with `currentUserName()`, not a fixed name.
+- Don't depend on the order of lists that come from QA's configuration, such as the regions in
+  `/v2/projects/{id}/full`. Find the entry you need by its name.
+- To save after creating something, send back the `modified` from the response (or from a fresh GET). The server
+  treats times less than a second apart as the same, because the database may round milliseconds.
