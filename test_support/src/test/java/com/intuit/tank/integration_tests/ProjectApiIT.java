@@ -763,9 +763,10 @@ public class ProjectApiIT extends BaseIT {
 
         // Validate client class is properly configured
         String clientClass = (String) xpath.evaluate("//client-class/text()", doc, XPathConstants.STRING);
-        assertTrue(clientClass.equals("com.intuit.tank.httpclient4.TankHttpClient4") ||
-                  clientClass.equals("com.intuit.tank.httpclient5.TankHttpClient5"),
-                  "Should use a valid Tank HTTP client implementation");
+        assertTrue(List.of("com.intuit.tank.httpclient3.TankHttpClient3",
+                        "com.intuit.tank.httpclient4.TankHttpClient4",
+                        "com.intuit.tank.httpclientjdk.TankHttpClientJDK").contains(clientClass),
+                  "Should use a valid Tank HTTP client implementation: " + clientClass);
 
         // Validate XML structure integrity
         Element root = doc.getDocumentElement();

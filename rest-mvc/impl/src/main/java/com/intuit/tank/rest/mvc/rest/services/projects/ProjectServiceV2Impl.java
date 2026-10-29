@@ -551,9 +551,9 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     }
 
     /**
-     * Compares save times to the second: the database may not store milliseconds.
+     * Save times less than a second apart match: the database may round or drop milliseconds.
      */
     static boolean sameSecond(Date a, Date b) {
-        return a != null && b != null && a.getTime() / 1000 == b.getTime() / 1000;
+        return a != null && b != null && Math.abs(a.getTime() - b.getTime()) < 1000;
     }
 }

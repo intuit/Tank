@@ -345,6 +345,7 @@ class ProjectServiceV2ImplEditorTest {
     @Test
     void sameSecond() {
         assertTrue(ProjectServiceV2Impl.sameSecond(new Date(1000), new Date(1999)));
+        assertTrue(ProjectServiceV2Impl.sameSecond(new Date(1700), new Date(2000)), "MySQL rounds 1.700 up to 2");
         assertFalse(ProjectServiceV2Impl.sameSecond(new Date(1000), new Date(2000)));
         assertFalse(ProjectServiceV2Impl.sameSecond(null, new Date(1000)));
     }

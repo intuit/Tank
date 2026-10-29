@@ -641,8 +641,8 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         return ids.stream().map(byId::get).collect(Collectors.toList());
     }
 
-    /** Compares save times to the second: the database may not store milliseconds. */
+    /** Save times less than a second apart match: the database may round or drop milliseconds. */
     static boolean sameSecond(java.util.Date a, java.util.Date b) {
-        return a != null && b != null && a.getTime() / 1000 == b.getTime() / 1000;
+        return a != null && b != null && Math.abs(a.getTime() - b.getTime()) < 1000;
     }
 }

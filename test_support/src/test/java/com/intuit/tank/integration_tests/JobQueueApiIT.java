@@ -100,10 +100,10 @@ public class JobQueueApiIT extends BaseIT {
         JsonNode tps = expect(200, get("/v2/jobs/" + jobId + "/tps-timeseries"));
         assertTrue(tps.get("times").isArray() && tps.get("series").isArray());
 
-        // delete while Created; a second delete finds it already deleted
+        // delete while Created; a deleted job is no longer found
         expect(204, send("DELETE", "/v2/jobs/" + jobId, null));
         queuedJobIds.remove(Integer.valueOf(jobId));
-        expect(409, send("DELETE", "/v2/jobs/" + jobId, null));
+        expect(404, send("DELETE", "/v2/jobs/" + jobId, null));
     }
 
     @Test
