@@ -557,6 +557,28 @@ class FilterServiceV2ImplTest {
     }
 
     @Test
+    void updateFilter_acceptsModifiedTheDatabaseRoundedUp() {
+        SecurityTestSupport.useConfig(true, Map.of());
+        SecurityTestSupport.actAs(SecurityTestSupport.user("alice"));
+        ScriptFilter existing = filter(4, "old");
+        existing.setCreator("alice");
+        existing.setModified(new Date(2_000_000L));
+        FilterTO request = FilterTO.builder().withName("renamed")
+                .withModified(new Date(1_999_700L)).build();
+
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(4)).thenReturn(existing);
+                    when(mock.saveOrUpdate(any(ScriptFilter.class))).thenAnswer(i -> i.getArgument(0));
+                })) {
+
+            assertEquals("renamed", service.updateFilter(4, request).getName());
+        } finally {
+            SecurityTestSupport.reset();
+        }
+    }
+
+    @Test
     void updateFilter_forbiddenForNonOwnerWithoutEditRight() {
         SecurityTestSupport.useConfig(true, Map.of());
         SecurityTestSupport.actAs(SecurityTestSupport.user("bob"));

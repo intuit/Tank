@@ -301,6 +301,7 @@ class ScriptServiceV2ImplEditorTest {
     @Test
     void sameSecond() {
         assertTrue(ScriptServiceV2Impl.sameSecond(new Date(1000), new Date(1999)));
+        assertTrue(ScriptServiceV2Impl.sameSecond(new Date(1700), new Date(2000)), "MySQL rounds 1.700 up to 2");
         assertFalse(ScriptServiceV2Impl.sameSecond(new Date(1000), null));
     }
 }

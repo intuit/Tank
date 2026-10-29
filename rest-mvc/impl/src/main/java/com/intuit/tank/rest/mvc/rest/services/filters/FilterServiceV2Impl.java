@@ -269,14 +269,15 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
     }
 
     /**
-     * Rejects a save based on a stale copy. Compares to the second: the database may not store milliseconds.
+     * Rejects a save based on a stale copy. Times less than a second apart match: the database may round or drop
+     * milliseconds.
      */
     private static void requireCurrent(Date sent, Date stored, String what) {
         if (sent == null) {
             throw new GenericServiceBadRequestException(SERVICE, "modified",
                     "modified is required; send the value from the last GET");
         }
-        if (stored == null || sent.getTime() / 1000 != stored.getTime() / 1000) {
+        if (stored == null || Math.abs(sent.getTime() - stored.getTime()) >= 1000) {
             throw new GenericServiceConflictException(SERVICE,
                     what + " was changed by someone else since it was loaded; reload it and try again");
         }

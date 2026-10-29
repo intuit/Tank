@@ -721,7 +721,7 @@ public class ScriptApiIT extends BaseIT {
         JsonNode responseBody = objectMapper.readTree(response.body());
         assertTrue(responseBody.has("id"), "Response should contain external script ID");
         assertEquals(scriptName, responseBody.get("name").asText(), "Should return correct script name");
-        assertEquals("integration-test", responseBody.get("creator").asText(), "Should return correct creator");
+        assertEquals(currentUserName(), responseBody.get("creator").asText(), "The caller should be the creator");
 
         // Store for cleanup
         int externalScriptId = responseBody.get("id").asInt();

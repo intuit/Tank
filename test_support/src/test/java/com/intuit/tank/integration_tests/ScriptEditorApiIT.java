@@ -225,7 +225,7 @@ public class ScriptEditorApiIT extends BaseIT {
     @Tag("integration")
     public void testLogicStep_runsScriptWithVariables() throws Exception {
         String body = """
-                {"script": "variables.addVariable('itResult', 'ok-' + variables.getVariable('itInput'));",
+                {"script": "setVariable('itResult', 'ok-' + getVariable('itInput'));",
                  "variables": {"itInput": "hello"}}
                 """;
 

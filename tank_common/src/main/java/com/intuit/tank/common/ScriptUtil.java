@@ -440,21 +440,14 @@ public class ScriptUtil {
     }
 
     public static String getDataFileUse(ScriptStep step) {
+        if (!ScriptConstants.VARIABLE.equalsIgnoreCase(step.getType()) || step.getData().isEmpty()) {
+            return null;
+        }
         String ret = null;
-        if (step.getType().equalsIgnoreCase("variable")) {
-            String value = step.getData().iterator().next().getValue();
-            Matcher m = csvPattern.matcher(value);
-            while (m.find()) { // find next match
-                String args = m.group(1).trim();
-                String[] split = args.split(",");
-                ret = TankConstants.DEFAULT_CSV_FILE_NAME;
-                if (split.length > 0) {
-                    String test = split[0].trim();
-                    if (StringUtils.isNotBlank(test) && !NumberUtils.isDigits(test)) {
-                        ret = test;
-                    }
-                }
-            }
+        Matcher m = csvPattern.matcher(StringUtils.defaultString(step.getData().iterator().next().getValue()));
+        while (m.find()) {
+            String first = StringUtils.substringBefore(m.group(1), ",").trim();
+            ret = StringUtils.isNotBlank(first) && !NumberUtils.isDigits(first) ? first : TankConstants.DEFAULT_CSV_FILE_NAME;
         }
         return ret;
     }

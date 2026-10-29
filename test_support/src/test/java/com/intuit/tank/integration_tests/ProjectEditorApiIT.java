@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +72,10 @@ public class ProjectEditorApiIT extends BaseIT {
         assertEquals(currentUserName(), project.get("owner").asText(), "The caller should own a project they created");
         assertTrue(project.hasNonNull("modified"), "Needed to save changes");
         assertTrue(project.get("settings").hasNonNull("incrementStrategy"));
-        assertEquals("US_WEST_2", project.get("regions").get(0).get("region").asText());
+        JsonNode west = StreamSupport.stream(project.get("regions").spliterator(), false)
+                .filter(r -> r.get("region").asText().equals("US_WEST_2")).findFirst()
+                .orElseThrow(() -> new AssertionError("US_WEST_2 should be listed: " + project.get("regions")));
+        assertEquals("10", west.get("users").asText());
         JsonNode script = project.get("testPlans").get(0).get("scriptGroups").get(0).get("scripts").get(0);
         assertEquals(QA_SCRIPT_ID, script.get("scriptId").asInt());
         assertTrue(project.get("permissions").get("edit").asBoolean(), "The owner can edit");
