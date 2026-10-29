@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.intuit.tank.scheduleManager.ScheduleManagerImpl;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;
+import com.intuit.tank.vm.scheduleManager.JobRequestData;
 
 /**
  * The class <code>ScheduleManagerImplTest</code> contains tests for the class <code>{@link ScheduleManagerImpl}</code>.
@@ -91,5 +92,42 @@ public class ScheduleManagerImplTest {
 
         fixture.addJob(request);
 
+    }
+
+    /**
+     * Run the getJob(String) method test after adding a job and an agent for it.
+     */
+    @Test
+    public void testGetJob_withAgent()
+            throws Exception {
+        ScheduleManagerImpl fixture = new ScheduleManagerImpl();
+        AgentMngrAPIRequest request = new AgentMngrAPIRequest("schedule-job-1",
+                new com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest.UserRequest[] {});
+        fixture.addJob(request);
+
+        AgentMngrAPIResponse agent = new AgentMngrAPIResponse();
+        agent.setJobId("schedule-job-1");
+        fixture.addAgent(agent);
+
+        JobRequestData data = fixture.getJob("schedule-job-1");
+        assertNotNull(data);
+        assertSame(request, data.getRequest());
+        assertEquals(1, data.getAgents().size());
+        assertNull(fixture.getJob("schedule-job-unknown"));
+    }
+
+    /**
+     * Run the addAgent(AgentMngrAPIResponse) method test for a job that was never added.
+     */
+    @Test
+    public void testAddAgent_unknownJob()
+            throws Exception {
+        ScheduleManagerImpl fixture = new ScheduleManagerImpl();
+        AgentMngrAPIResponse agent = new AgentMngrAPIResponse();
+        agent.setJobId("schedule-job-never-added");
+
+        fixture.addAgent(agent);
+
+        assertNull(fixture.getJob("schedule-job-never-added"));
     }
 }

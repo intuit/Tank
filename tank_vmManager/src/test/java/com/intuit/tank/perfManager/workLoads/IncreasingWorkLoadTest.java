@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import org.mockito.ArgumentCaptor;
+
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.perfManager.workLoads.IncreasingWorkLoad;
@@ -114,6 +116,58 @@ public class IncreasingWorkLoadTest {
             assertSame(unsampled, AWSXRay.getTraceEntity());
         } finally {
             AWSXRay.endSegment();
+        }
+    }
+
+    @Test
+    public void testRun_nonlinearRequestsTheAgentsAllocatedToEachRegion() {
+        RegionRequest east = mockRegion(VMRegion.US_EAST_2);
+        when(east.getPercentage()).thenReturn("100");
+        RegionRequest west = mockRegion(VMRegion.US_WEST_2);
+        when(west.getPercentage()).thenReturn("0");
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getIncrementStrategy()).thenReturn(IncrementStrategy.standard);
+        when(job.getNumAgents()).thenReturn(3);
+        doReturn(Set.of(east, west)).when(job).getRegions();
+        AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
+
+        try (Segment ignored = AWSXRay.beginSegment("TEST")) {
+            new IncreasingWorkLoad(null, agentDispatcher, job).run();
+        }
+
+        // only the region with a share of the agents is requested, sized by its agent count
+        ArgumentCaptor<RequestAgents> request = ArgumentCaptor.forClass(RequestAgents.class);
+        verify(agentDispatcher).processAgentsMessage(request.capture());
+        assertEquals(VMRegion.US_EAST_2, request.getValue().getRegion());
+        assertEquals(3, request.getValue().getNumberOfUsers());
+    }
+
+    @Test
+    public void testRun_linearRegionWithoutUsersIsNotRequested() {
+        RegionRequest east = mockRegion(VMRegion.US_EAST_2);
+        when(east.getUsers()).thenReturn("0");
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);
+        doReturn(Set.of(east)).when(job).getRegions();
+        AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
+
+        try (Segment ignored = AWSXRay.beginSegment("TEST")) {
+            new IncreasingWorkLoad(null, agentDispatcher, job).run();
+        }
+
+        verifyNoInteractions(agentDispatcher);
+    }
+
+    @Test
+    public void testRun_failureIsLoggedAndNotRethrown() {
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getRegions()).thenThrow(new IllegalStateException("regions unavailable"));
+
+        try (Segment ignored = AWSXRay.beginSegment("TEST")) {
+            assertDoesNotThrow(() -> new IncreasingWorkLoad(null, mock(AgentDispatcher.class), job).run());
         }
     }
 
