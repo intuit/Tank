@@ -18,9 +18,12 @@ describe('app shell', () => {
   it('shows the home page to a signed-in user', async () => {
     renderAt('/', signedIn);
 
-    expect(await screen.findByRole('heading', { name: 'Welcome, alice' })).toBeInTheDocument();
+    expect(await screen.findByText('Welcome back, alice')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /breaking point/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Start a load test/ })).toHaveAttribute('href', '/projects');
     expect(screen.getByText('Tank 4.5.9')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Navigation' }));
+    expect(screen.queryByRole('menuitem', { name: /Admin/, hidden: true })).not.toBeInTheDocument();
   });
 
   it('marks the current section in the header, as the JSF header does', async () => {
@@ -36,8 +39,9 @@ describe('app shell', () => {
   it('links admins to the admin pages', async () => {
     renderAt('/', { 'GET /v2/me': () => ({ status: 200, body: { name: 'root', admin: true } }) });
 
-    await screen.findByRole('heading', { name: 'Welcome, root' });
-    expect(screen.getAllByRole('link', { name: /Admin/ }).map((a) => a.getAttribute('href'))).toContain('/admin');
+    await screen.findByText('Welcome back, root');
+    await userEvent.click(screen.getByRole('button', { name: 'Navigation' }));
+    expect(screen.getAllByRole('menuitem', { name: /Admin/, hidden: true })).not.toHaveLength(0);
   });
 
   it('sends a signed-out user to sign in, then back where they were going', async () => {
@@ -53,7 +57,7 @@ describe('app shell', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'secret');
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(await screen.findByRole('heading', { name: 'Welcome, alice' })).toBeInTheDocument();
+    expect(await screen.findByText('Welcome back, alice')).toBeInTheDocument();
     expect(router.state.location.search).toBe('?tab=recent');
   });
 
