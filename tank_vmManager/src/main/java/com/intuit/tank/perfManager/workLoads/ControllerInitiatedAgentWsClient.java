@@ -62,6 +62,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String START_AGENT_SCRIPT = "startAgent.sh";
     private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
     private static final String SETTINGS_FILE_NAME = "settings.xml";
+    private static final String SETTINGS_FILE_TYPE = "settings";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final int DEFAULT_CHUNK_BYTES =
@@ -387,7 +388,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private List<TransferFile> buildTransferFiles(AgentTestStartData startData, String authorizationHeader)
             throws IOException, InterruptedException {
         List<TransferFile> files = new ArrayList<>();
-        files.add(new TransferFile("settings", SETTINGS_FILE_NAME, loadSettingsFile(), false));
         if (startData != null && startData.getScriptUrl() != null) {
             files.add(new TransferFile("script", SCRIPT_FILE_NAME,
                     readBytesFromUrl(startData.getScriptUrl(), authorizationHeader), false));
@@ -426,7 +426,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
         }
         Optional<byte[]> startupScript = loadStartupScript();
-        List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(jarBytes, startupScript);
+        List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(loadSettingsFile(), jarBytes, startupScript);
         int bootstrapFileCount = bootstrapFiles.size();
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
                 + " needs startup bootstrap — pushing " + bootstrapFileCount + " files"
@@ -443,21 +443,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
 
         long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
-        boolean sentAllChunks;
-        try {
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
-        } catch (UnsupportedStartupScriptException e) {
-            bootstrapFiles = buildStartupBootstrapFiles(jarBytes, Optional.empty());
-            bootstrapFileCount = bootstrapFiles.size();
-            context.expectedFiles = bootstrapFileCount;
-            context.completedFiles.clear();
-            agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
-            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
-                    + " does not support startup_script — retrying bootstrap with harness JAR only")));
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
-        }
+        boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
+                DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+        bootstrapFileCount = context.expectedFiles;
 
         if (!sentAllChunks) {
             LOG.info(new ObjectMessage(Map.of("Message",
@@ -510,8 +498,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    static List<TransferFile> buildStartupBootstrapFiles(byte[] jarBytes, Optional<byte[]> startupScript) {
+    static List<TransferFile> buildStartupBootstrapFiles(byte[] settingsBytes, byte[] jarBytes,
+                                                         Optional<byte[]> startupScript) {
         List<TransferFile> files = new ArrayList<>();
+        files.add(new TransferFile(SETTINGS_FILE_TYPE, SETTINGS_FILE_NAME, settingsBytes, false));
         startupScript.ifPresent(content ->
                 files.add(new TransferFile(STARTUP_SCRIPT_FILE_TYPE, START_AGENT_SCRIPT, content, false)));
         files.add(new TransferFile("support_jar", API_HARNESS_JAR, jarBytes, false));
@@ -604,8 +594,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             throws IOException, InterruptedException {
         try {
             for (TransferFile file : files) {
-                if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
-                    return false;
+                try {
+                    if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
+                        return false;
+                    }
+                } catch (UnsupportedStartupFileException e) {
+                    context.expectedFiles--;
+                    if (SETTINGS_FILE_NAME.equals(file.fileName())) {
+                        LOG.error(new ObjectMessage(Map.of("Message", "[WS] Agent " + instanceId
+                                + " rejected settings.xml during startup bootstrap — it will run with the"
+                                + " harness JAR's default settings. Update the agent startup package.")));
+                    } else {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + instanceId
+                                + " does not support startup file " + file.fileName() + " — skipping it")));
+                    }
                 }
             }
             return true;
@@ -657,8 +659,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
             if (offerAck != null) {
                 if (offerAck.getStatus() == AckStatus.failed) {
-                    if (isLegacyStartupScriptRejection(file, offerAck)) {
-                        throw new UnsupportedStartupScriptException();
+                    if (isLegacyStartupFileRejection(file, offerAck)) {
+                        throw new UnsupportedStartupFileException();
                     }
                     throw new IOException("File offer rejected by agent: " + offerAck.getError());
                 }
@@ -764,9 +766,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    static boolean isLegacyStartupScriptRejection(TransferFile file, AgentWsEnvelope offerAck) {
-        return STARTUP_SCRIPT_FILE_TYPE.equals(file.fileType())
-                && START_AGENT_SCRIPT.equals(file.fileName())
+    static boolean isLegacyStartupFileRejection(TransferFile file, AgentWsEnvelope offerAck) {
+        boolean optionalStartupFile = (STARTUP_SCRIPT_FILE_TYPE.equals(file.fileType())
+                        && START_AGENT_SCRIPT.equals(file.fileName()))
+                || (SETTINGS_FILE_TYPE.equals(file.fileType()) && SETTINGS_FILE_NAME.equals(file.fileName()));
+        return optionalStartupFile
                 && offerAck != null
                 && offerAck.getStatus() == AckStatus.failed
                 && "unsupported_startup_file".equals(offerAck.getError());
@@ -1152,6 +1156,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private static class UnsupportedStartupScriptException extends IOException {
+    private static class UnsupportedStartupFileException extends IOException {
     }
 }

@@ -1,3 +1,15 @@
+# 4.6.11 (Wed Oct 28 2026)
+
+#### 🐛 Bug Fix
+
+- Send settings.xml during startup WS bootstrap, before the harness starts [#550](https://github.com/intuit/Tank/pull/550) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.10 (Wed Oct 28 2026)
 
 #### 🐛 Bug Fix

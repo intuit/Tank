@@ -1,6 +1,7 @@
 package com.intuit.tank.perfManager.workLoads;
 
 import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -50,21 +51,25 @@ public class ControllerInitiatedAgentWsClientTest {
     Path tempDir;
 
     @Test
-    void testStartupBootstrapSendsCustomScriptBeforeHarnessJar() {
+    void testStartupBootstrapSendsSettingsAndCustomScriptBeforeHarnessJar() {
+        byte[] settings = "<tank/>".getBytes();
         byte[] startupScript = "#!/bin/sh\necho custom\n".getBytes();
         byte[] harnessJar = new byte[] { 1, 2, 3 };
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.of(startupScript));
+                        settings, harnessJar, Optional.of(startupScript));
 
-        assertEquals(2, files.size());
-        assertEquals("startup_script", files.get(0).fileType());
-        assertEquals("startAgent.sh", files.get(0).fileName());
-        assertArrayEquals(startupScript, files.get(0).content());
-        assertEquals("support_jar", files.get(1).fileType());
-        assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
-        assertArrayEquals(harnessJar, files.get(1).content());
+        assertEquals(3, files.size());
+        assertEquals("settings", files.get(0).fileType());
+        assertEquals("settings.xml", files.get(0).fileName());
+        assertArrayEquals(settings, files.get(0).content());
+        assertEquals("startup_script", files.get(1).fileType());
+        assertEquals("startAgent.sh", files.get(1).fileName());
+        assertArrayEquals(startupScript, files.get(1).content());
+        assertEquals("support_jar", files.get(2).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(2).fileName());
+        assertArrayEquals(harnessJar, files.get(2).content());
     }
 
     @Test
@@ -84,7 +89,10 @@ public class ControllerInitiatedAgentWsClientTest {
     }
 
     @Test
-    void testLegacyAgentRejectionTriggersFallbackOnlyForStartupScript() {
+    void testLegacyAgentRejectionTriggersFallbackOnlyForOptionalStartupFiles() {
+        ControllerInitiatedAgentWsClient.TransferFile settings =
+                new ControllerInitiatedAgentWsClient.TransferFile(
+                        "settings", "settings.xml", new byte[] { 0 }, false);
         ControllerInitiatedAgentWsClient.TransferFile startupScript =
                 new ControllerInitiatedAgentWsClient.TransferFile(
                         "startup_script", "startAgent.sh", new byte[] { 1 }, false);
@@ -98,16 +106,20 @@ public class ControllerInitiatedAgentWsClientTest {
                 "i-agent", "bootstrap", "file-id", null,
                 AgentWsEnvelope.AckStatus.failed, "disk_full");
 
-        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
+                settings, unsupported));
+        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 startupScript, unsupported));
-        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 harnessJar, unsupported));
-        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
+                settings, otherFailure));
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 startupScript, otherFailure));
     }
 
     @Test
-    void testLegacyAgentRejectionRetriesBootstrapWithHarnessJarOnly() throws Exception {
+    void testLegacyAgentRejectionSkipsOptionalFilesAndSendsHarnessJar() throws Exception {
         ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
         Session session = mock(Session.class);
         Object context = installSession(client, "i-agent", session);
@@ -126,7 +138,7 @@ public class ControllerInitiatedAgentWsClientTest {
             callback.succeed();
             if (offer.getType() == AgentWsEnvelope.Type.file_offer) {
                 offeredFiles.add(offer.getFileName());
-                AgentWsEnvelope.AckStatus status = "startAgent.sh".equals(offer.getFileName())
+                AgentWsEnvelope.AckStatus status = !"apiharness-1.0-all.jar".equals(offer.getFileName())
                         ? AgentWsEnvelope.AckStatus.failed
                         : AgentWsEnvelope.AckStatus.ok;
                 String error = status == AgentWsEnvelope.AckStatus.failed
@@ -152,7 +164,7 @@ public class ControllerInitiatedAgentWsClientTest {
             boolean result = invokePushStartupBootstrap(client, context);
 
             assertFalse(result);
-            assertEquals(List.of("startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
+            assertEquals(List.of("settings.xml", "startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
             assertEquals("1/1 files", client.getTransferProgress("i-agent"));
         } finally {
             if (previousCatalinaHome == null) {
@@ -164,16 +176,32 @@ public class ControllerInitiatedAgentWsClientTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void testHarnessTransferDoesNotResendSettings() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
+                "buildTransferFiles", AgentTestStartData.class, String.class);
+        method.setAccessible(true);
+
+        List<ControllerInitiatedAgentWsClient.TransferFile> files =
+                (List<ControllerInitiatedAgentWsClient.TransferFile>) method.invoke(
+                        client, new AgentTestStartData(), "bearer token");
+
+        assertTrue(files.stream().noneMatch(file -> "settings.xml".equals(file.fileName())));
+    }
+
+    @Test
     void testStartupBootstrapUsesPackagedScriptWhenCustomScriptIsMissing() {
         byte[] harnessJar = new byte[] { 1, 2, 3 };
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.empty());
+                        "<tank/>".getBytes(), harnessJar, Optional.empty());
 
-        assertEquals(1, files.size());
-        assertEquals("support_jar", files.get(0).fileType());
-        assertEquals("apiharness-1.0-all.jar", files.get(0).fileName());
+        assertEquals(2, files.size());
+        assertEquals("settings.xml", files.get(0).fileName());
+        assertEquals("support_jar", files.get(1).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
     }
 
     @Test
