@@ -271,7 +271,7 @@ class AgentServiceV2ImplTest {
     @Test
     void getInstanceStatus_returnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
 
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
@@ -306,7 +306,7 @@ class AgentServiceV2ImplTest {
     @Test
     void setInstanceStatus_delegatesToJobEventSender() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
 
         try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
@@ -322,7 +322,7 @@ class AgentServiceV2ImplTest {
     @Test
     void setInstanceStatus_throwsOnError() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
 
         try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
@@ -340,7 +340,7 @@ class AgentServiceV2ImplTest {
     @Test
     void stopInstance_stopsAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Stopped,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.stopping, null, 0, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.stopping, null, 0, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -373,7 +373,7 @@ class AgentServiceV2ImplTest {
     @Test
     void pauseInstance_pausesAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Paused,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.rampPaused, null, 5, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.rampPaused, null, 5, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -395,7 +395,7 @@ class AgentServiceV2ImplTest {
     @Test
     void resumeInstance_resumesAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -417,7 +417,7 @@ class AgentServiceV2ImplTest {
     @Test
     void killInstance_killsAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Completed,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.terminated, null, 0, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.terminated, null, 0, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 

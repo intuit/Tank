@@ -286,7 +286,7 @@ public class AgentCommandWebSocketHandlerTest {
                 "sg-1",
                 JobStatus.Running,
                 VMImageType.AGENT,
-                VMRegion.US_EAST,
+                VMRegion.US_EAST, null,
                 VMStatus.running,
                 new ValidationStatus(),
                 5,

@@ -654,7 +654,7 @@ class APIMonitorTest {
         @DisplayName("Should build and send correct HTTP PUT request")
         void setInstanceStatus_HappyPath_BuildsAndSendsRequest() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
-                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, null, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             UserDetail userDetail = new UserDetail("testScript", 994);
@@ -673,7 +673,7 @@ class APIMonitorTest {
         void setInstanceStatus_InvalidBaseUrl_ThrowsURISyntaxException() {
             String invalidUrl = "http://bad url spaces:9090";
             when(mockTankConfig.getControllerBase()).thenReturn(invalidUrl);
-            CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, null, null, null, null, null, null, null, 0, 0, null, null);
+            CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, null, null, null, null, null, null, null, null, 0, 0, null, null);
 
             InvocationTargetException wrapperException = assertThrows(InvocationTargetException.class, () -> {
                 invokeSetInstanceStatus(DEFAULT_INSTANCE_ID, statusToSend);
@@ -691,7 +691,7 @@ class APIMonitorTest {
         @DisplayName("Should send over WS and skip HTTP when WS send succeeds")
         void setInstanceStatus_WsSendSuccess_SkipsHttp() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
-                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, null, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
@@ -709,7 +709,7 @@ class APIMonitorTest {
         @DisplayName("Should skip HTTP when WS server send fails")
         void setInstanceStatus_WsServerSendFails_SkipsHttp() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
-                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, null, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);
@@ -727,7 +727,7 @@ class APIMonitorTest {
         @DisplayName("Should skip HTTP when WS server is unavailable")
         void setInstanceStatus_WsServerUnavailable_SkipsHttp() throws Exception {
             CloudVmStatus statusToSend = new CloudVmStatus(DEFAULT_INSTANCE_ID, "4215", "sg-abc",
-                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, VMStatus.running,
+                    JobStatus.Running, VMImageType.AGENT, VMRegion.US_EAST_2, null, VMStatus.running,
                     new ValidationStatus(0,0,0,0,0,0), 10, 5, new Date(), null);
 
             when(mockAgentConfig.isCommandWsEnabled()).thenReturn(true);

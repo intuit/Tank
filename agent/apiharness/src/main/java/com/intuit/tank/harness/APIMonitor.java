@@ -108,6 +108,7 @@ public class APIMonitor implements Runnable {
     private CloudVmStatus createStatus(WatsAgentStatusResponse agentStatus) {
         return new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
                 calculateJobStatus(agentStatus, status.getJobStatus()), status.getRole(), status.getVmRegion(),
+                status.getZone(),
                 status.getVmStatus(),
                 new ValidationStatus(agentStatus.getKills(), agentStatus.getAborts(),
                         agentStatus.getGotos(), agentStatus.getSkips(), agentStatus.getSkipGroups(), agentStatus.getRestarts()),
@@ -156,7 +157,7 @@ public class APIMonitor implements Runnable {
                 Date endTime = (jobStatus == JobStatus.Completed) ? new Date() : status
                         .getEndTime();
                 status = new CloudVmStatus(status.getInstanceId(), status.getJobId(), status.getSecurityGroup(),
-                        jobStatus, status.getRole(), status.getVmRegion(), vmStatus,
+                        jobStatus, status.getRole(), status.getVmRegion(), status.getZone(), vmStatus,
                         new ValidationStatus(stats.getKills(), stats.getAborts(),
                                 stats.getGotos(), stats.getSkips(), stats.getSkipGroups(), stats.getRestarts()),
                         stats.getMaxVirtualUsers(),

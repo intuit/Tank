@@ -955,7 +955,7 @@ public class ControllerInitiatedAgentWsClientFlowTest {
     }
 
     private static CloudVmStatus createStatus(JobStatus jobStatus, VMStatus vmStatus) {
-        return new CloudVmStatus("i-agent", "job-1", "sg-1", jobStatus, VMImageType.AGENT, VMRegion.US_EAST,
+        return new CloudVmStatus("i-agent", "job-1", "sg-1", jobStatus, VMImageType.AGENT, VMRegion.US_EAST, null,
                 vmStatus, new ValidationStatus(), 5, 1, new Date(), null);
     }
 
