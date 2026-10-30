@@ -1,3 +1,20 @@
+# 4.6.13 (Fri Oct 30 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: close the remaining JSF parity gaps [#535](https://github.com/intuit/Tank/pull/535) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Raise tank-vm-manager unit test line coverage to 98.6% [#553](https://github.com/intuit/Tank/pull/553) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 📝 Documentation
+
+- Turn the React UI home page into a feature overview [#552](https://github.com/intuit/Tank/pull/552) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.12 (Thu Oct 29 2026)
 
 #### 🐛 Bug Fix
