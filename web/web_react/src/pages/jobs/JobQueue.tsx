@@ -252,12 +252,12 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         onClick={() => setDetailsFor({ job: row.job })}
       />
     ) : (
-      <span title={row.agent.instanceId}>{row.agent.instanceId}</span>
+      <span className="agent-id">{row.agent.instanceId}</span>
     );
 
   return (
     <div>
-      <div className="tab-toolbar">
+      <div className="tab-toolbar job-toolbar">
         <div className="field-inline">
           <InputSwitch
             inputId="include-finished"
@@ -266,6 +266,9 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           />
           <label htmlFor="include-finished">Show finished jobs</label>
         </div>
+        {tree.data?.generatedAt && (
+          <span className="field-help tab-toolbar-end">Updated {formatTime(tree.data.generatedAt)}</span>
+        )}
         <Button
           label="Refresh"
           icon="pi pi-refresh"
@@ -287,7 +290,6 @@ export function JobQueue({ projectId }: { projectId?: number }) {
             className="p-inputtext-sm"
           />
         </div>
-        {tree.data?.generatedAt && <span className="field-help">Updated {formatTime(tree.data.generatedAt)}</span>}
         <MultiSelect
           value={hideable.filter((c) => c.visible).map((c) => c.colName)}
           options={hideable.map((c) => ({ label: c.displayName, value: c.colName }))}
@@ -297,7 +299,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           maxSelectedLabels={0}
           aria-label="Visible columns"
           dropdownIcon="pi pi-table"
-          className="list-columns tab-toolbar-end"
+          className="list-columns"
           disabled={hideable.length === 0}
         />
       </div>
@@ -308,6 +310,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         <TreeTable
           value={nodes}
           expandedKeys={expanded}
+          rowClassName={(n) => ({ [`job-tree-${(n.data as Row).kind}`]: true })}
           onToggle={(e) => setExpanded(e.value as Record<string, boolean>)}
           emptyMessage={
             includeFinished
@@ -336,6 +339,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
               header={c.header}
               expander={c.expander}
               body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row))}
+              className={c.className}
               style={{ ...c.style, width: widthOf(c.pref) }}
             />
           ))}
@@ -355,29 +359,50 @@ interface JobColumn {
   header?: string;
   body?: (row: Row) => ReactNode;
   style?: CSSProperties;
+  /** For both the header and body cells: num-col right-aligns figures, date-col keeps times quiet */
+  className?: string;
   expander?: boolean;
   actions?: boolean;
 }
 
 const COLUMNS: JobColumn[] = [
-  { pref: 'nameColumn', header: 'Name', expander: true, style: { minWidth: '12rem' } },
-  { pref: 'idColumn', header: 'ID', body: idOf, style: { width: '4rem' } },
+  { pref: 'nameColumn', header: 'Name', expander: true, className: 'name-col', style: { minWidth: '12rem' } },
+  { pref: 'idColumn', header: 'ID', body: idOf, className: 'id-col', style: { width: '4rem' } },
   { pref: 'statusColumn', header: 'Status', body: statusCell, style: { minWidth: '11rem' } },
   { header: 'WS State', body: wsStateCell, style: { whiteSpace: 'nowrap' } },
-  { pref: 'regionColumn', header: 'Region', body: regionOf, style: { minWidth: '9rem' } },
-  { pref: 'activeUsersColumn', header: 'Active users', body: (row) => figures(row).activeUsers ?? 0 },
-  { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers },
-  { pref: 'tpsColumn', header: 'TPS', body: (row) => figures(row).tps ?? 0 },
-  { pref: 'validationColumn', header: 'Failures', body: (row) => figures(row).failures?.total ?? 0 },
-  {
-    pref: 'startTimeColumn',
-    header: 'Started',
-    body: (row) => formatDateTime(figures(row).startTime),
-    style: { whiteSpace: 'nowrap' },
-  },
-  { pref: 'endTimeColumn', header: 'Completed', body: (row) => formatDateTime(endTimeOf(row)), style: { whiteSpace: 'nowrap' } },
-  { pref: 'actionsColumn', actions: true },
+  { pref: 'regionColumn', header: 'Region', body: regionOf, style: { minWidth: '7rem' } },
+  { pref: 'activeUsersColumn', header: 'Active users', body: (row) => formatCount(figures(row).activeUsers), className: 'num-col' },
+  { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers, className: 'num-col' },
+  { pref: 'tpsColumn', header: 'TPS', body: (row) => formatCount(figures(row).tps), className: 'num-col' },
+  { pref: 'validationColumn', header: 'Failures', body: failuresCell, className: 'num-col' },
+  { pref: 'startTimeColumn', header: 'Started', body: (row) => dateCell(figures(row).startTime), className: 'date-col' },
+  { pref: 'endTimeColumn', header: 'Completed', body: (row) => dateCell(endTimeOf(row)), className: 'date-col' },
+  { pref: 'actionsColumn', actions: true, className: 'actions-col' },
 ];
+
+/** A figure with thousands separators, so large user counts and TPS read at a glance */
+function formatCount(value: number | undefined) {
+  return (value ?? 0).toLocaleString();
+}
+
+/** A date and time that, when the table is tight, breaks between the two rather than anywhere */
+function dateCell(iso: string | undefined) {
+  const text = formatDateTime(iso);
+  const split = text.lastIndexOf(', ');
+  return split < 0 ? (
+    text
+  ) : (
+    <>
+      <span className="nowrap">{text.slice(0, split + 1)}</span> <span className="nowrap">{text.slice(split + 2)}</span>
+    </>
+  );
+}
+
+/** Failures stand out once there are any */
+function failuresCell(row: Row) {
+  const total = figures(row).failures?.total ?? 0;
+  return total > 0 ? <span className="failure-count">{formatCount(total)}</span> : formatCount(total);
+}
 
 function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
   const jobNode = (job: JobNode): TreeNode => ({
@@ -514,7 +539,7 @@ function targetUsers(row: Row) {
   if (row.kind === 'job' && row.job.incrementStrategy?.toLowerCase().startsWith('non')) {
     return '';
   }
-  return figures(row).totalUsers ?? 0;
+  return formatCount(figures(row).totalUsers);
 }
 
 /** The JSF tree's moving stripes for work in progress (tank.css status-badge-running and -starting) */

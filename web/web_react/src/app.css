@@ -880,6 +880,145 @@ body {
   vertical-align: middle;
 }
 
+/* The job tree sits in a card: a quiet header, tinted project rows, and agents a step down */
+.job-tree {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-card);
+}
+
+.job-tree .p-treetable-wrapper {
+  overflow-x: auto;
+}
+
+.job-tree .p-treetable-thead > tr > th {
+  background: var(--surface-50);
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.job-tree .p-treetable-tbody > tr > td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.job-tree .p-treetable-tbody > tr:hover > td {
+  background: var(--surface-50);
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-project > td {
+  background: var(--surface-100);
+  border-top: 1px solid var(--surface-300);
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-project:first-child > td {
+  border-top: none;
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-agent > td {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  font-size: 0.875rem;
+}
+
+/* The expander and its name stay on one line */
+.job-tree td.name-col {
+  white-space: nowrap;
+}
+
+.job-tree td.name-col .p-treetable-toggler {
+  vertical-align: middle;
+}
+
+
+.job-tree .nowrap {
+  white-space: nowrap;
+}
+
+.job-tree .p-button.p-button-link.link-cell {
+  font-weight: 500;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.job-tree .agent-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.job-tree td.id-col {
+  color: var(--text-color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.job-tree .num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-tree td.num-col {
+  white-space: nowrap;
+}
+
+.job-tree th.num-col .p-column-header-content {
+  justify-content: flex-end;
+}
+
+.job-tree .failure-count {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+.job-tree td.date-col {
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.job-tree .status-cell {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.job-tree .status-cell .field-help {
+  font-size: 0.75rem;
+}
+
+/* Agents report lower-case VM statuses; show them as the job rows do */
+.job-tree-agent .status-cell .p-tag {
+  text-transform: capitalize;
+}
+
+.job-tree .p-tag {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Toolbar: the filter on the left, refresh and columns together on the right */
+.job-toolbar {
+  padding: 8px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+
+.job-toolbar .field-inline {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.job-toolbar .p-dropdown .p-dropdown-label,
+.job-toolbar .p-multiselect .p-multiselect-label {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.875rem;
+}
+
 /* Charts: chrome tokens from the dataviz reference palette (light; the app has no dark theme) */
 .viz-root {
   --viz-surface: #ffffff;
@@ -1062,9 +1201,11 @@ body {
   font-weight: 600;
 }
 
-.job-tree a.project-cell {
-  color: var(--primary-color);
-  font-weight: 600;
+/* Projects head their groups, so they read as titles rather than links */
+.job-tree a.project-cell,
+.job-tree-project em {
+  color: var(--text-color);
+  font-weight: 700;
   text-decoration: none;
 }
 
