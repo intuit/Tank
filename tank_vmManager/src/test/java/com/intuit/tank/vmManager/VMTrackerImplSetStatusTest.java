@@ -86,7 +86,7 @@ public class VMTrackerImplSetStatusTest {
         mockProject(job, 7);
 
         CloudVmStatus status = new CloudVmStatus("i-1", JOB_ID, "sg-test", JobStatus.Running, VMImageType.AGENT,
-                VMRegion.US_WEST_2, VMStatus.running, new ValidationStatus(), 10, 5, new Date(1000), null);
+                VMRegion.US_WEST_2, null, VMStatus.running, new ValidationStatus(), 10, 5, new Date(1000), null);
 
         try (MockedConstruction<JobInstanceDao> daoConstruction = mockConstruction(JobInstanceDao.class)) {
             invokeSetStatusThread(status);
@@ -108,6 +108,25 @@ public class VMTrackerImplSetStatusTest {
         assertEquals(JobLifecycleEvent.LOAD_STARTED, firedEvents().get(0).getEvent());
 
         assertNotNull(vmTracker.getProjectStatusContainer("7"));
+    }
+
+    @Test
+    @DisplayName("A report without a zone keeps the zone recorded at launch; one with a zone replaces it")
+    void setStatus_keepsLaunchZoneUntilAgentReportsOne() throws Exception {
+        when(jobInstanceDao.findById(anyInt())).thenReturn(null);
+
+        CloudVmStatus launched = status("i-1", VMStatus.starting, JobStatus.Starting);
+        launched.setZone("us-west-2a");
+        invokeSetStatusThread(launched);
+
+        CloudVmStatus report = status("i-1", VMStatus.running, JobStatus.Running);
+        invokeSetStatusThread(report);
+        assertEquals("us-west-2a", vmTracker.getStatus("i-1").getZone());
+
+        CloudVmStatus reported = status("i-1", VMStatus.running, JobStatus.Running);
+        reported.setZone("us-west-2b");
+        invokeSetStatusThread(reported);
+        assertEquals("us-west-2b", vmTracker.getStatus("i-1").getZone());
     }
 
     @Test
@@ -378,7 +397,7 @@ public class VMTrackerImplSetStatusTest {
 
     private static CloudVmStatus status(String instanceId, VMStatus vmStatus, JobStatus jobStatus) {
         return new CloudVmStatus(instanceId, JOB_ID, "sg-test", jobStatus, VMImageType.AGENT,
-                VMRegion.US_WEST_2, vmStatus, new ValidationStatus(), 10, 5, null, null);
+                VMRegion.US_WEST_2, null, vmStatus, new ValidationStatus(), 10, 5, null, null);
     }
 
     private void invokeSetStatusThread(CloudVmStatus status) throws Exception {

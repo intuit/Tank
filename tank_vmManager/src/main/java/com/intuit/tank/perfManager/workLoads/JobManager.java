@@ -124,6 +124,7 @@ public class JobManager implements Serializable {
             List<AgentAvailability> agents = standaloneTracker.getAgents(jobRequest.getTotalVirtualUsers());
             if (agents == null) {
                 jobInstance.setStatus(JobQueueStatus.Aborted);
+                jobInstance.setEndTime(new Date());
                 jobInstanceDao.saveOrUpdate(jobInstance);
             } else {
                 // start the jobs by sending start commmand
@@ -139,6 +140,7 @@ public class JobManager implements Serializable {
 
                     // TODO: kill any agents that were started
                     jobInstance.setStatus(JobQueueStatus.Aborted);
+                    jobInstance.setEndTime(new Date());
                     jobInstanceDao.saveOrUpdate(jobInstance);
                 }
             }

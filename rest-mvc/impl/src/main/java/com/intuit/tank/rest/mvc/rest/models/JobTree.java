@@ -34,12 +34,13 @@ public record JobTree(List<ProjectJobs> projects, List<JobNode> otherJobs, Date 
     }
 
     /**
+     * @param zone        the availability zone the agent runs in, such as us-west-2a; null when unknown
      * @param status      VMStatus name
      * @param jobStatus   the agent's JobStatus name (paused agents keep running VMs)
      * @param wsState     the agent's WebSocket connection state, if it uses one
      * @param lastSeenMs  when the agent was last heard from over its WebSocket (epoch milliseconds)
      */
-    public record AgentNode(String instanceId, String region, String status, String jobStatus, int activeUsers, int totalUsers, int tps,
+    public record AgentNode(String instanceId, String region, String zone, String status, String jobStatus, int activeUsers, int totalUsers, int tps,
                             Failures failures, Date startTime, Date endTime, String wsState, String transferProgress,
                             Long lastSeenMs, Actions actions) {
     }

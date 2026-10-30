@@ -57,7 +57,7 @@ public class AgentWatchdogTest {
     @Test
     public void alreadyPendingRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
-        CloudVmStatus vmstatus = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus vmstatus = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         Set<CloudVmStatus> set = Stream.of(vmstatus).collect(Collectors.toCollection(HashSet::new));
         when(cloudVmStatusContainerMock.getStatuses()).thenReturn(set);
         when(vmTrackerMock.getVmStatusForJob(null)).thenReturn(cloudVmStatusContainerMock);
@@ -82,8 +82,8 @@ public class AgentWatchdogTest {
     @Test
     public void progressToPendingRunTest(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer cloudVmStatusContainerMock) {
         when(cloudVmStatusContainerMock.getEndTime()).thenReturn(null);
-        CloudVmStatus vmstatusStarting = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.starting, new ValidationStatus(), 1, 1, new Date(), new Date());
-        CloudVmStatus vmstatusPending = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus vmstatusStarting = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, null, VMStatus.starting, new ValidationStatus(), 1, 1, new Date(), new Date());
+        CloudVmStatus vmstatusPending = new CloudVmStatus("i-123456789", "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         Set<CloudVmStatus> setStarting = Stream.of(vmstatusStarting).collect(Collectors.toCollection(HashSet::new));
         Set<CloudVmStatus> setPending = Stream.of(vmstatusPending).collect(Collectors.toCollection(HashSet::new));
         when(cloudVmStatusContainerMock.getStatuses()).thenReturn(setStarting).thenReturn(setPending);
@@ -158,22 +158,22 @@ public class AgentWatchdogTest {
         
         CloudVmStatus vmstatusStarting = new CloudVmStatus(
             "i-still-starting", "123", "sg-123456", 
-            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, 
+            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, null, 
             VMStatus.starting, new ValidationStatus(), 1, 1, new Date(), new Date());
         
         CloudVmStatus vmstatusPending = new CloudVmStatus(
             "i-reported", "123", "sg-123456", 
-            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, 
+            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, null, 
             VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
 
         CloudVmStatus vmstatusReady = new CloudVmStatus(
             "i-ready", "123", "sg-123456",
-            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE,
+            JobStatus.Starting, VMImageType.AGENT, VMRegion.STANDALONE, null,
             VMStatus.ready, new ValidationStatus(), 1, 1, new Date(), new Date());
 
         CloudVmStatus vmstatusRunning = new CloudVmStatus(
             "i-running", "123", "sg-123456",
-            JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE,
+            JobStatus.Running, VMImageType.AGENT, VMRegion.STANDALONE, null,
             VMStatus.running, new ValidationStatus(), 1, 1, new Date(), new Date());
         
         Set<CloudVmStatus> statuses = new HashSet<>();
@@ -450,7 +450,7 @@ public class AgentWatchdogTest {
 
     private static CloudVmStatus status(String instanceId, VMStatus vmStatus) {
         return new CloudVmStatus(instanceId, "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT,
-            VMRegion.STANDALONE, vmStatus, new ValidationStatus(), 1, 1, new Date(), null);
+            VMRegion.STANDALONE, null, vmStatus, new ValidationStatus(), 1, 1, new Date(), null);
     }
 
     private static Set<String> instanceIds(List<VMInformation> instances) {

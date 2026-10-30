@@ -167,7 +167,8 @@ public class JobTreeBuilder {
         String status = vm.getVmStatus() != null ? vm.getVmStatus().name() : "";
         String jobStatus = vm.getJobStatus() != null ? vm.getJobStatus().name() : "";
         String instanceId = vm.getInstanceId();
-        return new AgentNode(instanceId, vm.getVmRegion() != null ? vm.getVmRegion().name() : null, status, jobStatus,
+        return new AgentNode(instanceId, vm.getVmRegion() != null ? vm.getVmRegion().name() : null, vm.getZone(),
+                status, jobStatus,
                 vm.getCurrentUsers(), vm.getTotalUsers(), vm.getTotalTps(), Failures.of(vm.getValidationFailures()),
                 vm.getStartTime(), vm.getEndTime(),
                 wsSender != null ? wsSender.getWsState(instanceId) : null,

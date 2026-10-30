@@ -2270,6 +2270,7 @@ export interface components {
             tps?: number;
             transferProgress?: string;
             wsState?: string;
+            zone?: string;
         };
         ApiTokenResponse: {
             apiToken?: string;
@@ -2377,6 +2378,7 @@ export interface components {
             vmRegion: "Standalone Agent" | "US East (Northern Virginia)" | "US East (Ohio)" | "US West (Northern California)" | "US West (Oregon)" | "EU (Ireland)" | "Asia Pacific (Singapore)" | "Asia Pacific (Sydney)" | "Asia Pacific (Tokyo)" | "South America (Sao Paulo)";
             /** @enum {string} */
             vmStatus: "unknown" | "starting" | "pending" | "ready" | "rampPaused" | "rebooting" | "running" | "stopping" | "stopped" | "shutting_down" | "terminated" | "disconnected" | "replaced";
+            zone?: string;
         };
         CloudVmStatusContainer: {
             detailMap?: {

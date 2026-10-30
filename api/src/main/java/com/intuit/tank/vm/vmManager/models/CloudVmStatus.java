@@ -59,7 +59,8 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
         "endTime",
         "reportTime",
         "totalTps",
-        "userDetails"
+        "userDetails",
+        "zone"
 })
 public class CloudVmStatus implements Serializable {
 
@@ -111,6 +112,9 @@ public class CloudVmStatus implements Serializable {
     @XmlElement(name = "userDetail", namespace = Namespace.NAMESPACE_V1, required = true, nillable = false)
     private List<UserDetail> userDetails = new ArrayList<UserDetail>();
 
+    @XmlElement(name = "zone", namespace = Namespace.NAMESPACE_V1, required = false, nillable = false)
+    private String zone;
+
     protected CloudVmStatus() {
     }
 
@@ -119,12 +123,14 @@ public class CloudVmStatus implements Serializable {
      * @param jobId
      * @param securityGroup
      * @param jobStatus
+     * @param zone
+     *            the availability zone the instance runs in, such as us-west-2a; null when unknown
      * @param vmStatus
      * @param totalUsers
      * @param currentUsers
      */
     public CloudVmStatus(String instanceId, String jobId, String securityGroup, JobStatus jobStatus, VMImageType role,
-            VMRegion vmRegion,
+            VMRegion vmRegion, String zone,
             VMStatus vmStatus, ValidationStatus validationFailures,
             int totalUsers, int currentUsers, Date startTime, Date endTime) {
         super();
@@ -132,6 +138,7 @@ public class CloudVmStatus implements Serializable {
         this.jobId = jobId;
         this.securityGroup = securityGroup;
         this.vmRegion = vmRegion;
+        this.zone = zone;
         this.role = role;
         this.jobStatus = jobStatus;
         this.vmStatus = vmStatus;
@@ -160,6 +167,7 @@ public class CloudVmStatus implements Serializable {
         this.startTime = copy.startTime;
         this.endTime = copy.endTime;
         this.totalTps = copy.totalTps;
+        this.zone = copy.zone;
     }
 
     /**
@@ -219,6 +227,21 @@ public class CloudVmStatus implements Serializable {
      */
     public VMRegion getVmRegion() {
         return vmRegion;
+    }
+
+    /**
+     * @return the availability zone the instance runs in, such as us-west-2a; null when unknown
+     */
+    public String getZone() {
+        return zone;
+    }
+
+    /**
+     * @param zone
+     *            the availability zone to set
+     */
+    public void setZone(String zone) {
+        this.zone = zone;
     }
 
     /**

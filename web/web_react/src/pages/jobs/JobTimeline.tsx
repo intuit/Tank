@@ -14,6 +14,11 @@ const WINDOWS = [
 ] as const;
 type TimeWindow = (typeof WINDOWS)[number]['value'];
 
+/** Statuses a job ends in; one without an end time (older controllers didn't always record it) has no known span */
+const FINISHED = ['completed', 'aborted'];
+/** Statuses of a job still to start; a job in any other without a start time never ran */
+const WAITING = ['created', 'queued', 'starting'];
+
 const HOUR_LABEL = new Intl.DateTimeFormat(undefined, { hour: 'numeric' });
 const DAY_LABEL = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric' });
 
@@ -30,12 +35,16 @@ export function JobTimeline({ tree, onDetails }: JobViewProps) {
   const at = (time: number) => `${(100 * (Math.max(from, Math.min(now, time)) - from)) / range.span}%`;
 
   const rows = jobEntries(tree)
-    .map((entry) => {
+    .flatMap((entry) => {
+      const status = entry.job.status?.toLowerCase() ?? '';
       const start = entry.job.startTime ? Date.parse(entry.job.startTime) : NaN;
-      const end = entry.job.endTime ? Date.parse(entry.job.endTime) : now;
-      return { ...entry, start, end };
+      if (Number.isNaN(start)) {
+        return WAITING.includes(status) ? [{ ...entry, start, end: now }] : [];
+      }
+      // only a job still going runs to now; a finished one with no end time can't be placed
+      const end = entry.job.endTime ? Date.parse(entry.job.endTime) : FINISHED.includes(status) ? NaN : now;
+      return end >= from ? [{ ...entry, start, end }] : [];
     })
-    .filter((row) => Number.isNaN(row.start) || row.end >= from)
     // queued (not started) first, then the most recent
     .sort((a, b) => (Number.isNaN(b.start) ? Infinity : b.start) - (Number.isNaN(a.start) ? Infinity : a.start));
 
