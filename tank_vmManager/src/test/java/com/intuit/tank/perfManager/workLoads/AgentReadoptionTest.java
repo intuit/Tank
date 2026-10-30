@@ -6,9 +6,12 @@ import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.settings.VmManagerConfig;
 import com.intuit.tank.vm.vmManager.VMInformation;
+import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -200,6 +204,88 @@ public class AgentReadoptionTest {
         when(tankConfig.getAgentConfig()).thenThrow(new IllegalStateException("settings unavailable"));
 
         assertDoesNotThrow(() -> new AgentReadoption(jobManager, tankConfig).onStartup(null));
+    }
+
+    @Test
+    void startupDoesNothingOnAStandaloneController() {
+        TankConfig tankConfig = tankConfig(true, 300);
+        when(tankConfig.getStandalone()).thenReturn(true);
+
+        new AgentReadoption(jobManager, tankConfig).onStartup(null);
+
+        verify(jobManager, never()).getControllerInitiatedAgentWsClient();
+    }
+
+    @Test
+    void stopBeforeStartupIsANoOp() {
+        assertDoesNotThrow(() -> new AgentReadoption().stop());
+    }
+
+    @Test
+    void skipsAgentWithNoReachableAddress() {
+        VMInformation agent = agent("i-east", "16156", VMRegion.US_EAST, NOW - TWENTY_MINUTES);
+        agent.setPrivateIp(null);
+        agent.setPublicIp(null);
+
+        assertEquals(0, readoption.adopt(List.of(agent), wsClient, TOKEN, PORT, NOW, MIN_AGE));
+        verify(wsClient, never()).connect(anyString(), anyString(), anyString(), anyLong());
+    }
+
+    @Test
+    void rejectsAgentWithoutAJobTag() {
+        VMInformation agent = agent("i-east", null, VMRegion.US_EAST, NOW - TWENTY_MINUTES);
+        when(wsClient.connect(anyString(), anyString(), anyString(), anyLong()))
+                .thenReturn(Optional.of(AgentWsEnvelope.hello("i-east", "16156", "session-1", null)));
+
+        assertEquals(0, readoption.adopt(List.of(agent), wsClient, TOKEN, PORT, NOW, MIN_AGE));
+        verify(wsClient).disconnect("i-east");
+    }
+
+    @Test
+    void adoptsAgentWhoseHelloOmitsTheInstanceId() {
+        VMInformation agent = agent("i-east", "16156", VMRegion.US_EAST, NOW - TWENTY_MINUTES);
+        when(wsClient.connect(anyString(), anyString(), anyString(), anyLong()))
+                .thenReturn(Optional.of(AgentWsEnvelope.hello(null, "16156", "session-1", null)));
+
+        assertEquals(1, readoption.adopt(List.of(agent), wsClient, TOKEN, PORT, NOW, MIN_AGE));
+        verify(jobManager).adoptAgent("i-east", "16156");
+    }
+
+    @Test
+    void reconcileLooksUpRunningAgentsInEveryRegion() throws Exception {
+        TankConfig tankConfig = tankConfig(true, 300);
+        when(tankConfig.getInstanceName()).thenReturn("controller-1");
+        when(tankConfig.getVmManagerConfig().getRegions()).thenReturn(Set.of(VMRegion.US_EAST));
+        when(tankConfig.getAgentConfig().getAgentToken()).thenReturn(TOKEN);
+        when(tankConfig.getAgentConfig().getAgentPort()).thenReturn(PORT);
+        when(jobManager.getControllerInitiatedAgentWsClient()).thenReturn(wsClient);
+        // launched just now, so it is still inside the bootstrap window and is not connected to
+        VMInformation agent = agent("i-east", "16156", VMRegion.US_EAST, System.currentTimeMillis());
+
+        try (MockedConstruction<AmazonInstance> amazon = mockConstruction(AmazonInstance.class,
+                (mock, context) -> when(mock.findRunningAgents("controller-1")).thenReturn(List.of(agent)))) {
+            invokeReconcile(new AgentReadoption(jobManager, tankConfig));
+
+            assertEquals(1, amazon.constructed().size());
+            verify(amazon.constructed().get(0)).findRunningAgents("controller-1");
+        }
+        verify(wsClient).hasSession("i-east");
+        verify(wsClient, never()).connect(anyString(), anyString(), anyString(), anyLong());
+    }
+
+    @Test
+    void reconcileFailureIsLoggedAndNotRethrown() {
+        TankConfig tankConfig = mock(TankConfig.class);
+        when(tankConfig.getVmManagerConfig()).thenThrow(new IllegalStateException("settings unavailable"));
+
+        assertDoesNotThrow(() -> invokeReconcile(new AgentReadoption(jobManager, tankConfig)));
+        verify(jobManager, never()).getControllerInitiatedAgentWsClient();
+    }
+
+    private static void invokeReconcile(AgentReadoption target) throws Exception {
+        Method reconcile = AgentReadoption.class.getDeclaredMethod("reconcile");
+        reconcile.setAccessible(true);
+        reconcile.invoke(target);
     }
 
     private TankConfig tankConfig(boolean wsEnabled, int readoptionIntervalSeconds) {

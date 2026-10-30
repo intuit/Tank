@@ -280,6 +280,179 @@ public class AgentWatchdogTest {
         verify(amazonInstanceMock).create(instanceRequest);
     }
 
+    @Test
+    public void convenienceConstructors_useDefaults(@Mock VMTracker vmTrackerMock) {
+        AgentWatchdog defaults = new AgentWatchdog(jobRequest(), new ArrayList<>(), vmTrackerMock);
+        assertTrue(defaults.toString().endsWith("[sleepTime=30000,maxWaitForResponse=600000,maxRestarts=2]"));
+
+        AgentWatchdog withAmazon = new AgentWatchdog(
+            jobRequest(), new ArrayList<>(), vmTrackerMock, amazonInstanceMock, 10, 50);
+        assertTrue(withAmazon.toString().contains("sleepTime=10"));
+    }
+
+    @Test
+    public void run_exitsWhenJobHasNoStatusContainer(@Mock VMTracker vmTrackerMock) {
+        when(vmTrackerMock.getVmStatusForJob("123")).thenReturn(null);
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            jobRequest(), new ArrayList<>(List.of(vm("i-1"))), vmTrackerMock, amazonInstanceMock, 10, 50, null);
+        agentWatchdog.run();
+
+        verify(vmTrackerMock, never()).publishEvent(any());
+        verifyNoInteractions(amazonInstanceMock);
+    }
+
+    @Test
+    public void run_exitsWhenJobAlreadyEnded(@Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer containerMock) {
+        when(containerMock.getEndTime()).thenReturn(new Date());
+        when(vmTrackerMock.getVmStatusForJob("123")).thenReturn(containerMock);
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            jobRequest(), new ArrayList<>(List.of(vm("i-1"))), vmTrackerMock, amazonInstanceMock, 10, 50, null);
+        agentWatchdog.run();
+
+        verify(containerMock, never()).getStatuses();
+        verifyNoInteractions(amazonInstanceMock);
+    }
+
+    @Test
+    public void run_relaunchesSlowAgentsThenFinishesWhenReplacementsReport(
+            @Mock VMTracker vmTrackerMock, @Mock CloudVmStatusContainer containerMock) throws Exception {
+        VMInstanceRequest instanceRequest = jobRequest();
+        VMInformation oldVm = vm("i-old");
+        VMInformation newVm = vm("i-new");
+        when(amazonInstanceMock.create(instanceRequest)).thenReturn(List.of(newVm));
+
+        when(containerMock.getEndTime()).thenReturn(null);
+        when(containerMock.getStatuses())
+            .thenReturn(Set.of(status("i-old", VMStatus.starting)))
+            .thenReturn(Set.of(status("i-new", VMStatus.pending)));
+        when(vmTrackerMock.getVmStatusForJob("123")).thenReturn(containerMock);
+
+        // a failing callback must not stop the watchdog
+        AgentWatchdog.WsBootstrapCallback callback = (req, vms) -> { throw new IllegalStateException("ws down"); };
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, new ArrayList<>(List.of(oldVm)), vmTrackerMock, amazonInstanceMock, 10, 50, callback);
+        // pretend the agents were launched long ago so the first pass relaunches them
+        setField(agentWatchdog, "startTime", 0L);
+
+        com.intuit.tank.project.VMInstance image = mock(com.intuit.tank.project.VMInstance.class);
+        try (MockedConstruction<VMImageDao> daoMock = Mockito.mockConstruction(VMImageDao.class, (dao, ctx) -> {
+            when(dao.getImageByInstanceId("i-old")).thenReturn(image);
+            when(dao.addImageFromInfo(any(), any(), any())).thenThrow(new RuntimeException("db down"));
+        })) {
+            agentWatchdog.run();
+
+            verify(daoMock.constructed().get(0)).saveOrUpdate(image);
+        }
+
+        verify(image).setStatus(VMStatus.replaced.name());
+        verify(amazonInstanceMock).killInstances(List.of("i-old"));
+        assertEquals(1, instanceRequest.getNumberOfInstances());
+
+        // old instance is reported as replaced, the new one as starting
+        org.mockito.ArgumentCaptor<CloudVmStatus> statusCaptor = org.mockito.ArgumentCaptor.forClass(CloudVmStatus.class);
+        verify(vmTrackerMock, times(2)).setStatus(statusCaptor.capture());
+        assertEquals(VMStatus.replaced, statusCaptor.getAllValues().get(0).getVmStatus());
+        assertEquals(VMStatus.starting, statusCaptor.getAllValues().get(1).getVmStatus());
+
+        org.mockito.ArgumentCaptor<com.intuit.tank.vm.event.JobEvent> eventCaptor =
+            org.mockito.ArgumentCaptor.forClass(com.intuit.tank.vm.event.JobEvent.class);
+        verify(vmTrackerMock, times(2)).publishEvent(eventCaptor.capture());
+        assertEquals(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.AGENT_REBOOTED,
+            eventCaptor.getAllValues().get(0).getEvent());
+        assertEquals(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.AGENT_REPORTED,
+            eventCaptor.getAllValues().get(1).getEvent());
+    }
+
+    @Test
+    public void relaunch_pastMaxRestarts_killsJobDirectly(@Mock VMTracker vmTrackerMock) throws Exception {
+        VMInstanceRequest instanceRequest = jobRequest();
+        ArrayList<VMInformation> vmInfo = new ArrayList<>(List.of(vm("i-1"), vm("i-2")));
+        ArrayList<VMInformation> startedInstances = new ArrayList<>(vmInfo);
+
+        CloudVmStatus trackedStatus = status("i-1", VMStatus.running);
+        when(vmTrackerMock.getStatus("i-1")).thenReturn(trackedStatus);
+        when(vmTrackerMock.getStatus("i-2")).thenReturn(null);
+        doThrow(new IllegalStateException("no observers")).when(vmTrackerMock).publishEvent(any());
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, vmInfo, vmTrackerMock, amazonInstanceMock, 10, 50, null);
+        setField(agentWatchdog, "startedInstances", startedInstances);
+        setField(agentWatchdog, "reportedInstances", new ArrayList<VMInformation>());
+        setField(agentWatchdog, "restartCount", getField(agentWatchdog, "maxRestarts"));
+
+        com.intuit.tank.project.JobInstance job = mock(com.intuit.tank.project.JobInstance.class);
+        try (MockedConstruction<com.intuit.tank.dao.JobInstanceDao> daoMock = Mockito.mockConstruction(
+                com.intuit.tank.dao.JobInstanceDao.class,
+                (dao, ctx) -> when(dao.findById(123)).thenReturn(job))) {
+            Exception thrown = assertThrows(Exception.class, () -> invokeRelaunch(agentWatchdog, startedInstances));
+            assertEquals("Killing jobs and exiting", thrown.getMessage());
+
+            verify(daoMock.constructed().get(0)).saveOrUpdate(job);
+        }
+
+        verify(vmTrackerMock).stopJob("123");
+        verify(amazonInstanceMock).killInstances(List.of("i-1", "i-2"));
+        verify(amazonInstanceMock, never()).create(any());
+        assertEquals(VMStatus.terminated, trackedStatus.getVmStatus());
+        assertEquals(JobStatus.Completed, trackedStatus.getJobStatus());
+        assertNotNull(trackedStatus.getEndTime());
+        verify(vmTrackerMock).setStatus(trackedStatus);
+        verify(job).setStatus(com.intuit.tank.vm.api.enumerated.JobQueueStatus.Completed);
+        assertTrue((Boolean) getField(agentWatchdog, "stopped"));
+    }
+
+    @Test
+    public void relaunch_pastMaxRestarts_noInstancesAndDbFailure_stillAborts(@Mock VMTracker vmTrackerMock) throws Exception {
+        VMInstanceRequest instanceRequest = jobRequest();
+        ArrayList<VMInformation> startedInstances = new ArrayList<>();
+
+        AgentWatchdog agentWatchdog = new AgentWatchdog(
+            instanceRequest, new ArrayList<>(), vmTrackerMock, amazonInstanceMock, 10, 50, null);
+        setField(agentWatchdog, "startedInstances", startedInstances);
+        setField(agentWatchdog, "restartCount", getField(agentWatchdog, "maxRestarts"));
+
+        try (MockedConstruction<com.intuit.tank.dao.JobInstanceDao> ignored = Mockito.mockConstruction(
+                com.intuit.tank.dao.JobInstanceDao.class,
+                (dao, ctx) -> when(dao.findById(123)).thenThrow(new RuntimeException("db down")))) {
+            assertThrows(Exception.class, () -> invokeRelaunch(agentWatchdog, startedInstances));
+        }
+
+        verify(vmTrackerMock).stopJob("123");
+        verify(vmTrackerMock).publishEvent(any());
+        verifyNoInteractions(amazonInstanceMock);
+    }
+
+    private static void invokeRelaunch(AgentWatchdog agentWatchdog, ArrayList<VMInformation> instances) throws Exception {
+        Method relaunch = AgentWatchdog.class.getDeclaredMethod("relaunch", ArrayList.class);
+        relaunch.setAccessible(true);
+        try {
+            relaunch.invoke(agentWatchdog, instances);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            throw (Exception) e.getCause();
+        }
+    }
+
+    private static VMInstanceRequest jobRequest() {
+        VMInstanceRequest instanceRequest = new VMInstanceRequest();
+        instanceRequest.setJobId("123");
+        instanceRequest.setRegion(VMRegion.STANDALONE);
+        return instanceRequest;
+    }
+
+    private static VMInformation vm(String instanceId) {
+        VMInformation info = new VMInformation();
+        info.setInstanceId(instanceId);
+        info.setState("pending");
+        return info;
+    }
+
+    private static CloudVmStatus status(String instanceId, VMStatus vmStatus) {
+        return new CloudVmStatus(instanceId, "123", "sg-123456", JobStatus.Starting, VMImageType.AGENT,
+            VMRegion.STANDALONE, vmStatus, new ValidationStatus(), 1, 1, new Date(), null);
+    }
+
     private static Set<String> instanceIds(List<VMInformation> instances) {
         return instances.stream().map(VMInformation::getInstanceId).collect(Collectors.toSet());
     }

@@ -16,6 +16,7 @@ package com.intuit.tank.perfManager.workLoads;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.intuit.tank.perfManager.workLoads.JobInstanceAgentModel;
 import com.intuit.tank.vm.vmManager.JobRequest;
@@ -78,5 +79,23 @@ public class JobInstanceAgentModelTest {
         int result = fixture.getStartTime();
 
         assertEquals(0, result);
+    }
+
+    /**
+     * The concurrency, ramp time and script URL are read from the job.
+     */
+    @Test
+    public void testDelegatesToJob() {
+        JobRequest job = mock(JobRequest.class);
+        when(job.getTotalVirtualUsers()).thenReturn(250);
+        when(job.getRampTime()).thenReturn(90L);
+        when(job.getScriptsXmlUrl()).thenReturn("http://controller/scripts.xml");
+
+        JobInstanceAgentModel fixture = new JobInstanceAgentModel(job);
+
+        assertSame(job, fixture.getJob());
+        assertEquals(250, fixture.getNumberConcurrent());
+        assertEquals(90L, fixture.getRampTime());
+        assertEquals("http://controller/scripts.xml", fixture.getScriptsXmlUrl());
     }
 }

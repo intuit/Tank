@@ -1,10 +1,14 @@
 package com.intuit.tank.vmManager.environment.amazon;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Predicate;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
 import software.amazon.awssdk.awscore.retry.AwsRetryStrategy;
 import software.amazon.awssdk.core.retry.RetryMode;
 import software.amazon.awssdk.retries.api.AcquireInitialTokenRequest;
+import software.amazon.awssdk.retries.api.BackoffStrategy;
+import software.amazon.awssdk.retries.api.RecordSuccessRequest;
 import software.amazon.awssdk.retries.api.RefreshRetryTokenRequest;
 import software.amazon.awssdk.retries.api.RetryStrategy;
 import software.amazon.awssdk.retries.api.RetryToken;
@@ -17,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CapacityAwareRetryStrategyTest {
 
@@ -55,5 +62,40 @@ public class CapacityAwareRetryStrategyTest {
                 .statusCode(statusCode)
                 .awsErrorDetails(AwsErrorDetails.builder().errorCode(errorCode).build())
                 .build();
+    }
+
+    @Test
+    public void recordSuccessDelegates() {
+        RetryToken token = strategy.acquireInitialToken(AcquireInitialTokenRequest.create("ec2")).token();
+
+        assertNotNull(strategy.recordSuccess(RecordSuccessRequest.create(token)).token());
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void builderDelegatesEverySetting() {
+        RetryStrategy.Builder delegate = mock(RetryStrategy.Builder.class);
+        RetryStrategy built = mock(RetryStrategy.class);
+        when(delegate.build()).thenReturn(built);
+        Predicate<Throwable> retryOn = failure -> true;
+        Predicate<Throwable> throttling = failure -> false;
+        BackoffStrategy backoff = BackoffStrategy.retryImmediately();
+        BackoffStrategy throttlingBackoff = BackoffStrategy.retryImmediately();
+
+        CapacityAwareRetryStrategy.Builder builder = new CapacityAwareRetryStrategy.Builder(delegate);
+        CapacityAwareRetryStrategy rebuilt = builder.retryOnException(retryOn)
+                .maxAttempts(2)
+                .backoffStrategy(backoff)
+                .throttlingBackoffStrategy(throttlingBackoff)
+                .treatAsThrottling(throttling)
+                .build();
+
+        verify(delegate).retryOnException(retryOn);
+        verify(delegate).maxAttempts(2);
+        verify(delegate).backoffStrategy(backoff);
+        verify(delegate).throttlingBackoffStrategy(throttlingBackoff);
+        verify(delegate).treatAsThrottling(throttling);
+        when(built.maxAttempts()).thenReturn(2);
+        assertEquals(2, rebuilt.maxAttempts());
     }
 }
