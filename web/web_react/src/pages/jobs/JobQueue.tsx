@@ -7,6 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Message } from 'primereact/message';
 import { MultiSelect } from 'primereact/multiselect';
+import { SelectButton } from 'primereact/selectbutton';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
@@ -18,12 +19,24 @@ import { formatDateTime, htmlToText } from '../../format';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
+import { AgentHeatMap } from './AgentHeatMap';
+import { JobCards, useTpsHistory } from './JobCards';
 import { JobCharts } from './JobCharts';
+import {
+  agentSummary,
+  formatCount,
+  formatTime,
+  severityOf,
+  stripeOf,
+  type AgentNode,
+  type JobNode,
+  type JobTree,
+  type Row,
+  type Target,
+} from './jobModel';
+import { JobTimeline } from './JobTimeline';
+import { RegionSummary } from './RegionSummary';
 
-type JobTree = Schemas['JobTree'];
-type JobNode = Schemas['JobNode'];
-type ProjectJobs = Schemas['ProjectJobs'];
-type AgentNode = Schemas['AgentNode'];
 type Actions = Schemas['Actions'];
 
 /** The server asks for no faster than this (GET /v2/jobs/tree), as JobTreeTableBean's MIN_REFRESH */
@@ -51,6 +64,35 @@ function storeRefreshSeconds(seconds: number) {
   }
 }
 
+/** Ways to look at the queue; the table is the JSF tree's */
+export const VIEWS = [
+  { value: 'table', label: 'Table', icon: 'pi pi-list' },
+  { value: 'heatmap', label: 'Heat map', icon: 'pi pi-th-large' },
+  { value: 'jobs', label: 'Jobs', icon: 'pi pi-clone' },
+  { value: 'regions', label: 'Regions', icon: 'pi pi-globe' },
+  { value: 'timeline', label: 'Timeline', icon: 'pi pi-calendar' },
+] as const;
+type View = (typeof VIEWS)[number]['value'];
+const VIEW_STORAGE_KEY = 'tank.jobs.view';
+
+/** The view this browser last chose; storage can be missing or blocked */
+function storedView(): View {
+  try {
+    const stored = localStorage.getItem(VIEW_STORAGE_KEY);
+    return VIEWS.find((v) => v.value === stored)?.value ?? 'table';
+  } catch {
+    return 'table';
+  }
+}
+
+function storeView(view: View) {
+  try {
+    localStorage.setItem(VIEW_STORAGE_KEY, view);
+  } catch {
+    // the choice lasts only for this page
+  }
+}
+
 /** Actions as the REST API names them, with the flag in Actions that allows each */
 const ACTIONS = [
   { action: 'start', flag: 'start', label: 'Run', icon: 'pi pi-play', severity: 'success' },
@@ -63,14 +105,6 @@ const ACTIONS = [
   { action: 'kill', flag: 'kill', label: 'Kill', icon: 'pi pi-times-circle', severity: 'danger' },
 ] as const;
 
-type Row =
-  /** a project, or (no projectId) the jobs whose project no longer exists */
-  | { kind: 'project'; project: ProjectJobs; orphans?: boolean }
-  | { kind: 'job'; job: JobNode }
-  | { kind: 'agent'; agent: AgentNode; job: JobNode };
-
-/** The rows actions can be sent to */
-type Target = Exclude<Row, { kind: 'project' }>;
 
 /**
  * Jobs and their agents, live (JobTreeTableBean, projectjobqueue.xhtml and agents/index.xhtml). With
@@ -85,14 +119,17 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [detailsFor, setDetailsFor] = useState<{ job: JobNode; agent?: AgentNode }>();
   const [refreshSeconds, setRefreshSeconds] = useState(storedRefreshSeconds);
+  const [view, setView] = useState(storedView);
   const preferences = useTablePreferences('jobs');
-  const queryKey = ['jobs', 'tree', { projectId, includeFinished }] as const;
+  // the timeline is about the past as much as the present
+  const withFinished = includeFinished || view === 'timeline';
+  const queryKey = ['jobs', 'tree', { projectId, includeFinished: withFinished }] as const;
 
   const tree = useQuery({
     queryKey,
     queryFn: async ({ signal }): Promise<JobTree> => {
       const { data, error, response } = await client.GET('/v2/jobs/tree', {
-        params: { query: { projectId, includeFinished } },
+        params: { query: { projectId, includeFinished: withFinished } },
         signal,
       });
       if (!data) {
@@ -141,6 +178,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: ['jobs', 'tree'] }),
   });
 
+  const tpsHistory = useTpsHistory(tree.data);
   const nodes = useMemo(() => (tree.data ? toNodes(tree.data, projectId === undefined) : []), [tree.data, projectId]);
 
   // Projects start expanded so their jobs show; agents start collapsed
@@ -233,6 +271,12 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     );
   };
 
+  const viewProps = (data: JobTree) => ({
+    tree: data,
+    actionsFor,
+    onDetails: (job: JobNode, agent?: AgentNode) => setDetailsFor({ job, agent }),
+  });
+
   const nameCell = (row: Row) =>
     row.kind === 'project' ? (
       row.orphans ? (
@@ -256,12 +300,34 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     );
 
   return (
-    <div>
+    <div className="job-queue-views">
       <div className="tab-toolbar job-toolbar">
+        <SelectButton
+          value={view}
+          options={[...VIEWS]}
+          optionLabel="label"
+          optionValue="value"
+          itemTemplate={(option: (typeof VIEWS)[number]) => (
+            <>
+              <i className={option.icon} aria-hidden />
+              <span>{option.label}</span>
+            </>
+          )}
+          onChange={(e) => {
+            if (e.value) {
+              setView(e.value as View);
+              storeView(e.value as View);
+            }
+          }}
+          allowEmpty={false}
+          aria-label="View"
+          className="job-view-switch"
+        />
         <div className="field-inline">
           <InputSwitch
             inputId="include-finished"
-            checked={includeFinished}
+            checked={withFinished}
+            disabled={view === 'timeline'}
             onChange={(e) => setIncludeFinished(!!e.value)}
           />
           <label htmlFor="include-finished">Show finished jobs</label>
@@ -290,6 +356,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
             className="p-inputtext-sm"
           />
         </div>
+        {view === 'table' && (
         <MultiSelect
           value={hideable.filter((c) => c.visible).map((c) => c.colName)}
           options={hideable.map((c) => ({ label: c.displayName, value: c.colName }))}
@@ -302,10 +369,23 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           className="list-columns"
           disabled={hideable.length === 0}
         />
+        )}
       </div>
 
       {tree.error && !tree.data ? (
         <Message severity="error" text={tree.error.message} className="tab-message" />
+      ) : view !== 'table' ? (
+        !tree.data ? (
+          <p className="field-help">Loading jobs…</p>
+        ) : view === 'heatmap' ? (
+          <AgentHeatMap {...viewProps(tree.data)} />
+        ) : view === 'jobs' ? (
+          <JobCards {...viewProps(tree.data)} tpsHistory={tpsHistory} />
+        ) : view === 'regions' ? (
+          <RegionSummary {...viewProps(tree.data)} />
+        ) : (
+          <JobTimeline {...viewProps(tree.data)} />
+        )
       ) : (
         <TreeTable
           value={nodes}
@@ -379,11 +459,6 @@ const COLUMNS: JobColumn[] = [
   { pref: 'endTimeColumn', header: 'Completed', body: (row) => dateCell(endTimeOf(row)), className: 'date-col' },
   { pref: 'actionsColumn', actions: true, className: 'actions-col' },
 ];
-
-/** A figure with thousands separators, so large user counts and TPS read at a glance */
-function formatCount(value: number | undefined) {
-  return (value ?? 0).toLocaleString();
-}
 
 /** A date and time that, when the table is tight, breaks between the two rather than anywhere */
 function dateCell(iso: string | undefined) {
@@ -514,22 +589,11 @@ function statusCell(row: Row) {
     );
   }
   const { job } = row;
-  const agents = job.agents ?? [];
-  const count = (test: (a: AgentNode) => boolean) => agents.filter(test).length;
-  const running = count((a) => a.status === 'running');
-  // as ActJobNodeBean counts them for two-step jobs
-  const connected = count((a) => !!a.wsState && a.wsState !== 'disconnected');
-  const ready = count((a) => a.status === 'ready');
+  const summary = agentSummary(job);
   return (
     <span className="status-cell">
       <Tag value={job.status} severity={severityOf(job.status)} className={stripeOf(job.status)} />
-      {agents.length > 0 && (
-        <span className="field-help">
-          {job.useTwoStep && running === 0
-            ? `${connected}/${agents.length} connected, ${ready}/${agents.length} ready`
-            : `${running}/${agents.length} agents running`}
-        </span>
-      )}
+      {summary && <span className="field-help">{summary}</span>}
     </span>
   );
 }
@@ -540,50 +604,6 @@ function targetUsers(row: Row) {
     return '';
   }
   return formatCount(figures(row).totalUsers);
-}
-
-/** The JSF tree's moving stripes for work in progress (tank.css status-badge-running and -starting) */
-export function stripeOf(status: string | undefined): string | undefined {
-  switch (status?.toLowerCase()) {
-    case 'running':
-      return 'status-striped status-striped-running';
-    case 'starting':
-      return 'status-striped status-striped-starting';
-    default:
-      return undefined;
-  }
-}
-
-/** Colours JobQueueStatus and VMStatus (vmManager) names; unknown ones stay neutral */
-export function severityOf(status: string | undefined): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
-  switch (status?.toLowerCase()) {
-    case 'running':
-      return 'success';
-    case 'created':
-    case 'queued':
-    case 'starting':
-    case 'pending':
-    case 'ready':
-    case 'rebooting':
-      return 'info';
-    case 'paused':
-    case 'ramppaused':
-    case 'stopping':
-      return 'warning';
-    case 'aborted':
-    case 'terminated':
-    case 'disconnected':
-    case 'replaced':
-      return 'danger';
-    default:
-      // Completed, Stopped, Deleted, shutting_down, unknown: neutral, not the primary blue
-      return 'secondary';
-  }
-}
-
-function formatTime(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
 }
 
 /** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its TPS */
