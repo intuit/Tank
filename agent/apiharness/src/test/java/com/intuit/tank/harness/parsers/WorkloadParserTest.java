@@ -22,7 +22,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.harness.data.HDWorkload;
-import com.intuit.tank.harness.parsers.WorkloadParser;
 
 /**
  * The class <code>WorkloadParserTest</code> contains tests for the class <code>{@link WorkloadParser}</code>.

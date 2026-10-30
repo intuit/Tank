@@ -28,6 +28,7 @@ import com.intuit.tank.tools.debugger.StepListener;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -294,7 +295,7 @@ public class HeadlessDebuggerSetup implements Serializable {
 
         long replacedCount = steps.stream()
                 .map(step -> step.getStepRun().getInfo())
-                .filter(url -> StringUtils.contains(url, "#{"))
+                .filter(url -> Strings.CS.contains(url, "#{"))
                 .count();
 
         double replacementPercentage = (double) replacedCount / stepCount * 100;
@@ -499,7 +500,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.info(sb);
 
                 if(debugStep != null && debugStep.getStepRun() != null) {
-                    if(StringUtils.contains(debugStep.getStepRun().getInfo(), "filing-return")) {
+                    if(Strings.CS.contains(debugStep.getStepRun().getInfo(), "filing-return")) {
                         LOG.info("filing-return response body: {}", debugStep.getResponse().getBody());
 
                         try {
@@ -514,7 +515,7 @@ public class HeadlessDebuggerSetup implements Serializable {
                             LOG.error("Error parsing JSON response body", e);
                         }
                     }
-                    if(StringUtils.contains(debugStep.getStepRun().getInfo(), "taxhub")) {
+                    if(Strings.CS.contains(debugStep.getStepRun().getInfo(), "taxhub")) {
                         taxhubFlow = true;
                     }
                 }

@@ -14,11 +14,10 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.TimingResult;
 
 /**
  * The class <code>TimingResultTest</code> contains tests for the class <code>{@link TimingResult}</code>.
@@ -40,9 +39,9 @@ public class TimingResultTest {
         TimingResult result = new TimingResult();
 
         assertNotNull(result);
-        assertEquals(null, result.getCreator());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 }

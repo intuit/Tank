@@ -26,11 +26,6 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.ProjectVariableEditor;
-import com.intuit.tank.project.VariableEntry;
-import com.intuit.tank.project.Workload;
-
 /**
  * The class <code>ProjectVariableEditorTest</code> contains tests for the class <code>{@link ProjectVariableEditor}</code>.
  *

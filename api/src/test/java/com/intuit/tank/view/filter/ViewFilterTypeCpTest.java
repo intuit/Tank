@@ -13,12 +13,9 @@ package com.intuit.tank.view.filter;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.view.filter.ViewFilterType;
 
 import static org.junit.jupiter.api.Assertions.*;
 

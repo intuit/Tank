@@ -10,7 +10,6 @@ package com.intuit.tank.clients;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.clients.util.ClientException;
-import com.intuit.tank.projects.models.ProjectTO;
 import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
@@ -19,15 +18,9 @@ import com.intuit.tank.script.models.ScriptTO;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Map;
-
 
 public class ScriptClient extends BaseClient {
 

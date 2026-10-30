@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;
-import com.intuit.tank.vm.scheduleManager.JobRequestData;
 
 /**
  * The class <code>JobRequestDataCpTest</code> contains tests for the class <code>{@link JobRequestData}</code>.
@@ -45,7 +44,7 @@ public class JobRequestDataCpTest {
         JobRequestData result = new JobRequestData(request);
 
         assertNotNull(result);
-        assertEquals(true, result.isFullfilled());
+        assertTrue(result.isFullfilled());
     }
 
     /**
@@ -125,7 +124,7 @@ public class JobRequestDataCpTest {
 
         boolean result = fixture.isFullfilled();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -144,6 +143,6 @@ public class JobRequestDataCpTest {
 
         boolean result = fixture.isFullfilled();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 }

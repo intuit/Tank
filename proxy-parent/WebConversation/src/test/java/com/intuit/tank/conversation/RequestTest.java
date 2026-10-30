@@ -4,10 +4,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.conversation.Header;
-import com.intuit.tank.conversation.Protocol;
-import com.intuit.tank.conversation.Request;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -90,7 +86,7 @@ public class RequestTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -116,7 +112,7 @@ public class RequestTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -138,7 +134,7 @@ public class RequestTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -164,7 +160,7 @@ public class RequestTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -190,7 +186,7 @@ public class RequestTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

@@ -20,8 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.intuit.tank.service.InitializeEnvironment;
-
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;

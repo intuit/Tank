@@ -20,9 +20,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.primefaces.extensions.component.dynaform.DynaForm;
-
-import com.intuit.tank.converter.SearchModeConverter;
 import com.intuit.tank.script.replace.SearchMode;
 
 /**

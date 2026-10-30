@@ -13,12 +13,9 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.OwnableEntity;
 
 /**
  * The class <code>OwnableEntityTest</code> contains tests for the class <code>{@link OwnableEntity}</code>.
@@ -40,7 +37,7 @@ public class OwnableEntityTest {
 
         String result = fixture.getCreator();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

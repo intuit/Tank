@@ -56,6 +56,7 @@ import java.util.function.Function;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -556,7 +557,7 @@ public class ControllerInitiatedAgentWsClientFlowTest {
         invokeWindow(window, "onAck", intArg, (Object) null);
         invokeWindow(window, "onAck", intArg, -1);
         invokeWindow(window, "onAck", intArg, 1);
-        assertTrue(invokeWindow(window, "awaitAdvanceIfBelow", new Class<?>[] { int.class }, 0) != null);
+        assertNotNull(invokeWindow(window, "awaitAdvanceIfBelow", new Class<?>[] { int.class }, 0));
         invokeWindow(window, "onAck", intArg, 0);
         assertNull(invokeWindow(window, "awaitAdvanceIfBelow", new Class<?>[] { int.class }, 1));
         assertTrue((boolean) invokeWindow(window, "matchesFile", new Class<?>[] { String.class }, "file-1"));

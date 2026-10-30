@@ -374,7 +374,7 @@ public class VMTrackerImplTest {
         
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         assertNotNull(container, "Container should exist");
-        assertTrue(container.getStatuses().size() > 0, "Should have some statuses");
+        assertFalse(container.getStatuses().isEmpty(), "Should have some statuses");
     }
 
     @RepeatedTest(3)

@@ -14,6 +14,7 @@ package com.intuit.tank.reporting.api;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
@@ -43,8 +44,8 @@ public class TPSInfoContainerTest {
 
         assertNotNull(result);
         assertEquals(0, result.getPeriod());
-        assertEquals(null, result.getMaxTime());
-        assertEquals(null, result.getMinTime());
+        assertNull(result.getMaxTime());
+        assertNull(result.getMinTime());
         assertEquals(0, result.getTotalTps());
     }
 
@@ -199,7 +200,7 @@ public class TPSInfoContainerTest {
 
         assertNotNull(result);
         assertEquals(1, result.getPeriod());
-        assertEquals(null, result.getTpsInfos());
+        assertNull(result.getTpsInfos());
         assertEquals(0, result.getTotalTps());
     }
 

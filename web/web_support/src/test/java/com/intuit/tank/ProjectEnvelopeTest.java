@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.ProjectEnvelope;
 import com.intuit.tank.project.Project;
 
 /**
@@ -139,7 +138,7 @@ public class ProjectEnvelopeTest {
         ProjectEnvelope fixture = new ProjectEnvelope(false, new Project());
 
         boolean result = fixture.isChecked();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

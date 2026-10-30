@@ -15,8 +15,6 @@ package com.intuit.tank.vm.common;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.ScriptProgressContainer;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,7 +38,7 @@ public class ScriptProgressContainerCpTest {
         ScriptProgressContainer result = new ScriptProgressContainer();
 
         assertNotNull(result);
-        assertEquals(null, result.getErrorMessage());
+        assertNull(result.getErrorMessage());
         assertEquals(0, result.getPercentComplete());
     }
 

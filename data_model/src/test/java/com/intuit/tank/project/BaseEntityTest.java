@@ -20,9 +20,6 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.JobConfiguration;
-
 /**
  * The class <code>BaseEntityTest</code> contains tests for the class <code>{@link BaseEntity}</code>.
  * 

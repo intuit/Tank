@@ -20,7 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
-import com.intuit.tank.vm.scheduleManager.AgentRequest;
 
 /**
  * The class <code>AgentRequestCpTest</code> contains tests for the class <code>{@link AgentRequest}</code>.

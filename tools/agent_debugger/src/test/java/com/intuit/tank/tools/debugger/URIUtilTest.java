@@ -15,8 +15,6 @@ package com.intuit.tank.tools.debugger;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.tools.debugger.URIUtil;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,7 +38,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -58,7 +56,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -76,7 +74,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -94,7 +92,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -112,7 +110,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -130,7 +128,7 @@ public class URIUtilTest {
 
         StringBuffer result = URIUtil.encodePath(buf, path);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

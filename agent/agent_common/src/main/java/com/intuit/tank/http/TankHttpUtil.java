@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +28,9 @@ import static java.util.stream.Collectors.joining;
 public class TankHttpUtil {
     private static Logger LOG = LogManager.getLogger(TankHttpUtil.class);
 
+    // The URL constructors are deprecated in favor of URI.toURL(), but URI rejects characters that
+    // recorded script paths can contain (spaces, braces, pipes). Keep the lenient constructors.
+    @SuppressWarnings("deprecation")
     public static URL buildUrl(String protocol, String host, int port, String path, Map<String, String> urlVariables) {
         try {
             // ensure that port 80 and 8080 requests use http and not https
@@ -188,8 +192,8 @@ public class TankHttpUtil {
          * @return
          */
         private String removeQuotes(String s) {
-            s = StringUtils.removeEnd(s, "\"");
-            s = StringUtils.removeStart(s, "\"");
+            s = Strings.CS.removeEnd(s, "\"");
+            s = Strings.CS.removeStart(s, "\"");
             return s;
         }
 

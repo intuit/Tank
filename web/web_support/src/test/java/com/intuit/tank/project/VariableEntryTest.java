@@ -15,8 +15,6 @@ package com.intuit.tank.project;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.project.VariableEntry;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -101,7 +99,7 @@ public class VariableEntryTest {
 
         boolean result = fixture.equals(arg);
 
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -118,7 +116,7 @@ public class VariableEntryTest {
         Object arg = new Object();
 
         boolean result = fixture.equals(arg);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

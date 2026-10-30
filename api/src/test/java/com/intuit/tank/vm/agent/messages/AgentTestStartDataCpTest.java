@@ -48,7 +48,7 @@ public class AgentTestStartDataCpTest {
         assertEquals(0, result.getStartUsers());
         assertEquals(0, result.getAgentInstanceNum());
         assertEquals(0L, result.getSimulationTime());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.filter.ScriptfilterEnvelope;
 import com.intuit.tank.project.ScriptFilter;
 
 /**
@@ -149,7 +148,7 @@ public class ScriptfilterEnvelopeTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.filter.ScriptfilterEnvelope.<init>(ScriptfilterEnvelope.java:16)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

@@ -20,10 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.replace.AllReplacement;
-import com.intuit.tank.script.replace.ReplaceEntity;
-import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.script.replace.SearchMode;
 
 /**
  * The class <code>AllReplacementTest</code> contains tests for the class <code>{@link AllReplacement}</code>.
@@ -46,7 +42,7 @@ public class AllReplacementTest {
 
         assertNotNull(result);
         assertEquals("AGGREGATE", result.getType());
-        assertEquals(null, result.getSection());
+        assertNull(result.getSection());
     }
 
     /**

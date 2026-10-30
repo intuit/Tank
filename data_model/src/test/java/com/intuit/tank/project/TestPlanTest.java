@@ -13,7 +13,6 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,10 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 
 /**
  * The class <code>TestPlanTest</code> contains tests for the class <code>{@link TestPlan}</code>.

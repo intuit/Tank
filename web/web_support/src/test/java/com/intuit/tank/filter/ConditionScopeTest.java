@@ -15,8 +15,6 @@ package com.intuit.tank.filter;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.filter.ConditionScope;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

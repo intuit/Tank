@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -85,7 +84,7 @@ public class DataFileApiIT extends BaseIT {
         JsonNode dataFiles = responseBody.get("dataFiles");
         assertTrue(dataFiles.isArray(), "DataFiles should be an array");
 
-        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+        assertFalse(dataFiles.isEmpty(), "Should have at least one data file to test with");
         // Validate data file structure based on provided sample
         JsonNode firstDataFile = dataFiles.get(0);
         assertTrue(firstDataFile.has("id"), "DataFile should have 'id' field");
@@ -131,7 +130,7 @@ public class DataFileApiIT extends BaseIT {
         Map<String, String> dataFileNames = objectMapper.readValue(response.body(), Map.class);
         assertNotNull(dataFileNames, "DataFile names map should not be null");
 
-        assertTrue(dataFileNames.size() > 0, "Should have at least one data file to test with");
+        assertFalse(dataFileNames.isEmpty(), "Should have at least one data file to test with");
         // Validate that keys are numeric (data file IDs) and values are strings (names)
         for (Map.Entry<String, String> entry : dataFileNames.entrySet()) {
             assertDoesNotThrow(() -> Integer.parseInt(entry.getKey()),
@@ -159,7 +158,7 @@ public class DataFileApiIT extends BaseIT {
         JsonNode responseBody = objectMapper.readTree(getAllResponse.body());
         JsonNode dataFiles = responseBody.get("dataFiles");
         
-        assertTrue(dataFiles.size() > 0, "Should have at least one data file to test with");
+        assertFalse(dataFiles.isEmpty(), "Should have at least one data file to test with");
         int dataFileId = dataFiles.get(0).get("id").asInt();
         String expectedName = dataFiles.get(0).get("name").asText();
 
@@ -223,7 +222,7 @@ public class DataFileApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
 
         assertNotNull(response.body(), "Content should not be null");
         assertEquals("text/plain;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
@@ -247,7 +246,7 @@ public class DataFileApiIT extends BaseIT {
         System.out.println(response.body());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
         assertEquals("application/octet-stream",
                    response.headers().firstValue("Content-Type").orElse(""),
                    "Should return application/octet-stream content type");

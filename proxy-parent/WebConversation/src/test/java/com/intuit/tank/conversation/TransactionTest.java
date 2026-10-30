@@ -5,11 +5,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.conversation.Header;
-import com.intuit.tank.conversation.Request;
-import com.intuit.tank.conversation.Response;
-import com.intuit.tank.conversation.Transaction;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -89,10 +84,10 @@ public class TransactionTest {
         Request result = fixture.getRequest();
 
         assertNotNull(result);
-        assertEquals(null, result.getProtocol());
-        assertEquals(null, result.getBody());
-        assertEquals(null, result.getFirstLine());
-        assertEquals(null, result.getBodyAsString());
+        assertNull(result.getProtocol());
+        assertNull(result.getBody());
+        assertNull(result.getFirstLine());
+        assertNull(result.getBodyAsString());
     }
 
     /**
@@ -112,9 +107,9 @@ public class TransactionTest {
         Response result = fixture.getResponse();
 
         assertNotNull(result);
-        assertEquals(null, result.getBody());
-        assertEquals(null, result.getFirstLine());
-        assertEquals(null, result.getBodyAsString());
+        assertNull(result.getBody());
+        assertNull(result.getFirstLine());
+        assertNull(result.getBodyAsString());
         assertEquals("", result.extractContentType());
     }
 

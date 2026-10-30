@@ -17,6 +17,7 @@ package com.intuit.tank.tools.script;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -145,7 +146,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
                 if (timeValue == timeClicked) {
                     SwingUtilities.invokeLater( () -> {
                         list.setListData(externalScripts.stream().filter(obj -> StringUtils.isBlank(filterField.getText())
-                                || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
+                                || Strings.CI.contains(obj.toString(), filterField.getText()
                                 .trim())).toArray());
                         list.repaint();
                     });

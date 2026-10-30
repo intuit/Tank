@@ -32,6 +32,7 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.DocumentHelper;
@@ -209,7 +210,7 @@ public class ScriptEditor implements Serializable {
 
     public String getPrettyString(String s, String mimetype) {
         if (StringUtils.isNotBlank(s)) {
-            if (StringUtils.containsIgnoreCase(mimetype, "json")) {
+            if (Strings.CI.contains(mimetype, "json")) {
                 try {
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     JsonElement el = JsonParser.parseString(s);
@@ -217,7 +218,7 @@ public class ScriptEditor implements Serializable {
                 } catch (JsonSyntaxException e) {
                     LOG.warn("Cannot format json string: " + e);
                 }
-            } else if (StringUtils.containsIgnoreCase(mimetype, "xml")) {
+            } else if (Strings.CI.contains(mimetype, "xml")) {
                 try {
                     StringWriter sw;
                     final OutputFormat format = OutputFormat.createPrettyPrint();

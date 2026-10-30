@@ -13,8 +13,6 @@ package com.intuit.tank.jenkins.proxy;
  * #L%
  */
 
-import hudson.FilePath;
-
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.HashMap;

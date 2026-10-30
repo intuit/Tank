@@ -20,7 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
-import com.intuit.tank.vm.vmManager.VMUpdateStateRequest;
 
 /**
  * The class <code>VMUpdateStateRequestCpTest</code> contains tests for the class
@@ -97,7 +96,7 @@ public class VMUpdateStateRequestCpTest {
 
         String[] result = fixture.getInstances();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

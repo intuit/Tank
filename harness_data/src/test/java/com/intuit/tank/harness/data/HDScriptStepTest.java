@@ -1,7 +1,5 @@
 package com.intuit.tank.harness.data;
 
-import com.intuit.tank.harness.data.HDScriptStep;
-
 /*
  * #%L
  * Harness Data

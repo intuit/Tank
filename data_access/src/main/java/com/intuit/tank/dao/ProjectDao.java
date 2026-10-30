@@ -40,7 +40,6 @@ import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
-import org.hibernate.jpa.QueryHints;
 
 /**
  * ProductDao

@@ -1,11 +1,8 @@
 package com.intuit.tank.conversation;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.conversation.Cookie;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,14 +26,14 @@ public class CookieTest {
         Cookie result = new Cookie();
 
         assertNotNull(result);
-        assertEquals(null, result.getDomain());
-        assertEquals(null, result.getValue());
-        assertEquals(null, result.getKey());
-        assertEquals(null, result.getPath());
-        assertEquals(null, result.getMaxAge());
-        assertEquals(false, result.isHttpOnly());
-        assertEquals(null, result.getExpires());
-        assertEquals(false, result.isSecuredOnly());
+        assertNull(result.getDomain());
+        assertNull(result.getValue());
+        assertNull(result.getKey());
+        assertNull(result.getPath());
+        assertNull(result.getMaxAge());
+        assertFalse(result.isHttpOnly());
+        assertNull(result.getExpires());
+        assertFalse(result.isSecuredOnly());
     }
 
     /**
@@ -55,14 +52,14 @@ public class CookieTest {
         Cookie result = new Cookie(key, value);
 
         assertNotNull(result);
-        assertEquals(null, result.getDomain());
+        assertNull(result.getDomain());
         assertEquals("", result.getValue());
         assertEquals("", result.getKey());
-        assertEquals(null, result.getPath());
-        assertEquals(null, result.getMaxAge());
-        assertEquals(false, result.isHttpOnly());
-        assertEquals(null, result.getExpires());
-        assertEquals(false, result.isSecuredOnly());
+        assertNull(result.getPath());
+        assertNull(result.getMaxAge());
+        assertFalse(result.isHttpOnly());
+        assertNull(result.getExpires());
+        assertFalse(result.isSecuredOnly());
     }
 
     /**
@@ -86,7 +83,7 @@ public class CookieTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -116,7 +113,7 @@ public class CookieTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -140,7 +137,7 @@ public class CookieTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -170,7 +167,7 @@ public class CookieTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -200,7 +197,7 @@ public class CookieTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -383,7 +380,7 @@ public class CookieTest {
 
         boolean result = fixture.isHttpOnly();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -406,7 +403,7 @@ public class CookieTest {
 
         boolean result = fixture.isHttpOnly();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -429,7 +426,7 @@ public class CookieTest {
 
         boolean result = fixture.isSecuredOnly();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -452,7 +449,7 @@ public class CookieTest {
 
         boolean result = fixture.isSecuredOnly();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

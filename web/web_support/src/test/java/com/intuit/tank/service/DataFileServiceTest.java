@@ -13,14 +13,9 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.service.DataFileService;
 
 /**
  * The class <code>DataFileServiceTest</code> contains tests for the class <code>{@link DataFileService}</code>.

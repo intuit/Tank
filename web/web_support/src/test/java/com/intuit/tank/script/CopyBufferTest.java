@@ -92,7 +92,7 @@ public class CopyBufferTest {
         CopyBuffer fixture = new CopyBuffer();
 
         boolean result = fixture.isPasteEnabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -108,7 +108,7 @@ public class CopyBufferTest {
         CopyBuffer fixture = new CopyBuffer();
 
         boolean result = fixture.isPasteEnabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

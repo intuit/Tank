@@ -130,7 +130,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -154,7 +154,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -178,7 +178,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -202,7 +202,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -226,7 +226,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -250,7 +250,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

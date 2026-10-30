@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +77,7 @@ public class ScriptUtil {
 
     public static List<ScriptAssignment> getAssignments(ScriptStep step) {
         if (step.getType().equals("request")) {
-            return step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> StringUtils.containsIgnoreCase(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
+            return step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> Strings.CI.contains(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), Strings.CS.removeStart(
                     StringUtils.trim(rd.getValue()), "="), step.getStepIndex())).collect(Collectors.toList());
         }
         return new ArrayList<ScriptAssignment>();

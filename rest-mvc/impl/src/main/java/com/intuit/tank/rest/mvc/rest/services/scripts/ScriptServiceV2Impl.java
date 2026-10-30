@@ -46,6 +46,7 @@ import com.intuit.tank.vm.settings.ModificationType;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
 import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
@@ -139,7 +140,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
         Map<String, String> payload = new HashMap<>();
         scriptId = scriptId == null ? 0 : scriptId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+        try (BufferedReader bufferedReader = Strings.CI.equals(contentEncoding, "gzip") ?
                 new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
                 new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             Script script = new ScriptDao().findById(scriptId);

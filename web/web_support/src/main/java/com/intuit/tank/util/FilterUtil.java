@@ -18,6 +18,7 @@ import java.util.Locale;
 import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class FilterUtil {
         if (value == null) {
             return false;
         }
-        return StringUtils.containsIgnoreCase(value.toString(), filterText);
+        return Strings.CI.contains(value.toString(), filterText);
     }
 
     public boolean equals(Object value, Object filter, Locale locale) {
@@ -56,6 +57,6 @@ public class FilterUtil {
         if (value == null) {
             return false;
         }
-        return StringUtils.equalsIgnoreCase(value.toString(), filterText);
+        return Strings.CI.equals(value.toString(), filterText);
     }
 }

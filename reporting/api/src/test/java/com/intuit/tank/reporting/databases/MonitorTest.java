@@ -17,10 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.reporting.databases.Monitor;
-import com.intuit.tank.results.TankAgentStatusResponse;
-import com.intuit.tank.results.TankResult;
-
 /**
  * The class <code>MonitorTest</code> contains tests for the class <code>{@link Monitor}</code>.
  * 

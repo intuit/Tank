@@ -18,9 +18,6 @@ import java.util.LinkedList;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.vmManager.JobUtil;
-import com.intuit.tank.vm.vmManager.RegionRequest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

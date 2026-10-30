@@ -77,7 +77,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         assertEquals("application/xml;charset=UTF-8", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
         assertTrue(response.body().contains("<turboScale-settings>"), "Response should contain XML content");
@@ -98,7 +98,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         assertEquals("application/octet-stream",
                     response.headers().firstValue("Content-Type").orElse(""),
@@ -124,7 +124,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
@@ -148,7 +148,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
         assertTrue(response.body().contains("<?xml"), "Response should contain XML content");
@@ -190,7 +190,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
         JsonNode responseBody = objectMapper.readTree(response.body());
         assertTrue(responseBody.has("jobId"), "Response should contain jobId");
         assertTrue(responseBody.has("rampTime"), "Response should contain rampTime");
@@ -256,7 +256,7 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        assertTrue(response.statusCode() == 200,"Should return HTTP 200 OK");
+        assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         JsonNode instanceStatus = objectMapper.readTree(response.body());
         assertTrue(instanceStatus.has("instanceId"), "Response should contain instanceId");
@@ -368,7 +368,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 202);
+        assertEquals(202, response.statusCode());
     }
 
     @Test
@@ -487,7 +487,7 @@ public class AgentApiIT extends BaseIT {
 
         HttpResponse<String> startResponse = httpClient.send(startRequest, BodyHandlers.ofString());
         assertEquals(200, startResponse.statusCode(), "Should start job successfully");
-        assertEquals(startResponse.body(), "Starting", "Should return 'Starting' status");
+        assertEquals("Starting", startResponse.body(), "Should return 'Starting' status");
 
         return jobId;
     }

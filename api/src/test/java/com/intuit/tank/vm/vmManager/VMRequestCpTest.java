@@ -20,8 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
-import com.intuit.tank.vm.vmManager.VMInstanceRequest;
-import com.intuit.tank.vm.vmManager.VMRequest;
 
 /**
  * The class <code>VMRequestCpTest</code> contains tests for the class <code>{@link VMRequest}</code>.
@@ -44,7 +42,7 @@ public class VMRequestCpTest {
 
         VMProvider result = fixture.getProvider();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

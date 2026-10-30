@@ -24,11 +24,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.Workload;
-
 /**
  * The class <code>JobConfigurationTest</code> contains tests for the class <code>{@link JobConfiguration}</code>.
  *

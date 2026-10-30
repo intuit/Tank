@@ -20,7 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
-import com.intuit.tank.vm.event.JobEvent;
 
 /**
  * The class <code>JobEventCpTest</code> contains tests for the class <code>{@link JobEvent}</code>.

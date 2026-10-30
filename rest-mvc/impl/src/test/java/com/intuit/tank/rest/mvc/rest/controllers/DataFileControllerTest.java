@@ -13,6 +13,7 @@ import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
 import com.intuit.tank.rest.mvc.rest.services.datafiles.DataFileServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.DataFileServiceUtil;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -45,10 +46,17 @@ public class DataFileControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test

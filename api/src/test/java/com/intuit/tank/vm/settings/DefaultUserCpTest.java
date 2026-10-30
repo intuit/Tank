@@ -44,11 +44,11 @@ public class DefaultUserCpTest {
         DefaultUser result = new DefaultUser(config);
 
         assertNotNull(result);
-        assertEquals(null, result.getPassword());
-        assertEquals(null, result.getEmail());
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
-        assertEquals(false, result.isAdmin());
+        assertNull(result.getPassword());
+        assertNull(result.getEmail());
+        assertNull(result.toString());
+        assertNull(result.getName());
+        assertFalse(result.isAdmin());
     }
 
     /**
@@ -66,11 +66,11 @@ public class DefaultUserCpTest {
         DefaultUser result = new DefaultUser(config);
 
         assertNotNull(result);
-        assertEquals(null, result.getPassword());
-        assertEquals(null, result.getEmail());
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
-        assertEquals(false, result.isAdmin());
+        assertNull(result.getPassword());
+        assertNull(result.getEmail());
+        assertNull(result.toString());
+        assertNull(result.getName());
+        assertFalse(result.isAdmin());
     }
 
     /**
@@ -88,7 +88,7 @@ public class DefaultUserCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -106,7 +106,7 @@ public class DefaultUserCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -124,7 +124,7 @@ public class DefaultUserCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -141,7 +141,7 @@ public class DefaultUserCpTest {
 
         String result = fixture.getEmail();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -176,7 +176,7 @@ public class DefaultUserCpTest {
 
         String result = fixture.getName();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -193,7 +193,7 @@ public class DefaultUserCpTest {
 
         String result = fixture.getPassword();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -227,7 +227,7 @@ public class DefaultUserCpTest {
 
         boolean result = fixture.isAdmin();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -244,7 +244,7 @@ public class DefaultUserCpTest {
 
         boolean result = fixture.isAdmin();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -261,6 +261,6 @@ public class DefaultUserCpTest {
 
         String result = fixture.toString();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 }

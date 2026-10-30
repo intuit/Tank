@@ -148,7 +148,7 @@ public class ProxyApp extends JFrame implements TransactionRecordedListener {
                 System.exit(0);
             }
         });
-        keyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        keyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
         configDialog = new ProxyConfigDialog(this);
         createActions();
         this.setJMenuBar(createMenu());

@@ -23,6 +23,7 @@ import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
@@ -35,7 +36,7 @@ public class DebuggerAppender extends AbstractAppender {
     private static volatile ArrayList<JTextArea> jTextAreaList = new ArrayList<JTextArea>();
 
     protected DebuggerAppender(String name, Layout<? extends Serializable> layout, Filter filter, boolean ignoreExceptions) {
-        super(name, filter, layout, ignoreExceptions);
+        super(name, filter, layout, ignoreExceptions, Property.EMPTY_ARRAY);
     }
 
     @PluginFactory

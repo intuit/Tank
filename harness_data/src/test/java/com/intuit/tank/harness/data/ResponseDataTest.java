@@ -13,12 +13,9 @@ package com.intuit.tank.harness.data;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.AssignmentData;
-import com.intuit.tank.harness.data.ResponseData;
 
 /**
  * The class <code>ResponseDataTest</code> contains tests for the class <code>{@link ResponseData}</code>.
@@ -40,7 +37,7 @@ public class ResponseDataTest {
 
         String result = fixture.getKey();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -57,7 +54,7 @@ public class ResponseDataTest {
 
         String result = fixture.getValue();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

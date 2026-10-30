@@ -17,9 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.script.SearchOptionWrapper;
-import com.intuit.tank.script.Section;
-
 /**
  * The class <code>SearchOptionWrapperTest</code> contains tests for the class <code>{@link SearchOptionWrapper}</code>.
  *

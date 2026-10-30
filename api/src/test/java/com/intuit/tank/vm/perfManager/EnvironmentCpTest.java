@@ -15,8 +15,6 @@ package com.intuit.tank.vm.perfManager;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.perfManager.Environment;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,8 +37,8 @@ public class EnvironmentCpTest {
         Environment result = new Environment();
 
         assertNotNull(result);
-        assertEquals(null, result.getFrontEndUrl());
-        assertEquals(null, result.getBackEndUrl());
+        assertNull(result.getFrontEndUrl());
+        assertNull(result.getBackEndUrl());
     }
 
     /**
@@ -77,7 +75,7 @@ public class EnvironmentCpTest {
 
         String result = fixture.getBackEndUrl();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -94,7 +92,7 @@ public class EnvironmentCpTest {
 
         String result = fixture.getFrontEndUrl();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

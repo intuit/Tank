@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.ValidationResponseContent;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
 /**

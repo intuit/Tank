@@ -8,7 +8,6 @@
 package com.intuit.tank.jobs.models;
 
 import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.projects.models.Namespace;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

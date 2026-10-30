@@ -13,12 +13,10 @@ import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.projects.models.AutomationRequest;
 import com.intuit.tank.projects.models.ProjectContainer;
 import com.intuit.tank.projects.models.ProjectTO;
-import com.intuit.tank.script.models.ExternalScriptTO;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;

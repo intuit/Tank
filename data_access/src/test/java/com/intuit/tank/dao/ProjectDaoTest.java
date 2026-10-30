@@ -25,13 +25,11 @@ import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Script;
-import com.intuit.tank.project.TestPlan;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.hibernate.LazyInitializationException;
-import org.hibernate.PropertyValueException;
 
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Workload;

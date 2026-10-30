@@ -13,13 +13,10 @@ package com.intuit.tank.harness.data;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDScriptGroupStep;
-import com.intuit.tank.harness.data.HDScriptUseCase;
 
 /**
  * The class <code>HDScriptGroupStepTest</code> contains tests for the class <code>{@link HDScriptGroupStep}</code>.
@@ -43,8 +40,8 @@ public class HDScriptGroupStepTest {
         HDScriptUseCase result = fixture.getUseCase();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getParent());
+        assertNull(result.getName());
+        assertNull(result.getParent());
     }
 
     /**

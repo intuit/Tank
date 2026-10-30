@@ -59,7 +59,7 @@ public class NumericFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 4);
+        assertEquals(4, random.length());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class NumericFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 6);
+        assertEquals(6, random.length());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class NumericFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 9);
+        assertEquals(9, random.length());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class NumericFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 12);
+        assertEquals(12, random.length());
     }
 
     @Test

@@ -15,8 +15,6 @@ package com.intuit.tank.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.util.ComponentUtil;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

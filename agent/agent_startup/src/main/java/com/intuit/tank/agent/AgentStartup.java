@@ -238,7 +238,7 @@ public class AgentStartup implements Runnable {
             command += " " + jvmArgs;
         }
         logger.info(message, command);
-        Runtime.getRuntime().exec(command);
+        Runtime.getRuntime().exec(command.trim().split("\\s+"));
     }
 
     public static void main(String[] args) {

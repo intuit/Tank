@@ -23,7 +23,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
-import com.intuit.tank.script.RequestHeaderEditor;
 
 /**
  * The class <code>RequestHeaderEditorTest</code> contains tests for the class <code>{@link RequestHeaderEditor}</code>.

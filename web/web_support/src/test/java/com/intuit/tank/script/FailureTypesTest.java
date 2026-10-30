@@ -15,8 +15,6 @@ package com.intuit.tank.script;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.script.FailureTypes;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

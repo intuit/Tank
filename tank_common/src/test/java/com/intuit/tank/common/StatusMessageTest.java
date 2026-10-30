@@ -40,7 +40,7 @@ public class StatusMessageTest {
         StatusMessage result = new StatusMessage(replyQueue);
 
         assertNotNull(result);
-        assertEquals(null, result.getBody());
+        assertNull(result.getBody());
         assertEquals("", result.getReplyQueue());
     }
 

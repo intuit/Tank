@@ -81,13 +81,13 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
     public String getCSVData(Object ocolIndex, boolean loop) throws CheckedKillScriptException {
         String ret = null;
         int colIndex = FunctionHandler.getInt(ocolIndex);
-        String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
+        String[] currentLine = csvLineMap.get(Thread.currentThread().threadId());
         if (currentLine == null || colIndex >= currentLine.length || currentLine[colIndex] == null) {
             currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(loop);
             if (currentLine != null) {
-                csvLineMap.put(Thread.currentThread().getId(), currentLine);
+                csvLineMap.put(Thread.currentThread().threadId(), currentLine);
             } else {
-                csvLineMap.remove(Thread.currentThread().getId());
+                csvLineMap.remove(Thread.currentThread().threadId());
             }
         }
 
@@ -137,13 +137,13 @@ public class JexlIOFunctions implements ExpressionContextVisitor {
     public String getCSVData(String fileName, Object oindex, boolean loop) throws CheckedKillScriptException {
         String ret = null;
         int index = FunctionHandler.getInt(oindex);
-        String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + fileName);
+        String[] currentLine = fileLineMap.get(Thread.currentThread().threadId() + "-" + fileName);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             currentLine = CSVReader.getInstance(fileName).getNextLine(loop);
             if (currentLine != null) {
-                fileLineMap.put(Thread.currentThread().getId() + "-" + fileName, currentLine);
+                fileLineMap.put(Thread.currentThread().threadId() + "-" + fileName, currentLine);
             } else {
-                fileLineMap.remove(Thread.currentThread().getId() + "-" + fileName);
+                fileLineMap.remove(Thread.currentThread().threadId() + "-" + fileName);
             }
         }
 

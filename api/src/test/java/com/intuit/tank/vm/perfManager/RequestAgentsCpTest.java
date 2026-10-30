@@ -19,7 +19,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.perfManager.RequestAgents;
 
 /**
  * The class <code>RequestAgentsCpTest</code> contains tests for the class <code>{@link RequestAgents}</code>.

@@ -29,7 +29,6 @@ import org.primefaces.model.DualListModel;
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.DataFileDao;
-import com.intuit.tank.project.DataFile;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
 

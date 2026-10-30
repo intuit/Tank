@@ -27,8 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.intuit.tank.ProjectBean;
 import com.intuit.tank.dao.JobNotificationDao;
-import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 
 @Named

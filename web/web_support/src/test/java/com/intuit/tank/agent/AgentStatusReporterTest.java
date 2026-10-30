@@ -15,8 +15,6 @@ package com.intuit.tank.agent;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.agent.AgentStatusReporter;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

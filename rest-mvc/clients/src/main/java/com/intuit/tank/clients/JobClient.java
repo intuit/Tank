@@ -9,15 +9,9 @@ package com.intuit.tank.clients;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.intuit.tank.clients.util.ClientException;
-import com.intuit.tank.projects.models.ProjectContainer;
 import com.intuit.tank.jobs.models.*;
-import com.intuit.tank.projects.models.ProjectTO;
-import com.intuit.tank.script.models.ExternalScriptTO;
-import com.intuit.tank.vm.agent.messages.Headers;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;

@@ -17,8 +17,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.event.NotificationContext;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

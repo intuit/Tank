@@ -19,7 +19,6 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 public class ScriptStepDataLookup {
 

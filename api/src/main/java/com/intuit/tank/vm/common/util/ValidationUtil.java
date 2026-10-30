@@ -17,6 +17,7 @@ package com.intuit.tank.vm.common.util;
  */
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * ValidationUtil
@@ -92,9 +93,9 @@ public class ValidationUtil {
 
     public static String removeAllVariableIdentifier(String key) {
         key = removeIdentifier(key, identifierChar);
-        key = StringUtils.removeStart(key, "#");
-        key = StringUtils.removeStart(key, "{");
-        return StringUtils.removeEnd(key, "}");
+        key = Strings.CS.removeStart(key, "#");
+        key = Strings.CS.removeStart(key, "{");
+        return Strings.CS.removeEnd(key, "}");
     }
 
     private static String removeIdentifier(String key, char c) {

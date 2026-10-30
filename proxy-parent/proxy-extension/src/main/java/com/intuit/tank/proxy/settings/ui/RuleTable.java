@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -102,7 +101,7 @@ public class RuleTable extends JTable {
         private int maxWidth = 500;
 
         public void paint(Graphics g, JComponent c) {
-            FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(g.getFont());
+            FontMetrics metrics = g.getFontMetrics();
             Dimension size = c.getSize();
             g.setColor(c.getBackground());
             g.fillRect(0, 0, size.width, size.height);
@@ -116,7 +115,7 @@ public class RuleTable extends JTable {
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public Dimension getPreferredSize(JComponent c) {
-            FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(c.getFont());
+            FontMetrics metrics = c.getFontMetrics(c.getFont());
             String tipText = ((JToolTip) c).getTipText();
             if (tipText == null) {
                 tipText = "";

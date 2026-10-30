@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.controllers;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,15 +20,22 @@ public class DefaultControllerTest {
     @InjectMocks
     private DefaultController defaultController;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test
     public void testGetPing() {
         ResponseEntity<String> result = defaultController.ping();
-        assertEquals(result.getBody(), "PONG Tank V2 API");
-        assertEquals(result.getStatusCode().value(), 200);
+        assertEquals("PONG Tank V2 API", result.getBody());
+        assertEquals(200, result.getStatusCode().value());
     }
 }

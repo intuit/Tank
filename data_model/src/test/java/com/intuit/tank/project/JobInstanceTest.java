@@ -26,11 +26,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.EntityVersion;
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobVMInstance;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;

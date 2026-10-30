@@ -14,6 +14,8 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.LinkedList;
@@ -22,10 +24,6 @@ import java.util.List;
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.project.SerializedScriptStep;
 
 /**
  * The class <code>ScriptTest</code> contains tests for the class <code>{@link Script}</code>.
@@ -186,7 +184,7 @@ public class ScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -210,7 +208,7 @@ public class ScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -234,7 +232,7 @@ public class ScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

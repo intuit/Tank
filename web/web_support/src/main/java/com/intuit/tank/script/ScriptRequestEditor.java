@@ -24,7 +24,6 @@ import jakarta.inject.Named;
 
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 @Named
 @ConversationScoped

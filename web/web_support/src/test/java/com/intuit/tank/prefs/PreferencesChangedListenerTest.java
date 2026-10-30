@@ -15,8 +15,6 @@ package com.intuit.tank.prefs;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.prefs.PreferencesChangedListener;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

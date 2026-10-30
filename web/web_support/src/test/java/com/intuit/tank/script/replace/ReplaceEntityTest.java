@@ -17,8 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.script.replace.ReplaceEntity;
-import com.intuit.tank.script.replace.ReplaceMode;
 import com.intuit.tank.script.Section;
 
 /**
@@ -143,7 +141,7 @@ public class ReplaceEntityTest {
 
         Section result = fixture.getSection();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

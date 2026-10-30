@@ -17,10 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.notification.NotificationSender;
-import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
-import com.intuit.tank.vm.event.JobEvent;
-
 /**
  * The class <code>NotificationSenderTest</code> contains tests for the class <code>{@link NotificationSender}</code>.
  *

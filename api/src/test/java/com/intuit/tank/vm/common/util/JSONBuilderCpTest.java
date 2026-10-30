@@ -14,12 +14,9 @@ package com.intuit.tank.vm.common.util;
  */
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.vm.common.util.JSONBuilder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -380,7 +377,7 @@ public class JSONBuilderCpTest {
         assertNotNull(result);
         assertEquals("{}", result.toString());
         assertEquals(0, result.length());
-        assertEquals(null, result.names());
+        assertNull(result.names());
     }
 
     /**
@@ -400,7 +397,7 @@ public class JSONBuilderCpTest {
 
         String result = fixture.getValue(key);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

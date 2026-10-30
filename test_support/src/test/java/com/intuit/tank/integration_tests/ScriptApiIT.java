@@ -85,7 +85,7 @@ public class ScriptApiIT extends BaseIT {
 
         JsonNode scripts = responseBody.get("scripts");
         assertTrue(scripts.isArray(), "Scripts should be an array");
-        assertTrue(scripts.size() > 0, "Should contain at least one script");
+        assertFalse(scripts.isEmpty(), "Should contain at least one script");
 
         // Validate script structure
         JsonNode firstScript = scripts.get(0);
@@ -113,7 +113,7 @@ public class ScriptApiIT extends BaseIT {
         assertEquals(200, response.statusCode(), "Should return HTTP 200 OK");
 
         Map<String, String> scriptNames = objectMapper.readValue(response.body(), Map.class);
-        assertTrue(scriptNames.size() > 0, "Should contain at least one script");
+        assertFalse(scriptNames.isEmpty(), "Should contain at least one script");
 
         // Validate structure - keys should be script IDs, values should be script names
         for (Map.Entry<String, String> entry : scriptNames.entrySet()) {

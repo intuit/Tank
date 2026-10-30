@@ -15,8 +15,6 @@ package com.intuit.tank.harness.test.data;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.test.data.ValidationItem;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

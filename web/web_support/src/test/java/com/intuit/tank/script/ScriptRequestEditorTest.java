@@ -14,7 +14,6 @@ package com.intuit.tank.script;
  */
 
 import jakarta.enterprise.context.ConversationScoped;
-import jakarta.inject.Inject;
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptRequestEditor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;

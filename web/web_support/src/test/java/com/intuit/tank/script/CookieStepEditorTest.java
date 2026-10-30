@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.CookieStepEditor;
 
 /**
  * The class <code>CookieStepEditorTest</code> contains tests for the class <code>{@link CookieStepEditor}</code>.

@@ -15,8 +15,6 @@ package com.intuit.tank.wrapper;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.wrapper.SelectableWrapper;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
