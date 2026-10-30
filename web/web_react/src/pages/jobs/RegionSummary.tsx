@@ -29,42 +29,56 @@ function stateOf(agent: AgentNode): State {
   return health;
 }
 
-interface Region {
-  name: string;
+/** The agents in one availability zone, or in no known zone of their region */
+interface Zone {
+  region: string;
+  /** undefined when the agents didn't report one */
+  name?: string;
   agents: AgentNode[];
   jobs: { job: JobNode; count: number }[];
 }
 
-/** Agents by AWS region: how many in each state, their users and TPS, and the jobs they serve */
+/**
+ * Agents by AWS region, a row per availability zone: how many in each state, their users and TPS, and the
+ * jobs they serve
+ */
 export function RegionSummary({ tree, onDetails }: JobViewProps) {
-  const regions: Region[] = [];
+  const zones: Zone[] = [];
   for (const { job } of jobEntries(tree)) {
     for (const agent of job.agents ?? []) {
-      const name = regionLabel(agent.region);
-      let region = regions.find((r) => r.name === name);
-      if (!region) {
-        region = { name, agents: [], jobs: [] };
-        regions.push(region);
+      const region = regionLabel(agent.region);
+      const name = agent.zone || undefined;
+      let zone = zones.find((z) => z.region === region && z.name === name);
+      if (!zone) {
+        zone = { region, name, agents: [], jobs: [] };
+        zones.push(zone);
       }
-      region.agents.push(agent);
-      const served = region.jobs.find((j) => j.job === job);
+      zone.agents.push(agent);
+      const served = zone.jobs.find((j) => j.job === job);
       if (served) {
         served.count += 1;
       } else {
-        region.jobs.push({ job, count: 1 });
+        zone.jobs.push({ job, count: 1 });
       }
     }
   }
-  regions.sort((a, b) => a.name.localeCompare(b.name));
+  // by region, then zone, with a region's agents of unknown zone last
+  zones.sort(
+    (a, b) =>
+      a.region.localeCompare(b.region) ||
+      (a.name === undefined ? 1 : 0) - (b.name === undefined ? 1 : 0) ||
+      (a.name ?? '').localeCompare(b.name ?? ''),
+  );
 
-  if (regions.length === 0) {
+  if (zones.length === 0) {
     return <p className="job-view-empty">No agents yet. Regions show here once agents start.</p>;
   }
 
   const sum = (agents: AgentNode[], pick: (a: AgentNode) => number | undefined) =>
     agents.reduce((total, a) => total + (agentHealth(a) === 'live' ? (pick(a) ?? 0) : 0), 0);
-  const mostAgents = Math.max(...regions.map((r) => r.agents.length));
-  const mostTps = Math.max(1, ...regions.map((r) => sum(r.agents, (a) => a.tps)));
+  const mostAgents = Math.max(...zones.map((z) => z.agents.length));
+  const mostTps = Math.max(1, ...zones.map((z) => sum(z.agents, (a) => a.tps)));
+  const zonesIn = (region: string) => zones.filter((z) => z.region === region).length;
 
   return (
     <>
@@ -73,24 +87,35 @@ export function RegionSummary({ tree, onDetails }: JobViewProps) {
           <thead>
             <tr>
               <th scope="col">Region</th>
-              <th scope="col">Agents by state</th>
+              <th scope="col">Availability zone</th>
+              <th scope="col" className="region-states-col">
+                Agents by state
+              </th>
               <th scope="col" className="num-col">
                 Active users
               </th>
-              <th scope="col">TPS</th>
+              <th scope="col" className="region-tps-col">
+                TPS
+              </th>
               <th scope="col">Jobs</th>
             </tr>
           </thead>
           <tbody>
-            {regions.map((region) => {
+            {zones.map((zone, i) => {
               const counts = STATES.map((s) => ({
                 ...s,
-                count: region.agents.filter((a) => stateOf(a) === s.key).length,
+                count: zone.agents.filter((a) => stateOf(a) === s.key).length,
               })).filter((s) => s.count > 0);
-              const tps = sum(region.agents, (a) => a.tps);
+              const tps = sum(zone.agents, (a) => a.tps);
+              const firstInRegion = i === 0 || zones[i - 1]!.region !== zone.region;
               return (
-                <tr key={region.name}>
-                  <th scope="row">{region.name}</th>
+                <tr key={`${zone.region} ${zone.name ?? ''}`}>
+                  {firstInRegion && (
+                    <th scope="rowgroup" rowSpan={zonesIn(zone.region)} className="region-name">
+                      {zone.region}
+                    </th>
+                  )}
+                  <th scope="row">{zone.name ?? <span className="field-help">Unknown zone</span>}</th>
                   <td>
                     <div className="region-states" aria-hidden>
                       {counts.map((s) => (
@@ -103,11 +128,11 @@ export function RegionSummary({ tree, onDetails }: JobViewProps) {
                       ))}
                     </div>
                     <span className="field-help">
-                      {region.agents.length} {region.agents.length === 1 ? 'agent' : 'agents'} ·{' '}
+                      {zone.agents.length} {zone.agents.length === 1 ? 'agent' : 'agents'} ·{' '}
                       {counts.map((s) => `${s.count} ${s.label}`).join(' · ')}
                     </span>
                   </td>
-                  <td className="num-col">{formatCount(sum(region.agents, (a) => a.activeUsers))}</td>
+                  <td className="num-col">{formatCount(sum(zone.agents, (a) => a.activeUsers))}</td>
                   <td>
                     <div className="region-tps">
                       <div className="region-tps-track">
@@ -118,7 +143,7 @@ export function RegionSummary({ tree, onDetails }: JobViewProps) {
                   </td>
                   <td>
                     <div className="region-jobs">
-                      {region.jobs.map(({ job, count }) => (
+                      {zone.jobs.map(({ job, count }) => (
                         <button key={job.jobId} type="button" className="region-job" onClick={() => onDetails(job)}>
                           {job.name} · {count}
                         </button>

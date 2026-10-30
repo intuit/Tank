@@ -87,7 +87,8 @@ class JobTreeBuilderTest {
     private static CloudVmStatus agent(String instanceId, String jobId, VMStatus vmStatus, JobStatus jobStatus,
                                        int current, int total, int tps) {
         CloudVmStatus vm = new CloudVmStatus(instanceId, jobId, "sg", jobStatus, VMImageType.AGENT, VMRegion.US_EAST,
-                vmStatus, new ValidationStatus(), total, current, null, null);
+                "us-east-1" + instanceId.substring(instanceId.length() - 1), vmStatus, new ValidationStatus(), total,
+                current, null, null);
         vm.setTotalTps(tps);
         return vm;
     }
@@ -129,6 +130,7 @@ class JobTreeBuilderTest {
         JobTree.AgentNode agentA = running.agents().get(0);
         assertEquals("i-a", agentA.instanceId());
         assertEquals("US_EAST", agentA.region());
+        assertEquals("us-east-1a", agentA.zone());
         assertEquals("connected", agentA.wsState());
         assertEquals(123L, agentA.lastSeenMs());
         assertEquals(50, project.activeUsers());

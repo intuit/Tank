@@ -478,7 +478,7 @@ public class ControllerInitiatedAgentWsClientTest {
                 "sg-1",
                 jobStatus,
                 VMImageType.AGENT,
-                VMRegion.US_EAST,
+                VMRegion.US_EAST, null,
                 vmStatus,
                 new ValidationStatus(),
                 5,

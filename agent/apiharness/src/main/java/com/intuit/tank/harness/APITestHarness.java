@@ -65,7 +65,6 @@ import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
-import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 
 public class APITestHarness {
     private static final Logger LOG = LogManager.getLogger(APITestHarness.class);
@@ -705,17 +704,30 @@ public class APITestHarness {
         try {
             VMRegion region = VMRegion.STANDALONE;
             String secGroups = "unknown";
-            if (AmazonUtil.isInAmazon()) {
-                region = AmazonUtil.getVMRegion();
-                secGroups = EC2MetadataUtils.getSecurityGroups().get(0);
+            String zone = null;
+            // one zone lookup tells whether we're in Amazon and gives the region; a failure means we're not
+            try {
+                zone = AmazonUtil.getMetaData(CloudMetaDataType.zone);
+                region = VMRegion.getRegionFromZone(zone);
+            } catch (IOException e) {
+                LOG.info(LogUtil.getLogMessage("Not running in Amazon; reporting as standalone."));
+            }
+            if (zone != null) {
+                try {
+                    // one group per line; the first is the one reported
+                    secGroups = AmazonUtil.getMetaData(CloudMetaDataType.security_groups).lines().findFirst()
+                            .orElse(secGroups);
+                } catch (IOException e) {
+                    LOG.warn(LogUtil.getLogMessage("Cannot read security groups: " + e.getMessage()));
+                }
             }
             status = new CloudVmStatus(instanceId, agentRunData.getJobId(), secGroups, JobStatus.Unknown,
-                    VMImageType.AGENT, region, VMStatus.running,
+                    VMImageType.AGENT, region, zone, VMStatus.running,
                     new ValidationStatus(), 0, 0, new Date(), null);
         } catch (Exception e) {
-            LOG.error(LogUtil.getLogMessage("Error creating intial status."));
+            LOG.error(LogUtil.getLogMessage("Error creating initial status."));
             status = new CloudVmStatus(instanceId, "unknown", "wats-dev", JobStatus.Unknown,
-                    VMImageType.AGENT, VMRegion.US_EAST, VMStatus.running,
+                    VMImageType.AGENT, VMRegion.US_EAST, null, VMStatus.running,
                     new ValidationStatus(), 0, 0, new Date(), null);
         }
         status.setUserDetails(userTracker.getSnapshot());

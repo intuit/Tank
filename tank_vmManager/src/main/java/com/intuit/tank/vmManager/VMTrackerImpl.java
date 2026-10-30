@@ -149,6 +149,10 @@ public class VMTrackerImpl implements VMTracker {
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+            // agents that don't report their zone keep the one recorded at launch
+            if (status.getZone() == null && currentStatus != null) {
+                status.setZone(currentStatus.getZone());
+            }
             
             if (shouldUpdateStatus(currentStatus)) {
                 statusMap.put(status.getInstanceId(), status);

@@ -187,7 +187,7 @@ public class CloudWatchObserverTest {
     }
 
     private static CloudVmStatus status(String instanceId, VMRegion region) {
-        return new CloudVmStatus(instanceId, "42", "sg-test", JobStatus.Running, VMImageType.AGENT, region,
+        return new CloudVmStatus(instanceId, "42", "sg-test", JobStatus.Running, VMImageType.AGENT, region, null,
                 VMStatus.running, new ValidationStatus(), 1, 1, null, null);
     }
 }

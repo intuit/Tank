@@ -148,7 +148,7 @@ class JobQueueServiceV2ImplTest {
     }
 
     private static CloudVmStatus agent(String id, String jobId, VMStatus vmStatus, JobStatus jobStatus) {
-        CloudVmStatus vm = new CloudVmStatus(id, jobId, "sg", jobStatus, VMImageType.AGENT, VMRegion.US_EAST, vmStatus,
+        CloudVmStatus vm = new CloudVmStatus(id, jobId, "sg", jobStatus, VMImageType.AGENT, VMRegion.US_EAST, null, vmStatus,
                 new ValidationStatus(), 50, 20, null, null);
         return vm;
     }

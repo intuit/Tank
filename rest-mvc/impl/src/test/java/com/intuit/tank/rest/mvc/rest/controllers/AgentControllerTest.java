@@ -144,7 +144,7 @@ public class AgentControllerTest {
     @Test
     public void testGetInstanceStatus() {
         CloudVmStatus testStatus = new CloudVmStatus("testInstanceId", "2", "testSecurityGroup", JobStatus.Starting,
-                                                      VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
+                                                      VMImageType.AGENT, VMRegion.US_WEST_2, null, null, null, 0, 0, null, null);
         when(agentService.getInstanceStatus("testInstanceId")).thenReturn(testStatus);
         ResponseEntity<CloudVmStatus> result = agentController.getInstanceStatus("testInstanceId");
         assertEquals("testInstanceId", result.getBody().getInstanceId());
@@ -164,7 +164,7 @@ public class AgentControllerTest {
     @Test
     public void testSetInstanceStatus() {
         CloudVmStatus testStatus = new CloudVmStatus("testInstanceId", "2", "testSecurityGroup", JobStatus.Starting,
-                VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, null, null, 0, 0, null, null);
 
         ResponseEntity<Void> result = agentController.setInstanceStatus("testInstanceStatusIdAPIV2", testStatus);
         assertEquals(202, result.getStatusCode().value());
