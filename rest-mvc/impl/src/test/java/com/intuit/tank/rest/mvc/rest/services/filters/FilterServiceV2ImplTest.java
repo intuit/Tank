@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.intuit.tank.project.User;
 
 import com.intuit.tank.dao.UserDao;
+import com.intuit.tank.project.ExternalScript;
 
 import java.util.Map;
 import org.mockito.ArgumentCaptor;
@@ -12,6 +13,7 @@ import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.rest.mvc.rest.security.SecurityTestSupport;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
 import com.intuit.tank.common.ScriptUtil;
+import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.FilterGroupDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
@@ -242,7 +244,44 @@ class FilterServiceV2ImplTest {
     }
 
     @Test
-    void createOrUpdateFilter_rejectsExternalFilter() {
+    void createOrUpdateFilter_savesExternalFilterWithExistingScript() {
+        FilterTO request = FilterTO.builder()
+                .withName("external")
+                .withFilterType(ScriptFilterType.EXTERNAL.name())
+                .withExternalScriptId(5)
+                .build();
+        ScriptFilter filter = new ScriptFilter();
+        FilterTO response = FilterTO.builder().withId(8).withName("external").build();
+
+        try (MockedConstruction<ExternalScriptDao> scriptDao = Mockito.mockConstruction(ExternalScriptDao.class,
+                (mock, ctx) -> when(mock.findById(5)).thenReturn(new ExternalScript()));
+             MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.saveOrUpdate(filter)).thenReturn(filter));
+             MockedStatic<FilterServiceUtil> utilMock = Mockito.mockStatic(FilterServiceUtil.class)) {
+            utilMock.when(() -> FilterServiceUtil.toScriptFilter(eq(request), any(ScriptFilter.class))).thenReturn(filter);
+            utilMock.when(() -> FilterServiceUtil.filterToTO(filter)).thenReturn(response);
+
+            assertEquals(8, service.createOrUpdateFilter(request).getId());
+            verify(daoMock.constructed().get(0)).saveOrUpdate(filter);
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsExternalFilterWithUnknownScript() {
+        FilterTO request = FilterTO.builder()
+                .withName("external")
+                .withFilterType(ScriptFilterType.EXTERNAL.name())
+                .withExternalScriptId(5)
+                .build();
+
+        try (MockedConstruction<ExternalScriptDao> scriptDao = Mockito.mockConstruction(ExternalScriptDao.class)) {
+            assertThrows(GenericServiceCreateOrUpdateException.class,
+                    () -> service.createOrUpdateFilter(request));
+        }
+    }
+
+    @Test
+    void createOrUpdateFilter_rejectsExternalFilterWithoutScript() {
         FilterTO request = FilterTO.builder()
                 .withName("external")
                 .withCreator("sync-user")

@@ -11,6 +11,8 @@ import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.project.ScriptGroup;
+import com.intuit.tank.project.ScriptGroupStep;
 import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.rest.mvc.rest.models.ProjectDetail;
 import com.intuit.tank.rest.mvc.rest.models.ProjectDetail.RegionUsers;
@@ -23,6 +25,7 @@ import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +48,7 @@ class ProjectDetailMapperTest {
         assertEquals("30m", detail.settings().simulationTime());
         assertEquals(IncrementStrategy.increasing, detail.settings().incrementStrategy());
         assertTrue(detail.settings().allowOverride());
+        assertTrue(detail.settings().useEips());
         assertEquals(List.of(new RegionUsers(VMRegion.US_EAST, "100", "0"), new RegionUsers(VMRegion.US_WEST_2, "0", "0")),
                 detail.regions(), "configured regions without users are listed with 0");
         assertEquals(List.of(new TestPlanDetail("Main", 100, List.of(
@@ -80,7 +84,7 @@ class ProjectDetailMapperTest {
     void validate_reportsEveryProblem() {
         ProjectDetail bad = new ProjectDetail(1, " ", null, "x".repeat(1025), null, null, null,
                 new Settings(null, TerminationPolicy.time, "soon", "5x", -1, -1, -1, null, "SOMETIMES", "LOUD", null, 0, 0,
-                        false, null, null, false),
+                        null, false, null, null, false),
                 List.of(new RegionUsers(VMRegion.US_EAST, "abc", "101"), new RegionUsers(VMRegion.US_EAST, "1", "0")),
                 List.of(new TestPlanDetail("Main", 120, List.of(new ScriptGroupDetail("", 1, List.of()),
                         new ScriptGroupDetail("G", 0, List.of(new ScriptRef(1, null, 0)))))),
@@ -115,7 +119,7 @@ class ProjectDetailMapperTest {
         ProjectDetail d = ProjectFixtures.detail("Load", "alice");
         ProjectDetail changed = new ProjectDetail(d.id(), " Renamed ", "Tax", "new comments", "bob", null, d.modified(),
                 new Settings(IncrementStrategy.standard, TerminationPolicy.script, " ", "10m", 0, 1, 25.5, "lab",
-                        "END_OF_TEST", "VERBOSE", "c5.xlarge", 500, 2.5, true, "com.example.Client", "none", false),
+                        "END_OF_TEST", "VERBOSE", "c5.xlarge", 500, 2.5, true, true, "com.example.Client", "none", false),
                 List.of(new RegionUsers(VMRegion.US_EAST, " 60 ", "60"), new RegionUsers(VMRegion.US_WEST_2, "40", "40")),
                 List.of(new TestPlanDetail("A", 70, List.of(new ScriptGroupDetail("G1", 1,
                                 List.of(new ScriptRef(42, null, 1), new ScriptRef(43, null, 5))))),
@@ -138,6 +142,7 @@ class ProjectDetailMapperTest {
         assertEquals("lab", config.getLocation());
         assertEquals("VERBOSE", config.getLoggingProfile());
         assertEquals(500, config.getNumUsersPerAgent());
+        assertTrue(config.isUseEips());
         assertTrue(config.isUseTwoStep());
         assertFalse(config.isAllowOverride());
         assertEquals(Map.of("env", "qa"), config.getVariables());
@@ -157,7 +162,128 @@ class ProjectDetailMapperTest {
     }
 
     @Test
+    void apply_updatesExistingPlanRowsInPlace() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        TestPlan plan = project.getWorkloads().get(0).getTestPlans().get(0);
+        ScriptGroup group = plan.getScriptGroups().get(0);
+        ScriptGroupStep step = group.getScriptGroupSteps().get(0);
+        ProjectDetail d = ProjectFixtures.detail("Load", "alice");
+        ProjectDetail changed = new ProjectDetail(d.id(), d.name(), d.productName(), d.comments(), d.owner(), null,
+                d.modified(), d.settings(), d.regions(),
+                List.of(new TestPlanDetail("Renamed", 100, List.of(new ScriptGroupDetail("G1", 4,
+                        List.of(new ScriptRef(42, null, 7), new ScriptRef(43, null, 1)))))),
+                d.variables(), d.dataFileIds(), null);
+
+        ProjectDetailMapper.apply(changed, project,
+                Map.of(42, ProjectFixtures.script(42, "a"), 43, ProjectFixtures.script(43, "b")));
+
+        assertSame(plan, project.getWorkloads().get(0).getTestPlans().get(0));
+        assertEquals("Renamed", plan.getName());
+        assertSame(group, plan.getScriptGroups().get(0));
+        assertEquals(4, group.getLoop());
+        assertSame(step, group.getScriptGroupSteps().get(0), "the step is updated, not deleted and re-inserted");
+        assertEquals(7, step.getLoop());
+        assertEquals(2, group.getScriptGroupSteps().size());
+        assertEquals(43, group.getScriptGroupSteps().get(1).getScript().getId());
+    }
+
+    @Test
+    void apply_deletingAStepFromTheMiddleKeepsTheOtherStepsScripts() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ScriptGroup group = project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0);
+        ScriptGroupStep first = group.getScriptGroupSteps().get(0);
+        ScriptGroupStep middle = addStep(group, 43);
+        ScriptGroupStep last = addStep(group, 44);
+
+        ProjectDetailMapper.apply(withScripts(List.of(new ScriptRef(42, null, 3), new ScriptRef(44, null, 1))),
+                project, scripts(42, 43, 44));
+
+        assertEquals(List.of(first, last), group.getScriptGroupSteps());
+        assertFalse(group.getScriptGroupSteps().contains(middle));
+        assertEquals(42, first.getScript().getId());
+        assertEquals(44, last.getScript().getId(), "the step is kept with its script, not reassigned another one");
+    }
+
+    @Test
+    void apply_reorderingStepsMovesThemWithoutChangingTheirScripts() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ScriptGroup group = project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0);
+        ScriptGroupStep first = group.getScriptGroupSteps().get(0);
+        ScriptGroupStep second = addStep(group, 43);
+
+        ProjectDetailMapper.apply(withScripts(List.of(new ScriptRef(43, null, 2), new ScriptRef(42, null, 5))),
+                project, scripts(42, 43));
+
+        assertEquals(List.of(second, first), group.getScriptGroupSteps());
+        assertEquals(43, second.getScript().getId());
+        assertEquals(2, second.getLoop());
+        assertEquals(42, first.getScript().getId());
+        assertEquals(5, first.getLoop());
+    }
+
+    @Test
+    void apply_addsANewStepOnlyForANewScript() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ScriptGroup group = project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().get(0);
+        ScriptGroupStep existing = group.getScriptGroupSteps().get(0);
+
+        ProjectDetailMapper.apply(withScripts(List.of(new ScriptRef(43, null, 1), new ScriptRef(42, null, 3))),
+                project, scripts(42, 43));
+
+        assertEquals(2, group.getScriptGroupSteps().size());
+        assertSame(existing, group.getScriptGroupSteps().get(1));
+        ScriptGroupStep added = group.getScriptGroupSteps().get(0);
+        assertEquals(43, added.getScript().getId());
+        assertSame(group, added.getScriptGroup());
+    }
+
+    @Test
+    void apply_dropsTrailingRows() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ProjectDetail d = ProjectFixtures.detail("Load", "alice");
+        ProjectDetail changed = new ProjectDetail(d.id(), d.name(), d.productName(), d.comments(), d.owner(), null,
+                d.modified(), d.settings(), d.regions(),
+                List.of(new TestPlanDetail("Main", 100, List.of())), d.variables(), d.dataFileIds(), null);
+
+        ProjectDetailMapper.apply(changed, project, Map.of());
+
+        assertTrue(project.getWorkloads().get(0).getTestPlans().get(0).getScriptGroups().isEmpty());
+    }
+
+    @Test
+    void apply_keepsElasticIpsWhenOmitted() {
+        Project project = ProjectFixtures.project(1, "Load", "alice");
+        ProjectDetailMapper.apply(ProjectFixtures.detail("Load", "alice"), project,
+                Map.of(42, ProjectFixtures.script(42, "a")));
+        assertTrue(project.getWorkloads().get(0).getJobConfiguration().isUseEips());
+    }
+
+    @Test
     void scriptIds() {
         assertEquals(Set.of(42), ProjectDetailMapper.scriptIds(ProjectFixtures.detail("Load", "alice")));
+    }
+
+    private static ScriptGroupStep addStep(ScriptGroup group, int scriptId) {
+        ScriptGroupStep step = new ScriptGroupStep();
+        step.setScript(ProjectFixtures.script(scriptId, "script " + scriptId));
+        group.addScriptGroupStep(step);
+        return step;
+    }
+
+    /** The fixture detail with its one group's scripts replaced by {@code refs}. */
+    private static ProjectDetail withScripts(List<ScriptRef> refs) {
+        ProjectDetail d = ProjectFixtures.detail("Load", "alice");
+        return new ProjectDetail(d.id(), d.name(), d.productName(), d.comments(), d.owner(), null, d.modified(),
+                d.settings(), d.regions(),
+                List.of(new TestPlanDetail("Main", 100, List.of(new ScriptGroupDetail("Login", 2, refs)))),
+                d.variables(), d.dataFileIds(), null);
+    }
+
+    private static Map<Integer, Script> scripts(int... ids) {
+        Map<Integer, Script> scripts = new HashMap<>();
+        for (int id : ids) {
+            scripts.put(id, ProjectFixtures.script(id, "script " + id));
+        }
+        return scripts;
     }
 }

@@ -3,28 +3,95 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Message } from 'primereact/message';
+import { MultiSelect } from 'primereact/multiselect';
+import { SelectButton } from 'primereact/selectbutton';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { contextPath, type Schemas } from '../../api/client';
 import { toApiError } from '../../api/errors';
-import { formatDateTime } from '../../format';
+import { formatDateTime, htmlToText } from '../../format';
+import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
+import { AgentHeatMap } from './AgentHeatMap';
+import { JobCards, useTpsHistory } from './JobCards';
 import { JobCharts } from './JobCharts';
+import {
+  agentSummary,
+  formatCount,
+  formatTime,
+  severityOf,
+  stripeOf,
+  type AgentNode,
+  type JobNode,
+  type JobTree,
+  type Row,
+  type Target,
+} from './jobModel';
+import { JobTimeline } from './JobTimeline';
+import { RegionSummary } from './RegionSummary';
 
-type JobTree = Schemas['JobTree'];
-type JobNode = Schemas['JobNode'];
-type ProjectJobs = Schemas['ProjectJobs'];
-type AgentNode = Schemas['AgentNode'];
 type Actions = Schemas['Actions'];
 
-/** The server asks for no faster than this (GET /v2/jobs/tree) */
+/** The server asks for no faster than this (GET /v2/jobs/tree), as JobTreeTableBean's MIN_REFRESH */
 export const REFRESH_MS = 10_000;
+
+/** Refresh intervals to choose from, in seconds; 0 turns refreshing off, as an empty JSF interval does */
+export const REFRESH_CHOICES = [10, 15, 30, 60, 120, 0];
+const REFRESH_STORAGE_KEY = 'tank.jobs.refreshSeconds';
+
+/** The interval this browser last chose; storage can be missing or blocked */
+function storedRefreshSeconds(): number {
+  try {
+    const stored = Number(localStorage.getItem(REFRESH_STORAGE_KEY) ?? NaN);
+    return REFRESH_CHOICES.includes(stored) ? stored : REFRESH_MS / 1000;
+  } catch {
+    return REFRESH_MS / 1000;
+  }
+}
+
+function storeRefreshSeconds(seconds: number) {
+  try {
+    localStorage.setItem(REFRESH_STORAGE_KEY, String(seconds));
+  } catch {
+    // the choice lasts only for this page
+  }
+}
+
+/** Ways to look at the queue; the table is the JSF tree's */
+export const VIEWS = [
+  { value: 'table', label: 'Table', icon: 'pi pi-list' },
+  { value: 'heatmap', label: 'Heat map', icon: 'pi pi-th-large' },
+  { value: 'jobs', label: 'Jobs', icon: 'pi pi-clone' },
+  { value: 'regions', label: 'Regions', icon: 'pi pi-globe' },
+  { value: 'timeline', label: 'Timeline', icon: 'pi pi-calendar' },
+] as const;
+type View = (typeof VIEWS)[number]['value'];
+const VIEW_STORAGE_KEY = 'tank.jobs.view';
+
+/** The view this browser last chose; storage can be missing or blocked */
+function storedView(): View {
+  try {
+    const stored = localStorage.getItem(VIEW_STORAGE_KEY);
+    return VIEWS.find((v) => v.value === stored)?.value ?? 'table';
+  } catch {
+    return 'table';
+  }
+}
+
+function storeView(view: View) {
+  try {
+    localStorage.setItem(VIEW_STORAGE_KEY, view);
+  } catch {
+    // the choice lasts only for this page
+  }
+}
 
 /** Actions as the REST API names them, with the flag in Actions that allows each */
 const ACTIONS = [
@@ -38,14 +105,6 @@ const ACTIONS = [
   { action: 'kill', flag: 'kill', label: 'Kill', icon: 'pi pi-times-circle', severity: 'danger' },
 ] as const;
 
-type Row =
-  /** a project, or (no projectId) the jobs whose project no longer exists */
-  | { kind: 'project'; project: ProjectJobs; orphans?: boolean }
-  | { kind: 'job'; job: JobNode }
-  | { kind: 'agent'; agent: AgentNode; job: JobNode };
-
-/** The rows actions can be sent to */
-type Target = Exclude<Row, { kind: 'project' }>;
 
 /**
  * Jobs and their agents, live (JobTreeTableBean, projectjobqueue.xhtml and agents/index.xhtml). With
@@ -59,13 +118,18 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const [includeFinished, setIncludeFinished] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [detailsFor, setDetailsFor] = useState<{ job: JobNode; agent?: AgentNode }>();
-  const queryKey = ['jobs', 'tree', { projectId, includeFinished }] as const;
+  const [refreshSeconds, setRefreshSeconds] = useState(storedRefreshSeconds);
+  const [view, setView] = useState(storedView);
+  const preferences = useTablePreferences('jobs');
+  // the timeline is about the past as much as the present
+  const withFinished = includeFinished || view === 'timeline';
+  const queryKey = ['jobs', 'tree', { projectId, includeFinished: withFinished }] as const;
 
   const tree = useQuery({
     queryKey,
     queryFn: async ({ signal }): Promise<JobTree> => {
       const { data, error, response } = await client.GET('/v2/jobs/tree', {
-        params: { query: { projectId, includeFinished } },
+        params: { query: { projectId, includeFinished: withFinished } },
         signal,
       });
       if (!data) {
@@ -73,7 +137,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
       }
       return data;
     },
-    refetchInterval: REFRESH_MS,
+    refetchInterval: refreshSeconds ? refreshSeconds * 1000 : false,
     staleTime: 0,
   });
 
@@ -114,6 +178,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     onSettled: () => void queryClient.invalidateQueries({ queryKey: ['jobs', 'tree'] }),
   });
 
+  const tpsHistory = useTpsHistory(tree.data);
   const nodes = useMemo(() => (tree.data ? toNodes(tree.data, projectId === undefined) : []), [tree.data, projectId]);
 
   // Projects start expanded so their jobs show; agents start collapsed
@@ -124,6 +189,12 @@ export function JobQueue({ projectId }: { projectId?: number }) {
       setExpanded(Object.fromEntries(nodes.map((n) => [n.key as string, true])));
     }
   }, [tree.data, nodes, projectId]);
+
+  // Saved column visibility and widths (the JSF tablePrefs); columns stay shown if they can't load
+  const prefOf = (key: string | undefined) => preferences.columns.find((c) => c.colName === key);
+  const shown = (key: string | undefined) => prefOf(key)?.visible !== false;
+  const widthOf = (key: string | undefined) => (prefOf(key)?.size ? `${prefOf(key)!.size}px` : undefined);
+  const hideable = preferences.columns.filter((c) => c.hideable && COLUMNS.some((col) => col.pref === c.colName));
 
   const confirmThen = (target: Target, action: string, label: string) => {
     const what = target.kind === 'job' ? `job "${target.job.name}"` : `agent ${target.agent.instanceId}`;
@@ -200,6 +271,12 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     );
   };
 
+  const viewProps = (data: JobTree) => ({
+    tree: data,
+    actionsFor,
+    onDetails: (job: JobNode, agent?: AgentNode) => setDetailsFor({ job, agent }),
+  });
+
   const nameCell = (row: Row) =>
     row.kind === 'project' ? (
       row.orphans ? (
@@ -210,22 +287,54 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         </Link>
       )
     ) : row.kind === 'job' ? (
-      <Button label={row.job.name} link className="link-cell" onClick={() => setDetailsFor({ job: row.job })} />
+      <Button
+        label={row.job.name}
+        link
+        className="link-cell"
+        tooltip="Job details"
+        tooltipOptions={{ position: 'top', showDelay: 500 }}
+        onClick={() => setDetailsFor({ job: row.job })}
+      />
     ) : (
-      <span title={row.agent.instanceId}>{row.agent.instanceId}</span>
+      <span className="agent-id">{row.agent.instanceId}</span>
     );
 
   return (
-    <div>
-      <div className="tab-toolbar">
+    <div className="job-queue-views">
+      <div className="tab-toolbar job-toolbar">
+        <SelectButton
+          value={view}
+          options={[...VIEWS]}
+          optionLabel="label"
+          optionValue="value"
+          itemTemplate={(option: (typeof VIEWS)[number]) => (
+            <>
+              <i className={option.icon} aria-hidden />
+              <span>{option.label}</span>
+            </>
+          )}
+          onChange={(e) => {
+            if (e.value) {
+              setView(e.value as View);
+              storeView(e.value as View);
+            }
+          }}
+          allowEmpty={false}
+          aria-label="View"
+          className="job-view-switch"
+        />
         <div className="field-inline">
           <InputSwitch
             inputId="include-finished"
-            checked={includeFinished}
+            checked={withFinished}
+            disabled={view === 'timeline'}
             onChange={(e) => setIncludeFinished(!!e.value)}
           />
           <label htmlFor="include-finished">Show finished jobs</label>
         </div>
+        {tree.data?.generatedAt && (
+          <span className="field-help tab-toolbar-end">Updated {formatTime(tree.data.generatedAt)}</span>
+        )}
         <Button
           label="Refresh"
           icon="pi pi-refresh"
@@ -234,19 +343,54 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           loading={tree.isFetching}
           onClick={() => void tree.refetch()}
         />
-        {tree.data?.generatedAt && (
-          <span className="field-help">
-            Updated {formatTime(tree.data.generatedAt)}; refreshes every {REFRESH_MS / 1000}s
-          </span>
+        <div className="field-inline">
+          <label htmlFor="refresh-interval">Refresh every</label>
+          <Dropdown
+            inputId="refresh-interval"
+            value={refreshSeconds}
+            options={REFRESH_CHOICES.map((seconds) => ({ label: seconds ? `${seconds}s` : 'Off', value: seconds }))}
+            onChange={(e) => {
+              setRefreshSeconds(e.value as number);
+              storeRefreshSeconds(e.value as number);
+            }}
+            className="p-inputtext-sm"
+          />
+        </div>
+        {view === 'table' && (
+        <MultiSelect
+          value={hideable.filter((c) => c.visible).map((c) => c.colName)}
+          options={hideable.map((c) => ({ label: c.displayName, value: c.colName }))}
+          onChange={(e) => preferences.setVisible(e.value as string[])}
+          placeholder="Columns"
+          selectedItemsLabel="Columns"
+          maxSelectedLabels={0}
+          aria-label="Visible columns"
+          dropdownIcon="pi pi-table"
+          className="list-columns"
+          disabled={hideable.length === 0}
+        />
         )}
       </div>
 
       {tree.error && !tree.data ? (
         <Message severity="error" text={tree.error.message} className="tab-message" />
+      ) : view !== 'table' ? (
+        !tree.data ? (
+          <p className="field-help">Loading jobs…</p>
+        ) : view === 'heatmap' ? (
+          <AgentHeatMap {...viewProps(tree.data)} />
+        ) : view === 'jobs' ? (
+          <JobCards {...viewProps(tree.data)} tpsHistory={tpsHistory} />
+        ) : view === 'regions' ? (
+          <RegionSummary {...viewProps(tree.data)} />
+        ) : (
+          <JobTimeline {...viewProps(tree.data)} />
+        )
       ) : (
         <TreeTable
           value={nodes}
           expandedKeys={expanded}
+          rowClassName={(n) => ({ [`job-tree-${(n.data as Row).kind}`]: true })}
           onToggle={(e) => setExpanded(e.value as Record<string, boolean>)}
           emptyMessage={
             includeFinished
@@ -257,19 +401,28 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           }
           loading={tree.isPending}
           tableStyle={{ minWidth: '56rem' }}
+          resizableColumns
+          columnResizeMode="expand"
+          onColumnResizeEnd={(e) => {
+            const key = (e.column.props.columnKey ?? '') as string;
+            if (key) {
+              preferences.setWidth(key, e.element.offsetWidth);
+            }
+          }}
           className="p-treetable-sm job-tree"
         >
-          <Column field="name" header="Name" expander body={(n: TreeNode) => nameCell(n.data as Row)} style={{ minWidth: '12rem' }} />
-          <Column header="ID" body={(n: TreeNode) => idOf(n.data as Row)} style={{ width: '4rem' }} />
-          <Column header="Status" body={(n: TreeNode) => statusCell(n.data as Row)} style={{ minWidth: '11rem' }} />
-          <Column header="WS State" body={(n: TreeNode) => wsStateCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="Region" body={(n: TreeNode) => regionOf(n.data as Row)} style={{ minWidth: '9rem' }} />
-          <Column header="Users" body={(n: TreeNode) => usersCell(n.data as Row)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="TPS" body={(n: TreeNode) => figures(n.data as Row).tps ?? 0} />
-          <Column header="Failures" body={(n: TreeNode) => figures(n.data as Row).failures?.total ?? 0} />
-          <Column header="Started" body={(n: TreeNode) => formatDateTime(figures(n.data as Row).startTime)} style={{ whiteSpace: 'nowrap' }} />
-          <Column header="Completed" body={(n: TreeNode) => formatDateTime(endTimeOf(n.data as Row))} style={{ whiteSpace: 'nowrap' }} />
-          <Column body={(n: TreeNode) => actionsFor(n.data as Row)} />
+          {COLUMNS.filter((c) => shown(c.pref)).map((c) => (
+            <Column
+              key={c.pref ?? c.header ?? 'actions'}
+              columnKey={c.pref}
+              field={c.expander ? 'name' : undefined}
+              header={c.header}
+              expander={c.expander}
+              body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row))}
+              className={c.className}
+              style={{ ...c.style, width: widthOf(c.pref) }}
+            />
+          ))}
         </TreeTable>
       )}
 
@@ -278,6 +431,52 @@ export function JobQueue({ projectId }: { projectId?: number }) {
       )}
     </div>
   );
+}
+
+interface JobColumn {
+  /** The column's key in the user's saved jobs table settings (TableColumnDefaults.JOBS_COL_PREFS) */
+  pref?: string;
+  header?: string;
+  body?: (row: Row) => ReactNode;
+  style?: CSSProperties;
+  /** For both the header and body cells: num-col right-aligns figures, date-col keeps times quiet */
+  className?: string;
+  expander?: boolean;
+  actions?: boolean;
+}
+
+const COLUMNS: JobColumn[] = [
+  { pref: 'nameColumn', header: 'Name', expander: true, className: 'name-col', style: { minWidth: '12rem' } },
+  { pref: 'idColumn', header: 'ID', body: idOf, className: 'id-col', style: { width: '4rem' } },
+  { pref: 'statusColumn', header: 'Status', body: statusCell, style: { minWidth: '11rem' } },
+  { header: 'WS State', body: wsStateCell, style: { whiteSpace: 'nowrap' } },
+  { pref: 'regionColumn', header: 'Region', body: regionOf, style: { minWidth: '7rem' } },
+  { pref: 'activeUsersColumn', header: 'Active users', body: (row) => formatCount(figures(row).activeUsers), className: 'num-col' },
+  { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers, className: 'num-col' },
+  { pref: 'tpsColumn', header: 'TPS', body: (row) => formatCount(figures(row).tps), className: 'num-col' },
+  { pref: 'validationColumn', header: 'Failures', body: failuresCell, className: 'num-col' },
+  { pref: 'startTimeColumn', header: 'Started', body: (row) => dateCell(figures(row).startTime), className: 'date-col' },
+  { pref: 'endTimeColumn', header: 'Completed', body: (row) => dateCell(endTimeOf(row)), className: 'date-col' },
+  { pref: 'actionsColumn', actions: true, className: 'actions-col' },
+];
+
+/** A date and time that, when the table is tight, breaks between the two rather than anywhere */
+function dateCell(iso: string | undefined) {
+  const text = formatDateTime(iso);
+  const split = text.lastIndexOf(', ');
+  return split < 0 ? (
+    text
+  ) : (
+    <>
+      <span className="nowrap">{text.slice(0, split + 1)}</span> <span className="nowrap">{text.slice(split + 2)}</span>
+    </>
+  );
+}
+
+/** Failures stand out once there are any */
+function failuresCell(row: Row) {
+  const total = figures(row).failures?.total ?? 0;
+  return total > 0 ? <span className="failure-count">{formatCount(total)}</span> : formatCount(total);
 }
 
 function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
@@ -390,76 +589,21 @@ function statusCell(row: Row) {
     );
   }
   const { job } = row;
-  const agents = job.agents ?? [];
-  const count = (test: (a: AgentNode) => boolean) => agents.filter(test).length;
-  const running = count((a) => a.status === 'running');
-  // as ActJobNodeBean counts them for two-step jobs
-  const connected = count((a) => !!a.wsState && a.wsState !== 'disconnected');
-  const ready = count((a) => a.status === 'ready');
+  const summary = agentSummary(job);
   return (
     <span className="status-cell">
       <Tag value={job.status} severity={severityOf(job.status)} className={stripeOf(job.status)} />
-      {agents.length > 0 && (
-        <span className="field-help">
-          {job.useTwoStep && running === 0
-            ? `${connected}/${agents.length} connected, ${ready}/${agents.length} ready`
-            : `${running}/${agents.length} agents running`}
-        </span>
-      )}
+      {summary && <span className="field-help">{summary}</span>}
     </span>
   );
 }
 
-function usersCell(row: Row) {
-  const f = figures(row);
+/** A nonlinear job has no fixed target, so JSF shows its steady state instead, which the tree doesn't carry */
+function targetUsers(row: Row) {
   if (row.kind === 'job' && row.job.incrementStrategy?.toLowerCase().startsWith('non')) {
-    return `${f.activeUsers ?? 0} active`;
+    return '';
   }
-  return `${f.activeUsers ?? 0} / ${f.totalUsers ?? 0}`;
-}
-
-/** The JSF tree's moving stripes for work in progress (tank.css status-badge-running and -starting) */
-export function stripeOf(status: string | undefined): string | undefined {
-  switch (status?.toLowerCase()) {
-    case 'running':
-      return 'status-striped status-striped-running';
-    case 'starting':
-      return 'status-striped status-striped-starting';
-    default:
-      return undefined;
-  }
-}
-
-/** Colours JobQueueStatus and VMStatus (vmManager) names; unknown ones stay neutral */
-export function severityOf(status: string | undefined): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
-  switch (status?.toLowerCase()) {
-    case 'running':
-      return 'success';
-    case 'created':
-    case 'queued':
-    case 'starting':
-    case 'pending':
-    case 'ready':
-    case 'rebooting':
-      return 'info';
-    case 'paused':
-    case 'ramppaused':
-    case 'stopping':
-      return 'warning';
-    case 'aborted':
-    case 'terminated':
-    case 'disconnected':
-    case 'replaced':
-      return 'danger';
-    default:
-      // Completed, Stopped, Deleted, shutting_down, unknown: neutral, not the primary blue
-      return 'secondary';
-  }
-}
-
-function formatTime(iso: string): string {
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString();
+  return formatCount(figures(row).totalUsers);
 }
 
 /** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its TPS */
@@ -514,6 +658,13 @@ function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentN
             {failures.skipGroups ?? 0} group skips
           </dd>
         </dl>
+      )}
+      {d?.detailsHtml && (
+        <details className="job-recorded-details">
+          <summary>Job details as queued</summary>
+          {/* the server's HTML report, shown as text: it carries user-entered names and values */}
+          <pre className="job-details-text">{htmlToText(d.detailsHtml)}</pre>
+        </details>
       )}
       <JobCharts jobId={Number(job.jobId)} instanceId={agent?.instanceId} />
     </Dialog>

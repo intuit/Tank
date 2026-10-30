@@ -3039,6 +3039,7 @@ export interface components {
             targetRatePerAgent?: number;
             /** @enum {string} */
             terminationPolicy?: "script" | "time";
+            useEips?: boolean;
             useTwoStep?: boolean;
             /** Format: int32 */
             userIntervalIncrement?: number;
