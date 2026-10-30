@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 
+import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Script;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -225,6 +226,30 @@ public class ProjectDaoTest {
 
         // Cleanup
         dao.delete(project);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void test_saveOrUpdateProject_editsRegionUsersInPlace() throws Exception {
+        // Arrange
+        Project project = DaoTestUtil.createProject();
+        project.getWorkloads().get(0).getJobConfiguration().getJobRegions()
+                .add(DaoTestUtil.createJobRegionData("10", "100"));
+        project = dao.saveOrUpdateProject(project);
+
+        // Act - a detached edit of an existing region's users, as the project editor saves it
+        Project loaded = dao.findByIdEager(project.getId());
+        JobRegion region = loaded.getWorkloads().get(0).getJobConfiguration().getJobRegions().iterator().next();
+        region.setUsers("25");
+        dao.saveOrUpdateProject(loaded);
+
+        // Assert
+        Project reloaded = dao.findByIdEager(project.getId());
+        assertEquals(1, reloaded.getWorkloads().get(0).getJobConfiguration().getJobRegions().size());
+        assertEquals("25", reloaded.getWorkloads().get(0).getJobConfiguration().getJobRegions().iterator().next().getUsers());
+
+        // Cleanup
+        dao.delete(reloaded);
     }
 
     @Test

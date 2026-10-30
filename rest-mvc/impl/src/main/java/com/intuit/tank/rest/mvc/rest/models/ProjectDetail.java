@@ -53,6 +53,7 @@ public record ProjectDetail(Integer id,
      * @param stopBehavior   a {@code StopBehavior} name
      * @param loggingProfile a {@code LoggingProfile} name
      * @param tankClientClass an HTTP client class name from {@code /v2/config/options}
+     * @param useEips        assign Elastic IPs to the agents; left unchanged when null on input
      */
     public record Settings(IncrementStrategy incrementStrategy,
                            TerminationPolicy terminationPolicy,
@@ -67,6 +68,7 @@ public record ProjectDetail(Integer id,
                            String vmInstanceType,
                            int numUsersPerAgent,
                            double targetRatePerAgent,
+                           Boolean useEips,
                            boolean useTwoStep,
                            String tankClientClass,
                            String reportingMode,

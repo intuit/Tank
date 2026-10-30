@@ -130,8 +130,17 @@ body {
 
 .header-user {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   align-items: center;
+}
+
+/* the text button has no background in the header, so its padding would only widen its gap */
+.header-user .p-button.p-button-text {
+  padding-inline: 0;
+}
+
+.header-help {
+  text-decoration: none;
 }
 
 .main {
@@ -158,6 +167,11 @@ body {
 .login-title {
   margin: 0;
   font-size: 1.5rem;
+}
+
+.login-expired {
+  width: 100%;
+  margin-bottom: 12px;
 }
 
 .login-form {
@@ -640,6 +654,38 @@ body {
   margin: 12px 0;
 }
 
+.section-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-toolbar-end {
+  margin-left: auto;
+}
+
+.job-recorded-details {
+  margin: 12px 0;
+}
+
+.job-recorded-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.job-details-text {
+  max-height: 24rem;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-ground);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
 .tab-message {
   width: 100%;
   margin-bottom: 8px;
@@ -834,6 +880,919 @@ body {
   vertical-align: middle;
 }
 
+/* The job tree sits in a card: a quiet header, tinted project rows, and agents a step down */
+.job-tree {
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-card);
+}
+
+.job-tree .p-treetable-wrapper {
+  overflow-x: auto;
+}
+
+.job-tree .p-treetable-thead > tr > th {
+  background: var(--surface-50);
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.job-tree .p-treetable-tbody > tr > td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.job-tree .p-treetable-tbody > tr:hover > td {
+  background: var(--surface-50);
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-project > td {
+  background: var(--surface-100);
+  border-top: 1px solid var(--surface-300);
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-project:first-child > td {
+  border-top: none;
+}
+
+.job-tree .p-treetable-tbody > tr.job-tree-agent > td {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  font-size: 0.875rem;
+}
+
+/* The expander and its name stay on one line */
+.job-tree td.name-col {
+  white-space: nowrap;
+}
+
+.job-tree td.name-col .p-treetable-toggler {
+  vertical-align: middle;
+}
+
+
+.job-tree .nowrap {
+  white-space: nowrap;
+}
+
+.job-tree .p-button.p-button-link.link-cell {
+  font-weight: 500;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.job-tree .agent-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.job-tree td.id-col {
+  color: var(--text-color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.job-tree .num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-tree td.num-col {
+  white-space: nowrap;
+}
+
+.job-tree th.num-col .p-column-header-content {
+  justify-content: flex-end;
+}
+
+.failure-count {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+.job-tree td.date-col {
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.job-tree .status-cell {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.job-tree .status-cell .field-help {
+  font-size: 0.75rem;
+}
+
+/* Agents report lower-case VM statuses; show them as the job rows do */
+.job-tree-agent .status-cell .p-tag {
+  text-transform: capitalize;
+}
+
+.job-tree .p-tag {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Toolbar: the filter on the left, refresh and columns together on the right */
+.job-toolbar {
+  padding: 8px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+
+.job-toolbar .field-inline {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.job-toolbar .p-dropdown .p-dropdown-label,
+.job-toolbar .p-multiselect .p-multiselect-label {
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.875rem;
+}
+
+/* Job queue views (heat map, cards, regions, timeline). Agent states share one set of colours; each
+   is also named in a legend and in words beside it, never colour alone. */
+.job-queue-views {
+  --agent-live: #16a34a;
+  --agent-warn: #ea8a1a;
+  --agent-setup: #0284c7;
+  --agent-lost: #b91c1c;
+  --agent-done: #cbd5e1;
+}
+
+.job-view-switch .p-button {
+  gap: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.p-selectbutton-sm .p-button {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8125rem;
+}
+
+.job-view-empty {
+  margin: 24px 0;
+  color: var(--text-color-secondary);
+}
+
+.job-view-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+}
+
+.job-view-name {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-color);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.job-view-name:hover {
+  text-decoration: underline;
+}
+
+.job-view-actions {
+  margin-left: auto;
+}
+
+.job-view-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+  color: var(--text-color-secondary);
+  font-size: 0.8125rem;
+}
+
+.job-view-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.job-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+}
+
+.job-stat-label {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.job-stat-value {
+  color: var(--text-color);
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-stat-alert {
+  color: var(--red-700);
+}
+
+/* Heat map */
+.heat-map-controls,
+.timeline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.heat-map-controls-label {
+  font-weight: 600;
+}
+
+.heat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--text-color-secondary);
+  font-size: 0.8125rem;
+}
+
+.heat-swatch {
+  display: inline-block;
+  width: 20px;
+  height: 14px;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+
+.heat-swatch.heat-lost {
+  margin-left: 10px;
+}
+
+.heat-map-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.heat-map-jobs {
+  display: flex;
+  flex: 999 1 36rem;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.heat-map-jobs > .job-view-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+}
+
+.job-view-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.job-view-card-header .job-view-name {
+  font-size: 1rem;
+}
+
+.heat-region {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heat-region-label {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.heat-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.heat-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 66px;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.heat-tile:focus-visible,
+.heat-tile[aria-pressed='true'] {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--surface-card),
+    0 0 0 4px var(--text-color);
+}
+
+.heat-tile-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.625rem;
+  opacity: 0.85;
+}
+
+.heat-tile-value {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* One hue each, light to dark; text flips to white on the two darkest steps */
+.heat-blue-0 {
+  background: #e8f2fb;
+  color: #1f2937;
+  border-color: #d6dee8;
+}
+
+.heat-blue-1 {
+  background: #b7d1e7;
+  color: #1f2937;
+}
+
+.heat-blue-2 {
+  background: #6ea2ce;
+  color: #111827;
+}
+
+.heat-blue-3 {
+  background: #3f76a5;
+  color: #ffffff;
+}
+
+.heat-blue-4 {
+  background: #1e384e;
+  color: #ffffff;
+}
+
+.heat-orange-0 {
+  background: #fdf1e3;
+  color: #1f2937;
+  border-color: #eedfcc;
+}
+
+.heat-orange-1 {
+  background: #f9c98f;
+  color: #1f2937;
+}
+
+.heat-orange-2 {
+  background: #ef9f4a;
+  color: #111827;
+}
+
+.heat-orange-3 {
+  background: #a85a12;
+  color: #ffffff;
+}
+
+.heat-orange-4 {
+  background: #6e3a06;
+  color: #ffffff;
+}
+
+.heat-lost {
+  background: var(--surface-card);
+  color: #991b1b;
+  border: 2px solid var(--agent-lost);
+}
+
+.heat-setup {
+  background: #eef2f6;
+  color: #374151;
+  border: 1px dashed #7b8794;
+}
+
+.heat-ready {
+  background: var(--surface-card);
+  color: #166534;
+  border: 1px solid var(--agent-live);
+}
+
+.heat-done {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.heat-map-panel {
+  display: flex;
+  flex: 1 1 18rem;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 24rem;
+  padding: 16px;
+}
+
+.heat-panel-id {
+  color: var(--text-color);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.heat-panel-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.heat-panel-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  margin: 0;
+}
+
+.heat-panel-facts dt {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+}
+
+.heat-panel-facts dd {
+  margin: 0;
+  color: var(--text-color);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.heat-panel-actions {
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Job cards */
+.job-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+  gap: 16px;
+}
+
+.job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+}
+
+.job-card-finished {
+  opacity: 0.75;
+}
+
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.job-card-title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.job-card-title .job-view-name {
+  font-size: 1rem;
+}
+
+.job-card-users {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.job-card-users-label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-color-secondary);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-card-users-label strong {
+  color: var(--text-color);
+}
+
+.job-card-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface-200);
+}
+
+.job-card-bar > div {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--primary-color);
+}
+
+.job-card-figures {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 8px;
+}
+
+.job-card-figures > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.job-card-failures {
+  text-align: right;
+}
+
+.job-card-figure {
+  color: var(--text-color);
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-card-spark {
+  width: 100%;
+  height: 36px;
+}
+
+.job-card-spark polyline {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.job-card-agents {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-pips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.agent-pip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border-radius: 2px;
+}
+
+.agent-pip-live {
+  background: var(--agent-live);
+}
+
+.agent-pip-warn {
+  background: var(--agent-warn);
+}
+
+.agent-pip-setup {
+  background: var(--agent-setup);
+}
+
+.agent-pip-lost {
+  background: var(--surface-card);
+  border: 2px solid var(--agent-lost);
+}
+
+.agent-pip-done {
+  background: var(--agent-done);
+}
+
+.job-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* Regions */
+.region-table-wrap {
+  overflow-x: auto;
+}
+
+.region-table {
+  width: 100%;
+  min-width: 56rem;
+  border-collapse: collapse;
+}
+
+.region-table th,
+.region-table td {
+  padding: 14px 12px;
+  border-top: 1px solid var(--surface-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.region-table thead th {
+  border-top: none;
+  background: var(--surface-50);
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.region-table tbody th {
+  color: var(--text-color);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.region-table .num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.region-table td:nth-child(2) {
+  width: 30%;
+}
+
+.region-table td:nth-child(4) {
+  width: 22%;
+}
+
+.region-states {
+  display: flex;
+  gap: 2px;
+  height: 14px;
+  margin-bottom: 4px;
+}
+
+.region-state {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.region-state.agent-pip-lost,
+.region-legend .agent-pip-lost {
+  background: var(--agent-lost);
+  border: none;
+}
+
+.region-tps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.region-tps-track {
+  flex: 1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--surface-200);
+}
+
+.region-tps-track > div {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--primary-color);
+}
+
+.region-tps .num-col {
+  min-width: 4.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.region-jobs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.region-job {
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--primary-50);
+  color: var(--primary-800);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.region-job:hover {
+  background: var(--primary-100);
+}
+
+/* Timeline */
+.timeline-wrap {
+  overflow-x: auto;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+  min-width: 56rem;
+  padding: 0 24px 8px 0;
+}
+
+.timeline-head {
+  padding: 12px 16px;
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.timeline-axis {
+  position: relative;
+  height: 40px;
+}
+
+.timeline-axis span {
+  position: absolute;
+  bottom: 8px;
+  transform: translateX(-50%);
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.timeline-row {
+  display: contents;
+}
+
+.timeline-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.timeline-label-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.timeline-label-name .job-view-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-track {
+  position: relative;
+  min-height: 52px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.timeline-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--surface-100);
+}
+
+.timeline-now {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--text-color);
+}
+
+.timeline-bar {
+  position: absolute;
+  top: 50%;
+  min-width: 6px;
+  height: 14px;
+  margin-top: -7px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.timeline-queued {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  padding: 0;
+  border: 2px solid var(--agent-setup);
+  border-radius: 7px;
+  background: var(--surface-card);
+  cursor: pointer;
+}
+
+.timeline-bar:focus-visible,
+.timeline-queued:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+.timeline-key {
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+
+.timeline-success {
+  background: var(--agent-live);
+}
+
+.timeline-warning {
+  background: var(--agent-warn);
+}
+
+.timeline-info {
+  background: var(--agent-setup);
+}
+
+.timeline-danger {
+  background: var(--agent-lost);
+}
+
+.timeline-secondary {
+  background: #94a3b8;
+}
+
+.timeline-queued-key {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--agent-setup);
+  border-radius: 6px;
+}
+
+.timeline-now-key {
+  width: 2px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--text-color);
+}
+
 /* Charts: chrome tokens from the dataviz reference palette (light; the app has no dark theme) */
 .viz-root {
   --viz-surface: #ffffff;
@@ -1016,9 +1975,11 @@ body {
   font-weight: 600;
 }
 
-.job-tree a.project-cell {
-  color: var(--primary-color);
-  font-weight: 600;
+/* Projects head their groups, so they read as titles rather than links */
+.job-tree a.project-cell,
+.job-tree-project em {
+  color: var(--text-color);
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -1285,6 +2246,35 @@ body {
   vertical-align: top;
 }
 
+.search-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: normal;
+}
+
+.search-goto.p-button {
+  padding: 0;
+}
+
+.search-preview {
+  margin-top: 12px;
+  table-layout: fixed;
+}
+
+.search-preview caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 6px;
+}
+
 /* filters page: groups and filters side by side, stacked when narrow */
 .filter-lists {
   display: grid;
@@ -1402,6 +2392,13 @@ body {
 
 .tool-run {
   font-size: 0.85rem;
+}
+
+.tool > .help-links {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .account-section {

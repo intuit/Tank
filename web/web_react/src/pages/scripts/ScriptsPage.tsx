@@ -60,6 +60,7 @@ export function ScriptsPage() {
                 <RowAction icon="pi pi-pencil" label="Open" name={s.name} onClick={() => void navigate(`/scripts/${s.id}`)} />
                 {canCreate && <RowAction icon="pi pi-copy" label="Copy" name={s.name} onClick={() => setCopying(s)} />}
                 <RowDownload href={`${contextPath()}/v2/scripts/download/${s.id}`} label="Download Tank XML" name={s.name} />
+                <RowDownload href={`${contextPath()}/v2/scripts/harness/download/${s.id}`} label="Download Harness XML" name={s.name} />
                 {canDelete(s) && (
                   <RowAction icon="pi pi-trash" label="Delete" name={s.name} severity="danger" onClick={() => confirmDelete([s])} />
                 )}

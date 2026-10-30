@@ -44,6 +44,10 @@ export function Layout() {
               <Link to="/account" className="header-account" title="Your account">
                 <i className="pi pi-user" aria-hidden /> {user.name}
               </Link>
+              <Link to="/help" className="p-button p-button-text p-button-sm header-help" title="Documentation">
+                <span className="p-button-icon p-button-icon-left pi pi-question-circle" aria-hidden />
+                <span className="p-button-label">Help</span>
+              </Link>
               <Button label="Sign out" icon="pi pi-sign-out" text size="small" onClick={() => void signOut()} />
             </div>
           )
