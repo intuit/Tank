@@ -26,6 +26,8 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class AmazonDynamoDatabaseTest {
 
@@ -77,7 +79,7 @@ public class AmazonDynamoDatabaseTest {
     public void testCreateDelete() {
         db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
-        assertEquals(true, hasTable);
+        assertTrue(hasTable);
         db.removeNamespace(TEST_TABLE);
     }
 
@@ -87,16 +89,16 @@ public class AmazonDynamoDatabaseTest {
         db.initNamespace(TEST_TABLE);
         boolean hasTable = db.hasTable(TEST_TABLE);
         
-        assertEquals(true, hasTable);
+        assertTrue(hasTable);
         boolean hasJobData = db.hasJobData(TEST_TABLE, TEST_JOB_ID);
-        assertEquals(false, hasJobData);
+        assertFalse(hasJobData);
         List<TankResult> results = getResults(NUM_ENTRIES);
         db.addTimingResults(TEST_TABLE, results, false);
         List<Item> items = db.getItems(TEST_TABLE, TEST_JOB_ID, null, null, null);
         assertEquals(NUM_ENTRIES , items.size());
         printItems(items);
         hasJobData = db.hasJobData(TEST_TABLE, TEST_JOB_ID);
-        assertEquals(true, hasJobData);
+        assertTrue(hasJobData);
         String start = ReportUtil.getTimestamp(results.get(10).getTimeStamp());
         String end = ReportUtil.getTimestamp(results.get(90).getTimeStamp());
         items = db.getItems(TEST_TABLE, TEST_JOB_ID, start, null, null);
@@ -113,7 +115,7 @@ public class AmazonDynamoDatabaseTest {
         db.initNamespace(TEST_TABLE);
         int numJobs = 3;
         boolean hasTable = db.hasTable(TEST_TABLE);
-        assertEquals(true, hasTable);
+        assertTrue(hasTable);
         List<Item> results = getTpsItems(NUM_ENTRIES, numJobs);
         db.addItems(TEST_TABLE, results, false);
         List<Item> items = db.getItems(TEST_TABLE, null, null, null, null);

@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.VariableEditor;
 import com.intuit.tank.util.Messages;
 
 /**

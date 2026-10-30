@@ -42,6 +42,6 @@ public class JexlTaxFunctionsTest {
     public void testGetSSN() {
         String random = variables.evaluate("#{taxFunctions.getSsn(1)}");
         assertNotNull(random);
-        assertTrue(random.length() == 11);
+        assertEquals(11, random.length());
     }
 }

@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,11 +83,11 @@ public class WavefrontDatasource implements IDatabase {
             try {
             	hostname = ip.getHostName();
             	enviornemnt = config.getInstanceName();
-            	if (StringUtils.equalsIgnoreCase(enviornemnt, "prod")) {
+            	if (Strings.CI.equals(enviornemnt, "prod")) {
             		enviornemnt = "prd";
-            	} else if (StringUtils.equalsIgnoreCase(enviornemnt, "qa")) {
+            	} else if (Strings.CI.equals(enviornemnt, "qa")) {
             		enviornemnt = "qal";
-            	} else if (StringUtils.equalsIgnoreCase(enviornemnt, "canada")) {
+            	} else if (Strings.CI.equals(enviornemnt, "canada")) {
             		enviornemnt = "can";
             	} else {
             		enviornemnt = "prf";
@@ -111,7 +112,7 @@ public class WavefrontDatasource implements IDatabase {
 		String requestName = "";
 		long sum = 0;
 		for (TankResult metric: results) {
-			if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
+			if (Strings.CI.equals(metric.getRequestName(), requestName)) { //Middle of the Group
 				groupResults.add(Long.valueOf(metric.getResponseTime()));
 				sum += metric.getResponseTime();
 			} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //

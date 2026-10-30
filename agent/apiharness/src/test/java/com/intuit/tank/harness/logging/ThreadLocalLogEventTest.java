@@ -15,9 +15,6 @@ package com.intuit.tank.harness.logging;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.logging.LogEvent;
-import com.intuit.tank.harness.logging.ThreadLocalLogEvent;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

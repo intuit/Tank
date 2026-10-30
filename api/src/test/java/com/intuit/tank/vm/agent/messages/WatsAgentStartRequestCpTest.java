@@ -15,8 +15,6 @@ package com.intuit.tank.vm.agent.messages;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.agent.messages.WatsAgentStartRequest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -44,11 +42,11 @@ public class WatsAgentStartRequestCpTest {
         assertEquals(1, result.getUserIntervalIncrement());
         assertEquals(0, result.getTotalAgents());
         assertEquals(0, result.getConcurrentUsers());
-        assertEquals(null, result.getScriptUrl());
+        assertNull(result.getScriptUrl());
         assertEquals(0, result.getStartUsers());
         assertEquals(0, result.getAgentInstanceNum());
         assertEquals(0L, result.getSimulationTime());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**
@@ -108,7 +106,7 @@ public class WatsAgentStartRequestCpTest {
         assertEquals(0, result.getStartUsers());
         assertEquals(0, result.getAgentInstanceNum());
         assertEquals(0L, result.getSimulationTime());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**

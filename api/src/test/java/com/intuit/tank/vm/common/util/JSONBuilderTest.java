@@ -51,7 +51,7 @@ public class JSONBuilderTest {
     @Test
     @Tag(TestGroups.FUNCTIONAL)
     public void testGetValue() throws Exception {
-        assertEquals(builder.getValue("/1/2/[0]/Name"), "myName");
+        assertEquals("myName", builder.getValue("/1/2/[0]/Name"));
     }
 
 //    @Test

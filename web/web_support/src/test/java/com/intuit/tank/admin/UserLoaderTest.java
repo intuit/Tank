@@ -20,7 +20,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.admin.UserLoader;
 import com.intuit.tank.project.User;
 
 import jakarta.inject.Inject;

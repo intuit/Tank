@@ -48,14 +48,14 @@ public class ProjectDescriptionTest {
         ProjectDescription result = new ProjectDescription();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
+        assertNull(result.getName());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getWorkloadNames());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getCreator());
-        assertEquals(null, result.getProductName());
-        assertEquals(null, result.getComments());
+        assertNull(result.getModified());
+        assertNull(result.getWorkloadNames());
+        assertNull(result.getCreated());
+        assertNull(result.getCreator());
+        assertNull(result.getProductName());
+        assertNull(result.getComments());
     }
 
     /**

@@ -15,8 +15,6 @@ package com.intuit.tank.vm.event;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.event.JobEventType;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

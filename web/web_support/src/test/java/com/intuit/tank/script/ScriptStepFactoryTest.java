@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptStepFactory;
 
 /**
  * The class <code>ScriptStepFactoryTest</code> contains tests for the class <code>{@link ScriptStepFactory}</code>.

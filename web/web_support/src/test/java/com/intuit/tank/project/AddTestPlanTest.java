@@ -15,8 +15,6 @@ package com.intuit.tank.project;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.project.AddTestPlan;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -122,7 +120,7 @@ public class AddTestPlanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.AddTestPlan.setPercentage(AddTestPlan.java:48)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -144,7 +142,7 @@ public class AddTestPlanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.AddTestPlan.setPercentage(AddTestPlan.java:48)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
 

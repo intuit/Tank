@@ -242,7 +242,7 @@ public class JobTreeTableBeanTest {
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
         boolean result = fixture.isRefreshEnabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

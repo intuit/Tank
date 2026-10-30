@@ -24,11 +24,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.project.JobValidator;
-import com.intuit.tank.project.RequestData;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.script.ScriptConstants;
 
 /**
@@ -408,7 +403,7 @@ public class JobValidatorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:54)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -429,7 +424,7 @@ public class JobValidatorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:54)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -465,7 +460,7 @@ public class JobValidatorTest {
         JobValidator fixture = new JobValidator(new LinkedList(), new HashMap(), false);
 
         boolean result = fixture.isProcessAssignements();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -486,7 +481,7 @@ public class JobValidatorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:54)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -507,7 +502,7 @@ public class JobValidatorTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.JobValidator.<init>(JobValidator.java:54)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -523,7 +518,7 @@ public class JobValidatorTest {
         JobValidator fixture = new JobValidator(new LinkedList(), new HashMap(), true);
 
         boolean result = fixture.isValid();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -539,7 +534,7 @@ public class JobValidatorTest {
         JobValidator fixture = new JobValidator(new LinkedList(), new HashMap(), true);
 
         boolean result = fixture.isValid();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     @Test

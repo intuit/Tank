@@ -14,15 +14,12 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDScript;
-import com.intuit.tank.harness.data.HDScriptGroup;
-import com.intuit.tank.harness.data.HDScriptUseCase;
 
 /**
  * The class <code>HDScriptTest</code> contains tests for the class <code>{@link HDScript}</code>.
@@ -100,10 +97,10 @@ public class HDScriptTest {
         HDScriptGroup result = fixture.getParent();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getParent());
-        assertEquals(null, result.getDescription());
-        assertEquals(null, result.getVariable());
+        assertNull(result.getName());
+        assertNull(result.getParent());
+        assertNull(result.getDescription());
+        assertNull(result.getVariable());
         assertEquals(0, result.getLoop());
     }
 

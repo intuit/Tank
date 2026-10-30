@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.functions.NumericFunctions;
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -215,7 +214,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -232,7 +231,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -249,7 +248,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -266,7 +265,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -283,7 +282,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -300,7 +299,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -317,7 +316,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -334,7 +333,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -351,7 +350,7 @@ public class NumericFunctionsTest {
 
         boolean result = NumericFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

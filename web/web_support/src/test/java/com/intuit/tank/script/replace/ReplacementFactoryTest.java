@@ -19,8 +19,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.script.replace.AbstractReplacement;
-import com.intuit.tank.script.replace.ReplacementFactory;
 import com.intuit.tank.script.Section;
 
 /**
@@ -55,7 +53,7 @@ public class ReplacementFactoryTest {
 
         AbstractReplacement result = ReplacementFactory.getReplacementForSection(section);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

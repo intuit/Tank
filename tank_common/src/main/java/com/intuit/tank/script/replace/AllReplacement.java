@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.CommonSection;
 import com.intuit.tank.script.ScriptConstants;
 
 public class AllReplacement extends AbstractReplacement {

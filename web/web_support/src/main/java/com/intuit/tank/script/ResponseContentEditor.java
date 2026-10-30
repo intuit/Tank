@@ -25,7 +25,6 @@ import jakarta.inject.Named;
 import com.intuit.tank.project.AssignmentResponseContent;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ValidationResponseContent;
-import com.intuit.tank.script.RequestDataPhase;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.api.enumerated.DataLocation;
 import com.intuit.tank.vm.api.enumerated.ValidationType;

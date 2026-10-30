@@ -15,8 +15,6 @@ package com.intuit.tank.project;
 
 import java.io.Serializable;
 
-import com.intuit.tank.project.DataFile;
-
 public class DataFileEnvelope implements Serializable {
 
     private static final long serialVersionUID = 1L;

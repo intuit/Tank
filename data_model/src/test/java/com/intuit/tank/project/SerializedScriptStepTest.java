@@ -14,6 +14,7 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Blob;
@@ -21,8 +22,6 @@ import java.sql.Blob;
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.SerializedScriptStep;
 
 /**
  * The class <code>SerializedScriptStepTest</code> contains tests for the class <code>{@link SerializedScriptStep}</code>.
@@ -44,11 +43,11 @@ public class SerializedScriptStepTest {
         SerializedScriptStep result = new SerializedScriptStep();
 
         assertNotNull(result);
-        assertEquals(null, result.getBytes());
-        assertEquals(null, result.getSerialzedBlob());
+        assertNull(result.getBytes());
+        assertNull(result.getSerialzedBlob());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -66,10 +65,10 @@ public class SerializedScriptStepTest {
         SerializedScriptStep result = new SerializedScriptStep(serialzedData);
 
         assertNotNull(result);
-        assertEquals(null, result.getSerialzedBlob());
+        assertNull(result.getSerialzedBlob());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**

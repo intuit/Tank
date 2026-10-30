@@ -15,8 +15,6 @@ package com.intuit.tank.vm.common.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.util.TimingPageName;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,7 +40,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -62,7 +60,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -82,7 +80,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -102,7 +100,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -122,7 +120,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -142,7 +140,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -162,7 +160,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -182,7 +180,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -202,7 +200,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -222,7 +220,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -242,7 +240,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -262,7 +260,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -282,7 +280,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -302,7 +300,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -322,7 +320,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -342,7 +340,7 @@ public class TimingPageNameCpTest {
         assertNotNull(result);
         assertEquals("", result.getName());
         assertEquals("", result.getId());
-        assertEquals(null, result.getIndex());
+        assertNull(result.getIndex());
     }
 
     /**
@@ -376,7 +374,7 @@ public class TimingPageNameCpTest {
 
         Integer result = fixture.getIndex();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

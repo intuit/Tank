@@ -22,7 +22,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.lang.reflect.Field;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;

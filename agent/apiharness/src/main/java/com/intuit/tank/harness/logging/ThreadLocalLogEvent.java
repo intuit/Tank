@@ -35,7 +35,7 @@ public class ThreadLocalLogEvent extends ThreadLocal<LogEvent> {
         HostInfo hostInfo = new HostInfo(APITestHarness.getInstance().isLocal());
         logEvent.setPublicIp(hostInfo.getPublicIp());
         logEvent.setHostname(hostInfo.getPublicHostname());
-        logEvent.setThreadId(Thread.currentThread().getName() + " " + Thread.currentThread().getId());
+        logEvent.setThreadId(Thread.currentThread().getName() + " " + Thread.currentThread().threadId());
 
         ThreadContext.put("jobId", APITestHarness.getInstance().getAgentRunData().getJobId());
         ThreadContext.put("projectName", APITestHarness.getInstance().getAgentRunData().getProjectName());

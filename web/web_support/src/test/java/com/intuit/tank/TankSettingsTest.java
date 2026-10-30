@@ -102,7 +102,7 @@ public class TankSettingsTest {
         String region = "";
 
         boolean result = tankSettings.hasRegionConfigured(region);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

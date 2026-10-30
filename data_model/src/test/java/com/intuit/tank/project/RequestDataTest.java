@@ -14,11 +14,12 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.RequestData;
 import com.intuit.tank.script.RequestDataPhase;
 
 /**
@@ -41,9 +42,9 @@ public class RequestDataTest {
         RequestData result = new RequestData();
 
         assertNotNull(result);
-        assertEquals(null, result.getValue());
-        assertEquals(null, result.getKey());
-        assertEquals(null, result.getType());
+        assertNull(result.getValue());
+        assertNull(result.getKey());
+        assertNull(result.getType());
     }
 
     /**
@@ -84,7 +85,7 @@ public class RequestDataTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -103,7 +104,7 @@ public class RequestDataTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -122,7 +123,7 @@ public class RequestDataTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

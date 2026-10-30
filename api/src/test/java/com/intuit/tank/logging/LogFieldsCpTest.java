@@ -15,8 +15,6 @@ package com.intuit.tank.logging;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.logging.LogFields;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

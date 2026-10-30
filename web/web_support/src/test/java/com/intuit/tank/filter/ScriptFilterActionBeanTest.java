@@ -23,8 +23,6 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.intuit.tank.filter.ScriptFilterActionBean;
-import com.intuit.tank.filter.ScriptFilterCreationBean;
 import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterAction;
 import com.intuit.tank.script.FailureTypes;
@@ -766,7 +764,7 @@ public class ScriptFilterActionBeanTest {
 
         boolean result = fixture.isAssignmentScope();
 
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     @Test

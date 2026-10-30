@@ -15,8 +15,6 @@ package com.intuit.tank.navigation;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.navigation.SiteSection;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -58,6 +56,6 @@ public class SiteSectionTest {
 
         boolean result = fixture.isMatch(viewId);
 
-        assertTrue(!result);
+        assertFalse(result);
     }
 }

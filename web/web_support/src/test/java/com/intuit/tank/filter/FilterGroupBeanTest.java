@@ -26,7 +26,6 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.intuit.tank.filter.FilterGroupBean;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.wrapper.SelectableWrapper;

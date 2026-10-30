@@ -14,6 +14,8 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
@@ -22,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDTestVariables;
-import com.intuit.tank.harness.data.HDVariable;
 
 /**
  * The class <code>HDTestVariablesTest</code> contains tests for the class <code>{@link HDTestVariables}</code>.
@@ -46,7 +45,7 @@ public class HDTestVariablesTest {
         HDTestVariables result = new HDTestVariables();
 
         assertNotNull(result);
-        assertEquals(false, result.isAllowOverride());
+        assertFalse(result.isAllowOverride());
     }
 
     /**
@@ -64,7 +63,7 @@ public class HDTestVariablesTest {
         HDTestVariables result = new HDTestVariables(allowOverride);
 
         assertNotNull(result);
-        assertEquals(true, result.isAllowOverride());
+        assertTrue(result.isAllowOverride());
     }
 
     /**
@@ -83,7 +82,7 @@ public class HDTestVariablesTest {
         HDTestVariables result = new HDTestVariables(allowOverride, vars);
 
         assertNotNull(result);
-        assertEquals(true, result.isAllowOverride());
+        assertTrue(result.isAllowOverride());
     }
 
     /**
@@ -175,7 +174,7 @@ public class HDTestVariablesTest {
 
         boolean result = fixture.isAllowOverride();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -193,7 +192,7 @@ public class HDTestVariablesTest {
 
         boolean result = fixture.isAllowOverride();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

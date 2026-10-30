@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.Preferences;
-
 /**
  * The class <code>PreferencesTest</code> contains tests for the class <code>{@link Preferences}</code>.
  *

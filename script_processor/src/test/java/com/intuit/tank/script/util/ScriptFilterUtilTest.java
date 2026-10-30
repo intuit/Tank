@@ -26,7 +26,6 @@ import java.util.Set;
 
 import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.tools.script.LoggingOutputLogger;
-import com.intuit.tank.tools.script.OutputLogger;
 import com.intuit.tank.util.ScriptFilterType;
 import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
 import org.junit.jupiter.api.Test;
@@ -769,7 +768,7 @@ public class ScriptFilterUtilTest {
 
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
   
@@ -791,7 +790,7 @@ public class ScriptFilterUtilTest {
 
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -812,7 +811,7 @@ public class ScriptFilterUtilTest {
 
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -833,7 +832,7 @@ public class ScriptFilterUtilTest {
 
         boolean result = ScriptFilterUtil.filterOnFieldSets(fields, condition, currentStep, steps);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     @Test

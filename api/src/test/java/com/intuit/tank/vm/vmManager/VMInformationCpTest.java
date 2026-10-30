@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.vmManager.VMInformation;
 
 /**
  * The class <code>VMInformationCpTest</code> contains tests for the class <code>{@link VMInformation}</code>.
@@ -44,18 +43,18 @@ public class VMInformationCpTest {
         VMInformation result = new VMInformation();
 
         assertNotNull(result);
-        assertEquals(null, result.getPlatform());
-        assertEquals(null, result.getInstanceId());
-        assertEquals(null, result.getState());
-        assertEquals(null, result.getSize());
-        assertEquals(null, result.getRegion());
-        assertEquals(null, result.getProvider());
-        assertEquals(null, result.getLaunchTime());
-        assertEquals(null, result.getImageId());
-        assertEquals(null, result.getKeyName());
-        assertEquals(null, result.getRequestId());
-        assertEquals(null, result.getPrivateDNS());
-        assertEquals(null, result.getPublicDNS());
+        assertNull(result.getPlatform());
+        assertNull(result.getInstanceId());
+        assertNull(result.getState());
+        assertNull(result.getSize());
+        assertNull(result.getRegion());
+        assertNull(result.getProvider());
+        assertNull(result.getLaunchTime());
+        assertNull(result.getImageId());
+        assertNull(result.getKeyName());
+        assertNull(result.getRequestId());
+        assertNull(result.getPrivateDNS());
+        assertNull(result.getPublicDNS());
     }
 
     /**
@@ -72,7 +71,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getImageId();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -89,7 +88,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getInstanceId();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -106,7 +105,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getKeyName();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -123,7 +122,7 @@ public class VMInformationCpTest {
 
         Calendar result = fixture.getLaunchTime();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -140,7 +139,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getPlatform();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -157,7 +156,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getPrivateDNS();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -174,7 +173,7 @@ public class VMInformationCpTest {
 
         VMProvider result = fixture.getProvider();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -191,7 +190,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getPublicDNS();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -208,7 +207,7 @@ public class VMInformationCpTest {
 
         VMRegion result = fixture.getRegion();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -225,7 +224,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getRequestId();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -242,7 +241,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getSize();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -259,7 +258,7 @@ public class VMInformationCpTest {
 
         String result = fixture.getState();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.VariableStep;
-
 /**
  * The class <code>VariableStepTest</code> contains tests for the class <code>{@link VariableStep}</code>.
  * 

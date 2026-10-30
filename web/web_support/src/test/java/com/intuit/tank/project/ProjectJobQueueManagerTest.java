@@ -13,17 +13,9 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.prefs.TablePreferences;
-import com.intuit.tank.prefs.TableViewState;
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.ProjectJobQueueManager;
 
 /**
  * The class <code>ProjectJobQueueManagerTest</code> contains tests for the class <code>{@link ProjectJobQueueManager}</code>.

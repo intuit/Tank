@@ -15,8 +15,6 @@ package com.intuit.tank.harness.test;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.test.NextScriptGroupException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,7 +39,7 @@ public class NextScriptGroupExceptionTest {
         NextScriptGroupException result = new NextScriptGroupException(msg);
 
         assertNotNull(result);
-        assertEquals(null, result.getCause());
+        assertNull(result.getCause());
         assertEquals("com.intuit.tank.harness.test.NextScriptGroupException: ", result.toString());
         assertEquals("", result.getMessage());
         assertEquals("", result.getLocalizedMessage());

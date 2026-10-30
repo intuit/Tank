@@ -20,8 +20,6 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
 
-import com.intuit.tank.harness.AmazonUtil;
-
 /**
  * VmCredentials
  * 

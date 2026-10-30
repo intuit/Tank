@@ -39,8 +39,8 @@ public class EnvironmentTest {
         Environment result = new Environment();
 
         assertNotNull(result);
-        assertEquals(null, result.getFrontEndUrl());
-        assertEquals(null, result.getBackEndUrl());
+        assertNull(result.getFrontEndUrl());
+        assertNull(result.getBackEndUrl());
     }
 
     /**
@@ -77,7 +77,7 @@ public class EnvironmentTest {
 
         String result = fixture.getBackEndUrl();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -94,7 +94,7 @@ public class EnvironmentTest {
 
         String result = fixture.getFrontEndUrl();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

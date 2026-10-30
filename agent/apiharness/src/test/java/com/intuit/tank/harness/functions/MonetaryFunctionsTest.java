@@ -15,8 +15,6 @@ package com.intuit.tank.harness.functions;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.functions.MonetaryFunctions;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -124,7 +122,7 @@ public class MonetaryFunctionsTest {
 
         boolean result = MonetaryFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -141,7 +139,7 @@ public class MonetaryFunctionsTest {
 
         boolean result = MonetaryFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -158,7 +156,7 @@ public class MonetaryFunctionsTest {
 
         boolean result = MonetaryFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -175,6 +173,6 @@ public class MonetaryFunctionsTest {
 
         boolean result = MonetaryFunctions.isValid(values);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

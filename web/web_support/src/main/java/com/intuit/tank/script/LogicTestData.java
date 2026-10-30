@@ -30,7 +30,6 @@ import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 /**
  * 
@@ -59,7 +58,7 @@ public class LogicTestData implements Serializable {
      */
     public LogicTestData(ScriptStep step, Script script) {
         varMap.put("mode", "test");
-        varMap.put("THREAD_ID", Long.toString(Thread.currentThread().getId()));
+        varMap.put("THREAD_ID", Long.toString(Thread.currentThread().threadId()));
         for (ScriptStep s : script.getScriptSteps()) {
             for (String key : ScriptUtil.getDeclaredVariables(s).keySet()) {
                 if (!varMap.containsKey(key)) {

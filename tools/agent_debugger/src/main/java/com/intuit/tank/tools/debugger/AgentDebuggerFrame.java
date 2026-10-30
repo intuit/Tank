@@ -186,8 +186,8 @@ public class AgentDebuggerFrame extends JFrame {
                 if (e.isPopupTrigger()) {
                     // select the line
                     try {
-                        int offset = scriptEditorTA.viewToModel(e.getPoint());
-                        Rectangle modelToView = scriptEditorTA.modelToView(offset);
+                        int offset = scriptEditorTA.viewToModel2D(e.getPoint());
+                        Rectangle modelToView = scriptEditorTA.modelToView2D(offset).getBounds();
                         Point point = new Point(modelToView.x + 1, e.getPoint().y);
                         if (modelToView.contains(point)) {
                             if (!multiSelect) {

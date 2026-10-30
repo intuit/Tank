@@ -13,12 +13,9 @@ package com.intuit.tank.vm.settings;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.vm.settings.TimeUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 

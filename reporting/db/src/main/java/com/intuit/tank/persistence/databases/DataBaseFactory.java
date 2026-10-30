@@ -37,7 +37,7 @@ public class DataBaseFactory {
 
     private static IDatabase initProvider() {
         try {
-            return (IDatabase) Class.forName(resultsProvider).newInstance();
+            return (IDatabase) Class.forName(resultsProvider).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             LOG.error("Unable to create DataSource Provider : " + resultsProvider + ", update settings.xml", e);
         }

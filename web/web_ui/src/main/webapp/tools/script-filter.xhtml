@@ -20,8 +20,6 @@
 </style>
     <h:form id="mainForm">
       <ts:toolbar title="Script Filter Applet" />
-      <h2>**NOTE: If this window is closed, the Script Filter
-        Applet will close as well.</h2>
       <div style="margin: 20px 0;">
         If you are getting Security warnings or errors, click here to
         install certificate.
@@ -55,16 +53,6 @@
                 href="http://www.mozilla.org/rhino/ScriptingJava.html"
                 target="_blank">http://www.mozilla.org/rhino/ScriptingJava.html</a>.
             </div>
-          </div>
-          <div class="float-right">
-
-            <applet code="com.intuit.tank.tools.script.AppletLauncher"
-              codebase="." archive="Tank-Script-Runner-all.jar"
-              alt="You need Java enabled to run this applet."
-              width="150" height="150">
-              <PARAM NAME="backgroundColor" VALUE="#EFEFEF" />
-              <PARAM NAME="rootContext" VALUE="#{request.contextPath}" />
-            </applet>
           </div>
         </div>
 

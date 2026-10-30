@@ -15,8 +15,6 @@ package com.intuit.tank.vm.vmManager;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.vmManager.Recipient;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

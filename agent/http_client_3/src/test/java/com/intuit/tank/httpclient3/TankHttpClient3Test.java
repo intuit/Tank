@@ -1,8 +1,7 @@
 package com.intuit.tank.httpclient3;
 
-import java.io.File;
+import java.net.URI;
 import java.net.URL;
-import java.util.List;
 
 import com.intuit.tank.http.AuthCredentials;
 import com.intuit.tank.http.AuthScheme;
@@ -164,7 +163,7 @@ public class TankHttpClient3Test {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
@@ -338,13 +337,13 @@ public class TankHttpClient3Test {
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
-//        assertEquals(response.getHttpCode(), 403);
+//        assertEquals(403, response.getHttpCode());
 
     }
 
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
-            URL u = new URL(url);
+            URL u = URI.create(url).toURL();
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());
             request.setPath(u.getPath());

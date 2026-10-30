@@ -84,10 +84,10 @@ class GenericFunctions {
 
     public static String getCSVData(int index) {
         String ret = null;
-        String[] currentLine = csvLineMap.get(Thread.currentThread().getId());
+        String[] currentLine = csvLineMap.get(Thread.currentThread().threadId());
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(false);
-            csvLineMap.put(Thread.currentThread().getId(), currentLine);
+            csvLineMap.put(Thread.currentThread().threadId(), currentLine);
         }
 
         if (null == currentLine) {
@@ -110,10 +110,10 @@ class GenericFunctions {
         for (int i = 4; i < values.length - 1; i++) {
             file += "." + values[i];
         }
-        String[] currentLine = fileLineMap.get(Thread.currentThread().getId() + "-" + file);
+        String[] currentLine = fileLineMap.get(Thread.currentThread().threadId() + "-" + file);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             currentLine = CSVReader.getInstance(file).getNextLine(false);
-            fileLineMap.put(Thread.currentThread().getId() + "-" + file, currentLine);
+            fileLineMap.put(Thread.currentThread().threadId() + "-" + file, currentLine);
         }
 
         if (null == currentLine) {

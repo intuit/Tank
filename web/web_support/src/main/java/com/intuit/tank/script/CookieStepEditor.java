@@ -28,7 +28,6 @@ import com.intuit.tank.util.Messages;
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 @Named
 @ConversationScoped

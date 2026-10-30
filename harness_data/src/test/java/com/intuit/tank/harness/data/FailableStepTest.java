@@ -1,7 +1,5 @@
 package com.intuit.tank.harness.data;
 
-import com.intuit.tank.harness.data.FailableStep;
-
 /*
  * #%L
  * Harness Data

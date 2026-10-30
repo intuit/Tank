@@ -15,8 +15,6 @@ package com.intuit.tank.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.util.UpdateScriptGroups;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,7 +48,7 @@ public class UpdateScriptGroupsTest {
         UpdateScriptGroups fixture = new UpdateScriptGroups();
 
         boolean result = fixture.isDisabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     @Test
@@ -59,7 +57,7 @@ public class UpdateScriptGroupsTest {
         UpdateScriptGroups fixture = new UpdateScriptGroups();
 
         boolean result = fixture.isDisabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.intuit.tank.httpclient4;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -236,7 +237,7 @@ public class TankHttpClient4Test {
         request.doGet(null);
         BaseResponse response = request.getResponse();
         assertNotNull(response);
-//        assertEquals(response.getHttpCode(), 403);
+//        assertEquals(403, response.getHttpCode());
     }
 
     @Test
@@ -444,7 +445,7 @@ public class TankHttpClient4Test {
 
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
-            URL u = new URL(url);
+            URL u = URI.create(url).toURL();
             client.setHttpClient(null);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());

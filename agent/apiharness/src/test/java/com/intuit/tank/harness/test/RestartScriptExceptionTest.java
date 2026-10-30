@@ -15,8 +15,6 @@ package com.intuit.tank.harness.test;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.test.RestartScriptException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,7 +39,7 @@ public class RestartScriptExceptionTest {
         RestartScriptException result = new RestartScriptException(msg);
 
         assertNotNull(result);
-        assertEquals(null, result.getCause());
+        assertNull(result.getCause());
         assertEquals("com.intuit.tank.harness.test.RestartScriptException: ", result.toString());
         assertEquals("", result.getMessage());
         assertEquals("", result.getLocalizedMessage());

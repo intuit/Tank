@@ -14,6 +14,7 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
@@ -21,10 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptContainer;
-import com.intuit.tank.project.ScriptStep;
 
 /**
  * The class <code>ScriptContainerTest</code> contains tests for the class <code>{@link ScriptContainer}</code>.
@@ -46,14 +43,14 @@ public class ScriptContainerTest {
         ScriptContainer result = new ScriptContainer();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
+        assertNull(result.getName());
         assertEquals(0, result.getRuntime());
-        assertEquals(null, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getCreator());
-        assertEquals(null, result.getProductName());
-        assertEquals(null, result.getComments());
+        assertNull(result.getId());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
+        assertNull(result.getCreator());
+        assertNull(result.getProductName());
+        assertNull(result.getComments());
     }
 
     /**
@@ -79,9 +76,9 @@ public class ScriptContainerTest {
         assertEquals("", result.getName());
         assertEquals(1, result.getRuntime());
         assertEquals(Integer.valueOf(0), result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
+        assertNull(result.getCreator());
         assertEquals("", result.getProductName());
         assertEquals("", result.getComments());
     }
@@ -589,7 +586,7 @@ public class ScriptContainerTest {
         assertEquals("", result.toString());
         assertEquals("", result.getName());
         assertEquals(1, result.getRuntime());
-        assertEquals(null, result.getSerializedScriptStepId());
+        assertNull(result.getSerializedScriptStepId());
         assertEquals("", result.getProductName());
         assertEquals("", result.getComments());
         assertEquals("", result.getCreator());
@@ -623,7 +620,7 @@ public class ScriptContainerTest {
         assertEquals("", result.toString());
         assertEquals("", result.getName());
         assertEquals(1, result.getRuntime());
-        assertEquals(null, result.getSerializedScriptStepId());
+        assertNull(result.getSerializedScriptStepId());
         assertEquals("", result.getProductName());
         assertEquals("", result.getComments());
         assertEquals("", result.getCreator());

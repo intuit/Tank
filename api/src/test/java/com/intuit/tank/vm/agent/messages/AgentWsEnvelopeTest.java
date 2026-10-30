@@ -54,7 +54,7 @@ public class AgentWsEnvelopeTest {
         AgentWsEnvelope parsed = AgentWsEnvelope.fromJson(json);
 
         assertTrue(json.contains("\"needsBootstrap\":true"));
-        assertEquals(Boolean.TRUE, parsed.getNeedsBootstrap());
+        assertTrue(parsed.getNeedsBootstrap());
         assertEquals(4000, parsed.getCapacity());
     }
 
@@ -145,7 +145,7 @@ public class AgentWsEnvelopeTest {
         assertEquals(1024L, env.getTotalBytes());
         assertEquals(3, env.getTotalChunks());
         assertEquals(512, env.getChunkBytes());
-        assertEquals(false, env.getDefaultDataFile());
+        assertFalse(env.getDefaultDataFile());
     }
 
     @Test

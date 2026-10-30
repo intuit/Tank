@@ -24,8 +24,6 @@ import static org.mockito.Mockito.*;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
-import com.intuit.tank.script.ThinkTimeEditor;
 
 import java.util.HashSet;
 import java.util.Set;

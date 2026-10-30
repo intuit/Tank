@@ -14,11 +14,13 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobRecipient;
 import com.intuit.tank.vm.api.enumerated.RecipientType;
 
 /**
@@ -41,10 +43,10 @@ public class JobRecipientTest {
         JobRecipient result = new JobRecipient();
 
         assertNotNull(result);
-        assertEquals(null, result.getAddress());
+        assertNull(result.getAddress());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -65,8 +67,8 @@ public class JobRecipientTest {
         assertNotNull(result);
         assertEquals("", result.getAddress());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -84,7 +86,7 @@ public class JobRecipientTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -102,7 +104,7 @@ public class JobRecipientTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -120,7 +122,7 @@ public class JobRecipientTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

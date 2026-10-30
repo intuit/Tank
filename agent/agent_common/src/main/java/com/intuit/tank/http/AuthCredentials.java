@@ -5,8 +5,6 @@ package com.intuit.tank.http;
 
 import java.io.Serializable;
 
-import com.intuit.tank.http.AuthScheme;
-
 /**
  * @author denisa
  *

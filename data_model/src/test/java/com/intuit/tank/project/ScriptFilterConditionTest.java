@@ -14,11 +14,11 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ScriptFilterCondition;
 
 /**
  * The class <code>ScriptFilterConditionTest</code> contains tests for the class <code>{@link ScriptFilterCondition}</code>.
@@ -56,7 +56,7 @@ public class ScriptFilterConditionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -80,7 +80,7 @@ public class ScriptFilterConditionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -104,7 +104,7 @@ public class ScriptFilterConditionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -125,7 +125,7 @@ public class ScriptFilterConditionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -146,7 +146,7 @@ public class ScriptFilterConditionTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

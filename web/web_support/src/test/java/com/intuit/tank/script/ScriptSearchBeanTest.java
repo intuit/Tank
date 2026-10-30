@@ -16,7 +16,6 @@ package com.intuit.tank.script;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.util.Messages;
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;

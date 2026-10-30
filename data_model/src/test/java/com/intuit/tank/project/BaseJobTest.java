@@ -15,12 +15,9 @@ package com.intuit.tank.project;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.BaseJob;
-import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 

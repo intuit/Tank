@@ -13,12 +13,9 @@ package com.intuit.tank.results;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.results.TankResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -305,7 +302,7 @@ public class TankResultTest {
 
         boolean result = fixture.isError();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -329,7 +326,7 @@ public class TankResultTest {
 
         boolean result = fixture.isError();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

@@ -14,13 +14,12 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
 
 /**
  * The class <code>ScriptGroupStepTest</code> contains tests for the class <code>{@link ScriptGroupStep}</code>.
@@ -92,7 +91,7 @@ public class ScriptGroupStepTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -114,7 +113,7 @@ public class ScriptGroupStepTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -136,7 +135,7 @@ public class ScriptGroupStepTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -207,16 +206,16 @@ public class ScriptGroupStepTest {
         Script result = fixture.getScript();
 
         assertNotNull(result);
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
+        assertNull(result.toString());
+        assertNull(result.getName());
         assertEquals(0, result.getRuntime());
-        assertEquals(null, result.getSerializedScriptStepId());
-        assertEquals(null, result.getProductName());
-        assertEquals(null, result.getComments());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getSerializedScriptStepId());
+        assertNull(result.getProductName());
+        assertNull(result.getComments());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -238,13 +237,13 @@ public class ScriptGroupStepTest {
         ScriptGroup result = fixture.getScriptGroup();
 
         assertNotNull(result);
-        assertEquals(null, result.getPosition());
-        assertEquals(null, result.getName());
+        assertNull(result.getPosition());
+        assertNull(result.getName());
         assertEquals(1, result.getLoop());
-        assertEquals(null, result.getTestPlan());
+        assertNull(result.getTestPlan());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**

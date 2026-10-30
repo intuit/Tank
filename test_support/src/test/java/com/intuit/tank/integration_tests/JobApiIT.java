@@ -261,7 +261,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200);
+        assertEquals(200, response.statusCode());
 
         List<Map<String, String>> statuses = objectMapper.readValue(response.body(), List.class);
         assertNotNull(statuses, "Status list should not be null");
@@ -393,7 +393,7 @@ public class JobApiIT extends BaseIT {
         JsonNode job = objectMapper.readTree(response.body());
         assertEquals(jobId, job.get("id").asInt(), "Job ID should match");
         assertEquals(expectedName, job.get("name").asText(), "Job name should match");
-        assertEquals(job.get("status").asText(), "Created", "Job status should be 'Created'");
+        assertEquals("Created", job.get("status").asText(), "Job status should be 'Created'");
         assertEquals(job.get("numUsers").asInt(), numUsers, "Job numUsers should match expected value");
     }
 
@@ -414,7 +414,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
 
         String status = response.body();
         assertNotNull(status, "Status should not be null");
@@ -517,7 +517,7 @@ public class JobApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
         assertEquals("application/xml", response.headers().firstValue("Content-Type").orElse(""),
                     "Should return XML content type");
         assertTrue(response.headers().firstValue("Content-Disposition").isPresent(),

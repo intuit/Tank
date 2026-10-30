@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
-import com.intuit.tank.script.RequestDataContentWrapper;
 
 /**
  * The class <code>RequestDataContentWrapperTest</code> contains tests for the class <code>{@link RequestDataContentWrapper}</code>.
@@ -233,7 +232,7 @@ public class RequestDataContentWrapperTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.script.RequestDataPhase
         //       at com.intuit.tank.project.RequestData.<init>(RequestData.java:21)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -257,7 +256,7 @@ public class RequestDataContentWrapperTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.script.RequestDataPhase
         //       at com.intuit.tank.project.RequestData.<init>(RequestData.java:21)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

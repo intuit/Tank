@@ -13,8 +13,6 @@ package com.intuit.tank.jenkins.callables;
  * #L%
  */
 
-import hudson.remoting.Channel;
-
 import com.intuit.tank.jenkins.printer.LogPrinter;
 import com.intuit.tank.jenkins.proxy.ProxyWrapperFactory;
 

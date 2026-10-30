@@ -14,12 +14,10 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.SummaryData;
-import com.intuit.tank.project.SummaryDataBuilder;
 
 import java.util.Date;
 
@@ -60,7 +58,7 @@ public class SummaryDataBuilderTest {
         SummaryData result = fixture.build();
 
         assertNotNull(result);
-        assertEquals(null, result.getPageId());
+        assertNull(result.getPageId());
         assertEquals(0.0, result.getMax(), 1.0);
         assertEquals(0.0, result.getMean(), 1.0);
         assertEquals(0, result.getJobId());
@@ -82,8 +80,8 @@ public class SummaryDataBuilderTest {
         assertEquals(0.0, result.getPercentile30(), 1.0);
         assertEquals(0.0, result.getMin(), 1.0);
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     @Test

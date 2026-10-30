@@ -13,11 +13,7 @@ package com.intuit.tank.vm.perfManager;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.vm.perfManager.AgentChannel;
 
 import static org.junit.jupiter.api.Assertions.*;
 

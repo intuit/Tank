@@ -21,8 +21,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.job.ActJobNodeBean;
-import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Project;
 
@@ -185,7 +183,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -208,7 +206,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -231,7 +229,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -254,7 +252,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -277,7 +275,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -300,7 +298,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -323,7 +321,7 @@ public class ProjectNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
