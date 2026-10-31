@@ -80,7 +80,7 @@ public class AgentDebuggerFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LogManager.getLogger(AgentDebuggerFrame.class);
 
-    private RSyntaxTextArea scriptEditorTA;
+    private ScriptEditorTextArea scriptEditorTA;
     private RTextScrollPane scriptEditorScrollPane;
     private final boolean standalone;
     private final ActionProducer debuggerActions;
@@ -343,7 +343,7 @@ public class AgentDebuggerFrame extends JFrame {
      * @param scriptEditorTA
      *            the scriptEditorTA to set
      */
-    public void setScriptEditorTA(RSyntaxTextArea scriptEditorTA) {
+    public void setScriptEditorTA(ScriptEditorTextArea scriptEditorTA) {
         this.scriptEditorTA = scriptEditorTA;
     }
 
@@ -422,7 +422,7 @@ public class AgentDebuggerFrame extends JFrame {
     }
 
     public void clearSkips() {
-        GutterIconInfo[] bookmarks = this.scriptEditorScrollPane.getGutter().getAllTrackingIcons();
+        GutterIconInfo[] bookmarks = this.scriptEditorTA.getIconRowHeader().getAllTrackingIcons();
         for (GutterIconInfo gi : bookmarks) {
             this.scriptEditorScrollPane.getGutter().removeTrackingIcon(gi);
             if (flowController != null) {
@@ -604,7 +604,7 @@ public class AgentDebuggerFrame extends JFrame {
                 }
             }
         }
-        GutterIconInfo[] allTrackingIcons = scriptEditorScrollPane.getGutter().getAllTrackingIcons();
+        GutterIconInfo[] allTrackingIcons = scriptEditorTA.getIconRowHeader().getAllTrackingIcons();
         List<IconContainer> icons = new ArrayList<IconContainer>(allTrackingIcons.length);
         for (GutterIconInfo gi : allTrackingIcons) {
             try {
@@ -746,7 +746,7 @@ public class AgentDebuggerFrame extends JFrame {
             if (!steps.isEmpty()) {
                 steps.forEach(DebugStep::clear);
                 setCurrentStep(-1);
-                for (GutterIconInfo gi : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
+                for (GutterIconInfo gi : scriptEditorTA.getIconRowHeader().getAllTrackingIcons()) {
                     if (gi.getIcon() == errorIcon) {
                         scriptEditorScrollPane.getGutter().removeTrackingIcon(gi);
                     } else if (gi.getIcon() == skippedIcon) {
@@ -944,7 +944,7 @@ public class AgentDebuggerFrame extends JFrame {
         flowController.skip(currentRunningStep + 1);
         try {
             int lineStartOffset = scriptEditorTA.getLineStartOffset(currentRunningStep + 1);
-            for (GutterIconInfo info : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
+            for (GutterIconInfo info : scriptEditorTA.getIconRowHeader().getAllTrackingIcons()) {
                 if (info.getMarkedOffset() == lineStartOffset && info.getIcon() == skippedIcon) {
                     scriptEditorScrollPane.getGutter().removeTrackingIcon(info);
                 }
@@ -985,7 +985,7 @@ public class AgentDebuggerFrame extends JFrame {
     private void doToggleSkip(int line) {
         try {
             boolean found = false;
-            for (GutterIconInfo info : scriptEditorScrollPane.getGutter().getAllTrackingIcons()) {
+            for (GutterIconInfo info : scriptEditorTA.getIconRowHeader().getAllTrackingIcons()) {
                 if (scriptEditorTA.getLineOfOffset(info.getMarkedOffset()) == line && info.getIcon() == skippedIcon) {
                     scriptEditorScrollPane.getGutter().removeTrackingIcon(info);
                     found = true;
