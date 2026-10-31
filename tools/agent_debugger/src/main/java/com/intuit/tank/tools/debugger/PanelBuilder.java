@@ -51,7 +51,6 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.xml.sax.InputSource;
 
-import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 import com.intuit.tank.vm.agent.messages.Header;
 import com.intuit.tank.vm.agent.messages.Headers;
 
@@ -180,7 +179,7 @@ public class PanelBuilder {
         pane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         final RSyntaxTextArea scriptEditorTA = new RSyntaxTextArea();
         frame.setScriptEditorTA(scriptEditorTA);
-        scriptEditorTA.setSelectionColor(scriptEditorTA.getCurrentLineHighlightColor());
+        scriptEditorTA.putClientProperty(DebuggerTheme.SELECTION_AS_CURRENT_LINE, true);
         scriptEditorTA.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
         scriptEditorTA.setHyperlinksEnabled(false);
         scriptEditorTA.setEditable(false);
@@ -216,16 +215,18 @@ public class PanelBuilder {
             }
         });
         RTextScrollPane scriptEditorScrollPane = new RTextScrollPane(scriptEditorTA);
+        scriptEditorScrollPane.setBorder(BorderFactory.createEmptyBorder());
         frame.setScriptEditorScrollPane(scriptEditorScrollPane);
         scriptEditorScrollPane.setIconRowHeaderEnabled(true);
-        scriptEditorScrollPane.getGutter().setBookmarkIcon(ActionProducer.getIcon("bullet_blue.png", IconSize.SMALL));
+        scriptEditorScrollPane.getGutter().setBookmarkIcon(ActionProducer.getIcon("breakpoint"));
         scriptEditorScrollPane.getGutter().setCurrentLineIcon(
-                ActionProducer.getIcon("current_line.png", IconSize.SMALL));
+                ActionProducer.getIcon("currentLine"));
         scriptEditorScrollPane.getGutter().setBookmarkingEnabled(true);
+        DebuggerTheme.apply(scriptEditorTA);
         pane.setLeftComponent(scriptEditorScrollPane);
 
         pane.setRightComponent(createRightPanel(frame));
-        pane.setDividerLocation(300);
+        WindowState.track("script", pane, 360);
         pane.setResizeWeight(0.4D);
         return pane;
     }
@@ -234,9 +235,10 @@ public class PanelBuilder {
         JPanel ret = new JPanel(new BorderLayout());
         ret.add(BorderLayout.NORTH, new InfoHeaderPanel(frame));
         JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
+        pane.setBorder(BorderFactory.createEmptyBorder());
         pane.setTopComponent(new VariablesPanel(frame));
         pane.setBottomComponent(frame.getRequestResponsePanel());
-        pane.setDividerLocation(250);
+        WindowState.track("variables", pane, 220);
         pane.setResizeWeight(0.25D);
         ret.add(BorderLayout.CENTER, pane);
         return ret;
@@ -247,9 +249,16 @@ public class PanelBuilder {
      * @return
      */
     static Component createTopPanel(ActionComponents actionComponents) {
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout()) {
+            @Override
+            public void updateUI() {
+                super.updateUI();
+                setBorder(DebuggerTheme.bottomLine(0, 0, 0, 0));
+            }
+        };
         JToolBar toolbaBar = actionComponents.getToolBar();
-        topPanel.add(BorderLayout.NORTH, toolbaBar);
+        topPanel.add(BorderLayout.CENTER, toolbaBar);
+        topPanel.add(BorderLayout.EAST, actionComponents.getChoosersPanel());
         return topPanel;
     }
 
@@ -272,9 +281,15 @@ public class PanelBuilder {
         loggerTA.setPopupMenu(popupMenu);
 
         RTextScrollPane sp = new RTextScrollPane(loggerTA);
+        sp.setBorder(BorderFactory.createEmptyBorder());
         sp.setIconRowHeaderEnabled(false);
         sp.getGutter().setBookmarkingEnabled(false);
+        DebuggerTheme.apply(loggerTA);
 
+        SectionHeader header = new SectionHeader("Log");
+        header.addButton(frame.getDebuggerActions().getSaveLogAction());
+        header.addButton(frame.getDebuggerActions().getClearLogOutputAction());
+        panel.add(header, BorderLayout.NORTH);
         panel.add(sp, BorderLayout.CENTER);
 
         DebuggerAppender.addTextArea(loggerTA);

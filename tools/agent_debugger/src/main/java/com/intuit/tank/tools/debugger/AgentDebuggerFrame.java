@@ -65,7 +65,6 @@ import com.intuit.tank.harness.functions.JexlIOFunctions;
 import com.intuit.tank.harness.functions.JexlStringFunctions;
 import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.runner.TestStepContext;
-import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
 import com.intuit.tank.vm.common.TankConstants;
 
@@ -133,9 +132,9 @@ public class AgentDebuggerFrame extends JFrame {
                 quit();
             }
         });
-        errorIcon = ActionProducer.getIcon("bullet_error.png", IconSize.SMALL);
-        modifiedIcon = ActionProducer.getIcon("bullet_code_change.png", IconSize.SMALL);
-        skippedIcon = ActionProducer.getIcon("skip.png", IconSize.SMALL);
+        errorIcon = ActionProducer.getIcon("error");
+        modifiedIcon = ActionProducer.getIcon("modified");
+        skippedIcon = ActionProducer.getIcon("skipStep");
 
         this.glassPane = new InfiniteProgressPanel();
         setGlassPane(glassPane);
@@ -233,15 +232,15 @@ public class AgentDebuggerFrame extends JFrame {
         mainSplit.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         mainSplit.setTopComponent(contentPanel);
         mainSplit.setBottomComponent(bottomPanel);
-        mainSplit.setDividerLocation(600);
+        WindowState.track("log", mainSplit, 580);
         mainSplit.setResizeWeight(0.8D);
-        mainSplit.setDividerSize(5);
 
         add(topPanel, BorderLayout.NORTH);
         add(mainSplit, BorderLayout.CENTER);
 
         WindowUtil.centerOnScreen(this);
         pack();
+        WindowState.restore(this);
 
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
@@ -494,6 +493,7 @@ public class AgentDebuggerFrame extends JFrame {
      * Quits the app and attempts to delete the working dir
      */
     public void quit() {
+        WindowState.save(this);
         super.setVisible(false);
         if (workingDir.exists()) {
             try {
@@ -615,6 +615,7 @@ public class AgentDebuggerFrame extends JFrame {
         }
         scriptEditorScrollPane.getGutter().removeAllTrackingIcons();
         scriptEditorTA.setText(sb.toString());
+        scriptEditorTA.setHighlightCurrentLine(!steps.isEmpty());
         for (IconContainer ic : icons) {
             try {
                 scriptEditorScrollPane.getGutter().addOffsetTrackingIcon(scriptEditorTA.getLineStartOffset(ic.getLine()), ic.getIcon());
@@ -935,6 +936,7 @@ public class AgentDebuggerFrame extends JFrame {
      * @param args
      */
     public static void main(String[] args) {
+        DebuggerTheme.install();
         String url = args.length > 0 ? args[0] : "";
         String token = args.length > 1 ? args[1] : "";
         new AgentDebuggerFrame(true, url, token).setVisible(true);

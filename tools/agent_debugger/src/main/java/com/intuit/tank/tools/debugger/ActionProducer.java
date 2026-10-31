@@ -22,13 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import jakarta.xml.bind.JAXBException;
@@ -41,6 +39,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.intuit.tank.clients.AgentClient;
 import com.intuit.tank.clients.DataFileClient;
 import com.intuit.tank.clients.ProjectClient;
@@ -181,7 +180,7 @@ public class ActionProducer {
     public Action getClearLogOutputAction() {
         Action ret = actionMap.get(ACTION_CLEAR_LOG);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_CLEAR_LOG, getIcon("bin_closed.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_CLEAR_LOG, getIcon("clear")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -220,7 +219,7 @@ public class ActionProducer {
     public Action getFindAction() {
         Action ret = actionMap.get(ACTION_FIND);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_FIND, getIcon("find.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_FIND, getIcon("search")) {
                 private static final long serialVersionUID = 1L;
                 private FindReplaceDialog dialog;
 
@@ -265,7 +264,7 @@ public class ActionProducer {
                     return f.isDirectory() || f.getName().toLowerCase().endsWith("_h.xml");
                 }
             });
-            ret = new AbstractAction(ACTION_OPEN, getIcon("script_go.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_OPEN, getIcon("openFile")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -305,7 +304,7 @@ public class ActionProducer {
     public Action getReloadAction() {
         Action ret = actionMap.get(ACTION_RELOAD);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_RELOAD, getIcon("refresh.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_RELOAD, getIcon("reload")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -532,7 +531,7 @@ public class ActionProducer {
     public Action getOpenScriptAction() {
         Action ret = actionMap.get(ACTION_CHOOSE_SCRIPT);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_CHOOSE_SCRIPT, getIcon("script_lightning.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_CHOOSE_SCRIPT, getIcon("script")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -588,7 +587,7 @@ public class ActionProducer {
     public Action getSelectDataFileAction() {
         Action ret = actionMap.get(ACTION_CHOOSE_DATAFILE);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_CHOOSE_DATAFILE, getIcon("table_lightning.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_CHOOSE_DATAFILE, getIcon("dataFile")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -626,7 +625,7 @@ public class ActionProducer {
     public Action getShowVariablesAction() {
         Action ret = actionMap.get(ACTION_SHOW_VARIABLES);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_SHOW_VARIABLES, getIcon("data_grid.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_SHOW_VARIABLES, getIcon("variables")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -651,7 +650,7 @@ public class ActionProducer {
     public Action getOpenProjectAction() {
         Action ret = actionMap.get(ACTION_CHOOSE_PROJECT);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_CHOOSE_PROJECT, getIcon("application_lightning.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_CHOOSE_PROJECT, getIcon("project")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -739,7 +738,7 @@ public class ActionProducer {
     public Action getStartAction() {
         Action ret = actionMap.get(ACTION_START);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_START, getIcon("bug_go.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_START, getIcon("debug")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -760,7 +759,7 @@ public class ActionProducer {
     public Action getNextStepAction() {
         Action ret = actionMap.get(ACTION_NEXT);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_NEXT, getIcon("control_play_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_NEXT, getIcon("next")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -781,7 +780,7 @@ public class ActionProducer {
     public Action getClearBookmarksAction() {
         Action ret = actionMap.get(ACTION_REMOVE_BOOKMARKS);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_REMOVE_BOOKMARKS, getIcon("bookmark-remove.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_REMOVE_BOOKMARKS, getIcon("clearBreakpoints")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -802,7 +801,7 @@ public class ActionProducer {
     public Action getClearSkipsAction() {
         Action ret = actionMap.get(ACTION_REMOVE_SKIP);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_REMOVE_SKIP, getIcon("remove-all-skips.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_REMOVE_SKIP, getIcon("clearSkips")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -823,7 +822,7 @@ public class ActionProducer {
     public Action getEndDebugAction() {
         Action ret = actionMap.get(ACTION_STOP);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_STOP, getIcon("control_stop_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_STOP, getIcon("stop")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -844,7 +843,7 @@ public class ActionProducer {
     public Action getRunToAction() {
         Action ret = actionMap.get(ACTION_RUN_TO);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_RUN_TO, getIcon("control_fastforward_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_RUN_TO, getIcon("runTo")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -865,7 +864,7 @@ public class ActionProducer {
     public Action getPauseAction() {
         Action ret = actionMap.get(ACTION_PAUSE);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_PAUSE, getIcon("control_pause_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_PAUSE, getIcon("pause")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -887,7 +886,7 @@ public class ActionProducer {
         Action ret = actionMap.get(ACTION_EXPORT);
         if (ret == null) {
             jFileChooser = new JFileChooser();
-            ret = new AbstractAction(ACTION_EXPORT, getIcon("database_table.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_EXPORT, getIcon("export")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -912,7 +911,7 @@ public class ActionProducer {
     public Action getSkipAction() {
         Action ret = actionMap.get(ACTION_SKIP);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_SKIP, getIcon("control_repeat_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_SKIP, getIcon("skip")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -933,7 +932,7 @@ public class ActionProducer {
     public Action getSkipStepAction() {
         Action ret = actionMap.get(ACTION_SKIP_STEP);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_SKIP_STEP, getIcon("skip.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_SKIP_STEP, getIcon("skipStep")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -954,7 +953,7 @@ public class ActionProducer {
     public Action getToggleBreakpointAction() {
         Action ret = actionMap.get(ACTION_TOGGLE_BREAKPOINT);
         if (ret == null) {
-            ret = new AbstractAction(ACTION_TOGGLE_BREAKPOINT, getIcon("bullet_blue.png", IconSize.SMALL)) {
+            ret = new AbstractAction(ACTION_TOGGLE_BREAKPOINT, getIcon("breakpoint")) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -968,18 +967,9 @@ public class ActionProducer {
         return ret;
     }
 
-    public static Icon getIcon(String string, IconSize size) {
-        String resourcePath = (size == IconSize.SMALL ? "gfx/16/" : "gfx/32/") + string;
-        try {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            URL url = cl.getResource(resourcePath);
-            // System.out.println("URL is: " + url);
-            return new ImageIcon(ImageIO.read(url));
-        } catch (Exception e) {
-            // System.out.println("URL is: " + url);
-            LOG.error("Error loading image " + resourcePath + ": " + e);
-        }
-        return null;
+    /** @return the 16px SVG icon gfx/icons/{name}.svg, which scales with the display and follows the theme */
+    public static Icon getIcon(String name) {
+        return new FlatSVGIcon("gfx/icons/" + name + ".svg", 16, 16, ActionProducer.class.getClassLoader());
     }
 
     private void showError(final String msg) {
@@ -1008,11 +998,6 @@ public class ActionProducer {
                     JOptionPane.ERROR_MESSAGE);
         }
         return null;
-    }
-
-    public enum IconSize {
-        SMALL,
-        LARGE
     }
 
 }

@@ -14,6 +14,8 @@ package com.intuit.tank.tools.debugger;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,9 +23,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.formdev.flatlaf.FlatClientProperties;
 import com.intuit.tank.harness.data.HDTestPlan;
+import com.intuit.tank.http.BaseResponse;
 import com.intuit.tank.runner.ErrorContainer;
-import com.intuit.tank.tools.debugger.ActionProducer.IconSize;
 
 public class InfoHeaderPanel extends JPanel implements StepListener, ScriptChangedListener, ActionListener {
 
@@ -31,35 +36,61 @@ public class InfoHeaderPanel extends JPanel implements StepListener, ScriptChang
 
     private static final long serialVersionUID = 1L;
 
+    private final AgentDebuggerFrame parent;
     private JLabel label;
+    private StatusBadge methodBadge;
+    private StatusBadge statusBadge;
     private JLabel description;
     private JButton errorButton;
     private DebugStep step;
     private ScriptErrorViewDialog scriptErrorViewDialog;
 
     public InfoHeaderPanel(AgentDebuggerFrame parent) {
-        super(new BorderLayout());
+        super(new BorderLayout(0, 2));
+        this.parent = parent;
         parent.addScriptChangedListener(this);
         parent.addStepChangedListener(this);
         this.scriptErrorViewDialog = new ScriptErrorViewDialog(parent);
 
-        label = new JLabel("Step #");
+        label = new JLabel("No step selected");
+        label.putClientProperty(FlatClientProperties.STYLE, "font: +1 bold");
+        methodBadge = new StatusBadge();
+        statusBadge = new StatusBadge();
         description = new JLabel(" ");
-        errorButton = new JButton(ActionProducer.getIcon("error.png", IconSize.SMALL));
-        errorButton.setToolTipText("Validation failures occurred in step");
+        description.putClientProperty(FlatClientProperties.STYLE, "foreground: $Label.disabledForeground");
+        errorButton = new JButton(ActionProducer.getIcon("error"));
+        errorButton.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_TOOLBAR_BUTTON);
+        errorButton.setToolTipText("Show the validation failures in this step");
         errorButton.addActionListener(this);
         errorButton.setVisible(false);
 
-        super.add(BorderLayout.WEST, label);
-        super.add(BorderLayout.EAST, errorButton);
+        JPanel title = new JPanel(new FlowLayout(FlowLayout.LEADING, 6, 0));
+        title.setOpaque(false);
+        title.add(label);
+        title.add(methodBadge);
+        title.add(statusBadge);
+
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(BorderLayout.WEST, title);
+        top.add(BorderLayout.EAST, errorButton);
+
+        super.add(BorderLayout.NORTH, top);
         super.add(BorderLayout.SOUTH, description);
     }
 
     @Override
+    public void updateUI() {
+        super.updateUI();
+        setBorder(DebuggerTheme.bottomLine(6, 4, 6, 8));
+        if (label != null) {
+            setText(step); // badge colors come from the theme
+        }
+    }
+
+    @Override
     public void scriptChanged(HDTestPlan plan) {
-        description.setText(" ");
-        label.setText("Step #");
-        errorButton.setVisible(false);
+        setText(null);
     }
 
     @Override
@@ -80,15 +111,44 @@ public class InfoHeaderPanel extends JPanel implements StepListener, ScriptChang
 
     private void setText(DebugStep step) {
         if (step != null) {
-            label.setText("Step # " + (step.getStepRun().getStepIndex() + 1));
+            label.setText("Step " + (step.getStepRun().getStepIndex() + 1) + " of " + parent.getSteps().size());
             description.setText(step.getStepRun().getInfo());
-            errorButton.setVisible(!step.getErrors().isEmpty());
+            description.setToolTipText(step.getStepRun().getInfo());
+            String method = step.getMethod();
+            methodBadge.setStatus(StringUtils.isNotBlank(method) ? method : null,
+                    DebuggerTheme.color("Actions.Blue", new Color(0x389FD6)));
+            setStatusBadge(step);
+            int errorCount = step.getErrors().size();
+            errorButton.setText(errorCount + (errorCount == 1 ? " validation failure" : " validation failures"));
+            errorButton.setVisible(errorCount > 0);
         } else {
+            label.setText("No step selected");
             description.setText(" ");
-            label.setText("Step #");
+            description.setToolTipText(null);
+            methodBadge.setStatus(null, null);
+            statusBadge.setStatus(null, null);
             errorButton.setVisible(false);
         }
         this.step = step;
+    }
+
+    private void setStatusBadge(DebugStep step) {
+        BaseResponse response = step.getResponse();
+        // the response exists before the request is sent, so wait until the step has finished
+        if (response == null || step.getExitVariables() == null) {
+            statusBadge.setStatus(null, null);
+            return;
+        }
+        int code = response.getHttpCode();
+        Color color;
+        if (code == -1 || code >= 400) {
+            color = DebuggerTheme.color("Actions.Red", new Color(0xDB5860));
+        } else if (code >= 300) {
+            color = DebuggerTheme.color("Actions.Yellow", new Color(0xEDA200));
+        } else {
+            color = DebuggerTheme.color("Actions.Green", new Color(0x59A869));
+        }
+        statusBadge.setStatus(code == -1 ? "No response" : Integer.toString(code), color);
     }
 
     @Override
