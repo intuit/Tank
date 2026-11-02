@@ -1,3 +1,15 @@
+# 4.6.14 (Mon Nov 02 2026)
+
+#### 🐛 Bug Fix
+
+- Address deprecations, remove unused imports, simplify test assertions [#554](https://github.com/intuit/Tank/pull/554) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.13 (Fri Oct 30 2026)
 
 #### 🐛 Bug Fix
