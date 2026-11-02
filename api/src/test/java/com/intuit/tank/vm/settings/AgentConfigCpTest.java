@@ -49,10 +49,10 @@ public class AgentConfigCpTest {
 
         assertNotNull(result);
         assertEquals(Long.valueOf(40000L), result.getConnectionTimeout());
-        assertEquals(false, result.getLogVariables());
-        assertEquals(false, result.getLogPostResponse());
+        assertFalse(result.getLogVariables());
+        assertFalse(result.getLogPostResponse());
         assertEquals(8090, result.getAgentPort());
-        assertEquals(false, result.getLogPostRequest());
+        assertFalse(result.getLogPostRequest());
         assertEquals(90000L, result.getSSLTimeout());
         assertEquals(5000L, result.getMaxAgentResponseTime());
         assertEquals(180000L, result.getMaxAgentWaitTime());
@@ -60,7 +60,7 @@ public class AgentConfigCpTest {
         assertEquals(15, result.getTPSPeriod());
         assertEquals(7200000L, result.getOverSimulationMaxTime());
         assertEquals(5000, result.getMaxBodyReportSize());
-        assertEquals(null, result.getDefaultResultProvider());
+        assertNull(result.getDefaultResultProvider());
         assertEquals(empty, result.getRequestHeaderMap());
         assertEquals("Apache HttpClient 4.5", result.getTankClientDefault());
         assertEquals("com.intuit.tank.httpclient4.TankHttpClient4", result.getTankClientClassDefault());
@@ -147,7 +147,7 @@ public class AgentConfigCpTest {
 
         String result = fixture.getDefaultResultProvider();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -165,7 +165,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogPostRequest();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -183,7 +183,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogPostRequest();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -201,7 +201,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogPostResponse();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -219,7 +219,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogPostResponse();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -237,7 +237,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogVariables();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -255,7 +255,7 @@ public class AgentConfigCpTest {
 
         boolean result = fixture.getLogVariables();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -367,7 +367,7 @@ public class AgentConfigCpTest {
 
         String result = fixture.getResultsProviderClass(providerKey);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

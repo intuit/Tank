@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,9 +59,9 @@ public class CreateDateComparatorTest {
         CreateDateComparator comp = new CreateDateComparator(SortOrder.ASCENDING);
         List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
         Collections.sort(copied, comp);
-        assertEquals(copied.get(0).position, 0);
-        assertEquals(copied.get(1).position, 1);
-        assertEquals(copied.get(2).position, 2);
+        assertEquals(0, copied.get(0).position);
+        assertEquals(1, copied.get(1).position);
+        assertEquals(2, copied.get(2).position);
 
     }
 
@@ -72,9 +71,9 @@ public class CreateDateComparatorTest {
         CreateDateComparator comp = new CreateDateComparator(SortOrder.DESCENDING);
         List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
         Collections.sort(copied, comp);
-        assertEquals(copied.get(0).position, 2);
-        assertEquals(copied.get(1).position, 1);
-        assertEquals(copied.get(2).position, 0);
+        assertEquals(2, copied.get(0).position);
+        assertEquals(1, copied.get(1).position);
+        assertEquals(0, copied.get(2).position);
 
     }
 
@@ -84,9 +83,9 @@ public class CreateDateComparatorTest {
         CreateDateComparator comp = new CreateDateComparator();
         List<TestBaseEntity> copied = new ArrayList<CreateDateComparatorTest.TestBaseEntity>(entities);
         Collections.sort(copied, comp);
-        assertEquals(copied.get(0).position, 0);
-        assertEquals(copied.get(1).position, 1);
-        assertEquals(copied.get(2).position, 2);
+        assertEquals(0, copied.get(0).position);
+        assertEquals(1, copied.get(1).position);
+        assertEquals(2, copied.get(2).position);
 
     }
 

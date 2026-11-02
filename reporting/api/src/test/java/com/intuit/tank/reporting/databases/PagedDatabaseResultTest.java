@@ -18,9 +18,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.reporting.databases.Item;
-import com.intuit.tank.reporting.databases.PagedDatabaseResult;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

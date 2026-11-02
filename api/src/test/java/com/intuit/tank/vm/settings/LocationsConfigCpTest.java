@@ -21,9 +21,6 @@ import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.settings.LocationsConfig;
-import com.intuit.tank.vm.settings.SelectableItem;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

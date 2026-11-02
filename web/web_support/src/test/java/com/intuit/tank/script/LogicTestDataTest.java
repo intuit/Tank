@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.LogicTestData;
 
 /**
  * The class <code>LogicTestDataTest</code> contains tests for the class <code>{@link LogicTestData}</code>.

@@ -15,8 +15,6 @@ package com.intuit.tank.monitor;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.monitor.GlobalPercentCompleteMonitor;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -23,6 +23,7 @@ import com.intuit.tank.vm.settings.VmInstanceType;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.*;
@@ -358,7 +359,7 @@ public class JobDetailFormatter {
         if (StringUtils.isNotBlank(style)) {
             sb.append("<span style=\"font-weight: bold;\">");
         }
-        sb.append(StringUtils.replace(key, " ", "&nbsp;"));
+        sb.append(Strings.CS.replace(key, " ", "&nbsp;"));
         if (StringUtils.isNotBlank(style)) {
             sb.append("</span>");
         }

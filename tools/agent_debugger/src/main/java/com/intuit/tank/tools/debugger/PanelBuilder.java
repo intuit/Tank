@@ -103,7 +103,7 @@ public class PanelBuilder {
                     .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
                     .build();
             try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
-                URL url = new URL(serviceUrl + HEADERS_PATH);
+                URL url = URI.create(serviceUrl + HEADERS_PATH).toURL();
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());
                 

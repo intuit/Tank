@@ -17,9 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.DataFileEnvelope;
-
 /**
  * The class <code>DataFileEnvelopeTest</code> contains tests for the class <code>{@link DataFileEnvelope}</code>.
  * 
@@ -189,7 +186,7 @@ fixture.setComments("test");
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.DataFileEnvelope.<init>(DataFileEnvelope.java:15)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

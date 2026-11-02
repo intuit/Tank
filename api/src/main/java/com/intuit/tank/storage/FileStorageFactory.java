@@ -9,7 +9,7 @@ import java.util.Map;
 import jakarta.annotation.Nonnull;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * @author denisa
@@ -23,8 +23,8 @@ public class FileStorageFactory {
         String key = base + compress;
         FileStorage fileStorage = storageMap.get(key);
         if (fileStorage == null) {
-            if (StringUtils.startsWithIgnoreCase(base, "s3:")) {
-                String bucketName = StringUtils.removeStart(FilenameUtils.normalizeNoEndSeparator(base.substring(3)), "/");
+            if (Strings.CI.startsWith(base, "s3:")) {
+                String bucketName = Strings.CS.removeStart(FilenameUtils.normalizeNoEndSeparator(base.substring(3)), "/");
                 fileStorage = new S3FileStorage(bucketName, compress);
             } else {
                 fileStorage = new FileSystemFileStorage(base, compress);

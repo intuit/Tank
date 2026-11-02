@@ -4,7 +4,6 @@ import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.dao.GroupDao;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.User;
-import com.intuit.tank.vm.common.PasswordEncoder;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

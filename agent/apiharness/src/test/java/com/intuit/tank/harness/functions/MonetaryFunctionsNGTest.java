@@ -47,7 +47,7 @@ public class MonetaryFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 7);
+        assertEquals(7, random.length());
     }
 
     @Test
@@ -57,6 +57,6 @@ public class MonetaryFunctionsNGTest {
 
         String random = FunctionHandler.executeFunction(command, variables);
         assertNotNull(random);
-        assertEquals(random.length(), 9);
+        assertEquals(9, random.length());
     }
 }

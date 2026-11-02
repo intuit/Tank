@@ -13,15 +13,9 @@ package com.intuit.tank.vm.vmManager;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.vm.api.enumerated.VMImageType;
-import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.vmManager.VMChannel;
 
 /**
  * The class <code>VMChannelCpTest</code> contains tests for the class <code>{@link VMChannel}</code>.

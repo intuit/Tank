@@ -15,8 +15,6 @@ package com.intuit.tank.converter;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.converter.ScriptStepHolder;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

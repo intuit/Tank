@@ -14,6 +14,8 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -132,7 +134,7 @@ public class ProjectTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -156,7 +158,7 @@ public class ProjectTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -180,7 +182,7 @@ public class ProjectTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

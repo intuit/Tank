@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.scheduleManager.ScheduleManagerImpl;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIRequest;
 import com.intuit.tank.vm.agent.messages.AgentMngrAPIResponse;
 import com.intuit.tank.vm.scheduleManager.JobRequestData;

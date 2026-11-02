@@ -4,10 +4,7 @@
 package com.intuit.tank.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +15,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.project.JobNotification;
-import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.test.TestGroups;
 
 /**
@@ -48,7 +44,7 @@ public class JobNotificationDaoTest {
         JobNotification result = dao.saveOrUpdate(jobnotification);
         assertEquals(jobnotification.getBody(), result.getBody());
         JobNotification revisionJob = dao.findRevision(0,1);
-        assertEquals(null, revisionJob);
+        assertNull(revisionJob);
 
     }
 

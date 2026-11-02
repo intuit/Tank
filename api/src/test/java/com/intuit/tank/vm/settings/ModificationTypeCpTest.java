@@ -15,8 +15,6 @@ package com.intuit.tank.vm.settings;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.settings.ModificationType;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

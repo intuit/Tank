@@ -16,7 +16,6 @@ package com.intuit.tank.proxy.config;
  * #L%
  */
 
-import com.intuit.tank.proxy.config.CommonsProxyConfiguration;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -35,8 +34,8 @@ public class ProxyConfigurationTest {
     public void testConfigParse() throws Exception {
         CommonsProxyConfiguration c = new CommonsProxyConfiguration("src/test/resources/test-config.xml");
         assertNotNull(c);
-        assertEquals(c.getPort(), 8188);
-        assertEquals(c.getOutputFile(), "testOutputFile.xml");
+        assertEquals(8188, c.getPort());
+        assertEquals("testOutputFile.xml", c.getOutputFile());
         assertFalse(c.getInclusions().isEmpty());
         assertFalse(c.getExclusions().isEmpty());
         assertFalse(c.getBodyInclusions().isEmpty());

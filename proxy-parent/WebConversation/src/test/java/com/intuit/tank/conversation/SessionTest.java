@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.conversation.Session;
-import com.intuit.tank.conversation.Transaction;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -30,7 +27,7 @@ public class SessionTest {
         Session result = new Session();
 
         assertNotNull(result);
-        assertEquals(true, result.isCollapseRedirects());
+        assertTrue(result.isCollapseRedirects());
     }
 
     /**
@@ -49,7 +46,7 @@ public class SessionTest {
         Session result = new Session(transactions, collapseRedirects);
 
         assertNotNull(result);
-        assertEquals(true, result.isCollapseRedirects());
+        assertTrue(result.isCollapseRedirects());
     }
 
     /**
@@ -84,7 +81,7 @@ public class SessionTest {
 
         boolean result = fixture.isCollapseRedirects();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -101,6 +98,6 @@ public class SessionTest {
 
         boolean result = fixture.isCollapseRedirects();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

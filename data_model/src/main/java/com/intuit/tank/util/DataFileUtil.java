@@ -58,7 +58,7 @@ public final class DataFileUtil {
         FileData fd = DataFileUtil.getFileData(dataFile);
         int lines = 0;
         if (fileStorage.exists(fd)) {
-            for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), StandardCharsets.UTF_8); iterator.hasNext(); iterator.nextLine()) {
+            for (LineIterator iterator = IOUtils.lineIterator(fileStorage.readFileData(fd), StandardCharsets.UTF_8); iterator.hasNext(); iterator.next()) {
                 lines++;
             }
         }

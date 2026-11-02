@@ -2,8 +2,6 @@ package com.intuit.tank.conversation;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.conversation.Namespace;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

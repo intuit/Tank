@@ -19,6 +19,7 @@ import com.intuit.tank.rest.mvc.rest.services.projects.ProjectServiceV2;
 import com.intuit.tank.rest.mvc.rest.util.ProjectFixtures;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,10 +50,17 @@ public class ProjectControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test

@@ -27,6 +27,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -68,7 +69,7 @@ public class LogViewer implements Serializable {
     }
 
     private String getContextRoot(String contextPath) {
-        if (!StringUtils.endsWith(contextPath, "/")) {
+        if (!Strings.CS.endsWith(contextPath, "/")) {
             contextPath = contextPath + "/";
         }
         return contextPath;

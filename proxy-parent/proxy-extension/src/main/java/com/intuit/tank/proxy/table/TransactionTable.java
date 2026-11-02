@@ -23,7 +23,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.font.TextAttribute;
@@ -145,7 +144,7 @@ public class TransactionTable extends JTable {
         private int maxWidth = 500;
 
         public void paint(Graphics g, JComponent c) {
-            FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(g.getFont());
+            FontMetrics metrics = g.getFontMetrics();
             Dimension size = c.getSize();
             g.setColor(c.getBackground());
             g.fillRect(0, 0, size.width, size.height);
@@ -159,7 +158,7 @@ public class TransactionTable extends JTable {
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public Dimension getPreferredSize(JComponent c) {
-            FontMetrics metrics = Toolkit.getDefaultToolkit().getFontMetrics(c.getFont());
+            FontMetrics metrics = c.getFontMetrics(c.getFont());
             String tipText = ((JToolTip) c).getTipText();
             if (tipText == null) {
                 tipText = "";

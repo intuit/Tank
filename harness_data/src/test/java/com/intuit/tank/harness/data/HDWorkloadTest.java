@@ -78,7 +78,7 @@ public class HDWorkloadTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -101,7 +101,7 @@ public class HDWorkloadTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -124,7 +124,7 @@ public class HDWorkloadTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -206,7 +206,7 @@ public class HDWorkloadTest {
         HDTestVariables result = fixture.getVariables();
 
         assertNotNull(result);
-        assertEquals(false, result.isAllowOverride());
+        assertFalse(result.isAllowOverride());
     }
 
     /**

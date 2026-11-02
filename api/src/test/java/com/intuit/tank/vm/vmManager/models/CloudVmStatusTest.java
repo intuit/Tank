@@ -79,7 +79,7 @@ public class CloudVmStatusTest {
 
         assertNotNull(result);
         assertEquals("", result.getJobId());
-        assertEquals(null, result.getReportTime());
+        assertNull(result.getReportTime());
         assertEquals("", result.getInstanceId());
         assertEquals(1, result.getCurrentUsers());
         assertEquals("", result.getSecurityGroup());
@@ -114,7 +114,7 @@ public class CloudVmStatusTest {
 
         assertNotNull(result);
         assertEquals("", result.getJobId());
-        assertEquals(null, result.getReportTime());
+        assertNull(result.getReportTime());
         assertEquals("", result.getInstanceId());
         assertEquals(1, result.getCurrentUsers());
         assertEquals("", result.getSecurityGroup());

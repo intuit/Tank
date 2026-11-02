@@ -32,16 +32,16 @@ public class SimpleErrorResponseTest {
     @Test
     public void testConstructorWithStatusCode() {
         String msg = "friendly msg";
-        SimpleErrorResponse simpleErrorResponse = new SimpleErrorResponse(HttpStatus.I_AM_A_TEAPOT, msg, true);
+        SimpleErrorResponse simpleErrorResponse = new SimpleErrorResponse(HttpStatus.CONFLICT, msg, true);
         assertTrue(simpleErrorResponse.getBody().toString().contains(msg));
-        assertEquals(HttpStatus.I_AM_A_TEAPOT, simpleErrorResponse.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, simpleErrorResponse.getStatusCode());
     }
 
     @Test
     public void testConstructorWithStatusCodeAndThrowable() {
         String msg = "friendly msg";
-        SimpleErrorResponse simpleErrorResponse = new SimpleErrorResponse(HttpStatus.I_AM_A_TEAPOT, msg, mock(Throwable.class), true);
+        SimpleErrorResponse simpleErrorResponse = new SimpleErrorResponse(HttpStatus.CONFLICT, msg, mock(Throwable.class), true);
         assertTrue(simpleErrorResponse.getBody().toString().contains(msg));
-        assertEquals(HttpStatus.I_AM_A_TEAPOT, simpleErrorResponse.getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, simpleErrorResponse.getStatusCode());
     }
 }

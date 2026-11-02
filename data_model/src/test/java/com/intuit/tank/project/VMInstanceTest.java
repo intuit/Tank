@@ -14,6 +14,8 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Date;
@@ -22,8 +24,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobVMInstance;
-import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
 /**
@@ -101,7 +101,7 @@ public class VMInstanceTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -128,7 +128,7 @@ public class VMInstanceTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -155,7 +155,7 @@ public class VMInstanceTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

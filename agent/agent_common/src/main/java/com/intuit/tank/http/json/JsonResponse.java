@@ -22,6 +22,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,7 +82,7 @@ public class JsonResponse extends BaseResponse {
 
     private String cleanString(String input) {
         try {
-            return StringUtils.remove(input.trim(),"(\r\n)+");
+            return Strings.CS.remove(input.trim(),"(\r\n)+");
         } catch (Exception ex) {
             return input;
         }

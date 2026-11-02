@@ -21,9 +21,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.mockito.Mockito;
-import org.primefaces.extensions.component.dynaform.DynaForm;
-
-import com.intuit.tank.converter.TimeDurationConverter;
 
 /**
  * The class <code>TimeDurationConverterTest</code> contains tests for the class <code>{@link TimeDurationConverter}</code>.
@@ -102,7 +99,7 @@ public class TimeDurationConverterTest {
         TimeDurationConverter fixture = new TimeDurationConverter();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIComponent uiComponent = Mockito.mock(UIComponent.class);
-        Object obj = new Byte((byte) 1);
+        Object obj = Byte.valueOf((byte) 1);
 
         String result = fixture.getAsString(facesContext, uiComponent, obj);
 

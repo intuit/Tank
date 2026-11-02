@@ -13,15 +13,11 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobConfiguration;
-import com.intuit.tank.project.JobVMInstance;
-import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.vm.api.enumerated.VMRole;
 
 /**

@@ -21,9 +21,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.vm.api.enumerated.VMImageType;
-import com.intuit.tank.vm.settings.InstanceDescription;
-
 /**
  * The class <code>InstanceDescriptionCpTest</code> contains tests for the class
  * <code>{@link InstanceDescription}</code>.
@@ -47,13 +44,13 @@ public class InstanceDescriptionCpTest {
         InstanceDescription result = new InstanceDescription(config, defaultInstance);
 
         assertNotNull(result);
-        assertEquals(null, result.getAmi());
-        assertEquals(null, result.getPublicIp());
-        assertEquals(null, result.getZone());
-        assertEquals(null, result.getLocation());
-        assertEquals(null, result.getSecurityGroup());
-//        assertEquals(null, result.getSubnetIds().get(0));
-        assertEquals(null, result.getKeypair());
+        assertNull(result.getAmi());
+        assertNull(result.getPublicIp());
+        assertNull(result.getZone());
+        assertNull(result.getLocation());
+        assertNull(result.getSecurityGroup());
+//        assertNull(result.getSubnetIds().get(0));
+        assertNull(result.getKeypair());
     }
 
     /**
@@ -71,7 +68,7 @@ public class InstanceDescriptionCpTest {
 
         String result = fixture.getAmi();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -89,7 +86,7 @@ public class InstanceDescriptionCpTest {
 
         String result = fixture.getPublicIp();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
 }

@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.intuit.tank.vmManager.environment.amazon.AmazonInstance.INSUFFICIENT_INSTANCE_CAPACITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -633,8 +634,8 @@ public class AmazonInstanceTest {
         List<VMInformation> agents = amazonInstance.findRunningAgents("tank-prod");
 
         assertEquals(List.of("i-1", "i-2"), agents.stream().map(VMInformation::getInstanceId).toList());
-        assertEquals(null, agents.getFirst().getJobId());
-        assertEquals(null, agents.getFirst().getLaunchTime());
+        assertNull(agents.getFirst().getJobId());
+        assertNull(agents.getFirst().getLaunchTime());
         ArgumentCaptor<DescribeInstancesRequest> captor = ArgumentCaptor.forClass(DescribeInstancesRequest.class);
         verify(_mockEc2AsyncClient, times(2)).describeInstances(captor.capture());
         assertEquals("page-2", captor.getAllValues().get(1).nextToken());

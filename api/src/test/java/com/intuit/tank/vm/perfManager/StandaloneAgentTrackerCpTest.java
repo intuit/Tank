@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
-import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 
 /**
  * The class <code>StandaloneAgentTrackerCpTest</code> contains tests for the class
@@ -75,7 +74,7 @@ public class StandaloneAgentTrackerCpTest {
 
         List<AgentAvailability> result = fixture.getAgents(numUsers);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -93,7 +92,7 @@ public class StandaloneAgentTrackerCpTest {
 
         List<AgentAvailability> result = fixture.getAgents(numUsers);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -130,7 +129,7 @@ public class StandaloneAgentTrackerCpTest {
 
         List<AgentAvailability> result = fixture.getAgents(numUsers);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -185,6 +184,6 @@ public class StandaloneAgentTrackerCpTest {
 
         AgentAvailability result = fixture.getAvailabilityForAgent(instanceId);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 }

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMProvider;
-import com.intuit.tank.vm.vmManager.VMKillRequest;
 
 /**
  * The class <code>VMKillRequestCpTest</code> contains tests for the class <code>{@link VMKillRequest}</code>.
@@ -44,8 +43,8 @@ public class VMKillRequestCpTest {
         VMKillRequest result = new VMKillRequest();
 
         assertNotNull(result);
-        assertEquals(null, result.getInstances());
-        assertEquals(null, result.getProvider());
+        assertNull(result.getInstances());
+        assertNull(result.getProvider());
     }
 
     /**
@@ -99,7 +98,7 @@ public class VMKillRequestCpTest {
 
         List<String> result = fixture.getInstances();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

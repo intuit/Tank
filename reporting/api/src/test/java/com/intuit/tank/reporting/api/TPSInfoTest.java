@@ -13,12 +13,9 @@ package com.intuit.tank.reporting.api;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.reporting.api.TPSInfo;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,8 +39,8 @@ public class TPSInfoTest {
         TPSInfo result = new TPSInfo();
 
         assertNotNull(result);
-        assertEquals(null, result.getTimestamp());
-        assertEquals(null, result.getKey());
+        assertNull(result.getTimestamp());
+        assertNull(result.getKey());
         assertEquals(0, result.getTPS());
         assertEquals(0, result.getPeriodInSeconds());
         assertEquals(0, result.getTransactions());
@@ -110,7 +107,7 @@ public class TPSInfoTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -129,7 +126,7 @@ public class TPSInfoTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -148,7 +145,7 @@ public class TPSInfoTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

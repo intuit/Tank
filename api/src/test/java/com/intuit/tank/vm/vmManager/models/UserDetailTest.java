@@ -39,9 +39,9 @@ public class UserDetailTest {
         UserDetail result = new UserDetail();
 
         assertNotNull(result);
-        assertEquals(null, result.getScript());
-        assertEquals(null, result.getCreateTime());
-        assertEquals(null, result.getUsers());
+        assertNull(result.getScript());
+        assertNull(result.getCreateTime());
+        assertNull(result.getUsers());
     }
 
     /**

@@ -9,7 +9,6 @@ import com.intuit.tank.project.*;
 import com.intuit.tank.projects.models.*;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
-import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.util.ProjectServiceUtil;

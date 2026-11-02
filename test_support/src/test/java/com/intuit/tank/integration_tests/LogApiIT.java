@@ -30,7 +30,7 @@ public class LogApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200);
+        assertEquals(200, response.statusCode());
 
         assertEquals("application/octet-stream",
                     response.headers().firstValue("Content-Type").orElse(""),
@@ -59,7 +59,7 @@ public class LogApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(response.statusCode(), 200);
+        assertEquals(200, response.statusCode());
         assertEquals("application/octet-stream",
                     response.headers().firstValue("Content-Type").orElse(""),
                     "Should return application/octet-stream content type");
@@ -128,7 +128,7 @@ public class LogApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() == 200, "Should handle large 'from' parameter gracefully");
+        assertEquals(200, response.statusCode(), "Should handle large 'from' parameter gracefully");
 
         String logContent = response.body();
         assertNotNull(logContent, "Response body should not be null");

@@ -13,15 +13,9 @@ package com.intuit.tank.transform.scriptGenerator;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.project.BaseJob;
-import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.transform.scriptGenerator.ScriptGenerator;
 
 /**
  * The class <code>ScriptGeneratorTest</code> contains tests for the class <code>{@link ScriptGenerator}</code>.

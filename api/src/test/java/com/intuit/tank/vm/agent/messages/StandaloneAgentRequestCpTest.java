@@ -15,8 +15,6 @@ package com.intuit.tank.vm.agent.messages;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,9 +39,9 @@ public class StandaloneAgentRequestCpTest {
 
         assertNotNull(result);
         assertEquals(0, result.getUsers());
-        assertEquals(null, result.getInstanceId());
+        assertNull(result.getInstanceId());
         assertEquals("END_OF_SCRIPT_GROUP", result.getStopBehavior());
-        assertEquals(null, result.getJobId());
+        assertNull(result.getJobId());
     }
 
     /**
@@ -85,7 +83,7 @@ public class StandaloneAgentRequestCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -104,7 +102,7 @@ public class StandaloneAgentRequestCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -123,7 +121,7 @@ public class StandaloneAgentRequestCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -142,7 +140,7 @@ public class StandaloneAgentRequestCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.intuit.tank.perfManager.workLoads.JobInstanceAgentModel;
 import com.intuit.tank.vm.vmManager.JobRequest;
 
 /**
@@ -43,7 +42,7 @@ public class JobInstanceAgentModelTest {
         JobInstanceAgentModel result = new JobInstanceAgentModel(job);
 
         assertNotNull(result);
-        assertEquals(null, result.getJob());
+        assertNull(result.getJob());
         assertEquals(0, result.getStartTime());
     }
 
@@ -61,7 +60,7 @@ public class JobInstanceAgentModelTest {
 
         JobRequest result = fixture.getJob();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

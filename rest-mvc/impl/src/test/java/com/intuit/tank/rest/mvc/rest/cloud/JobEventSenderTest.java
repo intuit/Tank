@@ -10,7 +10,6 @@ import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
-import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;

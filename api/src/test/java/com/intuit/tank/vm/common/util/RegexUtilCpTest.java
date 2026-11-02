@@ -15,8 +15,6 @@ package com.intuit.tank.vm.common.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.util.RegexUtil;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

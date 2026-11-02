@@ -28,7 +28,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +43,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * ScriptSelectDialog
@@ -140,7 +140,7 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
                 if (timeValue == timeClicked) {
                     SwingUtilities.invokeLater( () -> {
                         list.setListData(items.stream().filter(obj -> StringUtils.isBlank(filterField.getText())
-                                || StringUtils.containsIgnoreCase(obj.toString(), filterField.getText()
+                                || Strings.CI.contains(obj.toString(), filterField.getText()
                                 .trim())).toArray());
                         list.repaint();
                     });

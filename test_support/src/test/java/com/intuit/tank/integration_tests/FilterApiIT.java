@@ -60,7 +60,7 @@ public class FilterApiIT extends BaseIT {
 
         JsonNode filters = responseBody.get("filters");
         assertTrue(filters.isArray(), "Filters should be an array");
-        assertTrue(filters.size() > 0, "Should contain at least one filter");
+        assertFalse(filters.isEmpty(), "Should contain at least one filter");
 
         // Validate specific known filters from the response
         boolean foundTokenSubmitPath = false;
@@ -241,7 +241,7 @@ public class FilterApiIT extends BaseIT {
 
         JsonNode filterGroups = responseBody.get("filterGroups");
         assertTrue(filterGroups.isArray(), "Filter groups should be an array");
-        assertTrue(filterGroups.size() > 0, "Should contain at least one filter group");
+        assertFalse(filterGroups.isEmpty(), "Should contain at least one filter group");
 
         // Validate specific known filter groups from the response
         boolean foundTTOProdCapacity = false;
@@ -399,7 +399,7 @@ public class FilterApiIT extends BaseIT {
         assertTrue(filterGroup.get("filterIds").isArray(), "Filter IDs should be an array");
         assertTrue(filterGroup.has("filters"), "Filter group detail should have filters field");
         assertTrue(filterGroup.get("filters").isArray(), "Filters should be an array");
-        assertTrue(filterGroup.get("filters").size() > 0, "Known filter group should contain filters");
+        assertFalse(filterGroup.get("filters").isEmpty(), "Known filter group should contain filters");
 
         Set<Integer> filterIds = new HashSet<>();
         filterGroup.get("filterIds").forEach(id -> filterIds.add(id.asInt()));
@@ -491,7 +491,7 @@ public class FilterApiIT extends BaseIT {
             HttpResponse<String> response = httpClient.send(applyFiltersRequest, BodyHandlers.ofString());
 
             // Assert
-            assertTrue(response.statusCode() == 200, "Should return HTTP 200 OK for successful filter application");
+            assertEquals(200, response.statusCode(), "Should return HTTP 200 OK for successful filter application");
             assertTrue(response.body().contains("applied") || response.body().contains("success") || response.body().contains("filter"),
                           "Response should indicate successful filter application");
         } finally {

@@ -26,7 +26,6 @@ import jakarta.inject.Inject;
 
 import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.dao.ProjectDao;
-import com.intuit.tank.project.Project;
 import com.intuit.tank.view.filter.ViewFilterType;
 import com.intuit.tank.vm.settings.ModifiedEntityMessage;
 import com.intuit.tank.wrapper.EntityVersionLoader;

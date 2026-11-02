@@ -13,7 +13,6 @@ package com.intuit.tank;
  * #L%
  */
 
-import java.security.Principal;
 import java.util.ArrayList;
 
 import com.intuit.tank.admin.UserAdmin;

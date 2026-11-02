@@ -15,8 +15,6 @@ package com.intuit.tank.job;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.job.JobStatusHelper;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,7 +40,7 @@ public class JobStatusHelperTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canBeKilled(JobStatusHelper.java:74)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
   
@@ -64,7 +62,7 @@ public class JobStatusHelperTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canBePaused(JobStatusHelper.java:31)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
   
@@ -86,7 +84,7 @@ public class JobStatusHelperTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canBeRun(JobStatusHelper.java:19)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
 
@@ -107,7 +105,7 @@ public class JobStatusHelperTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canBeStopped(JobStatusHelper.java:58)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -127,7 +125,7 @@ public class JobStatusHelperTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.job.JobStatusHelper.canRampBePaused(JobStatusHelper.java:43)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     @Test

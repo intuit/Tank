@@ -189,7 +189,7 @@ public class GenericXMLHandlerTest {
         Object result = fixture.clone();
 
         assertNotNull(result);
-        assertTrue(result instanceof GenericXMLHandler);
+        assertInstanceOf(GenericXMLHandler.class, result);
     }
 
     /**
@@ -202,7 +202,7 @@ public class GenericXMLHandlerTest {
         Object result = fixture.clone();
 
         assertNotNull(result);
-        assertTrue(result instanceof GenericXMLHandler);
+        assertInstanceOf(GenericXMLHandler.class, result);
     }
 
     /**

@@ -16,26 +16,17 @@ package com.intuit.tank.prefs;
 import java.util.LinkedList;
 import java.util.List;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.component.behavior.Behavior;
 import jakarta.faces.model.SelectItem;
 
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.mockito.Mockito;
 
-import org.primefaces.component.api.DynamicColumn;
 import org.primefaces.component.api.UIColumn;
-import org.primefaces.component.columns.Columns;
 import org.primefaces.event.ColumnResizeEvent;
-import org.primefaces.extensions.behavior.javascript.JavascriptBehavior;
-import org.primefaces.extensions.component.dynaform.DynaForm;
 
 import com.intuit.tank.PreferencesBean;
-import com.intuit.tank.prefs.PreferencesChangedListener;
-import com.intuit.tank.prefs.TablePreferences;
 import com.intuit.tank.project.ColumnPreferences;
 
 /**
@@ -269,7 +260,7 @@ public class TablePreferencesTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.prefs.TablePreferences.<init>(TablePreferences.java:48)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
 

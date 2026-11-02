@@ -30,6 +30,8 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.sql.DataSource;
+
 import org.owasp.proxy.http.BufferedRequest;
 import org.owasp.proxy.http.MessageFormatException;
 import org.owasp.proxy.http.MutableBufferedRequest;
@@ -44,13 +46,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
-        MessageDAO {
+public class JdbcMessageDAO implements MessageDAO {
 
     private static final String SSL = "ssl";
     private static final String PORT = "port";
@@ -71,6 +71,20 @@ public class JdbcMessageDAO extends NamedParameterJdbcDaoSupport implements
     private static final RowMapper<byte[]> CONTENT_MAPPER = new ContentMapper();
     private static final RowMapper<Integer> ID_MAPPER = new IdMapper();
     private static final RowMapper<Conversation> CONVERSATION_MAPPER = new ConversationMapper();
+
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    public void setDataSource(DataSource dataSource) {
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    }
+
+    public JdbcTemplate getJdbcTemplate() {
+        return namedParameterJdbcTemplate.getJdbcTemplate();
+    }
+
+    public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
+        return namedParameterJdbcTemplate;
+    }
 
     private final static String INSERT_CONTENT = "INSERT INTO contents (content, size) VALUES (:content, :size)";
 

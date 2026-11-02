@@ -23,9 +23,6 @@ import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.settings.DefaultUser;
-import com.intuit.tank.vm.settings.SecurityConfig;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -393,7 +390,7 @@ public class SecurityConfigCpTest {
 
         boolean result = fixture.isDefaultGroup(groupName);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -411,6 +408,6 @@ public class SecurityConfigCpTest {
 
         boolean result = fixture.isDefaultGroup(groupName);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

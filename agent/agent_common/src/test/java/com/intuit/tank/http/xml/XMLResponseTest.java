@@ -15,8 +15,6 @@ package com.intuit.tank.http.xml;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.http.xml.XMLResponse;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

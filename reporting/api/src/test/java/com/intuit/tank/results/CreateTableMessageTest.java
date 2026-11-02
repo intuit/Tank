@@ -15,8 +15,6 @@ package com.intuit.tank.results;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.results.CreateTableMessage;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

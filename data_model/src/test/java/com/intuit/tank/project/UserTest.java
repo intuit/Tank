@@ -14,15 +14,15 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Group;
-import com.intuit.tank.project.User;
 
 /**
  * The class <code>UserTest</code> contains tests for the class <code>{@link User}</code>.
@@ -44,12 +44,12 @@ public class UserTest {
         User result = new User();
 
         assertNotNull(result);
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getPassword());
-        assertEquals(null, result.getEmail());
+        assertNull(result.getName());
+        assertNull(result.getPassword());
+        assertNull(result.getEmail());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -92,7 +92,7 @@ public class UserTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -114,7 +114,7 @@ public class UserTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -136,7 +136,7 @@ public class UserTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

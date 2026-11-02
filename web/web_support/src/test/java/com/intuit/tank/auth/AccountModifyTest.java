@@ -13,7 +13,6 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.project.Preferences;
 import com.intuit.tank.project.User;
 import com.intuit.tank.util.Messages;

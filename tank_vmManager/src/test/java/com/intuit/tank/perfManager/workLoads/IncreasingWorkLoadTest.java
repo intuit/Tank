@@ -23,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
-import com.intuit.tank.perfManager.workLoads.IncreasingWorkLoad;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.perfManager.RequestAgents;
@@ -59,7 +58,7 @@ public class IncreasingWorkLoadTest {
         IncreasingWorkLoad result = new IncreasingWorkLoad(channel, agentDispatcher, job);
 
         assertNotNull(result);
-        assertEquals(null, result.getJob());
+        assertNull(result.getJob());
     }
 
     /**
@@ -76,7 +75,7 @@ public class IncreasingWorkLoadTest {
 
         JobRequest result = fixture.getJob();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test

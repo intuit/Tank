@@ -14,12 +14,9 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.ClearCookiesStep;
-import com.intuit.tank.harness.data.HDScriptUseCase;
-import com.intuit.tank.harness.data.TestStep;
 
 /**
  * The class <code>TestStepTest</code> contains tests for the class <code>{@link TestStep}</code>.
@@ -42,7 +39,7 @@ public class TestStepTest {
 
         HDScriptUseCase result = fixture.getParent();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

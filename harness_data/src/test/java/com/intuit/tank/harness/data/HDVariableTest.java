@@ -14,11 +14,10 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDVariable;
 
 /**
  * The class <code>HDVariableTest</code> contains tests for the class <code>{@link HDVariable}</code>.
@@ -40,8 +39,8 @@ public class HDVariableTest {
         HDVariable result = new HDVariable();
 
         assertNotNull(result);
-        assertEquals(null, result.getValue());
-        assertEquals(null, result.getKey());
+        assertNull(result.getValue());
+        assertNull(result.getKey());
     }
 
     /**

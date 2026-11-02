@@ -14,15 +14,13 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Request;
-import com.intuit.tank.project.RequestData;
 
 /**
  * The class <code>RequestTest</code> contains tests for the class <code>{@link Request}</code>.
@@ -1323,7 +1321,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasAssignments();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -1367,7 +1365,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasAssignments();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -1411,7 +1409,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasAssignments();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -1455,7 +1453,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasValidation();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -1499,7 +1497,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasValidation();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -1543,7 +1541,7 @@ public class RequestTest {
 
         boolean result = fixture.isHasValidation();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

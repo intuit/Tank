@@ -7,28 +7,19 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.intuit.tank.dao.BaseDao;
-import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
-import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;

@@ -15,9 +15,6 @@ package com.intuit.tank.results;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.results.TankResult;
-import com.intuit.tank.results.TankResultBuilderBase;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -59,11 +56,11 @@ public class TankResultBuilderBaseTest {
         TankResult result = fixture.getInstance();
 
         assertNotNull(result);
-        assertEquals(false, result.isError());
-        assertEquals(null, result.getJobId());
+        assertFalse(result.isError());
+        assertNull(result.getJobId());
         assertEquals(0, result.getResponseTime());
         assertEquals(0, result.getResponseSize());
-        assertEquals(null, result.getRequestName());
+        assertNull(result.getRequestName());
         assertEquals(0, result.getStatusCode());
     }
 

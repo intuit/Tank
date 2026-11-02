@@ -26,6 +26,7 @@ import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -112,7 +113,7 @@ public class Variables {
 	                            LogEventType.Validation, LoggingProfile.USER_VARIABLE));
 	                    throw new KillScriptException("CSV file (" + group + ") has no more data.");
 	                }
-	                s = StringUtils.replace(s, match, result != null ? result : "");
+	                s = Strings.CS.replace(s, match, result != null ? result : "");
 	            }
 	        }
     	}

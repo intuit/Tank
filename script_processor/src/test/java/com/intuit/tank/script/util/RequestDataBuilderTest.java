@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
-import com.intuit.tank.script.util.RequestDataBuilder;
 
 /**
  * The class <code>RequestDataBuilderTest</code> contains tests for the class <code>{@link RequestDataBuilder}</code>.
@@ -41,7 +40,7 @@ public class RequestDataBuilderTest {
         RequestDataBuilder result = new RequestDataBuilder(type);
 
         assertNotNull(result);
-        assertEquals(null, result.getValue());
+        assertNull(result.getValue());
         assertEquals("", result.getPath());
     }
 

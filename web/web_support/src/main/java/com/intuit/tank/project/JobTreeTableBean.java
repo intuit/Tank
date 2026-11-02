@@ -48,7 +48,6 @@ import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.QueuedJob;
-import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.JobNodeBean;
 import com.intuit.tank.job.ProjectNodeBean;

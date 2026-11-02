@@ -27,14 +27,14 @@ public class TimeZoneConverterTest {
     public void testGetAsObject_ValidTimezone_ReturnsTimeZone() {
         Object result = converter.getAsObject(null, null, "America/New_York");
         assertNotNull(result);
-        assertTrue(result instanceof TimeZone);
+        assertInstanceOf(TimeZone.class, result);
     }
 
     @Test
     public void testGetAsObject_GMTTimezone_ReturnsGMT() {
         Object result = converter.getAsObject(null, null, "GMT");
         assertNotNull(result);
-        assertTrue(result instanceof TimeZone);
+        assertInstanceOf(TimeZone.class, result);
         assertEquals("GMT", ((TimeZone) result).getID());
     }
 

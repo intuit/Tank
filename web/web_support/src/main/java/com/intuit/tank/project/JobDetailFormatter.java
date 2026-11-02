@@ -22,6 +22,7 @@ import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.JobVmCalculator;
 import com.intuit.tank.vm.vmManager.RegionRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobNotificationDao;
@@ -366,7 +367,7 @@ public class JobDetailFormatter {
         if (StringUtils.isNotBlank(style)) {
             sb.append("<span style=\"font-weight: bold;\">");
         }
-        sb.append(StringUtils.replace(key, " ", "&nbsp;"));
+        sb.append(Strings.CS.replace(key, " ", "&nbsp;"));
         if (StringUtils.isNotBlank(style)) {
             sb.append("</span>");
         }

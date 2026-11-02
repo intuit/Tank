@@ -20,8 +20,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.agent.AgentBean;
-import com.intuit.tank.agent.AgentStatusReporter;
 import com.intuit.tank.project.JobQueue;
 
 /**

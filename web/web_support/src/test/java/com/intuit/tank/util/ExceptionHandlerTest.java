@@ -13,11 +13,6 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import java.util.HashSet;
-import java.util.Set;
-
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

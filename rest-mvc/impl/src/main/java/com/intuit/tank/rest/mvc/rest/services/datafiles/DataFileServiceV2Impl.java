@@ -39,7 +39,7 @@ import com.intuit.tank.storage.FileStorageFactory;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.vm.settings.TankConfig;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.io.IOUtils;
@@ -192,7 +192,7 @@ public class DataFileServiceV2Impl implements DataFileServiceV2 {
         Map<String, String> payload = new HashMap<>();
         datafileId = datafileId == null ? 0 : datafileId;
         contentEncoding = contentEncoding == null ? "" : contentEncoding;
-        try (BufferedReader bufferedReader = StringUtils.equalsIgnoreCase(contentEncoding, "gzip") ?
+        try (BufferedReader bufferedReader = Strings.CI.equals(contentEncoding, "gzip") ?
                 new BufferedReader(new InputStreamReader(new GZIPInputStream(file.getInputStream()))) :
                 new BufferedReader(new InputStreamReader(file.getInputStream()));
                 InputStream decompressed = IOUtils.toInputStream(IOUtils.toString(bufferedReader), StandardCharsets.UTF_8)) { // correctly handles compressed datafile content

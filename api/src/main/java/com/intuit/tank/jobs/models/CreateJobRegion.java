@@ -7,7 +7,6 @@
  */
 package com.intuit.tank.jobs.models;
 
-import com.intuit.tank.projects.models.Namespace;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 

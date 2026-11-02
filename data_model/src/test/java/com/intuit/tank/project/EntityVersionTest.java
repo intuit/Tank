@@ -14,12 +14,10 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.EntityVersion;
 
 /**
  * The class <code>EntityVersionTest</code> contains tests for the class <code>{@link EntityVersion}</code>.
@@ -43,7 +41,7 @@ public class EntityVersionTest {
         assertNotNull(result);
         assertEquals(0, result.getVersionId());
         assertEquals(0, result.getObjectId());
-        assertEquals(null, result.getObjectClass());
+        assertNull(result.getObjectClass());
     }
 
     /**

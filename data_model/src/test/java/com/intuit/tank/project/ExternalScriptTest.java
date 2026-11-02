@@ -14,13 +14,14 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.script.ScriptEngine;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ExternalScript;
 
 /**
  * The class <code>ExternalScriptTest</code> contains tests for the class <code>{@link ExternalScript}</code>.
@@ -77,7 +78,7 @@ public class ExternalScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -98,7 +99,7 @@ public class ExternalScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -119,7 +120,7 @@ public class ExternalScriptTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -139,7 +140,7 @@ public class ExternalScriptTest {
 
         ScriptEngine result = fixture.getEngine();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

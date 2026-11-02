@@ -14,11 +14,11 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.Group;
 
 /**
  * The class <code>GroupTest</code> contains tests for the class <code>{@link Group}</code>.
@@ -40,11 +40,11 @@ public class GroupTest {
         Group result = new Group();
 
         assertNotNull(result);
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
+        assertNull(result.toString());
+        assertNull(result.getName());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -65,8 +65,8 @@ public class GroupTest {
         assertEquals("", result.toString());
         assertEquals("", result.getName());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -84,7 +84,7 @@ public class GroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -102,7 +102,7 @@ public class GroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -120,7 +120,7 @@ public class GroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

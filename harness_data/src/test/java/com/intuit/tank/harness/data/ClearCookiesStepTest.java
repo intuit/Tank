@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.ClearCookiesStep;
-
 /**
  * The class <code>ClearCookiesStepTest</code> contains tests for the class <code>{@link ClearCookiesStep}</code>.
  * 

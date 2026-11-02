@@ -41,8 +41,8 @@ public class ProjectStatusContainerTest {
         ProjectStatusContainer result = new ProjectStatusContainer();
 
         assertNotNull(result);
-        assertEquals(null, result.getJobId());
-        assertEquals(null, result.getUserDetails());
+        assertNull(result.getJobId());
+        assertNull(result.getUserDetails());
     }
 
     /**
@@ -427,7 +427,7 @@ public class ProjectStatusContainerTest {
 
         List<UserDetail> result = fixture.getUserDetails();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**

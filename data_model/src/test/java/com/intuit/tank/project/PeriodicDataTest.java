@@ -14,14 +14,12 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.PeriodicData;
 
 /**
  * The class <code>PeriodicDataTest</code> contains tests for the class <code>{@link PeriodicData}</code>.
@@ -91,7 +89,7 @@ public class PeriodicDataTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -117,7 +115,7 @@ public class PeriodicDataTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

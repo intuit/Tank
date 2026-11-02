@@ -21,7 +21,6 @@ import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
 import com.intuit.tank.script.models.ScriptDescription;
-import com.intuit.tank.script.models.ScriptTO;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;

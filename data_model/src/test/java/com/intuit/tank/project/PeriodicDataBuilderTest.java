@@ -14,12 +14,10 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.PeriodicData;
-import com.intuit.tank.project.PeriodicDataBuilder;
 
 /**
  * The class <code>PeriodicDataBuilderTest</code> contains tests for the class <code>{@link PeriodicDataBuilder}</code>.
@@ -58,8 +56,8 @@ public class PeriodicDataBuilderTest {
         PeriodicData result = fixture.build();
 
         assertNotNull(result);
-        assertEquals(null, result.getTimestamp());
-        assertEquals(null, result.getPageId());
+        assertNull(result.getTimestamp());
+        assertNull(result.getPageId());
         assertEquals(0.0, result.getMax(), 1.0);
         assertEquals(0.0, result.getMean(), 1.0);
         assertEquals(0, result.getJobId());
@@ -67,8 +65,8 @@ public class PeriodicDataBuilderTest {
         assertEquals(0.0, result.getMin(), 1.0);
         assertEquals(0, result.getPeriod());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**

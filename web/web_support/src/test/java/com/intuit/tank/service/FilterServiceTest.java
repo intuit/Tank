@@ -20,7 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptFilter;
-import com.intuit.tank.service.FilterService;
 
 /**
  * The class <code>FilterServiceTest</code> contains tests for the class <code>{@link FilterService}</code>.

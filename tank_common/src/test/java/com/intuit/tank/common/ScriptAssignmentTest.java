@@ -15,8 +15,6 @@ package com.intuit.tank.common;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.common.ScriptAssignment;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

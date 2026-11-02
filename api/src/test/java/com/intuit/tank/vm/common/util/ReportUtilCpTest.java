@@ -96,8 +96,8 @@ public class ReportUtilCpTest {
         assertEquals("NaN", result[18]);
         assertEquals("NaN", result[19]);
         assertEquals("NaN", result[20]);
-        assertEquals(null, result[21]);
-        assertEquals(null, result[22]);
+        assertNull(result[21]);
+        assertNull(result[22]);
     }
 
     /**
@@ -138,8 +138,8 @@ public class ReportUtilCpTest {
         assertEquals("NaN", result[18]);
         assertEquals("NaN", result[19]);
         assertEquals("NaN", result[20]);
-        assertEquals(null, result[21]);
-        assertEquals(null, result[22]);
+        assertNull(result[21]);
+        assertNull(result[22]);
     }
 
     /**

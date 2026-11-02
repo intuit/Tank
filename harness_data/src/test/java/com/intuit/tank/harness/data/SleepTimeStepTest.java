@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.SleepTimeStep;
-
 /**
  * The class <code>SleepTimeStepTest</code> contains tests for the class <code>{@link SleepTimeStep}</code>.
  * 

@@ -13,13 +13,10 @@ package com.intuit.tank.persistence.databases;
  * #L%
  */
 
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.jupiter.api.*;
-
-import com.intuit.tank.persistence.databases.BucketDataItem;
 
 import static org.junit.jupiter.api.Assertions.*;
 

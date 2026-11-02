@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 
 import com.intuit.tank.project.Project;

@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.HDValidation;
-import com.intuit.tank.harness.data.ValidationData;
-
 /**
  * The class <code>HDValidationTest</code> contains tests for the class <code>{@link HDValidation}</code>.
  * 

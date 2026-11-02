@@ -15,8 +15,6 @@ package com.intuit.tank.persistence.databases;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.persistence.databases.DatabaseQueue;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

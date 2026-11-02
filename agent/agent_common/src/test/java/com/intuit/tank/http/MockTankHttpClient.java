@@ -1,10 +1,5 @@
 package com.intuit.tank.http;
 
-import com.intuit.tank.http.AuthCredentials;
-import com.intuit.tank.http.BaseRequest;
-import com.intuit.tank.http.TankCookie;
-import com.intuit.tank.http.TankHttpClient;
-
 public class MockTankHttpClient implements TankHttpClient {
 
     @Override

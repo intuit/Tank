@@ -34,7 +34,6 @@ import org.primefaces.event.FileUploadEvent;
 
 import com.intuit.tank.ModifiedDatafileMessage;
 import com.intuit.tank.dao.DataFileDao;
-import com.intuit.tank.project.DataFile;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.util.UploadedFileIterator;
 import com.intuit.tank.wrapper.FileInputStreamWrapper;

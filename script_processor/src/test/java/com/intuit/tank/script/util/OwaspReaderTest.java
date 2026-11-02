@@ -13,16 +13,11 @@ package com.intuit.tank.script.util;
  * #L%
  */
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.PipedReader;
-import java.io.Reader;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.*;
 
@@ -31,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.intuit.tank.conversation.Transaction;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.util.OwaspReader;
 import com.intuit.tank.vm.exception.WatsParseException;
 
 /**

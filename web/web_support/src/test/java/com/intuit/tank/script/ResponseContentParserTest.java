@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ValidationResponseContent;
-import com.intuit.tank.script.ResponseContentParser;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
 /**

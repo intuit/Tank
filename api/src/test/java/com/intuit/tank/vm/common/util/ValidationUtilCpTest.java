@@ -15,8 +15,6 @@ package com.intuit.tank.vm.common.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.util.ValidationUtil;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -51,7 +49,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isAnyVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -68,7 +66,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isAnyVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -85,7 +83,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isAnyVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -102,7 +100,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isAnyVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -119,7 +117,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isAnyVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -136,7 +134,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isFunction(function);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -153,7 +151,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isFunction(function);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -170,7 +168,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isFunction(function);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -187,7 +185,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -204,7 +202,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -221,7 +219,7 @@ public class ValidationUtilCpTest {
 
         boolean result = ValidationUtil.isVariable(key);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
 }

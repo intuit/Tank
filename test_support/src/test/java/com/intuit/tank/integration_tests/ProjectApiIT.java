@@ -93,7 +93,7 @@ public class ProjectApiIT extends BaseIT {
 
         JsonNode projects = responseBody.get("projects");
         assertTrue(projects.isArray(), "Projects should be an array");
-        assertTrue(projects.size() > 0, "Should contain at least one project");
+        assertFalse(projects.isEmpty(), "Should contain at least one project");
 
         // Validate project structure
         JsonNode firstProject = projects.get(0);

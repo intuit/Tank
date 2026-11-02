@@ -16,8 +16,6 @@ package com.intuit.tank;
 import com.intuit.tank.project.User;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.PropertyComparer;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

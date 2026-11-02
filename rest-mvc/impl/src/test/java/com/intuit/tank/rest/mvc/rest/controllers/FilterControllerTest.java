@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -45,15 +46,22 @@ public class FilterControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         when(request.getScheme()).thenReturn("https");
         when(request.getServerName()).thenReturn("localhost");
         when(request.getServerPort()).thenReturn(443);
         when(request.getRequestURI()).thenReturn("/v2/filters");
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://localhost/v2/filters"));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test

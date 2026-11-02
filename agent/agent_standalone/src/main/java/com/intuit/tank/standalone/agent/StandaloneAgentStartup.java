@@ -14,6 +14,7 @@ package com.intuit.tank.standalone.agent;
  */
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,13 +76,13 @@ public class StandaloneAgentStartup implements Runnable {
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
                 sendAvailability();
                 LOG.info("Starting up: ControllerBaseUrl={}", controllerBase);
-                URL url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
+                URL url = URI.create(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS).toURL();
                 LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
                 try ( InputStream settingsStream = url.openStream() ) {
                     Files.write(Paths.get(TANK_AGENT_DIR, "settings.xml"), settingsStream.readAllBytes());
                     LOG.info("got settings file...");
                 }
-                url = new URL(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
+                url = URI.create(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT).toURL();
                 LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
                 try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
                     ZipEntry entry = zip.getNextEntry();

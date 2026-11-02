@@ -4,7 +4,6 @@ import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.datafiles.models.DataFileDescriptor;
 import com.intuit.tank.datafiles.models.DataFileDescriptorContainer;
-import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceDeleteException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.util.DataFileServiceUtil;

@@ -15,8 +15,6 @@ package com.intuit.tank.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.util.ChangeTracker;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -76,7 +74,7 @@ public class ChangeTrackerTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.util.ChangeTracker.setDirty(ChangeTracker.java:37)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

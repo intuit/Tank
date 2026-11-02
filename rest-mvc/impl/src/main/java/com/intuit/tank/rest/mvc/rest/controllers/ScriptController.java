@@ -11,7 +11,6 @@ import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
 import com.intuit.tank.script.models.ScriptDescription;
 import com.intuit.tank.script.models.ScriptDescriptionContainer;
-import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 import com.intuit.tank.rest.mvc.rest.models.PageResponse;
 import com.intuit.tank.rest.mvc.rest.models.ScriptDocument;

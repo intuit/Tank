@@ -6,12 +6,8 @@ package com.intuit.tank.util;
 import java.util.List;
 
 import com.intuit.tank.conversation.Cookie;
-import com.intuit.tank.conversation.Header;
-import com.intuit.tank.conversation.Protocol;
 import com.intuit.tank.conversation.Request;
 import com.intuit.tank.conversation.Response;
-import com.intuit.tank.util.HeaderParser;
-import com.intuit.tank.util.KeyValuePair;
 import com.intuit.tank.util.HeaderParser.HeaderType;
 import com.intuit.tank.test.TestGroups;
 

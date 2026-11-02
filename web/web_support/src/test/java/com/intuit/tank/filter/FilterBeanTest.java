@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.intuit.tank.filter.FilterBean;
 import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptFilterGroup;
 import com.intuit.tank.view.filter.ViewFilterType;

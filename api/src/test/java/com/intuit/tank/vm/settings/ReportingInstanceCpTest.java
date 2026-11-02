@@ -22,7 +22,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
-import com.intuit.tank.vm.settings.ReportingInstance;
 
 /**
  * The class <code>ReportingInstanceCpTest</code> contains tests for the class <code>{@link ReportingInstance}</code>.
@@ -46,16 +45,16 @@ public class ReportingInstanceCpTest {
         ReportingInstance result = new ReportingInstance(config, defaultInstance);
 
         assertNotNull(result);
-        assertEquals(null, result.getZone());
-        assertEquals(false, result.getReuseInstances());
-        assertEquals(false, result.isRegionDependent());
-        assertEquals(null, result.getReportingMode());
-        assertEquals(null, result.getAmi());
-        assertEquals(null, result.getPublicIp());
-        assertEquals(null, result.getLocation());
-        assertEquals(null, result.getSecurityGroup());
-//        assertEquals(null, result.getSubnetIds().get(0));
-        assertEquals(null, result.getKeypair());
+        assertNull(result.getZone());
+        assertFalse(result.getReuseInstances());
+        assertFalse(result.isRegionDependent());
+        assertNull(result.getReportingMode());
+        assertNull(result.getAmi());
+        assertNull(result.getPublicIp());
+        assertNull(result.getLocation());
+        assertNull(result.getSecurityGroup());
+//        assertNull(result.getSubnetIds().get(0));
+        assertNull(result.getKeypair());
     }
 
     /**
@@ -117,7 +116,7 @@ public class ReportingInstanceCpTest {
 
         String result = fixture.getReportingMode();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -135,7 +134,7 @@ public class ReportingInstanceCpTest {
 
         String result = fixture.getReportingMode();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -153,7 +152,7 @@ public class ReportingInstanceCpTest {
 
         boolean result = fixture.getReuseInstances();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -171,7 +170,7 @@ public class ReportingInstanceCpTest {
 
         boolean result = fixture.getReuseInstances();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -189,7 +188,7 @@ public class ReportingInstanceCpTest {
 
         String result = fixture.getZone();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -207,7 +206,7 @@ public class ReportingInstanceCpTest {
 
         boolean result = fixture.isRegionDependent();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -225,7 +224,7 @@ public class ReportingInstanceCpTest {
 
         boolean result = fixture.isRegionDependent();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

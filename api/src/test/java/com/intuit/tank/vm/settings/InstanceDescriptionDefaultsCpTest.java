@@ -44,11 +44,11 @@ public class InstanceDescriptionDefaultsCpTest {
         InstanceDescriptionDefaults result = new InstanceDescriptionDefaults(config, defaultInstance);
 
         assertNotNull(result);
-        assertEquals(null, result.getZone());
-        assertEquals(null, result.getLocation());
-        assertEquals(null, result.getSecurityGroup());
-//        assertEquals(null, result.getSubnetIds().get(0));
-        assertEquals(null, result.getKeypair());
+        assertNull(result.getZone());
+        assertNull(result.getLocation());
+        assertNull(result.getSecurityGroup());
+//        assertNull(result.getSubnetIds().get(0));
+        assertNull(result.getKeypair());
     }
 
     /**
@@ -67,7 +67,7 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.get(key);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -86,7 +86,7 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.get(key);
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -104,7 +104,7 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.getKeypair();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -122,7 +122,7 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.getLocation();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -140,7 +140,7 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.getSecurityGroup();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
 
@@ -223,6 +223,6 @@ public class InstanceDescriptionDefaultsCpTest {
 
         String result = fixture.getZone();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 }

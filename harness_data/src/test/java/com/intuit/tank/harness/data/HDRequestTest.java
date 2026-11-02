@@ -21,9 +21,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.HDRequest;
-import com.intuit.tank.harness.data.Header;
-
 /**
  * The class <code>HDRequestTest</code> contains tests for the class <code>{@link HDRequest}</code>.
  * 

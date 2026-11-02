@@ -1,6 +1,7 @@
 package com.intuit.tank.httpclientjdk;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 
@@ -164,7 +165,7 @@ public class TankHttpClientJDKTest {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
@@ -527,7 +528,7 @@ public class TankHttpClientJDKTest {
 
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
-            URL u = new URL(url);
+            URL u = URI.create(url).toURL();
             client.setHttpClient(null);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());
