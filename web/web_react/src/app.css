@@ -1563,11 +1563,20 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.region-table td:nth-child(2) {
+/* a region spans its zones' rows */
+.region-table tbody th.region-name {
+  vertical-align: top;
+}
+
+.region-table tbody th:not(.region-name) {
+  font-weight: 600;
+}
+
+.region-table .region-states-col {
   width: 30%;
 }
 
-.region-table td:nth-child(4) {
+.region-table .region-tps-col {
   width: 22%;
 }
 

@@ -86,7 +86,7 @@ public class JobEventSenderTest {
                 "sg-test",
                 jobStatus,
                 VMImageType.AGENT,
-                VMRegion.US_WEST_2,
+                VMRegion.US_WEST_2, null,
                 vmStatus,
                 new ValidationStatus(),
                 100,

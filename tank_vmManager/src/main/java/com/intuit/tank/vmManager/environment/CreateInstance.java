@@ -63,7 +63,8 @@ public class CreateInstance implements Runnable {
      */
     private CloudVmStatus createCloudStatus(VMInstanceRequest req, VMInformation info) {
         return new CloudVmStatus(info.getInstanceId(), req.getJobId(), "unknown", JobStatus.Starting,
-                VMImageType.AGENT, req.getRegion(), VMStatus.starting, new ValidationStatus(), 0, 0, null, null);
+                VMImageType.AGENT, req.getRegion(), info.getZone(), VMStatus.starting, new ValidationStatus(), 0, 0,
+                null, null);
     }
 
     /**

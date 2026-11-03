@@ -80,6 +80,9 @@ public class AmazonDataConverter {
         info.setPublicIp(instance.publicIpAddress());
         info.setState(instance.state().nameAsString());
         info.setSize(instance.instanceTypeAsString());
+        if (instance.placement() != null) {
+            info.setZone(instance.placement().availabilityZone());
+        }
         return info;
     }
 
