@@ -1,3 +1,20 @@
+# 4.6.16 (Tue Nov 03 2026)
+
+#### 🐛 Bug Fix
+
+- Agent Tracker: keep the timeline to its window; break out Regions by availability zone [#555](https://github.com/intuit/Tank/pull/555) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Record the caller on X-Ray traces for REST calls [#558](https://github.com/intuit/Tank/pull/558) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Add script-engines profile for Groovy and JRuby runtimes [#560](https://github.com/intuit/Tank/pull/560) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.15 (Tue Nov 03 2026)
 
 #### 🐛 Bug Fix
