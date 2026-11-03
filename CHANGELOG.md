@@ -1,3 +1,19 @@
+# 4.6.15 (Tue Nov 03 2026)
+
+#### 🐛 Bug Fix
+
+- Remove unused Maven dependencies [#557](https://github.com/intuit/Tank/pull/557) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Agent Debugger: use RSyntaxTextArea from Maven instead of a vendored copy [#556](https://github.com/intuit/Tank/pull/556) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.14 (Mon Nov 02 2026)
 
 #### 🐛 Bug Fix
