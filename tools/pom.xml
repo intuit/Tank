@@ -41,6 +41,16 @@
         <module>script_filter_pkg</module>
       </modules>
     </profile>
+    <profile>
+      <!-- Builds the script runner with the Groovy and JRuby script engines bundled -->
+      <id>script-engines</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>script_filter_pkg</module>
+      </modules>
+    </profile>
   </profiles>
 
 </project>
