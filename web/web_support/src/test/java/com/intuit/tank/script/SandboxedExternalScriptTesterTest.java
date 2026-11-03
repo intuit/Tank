@@ -12,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SandboxedExternalScriptTesterTest {
 
-    private final SandboxedExternalScriptTester tester = new SandboxedExternalScriptTester();
+    private static final long TIME_LIMIT_MS = 2_000;
+    private final SandboxedExternalScriptTester tester = new SandboxedExternalScriptTester(TIME_LIMIT_MS);
 
     private static ScriptTO script() {
         List<ScriptStepTO> steps = new ArrayList<>();
@@ -68,7 +69,7 @@ class SandboxedExternalScriptTesterTest {
         Run run = tester.run("filter.js", "ioBean.println('before'); while (true) {}", script());
         assertTrue(run.timedOut());
         // the wait and the clock may round differently by a few milliseconds
-        assertTrue(run.durationMs() >= SandboxedExternalScriptTester.TIME_LIMIT_MS - 20, "waited " + run.durationMs() + " ms");
+        assertTrue(run.durationMs() >= TIME_LIMIT_MS - 20, "waited " + run.durationMs() + " ms");
         assertTrue(run.output().contains("before"), "partial output is returned: " + run.output());
         assertTrue(run.output().contains("did not finish"), run.output());
     }

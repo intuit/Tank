@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SandboxedExternalScriptTester implements ExternalScriptTester {
 
     private static final Logger LOG = LogManager.getLogger(SandboxedExternalScriptTester.class);
-    static final long TIME_LIMIT_MS = 5_000;
+    static final long TIME_LIMIT_MS = 60_000;
     static final int MAX_RUNNING = 2;
     private static final String MODELS_PACKAGE = "com.intuit.tank.script.models.";
     private static final Set<String> ALLOWED_CLASSES = Set.of("java.util.ArrayList", "java.util.LinkedList",
@@ -53,6 +53,16 @@ public class SandboxedExternalScriptTester implements ExternalScriptTester {
     static final ClassFilter CLASS_FILTER = name -> name.startsWith(MODELS_PACKAGE) || ALLOWED_CLASSES.contains(name);
 
     private final Semaphore running = new Semaphore(MAX_RUNNING);
+    private final long timeLimitMs;
+
+    public SandboxedExternalScriptTester() {
+        this(TIME_LIMIT_MS);
+    }
+
+    /** For tests, which should not wait a full minute for a script that never ends. */
+    SandboxedExternalScriptTester(long timeLimitMs) {
+        this.timeLimitMs = timeLimitMs;
+    }
 
     @Override
     public Run run(String name, String code, ScriptTO script) {
@@ -72,7 +82,7 @@ public class SandboxedExternalScriptTester implements ExternalScriptTester {
         worker.setDaemon(true);
         worker.start();
         try {
-            worker.join(TIME_LIMIT_MS);
+            worker.join(timeLimitMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -80,8 +90,8 @@ public class SandboxedExternalScriptTester implements ExternalScriptTester {
         if (worker.isAlive()) {
             worker.interrupt();
             LOG.warn("External script test did not finish within {} ms; its thread keeps running until the script ends",
-                    TIME_LIMIT_MS);
-            return new Run(snapshot(output) + "\nStopped waiting after " + TIME_LIMIT_MS
+                    timeLimitMs);
+            return new Run(snapshot(output) + "\nStopped waiting after " + timeLimitMs
                     + " ms: the script did not finish.", true, duration);
         }
         return new Run(finalOutput.get(), false, duration);

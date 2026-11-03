@@ -326,7 +326,7 @@ function TestPanel({
       <h2 className="form-section">Test it</h2>
       <p className="field-help">
         Runs the script as edited against a copy of a script's steps, and shows what it printed and which steps it
-        changed. Nothing is saved. Tests run for at most 5 seconds and can use only the script classes
+        changed. Nothing is saved. Tests run for at most 1 minute and can use only the script classes
         (com.intuit.tank.script.models) and Java collections.
       </p>
       <div className="tab-toolbar">

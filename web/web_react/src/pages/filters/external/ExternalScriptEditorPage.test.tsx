@@ -125,7 +125,7 @@ describe('external script editor', () => {
       handlers({
         'POST /v2/scripts/external/test': () => ({
           status: 200,
-          body: { output: 'before\nStopped waiting after 5000 ms: the script did not finish.', timedOut: true, durationMs: 5000, changes: [] },
+          body: { output: 'before\nStopped waiting after 60000 ms: the script did not finish.', timedOut: true, durationMs: 60000, changes: [] },
         }),
       }),
     );
