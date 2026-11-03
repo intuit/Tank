@@ -65,16 +65,6 @@
       <artifactId>netty-nio-client</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>serializer</artifactId>
-    </dependency>
-
     <!-- Jetty 12 WebSocket client for controller-initiated agent file push -->
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>
