@@ -7,8 +7,10 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.scripts;
 
+import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
+import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptFilter;
@@ -17,9 +19,12 @@ import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.ClientException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
 import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestRequest;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestResult;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestResult;
 import com.intuit.tank.rest.mvc.rest.models.ScriptValidation;
@@ -33,6 +38,7 @@ import com.intuit.tank.rest.mvc.rest.util.ScriptFilterUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.ScriptConstants;
 import com.intuit.tank.script.models.ScriptStepTO;
+import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.vm.settings.AccessRight;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.AfterEach;
@@ -70,6 +76,7 @@ class ScriptDraftServiceV2ImplTest {
     private AutoCloseable mocks;
     private final List<AutoCloseable> closeables = new ArrayList<>();
     private final LogicStepTester tester = mock(LogicStepTester.class);
+    private final ExternalScriptTester externalTester = mock(ExternalScriptTester.class);
 
     @BeforeEach
     void setUp() {
@@ -77,7 +84,10 @@ class ScriptDraftServiceV2ImplTest {
         useConfig(true, Map.of(AccessRight.EDIT_SCRIPT, List.of("editors")));
         actAs(user("alice", "editors"));
         closeables.add(Mockito.mockConstruction(ServletInjector.class, (injector, ctx) ->
-                when(injector.getManagedBean(eq(servletContext), eq(LogicStepTester.class))).thenReturn(tester)));
+        {
+            when(injector.getManagedBean(eq(servletContext), eq(LogicStepTester.class))).thenReturn(tester);
+            when(injector.getManagedBean(eq(servletContext), eq(ExternalScriptTester.class))).thenReturn(externalTester);
+        }));
     }
 
     @AfterEach
@@ -90,6 +100,10 @@ class ScriptDraftServiceV2ImplTest {
     }
 
     private static ScriptStepTO request(String uuid, String host, String headerValue) {
+        return ScriptServiceUtil.scriptStepToTransferObject(step(uuid, host, headerValue));
+    }
+
+    private static ScriptStep step(String uuid, String host, String headerValue) {
         ScriptStep step = new ScriptStep();
         step.setUuid(uuid);
         step.setType(ScriptConstants.REQUEST);
@@ -99,7 +113,7 @@ class ScriptDraftServiceV2ImplTest {
         Set<RequestData> headers = new HashSet<>();
         headers.add(new RequestData("X-Env", headerValue, "requestHeader"));
         step.setRequestheaders(headers);
-        return ScriptServiceUtil.scriptStepToTransferObject(step);
+        return step;
     }
 
     private static List<ScriptStepTO> steps() {
@@ -278,6 +292,102 @@ class ScriptDraftServiceV2ImplTest {
         ClientException busy = assertThrows(ClientException.class, () -> service.testLogic(
                 new LogicTestRequest(null, "log('x')", null, null, null, null, null)));
         assertEquals(429, busy.getStatusCode());
+    }
+
+    // external script test
+
+    private static ExternalScriptTestRequest externalTest(Integer externalScriptId, Integer scriptId) {
+        return new ExternalScriptTestRequest(externalScriptId, scriptId, "filter.js", "ioBean.println('x')");
+    }
+
+    /** alice, in editors, may create scripts */
+    private static void editorsMayCreate() {
+        useConfig(true, Map.of(AccessRight.CREATE_SCRIPT, List.of("editors"), AccessRight.EDIT_SCRIPT, List.of("editors")));
+    }
+
+    /** Script 5, with steps a, b and c */
+    private static MockedConstruction<ScriptDao> scriptDao() {
+        Script script = new Script();
+        script.setId(5);
+        script.setName("checkout");
+        script.setScriptSteps(new ArrayList<>(List.of(step("a", "qa.example.com", "qa"),
+                step("b", "cdn.example.com", "qa"), step("c", "qa.example.com", "qa"))));
+        return Mockito.mockConstruction(ScriptDao.class,
+                (mock, ctx) -> when(mock.findById(anyInt())).thenAnswer(i -> i.<Integer>getArgument(0) == 5 ? script : null));
+    }
+
+    @Test
+    void externalTest_reportsWhatTheScriptChanged() {
+        editorsMayCreate();
+        when(externalTester.run(eq("filter.js"), eq("ioBean.println('x')"), any())).thenAnswer(i -> {
+            ScriptTO script = i.getArgument(2);
+            List<ScriptStepTO> steps = new ArrayList<>(script.getSteps());
+            steps.remove(1);
+            steps.set(1, steps.get(1).toBuilder().withHostname("prod.example.com").build());
+            steps.add(ScriptStepTO.builder().withType(ScriptConstants.THINK_TIME).withName("pause").build());
+            script.setSteps(steps);
+            return new ExternalScriptTester.Run("x", false, 4);
+        });
+        try (MockedConstruction<ScriptDao> dao = scriptDao()) {
+            ExternalScriptTestResult result = service.testExternalScript(externalTest(null, 5));
+            assertEquals("x", result.output());
+            assertFalse(result.timedOut());
+            assertEquals(3, result.stepsBefore());
+            assertEquals(3, result.stepsAfter());
+            assertEquals(1, result.added());
+            assertEquals(1, result.removed());
+            assertEquals(1, result.changed());
+            assertEquals(List.of("changed@1", "added@2", "removed@1"),
+                    result.changes().stream().map(c -> c.kind() + "@" + c.position()).toList());
+            assertEquals(ScriptConstants.THINK_TIME, result.changes().get(1).type());
+        }
+    }
+
+    @Test
+    void externalTest_aScriptThatTimesOutReportsNoChanges() {
+        editorsMayCreate();
+        when(externalTester.run(any(), any(), any())).thenReturn(new ExternalScriptTester.Run("partial", true, 5000));
+        try (MockedConstruction<ScriptDao> dao = scriptDao()) {
+            ExternalScriptTestResult result = service.testExternalScript(externalTest(null, 5));
+            assertTrue(result.timedOut());
+            assertEquals("partial", result.output());
+            assertEquals(0, result.stepsBefore());
+            assertTrue(result.changes().isEmpty());
+        }
+    }
+
+    @Test
+    void externalTest_needsTheRightToSaveTheExternalScript() {
+        editorsMayCreate();
+        actAs(user("bob"));
+        ExternalScript bobs = new ExternalScript();
+        bobs.setCreator("bob");
+        when(externalTester.run(any(), any(), any())).thenReturn(new ExternalScriptTester.Run("x", false, 4));
+        try (MockedConstruction<ScriptDao> dao = scriptDao();
+             MockedConstruction<ExternalScriptDao> externalDao = Mockito.mockConstruction(ExternalScriptDao.class,
+                     (mock, ctx) -> when(mock.findById(anyInt())).thenAnswer(i -> i.<Integer>getArgument(0) == 7 ? bobs : null))) {
+            assertEquals("x", service.testExternalScript(externalTest(7, 5)).output());
+            assertThrows(GenericServiceForbiddenAccessException.class, () -> service.testExternalScript(externalTest(null, 5)));
+        }
+        verify(externalTester, times(1)).run(any(), any(), any());
+    }
+
+    @Test
+    void externalTest_limits() {
+        editorsMayCreate();
+        assertThrows(GenericServiceBadRequestException.class, () -> service.testExternalScript(
+                new ExternalScriptTestRequest(null, 5, "filter.js", " ")));
+        assertThrows(GenericServiceBadRequestException.class, () -> service.testExternalScript(new ExternalScriptTestRequest(
+                null, 5, "filter.js", "x".repeat(ScriptDraftServiceV2Impl.MAX_EXTERNAL_SCRIPT_LENGTH + 1))));
+        assertThrows(GenericServiceBadRequestException.class, () -> service.testExternalScript(
+                new ExternalScriptTestRequest(null, 5, "filter.groovy", "println 'x'")));
+        assertThrows(GenericServiceBadRequestException.class, () -> service.testExternalScript(externalTest(null, null)));
+        try (MockedConstruction<ScriptDao> dao = scriptDao()) {
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.testExternalScript(externalTest(null, 6)));
+            when(externalTester.run(any(), any(), any())).thenThrow(new IllegalStateException("busy"));
+            ClientException busy = assertThrows(ClientException.class, () -> service.testExternalScript(externalTest(null, 5)));
+            assertEquals(429, busy.getStatusCode());
+        }
     }
 
     @Test

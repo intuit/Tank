@@ -19,6 +19,8 @@ import com.intuit.tank.rest.mvc.rest.models.NewScriptRequest;
 import com.intuit.tank.rest.mvc.rest.models.BulkDeleteResult;
 import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestRequest;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestResult;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestResult;
 import com.intuit.tank.rest.mvc.rest.models.ScriptValidation;
@@ -273,6 +275,21 @@ public class ScriptController {
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @RequestMapping(value = "/external/test", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE })
+    @Operation(description = "Runs a JavaScript external script against a copy of a script's steps, in a sandbox "
+            + "with a 5 second limit, and returns what it printed and which steps it added, removed or changed. "
+            + "Nothing is saved", summary = "Test an external script")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns the output and step changes; timedOut is true if the script did not finish"),
+            @ApiResponse(responseCode = "400", description = "No script, a script over 256 KB, a name not ending in .js, or no scriptId", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Needs CREATE_SCRIPT, or EDIT_SCRIPT or ownership of externalScriptId", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No script with scriptId", content = @Content),
+            @ApiResponse(responseCode = "429", description = "Too many tests are running", content = @Content)
+    })
+    public ResponseEntity<ExternalScriptTestResult> testExternalScript(@RequestBody ExternalScriptTestRequest request) {
+        return ResponseEntity.ok(scriptDraftService.testExternalScript(request));
     }
 
     @RequestMapping(method = RequestMethod.GET, params = "page")

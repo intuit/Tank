@@ -9,6 +9,8 @@ package com.intuit.tank.rest.mvc.rest.services.scripts;
 
 import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestRequest;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestResult;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestResult;
 import com.intuit.tank.rest.mvc.rest.models.ScriptValidation;
@@ -38,4 +40,11 @@ public interface ScriptDraftServiceV2 {
      * once. Needs {@code EDIT_SCRIPT} or ownership of {@code request.scriptId()}.
      */
     LogicTestResult testLogic(LogicTestRequest request);
+
+    /**
+     * Runs an external script against a copy of a saved script's steps, in a sandbox, and reports what it
+     * changed. Nothing is saved. Needs the right to save the external script: {@code CREATE_SCRIPT}, or
+     * {@code EDIT_SCRIPT} or ownership when {@code request.externalScriptId()} is saved.
+     */
+    ExternalScriptTestResult testExternalScript(ExternalScriptTestRequest request);
 }

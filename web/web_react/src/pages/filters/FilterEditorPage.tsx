@@ -297,6 +297,9 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
             />
           </Field>
           {externalScripts.error && <Message severity="error" text={externalScripts.error.message} />}
+          <p className="field-help">
+            <Link to="/filters/external">Write or test external scripts</Link>
+          </p>
         </div>
       ) : (
         <>

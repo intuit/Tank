@@ -78,6 +78,18 @@ export const routes: RouteObject[] = [
             lazy: async () => ({ Component: (await import('./pages/filters/FiltersPage')).FiltersPage }),
           },
           {
+            path: 'filters/external',
+            lazy: async () => ({
+              Component: (await import('./pages/filters/external/ExternalScriptsPage')).ExternalScriptsPage,
+            }),
+          },
+          {
+            path: 'filters/external/:externalScriptId',
+            lazy: async () => ({
+              Component: (await import('./pages/filters/external/ExternalScriptEditorPage')).ExternalScriptEditorPage,
+            }),
+          },
+          {
             path: 'filters/groups/:groupId',
             lazy: async () => ({
               Component: (await import('./pages/filters/FilterGroupEditorPage')).FilterGroupEditorPage,
