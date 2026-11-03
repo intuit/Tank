@@ -18,6 +18,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
@@ -307,5 +309,49 @@ public class RestSecurityFilterTest {
 
         verify(response).setStatus(HttpServletResponse.SC_FORBIDDEN);
         verify(chain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    public void testDoFilter_SessionUser_SetsUserOnXRaySegment() throws IOException, ServletException {
+        when(tankConfig.isRestSecurityEnabled()).thenReturn(true);
+        givenSessionUser("alice", Set.of());
+        Segment segment = AWSXRay.beginSegment("test-segment");
+        try {
+            filter.doFilter(request, response, chain);
+
+            assertEquals("alice", segment.getUser());
+        } finally {
+            AWSXRay.endSegment();
+        }
+    }
+
+    @Test
+    public void testDoFilter_UserApiToken_SetsUserOnXRaySegment() throws IOException, ServletException {
+        when(tankConfig.isRestSecurityEnabled()).thenReturn(true);
+        when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer user-api-token");
+        User user = new User();
+        user.setName("bob");
+        when(userDao.findByApiToken("user-api-token")).thenReturn(user);
+        Segment segment = AWSXRay.beginSegment("test-segment");
+        try {
+            filter.doFilter(request, response, chain);
+
+            assertEquals("bob", segment.getUser());
+        } finally {
+            AWSXRay.endSegment();
+        }
+    }
+
+    @Test
+    public void testDoFilter_Anonymous_LeavesXRaySegmentUserUnset() throws IOException, ServletException {
+        when(tankConfig.isRestSecurityEnabled()).thenReturn(true);
+        Segment segment = AWSXRay.beginSegment("test-segment");
+        try {
+            filter.doFilter(request, response, chain);
+
+            assertNull(segment.getUser());
+        } finally {
+            AWSXRay.endSegment();
+        }
     }
 }
