@@ -19,6 +19,16 @@
     <module>agent_debugger</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fifesoft</groupId>
+        <artifactId>rsyntaxtextarea</artifactId>
+        <version>4.0.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <profiles>
     <profile>
       <id>release</id>

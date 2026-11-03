@@ -178,7 +178,7 @@ public class PanelBuilder {
     static Component createContentPanel(final AgentDebuggerFrame frame) {
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         pane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        final RSyntaxTextArea scriptEditorTA = new RSyntaxTextArea();
+        final ScriptEditorTextArea scriptEditorTA = new ScriptEditorTextArea();
         frame.setScriptEditorTA(scriptEditorTA);
         scriptEditorTA.setSelectionColor(scriptEditorTA.getCurrentLineHighlightColor());
         scriptEditorTA.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
@@ -219,7 +219,7 @@ public class PanelBuilder {
         frame.setScriptEditorScrollPane(scriptEditorScrollPane);
         scriptEditorScrollPane.setIconRowHeaderEnabled(true);
         scriptEditorScrollPane.getGutter().setBookmarkIcon(ActionProducer.getIcon("bullet_blue.png", IconSize.SMALL));
-        scriptEditorScrollPane.getGutter().setCurrentLineIcon(
+        scriptEditorTA.getIconRowHeader().setCurrentLineIcon(
                 ActionProducer.getIcon("current_line.png", IconSize.SMALL));
         scriptEditorScrollPane.getGutter().setBookmarkingEnabled(true);
         pane.setLeftComponent(scriptEditorScrollPane);
