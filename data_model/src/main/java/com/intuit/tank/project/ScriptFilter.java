@@ -31,6 +31,8 @@ import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 
 import com.intuit.tank.util.ScriptFilterType;
@@ -66,11 +68,13 @@ public class ScriptFilter extends OwnableEntity implements Comparable<ScriptFilt
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(joinColumns = @JoinColumn(name = "filter_id"),
             inverseJoinColumns = @JoinColumn(name = "action_id"))
+    @Fetch(FetchMode.SUBSELECT) // load every filter's set in one query, not one per filter
     private Set<ScriptFilterAction> actions = new HashSet<ScriptFilterAction>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinTable(joinColumns = @JoinColumn(name = "filter_id"),
             inverseJoinColumns = @JoinColumn(name = "condition_id"))
+    @Fetch(FetchMode.SUBSELECT)
     private Set<ScriptFilterCondition> conditions = new HashSet<ScriptFilterCondition>();
 
     public String getName() {
