@@ -782,11 +782,6 @@
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-jackson2</artifactId>
-        <version>${version.spring-boot}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-validation</artifactId>
         <version>${version.spring-boot}</version>
       </dependency>
