@@ -1,3 +1,16 @@
+# 4.6.19 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- Fix script XML parse error and NPEs on not-found paths [#562](https://github.com/intuit/Tank/pull/562) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Use AWS SDK IMDS client in AmazonUtil [#561](https://github.com/intuit/Tank/pull/561) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.18 (Wed Nov 04 2026)
 
 #### 🐛 Bug Fix
