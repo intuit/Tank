@@ -16,8 +16,11 @@ package com.intuit.tank.harness;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
@@ -50,8 +53,22 @@ public class AmazonUtil {
     protected static final String META_DATA = LATEST + "/meta-data";
     /** IMDS endpoint override (null means the SDK default, 169.254.169.254); used by tests. */
     protected static volatile URI endpoint;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {};
+    /** Metadata that cannot change for the lifetime of an instance, so it is safe to cache once read. */
+    private static final Set<CloudMetaDataType> STABLE_META_DATA =
+            EnumSet.of(CloudMetaDataType.zone, CloudMetaDataType.instance_id, CloudMetaDataType.instance_type);
+    private static final Map<CloudMetaDataType, String> META_DATA_CACHE = new ConcurrentHashMap<>();
+    /** Only set after a successful, non-empty read; the user data is absent while the AMI is being baked. */
+    private static volatile Map<String, String> userDataCache;
     private static Ec2MetadataClient client;
     private static URI clientEndpoint;
+
+    /** Drops cached metadata and user data. Intended for tests that change {@link #endpoint}. */
+    protected static void resetCache() {
+        META_DATA_CACHE.clear();
+        userDataCache = null;
+    }
 
     public static VMRegion getVMRegion() {
         try {
@@ -150,7 +167,15 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getMetaData(CloudMetaDataType metaData) throws IOException {
-        return getResponseString(META_DATA + "/" + metaData.getKey());
+        String cached = META_DATA_CACHE.get(metaData);
+        if (cached != null) {
+            return cached;
+        }
+        String value = getResponseString(META_DATA + "/" + metaData.getKey());
+        if (STABLE_META_DATA.contains(metaData)) {
+            META_DATA_CACHE.put(metaData, value);
+        }
+        return value;
     }
 
     /**
@@ -159,10 +184,7 @@ public class AmazonUtil {
      * @return
      */
     public static String getJobId() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_JOB_ID);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : "unknown";
+        return userData(TankConstants.KEY_JOB_ID, "unknown");
     }
 
     /**
@@ -171,10 +193,7 @@ public class AmazonUtil {
      * @return
      */
     public static String getProjectName() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_PROJECT_NAME);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : "unknown";
+        return userData(TankConstants.KEY_PROJECT_NAME, "unknown");
     }
 
     /**
@@ -183,17 +202,11 @@ public class AmazonUtil {
      * @return LoggingProfile
      */
     public static LoggingProfile getLoggingProfile() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_LOGGING_PROFILE);
-        return StringUtils.isNotEmpty(result)
-                ? LoggingProfile.valueOf(result)
-                : LoggingProfile.STANDARD;
+        return LoggingProfile.valueOf(userData(TankConstants.KEY_LOGGING_PROFILE, LoggingProfile.STANDARD.name()));
     }
 
     public static int getCapacity() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_NUM_USERS_PER_AGENT);
-        return StringUtils.isNotEmpty(result)
-                ? Integer.parseInt(result)
-                : 4000;
+        return Integer.parseInt(userData(TankConstants.KEY_NUM_USERS_PER_AGENT, "4000"));
     }
 
     /**
@@ -202,10 +215,7 @@ public class AmazonUtil {
      * @return Stopbehavior
      */
     public static StopBehavior getStopBehavior() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_STOP_BEHAVIOR);
-        return StringUtils.isNotEmpty(result)
-                ? StopBehavior.valueOf(result)
-                : StopBehavior.END_OF_SCRIPT_GROUP;
+        return StopBehavior.valueOf(userData(TankConstants.KEY_STOP_BEHAVIOR, StopBehavior.END_OF_SCRIPT_GROUP.name()));
     }
 
     /**
@@ -223,10 +233,7 @@ public class AmazonUtil {
      * @return
      */
     public static String getControllerBaseUrl() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_CONTROLLER_URL);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : "http://localhost:8080/";
+        return userData(TankConstants.KEY_CONTROLLER_URL, "http://localhost:8080/");
     }
 
     /**
@@ -235,10 +242,7 @@ public class AmazonUtil {
      * @return
      */
     public static String getAgentToken() {
-        String result = getUserDataAsMap().get(TankConstants.KEY_AGENT_TOKEN);
-        return StringUtils.isNotEmpty(result)
-                ? result
-                : "";
+        return userData(TankConstants.KEY_AGENT_TOKEN, "");
     }
 
     /**
@@ -247,15 +251,26 @@ public class AmazonUtil {
      * @return the user data as a Map
      */
     public static Map<String, String> getUserDataAsMap() {
+        Map<String, String> cached = userDataCache;
+        if (cached != null) {
+            return cached;
+        }
         try {
             String userData = getResponseString(USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
-                return new ObjectMapper().readValue(userData, new TypeReference<Map<String, String>>() {});
+                Map<String, String> parsed = Collections.unmodifiableMap(MAPPER.readValue(userData, STRING_MAP));
+                userDataCache = parsed;
+                return parsed;
             }
         } catch (IllegalArgumentException | IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message","Unable to parse tank json: This is normal during the bake process")));
         }
         return Collections.emptyMap();
+    }
+
+    private static String userData(String key, String defaultValue) {
+        String result = getUserDataAsMap().get(key);
+        return StringUtils.isNotEmpty(result) ? result : defaultValue;
     }
 
     private static synchronized Ec2MetadataClient getClient() {
