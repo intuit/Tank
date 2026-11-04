@@ -1,3 +1,15 @@
+# 4.6.17 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: create, edit and test external scripts [#559](https://github.com/intuit/Tank/pull/559) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.16 (Tue Nov 03 2026)
 
 #### 🐛 Bug Fix
