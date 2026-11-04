@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import java.net.URI;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -28,7 +29,7 @@ public class AmazonUtilTest {
 		wireMockServer.start();
 		wireMockServer.resetAll();
 		configureFor("localhost", wireMockServer.port());
-		AmazonUtil.BASE = wireMockServer.baseUrl();
+		AmazonUtil.endpoint = URI.create(wireMockServer.baseUrl());
 	}
 
 	@AfterEach
@@ -52,7 +53,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testIsInAmazon() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.META_DATA + "/placement/availability-zone").willReturn(ok("us-east-2")));
 		boolean inAmazon = AmazonUtil.isInAmazon();
 		assertTrue(inAmazon);
@@ -67,7 +68,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetZone() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.META_DATA + "/placement/availability-zone").willReturn(ok("us-east-2")));
 		String zone = AmazonUtil.getZone();
 		assertNotNull(zone);
@@ -83,7 +84,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetInstanceId() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.META_DATA + "/instance-id").willReturn(ok("i-123456789")));
 		String instanceId = AmazonUtil.getInstanceId();
 		assertNotNull(instanceId);
@@ -128,7 +129,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetControllerBaseUrl() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.USER_DATA).willReturn(okJson("{\"controllerUrl\": \"https://tank.intuit.com:8080/\"}")));
 		String url = AmazonUtil.getControllerBaseUrl();
 		assertNotNull(url);
@@ -144,7 +145,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetUserDataAsMap() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.USER_DATA).willReturn(okJson("{\"jobId\": \"123456\", \"projectName\": \"TestProject\", \"controllerUrl\": \"https://tank.intuit.com:8080/\"}")));
 		Map<String, String> map = AmazonUtil.getUserDataAsMap();
 		assertNotNull(map);
@@ -160,7 +161,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetJobId() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.USER_DATA).willReturn(okJson("{\"jobId\": \"123456\"}")));
 		String jobId = AmazonUtil.getJobId();
 		assertNotNull(jobId);
@@ -176,7 +177,7 @@ public class AmazonUtilTest {
 
 	@Test
 	void testGetProjectName() {
-		stubFor(put(AmazonUtil.TOKEN).willReturn(ok("12346")));
+		stubFor(put("/latest/api/token").willReturn(ok("12346").withHeader("x-aws-ec2-metadata-token-ttl-seconds", "21600")));
 		stubFor(get(AmazonUtil.USER_DATA).willReturn(okJson("{\"projectName\": \"TestProject\"}")));
 		String project = AmazonUtil.getProjectName();
 		assertNotNull(project);

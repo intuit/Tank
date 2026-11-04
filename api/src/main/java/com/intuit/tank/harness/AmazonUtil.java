@@ -15,12 +15,9 @@ package com.intuit.tank.harness;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
@@ -34,6 +31,9 @@ import com.intuit.tank.logging.LoggingProfile;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.message.ObjectMessage;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.imds.Ec2MetadataClient;
+import software.amazon.awssdk.imds.Ec2MetadataRetryPolicy;
 
 /**
  * 
@@ -44,13 +44,14 @@ import org.apache.logging.log4j.message.ObjectMessage;
  */
 public class AmazonUtil {
 
-    private static final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
-
     private static final Logger LOG = LogManager.getLogger(AmazonUtil.class);
-    protected static String BASE = "http://169.254.169.254/latest";
-    protected static String TOKEN = "/api/token";
-    protected static final String USER_DATA = "/user-data";
-    protected static final String META_DATA = "/meta-data";
+    protected static final String LATEST = "/latest";
+    protected static final String USER_DATA = LATEST + "/user-data";
+    protected static final String META_DATA = LATEST + "/meta-data";
+    /** IMDS endpoint override (null means the SDK default, 169.254.169.254); used by tests. */
+    protected static volatile URI endpoint;
+    private static Ec2MetadataClient client;
+    private static URI clientEndpoint;
 
     public static VMRegion getVMRegion() {
         try {
@@ -149,7 +150,7 @@ public class AmazonUtil {
      */
     @Nonnull
     public static String getMetaData(CloudMetaDataType metaData) throws IOException {
-        return getResponseString(BASE + META_DATA + "/" + metaData.getKey());
+        return getResponseString(META_DATA + "/" + metaData.getKey());
     }
 
     /**
@@ -247,7 +248,7 @@ public class AmazonUtil {
      */
     public static Map<String, String> getUserDataAsMap() {
         try {
-            String userData = getResponseString(BASE + USER_DATA);
+            String userData = getResponseString(USER_DATA);
             if (StringUtils.isNotEmpty(userData)) {
                 return new ObjectMapper().readValue(userData, new TypeReference<Map<String, String>>() {});
             }
@@ -257,41 +258,37 @@ public class AmazonUtil {
         return Collections.emptyMap();
     }
 
-    /**
-     * @param url
-     * @return
-     * @throws IOException
-     */
-    private static String getResponseString(String url) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("X-aws-ec2-metadata-token", getToken())
-                .build();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) return response.body();
-        } catch (InterruptedException e) {
-            LOG.error(new ObjectMessage(Map.of("Message","Unable to read userdata/metadata: " + e.getMessage())));
+    private static synchronized Ec2MetadataClient getClient() {
+        URI current = endpoint;
+        if (client == null || !Objects.equals(current, clientEndpoint)) {
+            if (client != null) {
+                client.close();
+            }
+            Ec2MetadataClient.Builder builder = Ec2MetadataClient.builder()
+                    .retryPolicy(Ec2MetadataRetryPolicy.builder().numRetries(0).build());
+            if (current != null) {
+                builder.endpoint(current);
+            }
+            client = builder.build();
+            clientEndpoint = current;
         }
-        throw new IOException("Bad Response From AWS data");
+        return client;
     }
 
     /**
-     * @return
+     * Reads a path from the instance metadata service (IMDSv2 token handling is done by the SDK).
+     *
+     * @param path
+     *            absolute IMDS path, e.g. /latest/meta-data/instance-id
+     * @return the response body
      * @throws IOException
+     *             if the service cannot be reached or returns an error
      */
-    private static String getToken() throws IOException {
-        HttpRequest request = HttpRequest.newBuilder()
-                .PUT(HttpRequest.BodyPublishers.noBody())
-                .uri(URI.create(BASE + TOKEN))
-                .header("X-aws-ec2-metadata-token-ttl-seconds", "60")
-                .build();
+    private static String getResponseString(String path) throws IOException {
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) return response.body();
-        } catch (InterruptedException e) {
-            LOG.error(new ObjectMessage(Map.of("Message","Unable to read token: " + e.getMessage())));
+            return getClient().get(path).asString();
+        } catch (SdkClientException e) {
+            throw new IOException("Bad Response From AWS data: " + e.getMessage(), e);
         }
-        throw new IOException("Bad Response From AWS token");
     }
 }
