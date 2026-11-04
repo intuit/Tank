@@ -23,7 +23,7 @@ import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.auth.TankSecurityContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -138,8 +138,8 @@ public class ProjectBean implements Serializable {
      */
     public void openProject(Project prj) {
     	conversation.begin();
-        AWSXRay.createSubsegment("Open.Project." + prj.getName(), (subsegment) -> {
-            subsegment.putAnnotation("project", prj.getName());
+        Tracing.inSpan("Open.Project." + prj.getName(), () -> {
+            Tracing.annotate("project", prj.getName());
             doOpenProject(prj);
         });
     }
@@ -248,8 +248,8 @@ public class ProjectBean implements Serializable {
      * Saves the Project object in the database.
      */
     public void save() {
-        AWSXRay.createSubsegment("Save.Project." + project.getName(), (subsegment) -> {
-            subsegment.putAnnotation("project", project.getName());
+        Tracing.inSpan("Save.Project." + project.getName(), () -> {
+            Tracing.annotate("project", project.getName());
             doSave();
         });
         messages.info("Project " + project.getName() + " has been saved.");

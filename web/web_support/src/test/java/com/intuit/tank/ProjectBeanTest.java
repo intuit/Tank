@@ -41,7 +41,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.amazonaws.xray.AWSXRay;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -369,7 +368,7 @@ public class ProjectBeanTest {
     }
 
     // -------------------------------------------------------------------------
-    // doSave - directly testable (no AWSXRay wrapper)
+    // doSave - directly testable (no tracing span wrapper)
     // -------------------------------------------------------------------------
 
     @Test
@@ -393,17 +392,12 @@ public class ProjectBeanTest {
     }
 
     // -------------------------------------------------------------------------
-    // save() - requires AWSXRay segment
+    // save() - runs doSave inside a tracing span
     // -------------------------------------------------------------------------
 
     @Test
-    void testSave_WithAWSXRaySegment_CallsDoSave() {
-        AWSXRay.beginSegment("test-project-save");
-        try {
-            projectBean.save();
-        } finally {
-            try { AWSXRay.endSegment(); } catch (Exception ignored) {}
-        }
+    void testSave_CallsDoSave() {
+        projectBean.save();
         verify(usersAndTimes).save();
     }
 
@@ -418,12 +412,7 @@ public class ProjectBeanTest {
         when(securityContext.getCallerPrincipal()).thenReturn(principal);
 
         projectBean.setSaveAsName("DifferentProjectName");
-        AWSXRay.beginSegment("test-save-as");
-        try {
-            projectBean.saveAs();
-        } finally {
-            try { AWSXRay.endSegment(); } catch (Exception ignored) {}
-        }
+        projectBean.saveAs();
         // At minimum, securityContext was consulted for creator name
         verify(securityContext, atLeastOnce()).getCallerPrincipal();
     }
@@ -431,12 +420,7 @@ public class ProjectBeanTest {
     @Test
     void testSaveAs_WhenNameSameAsProject_CallsSave() {
         projectBean.setSaveAsName("TestProject");
-        AWSXRay.beginSegment("test-save-same-name");
-        try {
-            projectBean.saveAs();
-        } finally {
-            try { AWSXRay.endSegment(); } catch (Exception ignored) {}
-        }
+        projectBean.saveAs();
         verify(usersAndTimes).save();
     }
 }

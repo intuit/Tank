@@ -16,8 +16,7 @@ package com.intuit.tank.vmManager.environment;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
+import com.intuit.tank.tracing.Tracing;
 
 import com.intuit.tank.perfManager.workLoads.ControllerInitiatedAgentWsClient;
 import com.intuit.tank.perfManager.workLoads.JobManager;
@@ -136,16 +135,13 @@ public class JobRequest implements Runnable {
         for (VMInformation info : vmInfo) {
             Thread thread = new Thread(() -> {
                 ControllerLoggingConfig.setupThreadContext();
-                // Retries for up to maxConnectWaitMillis, well past the job-start request's segment, so it gets its own
-                Segment segment = AWSXRay.beginSegmentWithSampling("Tank.AgentWsBootstrap");
-                try {
-                    segment.putAnnotation("jobId", String.valueOf(instanceRequest.getJobId()));
-                    segment.putAnnotation("instanceId", info.getInstanceId());
+                // Retries for up to maxConnectWaitMillis, well past the job-start request's span, so it gets its own root span
+                Tracing.inRootSpan("Tank.AgentWsBootstrap", () -> {
+                    Tracing.annotate("jobId", String.valueOf(instanceRequest.getJobId()));
+                    Tracing.annotate("instanceId", info.getInstanceId());
                     connectAndBootstrapAgent(wsClient, instanceRequest, info, token, port,
                             helloTimeoutMillis, transferTimeoutMillis, maxConnectWaitMillis);
-                } finally {
-                    AWSXRay.endSegment();
-                }
+                });
             });
             thread.setName("ControllerInitiatedWsBootstrap-" + info.getInstanceId());
             thread.setDaemon(true);

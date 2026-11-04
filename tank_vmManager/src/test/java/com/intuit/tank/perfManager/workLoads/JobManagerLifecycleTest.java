@@ -50,13 +50,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -118,14 +117,12 @@ public class JobManagerLifecycleTest {
     // ---------------------------------------------------------------- startJob
 
     @Test
-    void startJobRunsTheWorkloadOnASegmentContextExecutor() throws Exception {
+    void startJobRunsTheWorkloadOnATraceContextExecutor() throws Exception {
         JobRequest jobRequest = increasingJob(JOB_ID, region(VMRegion.US_EAST, "1", "100"));
         IncreasingWorkLoad workLoad = stubWorkLoadFactory(jobRequest);
         when(tankConfig.getStandalone()).thenReturn(false);
 
-        try (Segment ignored = AWSXRay.beginSegment("TEST")) {
-            fixture.startJob(Integer.parseInt(JOB_ID));
-        }
+        Tracing.inSpan("TEST", () -> fixture.startJob(Integer.parseInt(JOB_ID)));
 
         verify(workLoad, timeout(5000)).run();
         assertTrue(jobInfoCache().containsKey(JOB_ID));
@@ -645,14 +642,13 @@ public class JobManagerLifecycleTest {
     }
 
     @Test
-    void getInstanceUrlRunsTheAwsLookupInsideTheCallersTraceSegment() {
+    void getInstanceUrlRunsTheAwsLookupInsideTheCallersTrace() {
         stubRegions(VMRegion.US_EAST);
 
         List<String> result;
-        try (Segment ignored = AWSXRay.beginSegment("TEST");
-             MockedConstruction<AmazonInstance> amazon = mockConstruction(AmazonInstance.class,
-                     (mock, context) -> when(mock.findDNSName("i-aws")).thenReturn(Optional.empty()))) {
-            result = fixture.getInstanceUrl(List.of("i-aws"));
+        try (MockedConstruction<AmazonInstance> amazon = mockConstruction(AmazonInstance.class,
+                (mock, context) -> when(mock.findDNSName("i-aws")).thenReturn(Optional.empty()))) {
+            result = Tracing.inSpan("TEST", () -> fixture.getInstanceUrl(List.of("i-aws")));
         }
 
         assertTrue(result.isEmpty());

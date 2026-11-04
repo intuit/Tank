@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.tools.script.LoggingOutputLogger;
 import com.intuit.tank.util.ScriptFilterType;
 import com.intuit.tank.vm.api.enumerated.ScriptFilterActionType;
@@ -116,9 +115,7 @@ public class ScriptFilterUtilTest {
         step.setPostDatas(requestDataHashSet);
         script.addStep(step);
 
-        AWSXRay.beginSegment("test");
         ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
-        AWSXRay.endSegment();
     }
 
     @ParameterizedTest
@@ -148,9 +145,7 @@ public class ScriptFilterUtilTest {
         step.setPostDatas(requestDataHashSet);
         script.addStep(step);
 
-        AWSXRay.beginSegment("test");
         ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
-        AWSXRay.endSegment();
     }
 
     @ParameterizedTest
@@ -181,9 +176,7 @@ public class ScriptFilterUtilTest {
         step.setResponseData(requestDataHashSet);
         script.addStep(step);
 
-        AWSXRay.beginSegment("test");
         ScriptFilterUtil.applyFiltersToScript(List.of(filter), script);
-        AWSXRay.endSegment();
     }
 
     @Test

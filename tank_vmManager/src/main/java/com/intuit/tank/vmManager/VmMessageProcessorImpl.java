@@ -16,7 +16,6 @@ package com.intuit.tank.vmManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.vm.vmManager.*;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +25,6 @@ import com.intuit.tank.vmManager.environment.CreateInstance;
 import com.intuit.tank.vmManager.environment.JobRequest;
 import com.intuit.tank.vmManager.environment.KillInstance;
 
-import java.util.Objects;
 
 /**
  * 
@@ -54,14 +52,14 @@ public class VmMessageProcessorImpl implements VmMessageProcessor {
         if (messageObject instanceof VMInstanceRequest) {
             logger.debug("vmManager received VMInstanceRequest");
             CreateInstance instance = new CreateInstance((VMInstanceRequest) messageObject, vmTracker);
-            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
+            instance.run();
         } else if (messageObject instanceof VMJobRequest) {
             JobRequest instance = new JobRequest((VMJobRequest) messageObject, vmTracker, jobManager);
-            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
+            instance.run();
         } else if (messageObject instanceof VMKillRequest) {
             logger.debug("vmManager received VMKillRequest");
             KillInstance instance = new KillInstance((VMKillRequest) messageObject);
-            Objects.requireNonNull(AWSXRay.getGlobalRecorder().getTraceEntity()).run(instance);
+            instance.run();
         } else if (messageObject instanceof VMUpdateStateRequest) {
             logger.debug("vmManager received VMUpdateStateRequest");
             // UpdateInstances instance = new UpdateInstances((VMUpdateStateRequest) messageObject);

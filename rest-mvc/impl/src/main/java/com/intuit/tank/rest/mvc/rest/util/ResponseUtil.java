@@ -16,7 +16,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNo
 import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -45,8 +45,7 @@ public class ResponseUtil {
     }
 
     public static StreamingResponseBody getXMLStream(Object toMarshall) {
-        return (OutputStream outputStream) -> {
-            AWSXRay.beginSubsegment("JAXB.Marshal." + toMarshall.getClass().getSimpleName());
+        return (OutputStream outputStream) -> Tracing.inSpan("JAXB.Marshal." + toMarshall.getClass().getSimpleName(), () -> {
             try {
                 JAXBContext ctx;
                 if (toMarshall instanceof ScriptTO) {
@@ -62,10 +61,8 @@ public class ResponseUtil {
             } catch (JAXBException e) {
                 LOG.error("Error Marshalling XML to Stream: " + e.toString(), e);
                 throw new GenericServiceResourceNotFoundException("ResponseUtil", "harness or tank script file", e);
-            } finally {
-                AWSXRay.endSubsegment();
             }
-        };
+        });
     }
 
     public static void storeScript(String jobId, Workload workload, JobInstance job) {
