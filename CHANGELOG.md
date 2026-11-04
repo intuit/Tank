@@ -1,3 +1,15 @@
+# 4.6.18 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- Move controller tracing from the X-Ray SDK to OpenTelemetry (ADOT) [#548](https://github.com/intuit/Tank/pull/548) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.17 (Wed Nov 04 2026)
 
 #### 🐛 Bug Fix
