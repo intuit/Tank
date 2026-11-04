@@ -1,6 +1,6 @@
 package com.intuit.tank.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -143,8 +143,8 @@ public class JobCreationIT {
 
             int uiJobId = api.findJobIdByName(uiJobName);
             JsonNode uiJob = api.getJob(uiJobId);
-            assertEquals(uiJobName, uiJob.get("name").asText());
-            assertEquals("Created", uiJob.get("status").asText());
+            assertEquals(uiJobName, uiJob.get("name").asString());
+            assertEquals("Created", uiJob.get("status").asString());
 
             TankApiClient.PersistedJobConfiguration uiConfig =
                     api.queryJobConfiguration(uiJobId);
@@ -192,8 +192,8 @@ public class JobCreationIT {
 
         JsonNode job = api.getJob(created.jobId());
         assertEquals(created.jobId(), job.get("id").asInt());
-        assertEquals(jobName, job.get("name").asText());
-        assertEquals("Created", job.get("status").asText());
+        assertEquals(jobName, job.get("name").asString());
+        assertEquals("Created", job.get("status").asString());
         return job;
     }
 

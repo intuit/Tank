@@ -7,8 +7,8 @@
  */
 package com.intuit.tank.rest.mvc;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.intuit.tank.rest.mvc.rest.controllers.AdminController;
 import com.intuit.tank.rest.mvc.rest.controllers.AgentController;
 import com.intuit.tank.rest.mvc.rest.controllers.AuthController;
@@ -115,13 +115,13 @@ public class OpenApiSpecExportTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
 
-        JsonNode paths = new ObjectMapper().readTree(spec).path("paths");
+        JsonNode paths = JsonMapper.builder().build().readTree(spec).path("paths");
         assertTrue(paths.has("/v2/auth/login"), "spec is missing the session endpoints");
         assertTrue(paths.has("/v2/me") && paths.has("/v2/jobs/tree") && paths.has("/v2/tools/debugger"),
                 "spec is missing controllers: only " + paths.size() + " paths");
 
         // the paged list forms (PagedListsOpenApiCustomizer)
-        JsonNode root = new ObjectMapper().readTree(spec);
+        JsonNode root = JsonMapper.builder().build().readTree(spec);
         for (String[] list : new String[][] { { "/v2/projects", "ProjectSummary" }, { "/v2/scripts", "ScriptSummary" },
                 { "/v2/datafiles", "DataFileSummary" } }) {
             JsonNode get = paths.path(list[0]).path("get");
@@ -130,7 +130,7 @@ public class OpenApiSpecExportTest {
             assertTrue(oneOf.contains("#/components/schemas/PageResponse" + list[1]), list[0] + ": " + oneOf);
             assertTrue(root.path("components").path("schemas").has("PageResponse" + list[1]), list[1]);
             for (JsonNode parameter : get.path("parameters")) {
-                if ("page".equals(parameter.path("name").asText())) {
+                if ("page".equals(parameter.path("name").asString())) {
                     assertFalse(parameter.path("required").asBoolean(), list[0] + " page must be optional");
                 }
             }
@@ -151,7 +151,7 @@ public class OpenApiSpecExportTest {
                     errorResponses++;
                     JsonNode content = response.getValue().path("content");
                     String where = operation.getKey() + " " + path.getKey() + " " + response.getKey();
-                    assertTrue(content.path("application/json").path("schema").path("$ref").asText()
+                    assertTrue(content.path("application/json").path("schema").path("$ref").asString()
                             .endsWith("/ErrorResponse"), where + ": " + content);
                     assertTrue(content.has("text/plain"), where + " can also answer with a plain message");
                 }
