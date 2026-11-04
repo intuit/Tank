@@ -442,5 +442,11 @@ public class ScriptControllerTest {
         var output = new com.intuit.tank.rest.mvc.rest.models.LogicTestResult("1", false, 2);
         when(scriptDraftService.testLogic(logic)).thenReturn(output);
         assertSame(output, scriptController.testLogicStep(logic).getBody());
+
+        var external = new com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestRequest(null, 5, "f.js", "x");
+        var externalResult = new com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestResult("1", false, 2, 3, 3, 0, 0, 0,
+                java.util.List.of());
+        when(scriptDraftService.testExternalScript(external)).thenReturn(externalResult);
+        assertSame(externalResult, scriptController.testExternalScript(external).getBody());
     }
 }

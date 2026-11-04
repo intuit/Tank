@@ -1831,6 +1831,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/scripts/external/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Test an external script
+         * @description Runs a JavaScript external script against a copy of a script's steps, in a sandbox with a 5 second limit, and returns what it printed and which steps it added, removed or changed. Nothing is saved
+         */
+        post: operations["testExternalScript"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/scripts/external/{externalScriptId}": {
         parameters: {
             query?: never;
@@ -2525,6 +2545,31 @@ export interface components {
             productName?: string;
             script?: string;
         };
+        ExternalScriptTestRequest: {
+            /** Format: int32 */
+            externalScriptId?: number;
+            name?: string;
+            script?: string;
+            /** Format: int32 */
+            scriptId?: number;
+        };
+        ExternalScriptTestResult: {
+            /** Format: int32 */
+            added?: number;
+            /** Format: int32 */
+            changed?: number;
+            changes?: components["schemas"]["StepChange"][];
+            /** Format: int64 */
+            durationMs?: number;
+            output?: string;
+            /** Format: int32 */
+            removed?: number;
+            /** Format: int32 */
+            stepsAfter?: number;
+            /** Format: int32 */
+            stepsBefore?: number;
+            timedOut?: boolean;
+        };
         Failures: {
             /** Format: int32 */
             aborts?: number;
@@ -3046,6 +3091,13 @@ export interface components {
             /** Format: int32 */
             userIntervalIncrement?: number;
             vmInstanceType?: string;
+        };
+        StepChange: {
+            kind?: string;
+            label?: string;
+            /** Format: int32 */
+            position?: number;
+            type?: string;
         };
         StepDataTO: {
             key?: string;
@@ -7078,6 +7130,70 @@ export interface operations {
             };
             /** @description Tank XML external script file could not be found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    testExternalScript: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExternalScriptTestRequest"];
+            };
+        };
+        responses: {
+            /** @description Returns the output and step changes; timedOut is true if the script did not finish */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExternalScriptTestResult"];
+                };
+            };
+            /** @description No script, a script over 256 KB, a name not ending in .js, or no scriptId */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                    "text/plain": string;
+                };
+            };
+            /** @description Needs CREATE_SCRIPT, or EDIT_SCRIPT or ownership of externalScriptId */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                    "text/plain": string;
+                };
+            };
+            /** @description No script with scriptId */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                    "text/plain": string;
+                };
+            };
+            /** @description Too many tests are running */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

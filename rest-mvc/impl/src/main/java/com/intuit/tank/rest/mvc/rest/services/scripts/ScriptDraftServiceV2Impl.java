@@ -10,16 +10,21 @@ package com.intuit.tank.rest.mvc.rest.services.scripts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.intuit.tank.common.ScriptUtil;
+import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
+import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptFilter;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.ClientException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
 import com.intuit.tank.rest.mvc.rest.models.ApplyFiltersRequest;
 import com.intuit.tank.rest.mvc.rest.models.DraftSteps;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestRequest;
+import com.intuit.tank.rest.mvc.rest.models.ExternalScriptTestResult;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestRequest;
 import com.intuit.tank.rest.mvc.rest.models.LogicTestResult;
 import com.intuit.tank.rest.mvc.rest.models.ScriptValidation;
@@ -40,6 +45,7 @@ import com.intuit.tank.script.SleepTimeSection;
 import com.intuit.tank.script.ThinkTimeSection;
 import com.intuit.tank.script.VariableSection;
 import com.intuit.tank.script.models.ScriptStepTO;
+import com.intuit.tank.script.models.ScriptTO;
 import com.intuit.tank.script.replace.AbstractReplacement;
 import com.intuit.tank.script.replace.ReplaceEntity;
 import com.intuit.tank.script.replace.ReplaceMode;
@@ -71,6 +77,8 @@ public class ScriptDraftServiceV2Impl implements ScriptDraftServiceV2 {
 
     static final int MAX_STEPS = 20_000;
     static final int MAX_LOGIC_SCRIPT_LENGTH = 64 * 1024;
+    static final int MAX_EXTERNAL_SCRIPT_LENGTH = 256 * 1024;
+    static final int MAX_STEP_CHANGES = 200;
 
     /** Every searchable part of a step, by name. */
     static final Map<String, Section> SECTIONS = Stream.of(RequestStepSection.values(), VariableSection.values(),
@@ -211,6 +219,92 @@ public class ScriptDraftServiceV2Impl implements ScriptDraftServiceV2 {
         } catch (IllegalStateException e) {
             throw new ClientException(e.getMessage(), 429);
         }
+    }
+
+    @Override
+    public ExternalScriptTestResult testExternalScript(ExternalScriptTestRequest request) {
+        RestAuthorization.requireUser(SERVICE);
+        if (request == null || StringUtils.isBlank(request.script())) {
+            throw new GenericServiceBadRequestException(SERVICE, "script", "script is required");
+        }
+        if (request.script().length() > MAX_EXTERNAL_SCRIPT_LENGTH) {
+            throw new GenericServiceBadRequestException(SERVICE, "script",
+                    "script must be at most " + MAX_EXTERNAL_SCRIPT_LENGTH + " characters");
+        }
+        // the controller has only a JavaScript engine
+        if (!StringUtils.endsWithIgnoreCase(request.name(), ".js")) {
+            throw new GenericServiceBadRequestException(SERVICE, "name",
+                    "only JavaScript external scripts, with names ending in .js, can run on this Tank");
+        }
+        if (request.scriptId() == null) {
+            throw new GenericServiceBadRequestException(SERVICE, "scriptId", "a script to test against is required");
+        }
+        ExternalScript existing = request.externalScriptId() != null
+                ? new ExternalScriptDao().findById(request.externalScriptId()) : null;
+        if (existing != null) {
+            RestAuthorization.requireRightOrOwner(AccessRight.EDIT_SCRIPT, existing, SERVICE);
+        } else {
+            RestAuthorization.requireRight(AccessRight.CREATE_SCRIPT, SERVICE);
+        }
+        Script script = new ScriptDao().findById(request.scriptId());
+        if (script == null) {
+            throw new GenericServiceResourceNotFoundException(SERVICE, "script " + request.scriptId(), null);
+        }
+        List<ScriptStep> before = script.getScriptSteps();
+        ScriptTO scriptTo = ScriptServiceUtil.scriptToTransferObject(script);
+        ExternalScriptTester tester = new ServletInjector<ExternalScriptTester>()
+                .getManagedBean(servletContext, ExternalScriptTester.class);
+        ExternalScriptTester.Run run;
+        try {
+            run = tester.run(request.name(), request.script(), scriptTo);
+        } catch (IllegalStateException e) {
+            throw new ClientException(e.getMessage(), 429);
+        }
+        LOGGER.info("{} tested external script {} against script {} ({} ms{})", RestAuthorization.currentUserName(),
+                request.name(), request.scriptId(), run.durationMs(), run.timedOut() ? ", timed out" : "");
+        if (run.timedOut()) {
+            // the script may still be changing the steps
+            return new ExternalScriptTestResult(run.output(), true, run.durationMs(), 0, 0, 0, 0, 0, List.of());
+        }
+        Script draft = new Script();
+        draft.setId(-1); // a draft, not a copy: steps keep their uuids and only new steps get one
+        draft.setScriptSteps(scriptTo.getSteps() == null ? new ArrayList<>()
+                : scriptTo.getSteps().stream().map(ScriptServiceUtil::transferObjectToScriptStep)
+                        .collect(Collectors.toCollection(ArrayList::new)));
+        ScriptUtil.setScriptStepLabels(draft);
+        return stepChanges(run, before, draft.getScriptSteps());
+    }
+
+    private static ExternalScriptTestResult stepChanges(ExternalScriptTester.Run run, List<ScriptStep> before,
+                                                        List<ScriptStep> after) {
+        Map<String, String> beforePrints = fingerprints(before);
+        Map<String, String> afterPrints = fingerprints(after);
+        List<ExternalScriptTestResult.StepChange> changes = new ArrayList<>();
+        int added = 0;
+        int changed = 0;
+        for (int i = 0; i < after.size(); i++) {
+            ScriptStep step = after.get(i);
+            String old = step.getUuid() != null ? beforePrints.get(step.getUuid()) : null;
+            String kind = old == null ? "added" : old.equals(afterPrints.get(step.getUuid())) ? null : "changed";
+            if (kind != null) {
+                if (old == null) {
+                    added++;
+                } else {
+                    changed++;
+                }
+                changes.add(new ExternalScriptTestResult.StepChange(kind, i, step.getType(), step.getLabel()));
+            }
+        }
+        int removed = 0;
+        for (int i = 0; i < before.size(); i++) {
+            ScriptStep step = before.get(i);
+            if (step.getUuid() != null && !afterPrints.containsKey(step.getUuid())) {
+                removed++;
+                changes.add(new ExternalScriptTestResult.StepChange("removed", i, step.getType(), step.getLabel()));
+            }
+        }
+        return new ExternalScriptTestResult(run.output(), false, run.durationMs(), before.size(), after.size(),
+                added, removed, changed, changes.stream().limit(MAX_STEP_CHANGES).toList());
     }
 
     private static List<Section> sections(String query, List<String> names) {

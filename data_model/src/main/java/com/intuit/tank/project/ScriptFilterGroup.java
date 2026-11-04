@@ -31,6 +31,8 @@ import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 
 @Entity
@@ -57,6 +59,7 @@ public class ScriptFilterGroup extends OwnableEntity implements Comparable<Scrip
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "filter_id"),
             inverseJoinColumns = @JoinColumn(name = "filter_group_id"))
+    @Fetch(FetchMode.SUBSELECT) // load every group's filters in one query, not one per group
     private Set<ScriptFilter> filters = new HashSet<ScriptFilter>();
 
     public String getName() {

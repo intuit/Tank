@@ -35,6 +35,7 @@ export function FiltersPage() {
   const { client, user } = useSession();
   const notify = useNotify();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const all = useFilters();
   const [copying, setCopying] = useState<{ kind: Kind; row: Row }>();
   /** Show only the filters in this group */
@@ -97,6 +98,7 @@ export function FiltersPage() {
     <section className="list-page editor-wide">
       <div className="page-header">
         <h1>Filters</h1>
+        <Button label="External filters" icon="pi pi-code" text onClick={() => void navigate('/filters/external')} />
       </div>
       <p className="field-help">
         Filters change or remove a recording's steps when it becomes a script, and can be applied to a script later. A
