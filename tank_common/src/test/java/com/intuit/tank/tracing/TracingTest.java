@@ -1,6 +1,7 @@
 package com.intuit.tank.tracing;
 
 import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -79,6 +80,20 @@ public class TracingTest {
         SpanData background = find(otel.getSpans(), "background");
         assertFalse(background.getParentSpanContext().isValid());
         assertNotEquals(request.getTraceId(), background.getTraceId());
+    }
+
+    @Test
+    public void spansThatStartATrace_areServerSpansNamedByAnnotation() {
+        Tracing.inRootSpan("background", () -> Tracing.inSpan("child", () -> { }));
+        Tracing.inSpan("orphan", () -> { });
+
+        SpanData background = find(otel.getSpans(), "background");
+        assertEquals(SpanKind.SERVER, background.getKind());
+        assertEquals("background", background.getAttributes().get(AttributeKey.stringKey(Tracing.OPERATION)));
+        assertEquals(List.of(Tracing.OPERATION), background.getAttributes().get(Tracing.XRAY_ANNOTATIONS).stream()
+                .filter(Tracing.OPERATION::equals).toList());
+        assertEquals(SpanKind.INTERNAL, find(otel.getSpans(), "child").getKind());
+        assertEquals(SpanKind.SERVER, find(otel.getSpans(), "orphan").getKind());
     }
 
     @Test

@@ -3,6 +3,8 @@ package com.intuit.tank.tracing;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Scope;
@@ -26,6 +28,14 @@ public final class Tracing {
     /** Mapped to the segment user by the X-Ray exporter. */
     public static final AttributeKey<String> ENDUSER_ID = AttributeKey.stringKey("enduser.id");
 
+    /**
+     * Annotation holding the span name on a span that starts a trace. The X-Ray exporter names a trace's first segment
+     * after the service for server spans and after the span for any other kind, so these spans are started as server
+     * spans to land on the service's node (for example QA-TANK) instead of getting a node of their own. The name
+     * stays searchable as {@code annotation.operation = "Tank.AgentWatchdog"}.
+     */
+    public static final String OPERATION = "operation";
+
     // Every key ever annotated; the API can't read a span's attributes back, so each annotate() re-sends the full list.
     // Keys that aren't on a given span are ignored by the exporter.
     private static final Set<String> ANNOTATION_KEYS = ConcurrentHashMap.newKeySet();
@@ -41,7 +51,11 @@ public final class Tracing {
      * Start a span that is a child of the current context. The caller must make it current and end it.
      */
     public static Span startSpan(String name) {
-        return tracer().spanBuilder(name).startSpan();
+        SpanBuilder builder = tracer().spanBuilder(name);
+        if (!Span.current().getSpanContext().isValid()) {
+            return startTraceRoot(builder, name);
+        }
+        return builder.startSpan();
     }
 
     /**
@@ -49,7 +63,14 @@ public final class Tracing {
      * Sampling rules apply to it as they do to an incoming request.
      */
     public static Span startRootSpan(String name) {
-        return tracer().spanBuilder(name).setNoParent().startSpan();
+        return startTraceRoot(tracer().spanBuilder(name).setNoParent(), name);
+    }
+
+    private static Span startTraceRoot(SpanBuilder builder, String name) {
+        Span span = builder.setSpanKind(SpanKind.SERVER).startSpan();
+        span.setAttribute(OPERATION, name);
+        markAnnotation(span, OPERATION);
+        return span;
     }
 
     /** Work run inside a span. {@code E} is inferred as {@link RuntimeException} when the body throws nothing checked. */
