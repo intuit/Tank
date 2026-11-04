@@ -10,6 +10,7 @@ package com.intuit.tank.rest.mvc.rest.util;
 import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.models.*;
 import com.intuit.tank.script.RequestDataPhase;
@@ -20,8 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 
@@ -330,7 +329,7 @@ public class ScriptServiceUtil {
             return (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
         } catch (ParserConfigurationException | JAXBException | SAXException e) {
             LOG.error("Error unmarshalling script: {}", e.getMessage(), e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new GenericServiceBadRequestException("scripts", "parsing script xml", "Invalid script XML: " + e.getMessage());
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
