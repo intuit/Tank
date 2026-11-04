@@ -329,5 +329,6 @@ class ScriptServiceUtilTest {
         GenericServiceBadRequestException e = assertThrows(GenericServiceBadRequestException.class,
                 () -> ScriptServiceUtil.parseXMLtoScriptTO(in));
         assertTrue(e.getMessage().contains("Invalid script XML"));
+        assertFalse(e.getMessage().contains("null"), e.getMessage());
     }
 }
