@@ -1,6 +1,7 @@
 package com.intuit.tank.httpclientjdk;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 
@@ -164,7 +165,7 @@ public class TankHttpClientJDKTest {
         BaseResponse response = request.getResponse();
         assertNotNull(response);
         assertEquals(200, response.getHttpCode());
-        assertTrue(response.getCookies().get("test-cookie").equals("test-value"));
+        assertEquals("test-value", response.getCookies().get("test-cookie"));
         request.getHttpclient().clearSession();
 
         request.doGet(null);
@@ -310,6 +311,113 @@ public class TankHttpClientJDKTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void followsRedirectAndSendsCookieSetOnHop() {
+        wireMockServer.stubFor(get(urlEqualTo("/start"))
+                .willReturn(aResponse()
+                        .withStatus(302)
+                        .withHeader("Location", "/next")
+                        .withHeader("Set-Cookie", "hop=1; Path=/"))
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/next"))
+                .withCookie("hop", equalTo("1"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("landed"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/start");
+        request.doGet(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("landed", response.getBody());
+        assertEquals("1", response.getCookies().get("hop"));
+        verify(exactly(1), getRequestedFor(urlEqualTo("/next")));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void redirectsPostAsGet() {
+        wireMockServer.stubFor(post(urlEqualTo("/form"))
+                .willReturn(aResponse()
+                        .withStatus(302)
+                        .withHeader("Location", "/done"))
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/done"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "text/plain")
+                        .withBody("ok"))
+        );
+
+        BaseRequest request = getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/form");
+        request.setBody("{\"a\":1}");
+        request.setContentType("application/json");
+        request.doPost(null);
+        BaseResponse response = request.getResponse();
+        assertNotNull(response);
+        assertEquals(200, response.getHttpCode());
+        assertEquals("ok", response.getBody());
+        verify(exactly(1), getRequestedFor(urlEqualTo("/done")));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void cookiesDoNotLeakBetweenClientInstances() {
+        wireMockServer.stubFor(get(urlEqualTo("/login"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Set-Cookie", "user-a=secret; Path=/")
+                        .withBody("{}"))
+        );
+        wireMockServer.stubFor(get(urlEqualTo("/isolated"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("{}"))
+        );
+
+        TankHttpClient userA = new TankHttpClientJDK();
+        getRequest(userA, wireMockServer.baseUrl() + "/login").doGet(null);
+        getRequest(userA, wireMockServer.baseUrl() + "/isolated").doGet(null);
+
+        // A second virtual user shares the underlying HttpClient but must not send user A's cookies
+        getRequest(new TankHttpClientJDK(), wireMockServer.baseUrl() + "/isolated").doGet(null);
+
+        verify(exactly(1), getRequestedFor(urlEqualTo("/isolated")).withHeader("Cookie", containing("user-a")));
+        verify(exactly(1), getRequestedFor(urlEqualTo("/isolated")).withoutHeader("Cookie"));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void selectorThreadCountStaysBoundedAcrossManyUsers() {
+        wireMockServer.stubFor(get(urlEqualTo("/ping"))
+                .willReturn(aResponse().withStatus(200).withBody("pong"))
+        );
+
+        int poolSize = Integer.getInteger("tank.http.jdk.client.pool.size",
+                Math.max(2, Runtime.getRuntime().availableProcessors()));
+
+        // Simulate many virtual users, each with the per-step proxy reset RequestRunner performs
+        for (int i = 0; i < 50; i++) {
+            TankHttpClient user = new TankHttpClientJDK();
+            user.setConnectionTimeout(30000);
+            for (int step = 0; step < 3; step++) {
+                user.setProxy(null, -1);
+                getRequest(user, wireMockServer.baseUrl() + "/ping").doGet(null);
+            }
+            user.close();
+        }
+
+        long selectorThreads = Thread.getAllStackTraces().keySet().stream()
+                .filter(t -> t.getName().contains("SelectorManager"))
+                .count();
+        assertTrue(selectorThreads <= poolSize,
+                "Expected at most " + poolSize + " HttpClient selector threads but found " + selectorThreads);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void testBrotliEncoding() {
         // Pre-compressed brotli data for "Hello, Brotli!"
         byte[] brotliCompressed = java.util.Base64.getDecoder().decode("jwaASGVsbG8sIEJyb3RsaSED");
@@ -420,7 +528,7 @@ public class TankHttpClientJDKTest {
 
     private BaseRequest getRequest(TankHttpClient client, String url) {
         try {
-            URL u = new URL(url);
+            URL u = URI.create(url).toURL();
             client.setHttpClient(null);
             BaseRequest request = new MockBaseRequest(client);
             request.setHost(u.getHost());

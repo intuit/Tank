@@ -18,14 +18,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.job.ActJobNodeBean;
 import com.intuit.tank.job.JobNodeBean;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.auth.Security;
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.ProjectDao;
+import com.intuit.tank.dao.QueuedJob;
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.job.ProjectNodeBean;
 import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
@@ -69,6 +72,9 @@ public class JobTreeTableBeanTest {
 
     @Mock
     ProjectDao projectDao;
+
+    @Mock
+    JobInstanceDao jobInstanceDao;
 
     @Mock
     Messages messages;
@@ -235,7 +241,7 @@ public class JobTreeTableBeanTest {
         fixture.tablePrefs = new TablePreferences(new LinkedList());
 
         boolean result = fixture.isRefreshEnabled();
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -385,51 +391,41 @@ public class JobTreeTableBeanTest {
     @Test
     public void testRefreshData() {
 
-        JobQueue jobQueue = new JobQueue();
-        jobQueue.setProjectId(10);
-        jobQueue.addJob(new JobInstance());
-        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
-        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+        Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
+                .thenReturn(List.of(queuedJob(10, 0)));
+        Mockito.when(projectDao.findForIds(Mockito.anyList())).thenReturn(List.of(project(10)));
 
-        AWSXRay.beginSegment("test");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
     public void testRefreshData_WithVmContainer_CoversVmStatusBranch() {
-        JobQueue jobQueue = new JobQueue();
-        jobQueue.setProjectId(10);
-        JobInstance ji = new JobInstance();
-        jobQueue.addJob(ji);
-        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
-        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+        Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
+                .thenReturn(List.of(queuedJob(10, 0)));
+        Mockito.when(projectDao.findForIds(Mockito.anyList())).thenReturn(List.of(project(10)));
 
         // vmTracker returns a container with VM statuses - exercises the container != null branch
         CloudVmStatusContainer container = new CloudVmStatusContainer();
         Mockito.when(vmTracker.getVmStatusForJob(Mockito.anyString())).thenReturn(container);
 
-        AWSXRay.beginSegment("test_vm_container");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
     public void testRefreshData_WithAdhocTrackerJobs_CoversAdhocBranch() {
         // Empty queue from DB
-        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of());
+        Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
+                .thenReturn(List.of());
 
         // Tracker has a job not in any queue
         CloudVmStatusContainer trackerContainer = new CloudVmStatusContainer();
         trackerContainer.setJobId("999");
         Mockito.when(vmTracker.getAllJobs()).thenReturn(java.util.Set.of(trackerContainer));
         Mockito.when(vmTracker.getVmStatusForJob(Mockito.eq("999"))).thenReturn(trackerContainer);
-        Mockito.when(jobQueueDao.findForJobId(Mockito.eq(999))).thenReturn(null);
+        Mockito.when(jobQueueDao.findProjectIdForJobId(Mockito.eq(999))).thenReturn(null);
         Mockito.when(preferencesBean.getDateTimeFormat()).thenReturn(FastDateFormat.getInstance("yyyy-MM-dd"));
 
-        AWSXRay.beginSegment("test_adhoc");
         fixture.refreshData();
-        AWSXRay.endSegment();
     }
 
     @Test
@@ -609,11 +605,10 @@ public class JobTreeTableBeanTest {
     public void testSetFilterFinished_DifferentValue_TriggersRefresh() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
-        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of());
-        AWSXRay.beginSegment("test_ff_diff");
+        Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
+                .thenReturn(List.of());
         // default filterFinished is true; setting false triggers refreshData()
         fixture.setFilterFinished(false);
-        AWSXRay.endSegment();
         assertFalse(fixture.isFilterFinished());
     }
 
@@ -630,43 +625,60 @@ public class JobTreeTableBeanTest {
     private TreeNode buildTreeAndGetRoot() {
         fixture.tableState = new TableViewState();
         fixture.tablePrefs = new TablePreferences(new LinkedList());
-        JobQueue jobQueue = new JobQueue();
-        jobQueue.setProjectId(10);
-        jobQueue.addJob(new JobInstance());
-        Mockito.when(jobQueueDao.findRecent(Mockito.any(Date.class))).thenReturn(List.of(jobQueue));
-        Mockito.when(projectDao.findById(Mockito.anyInt())).thenReturn(new Project());
+        Mockito.when(jobQueueDao.findQueuedJobs(Mockito.isNull(), Mockito.any(Date.class), Mockito.anyBoolean(), Mockito.anyList()))
+                .thenReturn(List.of(queuedJob(10, 0)));
+        Mockito.when(projectDao.findForIds(Mockito.anyList())).thenReturn(List.of(project(10)));
         return fixture.getRootNode();
     }
 
     @Test
+    public void testBuildTree_ReadsJobDetailsOnlyWhenAsked() {
+        TreeNode root = buildTreeAndGetRoot();
+        TreeNode projectNode = (TreeNode) root.getChildren().get(0);
+        ActJobNodeBean job = (ActJobNodeBean) ((TreeNode) projectNode.getChildren().get(0)).getData();
+        Mockito.verify(jobInstanceDao, Mockito.never()).findJobDetails(Mockito.anyInt());
+
+        Mockito.when(jobInstanceDao.findJobDetails(0)).thenReturn("details");
+        assertEquals("details", job.getJobDetails());
+        assertEquals("details", job.getJobDetails());
+        Mockito.verify(jobInstanceDao, Mockito.times(1)).findJobDetails(0);
+    }
+
+    @Test
     public void testOnNodeExpand_SetsNodeExpanded() {
-        AWSXRay.beginSegment("test_expand");
-        buildTreeAndGetRoot(); // populates nodeMap with "0"
+        buildTreeAndGetRoot(); // populates nodeMap with "10"
 
         NodeExpandEvent event = Mockito.mock(NodeExpandEvent.class);
         TreeNode treeNode = Mockito.mock(TreeNode.class);
         JobNodeBean jnb = Mockito.mock(JobNodeBean.class);
         Mockito.when(event.getTreeNode()).thenReturn(treeNode);
         Mockito.when(treeNode.getData()).thenReturn(jnb);
-        Mockito.when(jnb.getId()).thenReturn("0"); // project node id is "0"
+        Mockito.when(jnb.getId()).thenReturn("10"); // project node id is "10"
 
         assertDoesNotThrow(() -> fixture.onNodeExpand(event));
-        AWSXRay.endSegment();
     }
 
     @Test
     public void testOnNodeCollapse_SetsNodeCollapsedAndParentsExpanded() {
-        AWSXRay.beginSegment("test_collapse");
-        buildTreeAndGetRoot(); // populates nodeMap with "0"
+        buildTreeAndGetRoot(); // populates nodeMap with "10"
 
         NodeCollapseEvent event = Mockito.mock(NodeCollapseEvent.class);
         TreeNode treeNode = Mockito.mock(TreeNode.class);
         JobNodeBean jnb = Mockito.mock(JobNodeBean.class);
         Mockito.when(event.getTreeNode()).thenReturn(treeNode);
         Mockito.when(treeNode.getData()).thenReturn(jnb);
-        Mockito.when(jnb.getId()).thenReturn("0"); // project node id is "0"
+        Mockito.when(jnb.getId()).thenReturn("10"); // project node id is "10"
 
         assertDoesNotThrow(() -> fixture.onNodeCollapse(event));
-        AWSXRay.endSegment();
+    }
+    private static QueuedJob queuedJob(int projectId, int jobId) {
+        return new QueuedJob(projectId, jobId, "job" + jobId, JobQueueStatus.Created, IncrementStrategy.increasing, 10,
+                null, null, false, "None", 0, 1.0, 1, 0, null);
+    }
+
+    private static Project project(int id) {
+        Project project = new Project();
+        project.setId(id);
+        return project;
     }
 }

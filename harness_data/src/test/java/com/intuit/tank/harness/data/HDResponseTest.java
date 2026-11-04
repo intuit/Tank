@@ -14,13 +14,10 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDAssignment;
-import com.intuit.tank.harness.data.HDResponse;
-import com.intuit.tank.harness.data.HDValidation;
 
 /**
  * The class <code>HDResponseTest</code> contains tests for the class <code>{@link HDResponse}</code>.
@@ -42,7 +39,7 @@ public class HDResponseTest {
         HDResponse result = new HDResponse();
 
         assertNotNull(result);
-        assertEquals(null, result.getRespFormat());
+        assertNull(result.getRespFormat());
     }
 
     /**

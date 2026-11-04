@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ValidationResponseContent;
-import com.intuit.tank.script.ResponseContentParser;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
 /**
@@ -46,6 +45,13 @@ public class ResponseContentParserTest {
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.ResponseContentParser.extractCondition(ResponseContentParser.java:49)
         assertNotNull(result);
+    }
+
+    @Test
+    public void extractConditionRecognizesEqualsAnyBeforeEquals() {
+        String result = ResponseContentParser.extractCondition("==Anyinput-required||completed");
+
+        assertEquals("==Any", result);
     }
 
     /**
@@ -169,6 +175,13 @@ public class ResponseContentParserTest {
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.script.ResponseContentParser.extractValidateValue(ResponseContentParser.java:34)
         assertNotNull(result);
+    }
+
+    @Test
+    public void extractValidateValueStripsEqualsAnyOperator() {
+        String result = ResponseContentParser.extractValidateValue("==Anyinput-required||completed");
+
+        assertEquals("input-required||completed", result);
     }
 
     /**

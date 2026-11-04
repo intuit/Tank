@@ -22,7 +22,6 @@ import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.ScriptConstants;
 
 public class ScriptStepFactory {
 

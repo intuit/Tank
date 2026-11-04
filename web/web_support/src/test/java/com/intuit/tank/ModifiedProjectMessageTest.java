@@ -17,7 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.ModifiedProjectMessage;
 import com.intuit.tank.project.Project;
 
 /**

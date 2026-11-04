@@ -65,18 +65,24 @@ public class PanelBuilder {
 
     public static File createWorkingDir(AgentDebuggerFrame frame, String baseUrl, String token) {
         try {
-            File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-            temp.delete();
-            temp = new File(temp.getAbsolutePath() + ".d");
-            temp.mkdir();
-            workingDir = temp;
-            // create settings.xml
-            writeSettings(workingDir, getHeaders(baseUrl, token));
-            System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
+            return createWorkingDir(baseUrl, token);
         } catch (IOException e) {
             LOG.error("Error creating temp working dir: " + e);
             frame.showError("Error creating temp working dir: " + e);
         }
+        return workingDir;
+    }
+
+    /** Creates a temp dir with a settings.xml that has the controller's agent headers, and points the harness at it */
+    public static File createWorkingDir(String baseUrl, String token) throws IOException {
+        File temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+        temp.delete();
+        temp = new File(temp.getAbsolutePath() + ".d");
+        temp.mkdir();
+        workingDir = temp;
+        // create settings.xml
+        writeSettings(workingDir, getHeaders(baseUrl, token));
+        System.setProperty("WATS_PROPERTIES", workingDir.getAbsolutePath());
         return workingDir;
     }
 
@@ -97,7 +103,7 @@ public class PanelBuilder {
                     .header(HttpHeaders.AUTHORIZATION, "bearer "+token)
                     .build();
             try ( InputStream settingsStream = client.send(request, HttpResponse.BodyHandlers.ofInputStream()).body() ) {
-                URL url = new URL(serviceUrl + HEADERS_PATH);
+                URL url = URI.create(serviceUrl + HEADERS_PATH).toURL();
                 LOG.info("Starting up: making call to tank service url to get settings.xml "
                         + url.toExternalForm());
                 
@@ -172,7 +178,7 @@ public class PanelBuilder {
     static Component createContentPanel(final AgentDebuggerFrame frame) {
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
         pane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        final RSyntaxTextArea scriptEditorTA = new RSyntaxTextArea();
+        final ScriptEditorTextArea scriptEditorTA = new ScriptEditorTextArea();
         frame.setScriptEditorTA(scriptEditorTA);
         scriptEditorTA.setSelectionColor(scriptEditorTA.getCurrentLineHighlightColor());
         scriptEditorTA.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
@@ -213,7 +219,7 @@ public class PanelBuilder {
         frame.setScriptEditorScrollPane(scriptEditorScrollPane);
         scriptEditorScrollPane.setIconRowHeaderEnabled(true);
         scriptEditorScrollPane.getGutter().setBookmarkIcon(ActionProducer.getIcon("bullet_blue.png", IconSize.SMALL));
-        scriptEditorScrollPane.getGutter().setCurrentLineIcon(
+        scriptEditorTA.getIconRowHeader().setCurrentLineIcon(
                 ActionProducer.getIcon("current_line.png", IconSize.SMALL));
         scriptEditorScrollPane.getGutter().setBookmarkingEnabled(true);
         pane.setLeftComponent(scriptEditorScrollPane);

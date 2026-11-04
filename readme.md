@@ -34,7 +34,7 @@ There are several profiles (for the initial build you should build the release p
 There are several artifacts that are important.
 * web/web_ui/target/tank.war -- the main deployment file. Intended for deployment to a tomcat web server.
 * agent/agentManager_pkg/target/agent-startup-pkg.zip -- the agent app that gets started when the agent starts and manages communicating with the tank controller and coordinating the tests.
-* tools/agent_debugger_pkg/target/Tank-Debugger-all.jar -- the visual debugger jar. can be launched to debug scripts or projects.
+* tools/agent_debugger_pkg/target/Tank-Debugger-all.jar -- the visual debugger jar. can be launched to debug scripts or projects. With --headless it replays a project from the command line and writes the authid and step results to output.log. See tools/agent_debugger/README.md.
 * tools/script_filter_pkg/target/Tank-Script-Runner-all.jar -- the visual script filter tool for writing scripts to filter or manipulate scripts on import.
 * proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser.
 

@@ -13,14 +13,9 @@ package com.intuit.tank.service;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.project.ScriptFilterGroup;
-import com.intuit.tank.service.FilterGroupService;
 
 /**
  * The class <code>FilterGroupServiceTest</code> contains tests for the class <code>{@link FilterGroupService}</code>.

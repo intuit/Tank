@@ -13,13 +13,8 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,64 +25,32 @@ import jakarta.servlet.ServletContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.vm.common.TankConstants;
+import com.intuit.tank.rest.mvc.rest.util.BuildInfo;
 
 @Named
 @ApplicationScoped
 public class BuildVersion {
     private static final Logger LOG = LogManager.getLogger(BuildVersion.class);
 
-    private String version = TankConstants.TANK_BUILD_VERSION;
-    private static final String BASE_DATE = "2013-01-15T00:00:00Z";
-
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-    
-    private Date buildDate;
+    private BuildInfo buildInfo = BuildInfo.fromManifest(null);
 
     @PostConstruct
     public void init() {
-        readManifest();
+        InputStream warManifest = null;
+        try {
+            ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
+            warManifest = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
+        } catch (Exception e) {
+            LOG.error("Error reading Manifest from war: " + e, e);
+        }
+        buildInfo = BuildInfo.read(warManifest);
     }
 
     public String getVersion() {
-        return version;
+        return buildInfo.version();
     }
 
     public Date getBuildDate() {
-        return buildDate;
-    }
-
-    private void readManifest() {
-        Manifest manifest = null;
-        try {
-        	ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext();
-            InputStream inputStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
-            manifest = new Manifest(inputStream);
-        } catch (Exception e) {
-            LOG.error("Error reading Manifest from war: " + e, e);
-            try {
-                InputStream inputStream = this.getClass().getResourceAsStream("/META-INF/MANIFEST.MF");
-                manifest = new Manifest(inputStream);
-            } catch (IOException e1) {
-                LOG.error("Error reading Manifest from jar: " + e, e);
-            }
-        }
-        if (manifest != null) {
-            Attributes attributes = manifest.getMainAttributes();
-            if (attributes != null) {
-                String timestamp = attributes.getValue("Implementation-Build-timestamp");
-                if (timestamp != null) {
-                    try {
-                        this.buildDate = sdf.parse(timestamp);
-                        Date d = sdf.parse(this.BASE_DATE);
-                        int buildNum = (int) (buildDate.getTime() - d.getTime()) / 60000;
-                        version = version + "-" + buildNum;
-                    } catch (ParseException e) {
-                        LOG.error("Error parsing date " + timestamp + ": " + e, e);
-                        version = version + "-" + timestamp;
-                    }
-                }
-            }
-        }
+        return buildInfo.buildDate();
     }
 }

@@ -13,15 +13,10 @@ package com.intuit.tank.vmManager.environment;
  * #L%
  */
 
-import java.util.List;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Entity;
 import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.intuit.tank.vm.vmManager.VMInformation;
 import com.intuit.tank.vm.vmManager.VMKillRequest;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 

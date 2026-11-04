@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>proxy-parent</artifactId>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>4.6.20-SNAPSHOT</version>
   </parent>
 
   <artifactId>owasp-proxy</artifactId>
@@ -33,13 +33,13 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.84</version>
+      <version>1.86</version>
     </dependency>
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk18on</artifactId>
-      <version>1.84</version>
+      <version>1.86</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -48,7 +48,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>6.2.0</version>
+      <version>${version.spring-webmvc}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>

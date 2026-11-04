@@ -23,7 +23,7 @@ public class InstanceTagTest {
 		tags.put(tag2, 2);
 		assert tag != tag2;
 		Assertions.assertNotEquals(tag, tag2);
-		Assertions.assertNotEquals(tag, "");
+		Assertions.assertNotEquals("", tag);
 		Assertions.assertEquals("tag1 = val1", tag.toString());
 
 	}

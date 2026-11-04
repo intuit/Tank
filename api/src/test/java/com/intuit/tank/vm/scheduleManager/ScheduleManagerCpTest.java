@@ -15,8 +15,6 @@ package com.intuit.tank.vm.scheduleManager;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.scheduleManager.ScheduleManager;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -25,6 +25,7 @@ import com.intuit.tank.project.Group;
 import com.intuit.tank.test.TestGroups;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class GroupDaoTest {
 	private GroupDao dao;
@@ -50,7 +51,7 @@ public class GroupDaoTest {
 		
 		//Try to fetch a group which was not created, it will return null value
 		result = dao.findByName("testGroup1");
-		assertEquals(null,result);
+		assertNull(result);
 		
 		dao.delete(first);
 	}

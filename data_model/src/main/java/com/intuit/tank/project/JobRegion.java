@@ -153,11 +153,12 @@ public class JobRegion extends BaseEntity implements RegionRequest, Comparable<J
     }
 
     /**
-     * {@inheritDoc}
+     * Hashes on the region only: users is edited in place, and a hash that changed while the region sat in a
+     * persistent set made Hibernate re-insert its existing job_configuration_to_job_regions row.
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(29, 41).append(getRegion()).append(getUsers()).toHashCode();
+        return new HashCodeBuilder(29, 41).append(getRegion()).toHashCode();
     }
 
     /**

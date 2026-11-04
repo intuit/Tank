@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.ProjectBean;
-import com.intuit.tank.project.Workload;
 
 @Named
 @ConversationScoped

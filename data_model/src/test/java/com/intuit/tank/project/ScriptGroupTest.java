@@ -14,16 +14,15 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ScriptGroup;
-import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
 
 /**
  * The class <code>ScriptGroupTest</code> contains tests for the class <code>{@link ScriptGroup}</code>.
@@ -165,7 +164,7 @@ public class ScriptGroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -188,7 +187,7 @@ public class ScriptGroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -211,7 +210,7 @@ public class ScriptGroupTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -330,13 +329,13 @@ public class ScriptGroupTest {
         TestPlan result = fixture.getTestPlan();
 
         assertNotNull(result);
-        assertEquals(null, result.getPosition());
-        assertEquals(null, result.getName());
+        assertNull(result.getPosition());
+        assertNull(result.getName());
         assertEquals(100, result.getUserPercentage());
-        assertEquals(null, result.getWorkload());
+        assertNull(result.getWorkload());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**

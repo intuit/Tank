@@ -18,9 +18,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobQueue;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

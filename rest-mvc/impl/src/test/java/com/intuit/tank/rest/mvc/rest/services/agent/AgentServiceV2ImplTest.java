@@ -1,8 +1,5 @@
 package com.intuit.tank.rest.mvc.rest.services.agent;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.agent.models.TankHttpClientDefinitionContainer;
 import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
@@ -28,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -50,21 +46,14 @@ class AgentServiceV2ImplTest {
     private ServletContext servletContext;
 
     private AutoCloseable mocks;
-    private MockedStatic<AWSXRay> xrayMock;
 
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        xrayMock = Mockito.mockStatic(AWSXRay.class);
-        Segment mockSegment = mock(Segment.class);
-        Subsegment mockSubsegment = mock(Subsegment.class);
-        xrayMock.when(AWSXRay::getCurrentSegment).thenReturn(mockSegment);
-        xrayMock.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
     }
 
     @AfterEach
     void tearDown() throws Exception {
-        xrayMock.close();
         mocks.close();
     }
 
@@ -271,7 +260,7 @@ class AgentServiceV2ImplTest {
     @Test
     void getInstanceStatus_returnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
 
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
@@ -306,7 +295,7 @@ class AgentServiceV2ImplTest {
     @Test
     void setInstanceStatus_delegatesToJobEventSender() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
 
         try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
@@ -322,7 +311,7 @@ class AgentServiceV2ImplTest {
     @Test
     void setInstanceStatus_throwsOnError() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
 
         try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
@@ -340,7 +329,7 @@ class AgentServiceV2ImplTest {
     @Test
     void stopInstance_stopsAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Stopped,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.stopping, null, 0, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.stopping, null, 0, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -373,7 +362,7 @@ class AgentServiceV2ImplTest {
     @Test
     void pauseInstance_pausesAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Paused,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.rampPaused, null, 5, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.rampPaused, null, 5, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -395,7 +384,7 @@ class AgentServiceV2ImplTest {
     @Test
     void resumeInstance_resumesAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Running,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.running, null, 10, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.running, null, 10, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -417,7 +406,7 @@ class AgentServiceV2ImplTest {
     @Test
     void killInstance_killsAndReturnsStatus() {
         CloudVmStatus status = new CloudVmStatus("i-123", "42", "sg", JobStatus.Completed,
-                VMImageType.AGENT, VMRegion.US_WEST_2, VMStatus.terminated, null, 0, 100, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, VMStatus.terminated, null, 0, 100, null, null);
         JobEventSender mockSender = mock(JobEventSender.class);
         when(mockSender.getVmStatus("i-123")).thenReturn(status);
 
@@ -440,6 +429,31 @@ class AgentServiceV2ImplTest {
 
             assertThrows(GenericServiceCreateOrUpdateException.class,
                     () -> service.killInstance("i-123"));
+        }
+    }
+
+    // =====================================================================
+    // control of an unknown instance
+    // =====================================================================
+
+    @Test
+    void controlOfUnknownInstance_isNotFoundAndSendsNoEvent() {
+        JobEventSender mockSender = mock(JobEventSender.class);
+        when(mockSender.getVmStatus("i-unknown")).thenReturn(null);
+
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+                (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
+                        .thenReturn(mockSender))) {
+
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.stopInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.pauseInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.resumeInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.killInstance("i-unknown"));
+
+            verify(mockSender, never()).stopAgent(any());
+            verify(mockSender, never()).pauseRampInstance(any());
+            verify(mockSender, never()).resumeRampInstance(any());
+            verify(mockSender, never()).killInstance(any());
         }
     }
 }

@@ -18,9 +18,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.reporting.databases.Attribute;
-import com.intuit.tank.reporting.databases.Item;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,9 +40,9 @@ public class ItemTest {
         Item result = new Item();
 
         assertNotNull(result);
-        assertEquals(null, result.toString());
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getAttributes());
+        assertNull(result.toString());
+        assertNull(result.getName());
+        assertNull(result.getAttributes());
     }
 
     /**
@@ -83,7 +80,7 @@ public class ItemTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -101,7 +98,7 @@ public class ItemTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -119,7 +116,7 @@ public class ItemTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -137,7 +134,7 @@ public class ItemTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

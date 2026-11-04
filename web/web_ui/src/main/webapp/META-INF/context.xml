@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
+    <!-- SameSite=Lax keeps the session cookie off cross-site sub-requests (CSRF defence for /v2 REST) -->
+    <CookieProcessor className="org.apache.tomcat.util.http.Rfc6265CookieProcessor" sameSiteCookies="lax" />
     <Resource 
         name="BeanManager"
         auth="Container"

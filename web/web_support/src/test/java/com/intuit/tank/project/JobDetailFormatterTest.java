@@ -14,19 +14,11 @@ package com.intuit.tank.project;
  */
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.intuit.tank.project.JobDetailFormatter;
-import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobRegion;
-import com.intuit.tank.project.JobValidator;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.TestPlan;
-import com.intuit.tank.project.Workload;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.api.enumerated.VMRegion;

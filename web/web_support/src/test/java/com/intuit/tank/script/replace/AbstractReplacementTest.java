@@ -23,11 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.replace.AbstractReplacement;
-import com.intuit.tank.script.replace.HostReplacement;
-import com.intuit.tank.script.replace.ReplaceEntity;
-import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.script.replace.SearchMode;
 import com.intuit.tank.script.Section;
 
 /**

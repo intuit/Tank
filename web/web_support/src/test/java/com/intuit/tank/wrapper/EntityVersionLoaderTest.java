@@ -25,8 +25,6 @@ import com.intuit.tank.project.BaseEntity;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ProjectLoader;
 import com.intuit.tank.view.filter.ViewFilterType;
-import com.intuit.tank.wrapper.EntityVersionLoader;
-import com.intuit.tank.wrapper.VersionContainer;
 
 /**
  * The class <code>EntityVersionLoaderTest</code> contains tests for the class <code>{@link EntityVersionLoader}</code>.

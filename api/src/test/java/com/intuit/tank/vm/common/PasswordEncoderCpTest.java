@@ -15,8 +15,6 @@ package com.intuit.tank.vm.common;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.PasswordEncoder;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,7 +72,7 @@ public class PasswordEncoderCpTest {
 
         boolean result = PasswordEncoder.validatePassword(raw, encoded);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -92,6 +90,6 @@ public class PasswordEncoderCpTest {
 
         boolean result = PasswordEncoder.validatePassword(raw, encoded);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

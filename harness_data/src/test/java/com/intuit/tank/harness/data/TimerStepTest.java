@@ -14,10 +14,10 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.TimerStep;
 
 /**
  * The class <code>TimerStepTest</code> contains tests for the class <code>{@link TimerStep}</code>.
@@ -102,7 +102,7 @@ public class TimerStepTest {
 
         boolean result = fixture.isStart();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -122,7 +122,7 @@ public class TimerStepTest {
 
         boolean result = fixture.isStart();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

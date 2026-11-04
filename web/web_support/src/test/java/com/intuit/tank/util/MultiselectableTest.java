@@ -13,14 +13,9 @@ package com.intuit.tank.util;
  * #L%
  */
 
-import java.util.List;
-
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import com.intuit.tank.util.Multiselectable;
-import com.intuit.tank.wrapper.SelectableWrapper;
 
 /**
  * The class <code>MultiselectableTest</code> contains tests for the class <code>{@link Multiselectable}</code>.

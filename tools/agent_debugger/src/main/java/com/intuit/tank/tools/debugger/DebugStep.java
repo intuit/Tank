@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.intuit.tank.harness.data.RequestStep;
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.http.BaseRequest;
 import com.intuit.tank.http.BaseResponse;
@@ -135,6 +136,13 @@ public class DebugStep implements Serializable {
      */
     public TestStep getStepRun() {
         return stepRun;
+    }
+
+    /**
+     * @return the HTTP method of a request step, or an empty string for other steps
+     */
+    public String getMethod() {
+        return stepRun instanceof RequestStep requestStep ? requestStep.getRequest().getMethod() : "";
     }
 
     /**

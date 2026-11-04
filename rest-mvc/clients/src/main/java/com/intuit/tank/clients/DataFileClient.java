@@ -47,7 +47,7 @@ public class DataFileClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
@@ -74,7 +74,7 @@ public class DataFileClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
@@ -100,12 +100,13 @@ public class DataFileClient extends BaseClient{
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
                     .header("Authorization", "Bearer " + token)
+                    .header("Accept-Encoding", "gzip")
                     .GET()
                     .build();
 
             try {
                 HttpResponse<InputStream> response =
-                        client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                        client.send(request, ofInputStream());
 
                 if (checkStatusCode(response.statusCode())) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -138,7 +139,7 @@ public class DataFileClient extends BaseClient{
 
         try {
             HttpResponse<InputStream> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    client.send(request, ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -180,12 +181,13 @@ public class DataFileClient extends BaseClient{
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
                 .header("Authorization", "Bearer " + token)
+                .header("Accept-Encoding", "gzip")
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
                 .POST(bodyPublishers)
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
                 return JSON_MAPPER.readValue(response.body(), Map.class);
@@ -208,7 +210,7 @@ public class DataFileClient extends BaseClient{
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
                 return response.body();

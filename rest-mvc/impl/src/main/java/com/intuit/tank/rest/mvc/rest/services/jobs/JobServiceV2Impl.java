@@ -7,33 +7,23 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
-import com.intuit.tank.dao.BaseDao;
-import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.JobQueueDao;
-import com.intuit.tank.dao.JobNotificationDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.StopBehavior;
-import com.intuit.tank.project.BaseEntity;
-import com.intuit.tank.project.DataFile;
-import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
-import com.intuit.tank.project.Script;
-import com.intuit.tank.project.ScriptGroup;
 import com.intuit.tank.project.ScriptGroupStep;
-import com.intuit.tank.project.TestPlan;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceInternalServerException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
-import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.jobs.models.JobContainer;
 import com.intuit.tank.jobs.models.JobTO;
@@ -41,22 +31,25 @@ import com.intuit.tank.jobs.models.CreateJobRequest;
 import com.intuit.tank.jobs.models.CreateJobRegion;
 import com.intuit.tank.rest.mvc.rest.util.*;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
+import com.intuit.tank.rest.mvc.rest.cloud.JobQueueEventSender;
+import com.intuit.tank.rest.mvc.rest.util.JobInstanceFactory;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
-import com.intuit.tank.util.TestParamUtil;
-import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.util.CreateDateComparator;
 import com.intuit.tank.util.CreateDateComparator.SortOrder;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
-import com.intuit.tank.vm.common.util.ReportUtil;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
+import com.intuit.tank.rest.mvc.rest.security.JobAuthorization;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -93,7 +86,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e) {
-            LOGGER.error("Error returning job: " + e.getMessage(), e);
+            LOGGER.error("Error returning job: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "job", e);
         }
     }
@@ -113,7 +106,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e){
-            LOGGER.error("Error returning jobs by project: " + e.getMessage(), e);
+            LOGGER.error("Error returning jobs by project: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "jobs by project", e);
         }
     }
@@ -132,7 +125,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 return null;
             }
         } catch (Exception e){
-            LOGGER.error("Error returning all jobs: " + e.getMessage(), e);
+            LOGGER.error("Error returning all jobs: {}", e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("jobs", "all jobs", e);
         }
     }
@@ -145,14 +138,19 @@ public class JobServiceV2Impl implements JobServiceV2 {
             if (projectId != null) {
                 ProjectDao projectDao = new ProjectDao();
                 Project project = new ProjectDao().findByIdEager(projectId);
+                // creating a job saves the project's job configuration, so it needs the same rights as editing it
+                RestAuthorization.requireRightOrOwner(AccessRight.EDIT_PROJECT, project, "jobs");
                 buildJobConfiguration(request, project);
                 project = projectDao.saveOrUpdateProject(project);
                 JobInstance job = addJobToQueue(project, request);
+                sendQueuedEvent(job);
                 response.put("JobId", Integer.toString(job.getId()));
                 response.put("status", "created");
             }
+        } catch (GenericServiceForbiddenAccessException e) {
+            throw e;
         } catch (Exception e) {
-            LOGGER.error("Error creating job: " + e.getMessage(), e);
+            LOGGER.error("Error creating job: {}", e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("jobs", "job", e);
         }
         return response;
@@ -228,7 +226,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
             try ( BufferedReader in = new BufferedReader(new FileReader(file)) ) {
                 IOUtils.copy(in, outputStream, StandardCharsets.UTF_8);
             } catch (IOException e) {
-                LOGGER.error("Error streaming job harness file: " + e.getMessage(), e);
+                LOGGER.error("Error streaming job harness file: {}", e.getMessage(), e);
                 throw new GenericServiceInternalServerException("jobs", "streaming output of job harness XML script file", e);
             }
         };
@@ -247,49 +245,57 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String startJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        Tracing.annotate("job.action", "start");
+        Tracing.annotate("jobId", Integer.toString(jobId));
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.startJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error starting job: " + e);
+            LOGGER.error("Error starting job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to start", e);
         }
     }
 
     @Override
     public String stopJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        Tracing.annotate("job.action", "stop");
+        Tracing.annotate("jobId", Integer.toString(jobId));
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.stopJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error stopping job: " + e);
+            LOGGER.error("Error stopping job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to stop", e);
         }
     }
 
     @Override
     public String pauseJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        Tracing.annotate("job.action", "pause");
+        Tracing.annotate("jobId", Integer.toString(jobId));
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.pauseRampJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error pausing job: " + e);
+            LOGGER.error("Error pausing job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to pause", e);
         }
     }
 
     @Override
     public String resumeJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        Tracing.annotate("job.action", "resume");
+        Tracing.annotate("jobId", Integer.toString(jobId));
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
@@ -303,14 +309,16 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     @Override
     public String killJob(Integer jobId) {
-        AWSXRay.getCurrentSegment().putAnnotation("jobId", jobId);
+        Tracing.annotate("job.action", "kill");
+        Tracing.annotate("jobId", Integer.toString(jobId));
+        JobAuthorization.requireJobControl(jobId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(servletContext,
                     JobEventSender.class);
             controller.killJob(Integer.toString(jobId));
             return getJobStatus(jobId);
         } catch (Exception e) {
-            LOGGER.error("Error killing job: " + e);
+            LOGGER.error("Error killing job: {}", String.valueOf(e));
             throw new GenericServiceCreateOrUpdateException("jobs", "job status to terminate", e);
         }
     }
@@ -319,7 +327,7 @@ public class JobServiceV2Impl implements JobServiceV2 {
 
     public static void buildJobConfiguration(@Nonnull CreateJobRequest request, Project project) {
         JobConfiguration jobConfiguration = (project != null && project.getWorkloads() != null && !project.getWorkloads().isEmpty())
-                ? project.getWorkloads().get(0).getJobConfiguration()
+                ? project.getWorkloads().getFirst().getJobConfiguration()
                 : null;
 
         if(jobConfiguration == null){
@@ -380,55 +388,28 @@ public class JobServiceV2Impl implements JobServiceV2 {
         }
     }
 
+    /**
+     * The job is already queued, so a failure to announce it is logged rather than reported to the caller.
+     */
+    private void sendQueuedEvent(JobInstance job) {
+        try {
+            new ServletInjector<JobQueueEventSender>().getManagedBean(servletContext, JobQueueEventSender.class)
+                    .jobQueued(job.getId());
+        } catch (RuntimeException e) {
+            LOGGER.warn("Job {} was queued but the queue event could not be sent: {}", job.getId(), e.toString());
+        }
+    }
+
     public static JobInstance addJobToQueue(Project project, CreateJobRequest request) {
-        JobQueueDao jobQueueDao = new JobQueueDao();
-        DataFileDao dataFileDao = new DataFileDao();
-        JobNotificationDao jobNotificationDao = new JobNotificationDao();
-        JobInstanceDao jobInstanceDao = new JobInstanceDao();
-
-        Workload workload = project.getWorkloads().get(0);
-        JobConfiguration jc = workload.getJobConfiguration();
-        JobQueue queue = jobQueueDao.findOrCreateForProjectId(project.getId());
-        JobInstance jobInstance = new JobInstance(workload, buildJobInstanceName(request, workload, project));
-        jobInstance.setScheduledTime(new Date());
-        jobInstance.setLocation(jc.getLocation());
-        jobInstance.setLoggingProfile(jc.getLoggingProfile());
-        jobInstance.setStopBehavior(jc.getStopBehavior());
-        jobInstance.setVmInstanceType(jc.getVmInstanceType());
-        jobInstance.setNumUsersPerAgent(jc.getNumUsersPerAgent());
-        jobInstance.setReportingMode(jc.getReportingMode());
-        jobInstance.getVariables().putAll(jc.getVariables());
-        // set version info
-        jobInstance.getDataFileVersions()
-                .addAll(getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
-
-        jobInstance.getNotificationVersions()
-                .addAll(getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
-        JobValidator validator = new JobValidator(workload.getTestPlans(), jobInstance.getVariables(), false);
-        long maxDuration = 0;
-        for (TestPlan plan : workload.getTestPlans()) {
-            maxDuration = Math.max(validator.getDurationMs(plan.getName()), maxDuration);
-        }
-        TestParameterContainer times = TestParamUtil.evaluateTestTimes(maxDuration, jc.getRampTimeExpression(),
-                jc.getSimulationTimeExpression());
-        jobInstance.setExecutionTime(maxDuration);
-        jobInstance.setRampTime(times.getRampTime());
-        jobInstance.setSimulationTime(times.getSimulationTime());
-        int totalVirtualUsers = 0;
-        for (JobRegion region : jc.getJobRegions()) {
-            totalVirtualUsers += TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
-                    times.getSimulationTime(), times.getRampTime());
-            jobInstance.getJobRegionVersions().add(new EntityVersion(region.getId(), 0, JobRegion.class));
-        }
-        jobInstance.setTotalVirtualUsers(totalVirtualUsers);
-        queue.addJob(jobInstance);
-        String jobDetails = JobDetailFormatter.createJobDetails(validator, workload, jobInstance);
-        jobInstance.setJobDetails(jobDetails);
+        Workload workload = project.getWorkloads().getFirst();
+        String projectName = request.getProjectName() != null ? request.getProjectName() : project.getName();
+        JobInstanceFactory.Proposal proposal = JobInstanceFactory.propose(workload, projectName,
+                StringUtils.trimToNull(request.getJobInstanceName()), RestAuthorization.currentUserName());
+        JobInstance jobInstance = proposal.job();
+        jobInstance.setJobDetails(JobDetailFormatter.createJobDetails(proposal.validator(), workload, jobInstance));
         clearLoadedScriptSteps(workload);
-        workload = new WorkloadDao().saveOrUpdate(workload);
-        jobInstance = jobInstanceDao.saveOrUpdate(jobInstance);
-        jobQueueDao.saveOrUpdate(queue);
-        return jobInstance;
+        new WorkloadDao().saveOrUpdate(workload);
+        return JobInstanceFactory.queue(project.getId(), workload, jobInstance).job();
     }
 
     private static void clearLoadedScriptSteps(Workload workload) {
@@ -440,34 +421,6 @@ public class JobServiceV2Impl implements JobServiceV2 {
                 .forEach(script -> script.getScriptSteps().clear());
     }
 
-    private static String buildJobInstanceName(CreateJobRequest request, Workload workload, Project project) {
-        String projectName = request.getProjectName() == null ? project.getName() : request.getProjectName();
-        String jobType = "_nonlinear_";
-        if(request.getWorkloadType().equals(IncrementStrategy.increasing)) {
-            jobType = "_" + workload.getJobConfiguration().getTotalVirtualUsers() + "_users_"; // set to total users for linear
-        }
-        return StringUtils.isNotEmpty(request.getJobInstanceName()) ? request.getJobInstanceName()
-                : projectName + jobType + ReportUtil.getTimestamp(new Date());
-    }
 
-    private static Set<EntityVersion> getVersions(BaseDao dao, Collection<Integer> dataFileIds,
-                                                  Class<? extends BaseEntity> entityClass) {
-        HashSet<EntityVersion> result = new HashSet<>();
-        for (Integer id : dataFileIds) {
-            int versionId = dao.getHeadRevisionNumber(id);
-            result.add(new EntityVersion(id, versionId, entityClass));
-        }
-        return result;
-    }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Set<EntityVersion> getVersions(BaseDao dao, Set<? extends BaseEntity> entities) {
-        HashSet<Integer> ids = new HashSet<>();
-        Class entityClass = null;
-        for (BaseEntity entity : entities) {
-            ids.add(entity.getId());
-            entityClass = entity.getClass();
-        }
-        return getVersions(dao, ids, entityClass);
-    }
 }

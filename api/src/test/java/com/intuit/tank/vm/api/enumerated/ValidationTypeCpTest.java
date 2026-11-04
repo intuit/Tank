@@ -240,6 +240,23 @@ public class ValidationTypeCpTest {
         assertEquals(0, result.ordinal());
     }
 
+    @Test
+    public void getValidationTypeRecognizesEqualsAnyBeforeEquals() {
+        ValidationType result = ValidationType.getValidationType("==Anyinput-required||completed");
+
+        assertEquals(ValidationType.equalsany, result);
+        assertEquals(ValidationTypeConstants.EQUALS_ANY, result.getValue());
+        assertEquals(ValidationTypeConstants.REPRESENTATION_EQUALS_ANY, result.getRepresentation());
+    }
+
+    @Test
+    public void getValidationTypeFromRepresentationRecognizesEqualsAny() {
+        assertEquals(ValidationType.equalsany,
+                ValidationType.getValidationTypeFromRepresentation(ValidationTypeConstants.REPRESENTATION_EQUALS_ANY));
+        assertEquals(ValidationType.equalsany,
+                ValidationType.getValidationTypeFromRepresentation(ValidationTypeConstants.EQUALS_ANY));
+    }
+
     /**
      * Run the ValidationType getValidationTypeFromRepresentation(String) method test.
      * 

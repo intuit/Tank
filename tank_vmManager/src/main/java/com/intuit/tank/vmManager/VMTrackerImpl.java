@@ -40,7 +40,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.AWSXRay;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.context.Context;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.commons.lang3.StringUtils;
@@ -140,15 +141,19 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
-        Runnable task = () -> setStatusThread(status);
+        // The reporting request has already returned 204; trace the update as part of that request's trace
+        Runnable task = Context.current().wrap(() -> Tracing.inSpan("VMTracker.SetStatus", () -> setStatusThread(status)));
         EXECUTOR.execute(task);
     }
 
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        AWSXRay.getGlobalRecorder().beginNoOpSegment();  //initiation call has already returned 204
         synchronized (getCacheSyncObject(status.getJobId())) {
             status.setReportTime(new Date());
             CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+            // agents that don't report their zone keep the one recorded at launch
+            if (status.getZone() == null && currentStatus != null) {
+                status.setZone(currentStatus.getZone());
+            }
             
             if (shouldUpdateStatus(currentStatus)) {
                 statusMap.put(status.getInstanceId(), status);
@@ -195,7 +200,6 @@ public class VMTrackerImpl implements VMTracker {
                 projectStatusContainer.addStatusContainer(cloudVmStatusContainer);
             }
         }
-        AWSXRay.endSegment();
     }
 
     private String getProjectForJobId(String jobId) {
@@ -203,8 +207,13 @@ public class VMTrackerImpl implements VMTracker {
         if (ret == null) {
             try {
                 JobInstance jobInstance = jobInstanceDao.get().findById(Integer.valueOf(jobId));
-                Workload wkld = workloadDaoInstance.get().findById(jobInstance.getWorkloadId());
-                ret = Integer.toString(wkld.getProject().getId());
+                Workload wkld = jobInstance != null ? workloadDaoInstance.get().findById(jobInstance.getWorkloadId()) : null;
+                if (wkld != null) {
+                    ret = Integer.toString(wkld.getProject().getId());
+                } else {
+                    LOG.warn("cannot get projectId for jobId " + jobId + ": no such job or workload");
+                    ret = "";
+                }
             } catch (Exception e) {
                 LOG.error("cannot get projectId for jobId " + jobId + ": " + e.toString(), e);
                 ret = "";

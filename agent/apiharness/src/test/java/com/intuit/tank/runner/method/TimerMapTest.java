@@ -1,7 +1,7 @@
 package com.intuit.tank.runner.method;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /*
  * #%L
@@ -110,7 +110,7 @@ public class TimerMapTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.runner.method.TimerMap.isActive(TimerMap.java:29)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -130,7 +130,7 @@ public class TimerMapTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.runner.method.TimerMap.isActive(TimerMap.java:29)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

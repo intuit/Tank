@@ -45,7 +45,7 @@ public class VMNodeBeanTest {
     @Test
     public void testVMNodeBean_1()
             throws Exception {
-        CloudVmStatus vmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1,
+        CloudVmStatus vmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT, VMRegion.ASIA_1, null,
                 VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         vmStatus.setTotalTps(1);
         vmStatus.setUserDetails(new LinkedList());
@@ -72,7 +72,7 @@ public class VMNodeBeanTest {
     public void testGetSubNodes_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -96,7 +96,7 @@ public class VMNodeBeanTest {
     public void testGetType_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -120,7 +120,7 @@ public class VMNodeBeanTest {
     public void testHasSubNodes_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -130,7 +130,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -144,7 +144,7 @@ public class VMNodeBeanTest {
     public void testIsKillable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -154,7 +154,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -168,7 +168,7 @@ public class VMNodeBeanTest {
     public void testIsPausable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -178,7 +178,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -192,7 +192,7 @@ public class VMNodeBeanTest {
     public void testisRampPauseable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -202,7 +202,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -216,7 +216,7 @@ public class VMNodeBeanTest {
     public void testIsRunnable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -226,7 +226,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -240,7 +240,7 @@ public class VMNodeBeanTest {
     public void testisStoppable_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));
@@ -250,7 +250,7 @@ public class VMNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: Could not initialize class com.intuit.tank.api.enumerated.VMImageType
         // at sun.misc.Unsafe.ensureClassInitialized(Native Method)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -264,7 +264,7 @@ public class VMNodeBeanTest {
     public void testReCalculate_1()
             throws Exception {
         CloudVmStatus cloudVmStatus = new CloudVmStatus("", "", "", JobStatus.Completed, VMImageType.AGENT,
-                VMRegion.ASIA_1, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
+                VMRegion.ASIA_1, null, VMStatus.pending, new ValidationStatus(), 1, 1, new Date(), new Date());
         cloudVmStatus.setTotalTps(1);
         cloudVmStatus.setUserDetails(new LinkedList());
         VMNodeBean fixture = new VMNodeBean(cloudVmStatus, true, FastDateFormat.getDateTimeInstance(FastDateFormat.MEDIUM, FastDateFormat.MEDIUM));

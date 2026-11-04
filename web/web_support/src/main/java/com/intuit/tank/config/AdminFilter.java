@@ -17,7 +17,7 @@ import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@WebFilter(urlPatterns = "/admin/*")
+@WebFilter(urlPatterns = { "/admin/*" })
 public class AdminFilter implements Filter {
     private static final Logger LOG = LogManager.getLogger(AdminFilter.class);
 

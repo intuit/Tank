@@ -15,8 +15,6 @@ package com.intuit.tank.harness;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.StopBehavior;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

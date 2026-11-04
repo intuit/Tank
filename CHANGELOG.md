@@ -1,3 +1,462 @@
+# 4.6.19 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- Fix script XML parse error and NPEs on not-found paths [#562](https://github.com/intuit/Tank/pull/562) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Use AWS SDK IMDS client in AmazonUtil [#561](https://github.com/intuit/Tank/pull/561) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.18 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- Move controller tracing from the X-Ray SDK to OpenTelemetry (ADOT) [#548](https://github.com/intuit/Tank/pull/548) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.17 (Wed Nov 04 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: create, edit and test external scripts [#559](https://github.com/intuit/Tank/pull/559) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.16 (Tue Nov 03 2026)
+
+#### 🐛 Bug Fix
+
+- Agent Tracker: keep the timeline to its window; break out Regions by availability zone [#555](https://github.com/intuit/Tank/pull/555) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Record the caller on X-Ray traces for REST calls [#558](https://github.com/intuit/Tank/pull/558) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Add script-engines profile for Groovy and JRuby runtimes [#560](https://github.com/intuit/Tank/pull/560) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.15 (Tue Nov 03 2026)
+
+#### 🐛 Bug Fix
+
+- Remove unused Maven dependencies [#557](https://github.com/intuit/Tank/pull/557) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Agent Debugger: use RSyntaxTextArea from Maven instead of a vendored copy [#556](https://github.com/intuit/Tank/pull/556) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.14 (Mon Nov 02 2026)
+
+#### 🐛 Bug Fix
+
+- Address deprecations, remove unused imports, simplify test assertions [#554](https://github.com/intuit/Tank/pull/554) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.13 (Fri Oct 30 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: close the remaining JSF parity gaps [#535](https://github.com/intuit/Tank/pull/535) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Raise tank-vm-manager unit test line coverage to 98.6% [#553](https://github.com/intuit/Tank/pull/553) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 📝 Documentation
+
+- Turn the React UI home page into a feature overview [#552](https://github.com/intuit/Tank/pull/552) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.12 (Thu Oct 29 2026)
+
+#### 🐛 Bug Fix
+
+- Fix REST 500s, S3 zip uploads, rounded-time save conflicts and stale ITs [#551](https://github.com/intuit/Tank/pull/551) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Stop the CodeBuild cache from growing with every build [#549](https://github.com/intuit/Tank/pull/549) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.11 (Wed Oct 28 2026)
+
+#### 🐛 Bug Fix
+
+- Send settings.xml during startup WS bootstrap, before the harness starts [#550](https://github.com/intuit/Tank/pull/550) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.10 (Wed Oct 28 2026)
+
+#### 🐛 Bug Fix
+
+- Let agents keep connections from several controllers at once [#541](https://github.com/intuit/Tank/pull/541) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.9 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: trace background AWS calls instead of dropping X-Ray context [#544](https://github.com/intuit/Tank/pull/544) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump undici from 8.11.2 to 8.12.3 in /web/web_react [#547](https://github.com/intuit/Tank/pull/547) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.8 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- fix: cut agent launch latency when starting multi-region jobs [#546](https://github.com/intuit/Tank/pull/546) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.7 (Tue Oct 27 2026)
+
+#### 🐛 Bug Fix
+
+- Stop the job queue trees loading every queue's whole job history [#539](https://github.com/intuit/Tank/pull/539) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.6 (Wed Oct 21 2026)
+
+#### 🐛 Bug Fix
+
+- fix: push agent files over WebSocket on HTTP/1.1 to stop direct memory OOM [#538](https://github.com/intuit/Tank/pull/538) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.5 (Mon Oct 19 2026)
+
+#### 🐛 Bug Fix
+
+- fix: request and decode gzip responses in REST clients [#536](https://github.com/intuit/Tank/pull/536) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.4 (Fri Oct 16 2026)
+
+#### 🐛 Bug Fix
+
+- feat: add --headless debugger mode and /v2/tools downloads (SRE-39128) [#533](https://github.com/intuit/Tank/pull/533) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.6.3 (Wed Oct 14 2026)
+
+#### 🐛 Bug Fix
+
+- Upgrade to Spring Framework 7.0.9 for CVE-2026-47884 and CVE-2026-47890 [#532](https://github.com/intuit/Tank/pull/532) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.2 (Wed Oct 14 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: match JSF table text, post-login page, project width, job columns [#531](https://github.com/intuit/Tank/pull/531) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.1 (Fri Oct 09 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: tables fill the window; rename Job queue to Agent Tracker [#530](https://github.com/intuit/Tank/pull/530) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Add integration tests for the React migration REST endpoints (phases 1-7) [#527](https://github.com/intuit/Tank/pull/527) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.6.0 (Thu Oct 08 2026)
+
+#### 🚀 Enhancement
+
+- Add a React UI for every Tank section, served from tank.war under /app [#529](https://github.com/intuit/Tank/pull/529) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.8 (Tue Oct 06 2026)
+
+#### 🐛 Bug Fix
+
+- fix: re-adopt running WS agents after controller restart (SRE-39861) [#526](https://github.com/intuit/Tank/pull/526) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.5.7 (Tue Oct 06 2026)
+
+#### 🐛 Bug Fix
+
+- Bump com.fasterxml.jackson.core:jackson-databind from 2.22.1 to 2.22.3 in /test_support [#515](https://github.com/intuit/Tank/pull/515) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump org.bouncycastle:bcprov-jdk18on from 1.84 to 1.85 in /proxy-parent/owasp-proxy [#511](https://github.com/intuit/Tank/pull/511) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.6 (Mon Oct 05 2026)
+
+#### 🐛 Bug Fix
+
+- Add admin REST endpoints for users, groups, logs and log level (React migration phase 7) [#525](https://github.com/intuit/Tank/pull/525) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.5 (Mon Oct 05 2026)
+
+#### 🐛 Bug Fix
+
+- Add filter and filter group editor REST endpoints (React migration phase 6) [#524](https://github.com/intuit/Tank/pull/524) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Add script editor REST endpoints (React migration phase 5) [#523](https://github.com/intuit/Tank/pull/523) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.4 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add data file paging, batch upload, preview and bulk delete REST endpoints (React migration phase 4) [#522](https://github.com/intuit/Tank/pull/522) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.3 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add job queue, live job tree and job control REST endpoints (React migration phase 3) [#521](https://github.com/intuit/Tank/pull/521) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Fix SSO return path and callback handling, and build number overflow [#520](https://github.com/intuit/Tank/pull/520) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.2 (Fri Oct 02 2026)
+
+#### 🐛 Bug Fix
+
+- Add project editor REST endpoints (React migration phase 2) [#519](https://github.com/intuit/Tank/pull/519) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.1 (Thu Oct 01 2026)
+
+#### 🐛 Bug Fix
+
+- Add session, current user and reference data REST endpoints (React migration phase 1) [#518](https://github.com/intuit/Tank/pull/518) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.5.0 (Wed Sep 30 2026)
+
+#### 🚀 Enhancement
+
+- Enforce REST authorization and harden auth (React migration phase 0) [#517](https://github.com/intuit/Tank/pull/517) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.4.7 (Tue Sep 29 2026)
+
+#### 🐛 Bug Fix
+
+- feat: support OR response validation (SRE-39831) [#516](https://github.com/intuit/Tank/pull/516) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### 📝 Documentation
+
+- Add CODEOWNERS [#514](https://github.com/intuit/Tank/pull/514) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 3
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.4.6 (Thu Sep 24 2026)
+
+#### 🐛 Bug Fix
+
+- feat: add last substring response extraction (SRE-39717) [#513](https://github.com/intuit/Tank/pull/513) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.4.5 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- JDK httpclient rewrite [#510](https://github.com/intuit/Tank/pull/510) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
+# 4.4.4 (Mon Sep 21 2026)
+
+#### 🐛 Bug Fix
+
+- fix: restore substring body extraction (SRE-39717) [#512](https://github.com/intuit/Tank/pull/512) (zakaria_kofiro@intuit.com [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 2
+
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
+# 4.4.3 (Wed Sep 09 2026)
+
+#### 🐛 Bug Fix
+
+- Bump org.apache.tomcat:tomcat-catalina from 11.0.24 to 11.0.25 [#507](https://github.com/intuit/Tank/pull/507) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
+# 4.4.2 (Tue Sep 01 2026)
+
+#### 🐛 Bug Fix
+
+- Performance Optimizations on Agent Threads [#506](https://github.com/intuit/Tank/pull/506) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.4.1 (Tue Aug 25 2026)
 
 #### 🐛 Bug Fix

@@ -1,6 +1,7 @@
 package com.intuit.tank.perfManager.workLoads;
 
 import com.intuit.tank.storage.FileStorage;
+import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -12,6 +13,7 @@ import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -49,25 +51,48 @@ public class ControllerInitiatedAgentWsClientTest {
     Path tempDir;
 
     @Test
-    void testStartupBootstrapSendsCustomScriptBeforeHarnessJar() {
+    void testStartupBootstrapSendsSettingsAndCustomScriptBeforeHarnessJar() {
+        byte[] settings = "<tank/>".getBytes();
         byte[] startupScript = "#!/bin/sh\necho custom\n".getBytes();
         byte[] harnessJar = new byte[] { 1, 2, 3 };
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.of(startupScript));
+                        settings, harnessJar, Optional.of(startupScript));
 
-        assertEquals(2, files.size());
-        assertEquals("startup_script", files.get(0).fileType());
-        assertEquals("startAgent.sh", files.get(0).fileName());
-        assertArrayEquals(startupScript, files.get(0).content());
-        assertEquals("support_jar", files.get(1).fileType());
-        assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
-        assertArrayEquals(harnessJar, files.get(1).content());
+        assertEquals(3, files.size());
+        assertEquals("settings", files.get(0).fileType());
+        assertEquals("settings.xml", files.get(0).fileName());
+        assertArrayEquals(settings, files.get(0).content());
+        assertEquals("startup_script", files.get(1).fileType());
+        assertEquals("startAgent.sh", files.get(1).fileName());
+        assertArrayEquals(startupScript, files.get(1).content());
+        assertEquals("support_jar", files.get(2).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(2).fileName());
+        assertArrayEquals(harnessJar, files.get(2).content());
     }
 
     @Test
-    void testLegacyAgentRejectionTriggersFallbackOnlyForStartupScript() {
+    void testWebSocketClientUsesHttp11Transport() throws Exception {
+        // WebSocket over HTTP/2 copies every outgoing frame into a new direct buffer in Jetty's
+        // HTTP2StreamEndPoint, which exhausted direct memory when pushing files to many agents.
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod("webSocketClient");
+        method.setAccessible(true);
+        WebSocketClient wsClient = (WebSocketClient) method.invoke(client);
+        try {
+            assertTrue(wsClient.getHttpClient().getTransport()
+                    instanceof org.eclipse.jetty.client.transport.HttpClientTransportOverHTTP);
+        } finally {
+            wsClient.stop();
+        }
+    }
+
+    @Test
+    void testLegacyAgentRejectionTriggersFallbackOnlyForOptionalStartupFiles() {
+        ControllerInitiatedAgentWsClient.TransferFile settings =
+                new ControllerInitiatedAgentWsClient.TransferFile(
+                        "settings", "settings.xml", new byte[] { 0 }, false);
         ControllerInitiatedAgentWsClient.TransferFile startupScript =
                 new ControllerInitiatedAgentWsClient.TransferFile(
                         "startup_script", "startAgent.sh", new byte[] { 1 }, false);
@@ -81,16 +106,20 @@ public class ControllerInitiatedAgentWsClientTest {
                 "i-agent", "bootstrap", "file-id", null,
                 AgentWsEnvelope.AckStatus.failed, "disk_full");
 
-        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
+                settings, unsupported));
+        assertTrue(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 startupScript, unsupported));
-        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 harnessJar, unsupported));
-        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupScriptRejection(
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
+                settings, otherFailure));
+        assertFalse(ControllerInitiatedAgentWsClient.isLegacyStartupFileRejection(
                 startupScript, otherFailure));
     }
 
     @Test
-    void testLegacyAgentRejectionRetriesBootstrapWithHarnessJarOnly() throws Exception {
+    void testLegacyAgentRejectionSkipsOptionalFilesAndSendsHarnessJar() throws Exception {
         ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
         Session session = mock(Session.class);
         Object context = installSession(client, "i-agent", session);
@@ -109,7 +138,7 @@ public class ControllerInitiatedAgentWsClientTest {
             callback.succeed();
             if (offer.getType() == AgentWsEnvelope.Type.file_offer) {
                 offeredFiles.add(offer.getFileName());
-                AgentWsEnvelope.AckStatus status = "startAgent.sh".equals(offer.getFileName())
+                AgentWsEnvelope.AckStatus status = !"apiharness-1.0-all.jar".equals(offer.getFileName())
                         ? AgentWsEnvelope.AckStatus.failed
                         : AgentWsEnvelope.AckStatus.ok;
                 String error = status == AgentWsEnvelope.AckStatus.failed
@@ -135,7 +164,7 @@ public class ControllerInitiatedAgentWsClientTest {
             boolean result = invokePushStartupBootstrap(client, context);
 
             assertFalse(result);
-            assertEquals(List.of("startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
+            assertEquals(List.of("settings.xml", "startAgent.sh", "apiharness-1.0-all.jar"), offeredFiles);
             assertEquals("1/1 files", client.getTransferProgress("i-agent"));
         } finally {
             if (previousCatalinaHome == null) {
@@ -147,16 +176,32 @@ public class ControllerInitiatedAgentWsClientTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void testHarnessTransferDoesNotResendSettings() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
+                "buildTransferFiles", AgentTestStartData.class, String.class);
+        method.setAccessible(true);
+
+        List<ControllerInitiatedAgentWsClient.TransferFile> files =
+                (List<ControllerInitiatedAgentWsClient.TransferFile>) method.invoke(
+                        client, new AgentTestStartData(), "bearer token");
+
+        assertTrue(files.stream().noneMatch(file -> "settings.xml".equals(file.fileName())));
+    }
+
+    @Test
     void testStartupBootstrapUsesPackagedScriptWhenCustomScriptIsMissing() {
         byte[] harnessJar = new byte[] { 1, 2, 3 };
 
         List<ControllerInitiatedAgentWsClient.TransferFile> files =
                 ControllerInitiatedAgentWsClient.buildStartupBootstrapFiles(
-                        harnessJar, Optional.empty());
+                        "<tank/>".getBytes(), harnessJar, Optional.empty());
 
-        assertEquals(1, files.size());
-        assertEquals("support_jar", files.get(0).fileType());
-        assertEquals("apiharness-1.0-all.jar", files.get(0).fileName());
+        assertEquals(2, files.size());
+        assertEquals("settings.xml", files.get(0).fileName());
+        assertEquals("support_jar", files.get(1).fileType());
+        assertEquals("apiharness-1.0-all.jar", files.get(1).fileName());
     }
 
     @Test
@@ -262,6 +307,102 @@ public class ControllerInitiatedAgentWsClientTest {
         verify(vmTracker).setStatus(status);
     }
 
+    @Test
+    void testKeepaliveClosesSessionThatStoppedAnsweringPings() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        client.setCloseStaleSessions(true);
+        Session session = openSession();
+        installSilentSession(client, "i-silent", session);
+
+        invokePingOpenSessions(client);
+
+        assertFalse(client.hasSession("i-silent"));
+        assertEquals("disconnected", client.getWsState("i-silent"));
+        verify(session, never()).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testKeepaliveLeavesSilentSessionOpenWhenStaleCloseIsOff() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSilentSession(client, "i-silent", session);
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-silent"));
+        verify(session).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testKeepaliveKeepsNewSessionEvenIfPreviousSessionWentSilent() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        client.setCloseStaleSessions(true);
+        Session session = openSession();
+        installSession(client, "i-reconnected", session);
+        lastSeen(client).put("i-reconnected", System.currentTimeMillis() - 5 * 60_000L);
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-reconnected"));
+    }
+
+    @Test
+    void testKeepalivePingsSessionThatAnsweredRecently() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSession(client, "i-alive", session);
+        lastSeen(client).put("i-alive", System.currentTimeMillis());
+
+        invokePingOpenSessions(client);
+
+        assertTrue(client.hasSession("i-alive"));
+        verify(session).sendText(anyString(), any(Callback.class));
+    }
+
+    @Test
+    void testDisconnectClosesAndForgetsSession() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        installSession(client, "i-agent", session);
+
+        client.disconnect("i-agent");
+
+        assertFalse(client.hasSession("i-agent"));
+        assertEquals("disconnected", client.getWsState("i-agent"));
+    }
+
+    private void installSilentSession(ControllerInitiatedAgentWsClient client, String instanceId, Session session) throws Exception {
+        Object context = installSession(client, instanceId, session);
+        long fiveMinutesAgo = System.currentTimeMillis() - 5 * 60_000L;
+        Field openedAt = context.getClass().getDeclaredField("openedAtMs");
+        openedAt.setAccessible(true);
+        openedAt.set(context, fiveMinutesAgo);
+        lastSeen(client).put(instanceId, fiveMinutesAgo);
+    }
+
+    private Session openSession() {
+        Session session = mock(Session.class);
+        when(session.isOpen()).thenReturn(true);
+        doAnswer(invocation -> {
+            ((Callback) invocation.getArgument(1)).succeed();
+            return null;
+        }).when(session).sendText(anyString(), any(Callback.class));
+        return session;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ConcurrentHashMap<String, Long> lastSeen(ControllerInitiatedAgentWsClient client) throws Exception {
+        Field field = ControllerInitiatedAgentWsClient.class.getDeclaredField("agentLastSeen");
+        field.setAccessible(true);
+        return (ConcurrentHashMap<String, Long>) field.get(client);
+    }
+
+    private void invokePingOpenSessions(ControllerInitiatedAgentWsClient client) throws Exception {
+        Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod("pingOpenSessions");
+        method.setAccessible(true);
+        method.invoke(client);
+    }
+
     private void invokeHandleStatusUpdate(ControllerInitiatedAgentWsClient client, String instanceId,
                                           AgentWsEnvelope envelope) throws Exception {
         Method method = ControllerInitiatedAgentWsClient.class.getDeclaredMethod(
@@ -337,7 +478,7 @@ public class ControllerInitiatedAgentWsClientTest {
                 "sg-1",
                 jobStatus,
                 VMImageType.AGENT,
-                VMRegion.US_EAST,
+                VMRegion.US_EAST, null,
                 vmStatus,
                 new ValidationStatus(),
                 5,

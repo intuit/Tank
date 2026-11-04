@@ -15,8 +15,6 @@ package com.intuit.tank.vm.agent.messages;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.agent.messages.WatsAgentStatusResponse;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

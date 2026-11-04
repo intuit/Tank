@@ -14,16 +14,12 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDScript;
-import com.intuit.tank.harness.data.HDScriptGroup;
-import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.HDVariable;
 
 /**
  * The class <code>HDScriptGroupTest</code> contains tests for the class <code>{@link HDScriptGroup}</code>.
@@ -153,9 +149,9 @@ public class HDScriptGroupTest {
 
         assertNotNull(result);
         assertEquals("null (100%)", result.toString());
-        assertEquals(null, result.getVariables());
+        assertNull(result.getVariables());
         assertEquals(100, result.getUserPercentage());
-        assertEquals(null, result.getTestPlanName());
+        assertNull(result.getTestPlanName());
     }
 
     /**
@@ -178,8 +174,8 @@ public class HDScriptGroupTest {
         HDVariable result = fixture.getVariable();
 
         assertNotNull(result);
-        assertEquals(null, result.getValue());
-        assertEquals(null, result.getKey());
+        assertNull(result.getValue());
+        assertNull(result.getKey());
     }
 
     /**

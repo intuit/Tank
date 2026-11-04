@@ -17,9 +17,6 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.tools.debugger.ScriptChangedListener;
-
 /**
  * The class <code>ScriptChangedListenerTest</code> contains tests for the class <code>{@link ScriptChangedListener}</code>.
  *

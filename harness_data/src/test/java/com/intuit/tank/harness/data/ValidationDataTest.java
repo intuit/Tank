@@ -14,11 +14,11 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.ValidationData;
 import com.intuit.tank.script.RequestDataPhase;
 
 /**
@@ -46,8 +46,8 @@ public class ValidationDataTest {
         assertNotNull(result);
         assertEquals("null  null", result.toString());
         assertEquals("", result.getCondition());
-        assertEquals(null, result.getValue());
-        assertEquals(null, result.getKey());
+        assertNull(result.getValue());
+        assertNull(result.getKey());
     }
 
     /**

@@ -427,8 +427,7 @@ public class ScriptApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertTrue(response.statusCode() >= 400 && response.statusCode() < 500,
-                  "Should return 4xx error for invalid XML");
+        assertEquals(400, response.statusCode(), "Should return 400 for invalid XML");
     }
 
     @Test
@@ -721,7 +720,7 @@ public class ScriptApiIT extends BaseIT {
         JsonNode responseBody = JSON_MAPPER.readTree(response.body());
         assertTrue(responseBody.has("id"), "Response should contain external script ID");
         assertEquals(scriptName, responseBody.get("name").asString(), "Should return correct script name");
-        assertEquals("integration-test", responseBody.get("creator").asString(), "Should return correct creator");
+        assertEquals(currentUserName(), responseBody.get("creator").asString(), "The caller should be the creator");
 
         // Store for cleanup
         int externalScriptId = responseBody.get("id").asInt();

@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.intuit.tank</groupId>
         <artifactId>tank-rest-api</artifactId>
-        <version>4.4.2-SNAPSHOT</version>
+        <version>4.6.20-SNAPSHOT</version>
     </parent>
 
     <artifactId>tank-rest-api-impl</artifactId>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -47,6 +51,17 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!-- zip archives of data files and scripts -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <dependency>
+            <!-- TPS series for the job tree charts -->
+            <groupId>${project.groupId}</groupId>
+            <artifactId>reporting-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tank-script-processor</artifactId>
             <version>${project.version}</version>
@@ -59,6 +74,32 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <!-- OpenApiSpecExportTest: boots the controllers to export the OpenAPI spec for the React client -->
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-testing</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

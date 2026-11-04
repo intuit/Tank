@@ -174,6 +174,32 @@ public class JobManagerTest {
         verify(wsSender, never()).sendCommand(anyString(), anyString(), anyString(), anyLong());
     }
 
+    @Test
+    public void testSendCommandRoutesToAdoptedAgentAfterControllerRestart() throws Exception {
+        JobManager fixture = new JobManager();
+        String instanceId = "i-adopted";
+
+        AgentConfig agentConfig = mock(AgentConfig.class);
+        when(agentConfig.isCommandWsEnabled()).thenReturn(true);
+        TankConfig tankConfig = mock(TankConfig.class);
+        when(tankConfig.getAgentConfig()).thenReturn(agentConfig);
+        setField(fixture, "tankConfig", tankConfig);
+
+        AgentWsCommandSender wsSender = mock(AgentWsCommandSender.class);
+        when(wsSender.hasSession(instanceId)).thenReturn(true);
+        when(wsSender.sendCommand(eq(instanceId), eq("16156"), eq("pause_ramp"), anyLong())).thenReturn(true);
+        @SuppressWarnings("unchecked")
+        Instance<AgentWsCommandSender> wsSenderInstance = mock(Instance.class);
+        when(wsSenderInstance.isResolvable()).thenReturn(true);
+        when(wsSenderInstance.get()).thenReturn(wsSender);
+        setField(fixture, "wsCommandSenderInstance", wsSenderInstance);
+
+        fixture.adoptAgent(instanceId, "16156");
+        fixture.sendCommand(Collections.singletonList(instanceId), AgentCommand.pause_ramp);
+
+        verify(wsSender).sendCommand(eq(instanceId), eq("16156"), eq("pause_ramp"), anyLong());
+    }
+
     private void seedJobInfoCache(JobManager fixture, String jobId, String instanceId, String instanceUrl) throws Exception {
         JobRequest jobRequest = mock(JobRequest.class);
         when(jobRequest.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);

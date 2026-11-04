@@ -22,9 +22,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.RequestData;
-import com.intuit.tank.script.RequestDataContentWrapper;
-import com.intuit.tank.script.RequestDataPhase;
-import com.intuit.tank.script.ResponseContentEditor;
 import com.intuit.tank.vm.api.enumerated.DataLocation;
 import com.intuit.tank.vm.api.enumerated.ValidationType;
 
@@ -317,7 +314,7 @@ public class ResponseContentEditorTest {
         RequestData data = new RequestData();
 
         boolean result = fixture.isAssignment(data);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -334,7 +331,7 @@ public class ResponseContentEditorTest {
         RequestData data = new RequestData();
 
         boolean result = fixture.isAssignment(data);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -351,7 +348,7 @@ public class ResponseContentEditorTest {
         RequestData data = new RequestData();
 
         boolean result = fixture.isValidation(data);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -368,7 +365,7 @@ public class ResponseContentEditorTest {
         RequestData data = new RequestData();
 
         boolean result = fixture.isValidation(data);
-        assertTrue(!result);
+        assertFalse(result);
     }
 
 }

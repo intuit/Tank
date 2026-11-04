@@ -6,7 +6,7 @@
 
   <groupId>com.intuit.tank</groupId>
   <artifactId>tank-parent</artifactId>
-  <version>4.4.2-SNAPSHOT</version>
+  <version>4.6.20-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>Tank Parent</name>
@@ -31,9 +31,9 @@
 
     <version.hibernate>6.6.54.Final</version.hibernate>
     <version.software.amazon.awssdk>2.47.1</version.software.amazon.awssdk>
-    <version.aws-xray-sdk-bom>2.21.0</version.aws-xray-sdk-bom>
+    <version.opentelemetry>1.65.0</version.opentelemetry>
 
-    <version.tomcat>11.0.24</version.tomcat>
+    <version.tomcat>11.0.25</version.tomcat>
     <weld.version>6.0.4.Final</weld.version>
     <cdi.version>4.1.0</cdi.version>
 
@@ -42,17 +42,17 @@
     <version.faces>4.1.2</version.faces>
     <version.primefaces>15.0.17</version.primefaces>
     <version.primefaces-ext>15.0.17</version.primefaces-ext>
-    <version.jsr166>1.7.0</version.jsr166>
     <version.surefire>3.5.6</version.surefire>
     <version.jacoco>0.8.15</version.jacoco>
     <version.junit>6.1.1</version.junit>
     <version.mockito>5.23.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
     <version.jaxb>4.0.3</version.jaxb>
-    <version.spring-webmvc>6.2.19</version.spring-webmvc>
+    <version.spring-webmvc>7.0.9</version.spring-webmvc>
+    <version.spring-boot>4.1.1</version.spring-boot>
     <version.wiremock>3.13.2</version.wiremock>
     <version.jackson>3.2.2</version.jackson>
-    <version.jackson2>2.21.1</version.jackson2>
+    <version.jackson2>2.22.3</version.jackson2>
     <version.log4j>2.26.1</version.log4j>
     <version.jetty>12.0.35</version.jetty>
 
@@ -117,11 +117,6 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>${version.jacoco}</version>
-            <configuration>
-              <excludes>
-                <exclude>org/fife/**/*</exclude>
-              </excludes>
-            </configuration>
             <executions>
               <!-- Unit test coverage -->
               <execution>
@@ -334,12 +329,6 @@
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
@@ -435,18 +424,6 @@
         <groupId>com.webcohesion.enunciate</groupId>
         <artifactId>enunciate-core</artifactId>
         <version>${version.enunciate}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.jsr166-mirror</groupId>
-        <artifactId>extra166y</artifactId>
-        <version>${version.jsr166}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.jsr166-mirror</groupId>
-        <artifactId>jsr166y</artifactId>
-        <version>${version.jsr166}</version>
       </dependency>
 
       <dependency>
@@ -638,11 +615,11 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
-      <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-xray-recorder-sdk-bom -->
+      <!-- Keep at or below the OpenTelemetry version bundled in the ADOT Java agent the controller runs with -->
       <dependency>
-        <groupId>com.amazonaws</groupId>
-        <artifactId>aws-xray-recorder-sdk-bom</artifactId>
-        <version>${version.aws-xray-sdk-bom}</version>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>${version.opentelemetry}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -657,22 +634,6 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>20240205</version>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.3</version>
-      </dependency>
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>serializer</artifactId>
-        <version>2.7.3</version>
-      </dependency>
-      <dependency>
-        <groupId>jaxen</groupId>
-        <artifactId>jaxen</artifactId>
-        <version>1.2.0</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>jakarta.xml</groupId>
@@ -694,12 +655,6 @@
         <groupId>jakarta.enterprise</groupId>
         <artifactId>jakarta.enterprise.cdi-el-api</artifactId>
         <version>${cdi.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${version.junit}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -759,9 +714,9 @@
         <version>${version.jaxb}</version>
       </dependency>
       <dependency>
-        <groupId>jakarta.xml.ws</groupId>
-        <artifactId>jakarta.xml.ws-api</artifactId>
-        <version>${version.jaxb}</version>
+        <groupId>jakarta.xml.soap</groupId>
+        <artifactId>jakarta.xml.soap-api</artifactId>
+        <version>3.0.2</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jaxb</groupId>
@@ -797,7 +752,63 @@
       <dependency>
         <groupId>org.springdoc</groupId>
         <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        <version>2.8.6</version>
+        <version>3.1.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-autoconfigure</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-jackson</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-jackson2</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-validation</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-http-converter</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-servlet</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-web-server</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-webmvc</artifactId>
+        <version>${version.spring-boot}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -808,6 +819,30 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-websocket</artifactId>
         <version>${version.spring-webmvc}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-test</artifactId>
+        <version>${version.spring-webmvc}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-test</artifactId>
+        <version>${version.spring-boot}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-test-autoconfigure</artifactId>
+        <version>${version.spring-boot}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-webmvc-test</artifactId>
+        <version>${version.spring-boot}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.wiremock</groupId>

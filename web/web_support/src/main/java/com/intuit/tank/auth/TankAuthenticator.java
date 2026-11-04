@@ -29,6 +29,7 @@ import jakarta.security.enterprise.authentication.mechanism.http.AuthenticationP
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -87,7 +88,8 @@ public class TankAuthenticator implements Serializable {
     }
 
     public void ssoLogin() throws IOException {
-        String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest();
+        HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(true);
+        String authorizationRequest = _tankSsoHandler.GetOnLoadAuthorizationRequest(session);
         FacesContext.getCurrentInstance().getExternalContext().redirect(authorizationRequest);
     }
 

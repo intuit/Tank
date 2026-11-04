@@ -28,15 +28,16 @@ import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.intuit.tank.rest.mvc.rest.security.JobAuthorization;
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
+import com.intuit.tank.vm.settings.AccessRight;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -69,6 +70,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String getSettings() {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         String settings;
         try {
             File configFile = new TankConfig().getSourceConfigFile();
@@ -86,6 +88,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public File getSupportFiles() {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         String filename = "agent-support-files.zip";
         File supportFiles = new File(new TankConfig().getTmpDir(), filename);
         if (!supportFiles.exists()) {
@@ -120,29 +123,30 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     private void addFileToZip(String name, InputStream in, ZipOutputStream zip) {
-        Subsegment subsegment = AWSXRay.beginSubsegment("Zip.File." + name);
-        try {
-            zip.putNextEntry(new ZipEntry(name));
-            IOUtils.copy(in, zip);
-            zip.closeEntry();
-        } catch (IOException e) {
-            LOGGER.error(e.toString());
-            subsegment.addException(e);
-        } finally {
-            AWSXRay.endSubsegment();
-            if (in != null) {
-                try { in.close(); } catch (IOException e) {}
+        Tracing.inSpan("Zip.File." + name, () -> {
+            try {
+                zip.putNextEntry(new ZipEntry(name));
+                IOUtils.copy(in, zip);
+                zip.closeEntry();
+            } catch (IOException e) {
+                LOGGER.error(e.toString());
+                Tracing.recordException(e);
+            } finally {
+                if (in != null) {
+                    try { in.close(); } catch (IOException e) {}
+                }
             }
-        }
+        });
     }
 
     @Nonnull
     @Override
     public AgentTestStartData agentReady(AgentData data) {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         AgentTestStartData response;
         LOGGER.info(new ObjectMessage(Map.of("Message", "Agent ready: " + data)));
-        AWSXRay.getCurrentSegment().putAnnotation("JobId", data.getJobId());
-        AWSXRay.getCurrentSegment().putAnnotation("InstanceId", data.getInstanceId());
+        Tracing.annotate("JobId", data.getJobId());
+        Tracing.annotate("InstanceId", data.getInstanceId());
         try {
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
             response = jobManager.registerAgentForJob(data);
@@ -189,6 +193,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public void setStandaloneAgentAvailability(AgentAvailability availability) {
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         try {
             StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
             LOGGER.info("Adding agent availability: " + availability);
@@ -201,7 +206,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public CloudVmStatus getInstanceStatus(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
         try {
             JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
                     servletContext, JobEventSender.class);
@@ -214,12 +219,12 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public void setInstanceStatus(String instanceId, CloudVmStatus status) {
-        Segment segment = AWSXRay.getCurrentSegment();
-        segment.putAnnotation("instanceId", instanceId);
-        segment.putAnnotation("jobId", status.getJobId());
-        segment.putAnnotation("currentUsers", status.getCurrentUsers());
-        segment.putAnnotation("TotalUsers", status.getTotalUsers());
-        segment.putAnnotation("totalTps", status.getTotalTps());
+        RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
+        Tracing.annotate("instanceId", instanceId);
+        Tracing.annotate("jobId", status.getJobId());
+        Tracing.annotate("currentUsers", status.getCurrentUsers());
+        Tracing.annotate("TotalUsers", status.getTotalUsers());
+        Tracing.annotate("totalTps", status.getTotalTps());
         
         LOGGER.debug("Agent " + instanceId + " reporting status - VMStatus: " + status.getVmStatus() + 
             ", JobStatus: " + status.getJobStatus() + ", Users: " + status.getCurrentUsers() + 
@@ -237,12 +242,14 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String stopInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.stopAgent(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error stopping instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to stop", e);
@@ -251,12 +258,14 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String pauseInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.pauseRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error pausing running instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to pause", e);
@@ -265,12 +274,14 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String resumeInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.resumeRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error resuming instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to resume", e);
@@ -279,16 +290,39 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Override
     public String killInstance(String instanceId) {
-        AWSXRay.getCurrentSegment().putAnnotation("instanceId", instanceId);
+        Tracing.annotate("instanceId", instanceId);
+        requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.killInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error killing instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to terminate", e);
         }
     }
 
+
+    /**
+     * Gets the controller, failing with a not found error when the instance has no status, so no control event is
+     * sent for an instance that does not exist.
+     */
+    private JobEventSender requireKnownInstance(String instanceId) {
+        JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                servletContext, JobEventSender.class);
+        if (controller.getVmStatus(instanceId) == null) {
+            throw new GenericServiceResourceNotFoundException("agent", "instance " + instanceId, null);
+        }
+        return controller;
+    }
+
+    private void requireInstanceControl(String instanceId) {
+        if (RestAuthorization.hasRight(AccessRight.CONTROL_JOB)) {
+            return;
+        }
+        CloudVmStatus status = getInstanceStatus(instanceId);
+        JobAuthorization.requireJobControl(status != null ? status.getJobId() : null);
+    }
 }

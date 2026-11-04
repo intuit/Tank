@@ -22,7 +22,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.lang.reflect.Field;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
@@ -286,7 +285,7 @@ public class AgentCommandWebSocketHandlerTest {
                 "sg-1",
                 JobStatus.Running,
                 VMImageType.AGENT,
-                VMRegion.US_EAST,
+                VMRegion.US_EAST, null,
                 VMStatus.running,
                 new ValidationStatus(),
                 5,

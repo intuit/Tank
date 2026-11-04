@@ -10,18 +10,18 @@ package com.intuit.tank.rest.mvc.rest.util;
 import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.script.models.*;
 import com.intuit.tank.script.RequestDataPhase;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 
@@ -329,10 +329,23 @@ public class ScriptServiceUtil {
             JAXBContext ctx = JAXBContext.newInstance(ScriptTO.class.getPackage().getName());
             return (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
         } catch (ParserConfigurationException | JAXBException | SAXException e) {
-            LOG.error("Error unmarshalling script: {}", e.getMessage(), e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            String reason = rootMessage(e);
+            LOG.error("Error unmarshalling script: {}", reason, e);
+            throw new GenericServiceBadRequestException("scripts", "parsing script xml", "Invalid script XML: " + reason);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
+    }
+
+    /**
+     * JAXBException often has no message of its own; the useful text is on the linked SAXParseException.
+     */
+    private static String rootMessage(Throwable t) {
+        for (Throwable c = t; c != null; c = (c.getCause() == c ? null : c.getCause())) {
+            if (StringUtils.isNotBlank(c.getMessage())) {
+                return c.getMessage();
+            }
+        }
+        return "not well-formed Tank script XML";
     }
 }

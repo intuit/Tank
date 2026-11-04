@@ -5,6 +5,7 @@ import com.intuit.tank.http.TankHttpLogger;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
 public class KeyValueRequestTest {
@@ -45,7 +46,7 @@ public class KeyValueRequestTest {
         keyValueRequest.setKey(key1, value1);
         keyValueRequest.setKey(key2, value2);
         keyValueRequest.removeKey(key1);
-        assertEquals(null, keyValueRequest.getKey(key1));
+        assertNull(keyValueRequest.getKey(key1));
         assertEquals(value2, keyValueRequest.getKey(key2));
     }
 

@@ -17,9 +17,12 @@ package com.intuit.tank.dao;
  */
 
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -29,6 +32,7 @@ import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 import org.apache.logging.log4j.LogManager;
@@ -390,6 +394,79 @@ public abstract class BaseDao<T_ENTITY extends BaseEntity> {
             cleanup();
         }
         return result;
+    }
+
+    /**
+     * Returns one page of entities matching the query, with the total number of matches.
+     *
+     * @param query the page, sort and filters; property names must come from a caller-side whitelist
+     * @return the page, empty when {@code page} is beyond the last page
+     */
+    @Nonnull
+    public PagedResult<T_ENTITY> findPaged(@Nonnull PagedQuery query) {
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+
+            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+            Root<T_ENTITY> countRoot = countQuery.from(entityClass);
+            countQuery.select(cb.count(countRoot)).where(pagedPredicates(cb, countRoot, query));
+            long total = em.createQuery(countQuery).getSingleResult();
+
+            List<T_ENTITY> items = List.of();
+            if ((long) query.page() * query.size() < total) {
+                CriteriaQuery<T_ENTITY> pageQuery = cb.createQuery(entityClass);
+                Root<T_ENTITY> root = pageQuery.from(entityClass);
+                pageQuery.select(root).where(pagedPredicates(cb, root, query));
+                if (query.ascending()) {
+                    pageQuery.orderBy(cb.asc(root.get(query.sortProperty())), cb.asc(root.get(BaseEntity.PROPERTY_ID)));
+                } else {
+                    pageQuery.orderBy(cb.desc(root.get(query.sortProperty())), cb.desc(root.get(BaseEntity.PROPERTY_ID)));
+                }
+                items = em.createQuery(pageQuery)
+                        .setFirstResult(query.page() * query.size())
+                        .setMaxResults(query.size())
+                        .getResultList();
+            }
+            commit();
+            return new PagedResult<>(items, total);
+        } catch (Exception e) {
+            rollback();
+            LOG.error("Error listing page of " + entityClass.getSimpleName() + ": " + e, e);
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+    }
+
+    private Predicate[] pagedPredicates(CriteriaBuilder cb, Root<T_ENTITY> root, PagedQuery query) {
+        List<Predicate> predicates = new ArrayList<>();
+        for (Map.Entry<String, Object> filter : query.equalTo().entrySet()) {
+            predicates.add(cb.equal(root.get(filter.getKey()), filter.getValue()));
+        }
+        if (query.search() != null && !query.search().isBlank() && !query.searchProperties().isEmpty()) {
+            String pattern = "%" + escapeLike(query.search().trim().toLowerCase(Locale.ROOT)) + "%";
+            List<Predicate> matches = new ArrayList<>();
+            for (String property : query.searchProperties()) {
+                matches.add(cb.like(cb.lower(root.<String>get(property)), pattern, LIKE_ESCAPE));
+            }
+            predicates.add(cb.or(matches.toArray(new Predicate[0])));
+        }
+        return predicates.toArray(new Predicate[0]);
+    }
+
+    private static final char LIKE_ESCAPE = '!';
+
+    static String escapeLike(String text) {
+        StringBuilder sb = new StringBuilder(text.length());
+        for (char c : text.toCharArray()) {
+            if (c == '%' || c == '_' || c == LIKE_ESCAPE) {
+                sb.append(LIKE_ESCAPE);
+            }
+            sb.append(c);
+        }
+        return sb.toString();
     }
 
     protected String buildQlSelect(String prefix) {

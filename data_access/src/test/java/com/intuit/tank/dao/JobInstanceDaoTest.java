@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
-import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.test.TestGroups;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * JobInstanceDaoTest
@@ -70,6 +70,14 @@ public class JobInstanceDaoTest {
         assertEquals(1, findCompleted.size());
         JobInstance job = findCompleted.get(0);
         assertEquals(JobQueueStatus.Completed, job.getStatus());
+
+        // Act & Assert
+        assertEquals(List.of(JobQueueStatus.Created, JobQueueStatus.Running),
+                dao.findNotCompleted().stream().map(JobInstance::getStatus).sorted().toList());
+        assertEquals(List.of(JobQueueStatus.Running),
+                dao.getForStatus(List.of(JobQueueStatus.Running)).stream().map(JobInstance::getStatus).toList());
+        assertEquals(List.of(), dao.getForStatus(List.of()));
+        assertNull(dao.findJobDetails(job.getId()), "no details were recorded");
 
     }
 

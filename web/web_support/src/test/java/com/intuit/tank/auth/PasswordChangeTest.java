@@ -15,8 +15,6 @@ package com.intuit.tank.auth;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.auth.AccountModify;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -100,7 +98,7 @@ public class PasswordChangeTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.auth.PasswordChange.setPassword(PasswordChange.java:78)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -122,7 +120,7 @@ public class PasswordChangeTest {
         // An unexpected exception was thrown in user code while executing this test:
         //    java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         //       at com.intuit.tank.auth.PasswordChange.setPassword(PasswordChange.java:78)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
 

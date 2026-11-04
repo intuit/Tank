@@ -15,8 +15,6 @@ package com.intuit.tank.harness.test;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.test.AbortGroupException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,7 +38,7 @@ public class AbortGroupExceptionTest {
         AbortGroupException result = new AbortGroupException(msg);
 
         assertNotNull(result);
-        assertEquals(null, result.getCause());
+        assertNull(result.getCause());
         assertEquals("com.intuit.tank.harness.test.AbortGroupException: ", result.toString());
         assertEquals("", result.getMessage());
         assertEquals("", result.getLocalizedMessage());

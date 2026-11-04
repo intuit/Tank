@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.ThinkTimeStep;
-
 /**
  * The class <code>ThinkTimeStepTest</code> contains tests for the class <code>{@link ThinkTimeStep}</code>.
  * 

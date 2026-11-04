@@ -20,9 +20,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.AssignmentData;
-import com.intuit.tank.harness.data.HDAssignment;
-
 /**
  * The class <code>HDAssignmentTest</code> contains tests for the class <code>{@link HDAssignment}</code>.
  * 

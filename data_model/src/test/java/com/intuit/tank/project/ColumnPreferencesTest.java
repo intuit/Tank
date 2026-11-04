@@ -14,11 +14,12 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.project.ColumnPreferences;
 
 /**
  * The class <code>ColumnPreferencesTest</code> contains tests for the class <code>{@link ColumnPreferences}</code>.
@@ -41,14 +42,14 @@ public class ColumnPreferencesTest {
 
         assertNotNull(result);
         assertEquals(0, result.getSize());
-        assertEquals(null, result.getDisplayName());
-        assertEquals(true, result.isHideable());
-        assertEquals(null, result.getColName());
-        assertEquals(true, result.isVisible());
-        assertEquals(null, result.getCreator());
+        assertNull(result.getDisplayName());
+        assertTrue(result.isHideable());
+        assertNull(result.getColName());
+        assertTrue(result.isVisible());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -72,13 +73,13 @@ public class ColumnPreferencesTest {
         assertNotNull(result);
         assertEquals(1, result.getSize());
         assertEquals("", result.getDisplayName());
-        assertEquals(true, result.isHideable());
+        assertTrue(result.isHideable());
         assertEquals("", result.getColName());
-        assertEquals(false, result.isVisible());
-        assertEquals(null, result.getCreator());
+        assertFalse(result.isVisible());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -102,13 +103,13 @@ public class ColumnPreferencesTest {
         assertNotNull(result);
         assertEquals(1, result.getSize());
         assertEquals("", result.getDisplayName());
-        assertEquals(true, result.isHideable());
+        assertTrue(result.isHideable());
         assertEquals("", result.getColName());
-        assertEquals(false, result.isVisible());
-        assertEquals(null, result.getCreator());
+        assertFalse(result.isVisible());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -132,13 +133,13 @@ public class ColumnPreferencesTest {
         assertNotNull(result);
         assertEquals(1, result.getSize());
         assertEquals("", result.getDisplayName());
-        assertEquals(true, result.isHideable());
+        assertTrue(result.isHideable());
         assertEquals("", result.getColName());
-        assertEquals(false, result.isVisible());
-        assertEquals(null, result.getCreator());
+        assertFalse(result.isVisible());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -162,13 +163,13 @@ public class ColumnPreferencesTest {
         assertNotNull(result);
         assertEquals(1, result.getSize());
         assertEquals("", result.getDisplayName());
-        assertEquals(true, result.isHideable());
+        assertTrue(result.isHideable());
         assertEquals("", result.getColName());
-        assertEquals(false, result.isVisible());
-        assertEquals(null, result.getCreator());
+        assertFalse(result.isVisible());
+        assertNull(result.getCreator());
         assertEquals(0, result.getId());
-        assertEquals(null, result.getModified());
-        assertEquals(null, result.getCreated());
+        assertNull(result.getModified());
+        assertNull(result.getCreated());
     }
 
     /**
@@ -187,7 +188,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -206,7 +207,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -225,7 +226,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -244,7 +245,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -352,7 +353,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.isHideable();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -370,7 +371,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.isHideable();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -388,7 +389,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.isVisible();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -406,7 +407,7 @@ public class ColumnPreferencesTest {
 
         boolean result = fixture.isVisible();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

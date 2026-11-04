@@ -14,15 +14,12 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDScriptGroup;
-import com.intuit.tank.harness.data.HDTestPlan;
-import com.intuit.tank.harness.data.HDTestVariables;
 
 /**
  * The class <code>HDTestPlanTest</code> contains tests for the class <code>{@link HDTestPlan}</code>.
@@ -121,7 +118,7 @@ public class HDTestPlanTest {
         HDTestVariables result = fixture.getVariables();
 
         assertNotNull(result);
-        assertEquals(false, result.isAllowOverride());
+        assertFalse(result.isAllowOverride());
     }
 
     /**

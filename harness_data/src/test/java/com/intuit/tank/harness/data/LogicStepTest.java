@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.harness.data.LogicStep;
-
 /**
  * The class <code>LogicStepTest</code> contains tests for the class <code>{@link LogicStep}</code>.
  * 

@@ -17,21 +17,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.amazonaws.xray.AWSXRay;
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.auth.Security;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.filter.FilterBean;
-import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.settings.AccessRight;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.event.Event;
-import jakarta.inject.Inject;
-import jakarta.validation.constraints.AssertTrue;
 import org.jboss.weld.junit5.auto.ActivateScopes;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
@@ -1475,7 +1471,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1508,7 +1504,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1541,7 +1537,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1574,7 +1570,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1607,7 +1603,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1640,7 +1636,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1672,7 +1668,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1704,7 +1700,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1736,7 +1732,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1769,7 +1765,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1802,7 +1798,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1901,7 +1897,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1934,7 +1930,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -1967,7 +1963,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -2000,7 +1996,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -2033,7 +2029,7 @@ public class ScriptEditorTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.script.ScriptEditor.setNumRowsVisible(ScriptEditor.java:310)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -2963,9 +2959,7 @@ public class ScriptEditorTest {
             mockedFacesContext.when(FacesContext::getCurrentInstance).thenReturn(facesContext);
 
             fixture.setScript(Script.builder().name("Name").build());
-            AWSXRay.beginSegment("test");
             assertEquals("success", fixture.reapplyFilters());
-            AWSXRay.endSegment();
         }
     }
 

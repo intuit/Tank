@@ -2,8 +2,6 @@ package com.intuit.tank.util;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.util.KeyValuePair;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -27,7 +25,7 @@ public class KeyValuePairTest {
         KeyValuePair result = new KeyValuePair(key);
 
         assertNotNull(result);
-        assertEquals(null, result.getValue());
+        assertNull(result.getValue());
         assertEquals("", result.getKey());
     }
 

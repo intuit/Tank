@@ -8,7 +8,7 @@
 package com.intuit.tank.clients.util;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -21,7 +21,7 @@ public class RestUrlBuilder {
      * @param baseUrl
      */
     public RestUrlBuilder(@Nonnull String baseUrl) {
-        this.baseUrl = StringUtils.removeEnd(baseUrl, "/");
+        this.baseUrl = Strings.CS.removeEnd(baseUrl, "/");
     }
 
     /**
@@ -52,7 +52,7 @@ public class RestUrlBuilder {
             if (!methodName.startsWith("/")) {
                 sb.append('/');
             }
-            sb.append(StringUtils.removeEnd(methodName, "/"));
+            sb.append(Strings.CS.removeEnd(methodName, "/"));
 
         }
         if (parameters != null) {

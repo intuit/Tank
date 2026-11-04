@@ -20,8 +20,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.JobVMInstance;
-import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
 import static org.junit.jupiter.api.Assertions.*;

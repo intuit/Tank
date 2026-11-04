@@ -83,7 +83,7 @@ public class AgentAvailabilityCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -101,7 +101,7 @@ public class AgentAvailabilityCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -119,7 +119,7 @@ public class AgentAvailabilityCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -137,7 +137,7 @@ public class AgentAvailabilityCpTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

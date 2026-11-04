@@ -1,0 +1,227 @@
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it } from 'vitest';
+import type { Schemas } from '../../api/client';
+import { formatDateTime } from '../../format';
+import { renderApp, type Handlers } from '../../test/renderApp';
+
+const NONE = {
+  control: true,
+  start: false,
+  startLoad: false,
+  pause: false,
+  resume: false,
+  pauseRamp: false,
+  resumeRamp: false,
+  stop: false,
+  kill: false,
+  delete: false,
+};
+
+const TREE: Schemas['JobTree'] = {
+  generatedAt: '2026-10-07T10:00:00Z',
+  projects: [
+    {
+      projectId: 7,
+      name: 'Checkout load',
+      activeUsers: 80,
+      totalUsers: 150,
+      tps: 42,
+      failures: { total: 3 },
+      jobs: [
+        { jobId: '12', name: 'Checkout load 1', status: 'Running', activeUsers: 80, totalUsers: 150, actions: { ...NONE, stop: true }, agents: [] },
+        { jobId: '11', name: 'Checkout load 0', status: 'Completed', actions: { ...NONE }, agents: [] },
+      ],
+    },
+    {
+      projectId: 9,
+      name: 'Search soak',
+      jobs: [{ jobId: '15', name: 'Search soak 1', status: 'Queued', actions: { ...NONE, start: true }, agents: [] }],
+    },
+  ],
+  otherJobs: [{ jobId: '3', name: 'Old job', status: 'Running', activeUsers: 5, totalUsers: 5, actions: { ...NONE }, agents: [] }],
+};
+
+function handlers(overrides: Handlers = {}): Handlers {
+  return { 'GET /v2/jobs/tree': () => ({ status: 200, body: TREE }), ...overrides };
+}
+
+describe('job queue page', () => {
+  it("lists every project's jobs, expanded", async () => {
+    const { calls } = renderApp('/jobs', handlers());
+
+    expect(await screen.findByRole('link', { name: 'Checkout load' })).toBeInTheDocument();
+    expect(screen.getByText('1/2 jobs running')).toBeInTheDocument();
+    expect(screen.getByText('0/1 jobs running')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Checkout load 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Search soak 1' })).toBeInTheDocument();
+    expect(calls('GET /v2/jobs/tree')[0]!.has('projectId')).toBe(false);
+  });
+
+  it('stripes running work as the JSF tree does', async () => {
+    renderApp('/jobs', handlers());
+
+    expect(tagOf(await screen.findByText('1/2 jobs running'))).toHaveClass('status-striped-running');
+    expect(tagOf(screen.getByText('0/1 jobs running'))).not.toHaveClass('status-striped');
+    const running = screen.getByRole('button', { name: 'Checkout load 1' }).closest('tr')!;
+    expect(tagOf(within(running).getByText('Running'))).toHaveClass('status-striped-running');
+    const finished = screen.getByRole('button', { name: 'Checkout load 0' }).closest('tr')!;
+    expect(tagOf(within(finished).getByText('Completed'))).not.toHaveClass('status-striped');
+  });
+
+  it('groups jobs whose project is gone', async () => {
+    renderApp('/jobs', handlers());
+
+    expect(await screen.findByText('Jobs without a project')).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Old job' })).toBeInTheDocument();
+  });
+
+  it('opens a project from its row', async () => {
+    const { router } = renderApp(
+      '/jobs',
+      handlers({ 'GET /v2/projects/9/full': () => ({ status: 200, body: { id: 9, name: 'Search soak', permissions: {} } }) }),
+    );
+
+    await userEvent.click(await screen.findByRole('link', { name: 'Search soak' }));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/projects/9'));
+  });
+
+  it('sends job actions from under a project', async () => {
+    const { calls } = renderApp(
+      '/jobs',
+      handlers({ 'POST /v2/jobs/15/start': () => ({ status: 200, body: { id: '15', action: 'start', status: 'sent' } }) }),
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Run Search soak 1' }));
+
+    await waitFor(() => expect(calls('POST /v2/jobs/15/start')).toHaveLength(1));
+  });
+
+  it('collapses a project', async () => {
+    renderApp('/jobs', handlers());
+    const row = (await screen.findByRole('link', { name: 'Search soak' })).closest('tr')!;
+
+    await userEvent.click(within(row).getAllByRole('button')[0]!);
+
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Search soak 1' })).not.toBeInTheDocument());
+  });
+
+  it("shows WS State and Completed columns, as JSF does", async () => {
+    const tree: Schemas['JobTree'] = {
+      generatedAt: TREE.generatedAt,
+      projects: [
+        {
+          projectId: 7,
+          name: 'Checkout load',
+          jobs: [
+            {
+              jobId: '12',
+              name: 'Checkout load 1',
+              status: 'Completed',
+              endTime: '2026-10-07T09:30:00Z',
+              actions: { ...NONE },
+              agents: [
+                { instanceId: 'i-123', status: 'stopped', wsState: 'disconnected', actions: { ...NONE } },
+                { instanceId: 'i-456', status: 'running', wsState: 'transferring', transferProgress: '3/5', actions: { ...NONE } },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    renderApp('/jobs', handlers({ 'GET /v2/jobs/tree': () => ({ status: 200, body: tree }) }));
+
+    const jobRow = (await screen.findByRole('button', { name: 'Checkout load 1' })).closest('tr')!;
+    expect(screen.getByRole('columnheader', { name: 'WS State' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Completed' })).toBeInTheDocument();
+    expect(jobRow).toHaveTextContent(formatDateTime('2026-10-07T09:30:00Z'));
+
+    await userEvent.click(within(jobRow).getAllByRole('button')[0]!);
+
+    expect(tagOf(await screen.findByText('Closed'))).not.toHaveClass('status-striped');
+    expect(tagOf(screen.getByText('Setting Up (3/5)'))).toHaveClass('status-striped-starting');
+    expect(tagOf(screen.getByText('running'))).toHaveClass('status-striped-running');
+  });
+
+  it('shows the details recorded when the job was queued, as text', async () => {
+    renderApp(
+      '/jobs',
+      handlers({
+        'GET /v2/jobs/12/details': () => ({
+          status: 200,
+          body: {
+            jobId: 12,
+            name: 'Checkout load 1',
+            status: 'Running',
+            detailsHtml: '<span style="font-weight: bold;">Users</span>: 150<br/>\n<img src=x onerror="alert(1)">Ramp:&nbsp;5m<br/>',
+          },
+        }),
+      }),
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Checkout load 1' }));
+    await userEvent.click(await screen.findByText('Job details as queued'));
+
+    const text = document.querySelector('.job-details-text')!;
+    expect(text.textContent).toBe('Users: 150\nRamp: 5m');
+    expect(text.querySelector('img')).toBeNull();
+  });
+
+  it('refreshes at the interval the user picks, and remembers it', async () => {
+    localStorage.removeItem('tank.jobs.refreshSeconds');
+    renderApp('/jobs', handlers());
+    await screen.findByRole('button', { name: 'Checkout load 1' });
+
+    await userEvent.click(screen.getByLabelText('Refresh every').closest('.p-dropdown')!);
+    await userEvent.click(await screen.findByRole('option', { name: 'Off', hidden: true }));
+
+    expect(localStorage.getItem('tank.jobs.refreshSeconds')).toBe('0');
+  });
+
+  it('hides the columns the user turned off', async () => {
+    const column = (colName: string, displayName: string, visible = true, hideable = true) => ({
+      colName,
+      displayName,
+      visible,
+      hideable,
+    });
+    renderApp(
+      '/jobs',
+      handlers({
+        'GET /v2/me/preferences': () => ({
+          status: 200,
+          body: {
+            tables: {
+              jobs: [
+                column('nameColumn', 'Name', true, false),
+                column('regionColumn', 'Region', false),
+                column('tpsColumn', 'TPS'),
+              ],
+            },
+          },
+        }),
+      }),
+    );
+
+    await screen.findByRole('button', { name: 'Checkout load 1' });
+    await waitFor(() => expect(screen.queryByRole('columnheader', { name: 'Region' })).not.toBeInTheDocument());
+    expect(screen.getByRole('columnheader', { name: 'TPS' })).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Visible columns').length).toBeGreaterThan(0);
+  });
+
+  it('is in the menu', async () => {
+    const { router } = renderApp('/', handlers());
+
+    const item = await screen.findByRole('menuitem', { name: /Agent Tracker/ });
+    await userEvent.click(within(item).getByText('Agent Tracker'));
+
+    await waitFor(() => expect(router.state.location.pathname).toBe('/jobs'));
+    expect(await screen.findByRole('heading', { name: 'Agent Tracker' })).toBeInTheDocument();
+  });
+});
+
+/** The PrimeReact Tag around a tag's text */
+function tagOf(text: HTMLElement): Element {
+  return text.closest('.p-tag')!;
+}

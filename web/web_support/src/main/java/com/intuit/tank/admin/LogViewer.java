@@ -16,14 +16,10 @@ package com.intuit.tank.admin;
  * #L%
  */
 
-import java.io.File;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
@@ -31,6 +27,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,43 +53,8 @@ public class LogViewer implements Serializable {
 
     @PostConstruct
     public void init() {
-        Set<String> names = new LinkedHashSet<>();
-        for (File root : LogDirectory.candidateRoots()) {
-            LOG.info("Scanning log file dir {}", root.getAbsolutePath());
-            File[] files = root.listFiles();
-            if (files == null) {
-                continue;
-            }
-            for (File file : files) {
-                if (file.isFile()) {
-                    names.add(file.getName());
-                }
-            }
-        }
-        logFiles = new ArrayList<>(names);
-        // Surface Tank app logs first so they are easy to find among Tomcat access logs.
-        logFiles.sort((left, right) -> {
-            int leftRank = tankLogRank(left);
-            int rightRank = tankLogRank(right);
-            if (leftRank != rightRank) {
-                return Integer.compare(leftRank, rightRank);
-            }
-            return String.CASE_INSENSITIVE_ORDER.compare(left, right);
-        });
-    }
-
-    private static int tankLogRank(String name) {
-        if (name == null) {
-            return 3;
-        }
-        String lower = name.toLowerCase();
-        if (lower.equals("tank.log")) {
-            return 0;
-        }
-        if (lower.startsWith("tank") && lower.endsWith(".log")) {
-            return 1;
-        }
-        return 2;
+        LOG.info("Scanning log file dirs {}", LogDirectory.candidateRoots());
+        logFiles = LogDirectory.listFileNames();
     }
 
     public String getLogFileUrl() {
@@ -107,7 +69,7 @@ public class LogViewer implements Serializable {
     }
 
     private String getContextRoot(String contextPath) {
-        if (!StringUtils.endsWith(contextPath, "/")) {
+        if (!Strings.CS.endsWith(contextPath, "/")) {
             contextPath = contextPath + "/";
         }
         return contextPath;

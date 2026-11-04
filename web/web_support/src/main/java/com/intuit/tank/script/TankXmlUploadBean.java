@@ -24,6 +24,7 @@ import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.script.util.ScriptServiceUtil;
 import org.apache.commons.io.IOUtils;
@@ -115,11 +116,13 @@ public class TankXmlUploadBean implements Serializable {
                 messages.error("Cannot change the name of an existing script.");
                 return;
             }
-            if (!security.isAdmin() && !security.isOwner(script)) {
-                LOG.error("Error updating script: Cannot change the name of an existing Script. Admin or owner privilege required.");
+            // ownership is checked against the stored script; the creator in the uploaded XML is not trusted
+            if (!security.hasRight(AccessRight.EDIT_SCRIPT) && !security.isOwner(existing)) {
+                LOG.error("Error updating script: Edit right or owner privilege required.");
                 messages.error("You do not have rights to modify " + script.getName() + ".");
                 return;
             }
+            script.setCreator(existing.getCreator());
             script.setSerializedScriptStepId(existing.getSerializedScriptStepId());
 
         } else {

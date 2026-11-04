@@ -14,13 +14,10 @@ package com.intuit.tank.harness.data;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-
-import com.intuit.tank.harness.data.HDRequest;
-import com.intuit.tank.harness.data.HDResponse;
-import com.intuit.tank.harness.data.RequestStep;
 
 /**
  * The class <code>RequestStepTest</code> contains tests for the class <code>{@link RequestStep}</code>.
@@ -73,7 +70,7 @@ public class RequestStepTest {
 
         String result = fixture.getInfo();
 
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     /**
@@ -146,18 +143,18 @@ public class RequestStepTest {
         HDRequest result = fixture.getRequest();
 
         assertNotNull(result);
-        assertEquals(null, result.getQueryString());
-        assertEquals(null, result.getMethod());
-        assertEquals(null, result.getPath());
-        assertEquals(null, result.getProtocol());
-        assertEquals(null, result.getHost());
-        assertEquals(null, result.getPort());
-        assertEquals(null, result.getLabel());
-        assertEquals(null, result.getPayload());
-        assertEquals(null, result.getRequestHeaders());
-        assertEquals(null, result.getLoggingKey());
-        assertEquals(null, result.getPostDatas());
-        assertEquals(null, result.getReqFormat());
+        assertNull(result.getQueryString());
+        assertNull(result.getMethod());
+        assertNull(result.getPath());
+        assertNull(result.getProtocol());
+        assertNull(result.getHost());
+        assertNull(result.getPort());
+        assertNull(result.getLabel());
+        assertNull(result.getPayload());
+        assertNull(result.getRequestHeaders());
+        assertNull(result.getLoggingKey());
+        assertNull(result.getPostDatas());
+        assertNull(result.getReqFormat());
     }
 
     /**
@@ -182,7 +179,7 @@ public class RequestStepTest {
         HDResponse result = fixture.getResponse();
 
         assertNotNull(result);
-        assertEquals(null, result.getRespFormat());
+        assertNull(result.getRespFormat());
     }
 
     /**

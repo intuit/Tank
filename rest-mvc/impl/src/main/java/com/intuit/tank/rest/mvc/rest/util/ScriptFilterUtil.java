@@ -21,8 +21,7 @@ import com.intuit.tank.vm.script.util.AddActionScope;
 import com.intuit.tank.vm.script.util.RemoveActionScope;
 import com.intuit.tank.vm.script.util.ReplaceActionScope;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Subsegment;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,7 +77,7 @@ public class ScriptFilterUtil {
         }
 
         for (ScriptFilter filter : internalFilters) {
-            AWSXRay.createSubsegment("Apply.InternalFilter." + filter.getName(), (subsegment) -> {
+            Tracing.inSpan("Apply.InternalFilter." + filter.getName(), () -> {
                 applyFilter(filter, script.getScriptSteps());
             });
         }
@@ -92,19 +91,17 @@ public class ScriptFilterUtil {
                 ExternalScript externalScript = externalScriptDao.findById(filter.getExternalScriptId());
                 logger.info("Running external Script: " + externalScript);
                 if (externalScript != null) {
-                    Subsegment subsegment = AWSXRay.beginSubsegment("Apply.ExternalFilter." + externalScript.getName());
-                    try {
-                        runner.runScript(externalScript.getName(), externalScript.getScript(),
-                                externalScript.getEngine(),
-                                map,
-                                outputLogger);
-                    } catch (ScriptException e) {
-                        logger.error("Error Running Script: " + e);
-                        subsegment.addException(e);
-                        throw new RuntimeException(e);
-                    } finally {
-                        AWSXRay.endSubsegment();
-                    }
+                    Tracing.inSpan("Apply.ExternalFilter." + externalScript.getName(), () -> {
+                        try {
+                            runner.runScript(externalScript.getName(), externalScript.getScript(),
+                                    externalScript.getEngine(),
+                                    map,
+                                    outputLogger);
+                        } catch (ScriptException e) {
+                            logger.error("Error Running Script: " + e);
+                            throw new RuntimeException(e);
+                        }
+                    });
                 }
             }
             script.getScriptSteps().clear();

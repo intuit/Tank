@@ -7,6 +7,9 @@ spring:
       max-request-size: 200MB
   codec:
     max-in-memory-size: 200MB
+  http:
+    converters:
+      preferred-json-mapper: jackson2
   main:
     banner-mode: "off"
   logging:

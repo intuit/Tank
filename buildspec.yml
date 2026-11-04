@@ -25,6 +25,9 @@ phases:
         else
           echo "Skipping SSM update for SNAPSHOT version $PROJECT_VERSION"
         fi
+  post_build:
+    commands:
+      - rm -rf /root/.m2/repository/com/intuit/tank
 
 reports:
   UnitTestReports:
@@ -49,4 +52,3 @@ cache:
   paths:
     - '/root/.m2/**/*'
     - '/root/.cache/ms-playwright/**/*'
-    - '/root/.cache/tank-system-tests/**/*'

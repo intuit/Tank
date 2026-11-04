@@ -19,7 +19,6 @@ package com.intuit.tank;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import jakarta.annotation.PostConstruct;
@@ -34,10 +33,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.dao.PreferencesDao;
 import com.intuit.tank.prefs.PreferencesChangedListener;
-import com.intuit.tank.project.ColumnPreferences;
-import com.intuit.tank.project.ColumnPreferences.Hidability;
-import com.intuit.tank.project.ColumnPreferences.Visibility;
 import com.intuit.tank.project.Preferences;
+import com.intuit.tank.rest.mvc.rest.util.TableColumnDefaults;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.common.util.ReportUtil;
 
@@ -160,47 +157,12 @@ public class PreferencesBean implements Serializable, PreferencesChangedListener
         this.screenHeight = screenHeight;
     }
 
-    /**
-     * @param owner
-     * @return
-     */
     private void validatePrefs(String owner) {
-        if (preferences == null) {
-            preferences = new Preferences();
-            preferences.setCreator(owner);
-        }
-        boolean needsSave = false;
-        needsSave |= checkPrefs(preferences.getCreator(), preferences.getProjectTableColumns(),
-                DefaultTableColumnUtil.PROJECT_COL_PREFS);
-        needsSave |= checkPrefs(preferences.getCreator(), preferences.getDatafilesTableColumns(),
-                DefaultTableColumnUtil.DATA_FILES_COL_PREFS);
-        needsSave |= checkPrefs(preferences.getCreator(), preferences.getJobsTableColumns(),
-                DefaultTableColumnUtil.JOBS_COL_PREFS);
-        needsSave |= checkPrefs(preferences.getCreator(), preferences.getScriptsTableColumns(),
-                DefaultTableColumnUtil.SCRIPTS_COL_PREFS);
-        needsSave |= checkPrefs(preferences.getCreator(), preferences.getScriptStepTableColumns(),
-                DefaultTableColumnUtil.SCRIPT_STEPS_COL_PREFS);
-        if (needsSave) {
+        TableColumnDefaults.Result result = TableColumnDefaults.ensureDefaults(preferences, owner);
+        preferences = result.preferences();
+        if (result.changed()) {
             preferences = new PreferencesDao().saveOrUpdate(preferences);
         }
-
-    }
-
-    private boolean checkPrefs(String owner, List<ColumnPreferences> existingPrefs,
-            List<ColumnPreferences> defaultPreferences) {
-        boolean ret = false;
-        for (int i = 0; i < defaultPreferences.size(); i++) {
-            ColumnPreferences p = defaultPreferences.get(i);
-            if (!existingPrefs.contains(p)) {
-                ColumnPreferences pref = new ColumnPreferences(p.getColName(), p.getDisplayName(), p.getSize(),
-                        p.isVisible() ? Visibility.VISIBLE : Visibility.HIDDEN, p.isHideable() ? Hidability.HIDABLE
-                                : Hidability.NON_HIDABLE);
-                pref.setCreator(owner);
-                existingPrefs.add(i, pref);
-                ret = true;
-            }
-        }
-        return ret;
     }
 
     /**

@@ -11,8 +11,7 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.auth.TankSecurityContext;
 import com.intuit.tank.auth.sso.OidcConstants;
 import com.intuit.tank.auth.sso.TankSsoHandler;
@@ -42,13 +41,24 @@ public class LoginFilter extends HttpFilter {
 		// Handle Redirect From SSO Authorization Server
 		if (authorizationCode != null) {
 			try {
-				_tankSsoHandler.HandleSsoAuthorization(authorizationCode);
+				_tankSsoHandler.HandleSsoAuthorization(authorizationCode,
+						request.getParameter(OidcConstants.STATE_KEY), request.getSession(false));
+				// new session id after login prevents session fixation
+				request.changeSessionId();
 			} catch (IllegalArgumentException e) {
 				LOG.error("Failed SSO due to missing argument", e);
 				InvalidateAndRedirect(request, response);
+				return;
 			} catch (Exception e) {
 				LOG.error("Failed SSO due to unhandled exception", e);
 				InvalidateAndRedirect(request, response);
+				return;
+			}
+			// an SSO login started from the REST API returns to the page that started it
+			String returnPath = _tankSsoHandler.consumeReturnPath(request.getSession(false));
+			if (returnPath != null) {
+				response.sendRedirect(request.getContextPath() + returnPath);
+				return;
 			}
 			OidcSsoConfig oidcSsoConfig = _tankConfig.getOidcSsoConfig();
 			if (Objects.requireNonNull(oidcSsoConfig).getConfiguration() != null) {
@@ -60,12 +70,7 @@ public class LoginFilter extends HttpFilter {
 
 
 		if (_securityContext.getCallerPrincipal() != null) {
-			try {
-				AWSXRay.getCurrentSegment().setUser(_securityContext.getCallerPrincipal().getName());
-			} catch (SegmentNotFoundException ignored) {
-			} catch (Exception e) {
-                LOG.error("Failed to set User on current segment : {}", e.getMessage(), e);
-			}
+			Tracing.setUser(_securityContext.getCallerPrincipal().getName());
 			chain.doFilter(request, response);
 			return;
 		}

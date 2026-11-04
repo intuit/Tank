@@ -14,11 +14,13 @@ import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 import com.intuit.tank.filters.models.FilterGroupContainer;
 import com.intuit.tank.filters.models.ApplyFiltersRequest;
+import com.intuit.tank.rest.mvc.rest.models.CopyRequest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -44,9 +46,11 @@ public class FilterControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         when(request.getScheme()).thenReturn("https");
         when(request.getServerName()).thenReturn("localhost");
@@ -55,12 +59,17 @@ public class FilterControllerTest {
         when(request.getRequestURL()).thenReturn(new StringBuffer("https://localhost/v2/filters"));
     }
 
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
+    }
+
     @Test
     public void testGetPing() {
         when(filterService.ping()).thenReturn("PONG");
         ResponseEntity<String> result = filterController.ping();
         assertEquals("PONG", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).ping();
     }
 
@@ -78,7 +87,7 @@ public class FilterControllerTest {
         assertEquals(5, result.getBody().getFilters().get(0).getId());
         assertEquals("testFilterName", result.getBody().getFilters().get(0).getName());
         assertEquals("testProductName", result.getBody().getFilters().get(0).getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilters();
     }
 
@@ -97,7 +106,7 @@ public class FilterControllerTest {
 
         ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
 
-        assertEquals(201, result.getStatusCodeValue());
+        assertEquals(201, result.getStatusCode().value());
         assertEquals(5, result.getBody().getId());
         assertEquals("https://localhost/v2/filters/5", result.getHeaders().getLocation().toString());
         verify(filterService).createOrUpdateFilter(requestFilter);
@@ -113,8 +122,8 @@ public class FilterControllerTest {
 
         ResponseEntity<FilterTO> result = filterController.createOrUpdateFilter(requestFilter);
 
-        assertEquals(200, result.getStatusCodeValue());
-        assertFalse(result.getHeaders().containsKey("Location"));
+        assertEquals(200, result.getStatusCode().value());
+        assertFalse(result.getHeaders().containsHeader("Location"));
         verify(filterService).createOrUpdateFilter(requestFilter);
     }
 
@@ -134,7 +143,7 @@ public class FilterControllerTest {
         assertEquals("testFilterGroupName", result.getBody().getFilterGroups().get(0).getName());
         assertEquals("testProductName", result.getBody().getFilterGroups().get(0).getProductName());
         assertEquals(List.of(2, 5), result.getBody().getFilterGroups().get(0).getFilterIds());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilterGroups();
     }
 
@@ -151,7 +160,7 @@ public class FilterControllerTest {
         assertEquals(5, result.getBody().getId());
         assertEquals("testFilterName", result.getBody().getName());
         assertEquals("testProductName", result.getBody().getProductName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilter(2);
     }
 
@@ -174,7 +183,7 @@ public class FilterControllerTest {
         assertEquals("testProductName", result.getBody().getProductName());
         assertEquals(List.of(5), result.getBody().getFilterIds());
         assertEquals("testFilterName", result.getBody().getFilters().get(0).getName());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).getFilterGroup(1);
     }
 
@@ -184,13 +193,13 @@ public class FilterControllerTest {
         when(filterService.applyFilters(1, request)).thenReturn("Filters applied");
         ResponseEntity<String> result = filterController.applyFilters(1, request);
         assertEquals("Filters applied", result.getBody());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         verify(filterService).applyFilters(1, request);
 
         when(filterService.applyFilters(2, request)).thenReturn(null);
         result = filterController.applyFilters(2, request);
         assertEquals("Bad JSON request", result.getBody());
-        assertEquals(400, result.getStatusCodeValue());
+        assertEquals(400, result.getStatusCode().value());
     }
 
     @Test
@@ -199,13 +208,13 @@ public class FilterControllerTest {
         ResponseEntity<String> result = filterController.deleteFilter(3);
 
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(filterService).deleteFilter(3);
 
         when(filterService.deleteFilter(3)).thenReturn("Filter with filter id 3 does not exist");
         result = filterController.deleteFilter(3);
         assertTrue(result.getBody().contains("not exist"));
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
@@ -214,12 +223,75 @@ public class FilterControllerTest {
         ResponseEntity<String> result = filterController.deleteFilterGroup(4);
 
         assertTrue(result.getBody().contains(""));
-        assertEquals(204, result.getStatusCodeValue());
+        assertEquals(204, result.getStatusCode().value());
         verify(filterService).deleteFilterGroup(4);
 
         when(filterService.deleteFilterGroup(4)).thenReturn("Filter Group with filter group id 4 does not exist");
         result = filterController.deleteFilterGroup(4);
         assertTrue(result.getBody().contains("not exist"));
-        assertEquals(404, result.getStatusCodeValue());
+        assertEquals(404, result.getStatusCode().value());
+    }
+
+    @Test
+    public void testUpdateFilterById() {
+        FilterTO request = FilterTO.builder().withName("f").build();
+        FilterTO saved = FilterTO.builder().withId(3).withName("f").build();
+        when(filterService.updateFilter(3, request)).thenReturn(saved);
+
+        ResponseEntity<FilterTO> result = filterController.updateFilter(3, request);
+
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals(3, result.getBody().getId());
+    }
+
+    @Test
+    public void testCopyFilter() {
+        CopyRequest request = new CopyRequest("copy");
+        when(filterService.copyFilter(3, request)).thenReturn(FilterTO.builder().withId(11).withName("copy").build());
+
+        ResponseEntity<FilterTO> result = filterController.copyFilter(3, request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertEquals(11, result.getBody().getId());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/11"));
+    }
+
+    @Test
+    public void testCreateFilterGroup() {
+        FilterGroupTO request = FilterGroupTO.builder().withName("grp").withFilterIds(List.of(1)).build();
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(6);
+        when(filterService.createFilterGroup(request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.createFilterGroup(request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/groups/6"));
+    }
+
+    @Test
+    public void testUpdateFilterGroup() {
+        FilterGroupTO request = FilterGroupTO.builder().withName("grp").build();
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(6);
+        when(filterService.updateFilterGroup(6, request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.updateFilterGroup(6, request);
+
+        assertEquals(200, result.getStatusCode().value());
+        assertEquals(6, result.getBody().getId());
+    }
+
+    @Test
+    public void testCopyFilterGroup() {
+        CopyRequest request = new CopyRequest("copy");
+        FilterGroupDetailTO saved = new FilterGroupDetailTO();
+        saved.setId(12);
+        when(filterService.copyFilterGroup(6, request)).thenReturn(saved);
+
+        ResponseEntity<FilterGroupDetailTO> result = filterController.copyFilterGroup(6, request);
+
+        assertEquals(201, result.getStatusCode().value());
+        assertTrue(result.getHeaders().getLocation().toString().endsWith("/v2/filters/groups/12"));
     }
 }

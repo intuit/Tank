@@ -56,6 +56,40 @@ class StartupWebSocketServerTest {
     }
 
     @Test
+    void receivesSettingsBeforeCompletingHarnessBootstrap() throws Exception {
+        StartupWebSocketServer server =
+                new StartupWebSocketServer(0, "i-agent", "job-1", 1, agentDir.toFile());
+        Session session = sessionThatCompletesCallbacks();
+        byte[] settings = "<tank><vm-manager/></tank>".getBytes(StandardCharsets.UTF_8);
+
+        server.handleFileOffer(session, fileOffer(
+                "settings-id", "settings", "settings.xml", settings.length));
+        server.handleFileChunk(session, "settings-id", 0, settings);
+
+        assertArrayEquals(settings, Files.readAllBytes(agentDir.resolve("settings.xml")));
+        assertFalse(isHarnessJarReady(server));
+
+        byte[] harnessJar = new byte[] { 1, 2, 3 };
+        server.handleFileOffer(session, fileOffer(
+                "jar-id", "support_jar", "apiharness-1.0-all.jar", harnessJar.length));
+        server.handleFileChunk(session, "jar-id", 0, harnessJar);
+
+        assertEquals(agentDir.resolve("apiharness-1.0-all.jar").toFile(), server.awaitHarnessJar(100));
+    }
+
+    @Test
+    void rejectsSettingsOfferedWithWrongFileType() {
+        StartupWebSocketServer server =
+                new StartupWebSocketServer(0, "i-agent", "job-1", 1, agentDir.toFile());
+        Session session = mock(Session.class);
+
+        server.handleFileOffer(session, fileOffer(
+                "settings-id", "support_jar", "settings.xml", 10));
+
+        verify(session).sendText(contains("unsupported_startup_file"), any(Callback.class));
+    }
+
+    @Test
     void rejectsMismatchedStartupFileTypeAndName() {
         StartupWebSocketServer server =
                 new StartupWebSocketServer(0, "i-agent", "job-1", 1, agentDir.toFile());

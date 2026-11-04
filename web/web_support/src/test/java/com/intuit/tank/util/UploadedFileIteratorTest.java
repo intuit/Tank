@@ -20,8 +20,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.intuit.tank.wrapper.FileInputStreamWrapper;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.junit.jupiter.api.Test;
 import org.primefaces.model.file.UploadedFile;
 
@@ -170,44 +168,6 @@ public class UploadedFileIteratorTest {
         FileInputStreamWrapper wrapper = iterator.getNext();
 
         assertNull(wrapper);
-    }
-
-    // -----------------------------------------------------------------------
-    // MyInputStream inner class
-    // -----------------------------------------------------------------------
-
-    @Test
-    public void testMyInputStream_ForceClose_DoesNotThrow() throws Exception {
-        byte[] zipBytes = buildZip("data.csv", "a,b,c".getBytes());
-        ArchiveInputStream archiveStream =
-                new ArchiveStreamFactory().createArchiveInputStream("zip", new ByteArrayInputStream(zipBytes));
-        UploadedFileIterator.MyInputStream myStream = new UploadedFileIterator.MyInputStream(archiveStream);
-
-        assertDoesNotThrow(myStream::forceClose);
-    }
-
-    @Test
-    public void testMyInputStream_Close_DoesNotThrow() throws Exception {
-        byte[] zipBytes = buildZip("data.csv", "a,b,c".getBytes());
-        ArchiveInputStream archiveStream =
-                new ArchiveStreamFactory().createArchiveInputStream("zip", new ByteArrayInputStream(zipBytes));
-        UploadedFileIterator.MyInputStream myStream = new UploadedFileIterator.MyInputStream(archiveStream);
-
-        // close() is a no-op in the implementation
-        assertDoesNotThrow(myStream::close);
-    }
-
-    @Test
-    public void testMyInputStream_GetNextEntry_ReturnsFirstEntry() throws Exception {
-        byte[] zipBytes = buildZip("data.csv", "a,b,c".getBytes());
-        ArchiveInputStream archiveStream =
-                new ArchiveStreamFactory().createArchiveInputStream("zip", new ByteArrayInputStream(zipBytes));
-        UploadedFileIterator.MyInputStream myStream = new UploadedFileIterator.MyInputStream(archiveStream);
-
-        assertDoesNotThrow(() -> {
-            var entry = myStream.getNextEntry();
-            assertNotNull(entry);
-        });
     }
 
     // -----------------------------------------------------------------------

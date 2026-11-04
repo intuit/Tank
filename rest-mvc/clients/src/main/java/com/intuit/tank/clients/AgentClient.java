@@ -46,7 +46,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -67,7 +67,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
             if (checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -94,7 +94,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
                 try (InputStream is = response.body()) {
@@ -122,7 +122,7 @@ public class AgentClient extends BaseClient {
                 .GET()
                 .build();
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
                 try (InputStream is = response.body()) {
@@ -149,7 +149,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if (checkStatusCode(response.statusCode())) {
                 try (InputStream is = response.body()) {
@@ -178,7 +178,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
             if(!checkStatusCode(response.statusCode())) {
                 try (InputStream errorStream = response.body()) {
                     String responseBody = new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -200,7 +200,7 @@ public class AgentClient extends BaseClient {
                 .GET()
                 .build();
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
                 try(InputStream is = response.body()) {
@@ -229,7 +229,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(!checkStatusCode(response.statusCode())) {
                 try (InputStream errorStream = response.body()) {
@@ -254,7 +254,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -275,7 +275,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -296,7 +296,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {
@@ -317,7 +317,7 @@ public class AgentClient extends BaseClient {
                 .build();
 
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client.send(request, ofString());
             if(checkStatusCode(response.statusCode())) {
                 return response.body();
             } else {

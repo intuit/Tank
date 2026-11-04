@@ -37,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -89,7 +90,7 @@ public class ActionProducer {
 
     private AgentDebuggerFrame debuggerFrame;
     private Map<String, Action> actionMap = new HashMap<String, Action>();
-    private int menuActionMods = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    private int menuActionMods = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
     private JFileChooser jFileChooser = null;
     private ScriptClient scriptClient;
     private AgentClient agentClient;
@@ -422,7 +423,7 @@ public class ActionProducer {
                                 if (startInd != -1 && endInd != -1) {
                                     url = url.substring(startInd + 1, endInd);
                                 }
-                                url = StringUtils.removeEndIgnoreCase(url, "/");
+                                url = Strings.CI.removeEnd(url, "/");
                                 if (!url.startsWith("http")) {
                                     url = "http://" + url;
                                 }

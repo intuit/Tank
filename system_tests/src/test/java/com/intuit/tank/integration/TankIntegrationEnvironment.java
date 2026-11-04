@@ -132,6 +132,7 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
             deleteRecursively(globalCache);
             Files.createDirectories(globalCache);
             unpackWar(warFile, globalCache);
+            deleteOtherExplodedWars(globalCache);
         } else {
             System.out.println("[system-test] Reusing global exploded WAR cache at " + globalCache);
         }
@@ -217,6 +218,15 @@ public final class TankIntegrationEnvironment implements AutoCloseable {
             });
         } catch (UncheckedIOException e) {
             throw e.getCause();
+        }
+    }
+
+    private static void deleteOtherExplodedWars(Path current) throws IOException {
+        try (var siblings = Files.list(current.getParent())) {
+            for (Path sibling : siblings.filter(path -> !path.equals(current)).toList()) {
+                System.out.println("[system-test] Removing stale exploded WAR cache " + sibling);
+                deleteRecursively(sibling);
+            }
         }
     }
 

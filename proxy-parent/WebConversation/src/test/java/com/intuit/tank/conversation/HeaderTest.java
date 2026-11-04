@@ -2,8 +2,6 @@ package com.intuit.tank.conversation;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.conversation.Header;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -130,7 +128,7 @@ public class HeaderTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -148,7 +146,7 @@ public class HeaderTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -166,7 +164,7 @@ public class HeaderTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -184,7 +182,7 @@ public class HeaderTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -202,7 +200,7 @@ public class HeaderTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**

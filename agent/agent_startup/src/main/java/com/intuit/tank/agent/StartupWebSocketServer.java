@@ -38,6 +38,8 @@ public class StartupWebSocketServer {
     private static final String SUPPORT_JAR_FILE_TYPE = "support_jar";
     private static final String START_AGENT_SCRIPT = "startAgent.sh";
     private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
+    private static final String SETTINGS_FILE = "settings.xml";
+    private static final String SETTINGS_FILE_TYPE = "settings";
     // 2 MiB chunks * a healthy window can exceed Jetty's default frame/message limits.
     private static final long MAX_WS_MESSAGE_BYTES = 64L * 1024 * 1024;
     // Raise Jetty's 30s default WS idle timeout so a slow/paused bootstrap transfer isn't dropped.
@@ -179,7 +181,9 @@ public class StartupWebSocketServer {
                 && SUPPORT_JAR_FILE_TYPE.equalsIgnoreCase(fileType);
         boolean startupScript = START_AGENT_SCRIPT.equals(fileName)
                 && STARTUP_SCRIPT_FILE_TYPE.equalsIgnoreCase(fileType);
-        if (!offeredFileName.equals(fileName) || (!harnessJar && !startupScript)) {
+        boolean settings = SETTINGS_FILE.equals(fileName)
+                && SETTINGS_FILE_TYPE.equalsIgnoreCase(fileType);
+        if (!offeredFileName.equals(fileName) || (!harnessJar && !startupScript && !settings)) {
             sendFileAck(conn, envelope.getFileId(), null, AckStatus.failed, "unsupported_startup_file");
             return;
         }

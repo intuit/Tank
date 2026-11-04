@@ -26,7 +26,7 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 /**
@@ -59,13 +59,13 @@ public class ConfiguredLanguage {
             try {
                 ScriptEngine engineByName = manager.getEngineByName(row[0]);
                 if (engineByName == null) {
-                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).newInstance();
+                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).getDeclaredConstructor().newInstance();
                     manager.registerEngineName(row[0], fact);
                     engineByName = manager.getEngineByName(row[0]);
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
                 extensionSet.addAll(engineByName.getFactory().getExtensions());
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (ReflectiveOperationException e) {
                 System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
             }
             manager.getEngineFactories().stream().map(ScriptEngineFactory::getLanguageName).forEach(System.out::println);
@@ -95,7 +95,7 @@ public class ConfiguredLanguage {
     public static ConfiguredLanguage getLanguageByExtension(String scriptName) {
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
-        return configuredLanguages.stream().filter(lang -> StringUtils.equals(lang.name, engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
+        return configuredLanguages.stream().filter(lang -> Strings.CS.equals(lang.name, engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
     }
 
     /**

@@ -19,7 +19,6 @@ import com.intuit.tank.project.ProjectLoader;
 import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.wrapper.SelectableWrapper;
-import com.intuit.tank.wrapper.VersionContainer;
 import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

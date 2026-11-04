@@ -17,6 +17,7 @@ import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -52,10 +53,17 @@ public class JobControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test
@@ -156,7 +164,7 @@ public class JobControllerTest {
     @Test
     public void testGetJobVMStatuses() {
         CloudVmStatus testStatus = new CloudVmStatus("testInstanceId", "2", "testSecurityGroup", JobStatus.Starting,
-                VMImageType.AGENT, VMRegion.US_WEST_2, null, null, 0, 0, null, null);
+                VMImageType.AGENT, VMRegion.US_WEST_2, null, null, null, 0, 0, null, null);
 
         CloudVmStatusContainer container = new CloudVmStatusContainer();
         container.getStatuses().add(testStatus);

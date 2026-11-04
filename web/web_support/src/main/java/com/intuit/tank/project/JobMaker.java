@@ -13,11 +13,9 @@ package com.intuit.tank.project;
  * #L%
  */
 
+import com.intuit.tank.rest.mvc.rest.util.JobInstanceFactory;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.event.Event;
@@ -25,8 +23,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 import com.intuit.tank.auth.TankSecurityContext;
-import com.intuit.tank.harness.data.HDWorkload;
-import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
 import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,16 +31,7 @@ import com.intuit.tank.util.Messages;
 
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.ProjectBean;
-import com.intuit.tank.dao.BaseDao;
-import com.intuit.tank.dao.DataFileDao;
-import com.intuit.tank.dao.JobNotificationDao;
-import com.intuit.tank.dao.JobQueueDao;
-import com.intuit.tank.dao.JobRegionDao;
-import com.intuit.tank.dao.WorkloadDao;
-import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.qualifier.Modified;
-import com.intuit.tank.util.TestParamUtil;
-import com.intuit.tank.util.TestParameterContainer;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 import com.intuit.tank.vm.event.JobEvent;
@@ -328,48 +315,8 @@ public class JobMaker implements Serializable {
         proposedJobInstance = null;
         jobDetails = null;
         if (projectBean.doSave()) {
-            DataFileDao dataFileDao = new DataFileDao();
-            JobNotificationDao jobNotificationDao = new JobNotificationDao();
-            JobRegionDao jobRegionDao = new JobRegionDao();
-            Workload workload = projectBean.getWorkload();
-            proposedJobInstance = new JobInstance(workload, getName());
-            proposedJobInstance.setLoggingProfile(getLoggingProfile());
-            proposedJobInstance.setCreator(securityContext.getCallerPrincipal().getName());
-            proposedJobInstance.setScheduledTime(new Date());
-            proposedJobInstance.setUseEips(isUseEips());
-            proposedJobInstance.setUseTwoStep((isUseTwoStep()));
-            proposedJobInstance.setTankClientClass(getTankClientClass());
-            proposedJobInstance.setLocation(getLocation());
-            proposedJobInstance.setVmInstanceType(getVmInstanceType());
-            proposedJobInstance.setNumUsersPerAgent(getNumUsersPerAgent());
-            proposedJobInstance.setNumAgents(getNumAgents());
-            proposedJobInstance.setReportingMode(getReportingMode());
-            proposedJobInstance.getVariables().putAll(workload.getJobConfiguration().getVariables());
-            // set version info
-            proposedJobInstance.getDataFileVersions().addAll(
-                    getVersions(dataFileDao, workload.getJobConfiguration().getDataFileIds(), DataFile.class));
-            proposedJobInstance.getNotificationVersions().addAll(
-                    getVersions(jobNotificationDao, workload.getJobConfiguration().getNotifications()));
-            Set<JobRegion> jobRegions = JobRegionDao.cleanRegions(usersAndTimes.getJobRegions());
-            proposedJobInstance.setVariables(new HashMap<String, String>(workload.getJobConfiguration()
-                    .getVariables()));
-            proposedJobInstance.setAllowOverride(workload.getJobConfiguration().isAllowOverride());
-            proposedJobInstance.getJobRegionVersions().addAll(getVersions(jobRegionDao, jobRegions));
-            JobValidator validator = new JobValidator(workload.getTestPlans(), proposedJobInstance.getVariables(),
-                    false);
-            long maxDuration = workload.getTestPlans().stream()
-                    .mapToLong(plan -> validator.getDurationMs(plan.getName()))
-                    .max().orElse(0);
-            TestParameterContainer times = TestParamUtil.evaluateTestTimes(maxDuration, projectBean
-                    .getJobConfiguration().getRampTimeExpression(), projectBean.getJobConfiguration()
-                    .getSimulationTimeExpression());
-            proposedJobInstance.setExecutionTime(maxDuration);
-            proposedJobInstance.setRampTime(times.getRampTime());
-            proposedJobInstance.setSimulationTime(times.getSimulationTime());
-            int totalVirtualUsers = jobRegions.stream()
-                    .mapToInt(region -> (int) TestParamUtil.evaluateExpression(region.getUsers(), maxDuration,
-                            times.getSimulationTime(), times.getRampTime())).sum();
-            proposedJobInstance.setTotalVirtualUsers(totalVirtualUsers);
+            proposedJobInstance = JobInstanceFactory.propose(projectBean.getWorkload(), projectBean.getName(),
+                    getName(), securityContext.getCallerPrincipal().getName()).job();
         }
     }
 
@@ -397,16 +344,12 @@ public class JobMaker implements Serializable {
 
     public void addJobToQueue() {
         if (proposedJobInstance != null) {
-            JobQueueDao jobQueueDao = new JobQueueDao();
-            Workload workload = projectBean.getWorkload();
-            JobQueue queue = jobQueueDao.findOrCreateForProjectId(projectBean.getProject().getId());
             proposedJobInstance.setJobDetails(jobDetails);
-            queue.addJob(proposedJobInstance);
-            jobQueueDao.saveOrUpdate(queue);
-            storeScript(Integer.toString(proposedJobInstance.getId()), workload, proposedJobInstance);
+            JobInstanceFactory.Queued queued = JobInstanceFactory.queue(projectBean.getProject().getId(),
+                    projectBean.getWorkload(), proposedJobInstance);
             messages.info("Job has been submitted successfully");
-            jobQueueEvent.fire(queue);
-            jobEventProducer.fire(new JobEvent(Integer.toString(proposedJobInstance.getId()), "",
+            jobQueueEvent.fire(queued.queue());
+            jobEventProducer.fire(new JobEvent(Integer.toString(queued.job().getId()), "",
                     JobLifecycleEvent.QUEUE_ADD));
             setName(null);
             proposedJobInstance = null;
@@ -417,12 +360,6 @@ public class JobMaker implements Serializable {
 
     }
 
-    private void storeScript(String jobId, Workload workload, JobInstance job) {
-        new WorkloadDao().loadScriptsForWorkload(workload);
-        HDWorkload hdWorkload = ConverterUtil.convertWorkload(workload, job);
-        String scriptString = ConverterUtil.getWorkloadXML(hdWorkload);
-        ProjectDaoUtil.storeScriptFile(jobId, scriptString);
-    }
 
     /**
      * @return
@@ -461,37 +398,6 @@ public class JobMaker implements Serializable {
                 .anyMatch(scriptGroup -> !scriptGroup.getScriptGroupSteps().isEmpty());
     }
 
-    /**
-     * @param dao
-     * @param dataFileIds
-     * @param entityClass
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
-    private Set<EntityVersion> getVersions(BaseDao dao, Set<Integer> dataFileIds,
-            Class<? extends BaseEntity> entityClass) {
-        HashSet<EntityVersion> result = new HashSet<EntityVersion>();
-        for (Integer id : dataFileIds) {
-            int versionId = dao.getHeadRevisionNumber(id);
-            result.add(new EntityVersion(id, versionId, entityClass));
-        }
-        return result;
-    }
 
-    /**
-     * @param dao
-     * @param entities
-     * @return
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private Set<EntityVersion> getVersions(BaseDao dao, Set<? extends BaseEntity> entities) {
-        HashSet<Integer> ids = new HashSet<Integer>();
-        Class entityClass = null;
-        for (BaseEntity entity : entities) {
-            ids.add(entity.getId());
-            entityClass = entity.getClass();
-        }
-        return getVersions(dao, ids, entityClass);
-    }
 
 }

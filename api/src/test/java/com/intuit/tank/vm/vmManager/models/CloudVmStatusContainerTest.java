@@ -45,8 +45,8 @@ public class CloudVmStatusContainerTest {
         CloudVmStatusContainer result = new CloudVmStatusContainer();
 
         assertNotNull(result);
-        assertEquals(null, result.getJobId());
-        assertEquals(null, result.getEndTime());
+        assertNull(result.getJobId());
+        assertNull(result.getEndTime());
     }
 
     /**
@@ -64,8 +64,8 @@ public class CloudVmStatusContainerTest {
         CloudVmStatusContainer result = new CloudVmStatusContainer(statuses);
 
         assertNotNull(result);
-        assertEquals(null, result.getJobId());
-        assertEquals(null, result.getEndTime());
+        assertNull(result.getJobId());
+        assertNull(result.getEndTime());
     }
 
     /**

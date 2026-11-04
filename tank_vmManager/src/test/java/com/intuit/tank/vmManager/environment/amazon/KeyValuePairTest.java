@@ -15,8 +15,6 @@ package com.intuit.tank.vmManager.environment.amazon;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vmManager.environment.amazon.KeyValuePair;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

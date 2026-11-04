@@ -15,8 +15,6 @@ package com.intuit.tank.http.soap;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.http.soap.SOAPResponse;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

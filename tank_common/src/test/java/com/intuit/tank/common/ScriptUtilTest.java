@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ScriptUtilTest {
@@ -49,7 +49,8 @@ public class ScriptUtilTest {
                 Arguments.of("#{ioFunctions.getCSVData('filename.csv')}", "'filename.csv'" ),
                 Arguments.of("#{ioFunctions.getCSVData(\"filename.csv\", 1)}", "\"filename.csv\"" ),
                 Arguments.of("#{ioFunctions.getCSVData('filename.csv', 1, true)}", "'filename.csv'" ),
-                Arguments.of("#{ioFunctions.getCSVData(myVariable)}", "myVariable" )
+                Arguments.of("#{ioFunctions.getCSVData(myVariable)}", "myVariable" ),
+                Arguments.of(null, null )
         );
     }
 
@@ -81,6 +82,13 @@ public class ScriptUtilTest {
         ScriptStep step = buildVariableStep(input);
         String dataFile = ScriptUtil.getDataFileUse(step);
         assertEquals(output, dataFile);
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testVariableExtraction_noDataOrType() {
+        assertNull(ScriptUtil.getDataFileUse(ScriptStep.builder().type(ScriptConstants.VARIABLE).build()));
+        assertNull(ScriptUtil.getDataFileUse(ScriptStep.builder().build()));
     }
 
     private ScriptStep buildVariableStep(String input) {
@@ -153,5 +161,46 @@ public class ScriptUtilTest {
         assertEquals("testing...", newScript.getComments());
         assertFalse(newScript.getScriptSteps().isEmpty());
         assertEquals(1, newScript.getScriptSteps().size());
+    }
+
+    private static ScriptStep thinkTime(String min, String max) {
+        return ScriptStep.builder()
+                .type(ScriptConstants.THINK_TIME)
+                .addDataElement(new RequestData("minTime", min, null))
+                .addDataElement(new RequestData("maxTime", max, null))
+                .build();
+    }
+
+    @Test
+    public void testCalculateStepDuration_thinkTimeUsesDeclaredVariables() {
+        HashMap<String, String> variables = new HashMap<>();
+        variables.put("minTime", "1s");
+        variables.put("maxTime", "3s");
+
+        long result = ScriptUtil.calculateStepDuration(thinkTime("#{minTime}", "#{maxTime}"), variables, new TankConfig());
+
+        assertEquals(2000, result);
+    }
+
+    @Test
+    public void testCalculateStepDuration_thinkTimeWithUnresolvedVariablesIsZero() {
+        long result = ScriptUtil.calculateStepDuration(thinkTime("#{minTime}", "#{maxTime}"), new HashMap<>(), new TankConfig());
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void testCalculateStepDuration_sleepWithUnresolvedVariableIsZero() {
+        ScriptStep sleep = ScriptStep.builder()
+                .type(ScriptConstants.SLEEP)
+                .addDataElement(new RequestData(ScriptConstants.TIME, "#{sleepTime}", null))
+                .build();
+
+        assertEquals(0, ScriptUtil.calculateStepDuration(sleep, new HashMap<>(), new TankConfig()));
+    }
+
+    @Test
+    public void testCalculateStepDuration_invalidLiteralIsZero() {
+        assertEquals(0, ScriptUtil.calculateStepDuration(thinkTime("abc", "xyz"), new HashMap<>(), new TankConfig()));
     }
 }

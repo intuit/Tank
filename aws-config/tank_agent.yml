@@ -2,8 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Creates the base Tank Agent that can be snapshotted for use in tank.'
 Parameters:
   AmiId:
-    Type: 'AWS::EC2::Image::Id'
-    Description: The ID of the latest Amazon Linux 2 baseline AMI
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64
+    Description: SSM parameter for the latest Amazon Linux 2023 arm64 baseline AMI (Graviton instance types only)
   TankZip:
     Type: 'String'
     Default: 'TankZip.zip'
@@ -32,7 +33,9 @@ Resources:
             - 'cloudwatch-install'
             - 'agent-install'
         cloudwatch-install:
-          packages: {}
+          packages:
+            yum:
+              amazon-cloudwatch-agent: []
           sources: {}
           files:
             /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/tank-cloudwatch-config.json:
@@ -48,7 +51,7 @@ Resources:
               group: 'cwagent'
           commands: {}
           services:
-            sysvinit:
+            systemd:
               amazon-cloudwatch-agent:
                 enabled: 'true'
                 ensureRunning: 'true'
@@ -60,62 +63,45 @@ Resources:
           packages:
             yum:
               unzip: []
-              java-17-amazon-corretto-headless: []
+              java-25-amazon-corretto-headless: []
           sources: {}
           files:
-            /etc/init.d/tank_agent:
+            /etc/systemd/system/tank_agent.service:
               content: |
-                #!/bin/bash
-                # tank_agent
-                # chkconfig: 2345 99 99
-                # description: agent for Tank project
-                ### BEGIN INIT INFO
-                # Provides: $tank_agent
-                ### END INIT INFO
-                # Source function library.
-                  . /etc/init.d/functions
+                [Unit]
+                Description=Tank agent
+                After=network-online.target
+                Wants=network-online.target
 
-                  RETVAL=0
-                  umask 077
-                  start() {
-                echo -n $"Starting Tank Agent: "
-                       pushd /opt/tank_agent
-                       ulimit -n 20000;
-                       ulimit -a >> /tmp/ulimit_out;
-                       daemon /opt/tank_agent/run.sh&
-                       echo
-                       return $RETVAL
-                }
-                stop() {
-                       echo -n $"Shutdown agent startup: "
-                       kill -9 `ps -ef | grep agent-startup-all | grep -v grep | awk '{print $2}'`
-                       return $RETVAL
-                }
-                restart() {
-                       stop
-                       start
-                }
-                case "$1" in
-                  start)
-                  start
-                  ;;
-                  stop)
-                  stop
-                  ;;
-                  restart|reload)
-                  restart
-                  ;;
-                  *)
-                echo $"Usage: $0 {start|stop|restart}"
-                  exit 1
-                  esac
-                  exit $?
-              mode: '000755'
+                [Service]
+                Type=simple
+                WorkingDirectory=/opt/tank_agent
+                ExecStart=/opt/tank_agent/run.sh
+                LimitNOFILE=20000
+                UMask=0077
+
+                [Install]
+                WantedBy=multi-user.target
+              mode: '000644'
+              owner: 'root'
+              group: 'root'
+            /etc/systemd/system.conf.d/tank-limits.conf:
+              content: |
+                [Manager]
+                DefaultLimitNOFILE=81960
+              mode: '000644'
+              owner: 'root'
+              group: 'root'
+            /etc/systemd/user.conf.d/tank-limits.conf:
+              content: |
+                [Manager]
+                DefaultLimitNOFILE=81960
+              mode: '000644'
               owner: 'root'
               group: 'root'
           commands:
             010_update_DNS_in_security:
-              command: 'sed -i.bak "s/networkaddress.cache.negative.ttl=10/networkaddress.cache.negative.ttl=0/g" /etc/alternatives/jre/conf/security/java.security'
+              command: 'sed -i.bak "s/networkaddress.cache.negative.ttl=10/networkaddress.cache.negative.ttl=0/g" "$(dirname "$(readlink -f "$(command -v java)")")/../conf/security/java.security"'
             020_download_startup_pkg:
               command: !Sub 'aws s3 cp ${TankZip} /tmp/agent-startup-pkg.zip'
             021_unzip_startup_pkg:
@@ -124,18 +110,10 @@ Resources:
               command: 'mkdir /opt/tank_agent/logs'
             030_increase_Ephemeral Ports:
               command: 'echo "net.ipv4.ip_local_port_range=1024 65000" >> /etc/sysctl.conf'
-            031_set_file_open_limit:
-              command: 'sed -i "s/#DefaultLimitNOFILE=/DefaultLimitNOFILE=81960/" /etc/systemd/system.conf'
-            032_set_file_open_limit:
-              command: 'sed -i "s/#DefaultLimitNOFILE=/DefaultLimitNOFILE=81960/" /etc/systemd/user.conf'
-            033_create_tank_agent_systemd_timeout_dir:
-              command: 'mkdir -p /etc/systemd/system/tank_agent.service.d'
-            034_set_tank_agent_systemd_timeout:
-              command: 'printf "[Service]\nTimeoutStartSec=900\n" > /etc/systemd/system/tank_agent.service.d/timeout.conf'
             035_reload_systemd:
               command: 'systemctl daemon-reload'
           services:
-            sysvinit:
+            systemd:
               tank_agent:
                 enabled: 'true'
                 ensureRunning: 'true'
@@ -155,7 +133,8 @@ Resources:
             #!/bin/bash -v
             # Ensure our PATH is set correctly (on Amazon Linux cfn-signal is in /opt/aws/bin)
             . ~/.bash_profile
-            yum -y update
+            dnf -y upgrade
+            dnf -y install aws-cfn-bootstrap
             cfn-init -v \
                --region  ${AWS::Region} \
                --stack   ${AWS::StackName} \

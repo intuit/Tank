@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>4.6.20-SNAPSHOT</version>
   </parent>
 
   <artifactId>tools-parent</artifactId>
@@ -19,6 +19,16 @@
     <module>agent_debugger</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fifesoft</groupId>
+        <artifactId>rsyntaxtextarea</artifactId>
+        <version>4.0.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <profiles>
     <profile>
       <id>release</id>
@@ -28,6 +38,16 @@
       <modules>
 	      <!--<module>jenkins_plugin</module>-->
         <module>agent_debugger_pkg</module>
+        <module>script_filter_pkg</module>
+      </modules>
+    </profile>
+    <profile>
+      <!-- Builds the script runner with the Groovy and JRuby script engines bundled -->
+      <id>script-engines</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
         <module>script_filter_pkg</module>
       </modules>
     </profile>

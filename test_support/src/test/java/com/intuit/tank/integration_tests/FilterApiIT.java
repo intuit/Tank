@@ -397,7 +397,7 @@ public class FilterApiIT extends BaseIT {
         assertTrue(filterGroup.get("filterIds").isArray(), "Filter IDs should be an array");
         assertTrue(filterGroup.has("filters"), "Filter group detail should have filters field");
         assertTrue(filterGroup.get("filters").isArray(), "Filters should be an array");
-        assertTrue(filterGroup.get("filters").size() > 0, "Known filter group should contain filters");
+        assertFalse(filterGroup.get("filters").isEmpty(), "Known filter group should contain filters");
 
         Set<Integer> filterIds = new HashSet<>();
         filterGroup.get("filterIds").forEach(id -> filterIds.add(id.asInt()));

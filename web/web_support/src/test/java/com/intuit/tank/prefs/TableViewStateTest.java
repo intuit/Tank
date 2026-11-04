@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.prefs.TableViewState;
 import org.primefaces.model.FilterMeta;
 
 /**

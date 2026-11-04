@@ -17,8 +17,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.admin.LogViewer;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

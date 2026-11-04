@@ -16,7 +16,6 @@ package com.intuit.tank.util;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import com.intuit.tank.util.FilterUtil;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,6 +47,6 @@ public class FilterUtilTest {
     @MethodSource("data")
     public void filterByName(Object value, String filterText, boolean expected) {
         boolean filtered = new FilterUtil().contains(value, filterText, Locale.US);
-        assertEquals(filtered, expected);
+        assertEquals(expected, filtered);
     }
 }

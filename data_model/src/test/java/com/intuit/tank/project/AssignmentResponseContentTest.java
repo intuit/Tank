@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.AssignmentResponseContent;
-
 /**
  * The class <code>AssignmentResponseContentTest</code> contains tests for the class <code>{@link AssignmentResponseContent}</code>.
  *

@@ -463,7 +463,7 @@ public class JobNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -483,7 +483,7 @@ public class JobNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -503,7 +503,7 @@ public class JobNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**
@@ -523,7 +523,7 @@ public class JobNodeBeanTest {
         // An unexpected exception was thrown in user code while executing this test:
         // java.lang.NoClassDefFoundError: com_cenqua_clover/CoverageRecorder
         // at com.intuit.tank.project.Project.<init>(Project.java:77)
-        assertTrue(!result);
+        assertFalse(result);
     }
 
     /**

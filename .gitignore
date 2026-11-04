@@ -9,8 +9,8 @@
 
 # auto release tooling (Node-based, used by .github/workflows/release.yml)
 node_modules/
-package.json
-package-lock.json
+/package.json
+/package-lock.json
 *.versionsBackup
 .tmp_*
 .reverse.properties

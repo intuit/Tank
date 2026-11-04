@@ -15,8 +15,6 @@ package com.intuit.tank.vm.agent.messages;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.agent.messages.DataFileRequest;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -39,9 +37,9 @@ public class DataFileRequestCpTest {
         DataFileRequest result = new DataFileRequest();
 
         assertNotNull(result);
-        assertEquals(false, result.isDefaultDataFile());
-        assertEquals(null, result.getFileName());
-        assertEquals(null, result.getFileUrl());
+        assertFalse(result.isDefaultDataFile());
+        assertNull(result.getFileName());
+        assertNull(result.getFileUrl());
     }
 
     /**
@@ -61,7 +59,7 @@ public class DataFileRequestCpTest {
         DataFileRequest result = new DataFileRequest(fileName, isDefaultDataFile, fileUrl);
 
         assertNotNull(result);
-        assertEquals(true, result.isDefaultDataFile());
+        assertTrue(result.isDefaultDataFile());
         assertEquals("", result.getFileName());
         assertEquals("", result.getFileUrl());
     }
@@ -114,7 +112,7 @@ public class DataFileRequestCpTest {
 
         boolean result = fixture.isDefaultDataFile();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -131,6 +129,6 @@ public class DataFileRequestCpTest {
 
         boolean result = fixture.isDefaultDataFile();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 }

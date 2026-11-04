@@ -15,8 +15,6 @@ package com.intuit.tank.http.binary;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.http.binary.BinaryResponse;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

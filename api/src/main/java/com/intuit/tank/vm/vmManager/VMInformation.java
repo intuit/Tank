@@ -116,6 +116,25 @@ public class VMInformation implements Serializable {
     }
 
     /**
+     * Set the virtual machine availability zone
+     * 
+     * @param data
+     *            The availability zone the virtual machine runs in
+     */
+    public void setZone(String data) {
+        this.items.put("zone", data);
+    }
+
+    /**
+     * Get the virtual machine availability zone
+     * 
+     * @return The availability zone the virtual machine runs in, or null when unknown
+     */
+    public String getZone() {
+        return (String) this.items.get("zone");
+    }
+
+    /**
      * Set the virtual machine public IP address
      * 
      * @param data
@@ -209,6 +228,10 @@ public class VMInformation implements Serializable {
     public void setImageType(VMImageType imageType) { this.items.put("imageType", imageType); }
 
     public VMImageType getImageType() { return (VMImageType) this.items.get("imageType"); }
+
+    public void setJobId(String jobId) { this.items.put("jobId", jobId); }
+
+    public String getJobId() { return (String) this.items.get("jobId"); }
 
     @Override
     public boolean equals(Object o) {

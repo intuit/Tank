@@ -20,10 +20,6 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.intuit.tank.project.ScriptStep;
-import com.intuit.tank.script.replace.MimeTypeReplacement;
-import com.intuit.tank.script.replace.ReplaceEntity;
-import com.intuit.tank.script.replace.ReplaceMode;
-import com.intuit.tank.script.replace.SearchMode;
 
 /**
  * The class <code>MimeTypeReplacementTest</code> contains tests for the class <code>{@link MimeTypeReplacement}</code>.

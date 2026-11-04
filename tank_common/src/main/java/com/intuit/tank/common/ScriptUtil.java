@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +77,7 @@ public class ScriptUtil {
 
     public static List<ScriptAssignment> getAssignments(ScriptStep step) {
         if (step.getType().equals("request")) {
-            return step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> StringUtils.containsIgnoreCase(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), StringUtils.removeStart(
+            return step.getResponseData().stream().filter(rd -> StringUtils.isNotBlank(rd.getKey())).filter(rd -> Strings.CI.contains(rd.getType(), "assignment")).map(rd -> new ScriptAssignment(rd.getKey().trim(), Strings.CS.removeStart(
                     StringUtils.trim(rd.getValue()), "="), step.getStepIndex())).collect(Collectors.toList());
         }
         return new ArrayList<ScriptAssignment>();
@@ -414,7 +415,10 @@ public class ScriptUtil {
                     String s = (String) variables.get(ValidationUtil.removeAllVariableIdentifier(max));
                     max = s != null ? s : max;
                 }
-                result = ((TimeUtil.parseTimeString(max) + TimeUtil.parseTimeString(min)) / 2);
+                // a variable that is still unresolved is supplied at run time, so the duration cannot be estimated
+                if (!isUnresolvedVariable(min) && !isUnresolvedVariable(max)) {
+                    result = ((TimeUtil.parseTimeString(max) + TimeUtil.parseTimeString(min)) / 2);
+                }
             } else if (step.getType().equalsIgnoreCase(ScriptConstants.SLEEP)) {
                 Set<RequestData> setData = step.getData();
                 if (null != setData) {
@@ -425,7 +429,9 @@ public class ScriptUtil {
                                 String s = (String) variables.get(ValidationUtil.removeAllVariableIdentifier(time));
                                 time = s != null ? s : time;
                             }
-                            result = TimeUtil.parseTimeString(time);
+                            if (!isUnresolvedVariable(time)) {
+                                result = TimeUtil.parseTimeString(time);
+                            }
                             break;
                         }
                     }
@@ -434,27 +440,24 @@ public class ScriptUtil {
                 result = config.getAgentConfig().getRange("process").getRandomValueWithin();
             }
         } catch (Exception e) {
-            LOG.error("Error calculating step time: " + e);
+            LOG.error("Error calculating step time for " + step.getType() + " step " + step.getStepIndex() + ": " + e);
         }
         return result;
     }
 
+    private static boolean isUnresolvedVariable(String value) {
+        return ValidationUtil.isAnyVariable(value != null ? value.trim() : null);
+    }
+
     public static String getDataFileUse(ScriptStep step) {
+        if (!ScriptConstants.VARIABLE.equalsIgnoreCase(step.getType()) || step.getData().isEmpty()) {
+            return null;
+        }
         String ret = null;
-        if (step.getType().equalsIgnoreCase("variable")) {
-            String value = step.getData().iterator().next().getValue();
-            Matcher m = csvPattern.matcher(value);
-            while (m.find()) { // find next match
-                String args = m.group(1).trim();
-                String[] split = args.split(",");
-                ret = TankConstants.DEFAULT_CSV_FILE_NAME;
-                if (split.length > 0) {
-                    String test = split[0].trim();
-                    if (StringUtils.isNotBlank(test) && !NumberUtils.isDigits(test)) {
-                        ret = test;
-                    }
-                }
-            }
+        Matcher m = csvPattern.matcher(StringUtils.defaultString(step.getData().iterator().next().getValue()));
+        while (m.find()) {
+            String first = StringUtils.substringBefore(m.group(1), ",").trim();
+            ret = StringUtils.isNotBlank(first) && !NumberUtils.isDigits(first) ? first : TankConstants.DEFAULT_CSV_FILE_NAME;
         }
         return ret;
     }

@@ -140,7 +140,7 @@ public class VMTrackerImplTest {
                 "sg-test",
                 JobStatus.Starting,
                 VMImageType.AGENT,
-                VMRegion.US_WEST_2,
+                VMRegion.US_WEST_2, null,
                 vmStatus,
                 new ValidationStatus(),
                 100,
@@ -216,7 +216,7 @@ public class VMTrackerImplTest {
                 "sg-test",
                 jobStatus,
                 VMImageType.AGENT,
-                VMRegion.US_WEST_2,
+                VMRegion.US_WEST_2, null,
                 vmStatus,
                 new ValidationStatus(),
                 100,
@@ -374,7 +374,7 @@ public class VMTrackerImplTest {
         
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(jobId);
         assertNotNull(container, "Container should exist");
-        assertTrue(container.getStatuses().size() > 0, "Should have some statuses");
+        assertFalse(container.getStatuses().isEmpty(), "Should have some statuses");
     }
 
     @RepeatedTest(3)

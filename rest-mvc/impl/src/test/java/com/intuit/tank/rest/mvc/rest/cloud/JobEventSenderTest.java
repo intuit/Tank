@@ -1,7 +1,5 @@
 package com.intuit.tank.rest.mvc.rest.cloud;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Subsegment;
 import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.dao.util.ProjectDaoUtil;
@@ -10,7 +8,6 @@ import com.intuit.tank.perfManager.workLoads.JobManager;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
-import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
@@ -27,11 +24,14 @@ import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
 import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -52,6 +52,9 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 public class JobEventSenderTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
 
     @Mock
     private VMTracker vmTracker;
@@ -87,7 +90,7 @@ public class JobEventSenderTest {
                 "sg-test",
                 jobStatus,
                 VMImageType.AGENT,
-                VMRegion.US_WEST_2,
+                VMRegion.US_WEST_2, null,
                 vmStatus,
                 new ValidationStatus(),
                 100,
@@ -339,16 +342,12 @@ public class JobEventSenderTest {
         File mockFile = mock(File.class);
         when(mockFile.exists()).thenReturn(true);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> {
                          when(mock.findById(123)).thenReturn(job);
                          when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(inv -> inv.getArgument(0));
                      });
              MockedStatic<ProjectDaoUtil> projectDaoUtil = Mockito.mockStatic(ProjectDaoUtil.class)) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             projectDaoUtil.when(() -> ProjectDaoUtil.getScriptFile("123")).thenReturn(mockFile);
 
@@ -359,8 +358,7 @@ public class JobEventSenderTest {
             verify(vmTracker).removeStatusForJob("123");
             verify(jobManager).startJob(123);
             verify(jobEventProducer).fire(any(JobEvent.class));
-            xray.verify(() -> AWSXRay.beginSubsegment("Start.Job.123"));
-            xray.verify(AWSXRay::endSubsegment);
+            assertEquals(List.of("Start.Job.123"), otel.getSpans().stream().map(SpanData::getName).toList());
         }
     }
 
@@ -377,8 +375,7 @@ public class JobEventSenderTest {
         Workload mockWorkload = mock(Workload.class);
         HDWorkload mockHdWorkload = mock(HDWorkload.class);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> {
                          when(mock.findById(123)).thenReturn(job);
                          when(mock.saveOrUpdate(any(JobInstance.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -389,9 +386,6 @@ public class JobEventSenderTest {
                      });
              MockedStatic<ProjectDaoUtil> projectDaoUtil = Mockito.mockStatic(ProjectDaoUtil.class);
              MockedStatic<ConverterUtil> converterUtil = Mockito.mockStatic(ConverterUtil.class)) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             projectDaoUtil.when(() -> ProjectDaoUtil.getScriptFile("123")).thenReturn(mockFile);
             projectDaoUtil.when(() -> ProjectDaoUtil.storeScriptFile(anyString(), any())).thenAnswer(inv -> null);
@@ -415,12 +409,8 @@ public class JobEventSenderTest {
         job.setId(123);
         job.setStatus(JobQueueStatus.Running);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> when(mock.findById(123)).thenReturn(job))) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             String result = jobEventSender.startJob("123");
 
@@ -441,20 +431,15 @@ public class JobEventSenderTest {
         job.setId(123);
         job.setStatus(JobQueueStatus.Starting);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> when(mock.findById(123)).thenReturn(job))) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             String result = jobEventSender.startAgents("123");
 
             assertEquals("123", result);
             verify(jobManager).startAgents("123");
             verify(jobEventProducer).fire(any(JobEvent.class));
-            xray.verify(() -> AWSXRay.beginSubsegment("Start.Agents.123"));
-            xray.verify(AWSXRay::endSubsegment);
+            assertEquals(List.of("Start.Agents.123"), otel.getSpans().stream().map(SpanData::getName).toList());
         }
     }
 
@@ -465,12 +450,8 @@ public class JobEventSenderTest {
         job.setId(123);
         job.setStatus(JobQueueStatus.Running);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> when(mock.findById(123)).thenReturn(job))) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             String result = jobEventSender.startAgents("123");
 
@@ -487,12 +468,8 @@ public class JobEventSenderTest {
         job.setId(123);
         job.setStatus(JobQueueStatus.Deleted);
 
-        try (MockedStatic<AWSXRay> xray = Mockito.mockStatic(AWSXRay.class);
-             MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
+        try (MockedConstruction<JobInstanceDao> daoConstruction = Mockito.mockConstruction(JobInstanceDao.class,
                      (mock, context) -> when(mock.findById(123)).thenReturn(job))) {
-
-            Subsegment mockSubsegment = mock(Subsegment.class);
-            xray.when(() -> AWSXRay.beginSubsegment(anyString())).thenReturn(mockSubsegment);
 
             String result = jobEventSender.startAgents("123");
 

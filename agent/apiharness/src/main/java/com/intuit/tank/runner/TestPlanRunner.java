@@ -64,11 +64,16 @@ public class TestPlanRunner implements Runnable {
     private String httpClientClass;
     private BaseRequest previousRequest = null;
     private BaseResponse previousResponse = null;
+    private FlowController flowController;
     private boolean finished = false;
     private Map<String, String> headerMap;
 
+    private static final class AgentHeaders {
+        private static final Map<String, String> MAP = new TankConfig().getAgentConfig().getRequestHeaderMap();
+    }
+
     public TestPlanRunner(Object httpClient, HDTestPlan testPlan, int threadNumber, String httpClientClass) {
-        headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
+        headerMap = AgentHeaders.MAP;
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
         this.httpClientClass = httpClientClass;
@@ -76,7 +81,7 @@ public class TestPlanRunner implements Runnable {
     }
     
     public TestPlanRunner( HDTestPlan testPlan, int threadNumber, String httpClientClass) {
-        headerMap = new TankConfig().getAgentConfig().getRequestHeaderMap();
+        headerMap = AgentHeaders.MAP;
         this.testPlan = testPlan;
         this.threadNumber = threadNumber;
         this.httpClientClass = httpClientClass;
@@ -104,6 +109,7 @@ public class TestPlanRunner implements Runnable {
     public void run() {
         tankHttpClient = initHttpClient();
         tankHttpClient.setHttpClient(httpClient);
+        flowController = APITestHarness.getInstance().getFlowControllerTemplate().cloneController();
 
         MethodTimer mt = new MethodTimer(LOG, getClass(), "runTestPlan(" + testPlan.getTestPlanName() + ")");
         LogEvent logEvent = LogUtil.getLogEvent();
@@ -288,9 +294,6 @@ public class TestPlanRunner implements Runnable {
                     }
                 }
             }
-
-            FlowController flowController = APITestHarness.getInstance().getFlowController(
-                    Thread.currentThread().getId());
 
             TestStepContext tsc = new TestStepContext(testStep, variables,
                     testPlan.getTestPlanName(),

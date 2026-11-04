@@ -10,7 +10,7 @@ public class FileDataTest {
     @Test
     void testDefaultFileData() {
         FileData fd = new FileData();
-        assertEquals(fd.getPath(), "");
+        assertEquals("", fd.getPath());
         assertNull(fd.getFileName());
     }
 
@@ -18,14 +18,14 @@ public class FileDataTest {
     void testSetPath() {
         FileData fd = new FileData();
         fd.setPath("target/storage");
-        assertEquals(fd.getPath(), "target/storage");
+        assertEquals("target/storage", fd.getPath());
     }
 
     @Test
     void testSetFileName() {
         FileData fd = new FileData();
         fd.setFileName("test.txt");
-        assertEquals(fd.getFileName(), "test.txt");
+        assertEquals("test.txt", fd.getFileName());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class FileDataTest {
     @Test
     void testToString() {
         FileData fd = new FileData("target/storage", "test.txt");
-        assertEquals(fd.toString(), "target/storage/test.txt");
+        assertEquals("target/storage/test.txt", fd.toString());
     }
 
     @Test
@@ -60,6 +60,6 @@ public class FileDataTest {
     @Test
     void testHashCode() {
         FileData fd = new FileData("target/storage", "test.txt");
-        assertEquals(fd.hashCode(), -520765042);
+        assertEquals(-520765042, fd.hashCode());
     }
 }

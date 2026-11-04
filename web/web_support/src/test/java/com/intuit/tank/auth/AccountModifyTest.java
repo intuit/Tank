@@ -13,7 +13,6 @@ package com.intuit.tank.auth;
  * #L%
  */
 
-import com.intuit.tank.admin.Deleted;
 import com.intuit.tank.project.Preferences;
 import com.intuit.tank.project.User;
 import com.intuit.tank.util.Messages;
@@ -126,10 +125,9 @@ public class AccountModifyTest {
         accountModify.setPassword("newpass");
         accountModify.setPasswordConfirm("newpass");
 
-        // Always shows "Password is required." error first (code behavior), then tries save
-        // This tests the existing code path
         assertDoesNotThrow(() -> accountModify.save());
-        verify(messages, atLeastOnce()).error(anyString());
+        verify(messages, never()).error(anyString());
+        assertNotNull(user.getPassword());
     }
 
     @Test
@@ -142,7 +140,8 @@ public class AccountModifyTest {
 
         String result = accountModify.save();
         assertNull(result);
-        verify(messages, atLeast(2)).error(anyString());
+        verify(messages, times(1)).error("Passwords do not match.");
+        verify(messages, never()).error("Password is required.");
     }
 
     @Test

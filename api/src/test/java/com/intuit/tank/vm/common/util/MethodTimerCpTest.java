@@ -17,11 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.vm.common.util.MethodTimer;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 

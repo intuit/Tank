@@ -79,7 +79,7 @@ public class GenericExceptionHandlerTest {
         when(e.getStatusCode()).thenReturn(422);
         when(e.getErrorMessage()).thenReturn("Unprocessable");
         SimpleErrorResponse response = genericExceptionHandler.handleClientException(e);
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+        assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, response.getStatusCode());
     }
 
     @Test

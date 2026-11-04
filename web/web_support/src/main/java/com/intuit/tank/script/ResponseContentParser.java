@@ -37,6 +37,8 @@ public class ResponseContentParser {
     public static String extractValidateValue(String value) {
         if (value.length() > 1 && value.charAt(0) == '=' && value.charAt(1) != '=') {
             value = value.substring(1);
+        } else if (value.startsWith(ValidationType.equalsany.getValue())) {
+            value = value.substring(ValidationType.equalsany.getValue().length());
         } else {
             for (ValidationType type : ValidationType.values()) {
                 if (value.startsWith(type.getValue())) {
@@ -51,6 +53,9 @@ public class ResponseContentParser {
     public static String extractCondition(String conditionStr) {
         if (conditionStr.length() > 1 && conditionStr.charAt(0) == '=' && conditionStr.charAt(1) != '=') {
             return "=";
+        }
+        if (conditionStr.startsWith(ValidationType.equalsany.getValue())) {
+            return ValidationType.equalsany.getValue();
         }
         return Arrays.stream(ValidationType.values()).filter(type -> conditionStr.startsWith(type.getValue())).findFirst().map(ValidationType::getValue).orElse("");
     }

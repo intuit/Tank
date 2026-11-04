@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -99,7 +100,7 @@ public class GraphiteDatasource implements IDatabase {
 			long sum = 0;
 			//int count = 0;
 			for (TankResult metric: results) {
-				if (StringUtils.equalsIgnoreCase(metric.getRequestName(), requestName)) { //Middle of the Group
+				if (Strings.CI.equals(metric.getRequestName(), requestName)) { //Middle of the Group
 					groupResults.add(Long.valueOf(metric.getResponseTime()));
 					sum += metric.getResponseTime();
 				} else if (StringUtils.isEmpty(requestName)) { // Handles the first time through //

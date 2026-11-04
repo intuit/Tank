@@ -31,7 +31,8 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
-import com.amazonaws.xray.contexts.SegmentContextExecutors;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import com.intuit.tank.vm.api.enumerated.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -92,6 +93,8 @@ public class JobManager implements Serializable {
 
     private Map<String, JobInfo> jobInfoMapLocalCache = new ConcurrentHashMap<>();
 
+    private final Map<String, String> adoptedAgentJobs = new ConcurrentHashMap<>();
+
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
     @Inject
@@ -119,6 +122,7 @@ public class JobManager implements Serializable {
             List<AgentAvailability> agents = standaloneTracker.getAgents(jobRequest.getTotalVirtualUsers());
             if (agents == null) {
                 jobInstance.setStatus(JobQueueStatus.Aborted);
+                jobInstance.setEndTime(new Date());
                 jobInstanceDao.saveOrUpdate(jobInstance);
             } else {
                 // start the jobs by sending start commmand
@@ -134,11 +138,12 @@ public class JobManager implements Serializable {
 
                     // TODO: kill any agents that were started
                     jobInstance.setStatus(JobQueueStatus.Aborted);
+                    jobInstance.setEndTime(new Date());
                     jobInstanceDao.saveOrUpdate(jobInstance);
                 }
             }
         } else {
-            SegmentContextExecutors.newSegmentContextExecutor().execute(project);
+            project.run();
         }
     }
 
@@ -355,6 +360,10 @@ public class JobManager implements Serializable {
                         }
                     }
                 }
+                String adoptedJobId = adoptedAgentJobs.get(instanceId);
+                if (adoptedJobId != null) {
+                    instanceJobMap.putIfAbsent(instanceId, adoptedJobId);
+                }
             }
         }
 
@@ -403,6 +412,7 @@ public class JobManager implements Serializable {
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final Context traceContext = Context.current(); // parallelStream workers don't inherit the caller's trace
         return instanceIds.parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .map(instanceId -> jobInfoMapLocalCache.values().stream()
@@ -411,7 +421,9 @@ public class JobManager implements Serializable {
                         .findFirst()
                         .orElseGet(() -> {
                             Thread.currentThread().setContextClassLoader(classLoader);
-                            return findAgent(instanceId);
+                            try (Scope ignored = traceContext.makeCurrent()) {
+                                return findAgent(instanceId);
+                            }
                         })
                 )
                 .filter(Objects::nonNull)
@@ -527,6 +539,13 @@ public class JobManager implements Serializable {
         controllerInitiatedAgentWsClient.setVmTerminator(vmTerminator);
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender.setStaticInstance(controllerInitiatedAgentWsClient);
         return controllerInitiatedAgentWsClient;
+    }
+
+    /**
+     * Routes commands to a running agent that this controller process did not launch (e.g. after a restart).
+     */
+    public void adoptAgent(String instanceId, String jobId) {
+        adoptedAgentJobs.put(instanceId, jobId);
     }
 
     public void startAgents(String jobId){

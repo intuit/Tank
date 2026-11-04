@@ -16,11 +16,30 @@ package com.intuit.tank.perfManager.workLoads;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-import com.intuit.tank.perfManager.workLoads.IncreasingWorkLoad;
+import org.mockito.ArgumentCaptor;
+
+import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
+import com.intuit.tank.vm.api.enumerated.VMRegion;
+import com.intuit.tank.vm.perfManager.RequestAgents;
 import com.intuit.tank.vm.scheduleManager.AgentDispatcher;
 import com.intuit.tank.vm.vmManager.JobRequest;
+import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMChannel;
+import com.intuit.tank.tracing.Tracing;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The class <code>IncreasingWorkLoadTest</code> contains tests for the class <code>{@link IncreasingWorkLoad}</code>.
@@ -28,6 +47,9 @@ import com.intuit.tank.vm.vmManager.VMChannel;
  * @generatedBy CodePro at 9/10/14 10:40 AM
  */
 public class IncreasingWorkLoadTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
     /**
      * Run the IncreasingWorkLoad(VMChannel,AgentDispatcher,JobRequest) constructor test.
      * 
@@ -45,7 +67,7 @@ public class IncreasingWorkLoadTest {
         IncreasingWorkLoad result = new IncreasingWorkLoad(channel, agentDispatcher, job);
 
         assertNotNull(result);
-        assertEquals(null, result.getJob());
+        assertNull(result.getJob());
     }
 
     /**
@@ -62,7 +84,110 @@ public class IncreasingWorkLoadTest {
 
         JobRequest result = fixture.getJob();
 
-        assertEquals(null, result);
+        assertNull(result);
+    }
+
+    @Test
+    public void testRun_requestsRegionsConcurrently() {
+        RegionRequest east = mockRegion(VMRegion.US_EAST_2);
+        RegionRequest west = mockRegion(VMRegion.US_WEST_2);
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);
+        doReturn(Set.of(east, west)).when(job).getRegions();
+
+        // Each region's request blocks until the other arrives; run serially, the barrier times out
+        CyclicBarrier bothRegions = new CyclicBarrier(2);
+        AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
+        List<String> regionSpanIds = new CopyOnWriteArrayList<>();
+        doAnswer(invocation -> {
+            regionSpanIds.add(Span.current().getSpanContext().getSpanId());
+            return bothRegions.await(5, TimeUnit.SECONDS);
+        }).when(agentDispatcher).processAgentsMessage(any(RequestAgents.class));
+
+        Tracing.inSpan("TEST", () -> new IncreasingWorkLoad(null, agentDispatcher, job).run());
+
+        assertFalse(bothRegions.isBroken());
+        verify(agentDispatcher, times(2)).processAgentsMessage(any(RequestAgents.class));
+        // the region threads stay inside the Request.Agents span, which is a child of the caller's span
+        SpanData request = findSpan("Request.Agents.JobId.1");
+        assertEquals(findSpan("TEST").getSpanId(), request.getParentSpanId());
+        assertEquals(List.of(request.getSpanId(), request.getSpanId()), regionSpanIds);
+    }
+
+    @Test
+    public void testRun_restoresTheCallersSpan() {
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        doReturn(Set.of()).when(job).getRegions();
+
+        Span caller = Tracing.startSpan("TEST");
+        try (Scope ignored = caller.makeCurrent()) {
+            new IncreasingWorkLoad(null, mock(AgentDispatcher.class), job).run();
+
+            assertSame(caller, Span.current());
+        } finally {
+            caller.end();
+        }
+        assertNotNull(findSpan("Request.Agents.JobId.1"));
+    }
+
+    private static SpanData findSpan(String name) {
+        return otel.getSpans().stream().filter(span -> span.getName().equals(name)).findFirst()
+                .orElseThrow(() -> new AssertionError("No span named " + name));
+    }
+
+    @Test
+    public void testRun_nonlinearRequestsTheAgentsAllocatedToEachRegion() {
+        RegionRequest east = mockRegion(VMRegion.US_EAST_2);
+        when(east.getPercentage()).thenReturn("100");
+        RegionRequest west = mockRegion(VMRegion.US_WEST_2);
+        when(west.getPercentage()).thenReturn("0");
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getIncrementStrategy()).thenReturn(IncrementStrategy.standard);
+        when(job.getNumAgents()).thenReturn(3);
+        doReturn(Set.of(east, west)).when(job).getRegions();
+        AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
+
+        Tracing.inSpan("TEST", () -> new IncreasingWorkLoad(null, agentDispatcher, job).run());
+
+        // only the region with a share of the agents is requested, sized by its agent count
+        ArgumentCaptor<RequestAgents> request = ArgumentCaptor.forClass(RequestAgents.class);
+        verify(agentDispatcher).processAgentsMessage(request.capture());
+        assertEquals(VMRegion.US_EAST_2, request.getValue().getRegion());
+        assertEquals(3, request.getValue().getNumberOfUsers());
+    }
+
+    @Test
+    public void testRun_linearRegionWithoutUsersIsNotRequested() {
+        RegionRequest east = mockRegion(VMRegion.US_EAST_2);
+        when(east.getUsers()).thenReturn("0");
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getIncrementStrategy()).thenReturn(IncrementStrategy.increasing);
+        doReturn(Set.of(east)).when(job).getRegions();
+        AgentDispatcher agentDispatcher = mock(AgentDispatcher.class);
+
+        Tracing.inSpan("TEST", () -> new IncreasingWorkLoad(null, agentDispatcher, job).run());
+
+        verifyNoInteractions(agentDispatcher);
+    }
+
+    @Test
+    public void testRun_failureIsLoggedAndNotRethrown() {
+        JobRequest job = mock(JobRequest.class);
+        when(job.getId()).thenReturn("1");
+        when(job.getRegions()).thenThrow(new IllegalStateException("regions unavailable"));
+
+        Tracing.inSpan("TEST", () -> assertDoesNotThrow(() -> new IncreasingWorkLoad(null, mock(AgentDispatcher.class), job).run()));
+    }
+
+    private RegionRequest mockRegion(VMRegion region) {
+        RegionRequest regionRequest = mock(RegionRequest.class);
+        when(regionRequest.getRegion()).thenReturn(region);
+        when(regionRequest.getUsers()).thenReturn("10");
+        return regionRequest;
     }
 
 }

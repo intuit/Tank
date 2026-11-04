@@ -56,4 +56,7 @@ public class UserInfo implements Serializable {
 
     @SerializedName("email")
     private String email;
+
+    @SerializedName("nonce")
+    private String nonce;
 }

@@ -20,8 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.http2.client.HTTP2Client;
-import org.eclipse.jetty.http2.client.transport.HttpClientTransportOverHTTP2;
 import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
@@ -33,10 +31,13 @@ import java.io.File;
 import java.io.IOException;
 import tools.jackson.core.JacksonException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +51,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Controller-side client that pushes bootstrap and job files to agents over WebSocket-over-HTTP/2
- * (RFC 8441) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
+ * Controller-side client that pushes bootstrap and job files to agents over WebSocket (HTTP/1.1
+ * upgrade) using the Jetty 12 WebSocket client. File chunks are pipelined with a bounded in-flight
  * (sliding) window rather than a fixed stop-and-wait ack gate, so throughput is independent of RTT.
  */
 @ApplicationScoped
@@ -62,6 +63,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private static final String START_AGENT_SCRIPT = "startAgent.sh";
     private static final String STARTUP_SCRIPT_FILE_TYPE = "startup_script";
     private static final String SETTINGS_FILE_NAME = "settings.xml";
+    private static final String SETTINGS_FILE_TYPE = "settings";
     private static final String SCRIPT_FILE_NAME = "script.xml";
     private static final String LOCAL_CONTROLLER_ORIGIN = "http://localhost:8080";
     private static final int DEFAULT_CHUNK_BYTES =
@@ -81,6 +83,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     // dead ones early (well under WS_IDLE_TIMEOUT_MS).
     private static final long WS_KEEPALIVE_PING_MS =
             Math.max(5_000L, Long.getLong("tank.ws.keepAlivePingMs", 10_000L));
+    // A half-open TCP connection still accepts writes, so silence from the agent is the only reliable
+    // sign the session is dead. Closing it lets AgentReadoption reconnect.
+    private static final long WS_STALE_SESSION_MS =
+            Math.max(3 * WS_KEEPALIVE_PING_MS, Long.getLong("tank.ws.staleSessionMs", 60_000L));
+    private static final String CONTROLLER_NODE_ID = resolveNodeId();
 
     private final java.net.http.HttpClient httpClient =
             java.net.http.HttpClient.newBuilder().build();
@@ -98,6 +105,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
 
     private volatile VMTracker vmTracker;
     private volatile VMTerminator vmTerminator;
+    private volatile boolean closeStaleSessions;
 
     public ControllerInitiatedAgentWsClient() {
     }
@@ -110,14 +118,21 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         this.vmTerminator = vmTerminator;
     }
 
+    public void setCloseStaleSessions(boolean closeStaleSessions) {
+        this.closeStaleSessions = closeStaleSessions;
+    }
+
     private WebSocketClient webSocketClient() throws Exception {
         WebSocketClient client = wsClient;
         if (client == null) {
             synchronized (this) {
                 client = wsClient;
                 if (client == null) {
-                    HTTP2Client http2Client = new HTTP2Client();
-                    HttpClient jettyHttpClient = new HttpClient(new HttpClientTransportOverHTTP2(http2Client));
+                    // WebSocket over HTTP/1.1, not HTTP/2 (RFC 8441): Jetty's HTTP2StreamEndPoint copies every
+                    // outgoing WebSocket frame into a new unpooled direct buffer, so pushing files to many
+                    // agents at once piled up GBs of direct memory awaiting GC. Each agent is its own host,
+                    // so HTTP/2 multiplexing gave no benefit; agents accept both upgrades on the same port.
+                    HttpClient jettyHttpClient = new HttpClient();
                     client = new WebSocketClient(jettyHttpClient);
                     client.setMaxBinaryMessageSize(MAX_WS_MESSAGE_BYTES);
                     client.setMaxTextMessageSize(MAX_WS_MESSAGE_BYTES);
@@ -156,12 +171,44 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             if (context == null || !context.isOpen()) {
                 continue;
             }
+            long lastSeen = Math.max(context.openedAtMs, agentLastSeen.getOrDefault(entry.getKey(), 0L));
+            if (closeStaleSessions && System.currentTimeMillis() - lastSeen > WS_STALE_SESSION_MS) {
+                LOG.warn(new ObjectMessage(Map.of("Message",
+                        "[WS] No traffic from " + entry.getKey() + " for " + WS_STALE_SESSION_MS + "ms — closing stale session")));
+                if (sessions.remove(entry.getKey(), context)) {
+                    context.abort();
+                    fileTransferReady.remove(entry.getKey());
+                    agentWsState.put(entry.getKey(), "disconnected");
+                }
+                continue;
+            }
             try {
                 sendEnvelope(context, AgentWsEnvelope.ping(UUID.randomUUID().toString()));
             } catch (Exception e) {
                 LOG.debug(new ObjectMessage(Map.of("Message",
                         "[WS] Keepalive ping failed for " + entry.getKey() + ": " + e.getMessage())));
             }
+        }
+    }
+
+    /**
+     * Names this controller to the agent, so a reconnect replaces only this controller's previous
+     * connection and leaves other controllers connected.
+     */
+    static String withNodeId(String wsUrl) {
+        String nodeParam = "node=" + URLEncoder.encode(CONTROLLER_NODE_ID, StandardCharsets.UTF_8);
+        return wsUrl + (wsUrl.contains("?") ? "&" : "?") + nodeParam;
+    }
+
+    private static String resolveNodeId() {
+        String configured = System.getProperty("tank.controller.nodeId");
+        if (configured != null && !configured.isBlank()) {
+            return configured;
+        }
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (Exception e) {
+            return UUID.randomUUID().toString();
         }
     }
 
@@ -179,7 +226,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             upgradeRequest.setHeader("Authorization", "bearer " + token);
 
             Session session = webSocketClient()
-                    .connect(endpoint, URI.create(wsUrl), upgradeRequest)
+                    .connect(endpoint, URI.create(withNodeId(wsUrl)), upgradeRequest)
                     .get(10, TimeUnit.SECONDS);
 
             SessionContext context = new SessionContext(session, endpoint, helloFuture);
@@ -207,6 +254,15 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
         agentWsState.put(instanceId, "disconnected");
         return Optional.empty();
+    }
+
+    public void disconnect(String instanceId) {
+        SessionContext context = sessions.remove(instanceId);
+        if (context != null) {
+            context.close();
+        }
+        fileTransferReady.remove(instanceId);
+        agentWsState.put(instanceId, "disconnected");
     }
 
     public boolean connectAndBootstrap(JobManager jobManager, String instanceId, String instanceUrl, String wsUrl,
@@ -333,7 +389,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
     private List<TransferFile> buildTransferFiles(AgentTestStartData startData, String authorizationHeader)
             throws IOException, InterruptedException {
         List<TransferFile> files = new ArrayList<>();
-        files.add(new TransferFile("settings", SETTINGS_FILE_NAME, loadSettingsFile(), false));
         if (startData != null && startData.getScriptUrl() != null) {
             files.add(new TransferFile("script", SCRIPT_FILE_NAME,
                     readBytesFromUrl(startData.getScriptUrl(), authorizationHeader), false));
@@ -372,7 +427,7 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             }
         }
         Optional<byte[]> startupScript = loadStartupScript();
-        List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(jarBytes, startupScript);
+        List<TransferFile> bootstrapFiles = buildStartupBootstrapFiles(loadSettingsFile(), jarBytes, startupScript);
         int bootstrapFileCount = bootstrapFiles.size();
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
                 + " needs startup bootstrap — pushing " + bootstrapFileCount + " files"
@@ -389,21 +444,9 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
 
         long connectionDeadlineMs = context.openedAtMs + MAX_BOOTSTRAP_CONNECTION_MS;
-        boolean sentAllChunks;
-        try {
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
-        } catch (UnsupportedStartupScriptException e) {
-            bootstrapFiles = buildStartupBootstrapFiles(jarBytes, Optional.empty());
-            bootstrapFileCount = bootstrapFiles.size();
-            context.expectedFiles = bootstrapFileCount;
-            context.completedFiles.clear();
-            agentTransferProgress.put(agentId, "0/" + bootstrapFileCount + " files");
-            LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + agentId
-                    + " does not support startup_script — retrying bootstrap with harness JAR only")));
-            sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
-                    DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
-        }
+        boolean sentAllChunks = sendFilesWithBudget(context, agentId, "bootstrap", bootstrapFiles,
+                DEFAULT_CHUNK_BYTES, connectionDeadlineMs);
+        bootstrapFileCount = context.expectedFiles;
 
         if (!sentAllChunks) {
             LOG.info(new ObjectMessage(Map.of("Message",
@@ -456,8 +499,10 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    static List<TransferFile> buildStartupBootstrapFiles(byte[] jarBytes, Optional<byte[]> startupScript) {
+    static List<TransferFile> buildStartupBootstrapFiles(byte[] settingsBytes, byte[] jarBytes,
+                                                         Optional<byte[]> startupScript) {
         List<TransferFile> files = new ArrayList<>();
+        files.add(new TransferFile(SETTINGS_FILE_TYPE, SETTINGS_FILE_NAME, settingsBytes, false));
         startupScript.ifPresent(content ->
                 files.add(new TransferFile(STARTUP_SCRIPT_FILE_TYPE, START_AGENT_SCRIPT, content, false)));
         files.add(new TransferFile("support_jar", API_HARNESS_JAR, jarBytes, false));
@@ -550,8 +595,20 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             throws IOException, InterruptedException {
         try {
             for (TransferFile file : files) {
-                if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
-                    return false;
+                try {
+                    if (!sendFile(context, instanceId, jobId, file, chunkBytes, connectionDeadlineMs)) {
+                        return false;
+                    }
+                } catch (UnsupportedStartupFileException e) {
+                    context.expectedFiles--;
+                    if (SETTINGS_FILE_NAME.equals(file.fileName())) {
+                        LOG.error(new ObjectMessage(Map.of("Message", "[WS] Agent " + instanceId
+                                + " rejected settings.xml during startup bootstrap — it will run with the"
+                                + " harness JAR's default settings. Update the agent startup package.")));
+                    } else {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "[WS] Agent " + instanceId
+                                + " does not support startup file " + file.fileName() + " — skipping it")));
+                    }
                 }
             }
             return true;
@@ -603,8 +660,8 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             AgentWsEnvelope offerAck = offerAckFuture.get(10, TimeUnit.SECONDS);
             if (offerAck != null) {
                 if (offerAck.getStatus() == AckStatus.failed) {
-                    if (isLegacyStartupScriptRejection(file, offerAck)) {
-                        throw new UnsupportedStartupScriptException();
+                    if (isLegacyStartupFileRejection(file, offerAck)) {
+                        throw new UnsupportedStartupFileException();
                     }
                     throw new IOException("File offer rejected by agent: " + offerAck.getError());
                 }
@@ -710,9 +767,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    static boolean isLegacyStartupScriptRejection(TransferFile file, AgentWsEnvelope offerAck) {
-        return STARTUP_SCRIPT_FILE_TYPE.equals(file.fileType())
-                && START_AGENT_SCRIPT.equals(file.fileName())
+    static boolean isLegacyStartupFileRejection(TransferFile file, AgentWsEnvelope offerAck) {
+        boolean optionalStartupFile = (STARTUP_SCRIPT_FILE_TYPE.equals(file.fileType())
+                        && START_AGENT_SCRIPT.equals(file.fileName()))
+                || (SETTINGS_FILE_TYPE.equals(file.fileType()) && SETTINGS_FILE_NAME.equals(file.fileName()));
+        return optionalStartupFile
                 && offerAck != null
                 && offerAck.getStatus() == AckStatus.failed
                 && "unsupported_startup_file".equals(offerAck.getError());
@@ -1098,6 +1157,6 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
         }
     }
 
-    private static class UnsupportedStartupScriptException extends IOException {
+    private static class UnsupportedStartupFileException extends IOException {
     }
 }

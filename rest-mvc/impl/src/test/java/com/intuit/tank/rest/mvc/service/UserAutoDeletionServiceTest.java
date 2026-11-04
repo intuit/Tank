@@ -4,7 +4,12 @@ import com.intuit.tank.dao.UserDao;
 import com.intuit.tank.project.Group;
 import com.intuit.tank.project.User;
 import com.intuit.tank.vm.settings.TankConfig;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
+import io.opentelemetry.sdk.trace.data.SpanData;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
@@ -12,6 +17,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -19,6 +25,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class UserAutoDeletionServiceTest {
+
+    @RegisterExtension
+    static final OpenTelemetryExtension otel = OpenTelemetryExtension.create();
 
     // =====================================================================
     // performStartupUserDeletion - DRY RUN mode (auto-deletion disabled)
@@ -46,6 +55,30 @@ class UserAutoDeletionServiceTest {
             for (UserDao dao : userDaoMock.constructed()) {
                 verify(dao, never()).deleteUserData(anyString());
             }
+        }
+    }
+
+    @Test
+    void performStartupUserDeletion_runsQueriesInsideItsOwnRootSpan() {
+        AtomicReference<SpanContext> spanDuringQuery = new AtomicReference<>();
+        try (MockedConstruction<TankConfig> ignored = Mockito.mockConstruction(TankConfig.class,
+                     (mock, ctx) -> {
+                         when(mock.isUserAutoDeletionEnabled()).thenReturn(false);
+                         when(mock.getUserAutoDeletionRetentionDays()).thenReturn(730);
+                     });
+             MockedConstruction<UserDao> ignoredDao = Mockito.mockConstruction(UserDao.class,
+                     (mock, ctx) -> when(mock.countUsersEligibleForDeletion(730)).thenAnswer(invocation -> {
+                         spanDuringQuery.set(Span.current().getSpanContext());
+                         return 0L;
+                     }))) {
+
+            new UserAutoDeletionService().performStartupUserDeletion();
+
+            SpanData span = otel.getSpans().get(0);
+            assertEquals("Tank.UserAutoDeletion", span.getName());
+            assertFalse(span.getParentSpanContext().isValid(), "startup work is a root span");
+            assertEquals(span.getSpanId(), spanDuringQuery.get().getSpanId(), "the queries run inside it");
+            assertFalse(Span.current().getSpanContext().isValid(), "the span is no longer current afterwards");
         }
     }
 

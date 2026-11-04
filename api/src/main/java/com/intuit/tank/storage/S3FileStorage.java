@@ -1,7 +1,11 @@
 package com.intuit.tank.storage;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -116,12 +120,22 @@ public class S3FileStorage implements FileStorage, Serializable {
             if (compress) {
                 in = new GZIPInputStream(in);
             }
-            s3Client.putObject(request.build(), RequestBody.fromInputStream(in, in.available()));
+            putObject(s3Client, request.build(), in);
         } catch (Exception e) {
             LOG.error("Error storing file: {}", e, e);
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(in);
+        }
+    }
+
+    static void putObject(S3Client s3Client, PutObjectRequest request, InputStream in) throws IOException {
+        Path tmp = Files.createTempFile("tank-s3-upload", ".tmp");
+        try {
+            Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+            s3Client.putObject(request, RequestBody.fromFile(tmp));
+        } finally {
+            Files.deleteIfExists(tmp);
         }
     }
 

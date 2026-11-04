@@ -17,7 +17,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -40,7 +39,7 @@ public class ScriptGroupStep extends BaseEntity {
     @JoinColumn(name = "script_group_id", updatable = false, insertable = false)
     private ScriptGroup scriptGroup;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "script_id")
     private Script script;
 

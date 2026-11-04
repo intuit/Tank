@@ -15,8 +15,6 @@ package com.intuit.tank.admin;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.admin.LogConfig;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

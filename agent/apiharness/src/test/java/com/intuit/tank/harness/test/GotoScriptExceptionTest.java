@@ -15,8 +15,6 @@ package com.intuit.tank.harness.test;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.harness.test.GotoScriptException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,7 +40,7 @@ public class GotoScriptExceptionTest {
 
         assertNotNull(result);
         assertEquals("", result.getGotoTarget());
-        assertEquals(null, result.getCause());
+        assertNull(result.getCause());
         assertEquals("com.intuit.tank.harness.test.GotoScriptException: ", result.toString());
         assertEquals("", result.getMessage());
         assertEquals("", result.getLocalizedMessage());

@@ -18,8 +18,6 @@ import java.io.PipedInputStream;
 
 import org.junit.jupiter.api.*;
 
-import com.intuit.tank.wrapper.FileInputStreamWrapper;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

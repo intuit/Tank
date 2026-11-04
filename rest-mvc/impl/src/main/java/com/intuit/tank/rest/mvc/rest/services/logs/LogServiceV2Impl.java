@@ -13,6 +13,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNo
 import com.intuit.tank.rest.mvc.rest.util.FileReader;
 import com.intuit.tank.rest.mvc.rest.util.LogDirectory;
 
+import com.intuit.tank.rest.mvc.rest.security.RestAuthorization;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class LogServiceV2Impl implements LogServiceV2 {
 
     @Override
     public LogFileResponse getFile(String filePath, String start) {
+        RestAuthorization.requireAdmin("logs");
         start = start == null ? "0" : start;
         try {
             if (filePath == null || filePath.contains("..") || filePath.startsWith("/") || filePath.contains("\\")) {

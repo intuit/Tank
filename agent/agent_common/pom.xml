@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>agent-parent</artifactId>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>4.6.20-SNAPSHOT</version>
   </parent>
 
   <artifactId>agent-common</artifactId>
@@ -26,8 +26,8 @@
       <artifactId>commons-fileupload</artifactId>
     </dependency>
     <dependency>
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
+      <groupId>jakarta.xml.soap</groupId>
+      <artifactId>jakarta.xml.soap-api</artifactId>
     </dependency>
   </dependencies>
 

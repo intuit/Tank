@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,10 +41,17 @@ public class LogControllerTest {
     @Mock
     HttpServletRequest request;
 
+    private AutoCloseable mocks;
+
     @BeforeEach
     public void init() {
-        MockitoAnnotations.initMocks(this);
+        mocks = MockitoAnnotations.openMocks(this);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        mocks.close();
     }
 
     @Test
@@ -56,7 +64,7 @@ public class LogControllerTest {
                 .thenReturn(new LogFileResponse(responseBody, testCSV.length(), 0));
         ResponseEntity<StreamingResponseBody> result = logController.getFile("testCSV", "0");
         assertEquals(MediaType.APPLICATION_OCTET_STREAM, result.getHeaders().getContentType());
-        assertEquals(200, result.getStatusCodeValue());
+        assertEquals(200, result.getStatusCode().value());
         assertEquals(Long.toString(testCSV.length()),
                 result.getHeaders().getFirst(LogController.TOTAL_LENGTH_HEADER));
         assertEquals("0", result.getHeaders().getFirst(LogController.CONTENT_START_HEADER));

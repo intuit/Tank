@@ -193,7 +193,7 @@ public class UserEdit implements Serializable {
         boolean isNew = user.getId() == 0;
         if (!StringUtils.isBlank(password)) {
             if (!password.equals(passwordConfirm)) {
-                LOG.warn("Password '" + password + "' does not match '" + passwordConfirm + "'");
+                LOG.warn("Password confirmation does not match for user {}", user.getName());
                 messages.error("Passwords do not match.");
                 return null;
             }

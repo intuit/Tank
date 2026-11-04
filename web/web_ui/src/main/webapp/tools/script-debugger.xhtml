@@ -10,8 +10,6 @@
 
     <h:form id="mainForm">
       <ts:toolbar title="Agent Debugger Applet" />
-      <h2>**NOTE: If this window is closed, the Script Debugger
-        Applet will close as well.</h2>
 
       <div class="vertical-spacer" />
       <p:growl globalOnly="true" id="messages" />
@@ -21,24 +19,6 @@
           projects and scripts in a visual environment.</div>
         <div style="margin: 20px 0;">If you are getting Security warnings or errors, click here to install certificate. 
             <p:commandLink oncomplete="PF('securityPopup').show()" update=":securityPopupForm" value="Security Instructions" ajax="true" />
-        </div>
-
-
-
-
-        <div style="margin: 20px 0;">
-          <div class="ui-helper-clearfix" style="width: 100%;">
-            <div id="appletDiv" style="margin: 40px; float: left;">
-              <applet
-                code="com.intuit.tank.tools.debugger.AppletLauncher"
-                codebase="." archive="Tank-Debugger-all.jar"
-                alt="You need Java enabled to run this applet."
-                width="150" height="150">
-                <PARAM NAME="backgroundColor" VALUE="#EFEFEF" />
-                <PARAM NAME="rootContext" VALUE="#{request.contextPath}" />
-              </applet>
-            </div>
-          </div>
         </div>
       </div>
     </h:form>

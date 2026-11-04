@@ -139,6 +139,9 @@
 
 		<!-- WebSocket control channel for agent commands (ACP compliance) -->
 		<command-ws-enabled>false</command-ws-enabled>
+		<!-- Seconds between passes that reconnect WS to running agents found by EC2 Controller/JobId tags
+		     (controller restart recovery). The first pass runs at startup. 0 = off; 300 recommended. -->
+		<agent-readoption-enabled>0</agent-readoption-enabled>
 
 	</agent-config>
 

@@ -14,6 +14,8 @@ package com.intuit.tank.project;
  */
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashSet;
@@ -21,9 +23,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.intuit.tank.project.ScriptFilter;
-import com.intuit.tank.project.ScriptFilterAction;
-import com.intuit.tank.project.ScriptFilterCondition;
 import com.intuit.tank.util.ScriptFilterType;
 
 /**
@@ -142,7 +141,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -168,7 +167,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -194,7 +193,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.equals(obj);
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -245,7 +244,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.getAllConditionsMustPass();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -270,7 +269,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.getAllConditionsMustPass();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**
@@ -436,7 +435,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.getPersist();
 
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     /**
@@ -461,7 +460,7 @@ public class ScriptFilterTest {
 
         boolean result = fixture.getPersist();
 
-        assertEquals(false, result);
+        assertFalse(result);
     }
 
     /**

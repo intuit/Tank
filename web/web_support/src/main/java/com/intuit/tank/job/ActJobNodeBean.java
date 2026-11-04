@@ -15,12 +15,14 @@ package com.intuit.tank.job;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.dao.QueuedJob;
 import com.intuit.tank.project.JobInstance;
 
 public class ActJobNodeBean extends JobNodeBean {
@@ -28,6 +30,7 @@ public class ActJobNodeBean extends JobNodeBean {
     private static final long serialVersionUID = 1L;
     private List<VMNodeBean> vmBeans = new ArrayList<VMNodeBean>();
     private String jobDetails;
+    private transient Supplier<String> jobDetailsLoader;
     private String estimatedNonlinearSteadyStateUsers;
 
     public ActJobNodeBean(JobInstance job, boolean hasRights, FastDateFormat fmt) {
@@ -47,6 +50,28 @@ public class ActJobNodeBean extends JobNodeBean {
         this.estimatedNonlinearSteadyStateUsers = estimateNonlinearSteadyStateUsers(job.getTargetRampRate(), job.getRampTime(), job.getNumAgents());
         this.setStartTime(job.getStartTime());
         this.setEndTime(job.getEndTime());
+    }
+
+    /**
+     * @param jobDetails reads the job's details, which only the details dialog shows, when they are first asked for
+     */
+    public ActJobNodeBean(QueuedJob job, boolean hasRights, FastDateFormat fmt, Supplier<String> jobDetails) {
+        super();
+        this.setHasRights(hasRights);
+        this.setName(job.name());
+        this.setJobId(String.valueOf(job.jobId()));
+        this.setId(String.valueOf(job.jobId()));
+        this.setReportMode(String.valueOf(job.reportingMode()));
+        this.setStatus(job.status().toString());
+        this.setRegion("");
+        this.setActiveUsers(String.valueOf(job.baselineVirtualUsers()));
+        this.setTotalUsers(String.valueOf(job.totalVirtualUsers()));
+        this.setTargetRampRate(String.valueOf(job.getTargetRampRate() * job.numAgents()));
+        this.setUseTwoStep(job.isUseTwoStep());
+        this.jobDetailsLoader = jobDetails;
+        this.estimatedNonlinearSteadyStateUsers = estimateNonlinearSteadyStateUsers(job.getTargetRampRate(), job.getRampTime(), job.numAgents());
+        this.setStartTime(job.startTime());
+        this.setEndTime(job.endTime());
     }
 
     public ActJobNodeBean(String jobId, CloudVmStatusContainer container, FastDateFormat fmt) {
@@ -73,6 +98,10 @@ public class ActJobNodeBean extends JobNodeBean {
     }
 
     public String getJobDetails() {
+        if (jobDetails == null && jobDetailsLoader != null) {
+            jobDetails = jobDetailsLoader.get();
+            jobDetailsLoader = null;
+        }
         return jobDetails;
     }
 

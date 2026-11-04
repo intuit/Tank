@@ -19,8 +19,6 @@ package com.intuit.tank.tools.script;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import com.intuit.tank.tools.script.OutputLogger;
-
 /**
  * TextAreaOutputLogger
  * 

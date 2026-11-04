@@ -85,13 +85,13 @@ public class JobReportDataTest {
     @Test
     public void testEquals_NullObject_ReturnsFalse() {
         JobReportData data = new JobReportData(PROJECT_NAME, jobInstance);
-        assertNotEquals(data, null);
+        assertNotNull(data);
     }
 
     @Test
     public void testEquals_NotJobReportData() {
         JobReportData data = new JobReportData(PROJECT_NAME, jobInstance);
-        assertNotEquals(data, "not a JobReportData");
+        assertNotEquals("not a JobReportData", data);
     }
 
     @Test
