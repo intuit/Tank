@@ -133,6 +133,9 @@ public class CommandListener {
         throw new UnsupportedOperationException("Unknown command path: " + path);
     }
 
+    /** What a kill command does; replaced in tests so they do not exit the JVM. */
+    static volatile Runnable killAction = () -> System.exit(0);
+
     public static void applyCommand(String command) {
         if (command == null) {
             throw new UnsupportedOperationException("Unknown command: null");
@@ -153,7 +156,7 @@ public class CommandListener {
         switch (command) {
             case start, run -> startTest();
             case stop -> APITestHarness.getInstance().setCommand(AgentCommand.stop);
-            case kill -> System.exit(0);
+            case kill -> killAction.run();
             case pause -> APITestHarness.getInstance().setCommand(AgentCommand.pause);
             case pause_ramp -> APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
             case resume_ramp, status -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);

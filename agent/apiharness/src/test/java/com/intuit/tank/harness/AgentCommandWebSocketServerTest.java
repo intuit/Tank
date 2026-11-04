@@ -167,6 +167,29 @@ public class AgentCommandWebSocketServerTest {
     }
 
     @Test
+    public void killIsAcknowledgedBeforeTheAgentExits() throws Exception {
+        startServer(TOKEN, null);
+        TestController a = connect("a");
+        CompletableFuture<Void> killed = new CompletableFuture<>();
+        Runnable original = CommandListener.killAction;
+        // Stand in for System.exit: tear the server down immediately, as the dying JVM would.
+        CommandListener.killAction = () -> {
+            server.closeServer();
+            killed.complete(null);
+        };
+        try {
+            a.send(AgentWsEnvelope.command("k1", "i-test", "42", "kill"));
+
+            AgentWsEnvelope ack = a.next();
+            assertEquals(AgentWsEnvelope.Type.ack, ack.getType());
+            assertEquals(AgentWsEnvelope.AckStatus.ok, ack.getStatus());
+            killed.get(5, TimeUnit.SECONDS);
+        } finally {
+            CommandListener.killAction = original;
+        }
+    }
+
+    @Test
     public void queryParamReadsNamedParameter() {
         assertEquals("node-1", AgentCommandWebSocketServer.queryParam("x=1&node=node-1", "node"));
         assertEquals("a b", AgentCommandWebSocketServer.queryParam("node=a%20b", "node"));
