@@ -79,7 +79,12 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         try {
             ScriptFilterDao dao = new ScriptFilterDao();
             ScriptFilter filter = dao.findById(filterId);
+            if (filter == null) {
+                throw new GenericServiceResourceNotFoundException(SERVICE, "filter " + filterId, null);
+            }
             return FilterServiceUtil.filterToTO(filter);
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch(Exception e){
             LOGGER.error("Error returning specific filter: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "filter", e);
@@ -91,9 +96,14 @@ public class FilterServiceV2Impl implements FilterServiceV2 {
         try {
             ScriptFilterGroupDao dao = new ScriptFilterGroupDao();
             ScriptFilterGroup filterGroup = dao.findById(filterGroupId);
+            if (filterGroup == null) {
+                throw new GenericServiceResourceNotFoundException(SERVICE, "filter group " + filterGroupId, null);
+            }
             return FilterServiceUtil.filterGroupToDetailTO(filterGroup);
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch(Exception e){
-            LOGGER.error("Error returning specific filter: " + e.getMessage(), e);
+            LOGGER.error("Error returning specific filter group: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("filter", "filterGroup", e);
         }
     }

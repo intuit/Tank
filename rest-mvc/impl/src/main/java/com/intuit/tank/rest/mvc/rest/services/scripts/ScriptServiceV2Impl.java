@@ -218,7 +218,7 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             script = dao.saveOrUpdate(script);
             payload.put("message", "Script " + script.getName() + " with script ID " + script.getId() + " updated successfully");
             payload.put("scriptId", Integer.toString(script.getId()));
-        } catch (GenericServiceForbiddenAccessException e) {
+        } catch (GenericServiceForbiddenAccessException | GenericServiceBadRequestException e) {
             throw e;
         } catch (Exception e) {
             LOGGER.error("Error updating script file: {}", e.getMessage(), e);

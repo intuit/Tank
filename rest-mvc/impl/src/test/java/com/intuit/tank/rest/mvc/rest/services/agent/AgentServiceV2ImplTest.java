@@ -431,4 +431,29 @@ class AgentServiceV2ImplTest {
                     () -> service.killInstance("i-123"));
         }
     }
+
+    // =====================================================================
+    // control of an unknown instance
+    // =====================================================================
+
+    @Test
+    void controlOfUnknownInstance_isNotFoundAndSendsNoEvent() {
+        JobEventSender mockSender = mock(JobEventSender.class);
+        when(mockSender.getVmStatus("i-unknown")).thenReturn(null);
+
+        try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
+                (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobEventSender.class)))
+                        .thenReturn(mockSender))) {
+
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.stopInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.pauseInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.resumeInstance("i-unknown"));
+            assertThrows(GenericServiceResourceNotFoundException.class, () -> service.killInstance("i-unknown"));
+
+            verify(mockSender, never()).stopAgent(any());
+            verify(mockSender, never()).pauseRampInstance(any());
+            verify(mockSender, never()).resumeRampInstance(any());
+            verify(mockSender, never()).killInstance(any());
+        }
+    }
 }

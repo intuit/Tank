@@ -415,7 +415,10 @@ public class ScriptUtil {
                     String s = (String) variables.get(ValidationUtil.removeAllVariableIdentifier(max));
                     max = s != null ? s : max;
                 }
-                result = ((TimeUtil.parseTimeString(max) + TimeUtil.parseTimeString(min)) / 2);
+                // a variable that is still unresolved is supplied at run time, so the duration cannot be estimated
+                if (!isUnresolvedVariable(min) && !isUnresolvedVariable(max)) {
+                    result = ((TimeUtil.parseTimeString(max) + TimeUtil.parseTimeString(min)) / 2);
+                }
             } else if (step.getType().equalsIgnoreCase(ScriptConstants.SLEEP)) {
                 Set<RequestData> setData = step.getData();
                 if (null != setData) {
@@ -426,7 +429,9 @@ public class ScriptUtil {
                                 String s = (String) variables.get(ValidationUtil.removeAllVariableIdentifier(time));
                                 time = s != null ? s : time;
                             }
-                            result = TimeUtil.parseTimeString(time);
+                            if (!isUnresolvedVariable(time)) {
+                                result = TimeUtil.parseTimeString(time);
+                            }
                             break;
                         }
                     }
@@ -435,9 +440,13 @@ public class ScriptUtil {
                 result = config.getAgentConfig().getRange("process").getRandomValueWithin();
             }
         } catch (Exception e) {
-            LOG.error("Error calculating step time: " + e);
+            LOG.error("Error calculating step time for " + step.getType() + " step " + step.getStepIndex() + ": " + e);
         }
         return result;
+    }
+
+    private static boolean isUnresolvedVariable(String value) {
+        return ValidationUtil.isAnyVariable(value != null ? value.trim() : null);
     }
 
     public static String getDataFileUse(ScriptStep step) {

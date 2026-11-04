@@ -362,4 +362,15 @@ class ProjectServiceV2ImplTest {
 
         return p;
     }
+
+    @Test
+    void getProject_missingProjectIsNotFound() {
+        try (MockedConstruction<ProjectDao> daoMock = Mockito.mockConstruction(ProjectDao.class,
+                (mock, ctx) -> when(mock.findByIdEager(99)).thenReturn(null))) {
+
+            GenericServiceResourceNotFoundException e = assertThrows(GenericServiceResourceNotFoundException.class,
+                    () -> service.getProject(99));
+            assertEquals("project 99", e.getResource());
+        }
+    }
 }

@@ -33,7 +33,7 @@ public class GenericExceptionHandler {
 
     @ExceptionHandler
     public SimpleErrorResponse handleResourceNotFoundException(GenericServiceResourceNotFoundException e) {
-        LOGGER.error("handling an error from the " + e.getService() + " service", e);
+        LOGGER.warn("Resource not found in the {} service: {}", e.getService(), e.getMessage());
         return genericErrorResponse(HttpStatus.NOT_FOUND, "Resource not found: " + e.getResource(), e);
     }
 
@@ -45,7 +45,7 @@ public class GenericExceptionHandler {
 
     @ExceptionHandler
     public SimpleErrorResponse handleResourceDeleteException(GenericServiceDeleteException e) {
-        LOGGER.error("handling an error from the " + e.getService() + " service", e);
+        LOGGER.warn("Resource could not be deleted in the {} service: {}", e.getService(), e.getMessage());
         return genericErrorResponse(HttpStatus.NOT_FOUND, "Resource could not be deleted: " + e.getResource(), e);
     }
 

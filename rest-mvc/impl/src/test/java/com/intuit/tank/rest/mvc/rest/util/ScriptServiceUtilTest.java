@@ -4,10 +4,13 @@ import com.intuit.tank.project.ExternalScript;
 import com.intuit.tank.project.RequestData;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptStep;
+import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.script.RequestDataPhase;
 import com.intuit.tank.script.models.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -317,5 +320,15 @@ class ScriptServiceUtilTest {
 
         assertEquals(original.getHostname(), copy.getHostname());
         assertEquals(original.getStepIndex(), copy.getStepIndex());
+    }
+
+    @Test
+    void parseXMLtoScriptTO_invalidXmlIsABadRequest() {
+        ByteArrayInputStream in = new ByteArrayInputStream("This is not valid XML content".getBytes(StandardCharsets.UTF_8));
+
+        GenericServiceBadRequestException e = assertThrows(GenericServiceBadRequestException.class,
+                () -> ScriptServiceUtil.parseXMLtoScriptTO(in));
+        assertTrue(e.getMessage().contains("Invalid script XML"));
+        assertFalse(e.getMessage().contains("null"), e.getMessage());
     }
 }

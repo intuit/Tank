@@ -162,4 +162,45 @@ public class ScriptUtilTest {
         assertFalse(newScript.getScriptSteps().isEmpty());
         assertEquals(1, newScript.getScriptSteps().size());
     }
+
+    private static ScriptStep thinkTime(String min, String max) {
+        return ScriptStep.builder()
+                .type(ScriptConstants.THINK_TIME)
+                .addDataElement(new RequestData("minTime", min, null))
+                .addDataElement(new RequestData("maxTime", max, null))
+                .build();
+    }
+
+    @Test
+    public void testCalculateStepDuration_thinkTimeUsesDeclaredVariables() {
+        HashMap<String, String> variables = new HashMap<>();
+        variables.put("minTime", "1s");
+        variables.put("maxTime", "3s");
+
+        long result = ScriptUtil.calculateStepDuration(thinkTime("#{minTime}", "#{maxTime}"), variables, new TankConfig());
+
+        assertEquals(2000, result);
+    }
+
+    @Test
+    public void testCalculateStepDuration_thinkTimeWithUnresolvedVariablesIsZero() {
+        long result = ScriptUtil.calculateStepDuration(thinkTime("#{minTime}", "#{maxTime}"), new HashMap<>(), new TankConfig());
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void testCalculateStepDuration_sleepWithUnresolvedVariableIsZero() {
+        ScriptStep sleep = ScriptStep.builder()
+                .type(ScriptConstants.SLEEP)
+                .addDataElement(new RequestData(ScriptConstants.TIME, "#{sleepTime}", null))
+                .build();
+
+        assertEquals(0, ScriptUtil.calculateStepDuration(sleep, new HashMap<>(), new TankConfig()));
+    }
+
+    @Test
+    public void testCalculateStepDuration_invalidLiteralIsZero() {
+        assertEquals(0, ScriptUtil.calculateStepDuration(thinkTime("abc", "xyz"), new HashMap<>(), new TankConfig()));
+    }
 }
