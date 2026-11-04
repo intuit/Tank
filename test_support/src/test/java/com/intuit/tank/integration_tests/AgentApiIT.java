@@ -388,7 +388,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance kill");
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent instance kill");
     }
 
     @Test
@@ -408,7 +408,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance pause");
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent instance pause");
     }
 
     @Test
@@ -428,7 +428,7 @@ public class AgentApiIT extends BaseIT {
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
         // Assert
-        assertEquals(400, response.statusCode(), "Should return HTTP 400 Bad Request for non-existent instance resume");
+        assertEquals(404, response.statusCode(), "Should return HTTP 404 Not Found for non-existent instance resume");
     }
 
     // Helper method to create and start a test job

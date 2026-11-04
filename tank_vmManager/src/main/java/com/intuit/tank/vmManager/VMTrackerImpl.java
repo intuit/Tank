@@ -207,8 +207,13 @@ public class VMTrackerImpl implements VMTracker {
         if (ret == null) {
             try {
                 JobInstance jobInstance = jobInstanceDao.get().findById(Integer.valueOf(jobId));
-                Workload wkld = workloadDaoInstance.get().findById(jobInstance.getWorkloadId());
-                ret = Integer.toString(wkld.getProject().getId());
+                Workload wkld = jobInstance != null ? workloadDaoInstance.get().findById(jobInstance.getWorkloadId()) : null;
+                if (wkld != null) {
+                    ret = Integer.toString(wkld.getProject().getId());
+                } else {
+                    LOG.warn("cannot get projectId for jobId " + jobId + ": no such job or workload");
+                    ret = "";
+                }
             } catch (Exception e) {
                 LOG.error("cannot get projectId for jobId " + jobId + ": " + e.toString(), e);
                 ret = "";

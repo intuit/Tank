@@ -118,7 +118,12 @@ public class ProjectServiceV2Impl implements ProjectServiceV2 {
     public ProjectTO getProject(Integer projectId){
         try {
             Project prj = new ProjectDao().findByIdEager(projectId);
+            if (prj == null) {
+                throw new GenericServiceResourceNotFoundException("projects", "project " + projectId, null);
+            }
             return ProjectServiceUtil.projectToTransferObject(prj);
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error returning the project: " + e.getMessage(), e);
             throw new GenericServiceResourceNotFoundException("projects", "project", e);

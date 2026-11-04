@@ -975,4 +975,26 @@ class FilterServiceV2ImplTest {
         group.setFilters(new HashSet<>(List.of(filters)));
         return group;
     }
+
+    @Test
+    void getFilter_missingFilterIsNotFound() {
+        try (MockedConstruction<ScriptFilterDao> daoMock = Mockito.mockConstruction(ScriptFilterDao.class,
+                (mock, ctx) -> when(mock.findById(99)).thenReturn(null))) {
+
+            GenericServiceResourceNotFoundException e = assertThrows(GenericServiceResourceNotFoundException.class,
+                    () -> service.getFilter(99));
+            assertEquals("filter 99", e.getResource());
+        }
+    }
+
+    @Test
+    void getFilterGroup_missingGroupIsNotFound() {
+        try (MockedConstruction<ScriptFilterGroupDao> daoMock = Mockito.mockConstruction(ScriptFilterGroupDao.class,
+                (mock, ctx) -> when(mock.findById(99)).thenReturn(null))) {
+
+            GenericServiceResourceNotFoundException e = assertThrows(GenericServiceResourceNotFoundException.class,
+                    () -> service.getFilterGroup(99));
+            assertEquals("filter group 99", e.getResource());
+        }
+    }
 }

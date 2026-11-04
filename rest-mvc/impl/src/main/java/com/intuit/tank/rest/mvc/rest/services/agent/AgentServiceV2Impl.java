@@ -245,10 +245,11 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.stopAgent(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error stopping instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to stop", e);
@@ -260,10 +261,11 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.pauseRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error pausing running instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to pause", e);
@@ -275,10 +277,11 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.resumeRampInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error resuming instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to resume", e);
@@ -290,16 +293,30 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         Tracing.annotate("instanceId", instanceId);
         requireInstanceControl(instanceId);
         try {
-            JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
-                    servletContext, JobEventSender.class);
+            JobEventSender controller = requireKnownInstance(instanceId);
             controller.killInstance(instanceId);
             return getInstanceStatus(instanceId).getVmStatus().name();
+        } catch (GenericServiceResourceNotFoundException e) {
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Error killing instance: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "instance status to terminate", e);
         }
     }
 
+
+    /**
+     * Gets the controller, failing with a not found error when the instance has no status, so no control event is
+     * sent for an instance that does not exist.
+     */
+    private JobEventSender requireKnownInstance(String instanceId) {
+        JobEventSender controller = new ServletInjector<JobEventSender>().getManagedBean(
+                servletContext, JobEventSender.class);
+        if (controller.getVmStatus(instanceId) == null) {
+            throw new GenericServiceResourceNotFoundException("agent", "instance " + instanceId, null);
+        }
+        return controller;
+    }
 
     private void requireInstanceControl(String instanceId) {
         if (RestAuthorization.hasRight(AccessRight.CONTROL_JOB)) {
