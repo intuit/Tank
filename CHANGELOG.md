@@ -1,3 +1,15 @@
+# 4.7.0 (Thu Nov 05 2026)
+
+#### 🚀 Enhancement
+
+- Migration Jackson 2.x to 3.x [#454](https://github.com/intuit/Tank/pull/454) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.6.19 (Wed Nov 04 2026)
 
 #### 🐛 Bug Fix
