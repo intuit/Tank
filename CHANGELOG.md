@@ -1,3 +1,16 @@
+# 4.7.2 (Thu Nov 05 2026)
+
+#### 🐛 Bug Fix
+
+- Bump dependencies and plugins to latest patch/minor releases [#565](https://github.com/intuit/Tank/pull/565) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Acknowledge a WS kill command before the agent exits [#563](https://github.com/intuit/Tank/pull/563) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.1 (Thu Nov 05 2026)
 
 #### 🐛 Bug Fix
