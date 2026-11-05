@@ -52,7 +52,7 @@
     <validation-mode>NONE</validation-mode>
 
     <properties>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
       <property name="hibernate.hbm2ddl.auto" value="update" />
 
       <!-- JDBC connection pool (use the built-in) -->

@@ -29,7 +29,7 @@
     <cert.password>tanktank</cert.password>
     <cert.p12>self_signed_tank.p12</cert.p12>
 
-    <version.hibernate>6.6.54.Final</version.hibernate>
+    <version.hibernate>7.4.14.Final</version.hibernate>
     <version.software.amazon.awssdk>2.57.9</version.software.amazon.awssdk>
     <version.opentelemetry>1.67.0</version.opentelemetry>
 
@@ -487,6 +487,13 @@
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-envers</artifactId>
         <version>${version.hibernate}</version>
+      </dependency>
+
+      <!-- Hibernate 7 needs Jakarta Persistence 3.2; weld-junit5 would otherwise pull in 3.1 -->
+      <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>3.2.0</version>
       </dependency>
 
       <dependency>
