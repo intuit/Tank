@@ -1,7 +1,7 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class FilterEditorApiIT extends BaseIT {
         JsonNode filter = expect(201, send("POST", "/v2/filters", body.toString()));
         createdFilterIds.add(filter.get("id").asInt());
 
-        assertEquals(currentUserName(), filter.get("creator").asText(), "The creator in the request is ignored");
+        assertEquals(currentUserName(), filter.get("creator").asString(), "The creator in the request is ignored");
     }
 
     @Test
@@ -70,9 +70,9 @@ public class FilterEditorApiIT extends BaseIT {
         ((ObjectNode) filter.get("conditions").get(0)).put("value", "/changed");
         JsonNode saved = expect(200, send("PUT", "/v2/filters/" + id, filter.toString()));
 
-        assertEquals(newName, saved.get("name").asText());
-        assertEquals("/changed", saved.get("conditions").get(0).get("value").asText());
-        assertEquals(currentUserName(), saved.get("creator").asText(), "Updates keep the owner");
+        assertEquals(newName, saved.get("name").asString());
+        assertEquals("/changed", saved.get("conditions").get(0).get("value").asString());
+        assertEquals(currentUserName(), saved.get("creator").asString(), "Updates keep the owner");
 
         filter.set("modified", loadedModified);
         expect(409, send("PUT", "/v2/filters/" + id, filter.toString()));
@@ -92,8 +92,8 @@ public class FilterEditorApiIT extends BaseIT {
         createdFilterIds.add(copyId);
 
         assertNotEquals(id, copyId);
-        assertEquals(copyName, copy.get("name").asText());
-        assertEquals(currentUserName(), copy.get("creator").asText());
+        assertEquals(copyName, copy.get("name").asString());
+        assertEquals(currentUserName(), copy.get("creator").asString());
         JsonNode source = expect(200, get("/v2/filters/" + id));
         assertEquals(source.get("conditions"), copy.get("conditions"));
         assertEquals(source.get("actions"), copy.get("actions"));
@@ -112,7 +112,7 @@ public class FilterEditorApiIT extends BaseIT {
         JsonNode group = expect(201, send("POST", "/v2/filters/groups", groupBody(uniqueName("Group"), first).toString()));
         int groupId = group.get("id").asInt();
         createdGroupIds.add(groupId);
-        assertEquals(currentUserName(), group.get("creator").asText());
+        assertEquals(currentUserName(), group.get("creator").asString());
         assertEquals(List.of(first), ids(group.get("filterIds")));
         assertEquals(first, group.get("filters").get(0).get("id").asInt(), "The response includes the filters");
 
@@ -126,7 +126,7 @@ public class FilterEditorApiIT extends BaseIT {
         String copyName = uniqueName("Group copy");
         JsonNode copy = expect(201, send("POST", "/v2/filters/groups/" + groupId + "/copy", "{\"name\":\"" + copyName + "\"}"));
         createdGroupIds.add(copy.get("id").asInt());
-        assertEquals(copyName, copy.get("name").asText());
+        assertEquals(copyName, copy.get("name").asString());
         assertEquals(List.of(first, second), ids(copy.get("filterIds")), "The copy holds the same filters");
     }
 
@@ -171,7 +171,7 @@ public class FilterEditorApiIT extends BaseIT {
         assertTrue(onFail.get("onFail").asBoolean());
         assertFalse(onFail.get("key").asBoolean());
         assertFalse(onFail.get("value").asBoolean());
-        assertEquals("ASSIGNMENT", field(fields, "add", "assignment").get("prefix").asText());
+        assertEquals("ASSIGNMENT", field(fields, "add", "assignment").get("prefix").asString());
         assertFalse(field(fields, "remove", "request").get("key").asBoolean());
     }
 
@@ -184,7 +184,7 @@ public class FilterEditorApiIT extends BaseIT {
     }
 
     private ObjectNode filterBody(String name) throws Exception {
-        return (ObjectNode) objectMapper.readTree("""
+        return (ObjectNode) JSON_MAPPER.readTree("""
                 {
                   "name": "%s",
                   "productName": "IntegrationTest",
@@ -196,14 +196,14 @@ public class FilterEditorApiIT extends BaseIT {
     }
 
     private ObjectNode groupBody(String name, int... filterIds) {
-        ObjectNode body = objectMapper.createObjectNode().put("name", name).put("productName", "IntegrationTest");
-        body.set("filterIds", objectMapper.valueToTree(filterIds));
+        ObjectNode body = JSON_MAPPER.createObjectNode().put("name", name).put("productName", "IntegrationTest");
+        body.set("filterIds", JSON_MAPPER.valueToTree(filterIds));
         return body;
     }
 
     private static JsonNode field(JsonNode fields, String actionType, String scope) {
         for (JsonNode field : fields) {
-            if (actionType.equals(field.get("actionType").asText()) && scope.equals(field.get("scope").asText())) {
+            if (actionType.equals(field.get("actionType").asString()) && scope.equals(field.get("scope").asString())) {
                 return field;
             }
         }

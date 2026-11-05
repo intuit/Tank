@@ -77,14 +77,6 @@ public enum VMRegion {
     }
 
     /**
-     * 
-     * {@inheritDoc}
-     */
-    public String toString() {
-        return description;
-    }
-
-    /**
      * @return the endpoint
      */
     public String getEndpoint() {

@@ -1,7 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -17,6 +16,7 @@ import java.time.Duration;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,9 +38,7 @@ public class BaseIT {
     protected static final String ACCEPT_VALUE = "application/json";
     protected static final String HELPER_ACCEPT_VALUE = "application/json, */*;q=0.1";
     protected static final HttpClient httpClient = getHttpClient();
-
-    protected final ObjectMapper objectMapper = new ObjectMapper();
-
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     protected static HttpClient getHttpClient() {
         return HttpClient.newBuilder()
@@ -115,7 +113,7 @@ public class BaseIT {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error retrieving token from SSM: " + e.getMessage());
+            LOG.error("Error retrieving token from SSM: {}", e.getMessage());
         }
 
         return null;
@@ -172,7 +170,7 @@ public class BaseIT {
         assertEquals(status, response.statusCode(),
                 () -> response.request().method() + " " + response.uri().getPath() + " returned " + response.body());
         String body = response.body();
-        return body == null || body.isBlank() ? null : objectMapper.readTree(body);
+        return body == null || body.isBlank() ? null : JSON_MAPPER.readTree(body);
     }
 
     /**
@@ -239,14 +237,14 @@ public class BaseIT {
             }
             """, name, QA_SCRIPT_ID);
         JsonNode created = expect(201, send("POST", "/v2/projects", body));
-        return Integer.parseInt(created.get("ProjectId").asText());
+        return Integer.parseInt(created.get("ProjectId").asString());
     }
 
     /**
      * @return the name of the user the API token belongs to
      */
     protected String currentUserName() throws IOException, InterruptedException {
-        return expect(200, get("/v2/me")).get("name").asText();
+        return expect(200, get("/v2/me")).get("name").asString();
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -68,21 +68,21 @@ public class AdminApiIT extends BaseIT {
         JsonNode created = expect(201, send("POST", "/v2/admin/users", userBody(name).toString()));
         int id = created.get("id").asInt();
         createdUserIds.add(id);
-        assertEquals(name, created.get("name").asText());
+        assertEquals(name, created.get("name").asString());
         assertFalse(created.get("groups").isEmpty(), "Without groups the user gets the default groups");
         assertFalse(created.get("hasApiToken").asBoolean());
         assertFalse(created.has("password"), "Never return the password hash");
 
-        assertEquals(name, expect(200, get("/v2/admin/users/" + id)).get("name").asText());
+        assertEquals(name, expect(200, get("/v2/admin/users/" + id)).get("name").asString());
         JsonNode page = expect(200, get("/v2/admin/users?page=0&size=5&q=" + URLEncoder.encode(name, StandardCharsets.UTF_8)));
         assertEquals(1, page.get("total").asInt());
         assertEquals(id, page.get("items").get(0).get("id").asInt());
 
         String group = firstGroup(false);
-        ObjectNode update = objectMapper.createObjectNode().put("email", name + "@changed.example.com");
-        update.set("groups", objectMapper.createArrayNode().add(group));
+        ObjectNode update = JSON_MAPPER.createObjectNode().put("email", name + "@changed.example.com");
+        update.set("groups", JSON_MAPPER.createArrayNode().add(group));
         JsonNode updated = expect(200, send("PUT", "/v2/admin/users/" + id, update.toString()));
-        assertEquals(name + "@changed.example.com", updated.get("email").asText());
+        assertEquals(name + "@changed.example.com", updated.get("email").asString());
         assertEquals(List.of(group), texts(updated.get("groups")));
 
         expect(204, send("DELETE", "/v2/admin/users/" + id, null));
@@ -100,7 +100,7 @@ public class AdminApiIT extends BaseIT {
         expect(400, send("POST", "/v2/admin/users", userBody(userName()).put("password", "short").toString()));
         expect(400, send("POST", "/v2/admin/users", userBody(userName()).put("email", "not-an-email").toString()));
         ObjectNode unknownGroup = userBody(userName());
-        unknownGroup.set("groups", objectMapper.createArrayNode().add("no-such-group"));
+        unknownGroup.set("groups", JSON_MAPPER.createArrayNode().add("no-such-group"));
         expect(400, send("POST", "/v2/admin/users", unknownGroup.toString()));
         expect(400, send("PUT", "/v2/admin/users/" + id, "{\"name\":\"renamed\"}"));
         expect(404, send("PUT", "/v2/admin/users/" + NO_SUCH_ID, "{\"email\":\"x@example.com\"}"));
@@ -118,7 +118,7 @@ public class AdminApiIT extends BaseIT {
         expect(200, send("PUT", "/v2/projects/" + projectId + "/full", project.toString()));
 
         JsonNode conflict = expect(409, send("DELETE", "/v2/admin/users/" + userId, null));
-        assertTrue(conflict.toString().contains(project.get("name").asText()), "The error should list the project: " + conflict);
+        assertTrue(conflict.toString().contains(project.get("name").asString()), "The error should list the project: " + conflict);
 
         expect(204, send("DELETE", "/v2/projects/" + projectId, null));
         createdProjectIds.remove(Integer.valueOf(projectId));
@@ -133,7 +133,7 @@ public class AdminApiIT extends BaseIT {
         JsonNode page = expect(200, get("/v2/admin/users?page=0&size=50&q=" + URLEncoder.encode(me, StandardCharsets.UTF_8)));
         int myId = -1;
         for (JsonNode user : page.get("items")) {
-            if (me.equals(user.get("name").asText())) {
+            if (me.equals(user.get("name").asString())) {
                 myId = user.get("id").asInt();
             }
         }
@@ -148,10 +148,10 @@ public class AdminApiIT extends BaseIT {
     public void testApiToken_worksOnceIssuedAndNonAdminsAreRefused() throws Exception {
         int id = createUser(userName());
 
-        String token = expect(200, send("POST", "/v2/admin/users/" + id + "/api-token", null)).get("apiToken").asText();
+        String token = expect(200, send("POST", "/v2/admin/users/" + id + "/api-token", null)).get("apiToken").asString();
         JsonNode user = expect(200, get("/v2/admin/users/" + id));
         assertTrue(user.get("hasApiToken").asBoolean());
-        assertEquals(token.substring(token.length() - 4), user.get("apiTokenHint").asText(), "Only the hint is shown");
+        assertEquals(token.substring(token.length() - 4), user.get("apiTokenHint").asString(), "Only the hint is shown");
         assertFalse(user.toString().contains(token), "The token itself is never listed");
 
         // the new user is not an admin
@@ -193,7 +193,7 @@ public class AdminApiIT extends BaseIT {
         JsonNode files = expect(200, get("/v2/admin/logs"));
 
         assertFalse(files.isEmpty(), "The controller writes log files");
-        String first = files.get(0).asText();
+        String first = files.get(0).asString();
         HttpResponse<String> log = get("/v2/logs/" + URLEncoder.encode(first, StandardCharsets.UTF_8).replace("+", "%20"));
         assertEquals(200, log.statusCode(), "A listed file can be read: " + first);
     }
@@ -202,11 +202,11 @@ public class AdminApiIT extends BaseIT {
     @Tag("integration")
     public void testLogLevel_readAndSetToTheSameLevel() throws Exception {
         JsonNode current = expect(200, get("/v2/admin/log-level"));
-        String level = current.get("level").asText();
+        String level = current.get("level").asString();
         assertTrue(current.hasNonNull("node"), "Says which controller node answered");
 
         JsonNode set = expect(200, send("PUT", "/v2/admin/log-level", "{\"level\":\"" + level.toLowerCase() + "\"}"));
-        assertEquals(level, set.get("level").asText());
+        assertEquals(level, set.get("level").asString());
         expect(400, send("PUT", "/v2/admin/log-level", "{\"level\":\"LOUD\"}"));
     }
 
@@ -219,7 +219,7 @@ public class AdminApiIT extends BaseIT {
     }
 
     private ObjectNode userBody(String name) {
-        return objectMapper.createObjectNode()
+        return JSON_MAPPER.createObjectNode()
                 .put("name", name).put("email", name + "@example.com").put("password", PASSWORD);
     }
 
@@ -253,13 +253,13 @@ public class AdminApiIT extends BaseIT {
 
     private static List<String> texts(JsonNode array) {
         List<String> texts = new ArrayList<>();
-        array.forEach(n -> texts.add(n.asText()));
+        array.forEach(n -> texts.add(n.asString()));
         return texts;
     }
 
     private static List<String> texts(JsonNode array, String field) {
         List<String> texts = new ArrayList<>();
-        array.forEach(n -> texts.add(n.get(field).asText()));
+        array.forEach(n -> texts.add(n.get(field).asString()));
         return texts;
     }
 }

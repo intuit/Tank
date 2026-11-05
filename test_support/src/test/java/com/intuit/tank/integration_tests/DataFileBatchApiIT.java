@@ -1,6 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -93,8 +93,8 @@ public class DataFileBatchApiIT extends BaseIT {
 
         assertEquals(2, page.get("total").asInt(), "Both files match the prefix");
         assertEquals(1, page.get("items").size(), "Only one per page");
-        assertEquals(prefix + "-one.csv", page.get("items").get(0).get("name").asText(), "Sorted by name");
-        assertEquals(currentUserName(), page.get("items").get(0).get("owner").asText());
+        assertEquals(prefix + "-one.csv", page.get("items").get(0).get("name").asString(), "Sorted by name");
+        assertEquals(currentUserName(), page.get("items").get(0).get("owner").asString());
         expect(400, get("/v2/datafiles?page=0&sort=password"));
     }
 
@@ -105,7 +105,7 @@ public class DataFileBatchApiIT extends BaseIT {
         int id = expect(201, upload(Map.of(name, csv(10)))).get("created").get(0).get("id").asInt();
 
         JsonNode preview = expect(200, get("/v2/datafiles/" + id + "/preview?offset=2&lines=3"));
-        assertEquals(name, preview.get("name").asText());
+        assertEquals(name, preview.get("name").asString());
         assertEquals(2, preview.get("offset").asInt());
         assertEquals(List.of("row2,value2", "row3,value3", "row4,value4"), texts(preview.get("lines")));
         assertEquals(10, preview.get("totalLines").asInt());
@@ -141,7 +141,7 @@ public class DataFileBatchApiIT extends BaseIT {
     private HttpResponse<String> upload(Map<String, byte[]> files) throws Exception {
         HttpResponse<String> response = postFiles("/v2/datafiles/batch", "files", files);
         if (response.statusCode() == 201) {
-            objectMapper.readTree(response.body()).get("created").forEach(c -> createdDataFileIds.add(c.get("id").asInt()));
+            JSON_MAPPER.readTree(response.body()).get("created").forEach(c -> createdDataFileIds.add(c.get("id").asInt()));
         }
         return response;
     }
@@ -175,13 +175,13 @@ public class DataFileBatchApiIT extends BaseIT {
 
     private static Set<String> createdNames(JsonNode result) {
         Set<String> names = new HashSet<>();
-        result.get("created").forEach(c -> names.add(c.get("name").asText()));
+        result.get("created").forEach(c -> names.add(c.get("name").asString()));
         return names;
     }
 
     private static List<String> texts(JsonNode array) {
         List<String> texts = new ArrayList<>();
-        array.forEach(n -> texts.add(n.asText()));
+        array.forEach(n -> texts.add(n.asString()));
         return texts;
     }
 

@@ -13,14 +13,11 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>JobRegionTest</code> contains tests for the class <code>{@link JobRegion}</code>.
@@ -193,7 +190,7 @@ public class JobRegionTest {
         VMRegion result = fixture.getRegion();
 
         assertNotNull(result);
-        assertEquals("Asia Pacific (Singapore)", result.toString());
+        assertEquals("ASIA_1", result.toString());
         assertEquals("ap-southeast-1", result.getRegion());
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("Asia Pacific (Singapore)", result.getDescription());

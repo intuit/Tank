@@ -13,6 +13,7 @@ import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
@@ -34,6 +35,7 @@ import java.util.zip.GZIPInputStream;
 
 public abstract class BaseClient {
     private static final Logger LOGGER = LogManager.getLogger(BaseClient.class);
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     protected String baseUrl;
 

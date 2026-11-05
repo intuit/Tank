@@ -9,6 +9,8 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -265,12 +267,12 @@ public class AgentWsEnvelopeTest {
     @Test
     public void testFromJsonInvalidType() {
         String json = "{\"type\":\"bogus\",\"instanceId\":\"i-1\"}";
-        assertThrows(IOException.class, () -> AgentWsEnvelope.fromJson(json));
+        assertThrows(InvalidFormatException.class, () -> AgentWsEnvelope.fromJson(json));
     }
 
     @Test
     public void testFromJsonMalformed() {
-        assertThrows(IOException.class, () -> AgentWsEnvelope.fromJson("not json"));
+        assertThrows(StreamReadException.class, () -> AgentWsEnvelope.fromJson("not json"));
     }
 
     @Test

@@ -9,8 +9,9 @@ package com.intuit.tank.tools.headless;
 
 import com.intuit.tank.tools.debugger.DebugStep;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import com.intuit.tank.harness.data.SleepTimeStep;
 import com.intuit.tank.harness.data.TestStep;
 import com.intuit.tank.harness.data.ThinkTimeStep;
@@ -21,7 +22,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -179,9 +179,10 @@ public class ValidationReportData {
      */
     public void writeToFile(File outputDir) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+            JsonMapper mapper = JsonMapper.builder()
+                    .enable(SerializationFeature.INDENT_OUTPUT)
+                    .changeDefaultPropertyInclusion(inclusion -> inclusion.withValueInclusion(JsonInclude.Include.NON_NULL))
+                    .build();
             
             ReportOutput output = new ReportOutput();
             output.summary = summary;
@@ -190,7 +191,7 @@ public class ValidationReportData {
             File jsonFile = new File(outputDir, "validation-report.json");
             mapper.writeValue(jsonFile, output);
             LOG.info("Validation report JSON written to: " + jsonFile.getAbsolutePath());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.error("Error writing validation report JSON: " + e.getMessage(), e);
         }
     }

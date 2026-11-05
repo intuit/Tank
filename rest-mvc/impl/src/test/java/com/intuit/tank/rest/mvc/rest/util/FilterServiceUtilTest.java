@@ -1,7 +1,7 @@
 package com.intuit.tank.rest.mvc.rest.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.intuit.tank.filters.models.FilterGroupDetailTO;
 import com.intuit.tank.filters.models.FilterGroupTO;
 import com.intuit.tank.filters.models.FilterTO;
@@ -164,7 +164,7 @@ class FilterServiceUtilTest {
 
     @Test
     void filterGroupResponses_serializeSummaryAndDetailShapes() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonMapper objectMapper = JsonMapper.builder().build();
         FilterGroupTO summary = FilterGroupTO.builder()
                 .withId(2)
                 .withFilterIds(List.of(3))

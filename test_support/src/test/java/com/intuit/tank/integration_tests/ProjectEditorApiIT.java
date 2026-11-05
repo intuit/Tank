@@ -1,7 +1,7 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class ProjectEditorApiIT extends BaseIT {
         assertEquals(5, page.get("size").asInt());
         JsonNode item = page.get("items").get(0);
         assertEquals(id, item.get("id").asInt());
-        assertEquals(name, item.get("name").asText());
+        assertEquals(name, item.get("name").asString());
         assertTrue(item.hasNonNull("owner"), "Summaries should include the owner");
     }
 
@@ -68,18 +68,18 @@ public class ProjectEditorApiIT extends BaseIT {
 
         JsonNode project = expect(200, get("/v2/projects/" + id + "/full"));
 
-        assertEquals(name, project.get("name").asText());
-        assertEquals(currentUserName(), project.get("owner").asText(), "The caller should own a project they created");
+        assertEquals(name, project.get("name").asString());
+        assertEquals(currentUserName(), project.get("owner").asString(), "The caller should own a project they created");
         assertTrue(project.hasNonNull("modified"), "Needed to save changes");
         assertTrue(project.get("settings").hasNonNull("incrementStrategy"));
         JsonNode west = StreamSupport.stream(project.get("regions").spliterator(), false)
-                .filter(r -> r.get("region").asText().equals("US_WEST_2")).findFirst()
+                .filter(r -> r.get("region").asString().equals("US_WEST_2")).findFirst()
                 .orElseThrow(() -> new AssertionError("US_WEST_2 should be listed: " + project.get("regions")));
-        assertEquals("10", west.get("users").asText());
+        assertEquals("10", west.get("users").asString());
         JsonNode script = project.get("testPlans").get(0).get("scriptGroups").get(0).get("scripts").get(0);
         assertEquals(QA_SCRIPT_ID, script.get("scriptId").asInt());
         assertTrue(project.get("permissions").get("edit").asBoolean(), "The owner can edit");
-        assertEquals("value1", project.get("variables").get("testVar1").asText());
+        assertEquals("value1", project.get("variables").get("testVar1").asString());
     }
 
     @Test
@@ -101,9 +101,9 @@ public class ProjectEditorApiIT extends BaseIT {
         ((ObjectNode) project.get("variables")).put("addedVar", "added");
         JsonNode saved = expect(200, send("PUT", "/v2/projects/" + id + "/full", project.toString()));
 
-        assertEquals("edited by integration test", saved.get("comments").asText());
-        assertEquals("added", saved.get("variables").get("addedVar").asText());
-        assertEquals("edited by integration test", expect(200, get("/v2/projects/" + id + "/full")).get("comments").asText(),
+        assertEquals("edited by integration test", saved.get("comments").asString());
+        assertEquals("added", saved.get("variables").get("addedVar").asString());
+        assertEquals("edited by integration test", expect(200, get("/v2/projects/" + id + "/full")).get("comments").asString(),
                 "The change should be stored");
 
         // the copy loaded before the save is now stale
@@ -144,7 +144,7 @@ public class ProjectEditorApiIT extends BaseIT {
         assertEquals(10, validation.get("totalUsers").asLong(), "One region with 10 users");
         assertTrue(validation.get("simulationTimeMs").asLong() > 0, "The simulation time should be computed");
         assertTrue(validation.get("rampTimeMs").asLong() > 0, "The ramp time should be computed");
-        assertEquals("Main Test Plan", validation.get("testPlans").get(0).get("name").asText());
+        assertEquals("Main Test Plan", validation.get("testPlans").get(0).get("name").asString());
     }
 
     @Test
@@ -158,8 +158,8 @@ public class ProjectEditorApiIT extends BaseIT {
         createdProjectIds.add(copyId);
 
         assertNotEquals(sourceId, copyId);
-        assertEquals(copyName, copy.get("name").asText());
-        assertEquals(currentUserName(), copy.get("owner").asText());
+        assertEquals(copyName, copy.get("name").asString());
+        assertEquals(currentUserName(), copy.get("owner").asString());
         assertEquals(QA_SCRIPT_ID, copy.get("testPlans").get(0).get("scriptGroups").get(0).get("scripts").get(0)
                 .get("scriptId").asInt(), "The copy should hold the same scripts");
 

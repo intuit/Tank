@@ -7,8 +7,9 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.scripts;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 import com.intuit.tank.common.ScriptUtil;
 import com.intuit.tank.dao.ExternalScriptDao;
 import com.intuit.tank.dao.ScriptDao;
@@ -86,7 +87,7 @@ public class ScriptDraftServiceV2Impl implements ScriptDraftServiceV2 {
             .flatMap(Stream::of)
             .collect(Collectors.toMap(s -> ((Enum<?>) s).name(), s -> (Section) s, (a, b) -> a, LinkedHashMap::new));
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
     @Autowired
     private ServletContext servletContext;
@@ -365,14 +366,15 @@ public class ScriptDraftServiceV2Impl implements ScriptDraftServiceV2 {
                     .withStepIndex(0).withLabel(null).build();
             ObjectNode node = JSON.valueToTree(to);
             // step data are sets: sort them so equal content gives an equal fingerprint
-            node.properties().forEach(field -> {
-                if (field.getValue().isArray()) {
+            for (String name : new ArrayList<>(node.propertyNames())) {
+                JsonNode value = node.get(name);
+                if (value.isArray()) {
                     List<String> items = new ArrayList<>();
-                    field.getValue().forEach(item -> items.add(item.toString()));
+                    value.forEach(item -> items.add(item.toString()));
                     items.sort(null);
-                    field.setValue(JSON.valueToTree(items));
+                    node.set(name, JSON.valueToTree(items));
                 }
-            });
+            }
             result.put(step.getUuid(), node.toString());
         }
         return result;

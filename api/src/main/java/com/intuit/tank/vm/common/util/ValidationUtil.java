@@ -41,11 +41,7 @@ public class ValidationUtil {
             return false;
         }
 
-        if (key.charAt(0) == identifierChar) {
-            return true;
-        }
-
-        return false;
+        return key.charAt(0) == identifierChar;
     }
 
     /**
@@ -63,11 +59,7 @@ public class ValidationUtil {
         if (key.charAt(0) == identifierChar) {
             return true;
         }
-        if (key.indexOf("#{") == 0 && key.indexOf("}") == key.length() - 1) {
-            return true;
-        }
-
-        return false;
+        return key.indexOf("#{") == 0 && key.indexOf("}") == key.length() - 1;
     }
 
     /**
@@ -81,10 +73,7 @@ public class ValidationUtil {
         if (StringUtils.isEmpty(function)) {
             return false;
         }
-        if (function.startsWith(functionIdentifier)) {
-            return true;
-        }
-        return false;
+        return function.startsWith(functionIdentifier);
     }
 
     public static String removeVariableIdentifier(String key) {

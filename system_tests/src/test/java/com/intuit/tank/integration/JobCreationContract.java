@@ -1,8 +1,7 @@
 package com.intuit.tank.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +16,7 @@ public final class JobCreationContract {
     static final String STANDARD_TARGET_RAMP_RATE = "0.382";
     static final String STANDARD_TARGET_RATE_PER_AGENT = "0.211";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
     private JobCreationContract() {
     }
@@ -52,29 +51,23 @@ public final class JobCreationContract {
         assertJsonEquals(expected, actual, "");
     }
 
-    private static void assertJsonEquals(JsonNode expected, JsonNode actual, String path)
-            throws IOException {
+    private static void assertJsonEquals(JsonNode expected, JsonNode actual, String path) {
         if (expected.equals(actual)) {
             return;
         }
         if (expected.isObject() && actual.isObject()) {
-            ObjectNode expectedObject = (ObjectNode) expected;
-            expectedObject.fieldNames().forEachRemaining(field -> {
+            for (String field : expected.propertyNames()) {
                 String childPath = path.isEmpty() ? field : path + "." + field;
                 if (!actual.has(field)) {
                     throw new AssertionError("Missing field " + childPath);
                 }
-                try {
-                    assertJsonEquals(expected.get(field), actual.get(field), childPath);
-                } catch (IOException e) {
-                    throw new AssertionError("Failed comparing " + childPath, e);
-                }
-            });
-            actual.fieldNames().forEachRemaining(field -> {
+                assertJsonEquals(expected.get(field), actual.get(field), childPath);
+            }
+            for (String field : actual.propertyNames()) {
                 if (!expected.has(field)) {
                     throw new AssertionError("Unexpected field " + path + "." + field);
                 }
-            });
+            }
             return;
         }
         if (expected.isArray() && actual.isArray()) {

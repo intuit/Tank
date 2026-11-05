@@ -22,10 +22,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.type.TypeReference;
 import jakarta.annotation.Nonnull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +37,7 @@ import org.apache.logging.log4j.message.ObjectMessage;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.imds.Ec2MetadataClient;
 import software.amazon.awssdk.imds.Ec2MetadataRetryPolicy;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * 
@@ -53,7 +54,7 @@ public class AmazonUtil {
     protected static final String META_DATA = LATEST + "/meta-data";
     /** IMDS endpoint override (null means the SDK default, 169.254.169.254); used by tests. */
     protected static volatile URI endpoint;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
     private static final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {};
     /** Metadata that cannot change for the lifetime of an instance, so it is safe to cache once read. */
     private static final Set<CloudMetaDataType> STABLE_META_DATA =
@@ -262,7 +263,7 @@ public class AmazonUtil {
                 userDataCache = parsed;
                 return parsed;
             }
-        } catch (IllegalArgumentException | IOException e) {
+        } catch (StreamReadException | IllegalArgumentException | IOException e) {
             LOG.warn(new ObjectMessage(Map.of("Message","Unable to parse tank json: This is normal during the bake process")));
         }
         return Collections.emptyMap();

@@ -13,11 +13,7 @@ package com.intuit.tank.project;
  * #L%
  */
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +21,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.intuit.tank.vm.api.enumerated.VMRegion;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The class <code>VMInstanceTest</code> contains tests for the class <code>{@link VMInstance}</code>.
@@ -54,9 +52,7 @@ public class VMInstanceTest {
     @Test
     public void testBuilder_1()
         throws Exception {
-
         VMInstance.Builder result = VMInstance.builder();
-
         assertNotNull(result);
     }
 
@@ -71,9 +67,7 @@ public class VMInstanceTest {
     public void testBuilderFrom_1()
         throws Exception {
         VMInstance image = new VMInstance();
-
         VMInstance.Builder result = VMInstance.builderFrom(image);
-
         assertNotNull(result);
     }
 
@@ -92,7 +86,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -119,7 +113,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -146,7 +140,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -173,7 +167,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -199,7 +193,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -225,7 +219,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -251,7 +245,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -277,7 +271,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -286,7 +280,7 @@ public class VMInstanceTest {
         VMRegion result = fixture.getRegion();
 
         assertNotNull(result);
-        assertEquals("Asia Pacific (Singapore)", result.toString());
+        assertEquals("ASIA_1", result.toString());
         assertEquals("ap-southeast-1", result.getRegion());
         assertEquals("ec2.ap-southeast-1.amazonaws.com", result.getEndpoint());
         assertEquals("Asia Pacific (Singapore)", result.getDescription());
@@ -308,7 +302,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -334,7 +328,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -360,7 +354,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -386,7 +380,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -413,7 +407,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -439,7 +433,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -465,7 +459,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -491,7 +485,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -517,7 +511,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -543,7 +537,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -569,7 +563,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -595,7 +589,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -621,7 +615,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
@@ -647,12 +641,12 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());
         fixture.setAmiId("");
-        Set<JobVMInstance> vmImages = new HashSet();
+        Set<JobVMInstance> vmImages = Collections.emptySet();
 
         fixture.setVMInstances(vmImages);
 
@@ -673,7 +667,7 @@ public class VMInstanceTest {
         fixture.setInstanceId("");
         fixture.setJobId("");
         fixture.setSize("");
-        fixture.setVMInstances(new HashSet());
+        fixture.setVMInstances(Collections.emptySet());
         fixture.setStatus("");
         fixture.setEndTime(new Date());
         fixture.setStartTime(new Date());

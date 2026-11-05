@@ -7,8 +7,7 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.jobs.models.*;
 
@@ -46,9 +45,8 @@ public class JobClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, JobContainer.class);
+                    return JSON_MAPPER.readValue(is, JobContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -74,9 +72,8 @@ public class JobClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, JobTO.class);
+                    return JSON_MAPPER.readValue(is, JobTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -102,9 +99,8 @@ public class JobClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, JobContainer.class);
+                    return JSON_MAPPER.readValue(is, JobContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -121,12 +117,11 @@ public class JobClient extends BaseClient{
     }
 
     public Map<String, String> createJob(CreateJobRequest jobRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
 
         try {
-            requestBody = objectMapper.writeValueAsString(jobRequest);
-        } catch (JsonProcessingException e) {
+            requestBody = JSON_MAPPER.writeValueAsString(jobRequest);
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 
@@ -140,7 +135,7 @@ public class JobClient extends BaseClient{
             HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), Map.class);
+                return JSON_MAPPER.readValue(response.body(), Map.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -162,9 +157,8 @@ public class JobClient extends BaseClient{
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, List.class);
+                    return JSON_MAPPER.readValue(is, List.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {

@@ -2,6 +2,7 @@ package com.intuit.tank.harness;
 
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
+import tools.jackson.core.JacksonException;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -227,7 +228,7 @@ public class AgentCommandWebSocketServer {
         try {
             AgentWsEnvelope hello = AgentWsEnvelope.hello(instanceId, jobId, agentSessionId, lastAppliedCommandId, capacity);
             sendText(connection, hello.toJson());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send WS hello: " + e.getMessage())));
             connection.close();
         }
@@ -308,7 +309,7 @@ public class AgentCommandWebSocketServer {
                 }
                 default -> LOG.warn(new ObjectMessage(Map.of("Message", "Unexpected WS frame type: " + envelope.getType())));
             }
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed parsing WS message: " + e.getMessage())));
         }
     }
@@ -355,7 +356,7 @@ public class AgentCommandWebSocketServer {
         try {
             AgentWsEnvelope pong = AgentWsEnvelope.pong(instanceId, agentSessionId, envelope.getPingId(), lastAppliedCommandId);
             sendText(connection, pong.toJson());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send pong: " + e.getMessage())));
         }
     }
@@ -573,7 +574,7 @@ public class AgentCommandWebSocketServer {
         try {
             AgentWsEnvelope ack = AgentWsEnvelope.fileAck(instanceId, jobId, fileId, chunkIndex, status, error);
             sendText(connection, ack.toJson());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send file ack for " + fileId + ": " + e.getMessage())));
         }
     }
@@ -599,7 +600,7 @@ public class AgentCommandWebSocketServer {
             AgentWsEnvelope ack = AgentWsEnvelope.ack(instanceId, "command", commandId, status);
             ack.setError(error);
             sendText(connection, ack.toJson());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send command ack: " + e.getMessage())));
         }
     }
@@ -700,7 +701,7 @@ public class AgentCommandWebSocketServer {
                 try {
                     AgentWsEnvelope closeEnvelope = AgentWsEnvelope.close(instanceId, "agent_shutdown", "Agent shutting down");
                     sendText(connection, closeEnvelope.toJson());
-                } catch (IOException ignored) {
+                } catch (JacksonException ignored) {
                 }
                 connection.close();
             }

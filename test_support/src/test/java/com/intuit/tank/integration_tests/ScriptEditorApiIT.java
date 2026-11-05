@@ -1,8 +1,8 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -65,13 +65,13 @@ public class ScriptEditorApiIT extends BaseIT {
         JsonNode script = expect(200, get("/v2/scripts/" + id + "/steps"));
 
         assertEquals(id, script.get("id").asInt());
-        assertEquals(currentUserName(), script.get("owner").asText(), "The uploader owns the script");
+        assertEquals(currentUserName(), script.get("owner").asString(), "The uploader owns the script");
         assertTrue(script.hasNonNull("modified"), "Needed to save changes");
         assertTrue(script.get("permissions").get("edit").asBoolean());
         JsonNode steps = script.get("steps");
         assertTrue(steps.size() >= 2, "Sample_TS.xml has several steps");
-        assertEquals("request", steps.get(0).get("type").asText());
-        assertEquals(SAMPLE_HOST, steps.get(0).get("hostname").asText());
+        assertEquals("request", steps.get(0).get("type").asString());
+        assertEquals(SAMPLE_HOST, steps.get(0).get("hostname").asString());
         expect(404, get("/v2/scripts/" + NO_SUCH_ID + "/steps"));
     }
 
@@ -92,8 +92,8 @@ public class ScriptEditorApiIT extends BaseIT {
         ((ObjectNode) steps.get(steps.size() - 1)).remove("uuid");
         JsonNode saved = expect(200, send("PUT", "/v2/scripts/" + id + "/steps", script.toString()));
 
-        assertEquals(newName, saved.get("name").asText());
-        assertEquals("edited by integration test", saved.get("comments").asText());
+        assertEquals(newName, saved.get("name").asString());
+        assertEquals("edited by integration test", saved.get("comments").asString());
         assertEquals(steps.size(), saved.get("steps").size(), "The added step should be saved");
         for (int i = 0; i < saved.get("steps").size(); i++) {
             assertEquals(i + 1, saved.get("steps").get(i).get("stepIndex").asInt(), "Steps are renumbered from 1 in order");
@@ -116,7 +116,7 @@ public class ScriptEditorApiIT extends BaseIT {
 
         assertEquals(1, page.get("total").asInt());
         assertEquals(id, page.get("items").get(0).get("id").asInt());
-        assertEquals(currentUserName(), page.get("items").get(0).get("owner").asText());
+        assertEquals(currentUserName(), page.get("items").get(0).get("owner").asString());
         expect(400, get("/v2/scripts?page=0&sort=password"));
     }
 
@@ -131,8 +131,8 @@ public class ScriptEditorApiIT extends BaseIT {
         createdScriptIds.add(copyId);
 
         assertNotEquals(id, copyId);
-        assertEquals(copyName, copy.get("name").asText());
-        assertEquals(currentUserName(), copy.get("owner").asText());
+        assertEquals(copyName, copy.get("name").asString());
+        assertEquals(currentUserName(), copy.get("owner").asString());
         assertEquals(expect(200, get("/v2/scripts/" + id + "/steps")).get("steps").size(),
                 expect(200, get("/v2/scripts/" + copyId + "/steps")).get("steps").size(), "The copy has the same steps");
         expect(400, send("POST", "/v2/scripts/" + id + "/copy", "{\"name\":\" \"}"));
@@ -158,8 +158,8 @@ public class ScriptEditorApiIT extends BaseIT {
 
         assertFalse(matches.isEmpty(), "Every request step uses " + SAMPLE_HOST);
         for (JsonNode match : matches) {
-            assertEquals("host", match.get("section").asText());
-            assertTrue(match.get("value").asText().contains(SAMPLE_HOST));
+            assertEquals("host", match.get("section").asString());
+            assertTrue(match.get("value").asString().contains(SAMPLE_HOST));
             assertTrue(match.hasNonNull("uuid"));
         }
         expect(400, send("POST", "/v2/scripts/steps/search",
@@ -180,8 +180,8 @@ public class ScriptEditorApiIT extends BaseIT {
         JsonNode result = expect(200, send("POST", "/v2/scripts/steps/replace", request.toString()));
 
         assertTrue(result.get("changed").asInt() > 0);
-        assertEquals("replaced.example.com", result.get("steps").get(0).get("hostname").asText());
-        assertEquals(SAMPLE_HOST, expect(200, get("/v2/scripts/" + id + "/steps")).get("steps").get(0).get("hostname").asText(),
+        assertEquals("replaced.example.com", result.get("steps").get(0).get("hostname").asString());
+        assertEquals(SAMPLE_HOST, expect(200, get("/v2/scripts/" + id + "/steps")).get("steps").get(0).get("hostname").asString(),
                 "Replacing in a draft must not change the saved script");
 
         request.put("mode", "SIDEWAYS");
@@ -195,15 +195,15 @@ public class ScriptEditorApiIT extends BaseIT {
         JsonNode steps = sampleSteps();
 
         ObjectNode request = draft(steps);
-        request.set("filterIds", objectMapper.createArrayNode().add(filterId));
+        request.set("filterIds", JSON_MAPPER.createArrayNode().add(filterId));
         JsonNode result = expect(200, send("POST", "/v2/scripts/steps/apply-filters", request.toString()));
 
         assertTrue(result.get("changed").asInt() > 0, "The filter matches the /health step");
-        assertEquals("filtered.example.com", result.get("steps").get(0).get("hostname").asText());
+        assertEquals("filtered.example.com", result.get("steps").get(0).get("hostname").asString());
 
-        request.set("filterIds", objectMapper.createArrayNode().add(NO_SUCH_ID));
+        request.set("filterIds", JSON_MAPPER.createArrayNode().add(NO_SUCH_ID));
         expect(400, send("POST", "/v2/scripts/steps/apply-filters", request.toString()));
-        request.set("filterIds", objectMapper.createArrayNode());
+        request.set("filterIds", JSON_MAPPER.createArrayNode());
         expect(400, send("POST", "/v2/scripts/steps/apply-filters", request.toString()));
     }
 
@@ -232,7 +232,7 @@ public class ScriptEditorApiIT extends BaseIT {
         JsonNode result = expect(200, send("POST", "/v2/scripts/logic/test", body));
 
         assertFalse(result.get("timedOut").asBoolean());
-        assertTrue(result.get("output").asText().contains("itResult = ok-hello"), result.get("output").asText());
+        assertTrue(result.get("output").asString().contains("itResult = ok-hello"), result.get("output").asString());
     }
 
     @Test
@@ -242,8 +242,8 @@ public class ScriptEditorApiIT extends BaseIT {
 
         JsonNode result = expect(200, send("POST", "/v2/scripts/logic/test", body));
 
-        assertTrue(result.get("output").asText().contains("Exception thrown"),
-                "Scripts must not reach Java classes: " + result.get("output").asText());
+        assertTrue(result.get("output").asString().contains("Exception thrown"),
+                "Scripts must not reach Java classes: " + result.get("output").asString());
     }
 
     @Test
@@ -251,7 +251,7 @@ public class ScriptEditorApiIT extends BaseIT {
     public void testLogicStep_rejectsEmptyAndOversizedScripts() throws Exception {
         expect(400, send("POST", "/v2/scripts/logic/test", "{\"script\": \"\"}"));
         expect(400, send("POST", "/v2/scripts/logic/test",
-                objectMapper.createObjectNode().put("script", "x".repeat(65 * 1024)).toString()));
+                JSON_MAPPER.createObjectNode().put("script", "x".repeat(65 * 1024)).toString()));
     }
 
     // ---------------------------------------------------------------- recording uploads
@@ -265,11 +265,11 @@ public class ScriptEditorApiIT extends BaseIT {
 
         HttpResponse<String> response = postFiles("/v2/scripts?recording&name=" + URLEncoder.encode(name, StandardCharsets.UTF_8)
                 + "&productName=IT-Recording&filterIds=" + filterId, "file", Map.of("Sample_Proxy_Recording.xml", recording));
-        int id = Integer.parseInt(expect(201, response).get("scriptId").asText());
+        int id = Integer.parseInt(expect(201, response).get("scriptId").asString());
         createdScriptIds.add(id);
 
         JsonNode script = expect(200, get("/v2/scripts/" + id + "/steps"));
-        assertEquals("IT-Recording", script.get("productName").asText());
+        assertEquals("IT-Recording", script.get("productName").asString());
 
         HttpResponse<String> unknownFilter = postFiles("/v2/scripts?recording&name=" + URLEncoder.encode(uniqueName("Recording"),
                 StandardCharsets.UTF_8) + "&filterIds=" + NO_SUCH_ID, "file", Map.of("Sample_Proxy_Recording.xml", recording));
@@ -287,9 +287,9 @@ public class ScriptEditorApiIT extends BaseIT {
         JsonNode body = expect(201, response);
         int id;
         if (body.hasNonNull("scriptId")) {
-            id = Integer.parseInt(body.get("scriptId").asText());
+            id = Integer.parseInt(body.get("scriptId").asString());
         } else {
-            Matcher m = Pattern.compile("script ID (\\d+)").matcher(body.get("message").asText());
+            Matcher m = Pattern.compile("script ID (\\d+)").matcher(body.get("message").asString());
             assertTrue(m.find(), "The upload message should name the script ID: " + body);
             id = Integer.parseInt(m.group(1));
         }
@@ -328,13 +328,13 @@ public class ScriptEditorApiIT extends BaseIT {
     }
 
     private ObjectNode draft(JsonNode steps) {
-        ObjectNode request = objectMapper.createObjectNode();
+        ObjectNode request = JSON_MAPPER.createObjectNode();
         request.set("steps", steps);
         return request;
     }
 
     private ArrayNode list(String... values) {
-        ArrayNode array = objectMapper.createArrayNode();
+        ArrayNode array = JSON_MAPPER.createArrayNode();
         for (String value : values) {
             array.add(value);
         }

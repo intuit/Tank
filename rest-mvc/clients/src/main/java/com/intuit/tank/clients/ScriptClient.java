@@ -7,8 +7,7 @@
  */
 package com.intuit.tank.clients;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 import com.intuit.tank.clients.util.ClientException;
 import com.intuit.tank.script.models.ExternalScriptContainer;
 import com.intuit.tank.script.models.ExternalScriptTO;
@@ -21,6 +20,7 @@ import java.io.InputStream;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+
 
 public class ScriptClient extends BaseClient {
 
@@ -49,9 +49,8 @@ public class ScriptClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, ScriptDescriptionContainer.class);
+                    return JSON_MAPPER.readValue(is, ScriptDescriptionContainer.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -78,9 +77,8 @@ public class ScriptClient extends BaseClient {
             HttpResponse<InputStream> response = client.send(request, ofInputStream());
 
             if(checkStatusCode(response.statusCode())) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 try(InputStream is = response.body()) {
-                    return objectMapper.readValue(is, ScriptTO.class);
+                    return JSON_MAPPER.readValue(is, ScriptTO.class);
                 }
             } else {
                 try(InputStream errorStream = response.body()) {
@@ -185,8 +183,6 @@ public class ScriptClient extends BaseClient {
     // External Scripts
 
     public ExternalScriptContainer getExternalScripts() throws IOException, InterruptedException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         HttpRequest request = requestBuilder("/external")
                 .header("Accept", "application/json")
                 .GET()
@@ -196,7 +192,7 @@ public class ScriptClient extends BaseClient {
             HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), ExternalScriptContainer.class);
+                return JSON_MAPPER.readValue(response.body(), ExternalScriptContainer.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -210,8 +206,6 @@ public class ScriptClient extends BaseClient {
 
 
     public ExternalScriptTO getExternalScript(Integer externalScriptId) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         HttpRequest request = requestBuilder("/external", externalScriptId)
                 .header("Accept", "application/json")
                 .GET()
@@ -221,7 +215,7 @@ public class ScriptClient extends BaseClient {
             HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), ExternalScriptTO.class);
+                return JSON_MAPPER.readValue(response.body(), ExternalScriptTO.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }
@@ -234,12 +228,11 @@ public class ScriptClient extends BaseClient {
     }
 
     public ExternalScriptTO createExternalScript(ExternalScriptTO script) throws IOException, InterruptedException {
-        ObjectMapper objectMapper = new ObjectMapper();
         String requestBody;
 
         try {
-            requestBody = objectMapper.writeValueAsString(script);
-        } catch (JsonProcessingException e) {
+            requestBody = JSON_MAPPER.writeValueAsString(script);
+        } catch (JacksonException e) {
         throw new IllegalArgumentException("Failed to serialize JSON object: ", e);
         }
 
@@ -253,7 +246,7 @@ public class ScriptClient extends BaseClient {
             HttpResponse<String> response = client.send(request, ofString());
 
             if(checkStatusCode(response.statusCode())) {
-                return objectMapper.readValue(response.body(), ExternalScriptTO.class);
+                return JSON_MAPPER.readValue(response.body(), ExternalScriptTO.class);
             } else {
                 throw new ClientException(response.body(), response.statusCode());
             }

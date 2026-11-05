@@ -175,7 +175,7 @@ public class JobDetailFormatter {
                 addError(errorSB, "User Percentage of Test Plans does not add up to 100%");
             }
             // datafiles
-            addProperty(sb, "Data Files", proposedJobInstance.getDataFileVersions().size() == 0 ? "None" : null,
+            addProperty(sb, "Data Files", proposedJobInstance.getDataFileVersions().isEmpty() ? "None" : null,
                     "emphasis");
             DataFileDao dfd = new DataFileDao();
             Set<String> datafiles = new HashSet<String>();
@@ -191,7 +191,7 @@ public class JobDetailFormatter {
             sb.append(BREAK);
 
             // variables
-            addProperty(sb, "Global Variables", proposedJobInstance.getVariables().size() == 0 ? "None"
+            addProperty(sb, "Global Variables", proposedJobInstance.getVariables().isEmpty() ? "None"
                     : " (Allow Overide: "
                             + proposedJobInstance.isAllowOverride() + ")", "emphasis");
             for (Entry<String, String> entry : proposedJobInstance.getVariables().entrySet()) {
@@ -205,13 +205,13 @@ public class JobDetailFormatter {
             sb.append(BREAK);
 
             // notifications
-            addProperty(sb, "Notifications", proposedJobInstance.getNotificationVersions().size() == 0 ? "None" : null,
+            addProperty(sb, "Notifications", proposedJobInstance.getNotificationVersions().isEmpty() ? "None" : null,
                     "emphasis");
             JobNotificationDao jnd = new JobNotificationDao();
             for (EntityVersion ver : proposedJobInstance.getNotificationVersions()) {
                 JobNotification not = jnd.findById(ver.getObjectId());
                 if (not != null) {
-                    if (not.getLifecycleEvents().size() > 0) {
+                    if (!not.getLifecycleEvents().isEmpty()) {
                         addProperty(sb, "  " + not.getRecipientList(), StringUtils.join(not.getLifecycleEvents(), ", "));
                     } else {
                         addProperty(sb, "  " + not.getRecipientList(), "no events selected", "error");
@@ -241,12 +241,12 @@ public class JobDetailFormatter {
                                 + TimeUtil.toTimeString(validator.getExpectedTime(plan.getName())),
                         userPercentage != 100 ? "error" : null);
 
-                if (plan.getScriptGroups().size() == 0) {
+                if (plan.getScriptGroups().isEmpty()) {
                     addProperty(sb, "  " + plan.getName(), "contains no script groups", "error");
                 }
                 for (ScriptGroup group : plan.getScriptGroups()) {
                     addProperty(sb, "    " + group.getName(), "loop " + group.getLoop() + " time(s)");
-                    if (group.getScriptGroupSteps().size() == 0) {
+                    if (group.getScriptGroupSteps().isEmpty()) {
                         addProperty(sb, "    " + group.getName(), "contains no scripts", "error");
                     }
                     for (ScriptGroupStep s : group.getScriptGroupSteps()) {
@@ -256,7 +256,7 @@ public class JobDetailFormatter {
                 }
             }
             sb.append(BREAK);
-            if (stepsList.size() == 0) {
+            if (stepsList.isEmpty()) {
                 addError(errorSB, "No scripts defined.");
             }
 
@@ -301,7 +301,7 @@ public class JobDetailFormatter {
             sb.insert(0, tsb.toString());
         }
 
-        if (errorSB.length() > 0) {
+        if (!errorSB.isEmpty()) {
             sb = new StringBuilder().append("ERRORS").append(BREAK).append(errorSB.append(BREAK).toString())
                     .append(sb.toString());
         }
@@ -376,7 +376,7 @@ public class JobDetailFormatter {
                 sb.append(": ");
             }
             if (StringUtils.isNotBlank(style)) {
-                sb.append("<span class=\"" + style + "\">");
+                sb.append("<span class=\"").append(style).append("\">");
             }
             sb.append(value);
             if (StringUtils.isNotBlank(style)) {

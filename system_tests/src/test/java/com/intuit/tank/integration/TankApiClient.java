@@ -1,7 +1,7 @@
 package com.intuit.tank.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public final class TankApiClient {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
     private final TankIntegrationEnvironment env;
 
@@ -56,10 +56,10 @@ public final class TankApiClient {
         }
         JsonNode node = MAPPER.readTree(response.body());
         if (node.has("scriptId")) {
-            return Integer.parseInt(node.get("scriptId").asText());
+            return Integer.parseInt(node.get("scriptId").asString());
         }
         if (node.has("message")) {
-            String message = node.get("message").asText();
+            String message = node.get("message").asString();
             java.util.regex.Matcher matcher = java.util.regex.Pattern
                     .compile("script ID\\s+(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE)
                     .matcher(message);
@@ -132,10 +132,10 @@ public final class TankApiClient {
         }
         JsonNode node = MAPPER.readTree(response.body());
         if (node.has("ProjectId")) {
-            return Integer.parseInt(node.get("ProjectId").asText());
+            return Integer.parseInt(node.get("ProjectId").asString());
         }
         if (node.has("projectId")) {
-            return Integer.parseInt(node.get("projectId").asText());
+            return Integer.parseInt(node.get("projectId").asString());
         }
         if (node.has("id")) {
             return node.get("id").asInt();
@@ -174,8 +174,8 @@ public final class TankApiClient {
                     + " body=" + response.body());
         }
         JsonNode node = MAPPER.readTree(response.body());
-        int jobId = Integer.parseInt(node.get("JobId").asText());
-        String status = node.get("status").asText();
+        int jobId = Integer.parseInt(node.get("JobId").asString());
+        String status = node.get("status").asString();
         return new CreatedJob(jobId, status, body, profile);
     }
 

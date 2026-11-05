@@ -33,7 +33,6 @@ import jakarta.inject.Named;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.tank.vm.api.enumerated.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +64,7 @@ import com.intuit.tank.vm.vmManager.RegionRequest;
 import com.intuit.tank.vm.vmManager.VMTerminator;
 import com.intuit.tank.vmManager.environment.amazon.AmazonInstance;
 import org.apache.logging.log4j.message.ObjectMessage;
+import tools.jackson.databind.json.JsonMapper;
 
 @Named
 @ApplicationScoped
@@ -73,7 +73,7 @@ public class JobManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final HttpClient client = HttpClient.newHttpClient();
-
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
     private static final int MAX_RETRIES = 60;
@@ -148,9 +148,8 @@ public class JobManager implements Serializable {
     }
 
     private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            String requestBody = objectMapper
+            String requestBody = JSON_MAPPER
                     .writeValueAsString(standaloneAgentRequest);
             var request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -163,7 +162,7 @@ public class JobManager implements Serializable {
                 throw new RuntimeException("failed to send standalone start to agent: " + response.toString());
             }
         } catch (IOException | InterruptedException e) {
-            LOG.error("Error sending StandaloneAgentRequest : " + e.getMessage(), e);
+            LOG.error("Error sending StandaloneAgentRequest : {}", e.getMessage(), e);
         }
     }
 

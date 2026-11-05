@@ -1,6 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class JobQueueApiIT extends BaseIT {
                 "{\"name\":\"" + jobName + "\"}"));
 
         assertTrue(preview.get("valid").asBoolean(), "The project should be ready to run: " + preview.get("errors"));
-        assertEquals(jobName, preview.get("name").asText());
+        assertEquals(jobName, preview.get("name").asString());
         assertEquals(10, preview.get("totalUsers").asInt(), "One region with 10 users");
         assertTrue(preview.get("simulationTimeMs").asLong() > 0);
         assertTrue(preview.hasNonNull("detailsHtml"), "Should include the job details shown before queueing");
@@ -66,7 +66,7 @@ public class JobQueueApiIT extends BaseIT {
     public void testPreview_defaultsTheJobName() throws Exception {
         int projectId = createProject();
         JsonNode preview = expect(200, send("POST", "/v2/projects/" + projectId + "/jobs/preview", null));
-        assertFalse(preview.get("name").asText().isBlank(), "Without a name the server picks one");
+        assertFalse(preview.get("name").asString().isBlank(), "Without a name the server picks one");
     }
 
     @Test
@@ -78,22 +78,22 @@ public class JobQueueApiIT extends BaseIT {
         JsonNode queued = expect(201, send("POST", "/v2/projects/" + projectId + "/jobs", "{\"name\":\"" + jobName + "\"}"));
         int jobId = queued.get("jobId").asInt();
         queuedJobIds.add(jobId);
-        assertEquals("Created", queued.get("status").asText());
-        assertEquals(jobName, queued.get("name").asText());
+        assertEquals("Created", queued.get("status").asString());
+        assertEquals(jobName, queued.get("name").asString());
 
         // live tree
         JsonNode tree = expect(200, get("/v2/jobs/tree?includeFinished=true&projectId=" + projectId));
         assertTrue(tree.hasNonNull("generatedAt"));
-        JsonNode node = allJobs(tree).stream().filter(j -> j.get("jobId").asText().equals(Integer.toString(jobId)))
+        JsonNode node = allJobs(tree).stream().filter(j -> j.get("jobId").asString().equals(Integer.toString(jobId)))
                 .findFirst().orElseThrow(() -> new AssertionError("Job " + jobId + " should be in the tree: " + tree));
-        assertEquals("Created", node.get("status").asText());
+        assertEquals("Created", node.get("status").asString());
         assertTrue(node.get("actions").get("control").asBoolean(), "The owner may control the job");
         assertTrue(node.get("actions").get("delete").asBoolean(), "A job that has not started can be deleted");
 
         // details and series
         JsonNode details = expect(200, get("/v2/jobs/" + jobId + "/details"));
         assertEquals(jobId, details.get("jobId").asInt());
-        assertEquals(currentUserName(), details.get("creator").asText(), "The caller should be recorded as creator");
+        assertEquals(currentUserName(), details.get("creator").asString(), "The caller should be recorded as creator");
         assertEquals(10, details.get("totalUsers").asInt());
         JsonNode users = expect(200, get("/v2/jobs/" + jobId + "/users-timeseries"));
         assertTrue(users.get("times").isArray() && users.get("series").isArray());

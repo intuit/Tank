@@ -1,6 +1,6 @@
 package com.intuit.tank.integration_tests;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -79,7 +79,7 @@ public class SessionApiIT extends BaseIT {
     @Tag("integration")
     public void testUpdateTablePreference_changesAndRestoresAColumnSize() throws Exception {
         JsonNode column = expect(200, get("/v2/me/preferences")).get("tables").get("projects").get(0);
-        String colName = column.get("colName").asText();
+        String colName = column.get("colName").asString();
         int originalSize = column.get("size").asInt();
         int newSize = originalSize == 123 ? 124 : 123;
 
@@ -120,14 +120,14 @@ public class SessionApiIT extends BaseIT {
     @Test
     @Tag("integration")
     public void testUserNames_includesTheTokenUser() throws Exception {
-        String me = expect(200, get("/v2/me")).get("name").asText();
+        String me = expect(200, get("/v2/me")).get("name").asString();
         JsonNode names = expect(200, get("/v2/users/names"));
 
         assertTrue(names.isArray(), "Should be a list of names");
         boolean found = false;
         for (JsonNode name : names) {
-            assertFalse(name.asText().startsWith("deleted_user_"), "Deleted users should not be offered as owners");
-            found |= name.asText().equals(me);
+            assertFalse(name.asString().startsWith("deleted_user_"), "Deleted users should not be offered as owners");
+            found |= name.asString().equals(me);
         }
         assertTrue(found, "Should include the current user");
     }
@@ -140,7 +140,7 @@ public class SessionApiIT extends BaseIT {
 
     private static JsonNode findColumn(JsonNode columns, String colName) {
         for (JsonNode column : columns) {
-            if (colName.equals(column.get("colName").asText())) {
+            if (colName.equals(column.get("colName").asString())) {
                 return column;
             }
         }

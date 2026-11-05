@@ -8,8 +8,8 @@
 package com.intuit.tank.tools.headless;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.TestPlanSingleton;
 import com.intuit.tank.harness.data.*;
@@ -504,11 +504,11 @@ public class HeadlessDebuggerSetup implements Serializable {
                         LOG.info("filing-return response body: {}", debugStep.getResponse().getBody());
 
                         try {
-                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonMapper objectMapper = JsonMapper.builder().build();
                             String responseBody = debugStep.getResponse().getBody();
                             JsonNode rootNode = objectMapper.readTree(responseBody);
                             JsonNode filingStatusNode = rootNode.path("data").path("transmitResponse").path("TransmitStatus");
-                            if (filingStatusNode.asText().equals("success")) {
+                            if (filingStatusNode.asString().equals("success")) {
                                 filingStatus = true;
                             }
                         } catch (Exception e) {
