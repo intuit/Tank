@@ -16,7 +16,11 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
+import java.nio.file.Files;
+
 import com.intuit.tank.harness.test.CheckedKillScriptException;
+import org.apache.commons.jexl3.MapContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +32,141 @@ import static org.junit.jupiter.api.Assertions.*;
  * 
  */
 public class JexlIOFunctionsTest {
+
+    @AfterEach
+    public void cleanup() {
+        JexlIOFunctions.resetStatics();
+    }
+
+    @Test
+    public void testVisitRegistersIoFunctions() {
+        JexlIOFunctions functions = new JexlIOFunctions();
+        MapContext context = new MapContext();
+        functions.visit(context);
+        assertSame(functions, context.get("ioFunctions"));
+    }
+
+    @Test
+    public void testGetCSVDataFromFileReadsColumnsThenNextLine() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("data.csv", "One,1,I\nTwo,2,II\n");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData(fileName));
+            assertEquals("1", functions.getCSVData(fileName, 1));
+            // column 0 of the current line was consumed, so the next line is read
+            assertEquals("Two", functions.getCSVData(fileName, "0"));
+            assertEquals("II", functions.getCSVData(fileName, 2, false));
+        }
+    }
+
+    @Test
+    public void testGetCSVDataFromFileThrowsWhenExhausted() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("data.csv", "One,1\n");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData(fileName, 0, false));
+            CheckedKillScriptException exception = assertThrows(CheckedKillScriptException.class,
+                    () -> functions.getCSVData(fileName, 0, false));
+            assertTrue(exception.getMessage().contains("Next line in CSV file is null"));
+        }
+    }
+
+    @Test
+    public void testGetCSVDataFromFileLoops() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("data.csv", "One,1\nTwo,2\n");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData(fileName, 0, true));
+            assertEquals("Two", functions.getCSVData(fileName, 0, true));
+            assertEquals("One", functions.getCSVData(fileName, 0, true));
+        }
+    }
+
+    @Test
+    public void testGetCSVDataFromFileIndexOutOfRangeReturnsEmpty() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("data.csv", "One,1\nTwo,2\n");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData(fileName, 0, false));
+            // an index past the last column moves on to the next line and returns nothing
+            assertEquals("", functions.getCSVData(fileName, 5, false));
+            assertEquals("2", functions.getCSVData(fileName, 1, false));
+        }
+    }
+
+    @Test
+    public void testGetCSVDataFromDefaultFile() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            TestDataFiles.useAsDefaultCsv(files.write("csv-data.txt", "One,1,I\nTwo,2,II\n"));
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData());
+            assertEquals("1", functions.getCSVData(1));
+            assertEquals("I", functions.getCSVData(2, false));
+            // an index past the last column moves on to the next line and returns nothing
+            assertEquals("", functions.getCSVData(7, false));
+            assertEquals("Two", functions.getCSVData(0, false));
+            CheckedKillScriptException exception = assertThrows(CheckedKillScriptException.class,
+                    () -> functions.getCSVData(7, false));
+            assertTrue(exception.getMessage().contains("Next line in CSV file is null"));
+        }
+    }
+
+    @Test
+    public void testGetCSVDataFromDefaultFileLoops() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            TestDataFiles.useAsDefaultCsv(files.write("csv-data.txt", "One,1\n"));
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("One", functions.getCSVData(0, true));
+            assertEquals("One", functions.getCSVData(0, true));
+        }
+    }
+
+    @Test
+    public void testGetFileDataReadsAndCachesFile() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("body.txt", "file contents");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertEquals("file contents", functions.getFileData(fileName));
+            // the content is cached, so a deleted file is still served
+            Files.delete(files.path("body.txt"));
+            assertEquals("file contents", functions.getFileData(fileName));
+        }
+    }
+
+    @Test
+    public void testGetFileDataOfDirectoryIsEmpty() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            JexlIOFunctions functions = new JexlIOFunctions();
+            assertEquals("", functions.getFileData(files.mkdir("folder")));
+        }
+    }
+
+    @Test
+    public void testGetFileBytesReadsAndCachesFile() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("body.bin", "bytes");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertArrayEquals("bytes".getBytes(), functions.getFileBytes(fileName));
+            Files.delete(files.path("body.bin"));
+            assertArrayEquals("bytes".getBytes(), functions.getFileBytes(fileName));
+        }
+    }
+
+    @Test
+    public void testGetFileBytesOfDirectoryIsEmpty() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            JexlIOFunctions functions = new JexlIOFunctions();
+            assertEquals(0, functions.getFileBytes(files.mkdir("folder")).length);
+        }
+    }
 
     @Test
     public void testJexlIOFunctions_1() {
