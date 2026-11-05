@@ -1,3 +1,16 @@
+# 4.7.1 (Thu Nov 05 2026)
+
+#### 🐛 Bug Fix
+
+- Bump tools.jackson.core:jackson-databind from 3.2.2 to 3.2.3 in /test_support [#564](https://github.com/intuit/Tank/pull/564) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.0 (Thu Nov 05 2026)
 
 #### 🚀 Enhancement
