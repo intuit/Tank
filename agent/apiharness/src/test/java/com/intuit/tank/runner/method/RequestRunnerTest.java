@@ -450,7 +450,32 @@ public class RequestRunnerTest {
 		RecordingHttpClient client = new RecordingHttpClient();
 
 		createRunner(client);
-		assertNotNull(client.proxyHost);
+		assertEquals("proxy.example.com", client.proxyHost);
+		assertEquals(3128, client.proxyPort);
+	}
+
+	@Test
+	public void testProxyWithoutAPortUsesTheSchemeDefault() {
+		RecordingHttpClient client = new RecordingHttpClient();
+
+		variables.addVariable("TANK_HTTP_PROXY", "https://secure.example.com");
+		createRunner(client);
+		assertEquals("secure.example.com", client.proxyHost);
+		assertEquals(443, client.proxyPort);
+
+		variables.addVariable("TANK_HTTP_PROXY", "plain.example.com");
+		createRunner(client);
+		assertEquals("plain.example.com", client.proxyHost);
+		assertEquals(80, client.proxyPort);
+	}
+
+	@Test
+	public void testProxyWithTooManyPartsIsNotSet() {
+		variables.addVariable("TANK_HTTP_PROXY", "proxy.example.com:3128:extra");
+		RecordingHttpClient client = new RecordingHttpClient();
+
+		createRunner(client);
+		assertNull(client.proxyHost);
 	}
 
 	@Test
@@ -554,6 +579,18 @@ public class RequestRunnerTest {
 
 		assertEquals("PASS", execute(jsonResponse));
 		assertTrue(testStepContext.getErrors().isEmpty());
+	}
+
+	@Test
+	public void testComparingAMissingValueFailsValidation() {
+		validation.addHeaderValidation(validation(RequestDataPhase.POST_REQUEST, "Missing", ValidationTypeConstants.LESS_THAN,
+				"5"));
+		validation.addHeaderValidation(validation(RequestDataPhase.POST_REQUEST, "Missing",
+				ValidationTypeConstants.GREATER_THAN, "5"));
+		response.setValidation(validation);
+
+		assertEquals("FAIL", execute(okResponse()));
+		assertEquals(2, testStepContext.getErrors().size());
 	}
 
 	@Test
@@ -762,6 +799,7 @@ public class RequestRunnerTest {
 		private String method;
 		private BaseRequest request;
 		private String proxyHost;
+		private int proxyPort;
 		private boolean failOnProxy;
 		private boolean failOnSend;
 
@@ -811,6 +849,7 @@ public class RequestRunnerTest {
 					throw new IllegalStateException("bad proxy");
 				}
 				this.proxyHost = proxyhost;
+				this.proxyPort = proxyport;
 			}
 		}
 	}

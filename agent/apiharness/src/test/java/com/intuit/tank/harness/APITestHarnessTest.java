@@ -13,10 +13,15 @@ import com.intuit.tank.vm.api.enumerated.IncrementStrategy;
 import com.intuit.tank.vm.api.enumerated.JobStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -297,13 +302,12 @@ public class APITestHarnessTest {
                      (monitor, context) -> monitorArgs.add(context.arguments()));
              MockedStatic<APIMonitor> apiMonitor = Mockito.mockStatic(APIMonitor.class)) {
             instance.setFlowControllerTemplate(new MockFlowController());
-            // let the clock pass the send deadline set at construction, so the first result triggers
-            // an (empty) flush and pushes the deadline out; both results then wait for the end of the test
+            // let the clock pass the send deadline set at construction; with no reporter yet the result stays
+            // queued, and as the only one it must still be sent when the test completes
             long constructed = System.currentTimeMillis();
             while (System.currentTimeMillis() <= constructed) {
                 Thread.onSpinWait();
             }
-            instance.queueTimingResult(new TankResult());
             instance.queueTimingResult(new TankResult());
 
             APITestHarness.main(new String[]{"-tp=" + TEST_PLAN_FILE, "-users=0",
@@ -316,12 +320,12 @@ public class APITestHarnessTest {
             assertEquals("local-agent", instance.getAgentRunData().getMachineName());
             assertNotEquals(0, instance.getStartTime());
 
-            // the queued results are flushed to the local reporter when the test completes
+            // the queued result is flushed to the local reporter when the test completes
             assertEquals(1, reporters.constructed().size());
             DummyResultsReporter reporter = reporters.constructed().get(0);
             assertSame(reporter, instance.getResultsReporter());
             verify(reporter).sendTimingResults(eq("local-job"), eq("local-agent"),
-                    argThat(results -> results.size() == 2), eq(false));
+                    argThat(results -> results.size() == 1), eq(false));
 
             // a local monitor is started, then told the job completed
             assertEquals(1, monitors.constructed().size());
@@ -401,6 +405,45 @@ public class APITestHarnessTest {
         } finally {
             System.setOut(originalOut);
         }
+    }
+
+    @Test
+    public void testDebugLoggerPassesDebugEventsThroughConfiguredAppenders() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        List<String> captured = new ArrayList<>();
+        Appender capture = new AbstractAppender("capture", null, null, true, Property.EMPTY_ARRAY) {
+            @Override
+            public void append(LogEvent event) {
+                captured.add(event.getLoggerName() + ":" + event.getMessage().getFormattedMessage());
+            }
+        };
+        capture.start();
+        // filtered at info, the way log4j2.xml attaches the agent appender
+        for (String name : DEBUG_LOGGERS) {
+            LoggerConfig loggerConfig = new LoggerConfig(name, Level.INFO, false);
+            loggerConfig.addAppender(capture, Level.INFO, null);
+            config.removeLogger(name);
+            config.addLogger(name, loggerConfig);
+        }
+        ctx.updateLoggers(config);
+        LogManager.getLogger("com.intuit.tank.harness").debug("before");
+
+        instance.setDebugLogger(new TraceFlowController());
+        LogManager.getLogger("com.intuit.tank.harness").debug("after");
+        LogManager.getLogger("com.intuit.tank.http.client").debug("http");
+
+        assertEquals(List.of("com.intuit.tank.harness:after", "com.intuit.tank.http.client:http"), captured);
+        assertTrue(instance.isDebug());
+        assertEquals(LoggingProfile.VERBOSE, instance.getAgentRunData().getActiveProfile());
+    }
+
+    @Test
+    public void testSetDebugFollowsItsArgument() {
+        instance.setDebug(true);
+        assertTrue(instance.isDebug());
+        instance.setDebug(false);
+        assertFalse(instance.isDebug());
     }
 
     @Test

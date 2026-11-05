@@ -42,6 +42,15 @@ public class CSVReaderTest {
     }
 
     @Test
+    public void testGetNextLineLoopingOverAnEmptyFileReturnsNull() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            CSVReader reader = CSVReader.getInstance(files.write("empty.csv", ""));
+
+            assertNull(reader.getNextLine(true));
+        }
+    }
+
+    @Test
     public void testGetNextLineReturnsCopy() throws Exception {
         try (TestDataFiles files = new TestDataFiles()) {
             CSVReader reader = CSVReader.getInstance(files.write("data.csv", "One,1\n"));

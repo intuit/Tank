@@ -102,6 +102,24 @@ public class GenericFunctionsTest {
                     variables));
             assertEquals("III", GenericFunctions.executeFunction(new String[] { null, null, "getfiledata", file, "csv", "2" },
                     variables));
+            assertEquals("Three", GenericFunctions.getCSVData(new String[] { null, null, "getfiledata", file, "csv", "0" },
+                    variables));
+            // once the file runs out there is nothing more to read, rather than an error
+            assertEquals("", GenericFunctions.getCSVData(new String[] { null, null, "getfiledata", file, "csv", "0" },
+                    variables));
+        }
+    }
+
+    @Test
+    public void testGetFileDataThroughFunctionHandler() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            files.write("data.csv", "One,1\nTwo,2\n");
+            String file = files.relativeName("data");
+            Variables variables = new Variables();
+
+            // FunctionHandler pads the arguments with nulls, which must not hide the column index
+            assertEquals("1", FunctionHandler.executeFunction("#function.generic.getfiledata." + file + ".csv.1", variables));
+            assertEquals("One", FunctionHandler.executeFunction("#function.generic.getfiledata." + file + ".csv.0", variables));
         }
     }
 
@@ -117,23 +135,63 @@ public class GenericFunctionsTest {
             assertEquals("Two", GenericFunctions.getCSVData(0));
             // an index past the last column moves on to the next line, which does not exist
             assertEquals("", GenericFunctions.executeFunction(new String[] { null, null, "getcsv", "5" }, variables));
+            // reading past the end returns nothing rather than failing
+            assertEquals("", GenericFunctions.getCSVData(0));
         }
     }
 
     @Test
-    public void testGetSsn() throws Exception {
+    public void testGetSsnHandsOutTheRangeInOrder() throws Exception {
         // the start of the range is only read on the first call, so reset it to make the test independent of order
-        FieldUtils.writeStaticField(GenericFunctions.class, "lastSSN", -1, true);
+        resetSsn();
         try {
             String[] values = new String[] { null, null, "getssn", "899999000" };
-            String first = GenericFunctions.executeFunction(values, new Variables());
-            String second = GenericFunctions.executeFunction(values, new Variables());
 
-            assertTrue(first.matches("899-99-9\\d{3}"), first);
-            assertTrue(second.matches("899-99-9\\d{3}"), second);
-            assertNotEquals(first, second);
+            assertEquals("899-99-9000", GenericFunctions.executeFunction(values, new Variables()));
+            assertEquals("899-99-9001", GenericFunctions.executeFunction(values, new Variables()));
         } finally {
-            FieldUtils.writeStaticField(GenericFunctions.class, "lastSSN", -1, true);
+            resetSsn();
         }
+    }
+
+    @Test
+    public void testGetSsnPadsSevenDigitNumbersAndSkipsInvalidOnes() throws Exception {
+        resetSsn();
+        try {
+            // nothing below 1010001 is a valid ssn
+            assertEquals("001-01-0001", GenericFunctions.getSsn("0"));
+            assertEquals("001-01-0002", GenericFunctions.getSsn("0"));
+        } finally {
+            resetSsn();
+        }
+    }
+
+    @Test
+    public void testGetSsnWithoutAStartUsesTheDefaultWithoutBuildingTheRange() throws Exception {
+        resetSsn();
+        try {
+            // the default range has 800 million numbers; handing them out must not build a list of them
+            assertEquals("100-00-0000", GenericFunctions.getSsn("not-a-number"));
+        } finally {
+            resetSsn();
+        }
+    }
+
+    @Test
+    public void testGetSsnRunsOutAtTheEndOfTheRange() throws Exception {
+        resetSsn();
+        try {
+            String[] values = new String[] { null, null, "getssn", "899999997" };
+
+            assertEquals("899-99-9997", GenericFunctions.executeFunction(values, new Variables()));
+            assertEquals("899-99-9998", GenericFunctions.executeFunction(values, new Variables()));
+            assertEquals("", GenericFunctions.executeFunction(values, new Variables()));
+        } finally {
+            resetSsn();
+        }
+    }
+
+    private static void resetSsn() throws IllegalAccessException {
+        FieldUtils.writeStaticField(GenericFunctions.class, "nextSsn", -1, true);
     }
 }

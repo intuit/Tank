@@ -56,14 +56,13 @@ public class AgentCommandWebSocketServerTest {
     }
 
     private void startServer(String token, Long silenceTimeoutMs) throws IOException {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            port = socket.getLocalPort();
-        }
-        server = new AgentCommandWebSocketServer(port, "i-test", "42", 100, token);
+        // port 0 lets the OS pick a free port and keep it bound, so nothing else can take it first
+        server = new AgentCommandWebSocketServer(0, "i-test", "42", 100, token);
         if (silenceTimeoutMs != null) {
             server.setSilenceTimeoutMs(silenceTimeoutMs);
         }
         server.start();
+        port = server.getLocalPort();
     }
 
     private TestController connect(String node, String authorization) throws Exception {

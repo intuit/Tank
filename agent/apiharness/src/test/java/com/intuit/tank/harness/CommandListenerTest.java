@@ -25,6 +25,8 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -225,26 +227,54 @@ public class CommandListenerTest {
     }
 
     @Test
-    public void testHttpKillRunsKillActionAndIsAccepted() throws IOException {
+    public void testHttpKillRepliesBeforeRunningKillAction() throws IOException {
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         HttpExchange exchange = exchange("/kill", new Headers(), body);
+        HttpHandler handler = captureHandler();
+        // the real kill action exits the JVM, so the reply must already be on its way
+        List<String> bodyAtKill = new ArrayList<>();
+        CommandListener.killAction = () -> {
+            bodyAtKill.add(body.toString(StandardCharsets.UTF_8));
+            verify(exchange).close();
+        };
+
+        handler.handle(exchange);
+
+        assertEquals(List.of("Received command /kill, Killing Test JobId=42"), bodyAtKill);
+        verify(exchange).sendResponseHeaders(eq(202), anyLong());
+    }
+
+    @Test
+    public void testHttpKillStillKillsWhenTheReplyFails() throws IOException {
+        OutputStream broken = mock(OutputStream.class);
+        doThrow(new IOException("connection reset")).when(broken).write(any(byte[].class));
+        HttpExchange exchange = exchange("/kill", new Headers(), broken);
 
         captureHandler().handle(exchange);
 
         assertEquals(1, kills.get());
-        verify(exchange).sendResponseHeaders(eq(202), anyLong());
-        assertEquals("Received command /kill, Killing Test JobId=42", body.toString(StandardCharsets.UTF_8));
     }
 
-    @Test
-    public void testHttpStatusRepliesWithHarnessStatus() throws IOException {
+    @ParameterizedTest
+    @CsvSource({"/status", "/staus"})
+    public void testHttpStatusRepliesWithHarnessStatusWithoutChangingIt(String path) throws IOException {
         ByteArrayOutputStream body = new ByteArrayOutputStream();
-        HttpExchange exchange = exchange(AgentCommand.status.getPath(), new Headers(), body);
+        HttpExchange exchange = exchange(path, new Headers(), body);
 
         captureHandler().handle(exchange);
 
         verify(exchange).sendResponseHeaders(eq(202), anyLong());
         assertEquals(status.toString(), body.toString(StandardCharsets.UTF_8));
+        // asking for the status of a paused agent must not resume it
+        verify(harness, never()).setCommand(any());
+    }
+
+    @Test
+    public void testApplyCommandStatusChangesNothing() {
+        CommandListener.applyCommand("status");
+
+        verify(harness, never()).setCommand(any());
+        assertEquals(0, kills.get());
     }
 
     @Test

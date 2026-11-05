@@ -95,7 +95,6 @@ public class RequestRunner implements Runner {
         String proxy = variables.getVariable("TANK_HTTP_PROXY");
         if (StringUtils.isNotBlank(proxy)) {
             try {
-                String[] proxyInfo = StringUtils.split(":");
                 int proxyPort = 80;
                 if (proxy.startsWith("http://")) {
                     proxy = proxy.substring(7);
@@ -103,6 +102,7 @@ public class RequestRunner implements Runner {
                     proxy = proxy.substring(8);
                     proxyPort = 443;
                 }
+                String[] proxyInfo = StringUtils.split(proxy, ':');
                 if (proxyInfo.length > 2) {
                     LOG.error("Proxy should be specified as proxyHost:proxyPort.");
                 } else {
@@ -617,9 +617,9 @@ public class RequestRunner implements Runner {
         } else if (validationType == ValidationType.doesnotcontain) { // Process Equals
             testResult = actualValue == null || !actualValue.toLowerCase().contains(expectedValue.toLowerCase());
         } else if (validationType == ValidationType.lessthan) { // Process less than
-            testResult = compare(actualValue, expectedValue) < 0;
+            testResult = actualValue != null && compare(actualValue, expectedValue) < 0;
         } else if (validationType == ValidationType.greaterthan) { // Process greater than
-            testResult = compare(actualValue, expectedValue) > 0;
+            testResult = actualValue != null && compare(actualValue, expectedValue) > 0;
         } else {
             testResult = false;
         }

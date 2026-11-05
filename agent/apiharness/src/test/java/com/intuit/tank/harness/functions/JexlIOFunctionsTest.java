@@ -86,6 +86,16 @@ public class JexlIOFunctionsTest {
     }
 
     @Test
+    public void testGetCSVDataLoopingOverAnEmptyFileKillsTheScript() throws Exception {
+        try (TestDataFiles files = new TestDataFiles()) {
+            String fileName = files.write("empty.csv", "");
+            JexlIOFunctions functions = new JexlIOFunctions();
+
+            assertThrows(CheckedKillScriptException.class, () -> functions.getCSVData(fileName, 0, true));
+        }
+    }
+
+    @Test
     public void testGetCSVDataFromFileIndexOutOfRangeReturnsEmpty() throws Exception {
         try (TestDataFiles files = new TestDataFiles()) {
             String fileName = files.write("data.csv", "One,1\nTwo,2\n");

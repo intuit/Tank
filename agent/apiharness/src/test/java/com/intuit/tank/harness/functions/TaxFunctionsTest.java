@@ -201,6 +201,19 @@ public class TaxFunctionsTest {
     }
 
     @Test
+    public void testGetSsnPadsSevenDigitNumbers() throws Exception {
+        resetLastSsn();
+        // the lowest valid ssn has seven digits and needs two leading zeros
+        assertEquals("001-01-0001", TaxFunctions.getSsn(0L));
+        assertEquals("001-01-0002", TaxFunctions.getSsn(0L));
+    }
+
+    @Test
+    public void testIsValidWithTooFewArgumentsIsUnsupported() {
+        assertThrows(UnsupportedOperationException.class, () -> TaxFunctions.isValid(new String[] { "#function", "tax" }));
+    }
+
+    @Test
     public void testGetSsnSkipsInvalidRange() throws Exception {
         resetLastSsn();
         assertEquals("699-99-9999", TaxFunctions.getSsn(699999999L));

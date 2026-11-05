@@ -59,7 +59,8 @@ public class TestPlanRunnerTest {
         variables.addVariable("testKey", "testValue");
         script.setLoop(2);
         useCase.addScriptSteps(step);
-        useCase.addScriptSteps(new RequestStep());
+        // in the failing step's script group, so SKIP skips it
+        useCase.addScriptSteps(requestStep(""));
         script.addUseCase(useCase);
         group.addGroupStep(script);
         group.setLoop(2);
@@ -115,7 +116,8 @@ public class TestPlanRunnerTest {
 
     @Test
     public void testPlanRunnerFailureGoToCase() {
-        step.setOnFail(ScriptConstants.ACTION_GOTO_PREFIX);
+        // a group no use case has; a goto back into the failing step's own group would retry until killed
+        step.setOnFail(ScriptConstants.ACTION_GOTO_PREFIX + "missing");
         TestPlanRunner runner = new TestPlanRunner(httpClient, testPlan, 3, httpClientClass);
         runner.setUniqueName("testUniqueName");
         runner.run();
@@ -221,6 +223,42 @@ public class TestPlanRunnerTest {
 
         assertEquals(List.of(failing), flow.executed);
         assertEquals(1, APITestHarness.getInstance().getStatus().getSkips());
+    }
+
+    @Test
+    public void testSkipResumesAtTheFirstStepAfterTheGroup() {
+        MockStep failing = new MockStep();
+        failing.setOnFail(TankConstants.HTTP_CASE_SKIP);
+        VariableStep next = variableStep("next");
+        VariableStep last = variableStep("last");
+        RecordingFlowController flow = useRecordingFlowController();
+        // the request step only marks the failing step's (empty) script group
+        flow.skip = step -> step instanceof RequestStep;
+
+        run(plan(1, 1, useCase(failing, requestStep(""), next, last)));
+
+        assertEquals(List.of(failing, next, last), flow.executed);
+        assertEquals(1, APITestHarness.getInstance().getStatus().getSkips());
+    }
+
+    @Test
+    public void testGotoCanTargetTheFirstUseCase() {
+        VariableStep target = variableStep("target");
+        MockStep failing = new MockStep();
+        failing.setOnFail(ScriptConstants.ACTION_GOTO_PREFIX + "target");
+        RecordingFlowController flow = useRecordingFlowController();
+        flow.skip = step -> step instanceof RequestStep;
+        // the goto would loop forever, so kill the user once the target has run again
+        flow.afterStep = context -> {
+            if (flow.executed.size() == 3) {
+                APITestHarness.getInstance().setCommand(AgentCommand.kill);
+            }
+        };
+
+        run(plan(1, 1, useCase(requestStep("target"), target), useCase(failing)));
+
+        assertEquals(List.of(target, failing, target), flow.executed);
+        assertEquals(1, APITestHarness.getInstance().getStatus().getGotos());
     }
 
     @Test

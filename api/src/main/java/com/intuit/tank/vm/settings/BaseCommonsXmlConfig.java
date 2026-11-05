@@ -15,7 +15,12 @@ package com.intuit.tank.vm.settings;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.annotation.Nonnull;
 
@@ -77,7 +82,19 @@ public abstract class BaseCommonsXmlConfig implements Serializable {
                         && !dataDirConfigFile.getParentFile().mkdirs()) {
                     throw new RuntimeException("could not create directories.");
                 }
-                tmpConfig.write(new FileWriter(dataDirConfigFile));
+                // write a complete file and rename it into place, so a process starting at the same time
+                // never reads a half-written one
+                Path target = dataDirConfigFile.getAbsoluteFile().toPath();
+                // a plain new file, not Files.createTempFile, so it gets the same permissions as before
+                Path tmp = target.resolveSibling(target.getFileName() + "." + UUID.randomUUID() + ".tmp");
+                try {
+                    try (Writer writer = Files.newBufferedWriter(tmp, StandardOpenOption.CREATE_NEW)) {
+                        tmpConfig.write(writer);
+                    }
+                    Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                } finally {
+                    Files.deleteIfExists(tmp);
+                }
                 LOG.info("Saving settings file to {}", dataDirConfigFile.getAbsolutePath());
             }
 

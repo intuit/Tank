@@ -91,7 +91,8 @@ public class CSVReader {
     public synchronized String[] getNextLine(boolean loop) {
         String[] ret = null;
         if (pointer >= lines.size()) {
-            if (loop) {
+            // a missing or empty file has nothing to loop back to
+            if (loop && !lines.isEmpty()) {
                 pointer = 0;
             } else {
                 return null;

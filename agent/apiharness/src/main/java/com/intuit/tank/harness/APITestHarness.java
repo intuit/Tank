@@ -878,7 +878,8 @@ public class APITestHarness {
     }
 
     private void sendBatchToDB(boolean asynch) {
-        if (results.size() > 1 && logTiming) {
+        // results queued before the reporter exists wait for the next send
+        if (!results.isEmpty() && logTiming && resultsReporter != null) {
             final List<TankResult> list;
             synchronized (results) {
                 list = new ArrayList<TankResult>(results);
@@ -892,10 +893,18 @@ public class APITestHarness {
     public void setDebugLogger(FlowController flowController){
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
-        LoggerConfig loggerConfig = new LoggerConfig();
-        loggerConfig.setLevel(Level.DEBUG);
-        config.addLogger("com.intuit.tank.http", loggerConfig);
-        config.addLogger("com.intuit.tank", loggerConfig);
+        for (String name : new String[] { "com.intuit.tank.http", "com.intuit.tank" }) {
+            // addLogger ignores a name log4j2.xml already configures, and its appender refs filter below
+            // info, so replace the logger with one at DEBUG that sends to the same appenders unfiltered
+            LoggerConfig current = config.getLoggerConfig(name);
+            boolean configured = current.getName().equals(name);
+            LoggerConfig debug = new LoggerConfig(name, Level.DEBUG, configured && current.isAdditive());
+            current.getAppenders().values().forEach(appender -> debug.addAppender(appender, null, null));
+            if (configured) {
+                config.removeLogger(name);
+            }
+            config.addLogger(name, debug);
+        }
         ctx.updateLoggers(config);
         DEBUG = true;
         agentRunData.setActiveProfile(LoggingProfile.VERBOSE);
@@ -941,7 +950,7 @@ public class APITestHarness {
     }
 
     public void setDebug(boolean b) {
-        DEBUG = true;
+        DEBUG = b;
     }
 
     /**
