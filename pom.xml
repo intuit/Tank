@@ -51,8 +51,8 @@
     <version.spring-webmvc>7.0.9</version.spring-webmvc>
     <version.spring-boot>4.1.1</version.spring-boot>
     <version.wiremock>3.13.2</version.wiremock>
-    <version.jackson>3.2.2</version.jackson>
-    <version.jackson2>2.22.3</version.jackson2>
+    <version.jackson>3.2.4</version.jackson>
+    <version.jackson2>2.22.4</version.jackson2>
     <version.log4j>2.26.1</version.log4j>
     <version.jetty>12.0.35</version.jetty>
 
