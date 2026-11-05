@@ -67,6 +67,8 @@ import java.util.zip.ZipInputStream;
 public class AgentCommandWebSocketServer {
 
     private static final Logger LOG = LogManager.getLogger(AgentCommandWebSocketServer.class);
+    /** How long a kill waits for its ack to be written before exiting anyway. */
+    private static final long KILL_ACK_FLUSH_MS = 1_000L;
     private static final int MAX_APPLIED_COMMAND_IDS = 10_000;
     private static final String AGENT_HOME_DIR = "/opt/tank_agent";
     private static final String SUPPORT_ARCHIVE_FILE_TYPE = "support_archive";
@@ -337,10 +339,18 @@ public class AgentCommandWebSocketServer {
             return;
         }
 
+        boolean kill = "kill".equalsIgnoreCase(command);
         try {
+            if (kill) {
+                // A kill exits the JVM, so the ack has to be on the wire first. Otherwise the
+                // controller waits out its ack timeout and reports a failed kill.
+                sendAckAndWait(connection, commandId, AckStatus.ok);
+            }
             CommandListener.applyCommand(command);
             lastAppliedCommandId = commandId;
-            sendAck(connection, commandId, AckStatus.ok, null);
+            if (!kill) {
+                sendAck(connection, commandId, AckStatus.ok, null);
+            }
         } catch (Exception e) {
             LOG.warn(new ObjectMessage(Map.of("Message",
                     "Failed to apply command " + command + " for agent " + instanceId + ": " + e.getMessage())));
@@ -602,6 +612,18 @@ public class AgentCommandWebSocketServer {
             sendText(connection, ack.toJson());
         } catch (JacksonException e) {
             LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send command ack: " + e.getMessage())));
+        }
+    }
+
+    /** Sends an ack and waits briefly for it to be written, for commands that end the process. */
+    private void sendAckAndWait(Session connection, String commandId, AckStatus status) {
+        CompletableFuture<Void> written = new CompletableFuture<>();
+        try {
+            AgentWsEnvelope ack = AgentWsEnvelope.ack(instanceId, "command", commandId, status);
+            connection.sendText(ack.toJson(), Callback.from(() -> written.complete(null), written::completeExceptionally));
+            written.get(KILL_ACK_FLUSH_MS, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Failed to send command ack before exit: " + e)));
         }
     }
 
