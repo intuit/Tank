@@ -46,6 +46,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.vmManager.JobUtil;
+import org.hibernate.Length;
 import org.hibernate.annotations.BatchSize;
 
 @Entity
@@ -89,7 +90,7 @@ public class JobInstance extends BaseJob {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endTime;
 
-    @Column(name = "job_details")
+    @Column(name = "job_details", length = Length.LONG32)
     @Lob
     private String jobDetails;
 
