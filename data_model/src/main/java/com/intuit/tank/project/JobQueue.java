@@ -33,7 +33,8 @@ import jakarta.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 /**
  * TestInstance
@@ -57,7 +58,7 @@ public class JobQueue extends BaseEntity {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "test_instance_jobs", joinColumns = @JoinColumn(name = "test_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
-    @BatchSize(size=10)
+    @Fetch(FetchMode.SUBSELECT) // load every queue's jobs in one query, not one per 10 queues
     private Set<JobInstance> jobs = new HashSet<JobInstance>();
 
     /**

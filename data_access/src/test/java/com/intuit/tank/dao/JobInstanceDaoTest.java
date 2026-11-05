@@ -19,6 +19,7 @@ package com.intuit.tank.dao;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.logging.log4j.Level;
@@ -26,7 +27,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
+
+import com.intuit.tank.project.DataFile;
+import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.JobNotification;
+import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.test.TestGroups;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +87,44 @@ public class JobInstanceDaoTest {
         assertEquals(List.of(), dao.getForStatus(List.of()));
         assertNull(dao.findJobDetails(job.getId()), "no details were recorded");
 
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findStatuses_readsEveryStatusInOneQuery() {
+        JobInstance running = getBaseInstance();
+        running.setStatus(JobQueueStatus.Running);
+        running = dao.saveOrUpdate(running);
+        JobInstance completed = getBaseInstance();
+        completed.setStatus(JobQueueStatus.Completed);
+        completed = dao.saveOrUpdate(jobWithCollections(completed));
+        Statistics statistics = statistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            Map<Integer, JobQueueStatus> statuses = dao.findStatuses();
+
+            assertEquals(JobQueueStatus.Running, statuses.get(running.getId()));
+            assertEquals(JobQueueStatus.Completed, statuses.get(completed.getId()));
+            assertEquals(statuses.keySet().stream().sorted().toList(), List.copyOf(statuses.keySet()), "in id order");
+            assertEquals(1, statistics.getPrepareStatementCount());
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            dao.delete(running);
+            dao.delete(completed);
+        }
+    }
+
+    private Statistics statistics() {
+        return dao.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+    }
+
+    private static JobInstance jobWithCollections(JobInstance job) {
+        job.getVariables().put("name", "value");
+        job.getDataFileVersions().add(new EntityVersion(1, 1, DataFile.class));
+        job.getNotificationVersions().add(new EntityVersion(1, 1, JobNotification.class));
+        job.getJobRegionVersions().add(new EntityVersion(1, 1, JobRegion.class));
+        return job;
     }
 
     /**

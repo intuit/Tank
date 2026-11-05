@@ -16,9 +16,12 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
+import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -86,6 +89,23 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
                     .where(cb.equal(job.get(JobInstance.PROPERTY_ID), jobId));
         });
         return results.isEmpty() ? null : results.get(0);
+    }
+
+    /**
+     * Reads every job's status without loading the jobs and their eager collections.
+     *
+     * @return each job's status by job id, in id order
+     */
+    public Map<Integer, JobQueueStatus> findStatuses() {
+        List<Tuple> rows = list(cb -> {
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<JobInstance> job = query.from(JobInstance.class);
+            return query.multiselect(job.get(JobInstance.PROPERTY_ID), job.get(JobInstance.PROPERTY_STATUS))
+                    .orderBy(cb.asc(job.get(JobInstance.PROPERTY_ID)));
+        });
+        Map<Integer, JobQueueStatus> statuses = new LinkedHashMap<>();
+        rows.forEach(row -> statuses.put(row.get(0, Integer.class), row.get(1, JobQueueStatus.class)));
+        return statuses;
     }
 
     /**
