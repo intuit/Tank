@@ -98,7 +98,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- A hung test fork would otherwise run until the CI build times out. Dump its stacks, then kill it. -->
-          <dumpStackTraceInSeconds>240</dumpStackTraceInSeconds>
           <forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
         </configuration>
       </plugin>

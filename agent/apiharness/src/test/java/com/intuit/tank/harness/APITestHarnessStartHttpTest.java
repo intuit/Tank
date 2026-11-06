@@ -76,6 +76,8 @@ public class APITestHarnessStartHttpTest {
     public void cleanup() throws IOException {
         server.stop(0);
         APITestHarness.destroyCurrentInstance();
+        // the test plan is JVM wide; a plan left behind is run by the next test class that starts the harness
+        TestPlanSingleton.getInstance().setTestPlans("");
         ThreadContext.clearMap();
         if (originalScript != null) {
             FileUtils.writeStringToFile(SCRIPT_FILE, originalScript, StandardCharsets.UTF_8);

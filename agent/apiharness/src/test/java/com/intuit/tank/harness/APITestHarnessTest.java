@@ -76,6 +76,8 @@ public class APITestHarnessTest {
     @AfterEach
     public void cleanup() {
         APITestHarness.destroyCurrentInstance();
+        // the test plan is JVM wide; a plan left behind is run by the next test class that starts the harness
+        TestPlanSingleton.getInstance().setTestPlans("");
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
         for (String name : DEBUG_LOGGERS) {
