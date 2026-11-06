@@ -27,6 +27,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.Length;
 import org.hibernate.envers.Audited;
 
 @Entity
@@ -42,7 +43,7 @@ public class ExternalScript extends OwnableEntity implements Comparable<External
     @Size(max = 255)
     private String name;
 
-    @Column(name = "script")
+    @Column(name = "script", length = Length.LONG32)
     @Lob
     private String script;
 
