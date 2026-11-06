@@ -54,4 +54,10 @@ public class ConfiguredLanguageTest {
         assertSame(ConfiguredLanguage.getConfiguredLanguages().get(0),
                 ConfiguredLanguage.getLanguagebyExtension("scripts/validate.js"));
     }
+
+    @Test
+    public void testLanguageByExtensionWithoutAnEngineIsNull() {
+        assertNull(ConfiguredLanguage.getLanguagebyExtension("notes.txt"));
+        assertNull(ConfiguredLanguage.getLanguagebyExtension("no-extension"));
+    }
 }

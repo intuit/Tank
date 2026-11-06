@@ -44,6 +44,8 @@ public class InfoHeaderPanelTest {
         assumeFalse(GraphicsEnvironment.isHeadless());
         AgentDebuggerFrameTest.keepTheHarnessSettings();
         SwingUtilities.invokeAndWait(() -> frame = new AgentDebuggerFrame(false, null, null));
+        // disposing the frame leaves its working dir behind
+        TankConfigPin.deleteCurrentWorkingDirAtExit();
     }
 
     @AfterAll

@@ -55,7 +55,7 @@ final class DialogTestSupport {
 
     /** A non-standalone debugger frame, with no service URL, that is never shown (see {@link #unshownFrame()}). */
     static AgentDebuggerFrame unshownDebuggerFrame() throws Exception {
-        return onEdt(() -> new AgentDebuggerFrame(false, null, null) {
+        AgentDebuggerFrame frame = onEdt(() -> new AgentDebuggerFrame(false, null, null) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -63,6 +63,9 @@ final class DialogTestSupport {
                 return new Point(0, 0);
             }
         });
+        // disposing the frame leaves its working dir behind
+        TankConfigPin.deleteCurrentWorkingDirAtExit();
+        return frame;
     }
 
     interface EdtTask {

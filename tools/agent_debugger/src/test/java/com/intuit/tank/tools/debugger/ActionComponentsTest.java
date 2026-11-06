@@ -37,6 +37,8 @@ public class ActionComponentsTest {
     public static void setup() {
         assumeFalse(GraphicsEnvironment.isHeadless());
         actions = new ActionProducer(new AgentDebuggerFrame(true, null, null), null, null);
+        // the standalone frame is never quit (that would exit the JVM), so nothing else deletes its working dir
+        TankConfigPin.deleteCurrentWorkingDirAtExit();
         actionComponents = new ActionComponents(
                 true,            // standalone
                 new JComboBox(),                        //testPlanChooser

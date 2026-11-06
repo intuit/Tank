@@ -38,13 +38,15 @@ import picocli.CommandLine.Option;
                 "0:The run finished. Check output.log for the result",
                 "1:The script failed the hostname replacement check (not filtered for production)",
                 "2:Invalid command line arguments",
-                "3:Could not get the project or its script from Tank" })
+                "3:Could not get the project or its script from Tank",
+                "4:The run could not be started or did not finish" })
 public class HeadlessDebuggerCli implements Callable<Integer> {
 
     public static final int EXIT_OK = 0;
     public static final int EXIT_HOSTNAME_CHECK_FAILED = 1;
     public static final int EXIT_INVALID_ARGUMENTS = 2;
     public static final int EXIT_TANK_API_ERROR = 3;
+    public static final int EXIT_RUN_FAILED = 4;
 
     private static final Logger LOG = LogManager.getLogger(HeadlessDebuggerCli.class);
 
@@ -80,16 +82,26 @@ public class HeadlessDebuggerCli implements Callable<Integer> {
 
         HeadlessDebuggerSetup runner = new HeadlessDebuggerSetup(url, projectId, token);
         if (runner.isHostnameCheckFailed()) {
+            runner.deleteWorkingDir();
             return EXIT_HOSTNAME_CHECK_FAILED;
         }
         if (!runner.isReady()) {
+            runner.deleteWorkingDir();
             return EXIT_TANK_API_ERROR;
         }
         try {
             runner.start();
-            runner.getRunningThread().join();
+            Thread running = runner.getRunningThread();
+            if (running != null) {
+                running.join();
+            } else if (!runner.getSteps().isEmpty()) {
+                // a script with no steps has nothing to run; one with steps should have started
+                LOG.error("Error running headless debugger: the run did not start");
+                return EXIT_RUN_FAILED;
+            }
         } catch (Exception e) {
             LOG.error("Error running headless debugger: " + e.getMessage(), e);
+            return EXIT_RUN_FAILED;
         } finally {
             runner.stop();
             runner.quit();

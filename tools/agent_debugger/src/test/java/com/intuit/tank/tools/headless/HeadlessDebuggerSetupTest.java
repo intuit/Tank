@@ -53,6 +53,7 @@ import com.intuit.tank.tools.debugger.DebugStep;
 import com.intuit.tank.tools.debugger.JaxbUtil;
 import com.intuit.tank.tools.debugger.ScriptChangedListener;
 import com.intuit.tank.tools.debugger.StepListener;
+import com.intuit.tank.tools.debugger.TankConfigPin;
 import com.sun.net.httpserver.HttpServer;
 
 import tools.jackson.databind.JsonNode;
@@ -110,6 +111,8 @@ public class HeadlessDebuggerSetupTest {
         log.close();
         System.setProperty("user.dir", userDir);
         server.stop(0);
+        // only quit() deletes a setup's working dir, and not every test quits
+        TankConfigPin.deleteCurrentWorkingDirAtExit();
     }
 
     @Test
@@ -314,6 +317,34 @@ public class HeadlessDebuggerSetupTest {
         assertTrue(log.contains("RESPONSE LOG"));
         setup.quit();
         assertEquals(1, report().path("summary").path("failureCount").asInt());
+    }
+
+    @Test
+    public void failedStepWithoutARequestOrResponseIsStillRecorded() throws Exception {
+        HeadlessDebuggerSetup setup = readySetup(script("p", null, List.of(request("#{host}/start"))));
+        // the request runner threw before it built a request, so there is neither a request nor a response
+        TestStepContext context = context(setup.getStep(0), null, Map.of());
+        context.setRequest(null);
+
+        setup.stepStarted(context);
+        setup.stepFinished(context);
+
+        assertTrue(log.contains("1,GET,#{host}/start,FAILURE"));
+        assertTrue(log.contains("no request"));
+        assertTrue(log.contains("no response"));
+        setup.quit();
+        JsonNode steps = report().path("steps");
+        assertEquals(1, steps.size());
+        assertFalse(steps.get(0).path("success").asBoolean());
+    }
+
+    @Test
+    public void filingStatusIsLeftOutForUC2AndUC7Scripts() throws Exception {
+        for (String name : List.of("Return UC2", "Return UC7")) {
+            HeadlessDebuggerSetup setup = readySetup(script(name, null, List.of(request("#{host}/start"))));
+            setup.quit();
+            assertFalse(log.anyContains("filing_status,"), name);
+        }
     }
 
     @Test

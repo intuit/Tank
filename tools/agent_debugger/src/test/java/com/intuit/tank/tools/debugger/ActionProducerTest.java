@@ -342,7 +342,7 @@ public class ActionProducerTest {
         ScriptDescription newer = ScriptDescription.builder().withId(2).withName("newer")
                 .withCreated(new Date(2000)).build();
         when(scriptClient.getScripts()).thenReturn(ScriptDescriptionContainer.builder()
-                .withScripts(new ArrayList<>(List.of(older, newer))).build());
+                .withScripts(List.of(older, newer)).build()); // unmodifiable; the action sorts a copy
         when(scriptClient.downloadHarnessScript(2)).thenReturn(WORKLOAD_XML);
         List<Object> dialogArgs = new ArrayList<>();
 
@@ -588,6 +588,23 @@ public class ActionProducerTest {
     }
 
     @Test
+    public void testSelectTankAddsNoListenerEachTimeItIsUsed() throws Exception {
+        Action selectTank = producer.getSelectTankAction();
+        JComboBox<?> comboBox = comboBoxOf(selectTank);
+        int listeners = comboBox.getActionListeners().length;
+
+        try (MockedStatic<JOptionPane> pane = mockStatic(JOptionPane.class)) {
+            pane.when(() -> JOptionPane.showConfirmDialog(any(), any(), anyString(), anyInt(), anyInt()))
+                    .thenReturn(JOptionPane.CANCEL_OPTION);
+
+            selectTank.actionPerformed(null);
+            selectTank.actionPerformed(null);
+        }
+
+        assertEquals(listeners, comboBox.getActionListeners().length);
+    }
+
+    @Test
     public void testSelectTankNormalizesTypedUrl() throws Exception {
         JComboBox<TankClientChoice> clientChooser = new JComboBox<>();
         when(frame.getTankClientChooser()).thenReturn(clientChooser);
@@ -689,10 +706,12 @@ public class ActionProducerTest {
     }
 
     private static DataFileDescriptorContainer dataFiles(DataFileDescriptor... files) {
-        // the action sorts the list in place, so it must be mutable (the builder's list is not)
-        DataFileDescriptorContainer container = new DataFileDescriptorContainer();
-        container.setDataFiles(new ArrayList<>(List.of(files)));
-        return container;
+        // the builder's list is unmodifiable; the action sorts a copy of it
+        DataFileDescriptorContainer.DataFileDescriptorContainerBuilder builder = DataFileDescriptorContainer.builder();
+        for (DataFileDescriptor file : files) {
+            builder.withDataFile(file);
+        }
+        return builder.build();
     }
 
     private File writeFile(String name, String content) throws IOException {

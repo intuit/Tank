@@ -1,8 +1,11 @@
 package com.intuit.tank.tools.headless;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mockStatic;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,8 +22,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.intuit.tank.harness.APITestHarness;
 import com.intuit.tank.harness.data.TestStep;
+import com.intuit.tank.tools.debugger.TankConfigPin;
 import com.sun.net.httpserver.HttpServer;
+
+import org.mockito.MockedStatic;
 
 import picocli.CommandLine;
 
@@ -47,7 +54,12 @@ public class HeadlessDebuggerCliTest {
         CommandLine cmd = HeadlessDebuggerCli.newCommandLine();
         cmd.setOut(new PrintWriter(out));
         cmd.setErr(new PrintWriter(err));
-        return cmd.execute(args);
+        try {
+            return cmd.execute(args);
+        } finally {
+            // a run that never reaches quit() leaves its working dir behind
+            TankConfigPin.deleteCurrentWorkingDirAtExit();
+        }
     }
 
     @Test
@@ -60,6 +72,7 @@ public class HeadlessDebuggerCliTest {
         assertTrue(usage.contains("-t, --token"));
         assertTrue(usage.contains("Exit codes:"));
         assertTrue(usage.contains("The script failed the hostname replacement check"));
+        assertTrue(usage.contains("The run could not be started or did not finish"));
     }
 
     @Test
@@ -97,6 +110,8 @@ public class HeadlessDebuggerCliTest {
 
             assertEquals(HeadlessDebuggerCli.EXIT_HOSTNAME_CHECK_FAILED,
                     HeadlessDebuggerCli.run(new String[] { "-h=" + url(tank), "-p=1", "-t=tok" }));
+            // a run that stops before it starts still removes its working dir
+            assertFalse(new File(System.getProperty("WATS_PROPERTIES")).exists());
         } finally {
             tank.stop(0);
         }
@@ -118,6 +133,43 @@ public class HeadlessDebuggerCliTest {
 
             String report = Files.readString(reportDir.resolve("validation-report.json"));
             assertTrue(report.contains("\"successCount\" : 1"));
+        } finally {
+            System.setProperty("user.dir", userDir);
+            tank.stop(0);
+        }
+    }
+
+    @Test
+    public void runThatCannotStartExitsWithRunFailed() throws Exception {
+        HttpServer tank = tank(Map.of("/app/start", "started"));
+        String userDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", reportDir.toString());
+        try (MockedStatic<APITestHarness> harness = mockStatic(APITestHarness.class)) {
+            // with no harness to run on, the run never starts
+            harness.when(APITestHarness::getInstance).thenThrow(new IllegalStateException("no harness"));
+            int port = tank.getAddress().getPort();
+            serve(HeadlessDebuggerSetupTest.script("p", null,
+                    List.of(HeadlessDebuggerSetupTest.target(port, "#{host}/start", "/app/start"))));
+
+            assertEquals(HeadlessDebuggerCli.EXIT_RUN_FAILED,
+                    HeadlessDebuggerCli.run(new String[] { "-h=" + url(tank), "-p=1", "-t=tok" }));
+        } finally {
+            System.setProperty("user.dir", userDir);
+            tank.stop(0);
+        }
+    }
+
+    @Test
+    public void scriptWithoutStepsExitsOk() throws Exception {
+        HttpServer tank = tank(Map.of());
+        String userDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", reportDir.toString());
+        try {
+            serve(HeadlessDebuggerSetupTest.script("p", null, List.of()));
+
+            // there is nothing to run, which is not a failure to run
+            assertEquals(HeadlessDebuggerCli.EXIT_OK,
+                    HeadlessDebuggerCli.run(new String[] { "-h=" + url(tank), "-p=1", "-t=tok" }));
         } finally {
             System.setProperty("user.dir", userDir);
             tank.stop(0);

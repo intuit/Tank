@@ -103,21 +103,15 @@ public class FindReplaceDialogTest {
     }
 
     @Test
-    public void testTitleAndReplaceControlsFollowTheDialogType() throws Exception {
+    public void testIsAModalFindDialogWithoutReplaceControls() throws Exception {
         onEdt(() -> {
             dialog = new FindReplaceDialog(frame, DialogType.SEARCH);
             assertEquals("Find", dialog.getTitle());
             assertTrue(dialog.isModal());
             assertEquals(1, combos().size());
+            // the script view is read-only, so there is nothing to replace in
             assertTrue(findAll(dialog.getContentPane(), JButton.class).stream()
-                    .noneMatch(b -> "Replace".equals(b.getText())));
-            dialog.dispose();
-
-            dialog = new FindReplaceDialog(frame, DialogType.REPLACE);
-            assertEquals("Replace", dialog.getTitle());
-            assertEquals(2, combos().size());
-            assertNotNull(button(dialog.getContentPane(), JButton.class, "Replace"));
-            assertNotNull(button(dialog.getContentPane(), JButton.class, "Replace All"));
+                    .noneMatch(b -> b.getText().startsWith("Replace")));
         });
     }
 
@@ -250,79 +244,28 @@ public class FindReplaceDialogTest {
     }
 
     @Test
-    public void testReplaceButtonsRememberBothTerms() throws Exception {
+    public void testEnterKeyFindsFromTheSearchField() throws Exception {
         onEdt(() -> {
-            dialog = new FindReplaceDialog(frame, DialogType.REPLACE);
-            searchEditor().setText("beta");
-            replaceEditor().setText("delta");
-            button(dialog.getContentPane(), JButton.class, "Replace").doClick();
-            assertEquals("beta", combos().get(0).getItemAt(0));
-            assertEquals("delta", combos().get(1).getItemAt(0));
-
-            searchEditor().setText("gamma");
-            replaceEditor().setText("epsilon");
-            button(dialog.getContentPane(), JButton.class, "Replace All").doClick();
-            assertEquals(2, combos().get(0).getItemCount());
-            assertEquals("gamma", combos().get(0).getItemAt(0));
-            assertEquals("epsilon", combos().get(1).getItemAt(0));
-
-            // repeating a replacement term does not duplicate it
-            replaceEditor().setText("delta");
-            button(dialog.getContentPane(), JButton.class, "Replace").doClick();
-            assertEquals(2, combos().get(1).getItemCount());
-            // replace is not implemented yet, so the script is untouched
-            assertEquals(SCRIPT, frame.getScriptEditorTA().getText());
-        });
-    }
-
-    @Test
-    public void testReplaceHistoryKeepsTheLatest25DistinctTerms() throws Exception {
-        onEdt(() -> {
-            dialog = new FindReplaceDialog(frame, DialogType.REPLACE);
-            JButton replaceAll = button(dialog.getContentPane(), JButton.class, "Replace All");
-            for (int i = 0; i < 26; i++) {
-                replaceEditor().setText("with" + i);
-                replaceAll.doClick();
-            }
-            JComboBox<?> replace = combos().get(1);
-            assertEquals(25, replace.getItemCount());
-            assertEquals("with25", replace.getItemAt(0));
-            assertEquals("with1", replace.getItemAt(24));
-            // blank search terms were never added
-            assertEquals(0, combos().get(0).getItemCount());
-        });
-    }
-
-    @Test
-    public void testEnterKeyFindsFromTheSearchFieldAndReplacesFromTheReplaceField() throws Exception {
-        onEdt(() -> {
-            dialog = new FindReplaceDialog(frame, DialogType.REPLACE);
+            dialog = new FindReplaceDialog(frame, DialogType.SEARCH);
             searchEditor().setText("gamma");
             pressKey(searchEditor(), KeyEvent.VK_ENTER);
             assertEquals(2, frame.getScriptEditorTA().getCaretLineNumber());
-
-            replaceEditor().setText("zeta");
-            pressKey(replaceEditor(), KeyEvent.VK_ENTER);
-            assertEquals("zeta", combos().get(1).getItemAt(0));
 
             // enter on a button is left to the button itself
             JButton cancel = button(dialog.getContentPane(), JButton.class, "Cancel");
             pressKey(cancel, KeyEvent.VK_ENTER);
             assertEquals(1, combos().get(0).getItemCount());
-            assertEquals(1, combos().get(1).getItemCount());
         });
     }
 
     @Test
     public void testEscapeAndCancelHideTheDialogAndClearTheFields() throws Exception {
         onEdt(() -> {
-            dialog = new FindReplaceDialog(frame, DialogType.REPLACE);
+            dialog = new FindReplaceDialog(frame, DialogType.SEARCH);
             searchEditor().setText("beta");
-            replaceEditor().setText("delta");
             pressKey(searchEditor(), KeyEvent.VK_ESCAPE);
             assertFalse(dialog.isVisible());
             assertEquals("", searchEditor().getText());
-            assertEquals("", replaceEditor().getText());
 
             searchEditor().setText("beta");
             button(dialog.getContentPane(), JButton.class, "Cancel").doClick();
@@ -342,10 +285,6 @@ public class FindReplaceDialogTest {
 
     private JTextField searchEditor() {
         return (JTextField) combos().get(0).getEditor().getEditorComponent();
-    }
-
-    private JTextField replaceEditor() {
-        return (JTextField) combos().get(1).getEditor().getEditorComponent();
     }
 
     /** Sends a key press to the dialog's own key handler on the component. */

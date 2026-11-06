@@ -26,6 +26,8 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 
 /**
@@ -40,6 +42,8 @@ public class ConfiguredLanguage {
     private String displayName;
     private String syntaxStyle;
     private String defaultExtension;
+
+    private static final Logger LOG = LogManager.getLogger(ConfiguredLanguage.class);
 
     private static final List<ConfiguredLanguage> configuredLanguages = new ArrayList<ConfiguredLanguage>();
     private static final Set<String> extensionSet = new HashSet<String>();
@@ -57,17 +61,24 @@ public class ConfiguredLanguage {
         for (String[] row : data) {
             try {
                 ScriptEngine engineByName = manager.getEngineByName(row[0]);
-                if (engineByName == null) {
-                    ScriptEngineFactory fact = (ScriptEngineFactory) Class.forName(row[3]).getDeclaredConstructor().newInstance();
-                    manager.registerEngineName(row[0], fact);
+                ScriptEngineFactory factory = engineByName != null ? engineByName.getFactory() : null;
+                if (factory == null) {
+                    // not found on its own: register its factory, by name and by extension
+                    factory = (ScriptEngineFactory) Class.forName(row[3]).getDeclaredConstructor().newInstance();
+                    manager.registerEngineName(row[0], factory);
+                    for (String extension : factory.getExtensions()) {
+                        manager.registerEngineExtension(extension, factory);
+                    }
                 }
                 configuredLanguages.add(new ConfiguredLanguage(row[0], row[1], row[2], row[4]));
-                extensionSet.addAll(engineByName.getFactory().getExtensions());
+                extensionSet.addAll(factory.getExtensions());
             } catch (Exception e) {
-                System.out.println("No ScriptEngine for language " + row[0] + " in classpath.");
+                LOG.info("No ScriptEngine for language {} in classpath.", row[0]);
             }
+        }
+        if (LOG.isDebugEnabled()) {
             for (ScriptEngineFactory fact : manager.getEngineFactories()) {
-                System.out.println(fact.getLanguageName());
+                LOG.debug("Script engine available: {}", fact.getLanguageName());
             }
         }
     }
@@ -95,6 +106,9 @@ public class ConfiguredLanguage {
     public static ConfiguredLanguage getLanguagebyExtension(String scriptName) {
         String extension = FilenameUtils.getExtension(scriptName);
         ScriptEngine engineByExtension = manager.getEngineByExtension(extension);
+        if (engineByExtension == null) {
+            return null; // no script engine handles this extension
+        }
         return configuredLanguages.stream().filter(lang -> lang.name.equals(engineByExtension.getFactory().getLanguageName())).findFirst().orElse(null);
     }
 

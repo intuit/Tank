@@ -80,11 +80,11 @@ public class AgentDebuggerFrameTest {
     }
 
     /**
-     * TankConfig reads the settings.xml of the first working dir it sees for the rest of the JVM, and disposing a frame
-     * deletes the frame's working dir. So before any frame is disposed, point TankConfig at a working dir no frame owns.
+     * Disposing a frame deletes its working dir, so TankConfig must already be reading a dir no frame owns; see
+     * {@link TankConfigPin}, which normally does this before any test class runs.
      */
     static void keepTheHarnessSettings() throws IOException {
-        PanelBuilder.createWorkingDir(null, null);
+        TankConfigPin.pin();
         assertNotNull(new TankConfig().getAgentConfig());
     }
 
@@ -382,6 +382,14 @@ public class AgentDebuggerFrameTest {
         onEdt(() -> agentDebuggerFrame.moveCursor(true));
         assertEquals(1, agentDebuggerFrame.getScriptEditorTA().getCaretLineNumber());
         assertSame(agentDebuggerFrame.getSteps().get(1), listener.lastChanged.get());
+
+        onEdt(() -> {
+            agentDebuggerFrame.moveCursor(true);
+            // already on the first line
+            agentDebuggerFrame.moveCursor(true);
+        });
+        assertEquals(0, agentDebuggerFrame.getScriptEditorTA().getCaretLineNumber());
+        assertSame(agentDebuggerFrame.getSteps().get(0), listener.lastChanged.get());
     }
 
     @Test
@@ -428,10 +436,11 @@ public class AgentDebuggerFrameTest {
     @Test
     public void startingWithoutStepsStopsAgain() throws Exception {
         onEdt(agentDebuggerFrame::start);
-        await(() -> agentDebuggerFrame.getDebuggerActions().getStartAction().isEnabled());
+        // stop() enables start before it disables end debug, from start()'s background thread, so wait for both
+        await(() -> agentDebuggerFrame.getDebuggerActions().getStartAction().isEnabled()
+                && !agentDebuggerFrame.getDebuggerActions().getEndDebugAction().isEnabled());
         assertNull(listener.lastChanged.get());
         assertEquals("", agentDebuggerFrame.getLoggerTA().getText());
-        assertFalse(agentDebuggerFrame.getDebuggerActions().getEndDebugAction().isEnabled());
     }
 
     @Test
@@ -441,6 +450,8 @@ public class AgentDebuggerFrameTest {
         onEdt(() -> agentDebuggerFrame.setCurrentStep(1));
         assertEquals(1, agentDebuggerFrame.getCurrentRunningStep());
         assertEquals(1, agentDebuggerFrame.getScriptEditorTA().getCaretLineNumber());
+        // the current-step icon is on the running step's own line
+        assertEquals(1, activeLine.get());
         assertFalse(agentDebuggerFrame.getDebuggerActions().getPauseAction().isEnabled());
 
         onEdt(() -> agentDebuggerFrame.setCurrentStep(-1));
@@ -537,6 +548,8 @@ public class AgentDebuggerFrameTest {
 
         onEdt(() -> agentDebuggerFrame.setNextStep(context(1, Map.of(), null, null, List.of())));
         assertEquals(1, agentDebuggerFrame.getCurrentRunningStep());
+        // both callbacks put the active line on the step's own line
+        assertEquals(1, activeLine.get());
     }
 
     @Test
@@ -672,7 +685,9 @@ public class AgentDebuggerFrameTest {
 
     private void startWithoutSteps() throws Exception {
         onEdt(agentDebuggerFrame::start);
-        await(() -> agentDebuggerFrame.getDebuggerActions().getStartAction().isEnabled());
+        // stop() enables start before it disables end debug, so wait until it has done both
+        await(() -> agentDebuggerFrame.getDebuggerActions().getStartAction().isEnabled()
+                && !agentDebuggerFrame.getDebuggerActions().getEndDebugAction().isEnabled());
     }
 
     private void loadPlan(int numSteps) throws Exception {

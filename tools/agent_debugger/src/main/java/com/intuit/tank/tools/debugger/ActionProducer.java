@@ -375,20 +375,8 @@ public class ActionProducer {
                 JComboBox<String> comboBox = getComboBox(propertiesMap);
                 JTextField tokenField = new JTextField();
 
-                @Override
-                public void actionPerformed(ActionEvent event) {
-                    JPanel panel = new JPanel();
-                    panel.setPreferredSize(new Dimension(400,125));
-                    panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-                    JPanel baseURLPanel = new JPanel();
-                    baseURLPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Base URL"));
-                    JPanel tokenPanel = new JPanel();
-                    comboBox.setPreferredSize(new Dimension(375,25));
-                    tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token*"));
-                    tokenPanel.setToolTipText("Generate a Tank API token by logging into Tank and going to 'Account Settings' on the upper right to create a token for this specific host. ");
-                    tokenField.setPreferredSize(new Dimension(375,25));
-
-                    // adds a listener to update token field when base URL selection changes
+                {
+                    // updates the token field when the base URL selection changes; added once, not on every use
                     comboBox.addActionListener(e -> {
                         String selectedItem = (String) comboBox.getSelectedItem();
                         if (selectedItem != null) {
@@ -404,6 +392,21 @@ public class ActionProducer {
                             }
                         }
                     });
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    JPanel panel = new JPanel();
+                    panel.setPreferredSize(new Dimension(400,125));
+                    panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+                    JPanel baseURLPanel = new JPanel();
+                    baseURLPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Base URL"));
+                    JPanel tokenPanel = new JPanel();
+                    comboBox.setPreferredSize(new Dimension(375,25));
+                    tokenPanel.setBorder(BorderFactory.createTitledBorder("Intuit/Tank Token*"));
+                    tokenPanel.setToolTipText("Generate a Tank API token by logging into Tank and going to 'Account Settings' on the upper right to create a token for this specific host. ");
+                    tokenField.setPreferredSize(new Dimension(375,25));
+
                     comboBox.setSelectedItem(comboBox.getSelectedItem());
 
                     baseURLPanel.add(comboBox);
@@ -540,7 +543,8 @@ public class ActionProducer {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         ScriptDescriptionContainer scriptDescriptions = scriptClient.getScripts();
-                        List<ScriptDescription> scripts = scriptDescriptions.getScripts();
+                        // a copy: the container's list may be unmodifiable
+                        List<ScriptDescription> scripts = new ArrayList<>(scriptDescriptions.getScripts());
                         scripts.sort((ScriptDescription o1, ScriptDescription o2) ->
                                 o2.getCreated().compareTo(o1.getCreated()));
                         SelectDialog<ScriptDescription> selectDialog = new SelectDialog<ScriptDescription>(
@@ -595,7 +599,8 @@ public class ActionProducer {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        List<DataFileDescriptor> dataFiles = dataFileClient.getDatafiles().getDataFiles();
+                        // a copy: the container's list may be unmodifiable
+                        List<DataFileDescriptor> dataFiles = new ArrayList<>(dataFileClient.getDatafiles().getDataFiles());
                         dataFiles.sort((DataFileDescriptor o1, DataFileDescriptor o2) ->
                                 o2.getName().compareTo(o1.getName()));
                         SelectDialog<DataFileDescriptor> selectDialog = new SelectDialog<DataFileDescriptor>(

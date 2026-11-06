@@ -99,21 +99,50 @@ public class InfiniteProgressPanelTest {
         Thread rampUp = panel.animation;
         panel.stop();
         assertNotSame(rampUp, panel.animation);
-        waitFor(() -> !panel.started, TIMEOUT, "the ramp down to finish");
+        // the animator clears started, then hides the panel, then removes its listener: wait for all three
+        waitFor(() -> !panel.started && !panel.isVisible() && panel.getMouseListeners().length == 0, TIMEOUT,
+                "the ramp down to finish");
         assertEquals(0, panel.alphaLevel);
-        assertFalse(panel.isVisible());
-        assertEquals(0, panel.getMouseListeners().length);
         rampUp.join(TIMEOUT);
         assertFalse(rampUp.isAlive());
     }
 
     @Test
-    public void testZeroRampDelayShowsAtFullOpacityAtOnce() throws InterruptedException {
+    public void testZeroRampDelayShowsAtFullOpacityAtOnceAndStopsOnItsOwn() throws InterruptedException {
         panel = new InfiniteProgressPanel("", 4, 0.7f, 100.0f, 0);
         panel.setSize(100, 100);
         panel.start();
         waitFor(() -> panel.started, TIMEOUT, "the animation to start");
         assertEquals(255, panel.alphaLevel);
+        // with nothing to ramp, the ticker turns straight away
+        double startX = panel.ticker[0].getBounds2D().getCenterX();
+        waitFor(() -> panel.ticker[0].getBounds2D().getCenterX() != startX, TIMEOUT, "the ticker to turn");
+
+        Thread rampUp = panel.animation;
+        panel.stop();
+        // the ramp down ends by itself, without an interrupt
+        // the animator clears started, then hides the panel, then removes its listener: wait for all three
+        waitFor(() -> !panel.started && !panel.isVisible() && panel.getMouseListeners().length == 0, TIMEOUT,
+                "the ramp down to finish");
+        assertEquals(0, panel.alphaLevel);
+        panel.animation.join(TIMEOUT);
+        assertFalse(panel.animation.isAlive());
+        rampUp.join(TIMEOUT);
+    }
+
+    @Test
+    public void testPaintsTextWithoutAFontOfItsOwn() throws InterruptedException {
+        panel = new InfiniteProgressPanel("Working", 6, 0.7f, 100.0f, 0);
+        panel.setSize(200, 200);
+        panel.setFont(null);
+        panel.start();
+        waitFor(() -> panel.started, TIMEOUT, "the animation to start");
+        Thread animation = panel.animation;
+        panel.interrupt();
+        animation.join(TIMEOUT);
+
+        // standalone, with no frame to inherit a font from, the text is drawn with the graphics' font
+        assertFalse(isBlank(paint(panel)));
     }
 
     @Test

@@ -152,7 +152,8 @@ public class InfiniteProgressPanel extends JComponent implements MouseListener {
             if (text != null && text.length() > 0)
             {
                 FontRenderContext context = g2.getFontRenderContext();
-                TextLayout layout = new TextLayout(text, getFont(), context);
+                // a panel added to no window has no font of its own; the graphics always has one
+                TextLayout layout = new TextLayout(text, getFont() != null ? getFont() : g2.getFont(), context);
                 Rectangle2D bounds = layout.getBounds();
                 g2.setColor(getForeground());
                 layout.draw(g2, (float) (width - bounds.getWidth()) / 2,
@@ -220,9 +221,14 @@ public class InfiniteProgressPanel extends JComponent implements MouseListener {
                 alphaLevel = rampUp ? 255 : 0;
 
             started = true;
-            boolean inRamp = rampUp;
+            // with no ramp delay the alpha is already at its target, so there is no ramp to wait for
+            boolean inRamp = rampUp && alphaLevel < 255;
 
             while (!Thread.interrupted()) {
+                if (!rampUp && alphaLevel <= 0) {
+                    alphaLevel = 0;
+                    break;
+                }
                 if (!inRamp) {
                     for (Area aTicker : ticker) aTicker.transform(toCircle);
                 }

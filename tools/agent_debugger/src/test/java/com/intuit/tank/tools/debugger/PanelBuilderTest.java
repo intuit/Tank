@@ -40,6 +40,7 @@ public class PanelBuilderTest {
     public void workingDirGetsSettingsForTheHarness() throws Exception {
         // without a service url there are no controller headers to fetch
         workingDir = PanelBuilder.createWorkingDir(null, null);
+        TankConfigPin.deleteAtExit(workingDir);
 
         assertTrue(workingDir.isDirectory());
         assertEquals(workingDir.getAbsolutePath(), System.getProperty("WATS_PROPERTIES"));
@@ -52,6 +53,7 @@ public class PanelBuilderTest {
     @Test
     public void updatingTheServiceUrlRewritesTheSettings() throws Exception {
         workingDir = PanelBuilder.createWorkingDir(null, null);
+        TankConfigPin.deleteAtExit(workingDir);
         File settings = new File(workingDir, "settings.xml");
         Files.writeString(settings.toPath(), "stale");
 

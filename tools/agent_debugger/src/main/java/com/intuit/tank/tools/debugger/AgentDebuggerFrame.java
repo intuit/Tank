@@ -278,7 +278,7 @@ public class AgentDebuggerFrame extends JFrame {
         try {
             scriptEditorTA.grabFocus();
             int caretLineNumber = this.scriptEditorTA.getCaretLineNumber() + (moveUp ? -1 : 1);
-            if (caretLineNumber > 0 && moveUp) {
+            if (caretLineNumber >= 0 && moveUp) {
                 setCurrentLine(caretLineNumber);
                 fireStepChanged(caretLineNumber);
             }
@@ -495,6 +495,9 @@ public class AgentDebuggerFrame extends JFrame {
      */
     public void quit() {
         super.setVisible(false);
+        // find the default data file first: its location comes from the settings in the working dir
+        File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
+                .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
         if (workingDir.exists()) {
             try {
                 FileUtils.deleteDirectory(workingDir);
@@ -502,8 +505,6 @@ public class AgentDebuggerFrame extends JFrame {
                 System.out.println("Error deleting directory " + workingDir.getAbsolutePath() + ": " + e);
             }
         }
-        File defaultFile = new File(APITestHarness.getInstance().getTankConfig().getAgentConfig()
-                .getAgentDataFileStorageDir(), TankConstants.DEFAULT_CSV_FILE_NAME);
         if (defaultFile.exists()) {
             boolean deleted = defaultFile.delete();
             if (!deleted) {
@@ -548,7 +549,8 @@ public class AgentDebuggerFrame extends JFrame {
         if (currentRunningStep < 0) {
             scriptEditorTA.setActiveLineRange(-1, -1);
         } else {
-            scriptEditorTA.setActiveLineRange(currentRunningStep + 1, currentRunningStep + 1);
+            // step i is line i (0-based), as in moveCursor(TestStepContext)
+            scriptEditorTA.setActiveLineRange(currentRunningStep, currentRunningStep);
         }
         setCurrentLine(stepToSet);
         repaint();
