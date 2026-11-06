@@ -32,12 +32,15 @@ import com.intuit.tank.vm.common.TankConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * The class <code>TestPlanRunnerTest</code> contains tests for the class <code>{@link TestPlanRunner}</code>.
  * 
  * @generatedBy CodePro at 12/16/14 5:53 PM
  */
+// a runner that never sees its kill or stop command loops forever, so fail the test with a stack trace instead
+@Timeout(30)
 public class TestPlanRunnerTest {
     private Object httpClient;
     private MockHDTestPlan testPlan;
