@@ -1,3 +1,16 @@
+# 4.7.3 (Fri Nov 06 2026)
+
+#### 🐛 Bug Fix
+
+- Fix LOB column mappings and upgrade Hibernate to 7.4.14 [#566](https://github.com/intuit/Tank/pull/566) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Read job statuses and user names without loading entities; subselect queue jobs [#567](https://github.com/intuit/Tank/pull/567) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.2 (Thu Nov 05 2026)
 
 #### 🐛 Bug Fix
