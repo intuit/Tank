@@ -39,8 +39,9 @@ import org.junit.jupiter.api.Timeout;
  * 
  * @generatedBy CodePro at 12/16/14 5:53 PM
  */
-// a runner that never sees its kill or stop command loops forever, so fail the test with a stack trace instead
-@Timeout(30)
+// a runner that never sees its kill or stop command loops forever, and its pause loop swallows interrupts,
+// so the timeout has to run the test in another thread to fail it
+@Timeout(value = 30, threadMode = Timeout.ThreadMode.SEPARATE_THREAD)
 public class TestPlanRunnerTest {
     private Object httpClient;
     private MockHDTestPlan testPlan;
