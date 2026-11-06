@@ -67,6 +67,14 @@ public class ScriptIconRowHeaderTest {
         assertNotEquals(Color.BLUE.getRGB(), paint().getRGB(9, line2));
     }
 
+    @Test
+    public void withoutATextAreaNothingIsPainted() throws Exception {
+        header.addOffsetTrackingIcon(textArea.getLineStartOffset(1), new SquareIcon(Color.RED, 0));
+        header.setTextArea(null);
+
+        assertNotEquals(Color.RED.getRGB(), paint().getRGB(1, iconMiddle(1)));
+    }
+
     private int iconMiddle(int line) {
         int cellHeight = textArea.getLineHeight();
         return textArea.getInsets().top + line * cellHeight + (cellHeight - 3) / 2 + 1;

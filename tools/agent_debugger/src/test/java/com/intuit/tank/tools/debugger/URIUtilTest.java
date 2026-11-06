@@ -151,4 +151,31 @@ public class URIUtilTest {
         assertEquals(0, result.length());
         assertEquals(16, result.capacity());
     }
+
+    @Test
+    public void reservedCharactersAreEncodedIntoANewBuffer() {
+        StringBuffer result = URIUtil.encodePath(null, "/a b%c?d;e#f");
+
+        assertNotNull(result);
+        assertEquals("/a%20b%25c%3Fd%3Be%23f", result.toString());
+    }
+
+    @Test
+    public void eachReservedCharacterAloneTriggersEncoding() {
+        assertEquals("%25", URIUtil.encodePath(null, "%").toString());
+        assertEquals("%3F", URIUtil.encodePath(null, "?").toString());
+        assertEquals("%3B", URIUtil.encodePath(null, ";").toString());
+        assertEquals("%23", URIUtil.encodePath(null, "#").toString());
+        assertEquals("%20", URIUtil.encodePath(null, " ").toString());
+    }
+
+    @Test
+    public void suppliedBufferIsAppendedToEvenWithoutReservedCharacters() {
+        StringBuffer buf = new StringBuffer("prefix:");
+
+        StringBuffer result = URIUtil.encodePath(buf, "/plain path");
+
+        assertSame(buf, result);
+        assertEquals("prefix:/plain%20path", result.toString());
+    }
 }
