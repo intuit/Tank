@@ -1,3 +1,16 @@
+# 4.7.4 (Fri Nov 06 2026)
+
+#### 🐛 Bug Fix
+
+- Raise agent unit test coverage to 94% and fix the bugs it found [#568](https://github.com/intuit/Tank/pull/568) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Raise agent debugger test coverage to 94% and fix the bugs it found [#569](https://github.com/intuit/Tank/pull/569) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.3 (Fri Nov 06 2026)
 
 #### 🐛 Bug Fix
