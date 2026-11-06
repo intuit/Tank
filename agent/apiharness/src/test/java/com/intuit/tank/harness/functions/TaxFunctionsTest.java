@@ -13,6 +13,7 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -173,5 +174,54 @@ public class TaxFunctionsTest {
         boolean result = FunctionHandler.validFunction("#function.tax.getbbn");
         assertFalse(result);
         result = FunctionHandler.validFunction("#function.tax.$5932");
+    }
+
+    @Test
+    public void testIsValidWithoutFunctionName() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> TaxFunctions.isValid(new String[] { "#function", "tax", null }));
+    }
+
+    @Test
+    public void testExecuteFunctionUnknownReturnsEmpty() {
+        assertEquals("", TaxFunctions.executeFunction(new String[] { "#function", "tax", "getbbn" }, new Variables()));
+    }
+
+    @Test
+    public void testExecuteFunctionGetSsnStartsAtVariable() throws Exception {
+        // the start value is only read on the first call, so reset it to make the test independent of order
+        resetLastSsn();
+        Variables variables = new Variables();
+        variables.addVariable("SSN_START", "12345678");
+
+        String[] values = new String[] { "#function", "tax", "getssn" };
+        // numbers shorter than nine digits are left padded with zeros
+        assertEquals("012-34-5678", TaxFunctions.executeFunction(values, variables));
+        assertEquals("012-34-5679", TaxFunctions.executeFunction(values, variables));
+    }
+
+    @Test
+    public void testGetSsnPadsSevenDigitNumbers() throws Exception {
+        resetLastSsn();
+        // the lowest valid ssn has seven digits and needs two leading zeros
+        assertEquals("001-01-0001", TaxFunctions.getSsn(0L));
+        assertEquals("001-01-0002", TaxFunctions.getSsn(0L));
+    }
+
+    @Test
+    public void testIsValidWithTooFewArgumentsIsUnsupported() {
+        assertThrows(UnsupportedOperationException.class, () -> TaxFunctions.isValid(new String[] { "#function", "tax" }));
+    }
+
+    @Test
+    public void testGetSsnSkipsInvalidRange() throws Exception {
+        resetLastSsn();
+        assertEquals("699-99-9999", TaxFunctions.getSsn(699999999L));
+        // 700000000 through 700010000 are not valid ssns
+        assertEquals("700-01-0001", TaxFunctions.getSsn(699999999L));
+    }
+
+    private static void resetLastSsn() throws IllegalAccessException {
+        FieldUtils.writeStaticField(TaxFunctions.class, "lastSSN", -1L, true);
     }
 }

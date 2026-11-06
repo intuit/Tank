@@ -96,6 +96,7 @@ public class AgentCommandWebSocketServer {
     private final String agentToken;
 
     private final Server server;
+    private ServerConnector connector;
     private boolean reuseAddr = true;
     private long silenceTimeoutMs = WS_SILENCE_TIMEOUT_MS;
     private volatile ScheduledExecutorService silenceMonitor;
@@ -141,13 +142,18 @@ public class AgentCommandWebSocketServer {
         this.silenceTimeoutMs = silenceTimeoutMs;
     }
 
+    /** The port the server listens on once started, which is the one the OS chose when constructed with 0. */
+    int getLocalPort() {
+        return connector != null ? connector.getLocalPort() : -1;
+    }
+
     public void start() throws IOException {
         HttpConfiguration httpConfig = new HttpConfiguration();
         HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfig);
         HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfig);
         h2c.setConnectProtocolEnabled(true);
 
-        ServerConnector connector = new ServerConnector(server, http11, h2c);
+        connector = new ServerConnector(server, http11, h2c);
         connector.setPort(port);
         connector.setReuseAddress(reuseAddr);
         connector.setIdleTimeout(WS_IDLE_TIMEOUT_MS);

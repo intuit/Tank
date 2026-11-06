@@ -13,6 +13,8 @@ package com.intuit.tank.harness.functions;
  * #L%
  */
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.intuit.tank.harness.test.data.Variables;
 
 /**
@@ -35,13 +37,10 @@ public class TaxFunctions {
     // number = number.substring(0,3) + "-" + number.substring(3,5) + "-" + number.substring(5,9);
 
     static public boolean isValid(String[] values) {
-        try {
-            if (values[2].equalsIgnoreCase("getssn"))
-                return true;
-            return false;
-        } catch (Exception ex) {
-            throw new UnsupportedOperationException(values[2]);
+        if (values.length < 3 || values[2] == null) {
+            throw new UnsupportedOperationException("tax function name missing");
         }
+        return values[2].equalsIgnoreCase("getssn");
     }
 
     /**
@@ -76,9 +75,7 @@ public class TaxFunctions {
                 else
                     lastSSN++;
             } while (!isValidSsn(lastSSN));
-            ssnString = "" + lastSSN;
-            for (int z = 0; z < (9 - ssnString.length()); z++)
-                ssnString = "0" + ssnString;
+            ssnString = StringUtils.leftPad(Long.toString(lastSSN), 9, '0');
 
         }
 

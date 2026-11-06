@@ -211,7 +211,7 @@ public class TestPlanRunner implements Runnable {
                                     return;
                                 }
                             } catch (GotoScriptException e) {
-                                i = 0;
+                                i = -1; // the loop's i++ makes the search start at the first use case
                                 gotoGroup = e.getGotoTarget();
                             }
                         }
@@ -343,7 +343,7 @@ public class TestPlanRunner implements Runnable {
                         }
 
                         if (!groupNameToSkip.equals(scriptGroupToTest)) {
-                            i = j;
+                            i = j - 1; // the loop's i++ makes step j the next one run
                             break;
                         }
                         if (j == scriptSteps.size() - 1) {

@@ -22,16 +22,31 @@ public class StartedChecker implements Runnable {
 	private static Logger LOG = LogManager.getLogger(StartedChecker.class);
     private static final long SLEEP_TIME = 1000 * 60 * 10; // 10 minutes
 
+    private final long sleepTime;
+    private final Runnable exitAction;
+
+    public StartedChecker() {
+        this(SLEEP_TIME, () -> System.exit(1));
+    }
+
+    /** For tests, which cannot wait 10 minutes or let the JVM exit. */
+    StartedChecker(long sleepTime, Runnable exitAction) {
+        this.sleepTime = sleepTime;
+        this.exitAction = exitAction;
+    }
+
     @Override
     public void run() {
         try {
-            Thread.sleep(SLEEP_TIME);
+            Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            // interrupting the checker cancels it; it must not decide the agent never started
+            Thread.currentThread().interrupt();
+            return;
         }
         if (!APITestHarness.getInstance().isStarted()) {
             LOG.error(LogUtil.getLogMessage("Waited 10 minutes, didn't hear anything from the controller.  Exiting."));
-            System.exit(1);
+            exitAction.run();
         }
 
     }

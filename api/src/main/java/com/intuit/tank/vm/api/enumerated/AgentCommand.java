@@ -20,7 +20,7 @@ public enum AgentCommand {
     pause("/pause"),
     pause_ramp("/ramp_pause"),
     kill("/kill"),
-    status("/staus"),
+    status("/status"),
     request("/request"),
     resume_ramp("/resume");
 

@@ -38,6 +38,8 @@ public class CommandListener {
 
     private static final long RETRY_SLEEP = 1000; // 1 second
 
+    private static final String LEGACY_STATUS_PATH = "/staus";
+
     public static void main(String[] args) {
         APITestHarness.getInstance();
         startHttpServer(8080);
@@ -73,9 +75,11 @@ public class CommandListener {
     }
 
     private static void handleRequest(HttpExchange exchange) {
+        String path = exchange.getRequestURI().getPath();
+        // a kill exits the JVM, so it runs only after the reply has been written
+        boolean kill = path.startsWith(AgentCommand.kill.getPath());
         try {
             String response = "Not Found";
-            String path = exchange.getRequestURI().getPath();
             try {
                 response = applyHttpPathCommand(path);
             } catch (UnsupportedOperationException ignored) {
@@ -96,6 +100,10 @@ public class CommandListener {
             exchange.close();
         } catch (IOException e) {
             LOG.info(LogUtil.getLogMessage("Failed to handle controller command"), e);
+        } finally {
+            if (kill) {
+                killAction.run();
+            }
         }
     }
 
@@ -111,7 +119,7 @@ public class CommandListener {
             return "Received command " + path + ", Stopping Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
         }
         if (path.startsWith(AgentCommand.kill.getPath())) {
-            executeCommand(AgentCommand.kill);
+            // handleRequest runs the kill once this reply is sent
             return "Received command " + path + ", Killing Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
         }
         if (path.startsWith(AgentCommand.pause.getPath())) {
@@ -126,8 +134,8 @@ public class CommandListener {
             executeCommand(AgentCommand.resume_ramp);
             return "Received command " + path + ", Resume Test JobId=" + APITestHarness.getInstance().getAgentRunData().getJobId();
         }
-        if (path.startsWith(AgentCommand.status.getPath())) {
-            executeCommand(AgentCommand.status);
+        // the path used to be spelled /staus; keep answering there for callers that still use it
+        if (path.startsWith(AgentCommand.status.getPath()) || path.startsWith(LEGACY_STATUS_PATH)) {
             return APITestHarness.getInstance().getStatus().toString();
         }
         throw new UnsupportedOperationException("Unknown command path: " + path);
@@ -159,7 +167,10 @@ public class CommandListener {
             case kill -> killAction.run();
             case pause -> APITestHarness.getInstance().setCommand(AgentCommand.pause);
             case pause_ramp -> APITestHarness.getInstance().setCommand(AgentCommand.pause_ramp);
-            case resume_ramp, status -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
+            case resume_ramp -> APITestHarness.getInstance().setCommand(AgentCommand.resume_ramp);
+            case status -> {
+                // reporting status must not change what the agent is doing
+            }
             default -> throw new UnsupportedOperationException("Unknown command: " + command);
         }
     }

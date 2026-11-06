@@ -15,7 +15,6 @@ package com.intuit.tank.harness.functions;
 
 import java.util.Map;
 import java.util.Random;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +22,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.intuit.tank.harness.APITestHarness;
+import com.intuit.tank.harness.AgentRunData;
 import com.intuit.tank.harness.test.data.Variables;
 import com.intuit.tank.vm.common.TankConstants;
 
@@ -33,7 +34,10 @@ class GenericFunctions {
 
     private static Map<Long, String[]> csvLineMap = new ConcurrentHashMap<Long, String[]>();
     private static Map<String, String[]> fileLineMap = new ConcurrentHashMap<String, String[]>();
-    private static int lastSSN = -1;
+    private static final int MAX_SSN = 899999999;
+    // the next ssn to try in this agent's share of the range, -1 until the first request; ssnBlockEnd is exclusive
+    private static int nextSsn = -1;
+    private static int ssnBlockEnd;
 
     /**
      * Is this a valid Generic function request
@@ -87,7 +91,7 @@ class GenericFunctions {
         String[] currentLine = csvLineMap.get(Thread.currentThread().threadId());
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             currentLine = CSVReader.getInstance(TankConstants.DEFAULT_CSV_FILE_NAME).getNextLine(false);
-            csvLineMap.put(Thread.currentThread().threadId(), currentLine);
+            putOrRemove(csvLineMap, Thread.currentThread().threadId(), currentLine);
         }
 
         if (null == currentLine) {
@@ -105,15 +109,20 @@ class GenericFunctions {
 
     public static String getCSVData(String[] values, Variables variables) {
         String ret = null;
-        int index = Integer.parseInt(values[values.length - 1]);
+        // FunctionHandler pads the arguments with nulls, so the column index is the last one given
+        int last = values.length - 1;
+        while (last > 4 && values[last] == null) {
+            last--;
+        }
+        int index = Integer.parseInt(values[last]);
         String file = values[3];
-        for (int i = 4; i < values.length - 1; i++) {
+        for (int i = 4; i < last; i++) {
             file += "." + values[i];
         }
         String[] currentLine = fileLineMap.get(Thread.currentThread().threadId() + "-" + file);
         if (currentLine == null || index >= currentLine.length || currentLine[index] == null) {
             currentLine = CSVReader.getInstance(file).getNextLine(false);
-            fileLineMap.put(Thread.currentThread().threadId() + "-" + file, currentLine);
+            putOrRemove(fileLineMap, Thread.currentThread().threadId() + "-" + file, currentLine);
         }
 
         if (null == currentLine) {
@@ -129,30 +138,41 @@ class GenericFunctions {
         return ret != null ? ret : "";
     }
 
+    /** A ConcurrentHashMap cannot hold null, which is what the reader returns once the file runs out. */
+    private static <K> void putOrRemove(Map<K, String[]> lines, K key, String[] line) {
+        if (line == null) {
+            lines.remove(key);
+        } else {
+            lines.put(key, line);
+        }
+    }
+
     /**
      * 
      * @param val
      * @return
      */
-    public static String getSsn(String val) {
-        int ret = 0;
-        if (lastSSN < 0) {
+    public static synchronized String getSsn(String val) {
+        if (nextSsn < 0) {
             int startSsn = 100000000;
             if (NumberUtils.isDigits(val)) {
                 startSsn = Integer.parseInt(val);
             }
-            lastSSN = startSsn;
+            // each agent hands out its own share of the range, in order, so every user gets a unique ssn
+            AgentRunData agentRunData = APITestHarness.getInstance().getAgentRunData();
+            int blockSize = (MAX_SSN - startSsn) / agentRunData.getTotalAgents();
+            nextSsn = startSsn + agentRunData.getAgentInstanceNum() * blockSize;
+            ssnBlockEnd = nextSsn + blockSize;
         }
-        Stack<Integer> stack = StringFunctions.getStack(lastSSN, 899999999, null, false);
-        do {
-            ret = stack.pop();
-        } while (!isValidSsn(ret));
+        while (nextSsn < ssnBlockEnd && !isValidSsn(nextSsn)) {
+            nextSsn++;
+        }
+        if (nextSsn >= ssnBlockEnd) {
+            throw new IllegalStateException("No social security numbers left in this agent's range");
+        }
 
-        String ssnString = Integer.toString(ret);
-        StringUtils.leftPad(ssnString, 9, '0');
-
-        ssnString = ssnString.substring(0, 3) + "-" + ssnString.substring(3, 5) + "-" + ssnString.substring(5, 9);
-        return ssnString;
+        String ssnString = StringUtils.leftPad(Integer.toString(nextSsn++), 9, '0');
+        return ssnString.substring(0, 3) + "-" + ssnString.substring(3, 5) + "-" + ssnString.substring(5, 9);
     }
 
     private static boolean isValidSsn(int ssn) {
