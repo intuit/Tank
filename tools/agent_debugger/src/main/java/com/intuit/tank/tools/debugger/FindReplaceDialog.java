@@ -45,19 +45,14 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
 
     public enum DialogType {
-        SEARCH, // Defines a search only dialog
-        REPLACE // Defines a search and replace dialog
+        SEARCH // Defines a search only dialog; the script view is read-only, so there is no replace
     }
 
     // Private declarations
     private AgentDebuggerFrame parent;
     private JComboBox cbSearch;
-    private JComboBox cbReplace;
     private JTextField tfSearchEditor;
-    private JTextField tfReplaceEditor;
     private JButton btnFind;
-    private JButton btnReplace;
-    private JButton btnReplaceAll;
     private JButton btnCancel;
     private JCheckBox checkboxMatchCase;
     private JCheckBox checkboxRegexp;
@@ -67,29 +62,23 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
     private int initialRunningStep;
 
     /**
-     * Constructs a new find dialog according to the specified type of dialog requested. The dialog can be either a FIND
-     * dialog, either a REPLACE dialog. In both cases, components displayed remain the sames, but the ones specific to
-     * replace feature are grayed out.
+     * Constructs a new find dialog.
      * 
      * @param parent
      *            The window holder
      * @param type
-     *            The type of the dialog: FindReplace.FIND or FindReplace.REPLACE
+     *            The type of the dialog: FindReplace.SEARCH
      */
 
     public FindReplaceDialog(AgentDebuggerFrame parent, DialogType type) {
-        super(parent, type == DialogType.REPLACE ? "Replace" : "Find", true);
+        super(parent, "Find", true);
         this.parent = parent;
 
         cbSearch = new JComboBox();
         cbSearch.setEditable(true);
-        cbReplace = new JComboBox();
-        cbReplace.setEditable(true);
         KeyHandler handler = new KeyHandler();
         tfSearchEditor = (JTextField) cbSearch.getEditor().getEditorComponent();
         tfSearchEditor.addKeyListener(handler);
-        tfReplaceEditor = (JTextField) cbReplace.getEditor().getEditorComponent();
-        tfReplaceEditor.addKeyListener(handler);
 
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();
@@ -131,43 +120,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
         getContentPane().add(btnCancel);
         gridY++;
         gridX = 0;
-        if (type == DialogType.REPLACE) {
-            JLabel replaceLabel = new JLabel("Replace");
-            buildConstraints(constraints, gridX, gridY, 1, 1, 0, 0);
-            constraints.anchor = GridBagConstraints.WEST;
-            gridbag.setConstraints(replaceLabel, constraints);
-            getContentPane().add(replaceLabel);
-            gridX++;
-
-            buildConstraints(constraints, gridX, gridY, 1, 1, 100, 0);
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.anchor = GridBagConstraints.CENTER;
-            gridbag.setConstraints(cbReplace, constraints);
-            getContentPane().add(cbReplace);
-            gridX++;
-
-            btnReplace = new JButton("Replace");
-            btnReplace.setToolTipText("REplace in script");
-            btnReplace.setMnemonic('R');
-            btnReplace.addActionListener(this);
-            buildConstraints(constraints, gridX, gridY, 1, 1, 0, 0);
-            constraints.anchor = GridBagConstraints.CENTER;
-            gridbag.setConstraints(btnReplace, constraints);
-            getContentPane().add(btnReplace);
-            gridX++;
-
-            btnReplaceAll = new JButton("Replace All");
-            btnReplaceAll.addActionListener(this);
-            buildConstraints(constraints, gridX, gridY, 1, 1, 0, 0);
-            constraints.anchor = GridBagConstraints.CENTER;
-            gridbag.setConstraints(btnReplaceAll, constraints);
-            getContentPane().add(btnReplaceAll);
-            btnReplace.addKeyListener(handler);
-            btnReplaceAll.addKeyListener(handler);
-            gridY++;
-            gridX = 0;
-        }
-
         TitledBorder border = new TitledBorder("Options");
         JPanel panel = new JPanel(new GridLayout(1, 4));
         panel.setBorder(border);
@@ -188,8 +140,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
         FontMetrics fm = getFontMetrics(getFont());
         cbSearch.setPreferredSize(new Dimension(18 * fm.charWidth('m'),
                 (int) cbSearch.getPreferredSize().height));
-        cbReplace.setPreferredSize(new Dimension(18 * fm.charWidth('m'),
-                (int) cbReplace.getPreferredSize().height));
 
         pack();
         // setResizable(false);
@@ -207,9 +157,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
     @Override
     public void setVisible(boolean b) {
         tfSearchEditor.setText("");
-        if (tfReplaceEditor != null) {
-            tfReplaceEditor.setText("");
-        }
         RSyntaxTextArea ta = parent.getScriptEditorTA();
         if (b) {
             currentLine = ta.getCaretLineNumber();
@@ -238,57 +185,7 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
             setVisible(false);
         } else if (source == btnFind) {
             doFind();
-        } else if (source == btnReplace) {
-            doReplace();
-        } else if (source == btnReplaceAll) {
-            doReplaceAll();
         }
-    }
-
-    // replace all the occurences of search pattern by
-    // the replace one. If 'All Files' is checked, this is
-    // done in all the opened file in the component 'parent'
-
-    private void doReplaceAll() {
-        addReplaceHistory();
-        addSearchHistory();
-        // try {
-        // JextTextArea textArea = parent.getTextArea();
-        // setSettings();
-        // if (Search.replaceAll(textArea, 0, textArea.getLength()) == 0) {
-        // Utilities.beep();
-        // }
-        //
-        // } catch (Exception e) {
-        // // nothing
-        // } finally {
-        // Utilities.setCursorOnWait(this, false);
-        // }
-    }
-
-    // replaces specified search pattern by the replace one.
-    // this is done only if a match is found.
-
-    private void doReplace() {
-        addReplaceHistory();
-        addSearchHistory();
-        //
-        // try {
-        //
-        // JextTextArea textArea = parent.getTextArea();
-        // setSettings();
-        //
-        // if (!Search.replace(textArea))
-        // {
-        // Utilities.beep();
-        // } else
-        // find(textArea);
-        //
-        // } catch (Exception e) {
-        // // nothing
-        // } finally {
-        // Utilities.setCursorOnWait(this, false);
-        // }
     }
 
     // finds the next occurence of current search pattern
@@ -373,39 +270,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
         tfSearchEditor.setText((String) cbSearch.getItemAt(0));
     }
 
-    /**
-     * adds current replace pattern in the replace history list
-     */
-    private void addReplaceHistory() {
-        addReplaceHistory(tfReplaceEditor.getText());
-    }
-
-    /**
-     * adds a pattern in the replace history list
-     * 
-     * @param c
-     *            the pattern to be added
-     */
-    private void addReplaceHistory(String c) {
-        if (StringUtils.isBlank(c)) {
-            return;
-        }
-
-        for (int i = 0; i < cbReplace.getItemCount(); i++) {
-            if (((String) cbReplace.getItemAt(i)).equals(c)) {
-                return;
-            }
-        }
-
-        cbReplace.insertItemAt(c, 0);
-        if (cbReplace.getItemCount() > 25) {
-            for (int i = 25; i < cbReplace.getItemCount();)
-                cbReplace.removeItemAt(i);
-        }
-
-        tfReplaceEditor.setText((String) cbReplace.getItemAt(0));
-    }
-
     private void buildConstraints(GridBagConstraints agbc, int agx, int agy, int agw, int agh,
             int awx, int awy) {
         agbc.gridx = agx;
@@ -423,8 +287,6 @@ public class FindReplaceDialog extends JDialog implements ActionListener {
             case KeyEvent.VK_ENTER:
                 if (evt.getSource() == tfSearchEditor) {
                     doFind();
-                } else if (evt.getSource() == tfReplaceEditor) {
-                    doReplace();
                 }
                 break;
             case KeyEvent.VK_ESCAPE:

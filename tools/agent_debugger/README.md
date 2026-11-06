@@ -40,6 +40,7 @@ The exit code reports whether the run finished. It does not validate the result:
 | 1 | The script failed the hostname replacement check (not filtered for production) |
 | 2 | Invalid command line arguments |
 | 3 | Could not get the project or its script from Tank |
+| 4 | The run could not be started or did not finish |
 
 ## Output files
 

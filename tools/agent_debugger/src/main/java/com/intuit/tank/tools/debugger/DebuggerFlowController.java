@@ -38,7 +38,8 @@ public class DebuggerFlowController implements FlowController {
 
     private static Logger LOG = LogManager.getLogger(DebuggerFlowController.class);
     private AgentDebuggerFrame debuggerFrame;
-    private boolean doNext;
+    // set from the UI thread while the harness thread waits on it
+    private volatile boolean doNext;
     private int skipToIndex = -1;
     private boolean isSkipping;
     private boolean testStarted;

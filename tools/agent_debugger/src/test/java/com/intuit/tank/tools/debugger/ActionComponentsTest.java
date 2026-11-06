@@ -17,9 +17,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
+import com.intuit.tank.harness.data.HDTestPlan;
+
 import javax.swing.*;
 
+import java.awt.Component;
+import java.awt.GraphicsEnvironment;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @DisabledIfEnvironmentVariable(named = "SKIP_GUI_TEST", matches = "true")
 public class ActionComponentsTest {
@@ -29,7 +35,10 @@ public class ActionComponentsTest {
 
     @BeforeAll
     public static void setup() {
+        assumeFalse(GraphicsEnvironment.isHeadless());
         actions = new ActionProducer(new AgentDebuggerFrame(true, null, null), null, null);
+        // the standalone frame is never quit (that would exit the JVM), so nothing else deletes its working dir
+        TankConfigPin.deleteCurrentWorkingDirAtExit();
         actionComponents = new ActionComponents(
                 true,            // standalone
                 new JComboBox(),                        //testPlanChooser
@@ -106,5 +115,57 @@ public class ActionComponentsTest {
         assertFalse(actions.getNextStepAction().isEnabled());
         assertFalse(actions.getRunToAction().isEnabled());
         assertFalse(actions.getSkipAction().isEnabled());
+    }
+
+    @Test
+    public void testStopEnablesStartOnly() {
+        actionComponents.start();
+        actionComponents.stop();
+        assertTrue(actions.getStartAction().isEnabled());
+        assertFalse(actions.getEndDebugAction().isEnabled());
+        assertFalse(actions.getPauseAction().isEnabled());
+        assertFalse(actions.getNextStepAction().isEnabled());
+    }
+
+    @Test
+    public void testDoneSteppingWhileRunning() {
+        actionComponents.start();
+        actionComponents.doneStepping();
+        assertTrue(actions.getNextStepAction().isEnabled());
+        assertTrue(actions.getRunToAction().isEnabled());
+        assertTrue(actions.getSkipAction().isEnabled());
+    }
+
+    @Test
+    public void testDoneSteppingWhenNotRunning() {
+        actionComponents.stop();
+        actionComponents.doneStepping();
+        assertFalse(actions.getNextStepAction().isEnabled());
+        assertFalse(actions.getRunToAction().isEnabled());
+        assertFalse(actions.getSkipAction().isEnabled());
+    }
+
+    @Test
+    public void testScriptChanged() {
+        actionComponents.scriptChanged(new HDTestPlan());
+        assertTrue(actions.getStartAction().isEnabled());
+        assertTrue(actions.getFindAction().isEnabled());
+        assertFalse(actions.getEndDebugAction().isEnabled());
+
+        actionComponents.scriptChanged(null);
+        assertFalse(actions.getStartAction().isEnabled());
+        assertFalse(actions.getFindAction().isEnabled());
+        assertFalse(actions.getEndDebugAction().isEnabled());
+        assertFalse(actions.getNextStepAction().isEnabled());
+    }
+
+    @Test
+    public void testSetCurrentTitle() {
+        actionComponents.setCurrentTitle("Workload: UC1");
+        boolean found = false;
+        for (Component c : actionComponents.getToolBar().getComponents()) {
+            found |= c instanceof JLabel && "Workload: UC1".equals(((JLabel) c).getText());
+        }
+        assertTrue(found);
     }
 }

@@ -200,7 +200,8 @@ public class HeadlessDebuggerSetup implements Serializable {
         LOG.info("total_executed," + executedStepCounter);
         LOG.info("execution_percentage," + roundedPercentage);
         LOG.info("taxhub_flow," + taxhubFlow);
-        if(!getCurrentWorkload().getName().contains("UC2") || !getCurrentWorkload().getName().contains("UC7")){
+        // only scripts that file a return have a filing status; UC2 and UC7 scripts don't
+        if(!getCurrentWorkload().getName().contains("UC2") && !getCurrentWorkload().getName().contains("UC7")){
             LOG.info("filing_status," + filingStatus);
         }
 
@@ -215,7 +216,15 @@ public class HeadlessDebuggerSetup implements Serializable {
             reportData.writeToFile(new File(System.getProperty("user.dir")));
         }
 
-        if (workingDir.exists()) {
+        deleteWorkingDir();
+    }
+
+    /**
+     * Deletes the temp working dir that holds the harness's settings.xml. quit() does this at the end of a run; a run
+     * that stops before it starts (a failed hostname check, or no script from Tank) calls it directly.
+     */
+    public void deleteWorkingDir() {
+        if (workingDir != null && workingDir.exists()) {
             try {
                 FileUtils.deleteDirectory(workingDir);
             } catch (IOException e) {
@@ -256,7 +265,6 @@ public class HeadlessDebuggerSetup implements Serializable {
 
     public void setCurrentStep(final int stepIndex) {
         currentRunningStep = stepIndex;
-        int stepToSet = Math.max(0, currentRunningStep);
     }
 
     /**
@@ -500,7 +508,8 @@ public class HeadlessDebuggerSetup implements Serializable {
                 LOG.info(sb);
 
                 if(debugStep != null && debugStep.getStepRun() != null) {
-                    if(Strings.CS.contains(debugStep.getStepRun().getInfo(), "filing-return")) {
+                    // a step that failed before its response arrived has no body to read
+                    if(Strings.CS.contains(debugStep.getStepRun().getInfo(), "filing-return") && debugStep.getResponse() != null) {
                         LOG.info("filing-return response body: {}", debugStep.getResponse().getBody());
 
                         try {
@@ -521,9 +530,10 @@ public class HeadlessDebuggerSetup implements Serializable {
                 }
 
                 if(!success_status){
+                    // a step can fail before it has a request (the runner threw) or a response (nothing came back)
                     LOG.info("******** REQUEST *********");
-                    LOG.info(context.getRequest().getLogMsg()); // log full request
-                    LOG.info(context.getResponse().getLogMsg()); // log full response
+                    LOG.info(context.getRequest() != null ? context.getRequest().getLogMsg() : "no request"); // log full request
+                    LOG.info(context.getResponse() != null ? context.getResponse().getLogMsg() : "no response"); // log full response
                     variablesOutput.displayVars(); // log variables
                 }
                 

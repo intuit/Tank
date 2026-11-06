@@ -100,7 +100,6 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
         labelPanel.add(new JLabel("Select a " + itemType + "."));
         if (!singleSelection) {
             String key = System.getProperty("os.name").toLowerCase().contains("mac") ? "⌘" : "control";
-            System.out.println(key);
             labelPanel.add(new JLabel("Hold down the " + key
                     + " key to select multiple " + itemType + "."));
         }
@@ -144,11 +143,10 @@ public class SelectDialog<SELECTION_TYPE extends Object> extends JDialog {
                                 .trim())).toArray());
                         list.repaint();
                     });
-                } else {
-                    System.out.println("skipping...");
                 }
+                // otherwise a later keystroke has its own filter on the way
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }).start();
 
