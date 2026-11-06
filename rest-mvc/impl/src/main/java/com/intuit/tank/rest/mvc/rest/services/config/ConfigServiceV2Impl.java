@@ -13,7 +13,6 @@ import com.intuit.tank.filter.ConditionScope;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.http.AuthScheme;
 import com.intuit.tank.logging.LoggingProfile;
-import com.intuit.tank.project.User;
 import com.intuit.tank.rest.mvc.rest.models.FilterActionField;
 import com.intuit.tank.rest.mvc.rest.models.InstanceTypeOption;
 import com.intuit.tank.rest.mvc.rest.models.Option;
@@ -116,8 +115,7 @@ public class ConfigServiceV2Impl implements ConfigServiceV2 {
     @Override
     public List<String> getUserNames() {
         RestAuthorization.requireUser(SERVICE);
-        return new UserDao().findAll().stream()
-                .map(User::getName)
+        return new UserDao().findNames().stream()
                 .filter(name -> name != null && !name.startsWith(DELETED_USER_PREFIX))
                 .sorted(String.CASE_INSENSITIVE_ORDER)
                 .collect(Collectors.toList());

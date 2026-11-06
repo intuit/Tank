@@ -186,16 +186,12 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public List<Map<String, String>> getAllJobStatus(){
         try {
             List<Map<String, String>> response = new ArrayList<>();
-            JobInstanceDao dao = new JobInstanceDao();
-            List<JobInstance> jobs = dao.findAll();
-            for (JobInstance job : jobs) {
+            new JobInstanceDao().findStatuses().forEach((jobId, status) -> {
                 Map<String, String> entry = new HashMap<>();
-                if (job != null) {
-                    entry.put("jobId", Integer.toString(job.getId()));
-                    entry.put("status", job.getStatus().name());
-                    response.add(entry);
-                }
-            }
+                entry.put("jobId", Integer.toString(jobId));
+                entry.put("status", status.name());
+                response.add(entry);
+            });
             return response;
         } catch (Exception e) {
             LOGGER.error("Error returning all job statuses: " + e.getMessage(), e);

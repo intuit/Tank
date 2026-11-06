@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,9 +29,11 @@ import com.intuit.tank.test.TestGroups;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserDaoTest {
 	
@@ -101,6 +105,29 @@ public class UserDaoTest {
 		assertEquals(3, result.getGroups().size());
 
 		_sut.delete(entity);
+	}
+
+	@Test
+	@Tag(TestGroups.FUNCTIONAL)
+	public void findNames_readsNamesWithoutLoadingGroups() {
+		User first = _sut.saveOrUpdate(DaoTestUtil.createUserData("NamesUser1", userPasswordStub, "NamesUser1@intuit.com",
+				new HashSet<>(Arrays.asList("NamesGroup1", "NamesGroup2"))));
+		User second = _sut.saveOrUpdate(DaoTestUtil.createUserData("NamesUser2", userPasswordStub, "NamesUser2@intuit.com",
+				new HashSet<>(Arrays.asList("NamesGroup3", "NamesGroup4"))));
+		Statistics statistics = _sut.getEntityManager().getEntityManagerFactory()
+				.unwrap(SessionFactory.class).getStatistics();
+		statistics.setStatisticsEnabled(true);
+		statistics.clear();
+		try {
+			List<String> names = _sut.findNames();
+
+			assertTrue(names.containsAll(List.of("NamesUser1", "NamesUser2")));
+			assertEquals(1, statistics.getPrepareStatementCount());
+		} finally {
+			statistics.setStatisticsEnabled(false);
+			_sut.delete(first);
+			_sut.delete(second);
+		}
 	}
 
 }

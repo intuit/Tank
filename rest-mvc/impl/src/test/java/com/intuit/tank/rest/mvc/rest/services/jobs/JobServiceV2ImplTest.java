@@ -55,6 +55,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -374,12 +375,12 @@ class JobServiceV2ImplTest {
 
     @Test
     void getAllJobStatus_withJobs_returnsStatusList() {
-        JobInstance job1 = createJobInstance(1, "j1", JobQueueStatus.Running);
-        JobInstance job2 = createJobInstance(2, "j2", JobQueueStatus.Completed);
-        List<JobInstance> jobs = List.of(job1, job2);
+        Map<Integer, JobQueueStatus> statuses = new LinkedHashMap<>();
+        statuses.put(1, JobQueueStatus.Running);
+        statuses.put(2, JobQueueStatus.Completed);
 
         try (MockedConstruction<JobInstanceDao> daoMock = Mockito.mockConstruction(JobInstanceDao.class,
-                (mock, ctx) -> when(mock.findAll()).thenReturn(jobs))) {
+                (mock, ctx) -> when(mock.findStatuses()).thenReturn(statuses))) {
 
             List<Map<String, String>> result = service.getAllJobStatus();
 
@@ -395,7 +396,7 @@ class JobServiceV2ImplTest {
     @Test
     void getAllJobStatus_empty_returnsEmptyList() {
         try (MockedConstruction<JobInstanceDao> daoMock = Mockito.mockConstruction(JobInstanceDao.class,
-                (mock, ctx) -> when(mock.findAll()).thenReturn(new ArrayList<>()))) {
+                (mock, ctx) -> when(mock.findStatuses()).thenReturn(Map.of()))) {
 
             List<Map<String, String>> result = service.getAllJobStatus();
 
@@ -407,7 +408,7 @@ class JobServiceV2ImplTest {
     @Test
     void getAllJobStatus_error_throwsException() {
         try (MockedConstruction<JobInstanceDao> daoMock = Mockito.mockConstruction(JobInstanceDao.class,
-                (mock, ctx) -> when(mock.findAll()).thenThrow(new RuntimeException("error")))) {
+                (mock, ctx) -> when(mock.findStatuses()).thenThrow(new RuntimeException("error")))) {
 
             assertThrows(GenericServiceResourceNotFoundException.class, () -> service.getAllJobStatus());
         }

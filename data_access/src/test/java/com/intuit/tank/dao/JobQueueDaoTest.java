@@ -13,6 +13,8 @@ import com.intuit.tank.project.*;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import org.apache.logging.log4j.Level;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -155,6 +157,42 @@ public class JobQueueDaoTest {
         } finally {
             // Cleanup
             dao.delete(queue);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findAll_loadsJobsWithoutAQueryPerTenQueues() {
+        // ten times the old batch size of 10, which needed a query for every 10 queues
+        List<JobQueue> created = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            JobQueue queue = dao.findOrCreateForProjectId(5000 + i);
+            JobInstance job = new JobInstance();
+            job.setName("queued-" + i);
+            job.setStatus(JobQueueStatus.Created);
+            job.getVariables().put("name", "value");
+            queue.addJob(job);
+            created.add(dao.saveOrUpdate(queue));
+        }
+        Set<Integer> ids = created.stream().map(JobQueue::getId).collect(Collectors.toSet());
+        dao.getEntityManager().clear(); // load cold, as a new request would
+        Statistics statistics = dao.getEntityManager().getEntityManagerFactory()
+                .unwrap(SessionFactory.class).getStatistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<JobQueue> queues = dao.findAll().stream().filter(q -> ids.contains(q.getId())).toList();
+
+            assertEquals(100, queues.size());
+            queues.forEach(q -> {
+                assertEquals(1, q.getJobs().size());
+                assertEquals(Map.of("name", "value"), q.getJobs().iterator().next().getVariables());
+            });
+            // the queues, then one subselect for their jobs, which joins in the jobs' own collections
+            assertEquals(2, statistics.getPrepareStatementCount());
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            created.forEach(dao::delete);
         }
     }
 

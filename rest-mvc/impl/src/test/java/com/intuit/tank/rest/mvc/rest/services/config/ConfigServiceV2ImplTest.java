@@ -8,7 +8,6 @@
 package com.intuit.tank.rest.mvc.rest.services.config;
 
 import com.intuit.tank.dao.UserDao;
-import com.intuit.tank.project.User;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceUnauthorizedException;
 import com.intuit.tank.rest.mvc.rest.models.FilterActionField;
 import com.intuit.tank.rest.mvc.rest.models.Option;
@@ -155,10 +154,9 @@ class ConfigServiceV2ImplTest {
 
     @Test
     void getUserNames_sortedWithoutDeletedUsers() {
-        List<User> users = List.of(User.builder().name("carol").build(), User.builder().name("Alice").build(),
-                User.builder().name(ConfigServiceV2Impl.DELETED_USER_PREFIX + "7").build(), User.builder().name("bob").build());
+        List<String> names = List.of("carol", "Alice", ConfigServiceV2Impl.DELETED_USER_PREFIX + "7", "bob");
         try (MockedConstruction<UserDao> daos = Mockito.mockConstruction(UserDao.class,
-                (mock, context) -> when(mock.findAll()).thenReturn(users))) {
+                (mock, context) -> when(mock.findNames()).thenReturn(names))) {
             assertEquals(List.of("Alice", "bob", "carol"), service.getUserNames());
         }
     }

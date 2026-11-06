@@ -81,6 +81,30 @@ public class UserDao extends BaseDao<User> {
     }
 
     /**
+     * Reads every user's name without loading the users and their groups.
+     *
+     * @return the user names, in no particular order
+     */
+    public List<String> findNames() {
+        List<String> names = null;
+        EntityManager em = getEntityManager();
+        try {
+            begin();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<String> query = cb.createQuery(String.class);
+            Root<User> root = query.from(User.class);
+            names = em.createQuery(query.select(root.get(UserProperty.PROPERTY_NAME.value))).getResultList();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
+        return names;
+    }
+
+    /**
      * finds the user by email.
      *
      * @param email
