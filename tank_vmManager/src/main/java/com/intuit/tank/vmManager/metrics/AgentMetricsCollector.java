@@ -26,6 +26,7 @@ import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vmManager.environment.amazon.CloudWatchClientFactory;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.event.Reception;
 import jakarta.inject.Inject;
@@ -67,7 +68,8 @@ import java.util.function.Predicate;
  * region per 500 queries, plus a {@code ListMetrics} the first time an agent is seen to learn its exact dimension
  * sets (the CloudWatch agent adds dimensions of its own, and {@code GetMetricData} needs an exact match).
  * <p>
- * Polling starts on the first {@code AGENT_STARTED} event and keeps running; an idle tick makes no AWS call.
+ * Polling starts with the application, and again on the first event that says a job has agents (see
+ * {@link #startsPolling}), and keeps running; an idle tick makes no AWS call.
  * A failing region backs off exponentially, and its jobs are flagged stale while the last figures stay readable.
  */
 @ApplicationScoped
@@ -153,10 +155,32 @@ public class AgentMetricsCollector {
         this.ownsJob = ownsJob;
     }
 
+    /**
+     * Polls from startup, so jobs already running when the controller restarts are covered; the job events
+     * below only start it for jobs that begin afterwards.
+     */
+    void onStartup(@Observes @Initialized(ApplicationScoped.class) Object ignored) {
+        try {
+            start();
+        } catch (Exception e) {
+            LOG.error("Agent metrics collector failed to start: " + e, e);
+        }
+    }
+
     public void observe(@Observes(notifyObserver = Reception.ALWAYS) JobEvent jobEvent) {
-        if (jobEvent.getEvent() == JobLifecycleEvent.AGENT_STARTED) {
+        if (startsPolling(jobEvent.getEvent())) {
             start();
         }
+    }
+
+    /**
+     * The events the controller fires once a job has agents: launched, reported ready, load started.
+     * AGENT_STARTED is never fired, so it can't be the trigger.
+     */
+    static boolean startsPolling(JobLifecycleEvent event) {
+        return event == JobLifecycleEvent.AGENT_LAUNCHED
+                || event == JobLifecycleEvent.AGENT_REPORTED
+                || event == JobLifecycleEvent.LOAD_STARTED;
     }
 
     /** Starts the polling thread if metrics are enabled and it is not running; safe to call repeatedly */

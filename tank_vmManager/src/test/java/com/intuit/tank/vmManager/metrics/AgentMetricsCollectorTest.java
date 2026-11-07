@@ -78,6 +78,25 @@ public class AgentMetricsCollectorTest {
     }
 
     @Test
+    void pollsFromStartupWithoutWaitingForAJobEvent() {
+        AgentMetricsCollector collector = collector(id -> true);
+        try {
+            collector.onStartup(new Object());
+            verify(tracker, org.mockito.Mockito.timeout(2000).atLeastOnce()).getAllJobs();
+        } finally {
+            collector.stop();
+        }
+    }
+
+    @Test
+    void startsPollingOnTheEventsTheControllerActuallyFires() {
+        assertTrue(AgentMetricsCollector.startsPolling(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.AGENT_LAUNCHED));
+        assertTrue(AgentMetricsCollector.startsPolling(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.AGENT_REPORTED));
+        assertTrue(AgentMetricsCollector.startsPolling(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.LOAD_STARTED));
+        assertFalse(AgentMetricsCollector.startsPolling(com.intuit.tank.vm.api.enumerated.JobLifecycleEvent.JOB_FINISHED));
+    }
+
+    @Test
     public void readsEachRegionOnceAndStoresTheFigures() {
         job("1", agent("i-w1", VMRegion.US_WEST_2), agent("i-w2", VMRegion.US_WEST_2), agent("i-e1", VMRegion.US_EAST));
 
