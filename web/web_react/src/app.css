@@ -2060,9 +2060,10 @@ body {
 
 /*
  * pages with a data table use the full window width, as the JSF pages do; so does the project
- * editor on every tab, not only those with a table
+ * editor on every tab, not only those with a table; the job queue does in every view, not only the table
  */
 .main:has(> .editor-full),
+.main:has(.job-queue-views),
 .main:has(.p-datatable),
 .main:has(.p-treetable) {
   max-width: none;
