@@ -27,7 +27,7 @@ public enum AgentMetric {
     THREADS("threads"),
     /** CWAgent jvm.gc.collections.elapsed, milliseconds */
     GC("gc"),
-    /** CWAgent tcp_established */
+    /** CWAgent netstat_tcp_established */
     TCP("tcp");
 
     private final String key;

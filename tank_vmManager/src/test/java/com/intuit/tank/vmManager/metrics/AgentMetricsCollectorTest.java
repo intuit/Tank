@@ -185,7 +185,7 @@ public class AgentMetricsCollectorTest {
     @Test
     public void agentsWithoutJvmMetricsGetNullSeriesAndAreLookedUpAgainLater() {
         when(west.listMetrics(any(ListMetricsRequest.class))).thenAnswer(i -> metrics(i.getArgument(0),
-                "procstat_cpu_usage", "mem_used_percent", "tcp_established"));
+                "procstat_cpu_usage", "mem_used_percent", "netstat_tcp_established"));
         job("1", agent("i-old", VMRegion.US_WEST_2));
         AgentMetricsCollector collector = collector(id -> true);
 
@@ -349,7 +349,7 @@ public class AgentMetricsCollectorTest {
     }
 
     private static final List<String> ALL = List.of("procstat_cpu_usage", "mem_used_percent", "jvm.memory.heap.used",
-            "jvm.memory.heap.max", "jvm.threads.count", "jvm.gc.collections.elapsed", "tcp_established");
+            "jvm.memory.heap.max", "jvm.threads.count", "jvm.gc.collections.elapsed", "netstat_tcp_established");
 
     private static ListMetricsResponse allMetrics(ListMetricsRequest request) {
         return metrics(request, ALL.toArray(new String[0]));
@@ -376,7 +376,7 @@ public class AgentMetricsCollectorTest {
     private static GetMetricDataResponse data(GetMetricDataRequest request, double cpu) {
         Map<String, Double> values = Map.of("procstat_cpu_usage", cpu, "mem_used_percent", 60d,
                 "jvm.memory.heap.used", 512d * 1024 * 1024, "jvm.memory.heap.max", 2048d * 1024 * 1024,
-                "jvm.threads.count", 700d, "jvm.gc.collections.elapsed", 30d, "tcp_established", 1500d);
+                "jvm.threads.count", 700d, "jvm.gc.collections.elapsed", 30d, "netstat_tcp_established", 1500d);
         List<MetricDataResult> results = new ArrayList<>();
         for (MetricDataQuery q : request.metricDataQueries()) {
             results.add(MetricDataResult.builder().id(q.id()).timestamps(SAMPLE)

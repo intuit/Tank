@@ -99,7 +99,7 @@ public class AgentMetricsCollector {
         HEAP_MAX(null, "jvm.memory.heap.max"),
         THREADS(AgentMetric.THREADS, "jvm.threads.count"),
         GC(AgentMetric.GC, "jvm.gc.collections.elapsed"),
-        TCP(AgentMetric.TCP, "tcp_established");
+        TCP(AgentMetric.TCP, "netstat_tcp_established");
 
         final AgentMetric metric;
         final String name;

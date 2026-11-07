@@ -57,7 +57,7 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
   },
   threads: { key: 'threads', label: 'JVM threads', source: 'CWAgent jvm.threads.count', unit: 'count' },
   gc: { key: 'gc', label: 'GC time', source: 'CWAgent jvm.gc.collections.elapsed', unit: 'ms' },
-  tcp: { key: 'tcp', label: 'TCP established', source: 'CWAgent tcp_established', unit: 'count' },
+  tcp: { key: 'tcp', label: 'TCP established', source: 'CWAgent netstat_tcp_established', unit: 'count' },
 };
 
 export type Level = 'ok' | 'warn' | 'danger';
