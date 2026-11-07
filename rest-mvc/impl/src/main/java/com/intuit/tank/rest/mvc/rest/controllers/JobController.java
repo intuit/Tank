@@ -13,6 +13,7 @@ import com.intuit.tank.jobs.models.JobContainer;
 import com.intuit.tank.rest.mvc.rest.models.JobActionResult;
 import com.intuit.tank.rest.mvc.rest.models.JobDetails;
 import com.intuit.tank.rest.mvc.rest.models.JobTree;
+import com.intuit.tank.rest.mvc.rest.models.AgentMetrics;
 import com.intuit.tank.rest.mvc.rest.models.Timeseries;
 import com.intuit.tank.rest.mvc.rest.services.jobs.JobQueueServiceV2;
 import com.intuit.tank.rest.mvc.rest.services.jobs.JobServiceV2;
@@ -319,6 +320,19 @@ public class JobController {
     })
     public ResponseEntity<Timeseries> getUserSeries(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
         return ResponseEntity.ok(jobQueueService.getUserSeries(jobId));
+    }
+
+    @RequestMapping(value = "/{jobId}/agent-metrics", method = RequestMethod.GET)
+    @Operation(description = "CPU, memory, JVM heap, JVM threads, GC time and TCP connections of the job's agents over "
+            + "the last hour, as the controller last read them from CloudWatch (about once a minute). Served from the "
+            + "controller's cache: it never calls CloudWatch, so any number of viewers is fine. Poll every 30 seconds or more",
+            summary = "Get the agent metrics")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the metrics; no agents until the job's agents run"),
+            @ApiResponse(responseCode = "404", description = "No such job", content = @Content)
+    })
+    public ResponseEntity<AgentMetrics> getAgentMetrics(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
+        return ResponseEntity.ok(jobQueueService.getAgentMetrics(jobId));
     }
 
     @RequestMapping(value = "/{jobId}/tps-timeseries", method = RequestMethod.GET)

@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
+import com.intuit.tank.rest.mvc.rest.models.AgentMetrics;
 import com.intuit.tank.rest.mvc.rest.models.JobActionResult;
 import com.intuit.tank.rest.mvc.rest.models.JobDetails;
 import com.intuit.tank.rest.mvc.rest.models.JobLaunchRequest;
@@ -70,4 +71,10 @@ public interface JobQueueServiceV2 {
      * @param sinceMs    only samples after this time (epoch milliseconds), or null for all
      */
     Timeseries getTpsSeries(Integer jobId, String instanceId, Long sinceMs);
+
+    /**
+     * CPU, memory, heap, thread and TCP figures of the job's agents, from the controller's cache of CloudWatch.
+     * Never calls CloudWatch. Empty (no agents, no times) when the job has none, for example before its agents run.
+     */
+    AgentMetrics getAgentMetrics(Integer jobId);
 }
