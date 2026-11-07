@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Schemas } from '../../api/client';
+import type { AgentMetricsLookup } from './agentMetricsModel';
 
 export type JobTree = Schemas['JobTree'];
 export type JobNode = Schemas['JobNode'];
@@ -18,6 +19,8 @@ export type Target = Exclude<Row, { kind: 'project' }>;
 /** What every view of the queue gets from JobQueue: the data, its actions and the details dialog */
 export interface JobViewProps {
   tree: JobTree;
+  /** Host and JVM figures from CloudWatch, where the controller has them */
+  metrics?: AgentMetricsLookup;
   actionsFor: (row: Target) => ReactNode;
   onDetails: (job: JobNode, agent?: AgentNode) => void;
 }

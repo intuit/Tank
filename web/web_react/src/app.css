@@ -2970,3 +2970,218 @@ body {
     grid-column: 1 / -1;
   }
 }
+
+/* Agent metrics (CloudWatch): the Metrics view, the table's meters and the heat map's extras. Levels are
+   always also written ("High", "Critical"); the colours only echo them. */
+.agent-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.metrics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metrics-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+}
+
+.metrics-tile.metrics-warn {
+  border-color: var(--agent-warn);
+}
+
+.metrics-tile-label,
+.metrics-tile-note {
+  font-size: 0.8125rem;
+  color: var(--text-color-secondary);
+}
+
+.metrics-tile-value {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: minmax(250px, 2.2fr) repeat(3, minmax(140px, 1.2fr)) repeat(3, minmax(70px, 0.6fr));
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 10px 16px;
+  box-sizing: border-box;
+}
+
+.metrics-head {
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-color-secondary);
+}
+
+.metrics-summary-row {
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.metrics-summary-row:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.metrics-agent.is-open {
+  border-color: var(--primary-color);
+}
+
+.metrics-agent-id {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.metrics-agent-tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metrics-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.metrics-figure {
+  font-weight: 600;
+}
+
+.metrics-na {
+  color: var(--text-color-secondary);
+  font-weight: 400;
+}
+
+.metrics-meter {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-border);
+  overflow: hidden;
+}
+
+.metrics-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--agent-live);
+}
+
+.metrics-fill.metrics-warn {
+  background: var(--agent-warn);
+}
+
+.metrics-fill.metrics-danger {
+  background: var(--agent-lost);
+}
+
+.metrics-value {
+  font-weight: 700;
+}
+
+.metrics-word.metrics-warn {
+  color: #9a5b00;
+}
+
+.metrics-word.metrics-danger {
+  color: var(--agent-lost);
+}
+
+.metrics-note {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.metrics-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 12px;
+  padding: 4px 16px 16px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.heat-metric-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.heat-scale-note {
+  margin: 4px 0 0;
+}
+
+.heat-nodata {
+  background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 4px, #dfe5ec 4px, #dfe5ec 8px);
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.heat-panel-sparks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--surface-border);
+}
+
+.metrics-spark svg {
+  display: block;
+  width: 100%;
+  height: 44px;
+  background: var(--surface-ground);
+  border-radius: 4px;
+}
+
+.metrics-spark-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+}
+
+.metrics-spark-mark {
+  stroke: var(--surface-border);
+  stroke-dasharray: 3 3;
+}
+
+@media (max-width: 900px) {
+  .metrics-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .metrics-head {
+    display: none;
+  }
+}
