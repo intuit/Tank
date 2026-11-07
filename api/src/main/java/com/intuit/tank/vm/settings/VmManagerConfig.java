@@ -292,6 +292,38 @@ public class VmManagerConfig implements Serializable {
     }
 
     /**
+     * Whether the controller reads agent host and JVM metrics from CloudWatch for running jobs
+     * ({@code agent-metrics/enabled}, default true). It needs {@code cloudwatch:GetMetricData} and
+     * {@code cloudwatch:ListMetrics}; without them each poll logs a warning and backs off.
+     */
+    public boolean isAgentMetricsEnabled() {
+        return config.getBoolean("agent-metrics/enabled", true);
+    }
+
+    /** Seconds between CloudWatch polls ({@code agent-metrics/poll-interval-seconds}, default 60, the agent's period) */
+    public int getAgentMetricsPollSeconds() {
+        return Math.max(15, config.getInt("agent-metrics/poll-interval-seconds", 60));
+    }
+
+    /** Samples kept per metric per agent ({@code agent-metrics/retention-points}, default 60: an hour at 60s) */
+    public int getAgentMetricsRetentionPoints() {
+        return Math.max(2, config.getInt("agent-metrics/retention-points", 60));
+    }
+
+    /** Minutes a finished job's metrics stay readable ({@code agent-metrics/finished-job-grace-minutes}, default 15) */
+    public int getAgentMetricsGraceMinutes() {
+        return Math.max(0, config.getInt("agent-metrics/finished-job-grace-minutes", 15));
+    }
+
+    /**
+     * vCPUs of the agent instances ({@code agent-metrics/vcpus}, default 0 = unknown). CloudWatch's
+     * {@code procstat_cpu_usage} is percent of one core, so with a count it is divided by it; without, it is capped at 100.
+     */
+    public int getAgentMetricsVcpus() {
+        return Math.max(0, config.getInt("agent-metrics/vcpus", 0));
+    }
+
+    /**
      *
      * @return
      */

@@ -20,12 +20,18 @@ import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
 import { AgentHeatMap } from './AgentHeatMap';
+import { AgentMetricsView } from './AgentMetricsView';
+import { agentFigure, type AgentMetricsLookup, type MetricKey } from './agentMetricsModel';
+import { Meter } from './MetricWidgets';
+import { useAgentMetrics } from './useAgentMetrics';
 import { JobCards, useTpsHistory } from './JobCards';
 import { JobCharts } from './JobCharts';
 import {
+  agentHealth,
   agentSummary,
   formatCount,
   formatTime,
+  jobEntries,
   severityOf,
   stripeOf,
   type AgentNode,
@@ -68,6 +74,7 @@ function storeRefreshSeconds(seconds: number) {
 export const VIEWS = [
   { value: 'table', label: 'Table', icon: 'pi pi-list' },
   { value: 'heatmap', label: 'Heat map', icon: 'pi pi-th-large' },
+  { value: 'metrics', label: 'Metrics', icon: 'pi pi-chart-line' },
   { value: 'jobs', label: 'Jobs', icon: 'pi pi-clone' },
   { value: 'regions', label: 'Regions', icon: 'pi pi-globe' },
   { value: 'timeline', label: 'Timeline', icon: 'pi pi-calendar' },
@@ -196,6 +203,20 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const widthOf = (key: string | undefined) => (prefOf(key)?.size ? `${prefOf(key)!.size}px` : undefined);
   const hideable = preferences.columns.filter((c) => c.hideable && COLUMNS.some((col) => col.pref === c.colName));
 
+  // CloudWatch figures for the agents on screen, only where a view shows them
+  const metricJobIds = useMemo(
+    () =>
+      tree.data
+        ? jobEntries(tree.data)
+            .filter((e) => (e.job.agents ?? []).length > 0)
+            .map((e) => Number(e.job.jobId))
+        : [],
+    [tree.data],
+  );
+  const showsMetrics =
+    view === 'heatmap' || view === 'metrics' || (view === 'table' && METRIC_COLUMNS.some((c) => shown(c)));
+  const agentMetrics = useAgentMetrics(metricJobIds, showsMetrics);
+
   const confirmThen = (target: Target, action: string, label: string) => {
     const what = target.kind === 'job' ? `job "${target.job.name}"` : `agent ${target.agent.instanceId}`;
     confirmDialog({
@@ -273,6 +294,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
 
   const viewProps = (data: JobTree) => ({
     tree: data,
+    metrics: agentMetrics,
     actionsFor,
     onDetails: (job: JobNode, agent?: AgentNode) => setDetailsFor({ job, agent }),
   });
@@ -379,6 +401,8 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           <p className="field-help">Loading jobs…</p>
         ) : view === 'heatmap' ? (
           <AgentHeatMap {...viewProps(tree.data)} />
+        ) : view === 'metrics' ? (
+          <AgentMetricsView {...viewProps(tree.data)} />
         ) : view === 'jobs' ? (
           <JobCards {...viewProps(tree.data)} tpsHistory={tpsHistory} />
         ) : view === 'regions' ? (
@@ -418,7 +442,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
               field={c.expander ? 'name' : undefined}
               header={c.header}
               expander={c.expander}
-              body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row))}
+              body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row, agentMetrics))}
               className={c.className}
               style={{ ...c.style, width: widthOf(c.pref) }}
             />
@@ -437,7 +461,7 @@ interface JobColumn {
   /** The column's key in the user's saved jobs table settings (TableColumnDefaults.JOBS_COL_PREFS) */
   pref?: string;
   header?: string;
-  body?: (row: Row) => ReactNode;
+  body?: (row: Row, metrics: AgentMetricsLookup) => ReactNode;
   style?: CSSProperties;
   /** For both the header and body cells: num-col right-aligns figures, date-col keeps times quiet */
   className?: string;
@@ -455,10 +479,39 @@ const COLUMNS: JobColumn[] = [
   { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers, className: 'num-col' },
   { pref: 'tpsColumn', header: 'TPS', body: (row) => formatCount(figures(row).tps), className: 'num-col' },
   { pref: 'validationColumn', header: 'Failures', body: failuresCell, className: 'num-col' },
+  { pref: 'cpuColumn', header: 'CPU', body: metricCell('cpu'), style: { minWidth: '7rem' } },
+  { pref: 'memColumn', header: 'Memory', body: metricCell('mem'), style: { minWidth: '7rem' } },
+  { pref: 'heapColumn', header: 'Heap', body: metricCell('heap'), style: { minWidth: '7rem' } },
   { pref: 'startTimeColumn', header: 'Started', body: (row) => dateCell(figures(row).startTime), className: 'date-col' },
   { pref: 'endTimeColumn', header: 'Completed', body: (row) => dateCell(endTimeOf(row)), className: 'date-col' },
   { pref: 'actionsColumn', actions: true, className: 'actions-col' },
 ];
+
+const METRIC_COLUMNS = ['cpuColumn', 'memColumn', 'heapColumn'];
+
+/**
+ * An agent's newest CPU, memory or heap figure as a meter. A job shows its running agents' average
+ * (heap: the highest, as one agent near its limit is what matters); a project, nothing.
+ */
+function metricCell(key: MetricKey) {
+  return (row: Row, metrics: AgentMetricsLookup) => {
+    if (row.kind === 'project') {
+      return '';
+    }
+    if (row.kind === 'agent') {
+      const value = agentFigure(metrics, row.agent.instanceId, key);
+      return value === undefined ? '' : <Meter metric={key} value={value} missing={agentHealth(row.agent) === 'live' ? 'n/a' : '—'} />;
+    }
+    const values = (row.job.agents ?? [])
+      .map((a) => agentFigure(metrics, a.instanceId, key))
+      .filter((v): v is number => v !== undefined && v !== null);
+    if (values.length === 0) {
+      return '';
+    }
+    const value = key === 'heap' ? Math.max(...values) : values.reduce((a, b) => a + b, 0) / values.length;
+    return <Meter metric={key} value={value} note={key === 'heap' ? 'highest' : 'average'} />;
+  };
+}
 
 /** A date and time that, when the table is tight, breaks between the two rather than anywhere */
 function dateCell(iso: string | undefined) {

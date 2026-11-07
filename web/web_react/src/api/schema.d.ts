@@ -1233,6 +1233,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/jobs/{jobId}/agent-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the agent metrics
+         * @description CPU, memory, JVM heap, JVM threads, GC time and TCP connections of the job's agents over the last hour, as the controller last read them from CloudWatch (about once a minute). Served from the controller's cache: it never calls CloudWatch, so any number of viewers is fine. Poll every 30 seconds or more
+         */
+        get: operations["getAgentMetrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/jobs/{jobId}/details": {
         parameters: {
             query?: never;
@@ -2268,6 +2288,28 @@ export interface components {
             groups?: string[];
             name?: string;
             password?: string;
+        };
+        AgentMetricSeries: {
+            /** Format: double */
+            heapMaxMb?: number;
+            instanceId?: string;
+            metrics?: components["schemas"]["AgentMetricValues"];
+        };
+        AgentMetricValues: {
+            cpu?: number[];
+            gc?: number[];
+            heap?: number[];
+            mem?: number[];
+            tcp?: number[];
+            threads?: number[];
+        };
+        AgentMetrics: {
+            agents?: components["schemas"]["AgentMetricSeries"][];
+            generatedAt?: string;
+            /** Format: int64 */
+            jobId?: number;
+            stale?: boolean;
+            times?: string[];
         };
         AgentNode: {
             actions?: components["schemas"]["Actions"];
@@ -5773,6 +5815,39 @@ export interface operations {
             };
             /** @description The job has already started */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    getAgentMetrics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The job ID */
+                jobId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully retrieved the metrics; no agents until the job's agents run */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentMetrics"];
+                };
+            };
+            /** @description No such job */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -38,6 +38,8 @@ Resources:
                   - iam:ListInstanceProfiles
                   - iam:AddRoleToInstanceProfile
                   - appconfig:GetConfiguration
+                  - cloudwatch:GetMetricData
+                  - cloudwatch:ListMetrics
                 Resource: "*"
   AgentProfile:
     Type: AWS::IAM::InstanceProfile

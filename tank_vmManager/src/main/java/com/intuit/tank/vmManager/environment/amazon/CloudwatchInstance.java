@@ -17,15 +17,8 @@ import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.settings.CloudCredentials;
 import com.intuit.tank.vm.settings.CloudProvider;
 import com.intuit.tank.vm.settings.TankConfig;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.http.apache.ApacheHttpClient;
-import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClientBuilder;
@@ -76,28 +69,8 @@ public class CloudwatchInstance {
         }
         try {
             CloudCredentials creds = config.getVmManagerConfig().getCloudCredentials(CloudProvider.amazon);
-            CloudWatchClientBuilder cloudWatchClientBuilder = CloudWatchClient.builder();
-            SnsClientBuilder snsClientBuilder = SnsClient.builder();
-            if (creds != null && StringUtils.isNotBlank(creds.getProxyHost())) {
-                try {
-                    URIBuilder uriBuilder = new URIBuilder().setHost(creds.getProxyHost());
-                    if (StringUtils.isNotBlank(creds.getProxyPort())) {
-                        uriBuilder.setPort(Integer.parseInt(System.getProperty(creds.getProxyPort())));
-                    }
-                    ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder()
-                            .proxyConfiguration(
-                                    ProxyConfiguration.builder().endpoint(uriBuilder.build()).build());
-                    cloudWatchClientBuilder.httpClientBuilder(httpClientBuilder);
-                    snsClientBuilder.httpClientBuilder(httpClientBuilder);
-                } catch (NumberFormatException e) {
-                    LOG.error("invalid proxy setup.");
-                }
-            }
-            if (creds != null && StringUtils.isNotBlank(creds.getKey()) && StringUtils.isNotBlank(creds.getKeyId())) {
-                AwsCredentials credentials = AwsBasicCredentials.create(creds.getKeyId(), creds.getKey());
-                cloudWatchClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
-                snsClientBuilder.credentialsProvider(StaticCredentialsProvider.create(credentials));
-            }
+            CloudWatchClientBuilder cloudWatchClientBuilder = CloudWatchClientFactory.configure(CloudWatchClient.builder(), creds);
+            SnsClientBuilder snsClientBuilder = CloudWatchClientFactory.configure(SnsClient.builder(), creds);
             cloudWatchClient = cloudWatchClientBuilder
                     .region(Region.of(vmRegion.getRegion()))
                     .build();

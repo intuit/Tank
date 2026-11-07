@@ -24,6 +24,7 @@ import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequest
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.rest.mvc.rest.models.AgentMetrics;
 import com.intuit.tank.rest.mvc.rest.models.Failures;
 import com.intuit.tank.rest.mvc.rest.models.JobActionResult;
 import com.intuit.tank.rest.mvc.rest.models.JobDetails;
@@ -46,6 +47,9 @@ import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vmManager.metrics.AgentMetric;
+import com.intuit.tank.vmManager.metrics.AgentMetricsSnapshot;
+import com.intuit.tank.vmManager.metrics.AgentMetricsStore;
 import jakarta.servlet.ServletContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +57,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -235,6 +240,24 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
         return JobCharts.tps(StringUtils.isNotBlank(instanceId)
                 ? reader.getTpsMapForInstance(since, id, instanceId)
                 : reader.getTpsMapForJob(since, id));
+    }
+
+    @Override
+    public AgentMetrics getAgentMetrics(Integer jobId) {
+        RestAuthorization.requireUser(SERVICE);
+        findJob(jobId);
+        AgentMetricsSnapshot snapshot = bean(AgentMetricsStore.class).snapshot(Integer.toString(jobId));
+        if (snapshot == null) {
+            return new AgentMetrics(jobId, Instant.now().toString(), false, List.of(), List.of());
+        }
+        List<AgentMetrics.AgentMetricSeries> agents = snapshot.agents().stream()
+                .map(a -> new AgentMetrics.AgentMetricSeries(a.instanceId(), a.heapMaxMb(), new AgentMetrics.AgentMetricValues(
+                        a.metrics().get(AgentMetric.CPU), a.metrics().get(AgentMetric.MEM),
+                        a.metrics().get(AgentMetric.HEAP), a.metrics().get(AgentMetric.THREADS),
+                        a.metrics().get(AgentMetric.GC), a.metrics().get(AgentMetric.TCP))))
+                .toList();
+        return new AgentMetrics(jobId, snapshot.generatedAt().toString(), snapshot.stale(),
+                snapshot.times().stream().map(Object::toString).toList(), agents);
     }
 
     private record Checked(JobInstanceFactory.Proposal proposal, ProjectValidation validation, List<String> errors,
