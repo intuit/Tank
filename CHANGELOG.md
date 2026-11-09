@@ -1,3 +1,20 @@
+# 4.7.6 (Mon Nov 09 2026)
+
+#### 🐛 Bug Fix
+
+- Show agent CPU, memory and JVM metrics from CloudWatch in the React Agent Tracker [#570](https://github.com/intuit/Tank/pull/570) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.6.1 to 5.6.3 [#571](https://github.com/intuit/Tank/pull/571) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.5 (Mon Nov 09 2026)
 
 #### 🐛 Bug Fix
