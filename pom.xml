@@ -47,7 +47,7 @@
     <version.junit>6.1.3</version.junit>
     <version.mockito>5.24.0</version.mockito>
     <version.httpclient>4.5.14</version.httpclient>
-    <version.httpclient5>5.6.1</version.httpclient5>
+    <version.httpclient5>5.6.3</version.httpclient5>
     <version.jaxb>4.0.5</version.jaxb>
     <version.spring-webmvc>7.0.10</version.spring-webmvc>
     <version.spring-boot>4.1.2</version.spring-boot>
