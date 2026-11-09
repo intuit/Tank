@@ -14,10 +14,13 @@ package com.intuit.tank.http.xml;
  */
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,14 +113,19 @@ public class GenericXMLHandlerTest {
      * Run the void Save() method test.
      */
     @Test
-    public void testSave() {
-        File xmlfile = new File("src/test/resources/tt.xml");
+    public void testSave(@TempDir Path dir) throws Exception {
+        // Save() rewrites its file, so work on a copy: the checked-in fixture must stay as it is
+        File xmlfile = Files.copy(Path.of("src/test/resources/tt.xml"), dir.resolve("tt.xml")).toFile();
         GenericXMLHandler fixture = new GenericXMLHandler(xmlfile);
+        fixture.SetElementAttribute("testPlan/testSuite", "description", "Saved");
 
         fixture.Save();
 
         assertTrue(xmlfile.exists());
         assertTrue(Instant.now().isAfter(Instant.ofEpochMilli(xmlfile.lastModified())));
+        GenericXMLHandler reloaded = new GenericXMLHandler(xmlfile);
+        assertEquals("Saved", reloaded.GetElementAttr("testPlan/testSuite/@description"));
+        assertEquals("XXX5", reloaded.GetElementAttr("testPlan/testSuite/@name"));
     }
 
     /**
