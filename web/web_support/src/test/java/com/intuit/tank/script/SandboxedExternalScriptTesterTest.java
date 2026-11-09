@@ -44,7 +44,7 @@ class SandboxedExternalScriptTesterTest {
     void otherJavaClassesAreBlocked() {
         String output = tester.run("filter.js",
                 "var Runtime = Java.type('java.lang.Runtime'); ioBean.println('escaped');", script()).output();
-        assertTrue(output.contains("ClassNotFoundException: java.lang.Runtime"), output);
+        assertTrue(output.contains("Access to host class java.lang.Runtime is not allowed"), output);
         assertFalse(output.contains("escaped"), output);
     }
 
@@ -53,7 +53,7 @@ class SandboxedExternalScriptTesterTest {
         String output = tester.run("filter.js",
                 "var c = ioBean.getInput('script').getClass().forName('java.lang.Runtime'); ioBean.println('escaped ' + c);",
                 script()).output();
-        assertTrue(output.toLowerCase().contains("reflection"), "blocked by the class filter: " + output);
+        assertTrue(output.contains("Exception thrown") && output.contains("forName"), "blocked by the host access rules: " + output);
         assertFalse(output.contains("escaped"), output);
     }
 
