@@ -1,3 +1,15 @@
+# 4.7.5 (Mon Nov 09 2026)
+
+#### 🐛 Bug Fix
+
+- Replace Apache HttpClient 3.1 with Apache HttpClient 5 [#542](https://github.com/intuit/Tank/pull/542) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.4 (Fri Nov 06 2026)
 
 #### 🐛 Bug Fix
