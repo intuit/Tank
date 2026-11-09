@@ -19,6 +19,10 @@ import com.intuit.tank.reporting.factory.ReportingFactory;
 import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.JobQueueEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
+import com.intuit.tank.rest.mvc.rest.models.AgentMetrics;
+import com.intuit.tank.vmManager.metrics.AgentMetric;
+import com.intuit.tank.vmManager.metrics.AgentMetricsStore;
+import java.time.Instant;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceConflictException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceForbiddenAccessException;
@@ -94,6 +98,7 @@ class JobQueueServiceV2ImplTest {
     private final VMTracker tracker = mock(VMTracker.class);
     private final JobEventSender events = mock(JobEventSender.class);
     private final JobQueueEventSender queueEvents = mock(JobQueueEventSender.class);
+    private final AgentMetricsStore metricsStore = new AgentMetricsStore();
     private final Map<Integer, JobInstance> jobs = new HashMap<>();
     private final List<JobInstance> savedJobs = new ArrayList<>();
     private Project project;
@@ -129,6 +134,7 @@ class JobQueueServiceV2ImplTest {
             when(injector.getManagedBean(eq(servletContext), eq(VMTracker.class))).thenReturn(tracker);
             when(injector.getManagedBean(eq(servletContext), eq(JobEventSender.class))).thenReturn(events);
             when(injector.getManagedBean(eq(servletContext), eq(JobQueueEventSender.class))).thenReturn(queueEvents);
+            when(injector.getManagedBean(eq(servletContext), eq(AgentMetricsStore.class))).thenReturn(metricsStore);
         }));
     }
 
@@ -380,6 +386,43 @@ class JobQueueServiceV2ImplTest {
     @Test
     void userSeriesWithoutLiveData() {
         assertEquals(new Timeseries(List.of(), List.of()), service.getUserSeries(10));
+    }
+
+    @Test
+    void agentMetricsAreServedFromTheStore() {
+        Instant t = Instant.parse("2026-11-06T19:22:00Z");
+        metricsStore.record("10", "i-1", AgentMetric.CPU, t, 55);
+        metricsStore.record("10", "i-1", AgentMetric.HEAP, t, 25);
+        metricsStore.setHeapMaxMb("10", "i-1", 2048);
+        metricsStore.markFresh("10", t.plusSeconds(30));
+
+        AgentMetrics metrics = service.getAgentMetrics(10);
+
+        assertEquals(10L, metrics.jobId());
+        assertEquals("2026-11-06T19:22:30Z", metrics.generatedAt());
+        assertFalse(metrics.stale());
+        assertEquals(List.of("2026-11-06T19:22:00Z"), metrics.times());
+        AgentMetrics.AgentMetricSeries agent = metrics.agents().get(0);
+        assertEquals("i-1", agent.instanceId());
+        assertEquals(2048d, agent.heapMaxMb());
+        assertEquals(List.of(55d), agent.metrics().cpu());
+        assertEquals(List.of(25d), agent.metrics().heap());
+        assertEquals(java.util.Arrays.asList((Double) null), agent.metrics().threads());
+    }
+
+    @Test
+    void agentMetricsAreEmptyWhenTheStoreHasNothingForTheJob() {
+        AgentMetrics metrics = service.getAgentMetrics(10);
+
+        assertEquals(10L, metrics.jobId());
+        assertEquals(List.of(), metrics.agents());
+        assertEquals(List.of(), metrics.times());
+        assertFalse(metrics.stale());
+    }
+
+    @Test
+    void agentMetricsOfAnUnknownJobAreNotFound() {
+        assertThrows(GenericServiceResourceNotFoundException.class, () -> service.getAgentMetrics(999));
     }
 
     @Test

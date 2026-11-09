@@ -70,6 +70,9 @@ public final class TableColumnDefaults {
             new ColumnPreferences("tpsColumn", "TPS", 50, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("validationColumn", "Validation Failures", 100, Visibility.VISIBLE,
                     Hidability.HIDABLE),
+            new ColumnPreferences("cpuColumn", "CPU", 100, Visibility.VISIBLE, Hidability.HIDABLE),
+            new ColumnPreferences("memColumn", "Memory", 100, Visibility.VISIBLE, Hidability.HIDABLE),
+            new ColumnPreferences("heapColumn", "Heap", 100, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("startTimeColumn", "Start Time", 110, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("endTimeColumn", "End Time", 110, Visibility.VISIBLE, Hidability.HIDABLE),
             new ColumnPreferences("actionsColumn", "Actions", 210, Visibility.VISIBLE, Hidability.NON_HIDABLE)

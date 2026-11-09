@@ -17,15 +17,29 @@ import {
   type JobViewProps,
 } from './jobModel';
 import { formatDateTime } from '../../format';
+import { SERIES_COLORS } from '../../charts/LineChart';
+import { agentFigure, type AgentMetricSeries, type AgentMetricsLookup } from './agentMetricsModel';
+import { Sparkline } from './MetricWidgets';
 
 /** What the tiles can be shaded by: throughput in blue, trouble in orange */
 const METRICS = [
-  { value: 'tps', label: 'TPS', ramp: 'blue' },
-  { value: 'users', label: 'Active users', ramp: 'blue' },
-  { value: 'failures', label: 'Failures', ramp: 'orange' },
-  { value: 'seen', label: 'Last seen', ramp: 'orange' },
+  { value: 'tps', label: 'TPS', ramp: 'blue', group: 'load' },
+  { value: 'users', label: 'Active users', ramp: 'blue', group: 'load' },
+  { value: 'failures', label: 'Failures', ramp: 'orange', group: 'load' },
+  { value: 'seen', label: 'Last seen', ramp: 'orange', group: 'load' },
+  // from CloudWatch: percentages are shaded on a fixed 0-100% scale, so "hot" means hot
+  { value: 'cpu', label: 'CPU', ramp: 'orange', group: 'host', pct: true },
+  { value: 'mem', label: 'Memory', ramp: 'orange', group: 'host', pct: true },
+  { value: 'heap', label: 'Heap', ramp: 'orange', group: 'host', pct: true },
+  { value: 'threads', label: 'JVM threads', ramp: 'blue', group: 'host' },
 ] as const;
 type Metric = (typeof METRICS)[number]['value'];
+type MetricDef = (typeof METRICS)[number];
+const LOAD_METRICS = METRICS.filter((m) => m.group === 'load');
+const HOST_METRICS = METRICS.filter((m) => m.group === 'host');
+
+/** Under 25%, 25-50%, 50-75%, 75-90%, 90% and over */
+const pctShade = (value: number) => (value < 25 ? 0 : value < 50 ? 1 : value < 75 ? 2 : value < 90 ? 3 : 4);
 
 /** The shades of a ramp, lightest (zero) first */
 const STEPS = [0, 1, 2, 3, 4];
@@ -41,35 +55,49 @@ interface Tile {
  * agent that is slow, failing or silent stands out among dozens. A tile opens the agent's figures
  * and actions beside the map.
  */
-export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
+export function AgentHeatMap({ tree, actionsFor, onDetails, metrics }: JobViewProps) {
   const [metric, setMetric] = useState<Metric>('tps');
   const [selectedId, setSelectedId] = useState<string>();
-  const ramp = METRICS.find((m) => m.value === metric)!.ramp;
+  const def: MetricDef = METRICS.find((m) => m.value === metric)!;
+  const ramp = def.ramp;
+  const isPct = 'pct' in def;
 
   const entries = jobEntries(tree).filter((e) => (e.job.agents ?? []).length > 0);
   const tiles: Tile[] = entries.flatMap((entry) =>
     (entry.job.agents ?? []).map((agent) => ({ agent, entry, seen: secondsSinceSeen(agent, tree.generatedAt) })),
   );
-  const valueOf = (tile: Tile) =>
+  // undefined: the controller has no CloudWatch figure for this agent (older AMI, or not read yet)
+  const valueOf = (tile: Tile): number | undefined =>
     metric === 'tps'
       ? (tile.agent.tps ?? 0)
       : metric === 'users'
         ? (tile.agent.activeUsers ?? 0)
         : metric === 'failures'
           ? (tile.agent.failures?.total ?? 0)
-          : (tile.seen ?? 0);
+          : metric === 'seen'
+            ? (tile.seen ?? 0)
+            : (agentFigure(metrics, tile.agent.instanceId, metric) ?? undefined);
   const live = tiles.filter((t) => agentHealth(t.agent) === 'live');
   // shades spread over the live agents' range, so a slow or hot agent stands out from its peers; zero
   // keeps the lightest shade of its own
-  const nonZero = live.map(valueOf).filter((v) => v > 0);
+  const nonZero = live.map(valueOf).filter((v): v is number => v !== undefined && v > 0);
   const min = nonZero.length ? Math.min(...nonZero) : 0;
   const max = nonZero.length ? Math.max(...nonZero) : 0;
   const shade = (value: number) =>
-    value <= 0 ? 0 : max === min ? 4 : Math.min(4, 1 + Math.floor((3.999 * (value - min)) / (max - min)));
-  const label = (value: number) => (metric === 'seen' ? `${formatCount(value)}s` : formatCount(value));
+    isPct
+      ? pctShade(value)
+      : value <= 0
+        ? 0
+        : max === min
+          ? 4
+          : Math.min(4, 1 + Math.floor((3.999 * (value - min)) / (max - min)));
+  const label = (value: number) =>
+    metric === 'seen' ? `${formatCount(value)}s` : isPct ? `${Math.round(value)}%` : formatCount(value);
 
   const lost = tiles.filter((t) => agentHealth(t.agent) === 'lost').length;
   const silent = live.filter((t) => (t.seen ?? 0) > SILENT_SECONDS).length;
+  // an agent at 85% CPU or more is likely what limits its TPS
+  const hot = live.filter((t) => (agentFigure(metrics, t.agent.instanceId, 'cpu') ?? 0) >= HOT_CPU).length;
   const sum = (pick: (t: Tile) => number | undefined) => live.reduce((total, t) => total + (pick(t) ?? 0), 0);
   const selected = tiles.find((t) => t.agent.instanceId === selectedId);
 
@@ -86,9 +114,9 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
         <Stat label="TPS" value={formatCount(sum((t) => t.agent.tps))} />
         <Stat
           label="Need attention"
-          value={formatCount(lost + silent)}
-          sub={`${lost} lost · ${silent} silent over ${SILENT_SECONDS}s`}
-          alert={lost + silent > 0}
+          value={formatCount(lost + silent + hot)}
+          sub={`${lost} lost · ${silent} silent over ${SILENT_SECONDS}s${hot ? ` · ${hot} at ${HOT_CPU}% CPU or more` : ''}`}
+          alert={lost + silent + hot > 0}
         />
       </div>
 
@@ -96,32 +124,54 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
         <span className="heat-map-controls-label" id="heat-metric-label">
           Shade by
         </span>
-        <SelectButton
-          value={metric}
-          options={[...METRICS]}
-          optionLabel="label"
-          optionValue="value"
-          onChange={(e) => e.value && setMetric(e.value as Metric)}
-          allowEmpty={false}
-          aria-labelledby="heat-metric-label"
-          className="p-selectbutton-sm"
-        />
+        <div className="heat-metric-group" role="group" aria-labelledby="heat-metric-label">
+          {[
+            { name: 'Load', options: LOAD_METRICS },
+            { name: 'Host and JVM (CloudWatch)', options: HOST_METRICS },
+          ].map((group) => (
+            <div key={group.name} className="field-inline">
+              <span className="field-help">{group.name}</span>
+              <SelectButton
+                value={group.options.some((o) => o.value === metric) ? metric : null}
+                options={[...group.options]}
+                optionLabel="label"
+                optionValue="value"
+                onChange={(e) => e.value && setMetric(e.value as Metric)}
+                allowEmpty={false}
+                aria-label={group.name}
+                className="p-selectbutton-sm"
+              />
+            </div>
+          ))}
+        </div>
         <div className="heat-legend" aria-label="Legend">
           <span className={`heat-swatch heat-${ramp}-0`} />
-          <span>0</span>
-          <span>{label(min)}</span>
+          <span>{isPct ? '0%' : '0'}</span>
+          {!isPct && <span>{label(min)}</span>}
           {STEPS.slice(1).map((step) => (
             <span key={step} className={`heat-swatch heat-${ramp}-${step}`} />
           ))}
-          <span>{label(max)}</span>
+          <span>{isPct ? '100%' : label(max)}</span>
           <span className="heat-swatch heat-lost" />
           <span>Lost</span>
           <span className="heat-swatch heat-setup" />
           <span>Setting up</span>
           <span className="heat-swatch heat-ready" />
           <span>Ready</span>
+          {def.group === 'host' && (
+            <>
+              <span className="heat-swatch heat-nodata" />
+              <span>No data</span>
+            </>
+          )}
         </div>
       </div>
+      <p className="field-help heat-scale-note">
+        {isPct
+          ? 'Shaded on a fixed scale: under 25%, 25–50%, 50–75%, 75–90%, 90% and over.'
+          : 'Shaded across the range of the running agents.'}
+        {def.group === 'host' && ' CloudWatch figures refresh every minute.'}
+      </p>
 
       <div className="heat-map-body">
         <div className="heat-map-jobs">
@@ -160,13 +210,17 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
                           const id = tile.agent.instanceId ?? '';
                           const className =
                             health === 'live'
-                              ? `heat-${ramp}-${shade(value)}`
+                              ? value === undefined
+                                ? 'heat-nodata'
+                                : `heat-${ramp}-${shade(value)}`
                               : health === 'done'
                                 ? 'heat-done'
                                 : `heat-${health}`;
                           const text =
                             health === 'live'
-                              ? label(value)
+                              ? value === undefined
+                                ? 'n/a'
+                                : label(value)
                               : health === 'lost'
                                 ? 'Lost'
                                 : health === 'setup'
@@ -180,8 +234,8 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
                               type="button"
                               className={`heat-tile ${className}`}
                               aria-pressed={id === selectedId}
-                              aria-label={tileDescription(tile)}
-                              title={tileDescription(tile)}
+                              aria-label={tileDescription(tile, metrics)}
+                              title={tileDescription(tile, metrics)}
                               onClick={() => setSelectedId(id === selectedId ? undefined : id)}
                             >
                               <span className="heat-tile-id">{id.slice(-4)}</span>
@@ -231,7 +285,11 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
                   }
                 />
                 <Fact label="Started" value={formatDateTime(selected.agent.startTime) || '—'} />
+                {agentFigure(metrics, selected.agent.instanceId, 'threads') != null && (
+                  <Fact label="JVM threads" value={formatCount(agentFigure(metrics, selected.agent.instanceId, 'threads')!)} />
+                )}
               </dl>
+              <AgentSparks series={metrics?.agent(selected.agent.instanceId)} />
               <div className="heat-panel-actions">
                 {actionsFor({ kind: 'agent', agent: selected.agent, job: selected.entry.job })}
               </div>
@@ -245,7 +303,29 @@ export function AgentHeatMap({ tree, actionsFor, onDetails }: JobViewProps) {
   );
 }
 
-function tileDescription({ agent, entry, seen }: Tile) {
+const HOT_CPU = 85;
+
+/** CPU, memory and heap over the last 30 minutes, when the controller has them for this agent */
+function AgentSparks({ series }: { series: AgentMetricSeries | undefined }) {
+  if (!series) {
+    return null;
+  }
+  return (
+    <div className="heat-panel-sparks">
+      <span className="heat-region-label">Last 30 minutes</span>
+      <Sparkline label="CPU" values={series.metrics.cpu} color={SERIES_COLORS[0]!} />
+      <Sparkline label="Memory" values={series.metrics.mem} color={SERIES_COLORS[1]!} />
+      <Sparkline label="Heap" values={series.metrics.heap} color={SERIES_COLORS[2]!} />
+      <span className="field-help">Dashed line marks 80%.</span>
+    </div>
+  );
+}
+
+function tileDescription({ agent, entry, seen }: Tile, metrics: AgentMetricsLookup | undefined) {
+  const figure = (key: 'cpu' | 'mem' | 'heap', name: string) => {
+    const v = agentFigure(metrics, agent.instanceId, key);
+    return v === undefined ? undefined : `${name} ${v === null ? 'n/a' : `${Math.round(v)}%`}`;
+  };
   return [
     agent.instanceId,
     regionLabel(agent.region),
@@ -254,6 +334,9 @@ function tileDescription({ agent, entry, seen }: Tile) {
     `${formatCount(agent.activeUsers)} users`,
     `${formatCount(agent.failures?.total)} failures`,
     seen === undefined ? undefined : `seen ${seen}s ago`,
+    figure('cpu', 'CPU'),
+    figure('mem', 'memory'),
+    figure('heap', 'heap'),
     entry.job.name,
   ]
     .filter(Boolean)

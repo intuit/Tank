@@ -64,7 +64,7 @@ public class TableColumnDefaultsTest {
 
     @Test
     public void testJobsColPrefsSize() {
-        assertEquals(12, TableColumnDefaults.JOBS_COL_PREFS.size());
+        assertEquals(15, TableColumnDefaults.JOBS_COL_PREFS.size());
     }
 
     @Test
