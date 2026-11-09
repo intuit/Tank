@@ -252,6 +252,23 @@ describe('filter editor', () => {
     await waitFor(() => expect(bodies[0]).toMatchObject({ filterType: 'EXTERNAL', externalScriptId: 4 }));
   });
 
+  it('offers an Edit script button for an external filter, not a link at the bottom', async () => {
+    await openFilter(
+      handlers({
+        'GET /v2/filters/7': () => ({ status: 200, body: { ...FILTER, filterType: 'EXTERNAL', externalScriptId: 3 } }),
+        'GET /v2/scripts/external': () => ({ status: 200, body: { scripts: [{ id: 3, name: 'strip.groovy' }] } }),
+      }),
+    );
+    expect(await screen.findByRole('button', { name: 'Edit script' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Write or test external scripts' })).not.toBeInTheDocument();
+  });
+
+  it('has no Edit script button for an internal filter', async () => {
+    await openFilter(handlers());
+    await screen.findByRole('button', { name: 'Add action' });
+    expect(screen.queryByRole('button', { name: 'Edit script' })).not.toBeInTheDocument();
+  });
+
   it('creates an external filter once a script is chosen, and switching back drops the script', async () => {
     const bodies: Filter[] = [];
     renderApp(

@@ -6,7 +6,7 @@ import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { SelectButton } from 'primereact/selectbutton';
 import { useCallback, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { toApiError } from '../../api/errors';
 import { CopyDialog } from '../../components/CopyDialog';
 import { ConflictDialog, useUnsavedGuard } from '../../components/editorGuards';
@@ -88,6 +88,7 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
   });
   const { draft, saved, dirty, problems, update } = filter;
   const { leaveTo } = useUnsavedGuard(dirty, draft?.name);
+  const navigate = useNavigate();
 
   const users = useQuery({
     queryKey: ['users', 'names'],
@@ -181,6 +182,14 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
           {dirty && !isNew && <span className="unsaved"> (unsaved)</span>}
         </h1>
         <div className="editor-actions">
+          {external && draft.externalScriptId != null && (
+            <Button
+              label="Edit script"
+              icon="pi pi-code"
+              outlined
+              onClick={() => void navigate(`/filters/external/${draft.externalScriptId}`)}
+            />
+          )}
           {!readOnly && (
             <>
               {!isNew && <Button label="Revert" icon="pi pi-undo" text disabled={!dirty || filter.saving} onClick={filter.revert} />}
@@ -297,9 +306,6 @@ function FilterEditor({ filterId }: { filterId: number | 'new' }) {
             />
           </Field>
           {externalScripts.error && <Message severity="error" text={externalScripts.error.message} />}
-          <p className="field-help">
-            <Link to="/filters/external">Write or test external scripts</Link>
-          </p>
         </div>
       ) : (
         <>
