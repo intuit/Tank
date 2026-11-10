@@ -286,19 +286,20 @@ public abstract class BaseRequest {
         return TankHttpUtil.getQueryString(urlVariables);
     }
 
-    @SuppressWarnings("rawtypes")
     public void logRequest(String url, String body, String method, Map<String, String> headerInformation, List<String> cookies, boolean force) {
-        if (!force && (logUtil == null || !logUtil.isDebugMode())) {
+        boolean debugEnabled = LOG.isDebugEnabled();
+        // logMsg is only read by the debugger panel, so skip building it unless it is needed or will be logged
+        if (!force && !debugEnabled && (logUtil == null || !logUtil.isDebugMode())) {
             return;
         }
         try {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(256 + (body != null ? body.length() : 0));
 
-            sb.append("REQUEST URL: " + method + " " + url).append(NEWLINE);
-            sb.append("CONTENT TYPE: " + contentType).append(NEWLINE);
+            sb.append("REQUEST URL: ").append(method).append(' ').append(url).append(NEWLINE);
+            sb.append("CONTENT TYPE: ").append(contentType).append(NEWLINE);
             // Header Information
-            for (Map.Entry mapEntry : headerInformation.entrySet()) {
-                sb.append("REQUEST HEADER: " + (String) mapEntry.getKey() + " = " + (String) mapEntry.getValue()).append(NEWLINE);
+            for (Map.Entry<String, String> entry : headerInformation.entrySet()) {
+                sb.append("REQUEST HEADER: ").append(entry.getKey()).append(" = ").append(entry.getValue()).append(NEWLINE);
             }
             // Cookies Information
             if (cookies != null) {
@@ -307,13 +308,14 @@ public abstract class BaseRequest {
                 }
             }
             if (StringUtils.isNotEmpty(body)) {
-                sb.append("REQUEST SIZE: " + body.getBytes().length).append(NEWLINE);
-                sb.append("REQUEST BODY: " + body).append(NEWLINE);
+                sb.append("REQUEST SIZE: ").append(body.getBytes().length).append(NEWLINE);
+                sb.append("REQUEST BODY: ").append(body).append(NEWLINE);
             }
             this.logMsg = sb.toString();
-            LOG.debug("******** REQUEST *********");
-            LOG.debug(this.logMsg);
-
+            if (debugEnabled) {
+                LOG.debug("******** REQUEST *********");
+                LOG.debug(this.logMsg);
+            }
         } catch (Exception ex) {
             LOG.error("Unable to log request", ex);
         }

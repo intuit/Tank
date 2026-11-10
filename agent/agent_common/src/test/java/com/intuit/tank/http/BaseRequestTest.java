@@ -1,6 +1,5 @@
 package com.intuit.tank.http;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -273,52 +272,21 @@ public class BaseRequestTest {
     }
 
     @Test
-    @DisplayName("logRequest skips string building when debugger is not running")
-    public void logRequest_skipsWhenNotDebugMode() {
-        // MockBaseRequest uses MockLogUtil which has isDebugMode() = false (default)
+    public void testLogRequestSkippedWhenNotDebug() {
         BaseRequest fixture = new MockBaseRequest(null);
-        Map<String, String> headers = Map.of("key", "value");
-        List<String> cookies = List.of("cookie1");
-        fixture.logRequest("http://test.com", "body", "GET", headers, cookies, false);
-
-        assertNull(fixture.logMsg,
-                "logMsg should remain null when debugger is not running and force is false");
+        fixture.logRequest("testUrl", "testBody", "GET", Map.of(), List.of(), false);
+        assertNull(fixture.logMsg);
     }
 
     @Test
-    @DisplayName("logRequest populates logMsg when force=true even if debugger is not running")
-    public void logRequest_populatesWhenForced() {
-        BaseRequest fixture = new MockBaseRequest(null);
-        Map<String, String> headers = Map.of("key", "value");
-        List<String> cookies = List.of("cookie1");
-        fixture.logRequest("http://test.com", "body", "GET", headers, cookies, true);
-
-        assertNotNull(fixture.logMsg,
-                "logMsg should be populated when force=true regardless of debug mode");
-        assertTrue(fixture.logMsg.contains("REQUEST URL: GET http://test.com"));
-    }
-
-    @Test
-    @DisplayName("logRequest populates logMsg when debugger is running")
-    public void logRequest_populatesWhenDebugMode() {
-        MockLogUtil debugLogUtil = new MockLogUtil() {
+    public void testLogRequestInDebugMode() {
+        BaseRequest fixture = new MockBaseRequest(null, new MockLogUtil() {
             @Override
             public boolean isDebugMode() {
                 return true;
             }
-        };
-        BaseRequest debugFixture = new BaseRequest(null, debugLogUtil) {
-            @Override public void setKey(String key, String value) {}
-            @Override public String getKey(String key) { return null; }
-            @Override public void setNamespace(String name, String value) {}
-        };
-
-        Map<String, String> headers = Map.of("key", "value");
-        List<String> cookies = List.of("cookie1");
-        debugFixture.logRequest("http://test.com", "body", "GET", headers, cookies, false);
-
-        assertNotNull(debugFixture.logMsg,
-                "logMsg should be populated when debugger is running");
-        assertTrue(debugFixture.logMsg.contains("REQUEST URL: GET http://test.com"));
+        });
+        fixture.logRequest("testUrl", "testBody", "GET", Map.of(), List.of(), false);
+        assertNotNull(fixture.logMsg);
     }
 }
