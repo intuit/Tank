@@ -301,19 +301,12 @@ public class BaseRequestTest {
     @Test
     @DisplayName("logRequest populates logMsg when debugger is running")
     public void logRequest_populatesWhenDebugMode() {
-        // Create a request with a logUtil that reports debug mode = true
         MockLogUtil debugLogUtil = new MockLogUtil() {
             @Override
             public boolean isDebugMode() {
                 return true;
             }
         };
-        BaseRequest fixture = new MockBaseRequest(null) {
-            {
-                // Re-initialize with debug-enabled logUtil via reflection or direct field
-            }
-        };
-        // Use a custom MockBaseRequest that injects the debug logUtil
         BaseRequest debugFixture = new BaseRequest(null, debugLogUtil) {
             @Override public void setKey(String key, String value) {}
             @Override public String getKey(String key) { return null; }
