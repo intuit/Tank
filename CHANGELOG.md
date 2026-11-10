@@ -1,3 +1,21 @@
+# 4.7.7 (Tue Nov 10 2026)
+
+#### 🐛 Bug Fix
+
+- React UI: explain pause actions, add Edit script button to filters [#573](https://github.com/intuit/Tank/pull/573) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Stop GenericXMLHandlerTest rewriting the tt.xml fixture [#572](https://github.com/intuit/Tank/pull/572) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🔩 Dependency Updates
+
+- Bump mkdocs-material from 8.2.13 to 9.7.7 [#509](https://github.com/intuit/Tank/pull/509) ([@dependabot[bot]](https://github.com/dependabot[bot]) [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.6 (Mon Nov 09 2026)
 
 #### 🐛 Bug Fix
