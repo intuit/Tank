@@ -1,3 +1,17 @@
+# 4.7.8 (Tue Nov 10 2026)
+
+#### 🐛 Bug Fix
+
+- Gate logRequest() behind debugger-only mode to reduce agent overhead [#456](https://github.com/intuit/Tank/pull/456) (zakaria_kofiro@intuit.com [@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick) [@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+
+#### Authors: 3
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Zakaria Kofiro ([@Zakaria-Kofiro](https://github.com/Zakaria-Kofiro))
+- zkofiro (zakaria_kofiro@intuit.com)
+
+---
+
 # 4.7.7 (Tue Nov 10 2026)
 
 #### 🐛 Bug Fix
