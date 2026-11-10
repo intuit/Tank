@@ -13,6 +13,7 @@ package com.intuit.tank.vmManager.metrics;
  * #L%
  */
 
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -216,7 +217,7 @@ public class AgentMetricsCollector {
 
     private void safeTick() {
         try {
-            tick();
+            Tracing.inRootSpan("Tank.AgentMetricsCollector", this::tick);
         } catch (Exception e) {
             LOG.warn("Agent metrics poll failed: " + e);
         }
