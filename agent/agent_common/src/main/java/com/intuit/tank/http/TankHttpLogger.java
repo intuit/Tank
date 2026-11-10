@@ -43,4 +43,11 @@ public interface TankHttpLogger {
      * @return
      */
     public AgentConfig getAgentConfig();
+
+    /**
+     * @return true if the Tank Debugger is running the client code and reads the request log text
+     */
+    default boolean isDebugMode() {
+        return false;
+    }
 }

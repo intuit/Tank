@@ -244,7 +244,7 @@ public class BaseRequestTest {
         Map <String, String> headerInformation = Map.of("testHeaderKey", "testHeaderValue");
         List<String> cookies = List.of("testCookie");
         fixture.logRequest("testUrl", "testBody", "testMethod", headerInformation,
-                                cookies, false);
+                                cookies, true);
         assertEquals("REQUEST URL: testMethod testUrl\n" +
                 "CONTENT TYPE: application/x-www-form-urlencoded\n" +
                 "REQUEST HEADER: testHeaderKey = testHeaderValue\n" +
@@ -269,5 +269,24 @@ public class BaseRequestTest {
         BaseRequest fixture = new MockBaseRequest(null);
         fixture.setAsync(true);
         assertTrue(fixture.getAsync());
+    }
+
+    @Test
+    public void testLogRequestSkippedWhenNotDebug() {
+        BaseRequest fixture = new MockBaseRequest(null);
+        fixture.logRequest("testUrl", "testBody", "GET", Map.of(), List.of(), false);
+        assertNull(fixture.logMsg);
+    }
+
+    @Test
+    public void testLogRequestInDebugMode() {
+        BaseRequest fixture = new MockBaseRequest(null, new MockLogUtil() {
+            @Override
+            public boolean isDebugMode() {
+                return true;
+            }
+        });
+        fixture.logRequest("testUrl", "testBody", "GET", Map.of(), List.of(), false);
+        assertNotNull(fixture.logMsg);
     }
 }

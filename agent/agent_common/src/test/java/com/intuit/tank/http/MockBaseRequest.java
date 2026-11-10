@@ -6,6 +6,10 @@ public class MockBaseRequest extends BaseRequest {
         super(httpclient, new MockLogUtil());
     }
 
+    public MockBaseRequest(TankHttpClient httpclient, TankHttpLogger logUtil) {
+        super(httpclient, logUtil);
+    }
+
     @Override
     public void setKey(String key, String value) {
 
