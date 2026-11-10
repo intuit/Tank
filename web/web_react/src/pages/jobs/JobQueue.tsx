@@ -104,10 +104,10 @@ function storeView(view: View) {
 const ACTIONS = [
   { action: 'start', flag: 'start', label: 'Run', icon: 'pi pi-play', severity: 'success' },
   { action: 'start-load', flag: 'startLoad', label: 'Start load', icon: 'pi pi-bolt', severity: 'success' },
-  { action: 'pause-ramp', flag: 'pauseRamp', label: 'Pause ramp', icon: 'pi pi-pause', severity: 'secondary' },
-  { action: 'resume-ramp', flag: 'resumeRamp', label: 'Resume ramp', icon: 'pi pi-step-forward', severity: 'secondary' },
-  { action: 'pause', flag: 'pause', label: 'Pause', icon: 'pi pi-pause-circle', severity: 'secondary' },
-  { action: 'resume', flag: 'resume', label: 'Resume', icon: 'pi pi-play-circle', severity: 'secondary' },
+  { action: 'pause-ramp', flag: 'pauseRamp', label: 'Pause ramp', hint: 'Pause ramp: stop adding users and hold the current level; running users carry on', icon: 'pi pi-pause', severity: 'secondary' },
+  { action: 'resume-ramp', flag: 'resumeRamp', label: 'Resume ramp', hint: 'Resume ramp: continue adding users', icon: 'pi pi-step-forward', severity: 'secondary' },
+  { action: 'pause', flag: 'pause', label: 'Pause', hint: 'Pause: stop adding users and interrupt the running users', icon: 'pi pi-pause-circle', severity: 'secondary' },
+  { action: 'resume', flag: 'resume', label: 'Resume', hint: 'Resume: let users run and ramp again', icon: 'pi pi-play-circle', severity: 'secondary' },
   { action: 'stop', flag: 'stop', label: 'Stop', icon: 'pi pi-stop', severity: 'warning' },
   { action: 'kill', flag: 'kill', label: 'Kill', icon: 'pi pi-times-circle', severity: 'danger' },
 ] as const;
@@ -270,7 +270,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
             text
             severity={a.severity}
             aria-label={`${a.label} ${name}`}
-            tooltip={a.label}
+            tooltip={'hint' in a ? a.hint : a.label}
             tooltipOptions={{ position: 'top' }}
             disabled={act.isPending}
             onClick={() => (a.action === 'kill' ? confirmThen(row, 'kill', 'Kill') : act.mutate({ target: row, action: a.action }))}
