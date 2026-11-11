@@ -31,8 +31,8 @@ class CustomWebMvcConfigurerTest {
     }
 
     @Test
-    void addViewControllers_registersViewsFromServletContext() {
-        when(context.getResourcePaths("/")).thenReturn(Set.of("/app/", "/docs/"));
+    void addViewControllers_registersClassicSectionsFromServletContext() {
+        when(context.getResourcePaths("/classic/")).thenReturn(Set.of("/classic/projects/", "/classic/login.xhtml"));
 
         ViewControllerRegistry registry = mock(ViewControllerRegistry.class);
         ViewControllerRegistration registration = mock(ViewControllerRegistration.class);
@@ -40,13 +40,24 @@ class CustomWebMvcConfigurerTest {
 
         configurer.addViewControllers(registry);
 
-        // root "/" plus a redirect and a forward for each folder; /app is registered once, by itself
+        // the app's root, /classic, and a redirect and a forward for each section folder, not its pages
         verify(registry).addViewController("/");
-        verify(registry).addViewController("/docs");
-        verify(registry).addViewController("/docs/");
-        verify(registry, times(1)).addViewController("/app");
-        verify(registry, times(1)).addViewController("/app/");
+        verify(registry).addViewController("/classic");
+        verify(registry).addViewController("/classic/");
+        verify(registry).addViewController("/classic/projects");
+        verify(registry).addViewController("/classic/projects/");
         verify(registry, times(5)).addViewController(anyString());
+    }
+
+    @Test
+    void addViewControllers_withoutClassicFolder() {
+        ViewControllerRegistry registry = mock(ViewControllerRegistry.class);
+        ViewControllerRegistration registration = mock(ViewControllerRegistration.class);
+        when(registry.addViewController(anyString())).thenReturn(registration);
+
+        configurer.addViewControllers(registry);
+
+        verify(registry, times(3)).addViewController(anyString());
     }
 
     @Test

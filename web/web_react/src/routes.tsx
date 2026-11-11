@@ -19,11 +19,18 @@ function RequireUser() {
   return <Outlet />;
 }
 
+/** Sends a link from when the app was served under /app to the same page at the root. */
+function UnderApp() {
+  const { pathname, search, hash } = useLocation();
+  return <Navigate to={(pathname.replace(/^\/app/, '') || '/') + search + hash} replace />;
+}
+
 export const routes: RouteObject[] = [
   {
     element: <Layout />,
     children: [
       { path: 'login', element: <LoginPage /> },
+      { path: 'app/*', element: <UnderApp /> },
       {
         element: <RequireUser />,
         children: [

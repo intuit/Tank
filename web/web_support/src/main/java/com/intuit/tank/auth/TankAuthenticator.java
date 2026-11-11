@@ -118,7 +118,7 @@ public class TankAuthenticator implements Serializable {
     public String logout() {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         securityContext.clearCallerPrincipal();
-        return "/login.xhtml?faces-redirect=true";
+        return "/classic/login.xhtml?faces-redirect=true";
     }
 
     public String getPassword() {

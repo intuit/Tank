@@ -1,18 +1,24 @@
 # Tank React UI
 
 The React front end for the JSF → React migration: React 19, React Router, PrimeReact 10 (MIT; the
-lara-light-blue theme) and Vite. Pages not yet moved to React link to the JSF UI, which shares the
-same session.
+lara-light-blue theme) and Vite. The JSF UI is still there, under `/classic`, and shares the same
+session.
 
 ## How it ships
 
 This module builds a jar (`web-react`) with the app in `META-INF/resources/app`. `tank.war` includes
-it, and `CustomWebMvcConfigurer` serves it under `/app`:
+it, and `CustomWebMvcConfigurer` serves it at the WAR's root:
 
-- `/app/assets/**` are content-hashed and cached for a year
-- any other `/app/...` path without a file extension returns `index.html`, so deep links load the app
-- `index.html`'s `<base href="/app/">` is rewritten to the WAR's context path (`/tank/app/`), so one
-  build works under any context path
+- `/assets/**` are content-hashed and cached for a year
+- any other path without a file extension returns `index.html`, so deep links load the app, except
+  under `/v2` and `/v3` (the REST API), `/classic` (the JSF UI) and `/docs`, `/apidocs` and `/restdocs`
+- `index.html`'s `<base href="/">` is rewritten to the WAR's context path (`/tank/`), so one build
+  works under any context path; the app reads its context path back from it
+- links from when the app was under `/app` redirect to the same page at the root
+
+The JSF UI is under `/classic`. Old JSF addresses (any `*.jsf` outside `/classic`, such as
+`/projects/index.jsf`) redirect there with their query string, so bookmarks and an SSO redirect URL
+configured for a JSF page keep working.
 
 `mvn install` downloads Node into `./node` (frontend-maven-plugin), then runs `npm ci`,
 `npm run build` (type-check + Vite) and `npm test`. `-DskipTests` skips the npm tests;
@@ -23,7 +29,7 @@ it, and `CustomWebMvcConfigurer` serves it under `/app`:
 ```bash
 cd web/web_react
 npm install
-TANK_URL=http://localhost:8080/tank npm run dev   # http://localhost:5173/app/
+TANK_URL=http://localhost:8080/tank npm run dev   # http://localhost:5173/
 npm test
 ```
 

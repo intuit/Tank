@@ -56,15 +56,15 @@
 
   <error-page>
     <exception-type>org.jboss.weld.contexts.NonexistentConversationException</exception-type>
-    <location>/expired.jsf</location>
+    <location>/classic/expired.jsf</location>
   </error-page>
   <error-page>
     <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
-    <location>/expired.jsf</location>
+    <location>/classic/expired.jsf</location>
   </error-page>
   <error-page>
     <exception-type>java.lang.Throwable</exception-type>
-    <location>/error.jsf</location>
+    <location>/classic/error.jsf</location>
   </error-page>
 
   <session-config>

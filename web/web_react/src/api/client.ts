@@ -28,11 +28,12 @@ export function readCookie(name: string, cookies: string = document.cookie): str
 }
 
 /**
- * The servlet context path the SPA is served under, e.g. "/tank" for /tank/app/projects.
- * Empty when the SPA runs at the root (the Vite dev server).
+ * The servlet context path the SPA is served under, e.g. "/tank" for /tank/projects. The controller
+ * sets index.html's <base href> to it (SpaIndexTransformer), since a route can't tell it apart from the
+ * path. Empty when the SPA runs at the root (and in the Vite dev server).
  */
-export function contextPath(pathname: string = window.location.pathname): string {
-  return /^(.*?)\/app(?:\/|$)/.exec(pathname)?.[1] ?? '';
+export function contextPath(baseUri: string = document.baseURI): string {
+  return new URL(baseUri).pathname.replace(/\/$/, '');
 }
 
 /** Echoes the XSRF-TOKEN cookie in the X-XSRF-TOKEN header on state-changing requests. */

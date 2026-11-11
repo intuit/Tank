@@ -40,7 +40,7 @@
           <p:toolbar id="bar" style="height: 54px;">
 
             <p:toolbarGroup align="left">
-              <h:outputLink value="#{request.contextPath}/">
+              <h:outputLink value="#{request.contextPath}/classic/">
                 <h:graphicImage library="logo" name="TankLogo.svg" style="height:54px; width:151px; padding: 0 20px 0 0" />
               </h:outputLink>
             </p:toolbarGroup>
@@ -49,37 +49,37 @@
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'projects' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/projects">Project</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/projects">Project</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'scripts' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/scripts">Scripts</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/scripts">Scripts</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'filters' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/filters">Filters</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/filters">Filters</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'agents' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/agents">Agent Tracker</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/agents">Agent Tracker</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'datafiles' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/datafiles">Data Files</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/datafiles">Data Files</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'tools' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/tools">Tools</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/tools">Tools</h:outputLink>
               </h:panelGroup>
 
               <h:panelGroup
                 styleClass="ts-header-menu-itm #{navigation.section eq 'admin' ? 'ts-header-menu-itm-selected' : ''} noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/admin"
+                <h:outputLink value="#{request.contextPath}/classic/admin"
                   rendered="#{security.isAdmin()}">Admin</h:outputLink>
               </h:panelGroup>
 
@@ -90,15 +90,15 @@
 
             <p:toolbarGroup align="right" style="width:200px; text-align: right; display: block">
               <h:panelGroup rendered="#{not tsAuthenticator.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/login.jsf">Login</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/login.jsf">Login</h:outputLink>
               </h:panelGroup>
               <h:panelGroup rendered="#{tsAuthenticator.loggedIn}" styleClass="ts-header-menu-itm noBg noBorder">
-                <h:commandLink action="/tools/account.xhtml" value="Account Settings" style="font-size: smaller;" />
+                <h:commandLink action="/classic/tools/account.xhtml" value="Account Settings" style="font-size: smaller;" />
                 <br />
                 <h:commandLink action="#{tsAuthenticator.logout}" value="Logout" />
               </h:panelGroup>
               <h:panelGroup styleClass="ts-header-menu-itm noBg noBorder">
-                <h:outputLink value="#{request.contextPath}/docs" target="help">Help</h:outputLink>
+                <h:outputLink value="#{request.contextPath}/classic/docs" target="help">Help</h:outputLink>
               </h:panelGroup>
             </p:toolbarGroup>
           </p:toolbar>

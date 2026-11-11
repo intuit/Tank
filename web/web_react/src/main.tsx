@@ -15,7 +15,7 @@ import './app.css';
 
 const client = createTankClient();
 const queryClient = createQueryClient();
-const router = createBrowserRouter(routes, { basename: contextPath() + '/app' });
+const router = createBrowserRouter(routes, { basename: contextPath() || '/' });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
