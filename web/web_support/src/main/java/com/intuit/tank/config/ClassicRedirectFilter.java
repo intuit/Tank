@@ -37,7 +37,8 @@ public class ClassicRedirectFilter extends HttpFilter {
             chain.doFilter(request, response);
             return;
         }
+        String target = request.getServletContext().getContextPath() + CLASSIC + "/" + path.substring(1);
         String query = request.getQueryString();
-        response.sendRedirect(request.getContextPath() + CLASSIC + path + (query == null ? "" : "?" + query));
+        response.sendRedirect(query == null ? target : target + "?" + query);
     }
 }

@@ -1,8 +1,10 @@
 package com.intuit.tank.config;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -15,10 +17,16 @@ public class ClassicRedirectFilterTest {
     private final HttpServletRequest request = mock(HttpServletRequest.class);
     private final HttpServletResponse response = mock(HttpServletResponse.class);
     private final FilterChain chain = mock(FilterChain.class);
+    private final ServletContext servletContext = mock(ServletContext.class);
+
+    @BeforeEach
+    public void setUp() {
+        when(request.getServletContext()).thenReturn(servletContext);
+    }
 
     @Test
     public void redirectsAnOldPageToClassic() throws Exception {
-        when(request.getContextPath()).thenReturn("/tank");
+        when(servletContext.getContextPath()).thenReturn("/tank");
         when(request.getServletPath()).thenReturn("/projects/index.jsf");
 
         new ClassicRedirectFilter().doFilter(request, response, chain);
@@ -29,7 +37,7 @@ public class ClassicRedirectFilterTest {
 
     @Test
     public void keepsTheQueryStringSoAnSsoCodeArrives() throws Exception {
-        when(request.getContextPath()).thenReturn("");
+        when(servletContext.getContextPath()).thenReturn("");
         when(request.getServletPath()).thenReturn("/login.jsf");
         when(request.getQueryString()).thenReturn("code=abc&state=xyz");
 
