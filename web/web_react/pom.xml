@@ -12,7 +12,7 @@
   <artifactId>web-react</artifactId>
   <packaging>jar</packaging>
   <name>Web React UI</name>
-  <description>The React UI, packaged as META-INF/resources/app so tank.war serves it under /app</description>
+  <description>The React UI, packaged as META-INF/resources/app; tank.war serves it at its root</description>
 
   <properties>
     <node.version>v24.21.0</node.version>

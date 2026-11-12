@@ -56,15 +56,15 @@
 
   <error-page>
     <exception-type>org.jboss.weld.contexts.NonexistentConversationException</exception-type>
-    <location>/expired.jsf</location>
+    <location>/classic/expired.jsf</location>
   </error-page>
   <error-page>
     <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
-    <location>/expired.jsf</location>
+    <location>/classic/expired.jsf</location>
   </error-page>
   <error-page>
     <exception-type>java.lang.Throwable</exception-type>
-    <location>/error.jsf</location>
+    <location>/classic/error.jsf</location>
   </error-page>
 
   <session-config>
@@ -74,12 +74,11 @@
     </cookie-config>
   </session-config>
 
-  <!-- This section is optional. We are allowing index.jsf to handle the 
-    root URL (i.e., /). -->
+  <!-- Replaces Tomcat's defaults, whose index.jsp would map a path ending in / to the JSP servlet.
+    No welcome file exists or has a servlet mapping, so such a path reaches Spring, which serves the
+    React app at / (CustomWebMvcConfigurer). A welcome file matched by *.jsf would send it to JSF. -->
   <welcome-file-list>
-    <!-- Add additional files here, if desired, for example: <welcome-file>index.html</welcome-file> -->
     <welcome-file>index.html</welcome-file>
-    <welcome-file>index.jsf</welcome-file>
   </welcome-file-list>
   <resource-env-ref>
     <description>Object factory for the CDI Bean Manager</description>

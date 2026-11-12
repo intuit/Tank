@@ -11,18 +11,25 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serves the React app's files, and its {@code index.html} for any other path so that client-side
- * routes such as {@code /app/projects/12} load the app. A missing path that looks like a file
- * (its last segment has a dot) stays a 404, so a stale script reference fails visibly.
+ * routes such as {@code /projects/12} load the app. A missing path that looks like a file
+ * (its last segment has a dot) stays a 404, so a stale script reference fails visibly, and so does
+ * a path under the REST API that no endpoint answers.
  */
 public class SpaResourceResolver extends PathResourceResolver {
 
     static final String INDEX = "index.html";
+    /** The REST API and its OpenAPI spec, which the app is served beside at the root */
+    static final List<String> API_FOLDERS = List.of("v2/", "v3/");
 
     @Override
     protected Resource getResource(String resourcePath, Resource location) throws IOException {
+        if (API_FOLDERS.stream().anyMatch(resourcePath::startsWith)) {
+            return null;
+        }
         if (resourcePath.isEmpty() || resourcePath.endsWith("/")) {
             return super.getResource(INDEX, location);
         }

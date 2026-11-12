@@ -17,7 +17,7 @@ import com.intuit.tank.vm.common.TankConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@WebFilter(urlPatterns = { "/admin/*" })
+@WebFilter(urlPatterns = { "/classic/admin/*" })
 public class AdminFilter implements Filter {
     private static final Logger LOG = LogManager.getLogger(AdminFilter.class);
 
@@ -29,7 +29,7 @@ public class AdminFilter implements Filter {
         if (securityContext.getCallerPrincipal() == null || !securityContext.isCallerInRole(TankConstants.TANK_GROUP_ADMIN)) {
             LOG.warn("Failed to access " + ((HttpServletRequest) request).getRequestURI() + ", lack of permissions");
             ((HttpServletRequest)request).getSession().invalidate();
-            String contextPath = ((HttpServletRequest)request).getContextPath();
+            String contextPath = ((HttpServletRequest)request).getContextPath() + "/classic/";
             ((HttpServletResponse)response).sendRedirect(contextPath);
             return;
         }

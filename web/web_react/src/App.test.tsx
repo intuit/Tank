@@ -61,6 +61,14 @@ describe('app shell', () => {
     expect(router.state.location.search).toBe('?tab=recent');
   });
 
+  it('moves a link from when the app was under /app to the root', async () => {
+    const { router } = renderAt('/app/tools?x=1', { ...signedIn, 'HEAD /v2/tools/debugger': () => ({ status: 404 }) });
+
+    await screen.findByRole('heading', { name: 'Tools' });
+    expect(router.state.location.pathname).toBe('/tools');
+    expect(router.state.location.search).toBe('?x=1');
+  });
+
   it('opens the projects page after a fresh sign-in, as JSF does', async () => {
     const { router } = renderAt('/login', {
       ...signedOut,
@@ -103,7 +111,7 @@ describe('app shell', () => {
     });
 
     const sso = await screen.findByRole('link', { name: 'Sign in with SSO' });
-    expect(sso.getAttribute('href')).toBe('/v2/auth/sso/authorize?returnTo=%2Fapp%2Fprojects');
+    expect(sso.getAttribute('href')).toBe('/v2/auth/sso/authorize?returnTo=%2Fprojects');
   });
 
   it('says the session expired when a signed-in request gets a 401', async () => {

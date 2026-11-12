@@ -31,15 +31,14 @@ describe('readCookie', () => {
 });
 
 describe('contextPath', () => {
-  it('is the part before /app/', () => {
-    expect(contextPath('/tank/app/projects/12')).toBe('/tank');
-    expect(contextPath('/tank/app')).toBe('/tank');
-    expect(contextPath('/tank/apps/x')).toBe('');
+  it('is the base href without its trailing slash', () => {
+    expect(contextPath('https://tank.example.com/tank/')).toBe('/tank');
+    expect(contextPath('https://tank.example.com/perf/tank/')).toBe('/perf/tank');
   });
 
   it('is empty at the root', () => {
-    expect(contextPath('/app/')).toBe('');
-    expect(contextPath('/')).toBe('');
+    expect(contextPath('https://tank.example.com/')).toBe('');
+    expect(contextPath('http://localhost:5173/')).toBe('');
   });
 });
 

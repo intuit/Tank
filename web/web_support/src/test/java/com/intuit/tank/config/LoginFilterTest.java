@@ -133,13 +133,13 @@ public class LoginFilterTest {
         when(_httpServletRequestMock.getParameter(any(String.class))).thenReturn(AUTH_CODE_STUB);
         when(_httpServletRequestMock.getSession(false)).thenReturn(_mockHttpSession);
         when(_httpServletRequestMock.getContextPath()).thenReturn("/tank");
-        when(_tankSsoHandlerMock.consumeReturnPath(_mockHttpSession)).thenReturn("/app/projects");
+        when(_tankSsoHandlerMock.consumeReturnPath(_mockHttpSession)).thenReturn("/projects");
 
         // Act
         _sut.doFilter(_httpServletRequestMock, _httpServletResponseMock, _filterChainResponseMock);
 
         // Assert
-        verify(_httpServletResponseMock).sendRedirect("/tank/app/projects");
+        verify(_httpServletResponseMock).sendRedirect("/tank/projects");
         verify(_tankConfigMock, never()).getOidcSsoConfig();
     }
 }

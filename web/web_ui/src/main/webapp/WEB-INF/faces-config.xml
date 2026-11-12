@@ -6,83 +6,83 @@
               version="4.0">
   <!-- Write your navigation rules here. You are encouraged to use CDI for creating @Named managed beans. -->
   <navigation-rule>
-    <from-view-id>/scripts/index.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/index.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptCreationBean.createNewScript()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/createNewScript.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/createNewScript.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/createNewScript.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/createNewScript.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptCreationBean.save()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/index.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/createNewScript.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/createNewScript.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptCreationBean.cancel()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/scripts/index.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/index.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/index.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.editScript(selectable.entity)}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-edit-view.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/script-edit-view.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/script-edit-view.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.enterFilterMode()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/scripts/reapply-filters.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/reapply-filters.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
     <navigation-rule>
-    <from-view-id>/scripts/reapply-filters.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/reapply-filters.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.enterFilterMode()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-edit-view.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/reapply-filters.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/reapply-filters.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-edit-view.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/reapply-filters.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/reapply-filters.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.reapplyFilters()}</from-action>
       <from-outcome>failure</from-outcome>
-      <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-edit-view.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/script-edit-view.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/script-edit-view.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptEditor.cancel()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/index.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/index.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
@@ -91,96 +91,96 @@
     <navigation-case>
         <from-action>#{tsAuthenticator.logout}</from-action>
         <if>#{true}</if>
-        <to-view-id>/login.xhtml</to-view-id>
+        <to-view-id>/classic/login.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.newFilter()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/addFilter.xhtml</to-view-id>
+      <to-view-id>/classic/filters/addFilter.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.editFilterGroup(filterGroupEnvelope.entity)}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/createNewFilterGroup.xhtml</to-view-id>
+      <to-view-id>/classic/filters/createNewFilterGroup.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.editFilter(filterEnvelope.entity)}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/addFilter.xhtml</to-view-id>
+      <to-view-id>/classic/filters/addFilter.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{projectBean.openProject(pe.entity)}</from-action>
       <if>#{true}</if>
-      <to-view-id>/projects/projectview.xhtml</to-view-id>
+      <to-view-id>/classic/projects/projectview.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.newFilterGroup()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/createNewFilterGroup.xhtml</to-view-id>
+      <to-view-id>/classic/filters/createNewFilterGroup.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/filters/createNewFilterGroup.xhtml</from-view-id>
+    <from-view-id>/classic/filters/createNewFilterGroup.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.save()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/filters/index.xhtml</to-view-id>
+      <to-view-id>/classic/filters/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.save()}</from-action>
       <from-outcome>fail</from-outcome>
-      <to-view-id>/filters/createNewFilterGroup.xhtml</to-view-id>
+      <to-view-id>/classic/filters/createNewFilterGroup.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{filterGroupCreationBean.cancel()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/index.xhtml</to-view-id>
+      <to-view-id>/classic/filters/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/filters/addFilter.xhtml</from-view-id>
+    <from-view-id>/classic/filters/addFilter.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.save()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/filters/index.xhtml</to-view-id>
+      <to-view-id>/classic/filters/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.save()}</from-action>
       <from-outcome>fail</from-outcome>
-      <to-view-id>/filters/addFilter.xhtml</to-view-id>
+      <to-view-id>/classic/filters/addFilter.xhtml</to-view-id>
       <redirect />
     </navigation-case>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.cancel()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/index.xhtml</to-view-id>
+      <to-view-id>/classic/filters/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/filters/addFilter.xhtml</from-view-id>
+    <from-view-id>/classic/filters/addFilter.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptFilterCreationBean.save()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/filters/index.xhtml</to-view-id>
+      <to-view-id>/classic/filters/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/projects/projectview.xhtml</from-view-id>
+    <from-view-id>/classic/projects/projectview.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{projectBean.cancel()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/projects/index.xhtml</to-view-id>
+      <to-view-id>/classic/projects/index.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
@@ -189,7 +189,7 @@
     <navigation-case>
       <from-action>#{workloadScripts.editScriptGroup()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/projects/workloadScripts.xhtml</to-view-id>
+      <to-view-id>/classic/projects/workloadScripts.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
@@ -198,7 +198,7 @@
     <navigation-case>
       <from-action>#{scriptStepsEditor.saveScriptGroup()}</from-action>
       <if>#{true}</if>
-      <to-view-id>/projects/projectview.xhtml</to-view-id>
+      <to-view-id>/classic/projects/projectview.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
@@ -207,74 +207,74 @@
     <navigation-case>
       <from-action>#{createProjectBean.createNewProject()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/projects/projectview.xhtml</to-view-id>
+      <to-view-id>/classic/projects/projectview.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/admin/useredit.xhtml</from-view-id>
+    <from-view-id>/classic/admin/useredit.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{userEdit.save()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/admin/users.xhtml</to-view-id>
+      <to-view-id>/classic/admin/users.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/admin/useredit.xhtml</from-view-id>
+    <from-view-id>/classic/admin/useredit.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{userEdit.cancel()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/admin/users.xhtml</to-view-id>
+      <to-view-id>/classic/admin/users.xhtml</to-view-id>
       <redirect />
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/admin/users.xhtml</from-view-id>
+    <from-view-id>/classic/admin/users.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{userEdit.edit(selectableUser.entity)}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/admin/useredit.xhtml</to-view-id>
+      <to-view-id>/classic/admin/useredit.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/admin/users.xhtml</from-view-id>
+    <from-view-id>/classic/admin/users.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{userEdit.newUser()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/admin/useredit.xhtml</to-view-id>
+      <to-view-id>/classic/admin/useredit.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/script-edit-view.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/script-edit-view.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptSearchBean.search()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/script-search.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-search.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
   <navigation-rule>
-    <from-view-id>/scripts/script-search.xhtml</from-view-id>
+    <from-view-id>/classic/scripts/script-search.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{scriptSearchBean.cancel()}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/scripts/script-edit-view.xhtml</to-view-id>
+      <to-view-id>/classic/scripts/script-edit-view.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 
   <!-- Security -->
   
   <navigation-rule>
-    <from-view-id>/login.xhtml</from-view-id>
+    <from-view-id>/classic/login.xhtml</from-view-id>
     <navigation-case>
       <from-action>#{tsAuthenticator.login}</from-action>
       <from-outcome>failure</from-outcome>
-      <to-view-id>/login.xhtml</to-view-id>
+      <to-view-id>/classic/login.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-action>#{tsAuthenticator.login}</from-action>
       <from-outcome>success</from-outcome>
-      <to-view-id>/projects/index.xhtml</to-view-id>
+      <to-view-id>/classic/projects/index.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
 

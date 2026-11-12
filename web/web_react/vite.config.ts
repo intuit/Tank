@@ -43,10 +43,10 @@ function redmondPalette(): Plugin {
 export default defineConfig(({ command }) => ({
   // Built asset URLs are relative and resolve against <base href>, which the controller sets to the
   // WAR's context path, so one build works under /tank or at the root
-  base: command === 'build' ? './' : '/app/',
+  base: command === 'build' ? './' : '/',
   plugins: [react(), redmondPalette()],
   build: {
-    // Packaged into the tank-web-react jar, which Tomcat and Spring serve as /app/**
+    // Packaged into the tank-web-react jar, which Spring serves at the WAR's root (CustomWebMvcConfigurer)
     outDir: 'target/classes/META-INF/resources/app',
     emptyOutDir: true,
     // esbuild writes CSS as ASCII (its default charset), keeping escapes such as primeicons'

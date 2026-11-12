@@ -30,8 +30,8 @@ export function LoginPage() {
     setBusy(false);
   }
 
-  // returnTo is relative to the context path; the SPA lives under /app
-  const ssoHref = `${contextPath()}/v2/auth/sso/authorize?returnTo=${encodeURIComponent('/app' + from)}`;
+  // returnTo is relative to the context path, which is also the SPA's root
+  const ssoHref = `${contextPath()}/v2/auth/sso/authorize?returnTo=${encodeURIComponent(from)}`;
 
   return (
     <Card title={<h1 className="login-title">Sign in</h1>} className="login">

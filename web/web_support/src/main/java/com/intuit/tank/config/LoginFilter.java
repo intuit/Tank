@@ -20,7 +20,7 @@ import com.intuit.tank.vm.settings.TankConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@WebFilter(urlPatterns = {"/admin/*", "/projects/*", "/scripts/*", "/filters/*", "/agents/*", "/datafiles/*", "/tools/*"}, asyncSupported = true)
+@WebFilter(urlPatterns = {"/classic/admin/*", "/classic/projects/*", "/classic/scripts/*", "/classic/filters/*", "/classic/agents/*", "/classic/datafiles/*", "/classic/tools/*"}, asyncSupported = true)
 public class LoginFilter extends HttpFilter {
 	private static final Logger LOG = LogManager.getLogger(LoginFilter.class);
 
@@ -80,7 +80,7 @@ public class LoginFilter extends HttpFilter {
 
 	private void InvalidateAndRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.getSession().invalidate();
-		String contextPath = request.getContextPath() + "/login.jsf";
+		String contextPath = request.getContextPath() + "/classic/login.jsf";
 		response.sendRedirect(contextPath);
 	}
 }

@@ -18,13 +18,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Points the React app's {@code <base href="/app/">} at this deployment's context path, e.g.
- * {@code /tank/app/}. The build references its assets relative to the base, so one build works
+ * Points the React app's {@code <base href="/">} at this deployment's context path, e.g.
+ * {@code /tank/}. The build references its assets relative to the base, so one build works
  * whatever context path the WAR is deployed under.
  */
 public class SpaIndexTransformer implements ResourceTransformer {
 
-    static final String BASE_PLACEHOLDER = "<base href=\"/app/\"";
+    static final String BASE_PLACEHOLDER = "<base href=\"/\"";
 
     @Override
     public Resource transform(HttpServletRequest request, Resource resource, ResourceTransformerChain chain)
@@ -35,7 +35,7 @@ public class SpaIndexTransformer implements ResourceTransformer {
             return resource;
         }
         String html = resource.getContentAsString(StandardCharsets.UTF_8);
-        String base = "<base href=\"" + HtmlUtils.htmlEscape(contextPath + "/app/") + "\"";
+        String base = "<base href=\"" + HtmlUtils.htmlEscape(contextPath + "/") + "\"";
         return new TransformedResource(resource, html.replace(BASE_PLACEHOLDER, base).getBytes(StandardCharsets.UTF_8));
     }
 }
