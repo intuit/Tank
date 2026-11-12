@@ -102,15 +102,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.glassfish.soteria</groupId>
-      <artifactId>jakarta.security.enterprise</artifactId>
-    </dependency>
-    <!-- Soteria's OpenID Connect mechanism uses UriBuilder, which a full Jakarta EE
-         server provides; Weld loads it when Soteria registers its beans -->
-    <dependency>
-      <groupId>jakarta.ws.rs</groupId>
-      <artifactId>jakarta.ws.rs-api</artifactId>
-      <scope>runtime</scope>
+      <groupId>jakarta.security.enterprise</groupId>
+      <artifactId>jakarta.security.enterprise-api</artifactId>
     </dependency>
 
     <!-- JSF -->
