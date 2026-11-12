@@ -46,9 +46,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -63,6 +66,9 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     private static final Logger LOGGER = LogManager.getLogger(AgentServiceV2Impl.class);
     private static final String HARNESS_JAR = "apiharness-1.0-all.jar";
+    private static final String SUPPORT_FILES_NAME = "agent-support-files.zip";
+    private static final Object SUPPORT_FILES_LOCK = new Object();
+
     @Override
     public String ping() {
         return "PONG " + getClass().getInterfaces()[0].getSimpleName();
@@ -89,19 +95,32 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     @Override
     public File getSupportFiles() {
         RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
-        String filename = "agent-support-files.zip";
-        File supportFiles = new File(new TankConfig().getTmpDir(), filename);
-        if (!supportFiles.exists()) {
-            final FileStorage fileStorage = FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false);
-            final File harnessJar = new File(servletContext.getRealPath("/tools/" + HARNESS_JAR));
+        File supportFiles = new File(new TankConfig().getTmpDir(), SUPPORT_FILES_NAME);
+        return getSupportFiles(supportFiles,
+                () -> FileStorageFactory.getFileStorage(new TankConfig().getJarDir(), false),
+                () -> new File(servletContext.getRealPath("/tools/" + HARNESS_JAR)));
+    }
+
+    /**
+     * Builds the zip once and returns it. Requests that arrive while it is being built wait for it, and the zip
+     * only appears at its path once complete, so a request never streams a partial file or one another request
+     * is rewriting.
+     */
+    File getSupportFiles(File supportFiles, Supplier<FileStorage> fileStorageSupplier, Supplier<File> harnessJarSupplier) {
+        synchronized (SUPPORT_FILES_LOCK) {
+            if (supportFiles.exists()) {
+                return supportFiles;
+            }
+            final FileStorage fileStorage = fileStorageSupplier.get();
+            final File harnessJar = harnessJarSupplier.get();
             LOGGER.info(new ObjectMessage(Map.of("Message","harnessJar = " + harnessJar.getAbsolutePath())));
             final List<FileData> files = fileStorage.listFileData("");
 
-            synchronized ( supportFiles ) {
-                supportFiles.getParentFile().mkdirs();
-                // open the zip stream in a try resource block, no finally needed
-                try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(supportFiles))) {
-
+            supportFiles.getParentFile().mkdirs();
+            File partial = new File(supportFiles.getParentFile(), supportFiles.getName() + ".partial");
+            try {
+                // open the zip stream in a try resource block so it is closed before the move
+                try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(partial))) {
                     if (harnessJar.exists()) {
                         addFileToZip(HARNESS_JAR, new FileInputStream(harnessJar), zip);
                     }
@@ -112,14 +131,15 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
                             addFileToZip(fileData.getFileName(), fileStorage.readFileData(fileData), zip);
                         }
                     }
-                    zip.flush();
-                } catch (IOException e) {
-                    LOGGER.error("Error reading support files: " + e);
-                    throw new GenericServiceResourceNotFoundException("agent", "support files", e);
                 }
+                Files.move(partial.toPath(), supportFiles.toPath(), StandardCopyOption.ATOMIC_MOVE);
+            } catch (IOException e) {
+                LOGGER.error("Error reading support files: " + e);
+                FileUtils.deleteQuietly(partial);
+                throw new GenericServiceResourceNotFoundException("agent", "support files", e);
             }
+            return supportFiles;
         }
-        return supportFiles;
     }
 
     private void addFileToZip(String name, InputStream in, ZipOutputStream zip) {
