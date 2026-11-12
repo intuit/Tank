@@ -584,7 +584,7 @@ public class ActionProducerTest {
         }
         // the new agent client returns no definitions, so the default client choices are offered
         assertEquals(3, clientChooser.getItemCount());
-        assertEquals(1, clientChooser.getSelectedIndex());
+        assertEquals("Apache HttpClient 4.5", clientChooser.getSelectedItem().toString());
     }
 
     @Test
