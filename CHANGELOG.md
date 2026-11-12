@@ -1,3 +1,19 @@
+# 5.0.0 (Thu Nov 12 2026)
+
+#### 💥 Breaking Change
+
+- Serve the React UI at the root and move the JSF UI to /classic [#575](https://github.com/intuit/Tank/pull/575) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🐛 Bug Fix
+
+- Trace controller background work that showed up as client-originated in X-Ray [#574](https://github.com/intuit/Tank/pull/574) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 4.7.8 (Tue Nov 10 2026)
 
 #### 🐛 Bug Fix
