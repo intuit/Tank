@@ -1,3 +1,17 @@
+# 5.0.1 (Thu Nov 12 2026)
+
+#### 🐛 Bug Fix
+
+- Drop dependencies the build ships but doesn't need [#577](https://github.com/intuit/Tank/pull/577) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Stop concurrent support-files requests from truncating each other's download [#576](https://github.com/intuit/Tank/pull/576) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+- Fix ActionProducerTest for the Apache HttpClient 5 client choices [#578](https://github.com/intuit/Tank/pull/578) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.0 (Thu Nov 12 2026)
 
 #### 💥 Breaking Change
