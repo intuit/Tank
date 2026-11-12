@@ -15,7 +15,7 @@ package com.intuit.tank;
 
 import java.util.List;
 
-import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.jboss.weld.junit.jupiter.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
