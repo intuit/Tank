@@ -2948,6 +2948,35 @@ public class ScriptEditorTest {
     }
 
     @Test
+    public void testPrettyStringJSONKeepsNumbersAsWrittenAndEmptyContainersInline() {
+        String input = "{\"n\":[1e3,-0.0,12345678901234567890.5],\"o\":{},\"a\":[],\"z\":null}";
+        String output = "{\n  \"n\": [\n    1e3,\n    -0.0,\n    12345678901234567890.5\n  ],\n"
+                + "  \"o\": {},\n  \"a\": [],\n  \"z\": null\n}";
+        assertEquals(output, fixture.getPrettyString(input, "application/json"));
+    }
+
+    @Test
+    public void testPrettyStringInvalidJSONIsReturnedTrimmed() {
+        assertEquals("{\"a\": 1} trailing", fixture.getPrettyString(" {\"a\": 1} trailing ", "json"));
+        assertEquals("{not json", fixture.getPrettyString("{not json", "json"));
+    }
+
+    @Test
+    public void testPrettyStringXMLReindentsAlreadyIndentedXml() {
+        String input = "<a>\n      <b x=\"1\">text</b>\n      <c/>\n</a>";
+        String output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<a>\n  <b x=\"1\">text</b>\n  <c/>\n</a>";
+        assertEquals(output, fixture.getPrettyString(input, "text/xml"));
+    }
+
+    @Test
+    public void testPrettyStringXMLDoesNotResolveExternalEntities() {
+        String input = "<!DOCTYPE a [<!ENTITY ext SYSTEM \"file:///etc/hosts\"><!ENTITY in \"inner\">]><a>&in;|&ext;</a>";
+        String result = fixture.getPrettyString(input, "xml");
+        assertTrue(result.contains("inner|"), result);
+        assertFalse(result.contains("localhost"), result);
+    }
+
+    @Test
     public void testReapplyFilters() {
         FacesContext facesContext = mock(FacesContext.class);
 

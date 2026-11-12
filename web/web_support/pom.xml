@@ -138,16 +138,10 @@
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
 
+    <!-- PropertyComparer; this came in through opencsv before -->
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.15.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.dom4j</groupId>
-      <artifactId>dom4j</artifactId>
-      <version>2.2.0</version>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
 
     <dependency>

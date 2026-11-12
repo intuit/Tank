@@ -21,7 +21,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import jakarta.ws.rs.core.CacheControl;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -70,15 +69,5 @@ public class ResponseUtil {
         HDWorkload hdWorkload = ConverterUtil.convertWorkload(workload, job);
         String scriptString = ConverterUtil.getWorkloadXML(hdWorkload);
         ProjectDaoUtil.storeScriptFile(jobId, scriptString);
-    }
-
-    public static final CacheControl getNoStoreCacheControl() {
-        CacheControl cc = new CacheControl();
-        cc.setNoCache(true);
-        cc.setNoStore(true);
-        cc.setMaxAge(0);
-        cc.setSMaxAge(0);
-        cc.setPrivate(true);
-        return cc;
     }
 }

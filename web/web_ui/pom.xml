@@ -217,13 +217,6 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- enunciate dependencies -->
-    <dependency>
-	  <groupId>com.webcohesion.enunciate</groupId>
-	  <artifactId>enunciate-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
