@@ -1,6 +1,5 @@
 package com.intuit.tank.auth.sso;
 
-import com.google.gson.Gson;
 import com.intuit.tank.auth.sso.models.UserInfo;
 import com.intuit.tank.auth.sso.models.Token;
 import com.intuit.tank.http.WebHttpClient;
@@ -14,6 +13,8 @@ import jakarta.inject.Inject;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -31,7 +32,11 @@ import java.util.Objects;
 public class TankOidcAuthorization {
     private static final Logger LOG = LogManager.getLogger(TankOidcAuthorization.class);
 
-    private Gson _gson = new Gson();
+    // Lenient like the Gson it replaces: providers add claims, and may send null for an absent one
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     @Inject
     private WebHttpClient _webHttpClient;
@@ -64,7 +69,7 @@ public class TankOidcAuthorization {
         LOG.debug("Request Access Token from Authorization server");
         HttpResponse<String> httpPostResponse = _webHttpClient.Post(authenticationUrl, oidcRequestParameters);
 
-        return _gson.fromJson(httpPostResponse.body(), Token.class);
+        return JSON_MAPPER.readValue(httpPostResponse.body(), Token.class);
     }
 
     public UserInfo DecodeIdToken(Token token) {
@@ -79,7 +84,7 @@ public class TankOidcAuthorization {
         byte[] decodedIdTokenBuffer = Base64.getUrlDecoder().decode(truncatedEncodedIdTokenString);
         String decodedUserInfoString = new String(decodedIdTokenBuffer, StandardCharsets.UTF_8);
 
-        UserInfo userInfo = _gson.fromJson(decodedUserInfoString, UserInfo.class);
+        UserInfo userInfo = JSON_MAPPER.readValue(decodedUserInfoString, UserInfo.class);
         LOG.info("Decoding ID Token to UserInfo for {}", userInfo.getUsername());
         return userInfo;
     }

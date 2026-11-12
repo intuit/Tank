@@ -14,6 +14,7 @@ package com.intuit.tank.script;
  */
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,16 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.dom4j.DocumentHelper;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import com.intuit.tank.util.Messages;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.intuit.tank.ModifiedScriptMessage;
 import com.intuit.tank.PreferencesBean;
 import com.intuit.tank.auth.Security;
@@ -60,6 +53,29 @@ import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.qualifier.Modified;
 import com.intuit.tank.script.util.ScriptFilterUtil;
 import com.intuit.tank.vm.settings.AccessRight;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.core.util.Separators;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 @Named
 @ConversationScoped
@@ -67,6 +83,16 @@ public class ScriptEditor implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static Logger LOG = LogManager.getLogger(ScriptEditor.class);
+
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
+    // Two-space indents, "name": value, each array element on its own line, and [] / {} when empty
+    private static final ObjectWriter JSON_PRETTY_WRITER = JSON_MAPPER.writer().with(new DefaultPrettyPrinter(
+            Separators.createDefaultInstance()
+                    .withObjectNameValueSpacing(Separators.Spacing.AFTER)
+                    .withObjectEmptySeparator("")
+                    .withArrayEmptySeparator(""))
+            .withArrayIndenter(new DefaultIndenter("  ", "\n"))
+            .withObjectIndenter(new DefaultIndenter("  ", "\n")));
 
     private Script script;
 
@@ -211,21 +237,13 @@ public class ScriptEditor implements Serializable {
         if (StringUtils.isNotBlank(s)) {
             if (Strings.CI.contains(mimetype, "json")) {
                 try {
-                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                    JsonElement el = JsonParser.parseString(s);
-                    s = gson.toJson(el); // done
-                } catch (JsonSyntaxException e) {
+                    s = prettyJson(s);
+                } catch (JacksonException | IllegalArgumentException e) {
                     LOG.warn("Cannot format json string: " + e);
                 }
             } else if (Strings.CI.contains(mimetype, "xml")) {
                 try {
-                    StringWriter sw;
-                    final OutputFormat format = OutputFormat.createPrettyPrint();
-                    final org.dom4j.Document document = DocumentHelper.parseText(s);
-                    sw = new StringWriter();
-                    final XMLWriter writer = new XMLWriter(sw, format);
-                    writer.write(document);
-                    s = sw.toString();
+                    s = prettyXml(s);
                 } catch (Exception e) {
                     LOG.warn("Cannot format xml string: " + e);
                 }
@@ -233,6 +251,60 @@ public class ScriptEditor implements Serializable {
             s = s.trim();
         }
         return s;
+    }
+
+    private static String prettyJson(String json) {
+        StringWriter sw = new StringWriter();
+        try (JsonParser parser = JSON_MAPPER.createParser(json);
+             JsonGenerator generator = JSON_PRETTY_WRITER.createGenerator(sw)) {
+            JsonToken token = parser.nextToken();
+            int depth = 0;
+            do {
+                // numbers as written, so 1e3 and -0.0 are shown as the response sent them
+                if (token.isNumeric()) {
+                    generator.writeNumber(parser.getString());
+                } else {
+                    generator.copyCurrentEvent(parser);
+                }
+                if (token.isStructStart()) {
+                    depth++;
+                } else if (token.isStructEnd()) {
+                    depth--;
+                }
+            } while (depth > 0 && (token = parser.nextToken()) != null);
+            if (parser.nextToken() != null) {
+                throw new IllegalArgumentException("content after the JSON value");
+            }
+        }
+        return sw.toString();
+    }
+
+    private static String prettyXml(String xml) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        // a response is untrusted input: never fetch external DTDs or entities
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+
+        // drop the existing indentation, or the transformer indents around it
+        NodeList blanks = (NodeList) XPathFactory.newInstance().newXPath()
+                .evaluate("//text()[normalize-space(.) = '']", document, XPathConstants.NODESET);
+        for (int i = 0; i < blanks.getLength(); i++) {
+            Node blank = blanks.item(i);
+            blank.getParentNode().removeChild(blank);
+        }
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        StringWriter sw = new StringWriter();
+        transformer.transform(new DOMSource(document), new StreamResult(sw));
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n" + sw.toString().replace("\r\n", "\n").trim();
     }
 
     /**

@@ -298,12 +298,6 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.3</version>
-            <scope>provided</scope>
-          </dependency>
-          <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
             <version>${version.hibernate}</version>
@@ -374,6 +368,13 @@
         <groupId>com.mysql</groupId>
         <artifactId>mysql-connector-j</artifactId>
         <version>9.5.0</version>
+        <exclusions>
+          <!-- Only the X DevAPI uses protobuf; Tank connects over plain JDBC -->
+          <exclusion>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -420,12 +421,6 @@
         <scope>provided</scope>
       </dependency>
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
-
-      <dependency>
-        <groupId>com.webcohesion.enunciate</groupId>
-        <artifactId>enunciate-core</artifactId>
-        <version>${version.enunciate}</version>
-      </dependency>
 
       <dependency>
         <groupId>org.glassfish.soteria</groupId>
@@ -508,6 +503,12 @@
       <artifactId>commons-beanutils</artifactId>
       <version>1.11.0</version>
     </dependency>
+    <!-- beanutils asks for 1.3.5; keep the newer one commons-configuration2 needs -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.3.6</version>
+    </dependency>
 
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -558,12 +559,6 @@
       </dependency>
 
       <dependency>
-        <groupId>com.opencsv</groupId>
-        <artifactId>opencsv</artifactId>
-        <version>5.12.0</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
         <version>3.7.1</version>
@@ -575,11 +570,6 @@
         <version>3.0.0</version>
       </dependency>
 
-      <dependency>
-        <groupId>com.metaparadigm</groupId>
-        <artifactId>json-rpc</artifactId>
-        <version>1.0</version>
-      </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
@@ -604,17 +594,6 @@
         <groupId>de.congrace</groupId>
         <artifactId>exp4j</artifactId>
         <version>0.3.11</version>
-      </dependency>
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>2.0.2</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-math3</artifactId>
-        <version>3.6.1</version>
       </dependency>
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
@@ -644,15 +623,18 @@
         <version>20260814</version>
       </dependency>
       <dependency>
-        <groupId>jakarta.xml</groupId>
-        <artifactId>jsr173</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.weld.servlet</groupId>
         <artifactId>weld-servlet-core</artifactId>
         <version>${weld.version}</version>
         <scope>runtime</scope>
+        <exclusions>
+          <!-- An annotation processor (with jdeparser and its annotations) that
+               weld-lite-extension-translator leaks onto the runtime classpath -->
+          <exclusion>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-processor</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>jakarta.enterprise</groupId>
@@ -681,23 +663,6 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${version.mockito}</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>1.9.27</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>1.9.27</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.jcraft</groupId>
-        <artifactId>jsch</artifactId>
-        <version>0.1.55</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>

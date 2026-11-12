@@ -1,6 +1,6 @@
 package com.intuit.tank.auth.sso.models;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
 import java.io.Serializable;
@@ -15,48 +15,48 @@ import java.util.List;
 @ToString
 public class UserInfo implements Serializable {
 
-    @SerializedName("sub")
+    @JsonProperty("sub")
     private String subject;
 
-    @SerializedName("iss")
+    @JsonProperty("iss")
     private String issuer;
 
-    @SerializedName("groups")
+    @JsonProperty("groups")
     private List<String> groups;
 
-    @SerializedName("preferred_username")
+    @JsonProperty("preferred_username")
     private String username;
 
-    @SerializedName("given_name")
+    @JsonProperty("given_name")
     private String firstName;
 
-    @SerializedName("aud")
+    @JsonProperty("aud")
     private String audience;
 
-    @SerializedName("acr")
+    @JsonProperty("acr")
     private String authenticationContext;
 
-    @SerializedName("auth_time")
+    @JsonProperty("auth_time")
     private long authenticationTimeUtc;
 
-    @SerializedName("name")
+    @JsonProperty("name")
     private String fullName;
 
-    @SerializedName("exp")
+    @JsonProperty("exp")
     private long expirationTimeUtc;
 
-    @SerializedName("iat")
+    @JsonProperty("iat")
     private long tokenIssueTimeUtc;
 
-    @SerializedName("family_name")
+    @JsonProperty("family_name")
     private String lastName;
 
-    @SerializedName("jti")
+    @JsonProperty("jti")
     private String tokenIdentifier;
 
-    @SerializedName("email")
+    @JsonProperty("email")
     private String email;
 
-    @SerializedName("nonce")
+    @JsonProperty("nonce")
     private String nonce;
 }

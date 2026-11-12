@@ -32,8 +32,6 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 
@@ -366,7 +364,7 @@ public class ScriptServiceUtil {
             return (ScriptTO) ctx.createUnmarshaller().unmarshal(xmlSource);
         } catch (ParserConfigurationException | JAXBException | SAXException e) {
             LOG.error("Error unmarshalling script: {}", e.getMessage(), e);
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new IllegalArgumentException("Invalid script XML: " + e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
