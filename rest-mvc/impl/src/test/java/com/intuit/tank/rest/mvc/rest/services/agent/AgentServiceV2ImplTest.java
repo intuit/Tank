@@ -7,6 +7,8 @@ import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceBadRequestException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceCreateOrUpdateException;
 import com.intuit.tank.rest.mvc.rest.controllers.errors.GenericServiceResourceNotFoundException;
+import com.intuit.tank.storage.FileData;
+import com.intuit.tank.storage.FileStorage;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
@@ -22,6 +24,7 @@ import com.intuit.tank.vm.vmManager.models.VMStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -29,9 +32,24 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import jakarta.servlet.ServletContext;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -85,6 +103,83 @@ class AgentServiceV2ImplTest {
             // This will throw because we can't read a mock file — testing exception path
             assertThrows(GenericServiceResourceNotFoundException.class, () -> service.getSettings());
         }
+    }
+
+    // =====================================================================
+    // getSupportFiles
+    // =====================================================================
+
+    @Test
+    void getSupportFiles_concurrentRequestsBuildTheZipOnceAndAllGetItWhole(@TempDir Path tmp) throws Exception {
+        FileStorage fileStorage = mock(FileStorage.class);
+        FileData lib = new FileData("", "lib.jar");
+        when(fileStorage.listFileData("")).thenReturn(List.of(lib));
+        byte[] libBytes = new byte[2 * 1024 * 1024];
+        new Random(42).nextBytes(libBytes);
+        when(fileStorage.readFileData(lib)).thenAnswer(inv -> new ByteArrayInputStream(libBytes));
+        File supportFiles = tmp.resolve("tmpfiles/agent-support-files.zip").toFile();
+        File missingHarness = tmp.resolve("tools/apiharness-1.0-all.jar").toFile();
+
+        int requests = 8;
+        ExecutorService pool = Executors.newFixedThreadPool(requests);
+        try {
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<Map<String, Integer>>> results = new ArrayList<>();
+            for (int i = 0; i < requests; i++) {
+                results.add(pool.submit(() -> {
+                    start.await();
+                    File zip = service.getSupportFiles(supportFiles, () -> fileStorage, () -> missingHarness);
+                    return readZipEntrySizes(zip);
+                }));
+            }
+            start.countDown();
+            for (Future<Map<String, Integer>> result : results) {
+                assertEquals(Map.of("lib.jar", libBytes.length), result.get(30, TimeUnit.SECONDS));
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+
+        verify(fileStorage, times(1)).listFileData("");
+        assertArrayEquals(new String[] { "agent-support-files.zip" }, supportFiles.getParentFile().list());
+    }
+
+    @Test
+    void getSupportFiles_prefersTheHarnessJarFromTheWar(@TempDir Path tmp) throws Exception {
+        File harnessJar = tmp.resolve("apiharness-1.0-all.jar").toFile();
+        Files.write(harnessJar.toPath(), new byte[] { 1, 2, 3 });
+        FileStorage fileStorage = mock(FileStorage.class);
+        FileData storedHarness = new FileData("", "apiharness-1.0-all.jar");
+        when(fileStorage.listFileData("")).thenReturn(List.of(storedHarness));
+        File supportFiles = tmp.resolve("agent-support-files.zip").toFile();
+
+        File zip = service.getSupportFiles(supportFiles, () -> fileStorage, () -> harnessJar);
+
+        assertEquals(Map.of("apiharness-1.0-all.jar", 3), readZipEntrySizes(zip));
+        verify(fileStorage, never()).readFileData(any());
+    }
+
+    @Test
+    void getSupportFiles_leavesNoZipWhenItCannotBeWritten(@TempDir Path tmp) throws Exception {
+        File notADirectory = tmp.resolve("tmpfiles").toFile();
+        Files.write(notADirectory.toPath(), new byte[0]);
+        File supportFiles = new File(notADirectory, "agent-support-files.zip");
+        FileStorage fileStorage = mock(FileStorage.class);
+        when(fileStorage.listFileData("")).thenReturn(List.of());
+
+        assertThrows(GenericServiceResourceNotFoundException.class,
+                () -> service.getSupportFiles(supportFiles, () -> fileStorage, () -> tmp.resolve("missing.jar").toFile()));
+        assertFalse(supportFiles.exists());
+    }
+
+    private static Map<String, Integer> readZipEntrySizes(File zip) throws IOException {
+        Map<String, Integer> sizes = new LinkedHashMap<>();
+        try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
+            for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
+                sizes.put(entry.getName(), in.readAllBytes().length);
+            }
+        }
+        return sizes;
     }
 
     // =====================================================================
