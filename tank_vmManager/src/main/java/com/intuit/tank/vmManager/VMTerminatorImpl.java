@@ -22,6 +22,7 @@ import java.util.List;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +64,10 @@ public class VMTerminatorImpl implements VMTerminator {
                 } catch (InterruptedException e) {
                     LOG.error("Thread interrupted. trying to send mesage to kill vm.");
                 }
-                channel.terminateInstances(finalList);
+                Tracing.inRootSpan("Tank.TerminateInstance", () -> {
+                    Tracing.annotate("instanceId", instanceId);
+                    channel.terminateInstances(finalList);
+                });
             });
         }
     }

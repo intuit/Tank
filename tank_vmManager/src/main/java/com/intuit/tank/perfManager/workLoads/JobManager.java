@@ -35,6 +35,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import com.intuit.tank.vm.api.enumerated.*;
 import com.intuit.tank.logging.ControllerLoggingConfig;
+import com.intuit.tank.tracing.Tracing;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpStatus;
@@ -275,6 +276,13 @@ public class JobManager implements Serializable {
             LOG.info(new ObjectMessage(Map.of("Message", "Start agents command received - Sending start commands for job " + jobId + " asynchronously to following agents: " +
                     info.agentData.stream().collect(Collectors.toMap(AgentData::getInstanceId, AgentData::getInstanceUrl)))));
         }
+        Tracing.inRootSpan("Tank.StartAgents", () -> {
+            Tracing.annotate("jobId", jobId);
+            sendStartCommands(info, jobId);
+        });
+    }
+
+    private void sendStartCommands(final JobInfo info, final String jobId) {
         AgentConfig agentConfig = tankConfig != null ? tankConfig.getAgentConfig() : null;
         boolean wsEnabled = agentConfig != null && agentConfig.isCommandWsEnabled();
         LOG.info(new ObjectMessage(Map.of("Message", "[WS] === TRANSPORT MODE: " + (wsEnabled ? "WEBSOCKET" : "HTTP (command-ws-enabled=false)") +
@@ -283,7 +291,7 @@ public class JobManager implements Serializable {
         com.intuit.tank.vm.agent.messages.AgentWsCommandSender wsSender = getWsCommandSender();
 
         info.agentData.parallelStream()
-                .forEach(agentData -> {
+                .forEach(Context.current().wrapConsumer(agentData -> {
                     String instanceId = agentData.getInstanceId();
 
                     if (wsEnabled) {
@@ -331,7 +339,7 @@ public class JobManager implements Serializable {
                         LOG.error(new ObjectMessage(Map.of(
                                 "Message","Start Command to returned null response for job " + jobId)));
                     }
-                });
+                }));
     }
 
     /**

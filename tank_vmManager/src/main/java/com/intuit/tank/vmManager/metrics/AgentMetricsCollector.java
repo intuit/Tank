@@ -13,6 +13,7 @@ package com.intuit.tank.vmManager.metrics;
  * #L%
  */
 
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.vm.api.enumerated.JobLifecycleEvent;
 import com.intuit.tank.vm.api.enumerated.VMImageType;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
@@ -250,7 +251,12 @@ public class AgentMetricsCollector {
             }
         }
         forgetGoneAgents(byRegion);
+        if (!byRegion.isEmpty()) {
+            Tracing.inRootSpan("Tank.AgentMetricsCollector", () -> pollRegions(byRegion, now));
+        }
+    }
 
+    private void pollRegions(Map<VMRegion, Map<String, String>> byRegion, Instant now) {
         Set<String> freshJobs = new HashSet<>();
         Set<String> staleJobs = new HashSet<>();
         byRegion.forEach((region, instances) -> {

@@ -24,6 +24,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.event.Reception;
 import jakarta.inject.Inject;
 
+import com.intuit.tank.tracing.Tracing;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,8 +93,9 @@ public class CloudWatchObserver {
      * @param not
      */
     private void addWatches(final JobInstance job, final JobNotification not) {
-        new Thread( () -> {
+        new Thread( () -> Tracing.inRootSpan("Tank.AddAlarmWatches", () -> {
             String jobId = Integer.toString(job.getId());
+            Tracing.annotate("jobId", jobId);
             CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
             Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
             Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
@@ -110,7 +112,7 @@ public class CloudWatchObserver {
                     }
                 }
             }
-        }).start();
+        })).start();
     }
 
     /**
@@ -119,8 +121,9 @@ public class CloudWatchObserver {
      * @param not
      */
     private void removeWatches(final JobInstance job, final JobNotification not) {
-        new Thread( () -> {
+        new Thread( () -> Tracing.inRootSpan("Tank.RemoveAlarmWatches", () -> {
             String jobId = Integer.toString(job.getId());
+            Tracing.annotate("jobId", jobId);
             CloudVmStatusContainer vmStatusForJob = vmTracker.getVmStatusForJob(jobId);
             Set<CloudVmStatus> statuses = vmStatusForJob.getStatuses();
             Map<VMRegion, Set<String>> instanceMap = new HashMap<VMRegion, Set<String>>();
@@ -137,6 +140,6 @@ public class CloudWatchObserver {
                     }
                 }
             }
-        }).start();
+        })).start();
     }
 }

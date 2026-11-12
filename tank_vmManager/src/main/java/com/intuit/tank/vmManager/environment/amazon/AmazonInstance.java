@@ -454,7 +454,7 @@ public class AmazonInstance implements IEnvironmentInstance {
     @Override
     public void killInstances(List<String> instanceIds) {
         // Filter instanceId list to only instances in the client defined region.
-        ec2AsyncClient.describeInstances().whenCompleteAsync((response, exception) -> {
+        ec2AsyncClient.describeInstances().whenCompleteAsync(Context.current().wrapConsumer((response, exception) -> {
                     if (exception != null) {
                         throw new RuntimeException("Failed to describe running EC2 instances.", exception);
                     } else if (response == null || response.reservations().isEmpty()) {
@@ -469,7 +469,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                             ec2AsyncClient.terminateInstances(TerminateInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
                         }
                     }
-        });
+        }));
     }
 
     /**
@@ -612,7 +612,7 @@ public class AmazonInstance implements IEnvironmentInstance {
      */
     public void stopInstances(List<String> instanceIds) {
         // Filter instanceId list to only instances in the client defined region.
-        ec2AsyncClient.describeInstances().whenCompleteAsync((response, exception) -> {
+        ec2AsyncClient.describeInstances().whenCompleteAsync(Context.current().wrapConsumer((response, exception) -> {
             if (exception != null) {
                 throw new RuntimeException("Failed to describe running EC2 instances.", exception);
             } else if (response == null || response.reservations().isEmpty()) {
@@ -627,7 +627,7 @@ public class AmazonInstance implements IEnvironmentInstance {
                     ec2AsyncClient.stopInstances(StopInstancesRequest.builder().instanceIds(instanceIdsInRegion).build());
                 }
             }
-        });
+        }));
     }
 
     /**
