@@ -14,12 +14,14 @@ import com.intuit.tank.tools.script.StringOutputLogger;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openjdk.nashorn.api.scripting.ClassFilter;
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 
-import javax.script.ScriptEngine;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -50,7 +52,7 @@ public class SandboxedExternalScriptTester implements ExternalScriptTester {
     private static final Set<String> ALLOWED_CLASSES = Set.of("java.util.ArrayList", "java.util.LinkedList",
             "java.util.HashMap", "java.util.LinkedHashMap", "java.util.TreeMap", "java.util.HashSet",
             "java.util.LinkedHashSet", "java.util.TreeSet", "java.util.UUID", "java.util.Date");
-    static final ClassFilter CLASS_FILTER = name -> name.startsWith(MODELS_PACKAGE) || ALLOWED_CLASSES.contains(name);
+    static final Predicate<String> CLASS_FILTER = name -> name.startsWith(MODELS_PACKAGE) || ALLOWED_CLASSES.contains(name);
 
     private final Semaphore running = new Semaphore(MAX_RUNNING);
     private final long timeLimitMs;
@@ -98,17 +100,34 @@ public class SandboxedExternalScriptTester implements ExternalScriptTester {
     }
 
     private static String run(String name, String code, ScriptTO script, StringOutputLogger output) {
-        try {
-            new ScriptRunner().runScript(name, code, sandboxedEngine(), Map.of("script", script), output);
+        try (GraalJSScriptEngine engine = sandboxedEngine()) {
+            new ScriptRunner().runScript(name, code, engine, Map.of("script", script), output);
         } catch (Exception e) {
             output.logLine("\nException thrown: " + e);
         }
         return snapshot(output);
     }
 
-    static ScriptEngine sandboxedEngine() {
-        return new NashornScriptEngineFactory().getScriptEngine(new String[0],
-                SandboxedExternalScriptTester.class.getClassLoader(), CLASS_FILTER);
+    static GraalJSScriptEngine sandboxedEngine() {
+        // reflection stays out of reach of the objects the script is given, as the class filter did
+        HostAccess hostAccess = HostAccess.newBuilder(HostAccess.ALL)
+                .denyAccess(Class.class)
+                .denyAccess(ClassLoader.class)
+                .denyAccess(Module.class)
+                .denyAccess(java.lang.reflect.AccessibleObject.class)
+                .denyAccess(MethodHandles.Lookup.class)
+                .denyAccess(Thread.class)
+                .denyAccess(Runtime.class)
+                .denyAccess(ProcessBuilder.class)
+                .denyAccess(Process.class)
+                .build();
+        // file, network, process and thread access stay at their defaults, which are off
+        return GraalJSScriptEngine.create(null, Context.newBuilder("js")
+                .allowExperimentalOptions(true)
+                .allowHostAccess(hostAccess)
+                .allowHostClassLookup(CLASS_FILTER)
+                .option("js.ecmascript-version", "2025")
+                .option("js.nashorn-compat", "true"));
     }
 
     private static String snapshot(StringOutputLogger output) {

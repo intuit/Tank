@@ -20,9 +20,11 @@ import com.intuit.tank.vm.common.LogicScriptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 
-import javax.script.ScriptEngine;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
@@ -31,16 +33,14 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Runs logic step tests for the REST API in a restricted JavaScript engine:
  * <ul>
- *     <li>no Java access: {@code --no-java} removes {@code Java}, {@code Packages} and friends, and a class
- *     filter that admits no class also blocks reflection through the objects the script is given;</li>
- *     <li>a time limit of {@value #TIME_LIMIT_MS} ms, after which the request returns with what was printed
- *     so far;</li>
+ *     <li>no Java access: no class can be looked up by name, and the members of {@link Class},
+ *     {@link ClassLoader}, the reflection classes, {@link Thread}, {@link Runtime} and {@link ProcessBuilder}
+ *     are hidden, so the objects the script is given cannot be used to reach other classes;</li>
+ *     <li>no file, network or process access;</li>
+ *     <li>a time limit of {@value #TIME_LIMIT_MS} ms, after which the script is cancelled and the request
+ *     returns with what was printed so far;</li>
  *     <li>at most {@value #MAX_RUNNING} tests at once.</li>
  * </ul>
- *
- * <p>A script that is still running at the time limit cannot be stopped on current JVMs; its thread runs on
- * until the script ends and keeps its slot until then. If scripts that never end use up every slot,
- * further tests are refused until the controller restarts.</p>
  *
  * <p>The inputs and the output format match the web UI's logic step editor.</p>
  */
@@ -61,10 +61,12 @@ public class SandboxedLogicStepTester implements LogicStepTester {
         }
         StringOutputLogger output = new StringOutputLogger();
         AtomicReference<String> finalOutput = new AtomicReference<>();
+        AtomicReference<Context> context = new AtomicReference<>();
         long start = System.nanoTime();
         Thread worker = new Thread(() -> {
-            try {
-                finalOutput.set(run(request, output));
+            try (GraalJSScriptEngine engine = sandboxedEngine()) {
+                context.set(engine.getPolyglotContext());
+                finalOutput.set(run(request, engine, output));
             } finally {
                 running.release();
             }
@@ -78,16 +80,25 @@ public class SandboxedLogicStepTester implements LogicStepTester {
         }
         long duration = (System.nanoTime() - start) / 1_000_000;
         if (worker.isAlive()) {
-            worker.interrupt();
-            LOG.warn("Logic step test did not finish within {} ms; its thread keeps running until the script ends",
-                    TIME_LIMIT_MS);
+            cancel(context.get());
+            LOG.warn("Logic step test did not finish within {} ms and was cancelled", TIME_LIMIT_MS);
             return new LogicTestResult(snapshot(output) + "\nStopped waiting after " + TIME_LIMIT_MS
                     + " ms: the script did not finish.", true, duration);
         }
         return new LogicTestResult(finalOutput.get(), false, duration);
     }
 
-    private static String run(LogicTestRequest request, StringOutputLogger output) {
+    private static void cancel(Context context) {
+        if (context != null) {
+            try {
+                context.close(true);
+            } catch (RuntimeException e) {
+                LOG.warn("Could not cancel the logic step test: {}", e.toString());
+            }
+        }
+    }
+
+    private static String run(LogicTestRequest request, GraalJSScriptEngine engine, StringOutputLogger output) {
         Variables vars = new Variables();
         if (request.variables() != null) {
             request.variables().forEach(vars::addVariable);
@@ -100,7 +111,7 @@ public class SandboxedLogicStepTester implements LogicStepTester {
             String script = new LogicScriptUtil().buildScript(request.script());
             logMap("Variables", vars.getVariableValues(), output);
             output.logLine(DASHES + " script " + DASHES);
-            ScriptIOBean ioBean = new ScriptRunner().runScript("logic-test", script, sandboxedEngine(), inputs, output);
+            ScriptIOBean ioBean = new ScriptRunner().runScript("logic-test", script, engine, inputs, output);
             logMap("Outputs", ioBean.getOutputs(), output);
             logMap("Variables", vars.getVariableValues(), output);
         } catch (Exception e) {
@@ -109,9 +120,25 @@ public class SandboxedLogicStepTester implements LogicStepTester {
         return snapshot(output);
     }
 
-    static ScriptEngine sandboxedEngine() {
-        return new NashornScriptEngineFactory().getScriptEngine(new String[] { "--no-java" },
-                SandboxedLogicStepTester.class.getClassLoader(), className -> false);
+    static GraalJSScriptEngine sandboxedEngine() {
+        HostAccess hostAccess = HostAccess.newBuilder(HostAccess.ALL)
+                .denyAccess(Class.class)
+                .denyAccess(ClassLoader.class)
+                .denyAccess(Module.class)
+                .denyAccess(java.lang.reflect.AccessibleObject.class)
+                .denyAccess(MethodHandles.Lookup.class)
+                .denyAccess(Thread.class)
+                .denyAccess(Runtime.class)
+                .denyAccess(ProcessBuilder.class)
+                .denyAccess(Process.class)
+                .build();
+        // file, network, process and thread access stay at their defaults, which are off
+        return GraalJSScriptEngine.create(null, Context.newBuilder("js")
+                .allowExperimentalOptions(true)
+                .allowHostAccess(hostAccess)
+                .allowHostClassLookup(className -> false)
+                .option("js.ecmascript-version", "2025")
+                .option("js.nashorn-compat", "true"));
     }
 
     private static String snapshot(StringOutputLogger output) {
