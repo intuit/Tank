@@ -1,3 +1,19 @@
+# 5.0.3 (Fri Nov 13 2026)
+
+#### 🐛 Bug Fix
+
+- Fix all-in-one.sh, the controller CloudFormation template, and standalone agents [#581](https://github.com/intuit/Tank/pull/581) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 📝 Documentation
+
+- Consolidate documentation into the MkDocs site and publish it from CI [#580](https://github.com/intuit/Tank/pull/580) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.2 (Fri Nov 13 2026)
 
 #### 🐛 Bug Fix
