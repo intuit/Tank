@@ -99,7 +99,7 @@ public class WebSessionBridgeImpl implements WebSessionBridge {
     }
 
     private TankPrincipal sessionPrincipal() {
-        return new TankPrincipal(securityContext.getCallerPrincipal().getName(), securityContext.getCallerRoles(),
+        return new TankPrincipal(securityContext.getCallerPrincipal().getName(), securityContext.getAllDeclaredCallerRoles(),
                 TankPrincipal.AuthMethod.SESSION);
     }
 }

@@ -142,7 +142,7 @@
             <include>**/*IT.java</include>
           </includes>
           <classpathDependencyExcludes>
-            <classpathDependencyExclude>org.jboss.weld:weld-junit5</classpathDependencyExclude>
+            <classpathDependencyExclude>org.jboss.weld:weld-junit-jupiter</classpathDependencyExclude>
             <classpathDependencyExclude>org.jboss.weld.se:weld-se-core</classpathDependencyExclude>
             <classpathDependencyExclude>org.jboss.weld.servlet:weld-servlet-core</classpathDependencyExclude>
           </classpathDependencyExcludes>

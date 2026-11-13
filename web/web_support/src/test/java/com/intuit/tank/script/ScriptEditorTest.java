@@ -28,8 +28,8 @@ import com.intuit.tank.util.Messages;
 import com.intuit.tank.vm.settings.AccessRight;
 import jakarta.enterprise.context.ConversationScoped;
 import jakarta.enterprise.event.Event;
-import org.jboss.weld.junit5.auto.ActivateScopes;
-import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.jboss.weld.junit.jupiter.auto.ActivateScopes;
+import org.jboss.weld.junit.jupiter.auto.EnableAutoWeld;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

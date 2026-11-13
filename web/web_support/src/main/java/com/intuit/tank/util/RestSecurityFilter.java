@@ -133,7 +133,7 @@ public class RestSecurityFilter extends HttpFilter {
         if (request.getSession(false) != null) {
             Principal caller = securityContext.getCallerPrincipal();
             if (caller != null) {
-                return new TankPrincipal(caller.getName(), securityContext.getCallerRoles(),
+                return new TankPrincipal(caller.getName(), securityContext.getAllDeclaredCallerRoles(),
                         TankPrincipal.AuthMethod.SESSION);
             }
         }

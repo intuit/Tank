@@ -111,7 +111,7 @@ public class RestSecurityFilterTest {
     private void givenSessionUser(String name, Set<String> roles) {
         when(request.getSession(false)).thenReturn(session);
         when(securityContext.getCallerPrincipal()).thenReturn(new CallerPrincipal(name));
-        when(securityContext.getCallerRoles()).thenReturn(roles);
+        when(securityContext.getAllDeclaredCallerRoles()).thenReturn(roles);
     }
 
     @Test

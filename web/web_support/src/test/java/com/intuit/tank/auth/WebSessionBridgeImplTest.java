@@ -79,7 +79,7 @@ class WebSessionBridgeImplTest {
     void login_success_rotatesSessionAndReturnsSessionPrincipal() {
         when(securityContext.authenticate(eq(request), eq(response), any())).thenReturn(AuthenticationStatus.SUCCESS);
         when(securityContext.getCallerPrincipal()).thenReturn(new CallerPrincipal("bob"));
-        when(securityContext.getCallerRoles()).thenReturn(Set.of("admin"));
+        when(securityContext.getAllDeclaredCallerRoles()).thenReturn(Set.of("admin"));
 
         TankPrincipal principal = bridge.login(request, response, "bob", "secret-pass");
 

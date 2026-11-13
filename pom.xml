@@ -34,8 +34,9 @@
     <version.opentelemetry>1.67.0</version.opentelemetry>
 
     <version.tomcat>11.0.27</version.tomcat>
-    <weld.version>6.0.4.Final</weld.version>
-    <cdi.version>4.1.0</cdi.version>
+    <weld.version>7.0.0.Final</weld.version>
+    <cdi.version>5.0.0</cdi.version>
+    <version.weld-junit>6.0.0.Final</version.weld-junit>
 
     <version.enunciate>2.20.1</version.enunciate>
 
@@ -348,8 +349,8 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.weld</groupId>
-      <artifactId>weld-junit5</artifactId>
-      <version>5.0.3.Final</version>
+      <artifactId>weld-junit-jupiter</artifactId>
+      <version>${version.weld-junit}</version>
       <scope>test</scope>
     </dependency>
 
@@ -423,9 +424,9 @@
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
 
       <dependency>
-        <groupId>org.glassfish.soteria</groupId>
-        <artifactId>jakarta.security.enterprise</artifactId>
-        <version>3.0.4</version>
+        <groupId>jakarta.security.enterprise</groupId>
+        <artifactId>jakarta.security.enterprise-api</artifactId>
+        <version>4.0.0</version>
       </dependency>
 
       <!-- JSF -->
@@ -485,7 +486,7 @@
         <version>${version.hibernate}</version>
       </dependency>
 
-      <!-- Hibernate 7 needs Jakarta Persistence 3.2; weld-junit5 would otherwise pull in 3.1 -->
+      <!-- Hibernate 7 needs Jakarta Persistence 3.2; weld-junit-jupiter would otherwise pull in a 4.0 milestone -->
       <dependency>
         <groupId>jakarta.persistence</groupId>
         <artifactId>jakarta.persistence-api</artifactId>
@@ -637,13 +638,13 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>jakarta.enterprise</groupId>
-        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        <groupId>jakarta.cdi</groupId>
+        <artifactId>jakarta.cdi-api</artifactId>
         <version>${cdi.version}</version>
       </dependency>
       <dependency>
-        <groupId>jakarta.enterprise</groupId>
-        <artifactId>jakarta.enterprise.cdi-el-api</artifactId>
+        <groupId>jakarta.cdi</groupId>
+        <artifactId>jakarta.cdi-el-api</artifactId>
         <version>${cdi.version}</version>
       </dependency>
       <dependency>
@@ -669,11 +670,6 @@
         <artifactId>jsr305</artifactId>
         <version>3.0.2</version>
         <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.ws.rs</groupId>
-        <artifactId>jakarta.ws.rs-api</artifactId>
-        <version>4.0.0</version>
       </dependency>
       <dependency>
         <groupId>jakarta.xml.bind</groupId>

@@ -15,6 +15,7 @@ import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -105,6 +106,35 @@ public class TankSecurityContextTest {
         assertThrows(NullPointerException.class, () -> {
             _sut.authenticate(_httpServletRequestMock, _httpServletResponseMock, _authenticationParametersMock);
         });
+    }
+
+    //endregion
+
+    //region getAllDeclaredCallerRoles
+
+    @Test
+    public void GetAllDeclaredCallerRoles_Given_Authenticated_User_Returns_Groups() {
+        // Arrange
+        when(_authenticationParametersMock.getCredential()).thenReturn(_credentialMock);
+        when(_credentialValidationResultMock.getCallerPrincipal()).thenReturn(_callerPrincipalMock);
+        when(_credentialValidationResultMock.getCallerGroups()).thenReturn(Set.of("admin", "user"));
+        when(_tankIdentityStoreMock.validate(_credentialMock)).thenReturn(_credentialValidationResultMock);
+        _sut.authenticate(_httpServletRequestMock, _httpServletResponseMock, _authenticationParametersMock);
+
+        // Act
+        Set<String> response = _sut.getAllDeclaredCallerRoles();
+
+        // Assert
+        assertEquals(Set.of("admin", "user"), response);
+    }
+
+    @Test
+    public void GetAllDeclaredCallerRoles_Given_No_Login_Returns_Empty() {
+        // Act
+        Set<String> response = _sut.getAllDeclaredCallerRoles();
+
+        // Assert
+        assertTrue(response.isEmpty());
     }
 
     //endregion
