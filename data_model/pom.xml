@@ -6,7 +6,7 @@
    <parent>
     <groupId>com.intuit.tank</groupId>
     <artifactId>tank-parent</artifactId>
-    <version>5.0.3</version>
+    <version>5.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>data-model</artifactId>
