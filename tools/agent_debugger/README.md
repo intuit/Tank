@@ -1,5 +1,7 @@
 # Headless mode
 
+The user documentation for the debugger, including this mode, is at https://intuit.github.io/Tank/supplemental-tools/. Keep the two in step when the options change.
+
 `Tank-Debugger-all.jar` opens the visual debugger. With `--headless`, it replays a Tank project from the command line instead. It writes the `authid` used to pull profile data from Splunk, and the result of each step.
 
 ## Get it

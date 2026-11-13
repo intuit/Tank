@@ -8,7 +8,7 @@ interface DocLink {
   external?: boolean;
 }
 
-/** The guides docs/index.xhtml links to; a war built with -P release has the ones under /docs and /apidocs */
+/** The guides docs/index.xhtml links to; a war built with -P release also has the Javadoc under /apidocs */
 export const HELP_SECTIONS: { title: string; description: string; links: DocLink[] }[] = [
   {
     title: 'Tank docs',
@@ -17,18 +17,15 @@ export const HELP_SECTIONS: { title: string; description: string; links: DocLink
   },
   {
     title: 'User guide',
-    description: 'Creating scripts and projects and running tests, as built with this controller.',
-    links: [
-      { label: 'Multi-page HTML', href: '/docs/html/index.html' },
-      { label: 'Single-page HTML', href: '/docs/html_single/index.html' },
-    ],
+    description: 'Creating scripts and projects and running tests.',
+    links: [{ label: 'User guide', href: 'https://intuit.github.io/Tank/key-concepts/web-ui/', external: true }],
   },
   {
     title: 'Installation guide',
     description: 'Installing and configuring the controller and agents.',
     links: [
-      { label: 'Multi-page HTML', href: '/docs/install-guide/html/index.html' },
-      { label: 'Single-page HTML', href: '/docs/install-guide/html_single/index.html' },
+      { label: 'Installation guide', href: 'https://intuit.github.io/Tank/installation-guide/installation/', external: true },
+      { label: 'Configuration reference', href: 'https://intuit.github.io/Tank/installation-guide/configuration/', external: true },
     ],
   },
   {

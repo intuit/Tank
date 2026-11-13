@@ -185,3 +185,6 @@ dmypy.json
 CLAUDE.md
 AGENTS.md
 .codegraph/
+
+# Generated from rest-mvc/impl OpenApiSpecExportTest at docs-build time
+/docs/openapi-spec.json

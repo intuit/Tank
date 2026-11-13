@@ -1,0 +1,70 @@
+name: Docs
+
+# Builds the MkDocs site on every pull request that could change it, and publishes it to
+# GitHub Pages (the gh-pages branch, served at https://intuit.github.io/Tank/) from master.
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'docs-requirements.txt'
+      - 'rest-mvc/**'
+      - '.github/workflows/docs.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'docs-requirements.txt'
+      - 'rest-mvc/**'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Same JDK as buildspec.yml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: '25'
+          cache: maven
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: docs-requirements.txt
+
+      # The API reference page renders the spec the REST V2 controllers produce
+      - name: Generate the OpenAPI spec
+        run: |
+          mvn -B -pl rest-mvc/impl -am test -Dtest=OpenApiSpecExportTest -Dsurefire.failIfNoSpecifiedTests=false
+          cp rest-mvc/impl/target/openapi/tank-openapi.json docs/openapi-spec.json
+
+      - name: Install MkDocs
+        run: pip install -r docs-requirements.txt
+
+      - name: Build
+        run: mkdocs build --strict
+
+      - name: Publish
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdocs gh-deploy --force

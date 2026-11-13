@@ -60,7 +60,7 @@ export function ToolsPage() {
         Tools that run on your machine, built with this controller
         {config?.version ? ` (version ${config.version}` : ''}
         {config?.buildTimestamp ? `, ${formatDateTime(config.buildTimestamp)}` : ''}
-        {config?.version ? ')' : ''}. They need Java 17 or later.
+        {config?.version ? ')' : ''}. They need Java 21 or later.
       </p>
       <ul className="tool-list">
         {TOOLS.map((tool) => (

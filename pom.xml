@@ -182,7 +182,6 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
-        <module>doc</module>
         <module>agent</module>
         <module>tools</module>
         <module>rest-mvc</module>
@@ -207,7 +206,6 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
-        <module>doc</module>
         <module>agent</module>
         <module>tools</module>
         <module>rest-mvc</module>
@@ -279,7 +277,6 @@
         <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
-        <module>doc</module>
         <module>agent</module>
         <module>tools</module>
         <module>rest-mvc</module>
@@ -376,18 +373,6 @@
             <artifactId>protobuf-java</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>net.sf.docbook</groupId>
-        <artifactId>docbook</artifactId>
-        <version>1.74.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pressgang</groupId>
-        <artifactId>pressgang-highlight</artifactId>
-        <version>3.1.4</version>
       </dependency>
 
       <dependency>
@@ -938,18 +923,6 @@
               </configuration>
             </execution>
           </executions>
-        </plugin>
-
-        <plugin>
-          <groupId>org.jboss.maven.plugins</groupId>
-          <artifactId>maven-jdocbook-style-plugin</artifactId>
-          <version>2.0.0</version>
-          <extensions>true</extensions>
-        </plugin>
-        <plugin>
-          <groupId>org.jboss.maven.plugins</groupId>
-          <artifactId>maven-jdocbook-plugin</artifactId>
-          <version>2.3.10</version>
         </plugin>
 
         <plugin>

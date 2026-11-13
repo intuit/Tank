@@ -1,22 +1,51 @@
 # String Functions
 
-| Method Definition | Description                          |  Parameters | Example    |
-| :---------------------------------------| :----------------------------------: | :----:| :--------:|
-| `concat(String ... values)`| Concatenates the given strings       | `values`: Strings(comma seperated) The strings to concatenate           | `#{stringFunctions.concat('Turbo', 'Scale', ' Rocks')}` will return `Turbo Scale Rocks`           |
-| `substring(String subject, int start, int stop) `       | Returns a new string that is a substring of subject. The substring begins at the specified start and extends to the character at index stop - 1. Thus the length of the substring is stop-start.       | 1. `subject`: String the string from which the substring is to be found (required) 2. `start`: Integer the start index for the substring`(inclusive) (required)` 3. `stop`: Integer the index at which to end the substring`(exclusive) (optional)`| `#{stringFunctions.substring('hello world', 6)}` returns `world` and `#{stringFunctions.substring('hello world', 0, 5)}` returns `hello`|
-| `substringBetween(String subject, String open, String close, int index)`         | Returns the String that is nested in between two Strings. | 1. `subject`: String the string from which the substring is to be found (required) 2. `open`: the String before the substring, may be null (if null will return the substring before the first occurance of the close param) (required) 3.`close`: the String after the substring, may be null (if null will return the substring after the last occurance of the open param) (required) 4. `index`: the zero based index of the string to return. (optional) | `#{stringFunctions.substringBetween('yabcz', 'y', 'z')}` returns `abc` and `#{stringFunctions.substringBetween('yabcz ydefz', 'y', 'z', 1)}` returns `def`          |
-| `randomAlphaLower(int length)`| Generates a random string consisting of lower case alphabets of given length  | `length`: Integer the length of the random string|  -  |
-| `randomAlphaUpper(int length)`| Generates a random string consisting of upper case alphabets of given length  | `length`: Integer the length of the random string         |  -  |
-| `randomAlphaMixed(int length)`| Generates a random string consisting of lower and upper case alphabets of given length  | `length`: Integer the length of the random string         |  -  |
-| `randomAlphaNumeric(int length)` | Generates a random string consisting of numerals of given length  | `length`: Integer the length of the random string         |  -  |
-| `randomAlphaSpecial(int length)`| Generates a random string consisting of special characters of given length  | `length`: Integer the length of the random string         |  -  |
-| `randomAlphaMixedNumeric(int length)`|` Generates a random string consisting of lower and upper case alphabets and numerals of given length  | `length`: Integer the length of the random string         |  -  |
-| randomAlphaMixedSpecial(int length)| Generates a random string consisting of lower and upper case alphabets and special characters of given length  | `length`: Integer the length of the random string         |  -  |
-| `randomAlphaMixedNumericSpecial(int length)`| Generates a random string consisting of lower and upper case alphabets, numerals and special characters of given length  | `length`: Integer the length of the random string |  -  |
-| `userIdDate(int prefixLength, String format)`| Generates a Random String suitable for a user ID by combining a random character string and a date  | 1. `prefixLength`: Integer (required) The number of characters to use for the prefix. 2. `format`: String (required) The date format string to use.| `#{stringFunctions.userIdDate(4,'yyyy-MM-dd')}` produces `GdGE2011-11-15` on `November 15, 2011`|
-| `userIdFromDate(int prefixLength, String format)`| Generates a Random String suitable for a user ID by combining a random character string and a date  | 1. `prefixLength`: Integer (required) The number of characters to use for the prefix. 2. `format`: String (required) The date format string to use.| `#{stringFunctions.userIdFromDate(4,'yyyy-MM-dd')}` produces `GdGE2011-11-15` on `November 15, 2011`|
-| `userIdFromRange(int minId, int maxId)`| Generates a Integer user Id from the given range. Will distribute these ids equally among the different agents.  | 1. `minId`: Integer (required) The minmum id of the range. 2.`maxId`: Integer (required) The maximum id of the range.| `#{stringFunctions.userIdFromRange(1,1000)}` produces an unique integer between `1` and `1000`|
-| `toBase64(String toEncode)`| Will encode the given string to base64 format  | `toEncode`: String the string to base 64 encoding| -|
-| `fromBase64(String toDecode)`| Will decode the given string from base64 format  | `toDecode`: String the base64 string to decode| -|
-| `urlEncode(String toEncode)`| Will encode the given string using URLEncoder | `toEncode`: String the string to encode| -|
-| `urlDecode(String toDecode)`| Will decode the given string Using URLDecoder  | `toDecode`: String the encoded string to decode| -|
+`stringFunctions` build, cut, encode and generate strings.
+
+## Building and cutting strings
+
+| Function | Description | Example |
+| :------- | :---------- | :------ |
+| `concat(values...)` | Joins any number of strings. | `#{stringFunctions.concat('Intuit ', 'Tank', ' Rocks')}` returns `Intuit Tank Rocks` |
+| `substring(subject, start)` | `subject` from index `start` (zero-based) to the end. | `#{stringFunctions.substring('hello world', 6)}` returns `world` |
+| `substring(subject, start, stop)` | `subject` from `start` (inclusive) to `stop` (exclusive). A `stop` of `-1` or past the end means "to the end". | `#{stringFunctions.substring('hello world', 0, 5)}` returns `hello` |
+| `substringBetween(subject, open, close)` | The first string found between `open` and `close`. | `#{stringFunctions.substringBetween('yabcz', 'y', 'z')}` returns `abc` |
+| `substringBetween(subject, open, close, index)` | The `index`-th (zero-based) string found between `open` and `close`. If `open` is `null`, returns everything before the first `close`; if `close` is `null`, everything after the last `open`. Empty if there is no match. | `#{stringFunctions.substringBetween('yabcz ydefz', 'y', 'z', 1)}` returns `def` |
+| `replaceBetween(subject, open, close, replace, encodeData)` | Replaces the text between the first `open` and the next `close` with `replace`, keeping `open` and `close`. A `null` `open` or `close` means the start or end of `subject`. With `encodeData` `true`, `subject` is Base64-decoded first and the result is Base64-encoded again. | `#{stringFunctions.replaceBetween('a[b]c', '[', ']', 'X', false)}` returns `a[X]c` |
+
+## Encoding
+
+| Function | Description | Example |
+| :------- | :---------- | :------ |
+| `toBase64(toEncode)` | Base64-encodes a string. | `#{stringFunctions.toBase64('ab')}` returns `YWI=` |
+| `fromBase64(toDecode)` | Decodes a Base64 string (as UTF-8). | `#{stringFunctions.fromBase64('YWI=')}` returns `ab` |
+| `byteArrayToBase64(bytes)` | Base64-encodes a byte array, such as the result of `ioFunctions.getFileBytes`. | `#{stringFunctions.byteArrayToBase64(ioFunctions.getFileBytes('logo.png'))}` |
+| `urlEncode(toEncode)` | URL-encodes a string (UTF-8, `application/x-www-form-urlencoded`). | `#{stringFunctions.urlEncode('a b&c')}` returns `a+b%26c` |
+| `urlDecode(toDecode)` | URL-decodes a string (UTF-8). | `#{stringFunctions.urlDecode('a+b%26c')}` returns `a b&c` |
+
+## Random strings and IDs
+
+Each `length` is the number of characters to generate.
+
+| Function | Characters used | Example |
+| :------- | :-------------- | :------ |
+| `randomAlphaLower(length)` | `a`–`z` | `#{stringFunctions.randomAlphaLower(8)}` |
+| `randomAlphaUpper(length)` | `A`–`Z` | `#{stringFunctions.randomAlphaUpper(8)}` |
+| `randomAlphaMixed(length)` | `a`–`z`, `A`–`Z` | `#{stringFunctions.randomAlphaMixed(8)}` |
+| `randomNumeric(length)` | `0`–`9` (may start with `0`) | `#{stringFunctions.randomNumeric(4)}` |
+| `randomSpecial(length)` | ``!@#$%^*{[}]:;,.?~` `` | `#{stringFunctions.randomSpecial(4)}` |
+| `randomAlphaMixedNumeric(length)` | letters and digits | `#{stringFunctions.randomAlphaMixedNumeric(8)}` |
+| `randomAlphaMixedSpecial(length)` | letters and special characters | `#{stringFunctions.randomAlphaMixedSpecial(8)}` |
+| `randomAlphaMixedNumericSpecial(length)` | letters, digits and special characters | `#{stringFunctions.randomAlphaMixedNumericSpecial(8)}` |
+| `getUUID()` | A random UUID. | `#{stringFunctions.getUUID()}` returns e.g. `6a244e4f-d4ea-4a7b-8882-73ca5c729527` |
+
+| Function | Description | Example |
+| :------- | :---------- | :------ |
+| `userIdDate(prefixLength, format)` | A random prefix of `prefixLength` letters and digits followed by today's date in `format` (a Java `SimpleDateFormat` pattern). | `#{stringFunctions.userIdDate(4, 'yyyy-MM-dd')}` returns e.g. `GdGE2011-11-15` on November 15, 2011 |
+| `userIdFromDate(prefixLength, format)` | Same as `userIdDate`. | `#{stringFunctions.userIdFromDate(4, 'yyyy-MM-dd')}` |
+| `userIdFromRange(minId, maxId)` | A unique whole number from `minId` (inclusive) to `maxId` (exclusive). The range is split evenly between the agents, and each agent hands out its share in random order, each number once. When an agent's share runs out the function returns an empty string. | `#{stringFunctions.userIdFromRange(1, 1000)}` |
+
+!!! note
+    An expression ends at the first `}`, so an argument can't contain a literal `}`: `#{stringFunctions.substringBetween(body, '{', '}')}` doesn't work. Store `}` in a variable (say `closeBrace`) and pass that instead: `#{stringFunctions.substringBetween(body, '{', closeBrace)}`.
+
+The legacy `#function.string...` forms, including the `useridFromRange` variants with include/exclude patterns and the response-body `substring`, are listed under [Legacy `#function` syntax](functions_variables.md#legacy-function-syntax).

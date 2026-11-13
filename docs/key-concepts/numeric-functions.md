@@ -1,13 +1,26 @@
 # Numeric Functions
 
-| Method Definition | Description                          |  Parameters | Example    |
-| :---------------------------------------| :----------------------------------: | :----:| :--------:|
-| `add(double... values)`| Adds a list of values | `values`: Doubles (required) Variable number of number to add together.  |`#{numericFunctions.add(3,2,6)}` results in `3 + 2 + 6 = 11`|
-| `subtract(double... values)`| Subtracts a list of values from the first value.| 1. `values`: Doubles (required) Variable number of number to subtract.    | `#{numericFunctions.subtract(10,2,3)}` results in `10 - 2 - 3 = 5`|
-| `mod(int value, int modulo)`| Performs a modulo operation, or the whole remainder of a division operation.| 1. `value`: Integer (required) The number ot modulo. 2. `modulo`: Integer (required).   | `#{numericFunctions.mod(5,4)}` results in `5 % 4 = 1`|
-| `randomPositiveWhole(int length)`| Gets a random positive integer value.| `length`: Integer (required) The number of digits in the whole amount. |` #{numericFunctions.randomPositiveWhole(3)}` produces a random value between 1`00` and `999`|
-| `randomNegativeWhole(int length)`| Gets a random negative integer value.| `length`: Integer (required) The number of digits in the whole amount. | `#{numericFunctions.randomNegativeWhole(3)}` produces a random value between `-100` and `-999`|
-| `randomPositiveFloat(int length, int decimalPlaces)`| Gets a random positive float value.| 1.`length`: Integer (required) The number of digits in the whole amount. 2. `decimalPlaces`: Integer (required) The number of digits after the decimal.|`#{numericFunctionS.randompPositiveFloat(3,2)}` produces a random value between `100.00` and `999.99`|
-| `randomNegativeFloat(int length, int decimalPlaces)`| Gets a random negative float value.| 1.`length`: Integer (required) The number of digits in the whole amount. 2. `decimalPlaces`: Integer (required) The number of digits after the decimal. | `#{numericFunctions.randomNegativeFloat(3,2)}` produces a random value between `-100.00` and `-999.00`|
-| `random(int min, int max)`| Gets a random negative float value.| 1.`min`: Integer (optional) The minimum value to return. default 0. 2. `max`: Integer (required) maximum value to return. | `#{numericFunctions.random(4,10)}` produces a random value between `4` and `10`|
+`numericFunctions` do arithmetic and generate random numbers. Arguments can be numbers, numeric strings or variables holding numbers, and every result is a string.
 
+## Arithmetic
+
+| Function | Description | Example |
+| :------- | :---------- | :------ |
+| `add(values...)` | Adds any number of values. The result is a decimal. | `#{numericFunctions.add(3, 2, 6)}` returns `11.0` |
+| `subtract(values...)` | Subtracts the second and later values from the first. The result is a decimal. | `#{numericFunctions.subtract(10, 2, 3)}` returns `5.0` |
+| `mod(value, modulo)` | The remainder of whole-number division `value % modulo`. | `#{numericFunctions.mod(authId, 10)}` returns `1` when `authId` is `51` |
+| `toInt(value)` | Drops the fractional part of a number. Useful to turn the result of `add` or `subtract` into a whole number. | `#{numericFunctions.toInt(numericFunctions.add(1, 2))}` returns `3` |
+
+## Random numbers
+
+| Function | Description | Example |
+| :------- | :---------- | :------ |
+| `random(max)` | A random whole number from 0 (inclusive) to `max` (exclusive). | `#{numericFunctions.random(10)}` returns `0` to `9` |
+| `random(min, max)` | A random whole number from `min` (inclusive) to `max` (exclusive). Returns `0` if `max` isn't greater than `min`. | `#{numericFunctions.random(4, 10)}` returns `4` to `9` |
+| `randomPositiveWhole(length)` | A random whole number with `length` digits. An empty string if `length` is `0`. | `#{numericFunctions.randomPositiveWhole(3)}` returns e.g. `427` |
+| `randomNegativeWhole(length)` | The negative of `randomPositiveWhole(length)`. | `#{numericFunctions.randomNegativeWhole(3)}` returns e.g. `-427` |
+| `randomPositiveFloat(length, decimalPlaces)` | A random number with `length` digits before the decimal point and `decimalPlaces` after it. | `#{numericFunctions.randomPositiveFloat(3, 2)}` returns e.g. `427.15` |
+| `randomNegativeFloat(length, decimalPlaces)` | The negative of `randomPositiveFloat(length, decimalPlaces)`. | `#{numericFunctions.randomNegativeFloat(3, 2)}` returns e.g. `-427.15` |
+
+!!! note "Digits used by the `randomPositive*` and `randomNegative*` functions"
+    These functions build the number one digit at a time: the first digit is `1`–`8` and each later digit is `0`–`8`. The digit `9` never appears, so `randomPositiveWhole(3)` returns a value from `100` to `888`. Use `random(min, max)` when you need every value in a range.
