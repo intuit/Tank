@@ -31,8 +31,10 @@ import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.IOException;
@@ -83,6 +85,16 @@ public class AmazonS3 {
 
     public void createBucket(String bucketName) {
         try {
+            // Check first: scoped roles can list a bucket but not create one, and a denied create is traced as a fault
+            try {
+                s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+                return;
+            } catch (NoSuchBucketException e) {
+                // missing, create it below
+            } catch (S3Exception e) {
+                LOG.warn("Unable to check for bucket {}, not creating it: {}", bucketName, e.getMessage());
+                return;
+            }
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket {} at now", bucketName);
         } catch (S3Exception e) {

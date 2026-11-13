@@ -19,8 +19,10 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
@@ -117,7 +119,9 @@ public class AmazonS3Test {
     }
 
     @Test
-    public void createBucket_createsNamedBucket() {
+    public void createBucket_createsNamedBucketWhenMissing() {
+        when(s3Client.headBucket(any(HeadBucketRequest.class))).thenThrow(NoSuchBucketException.builder().build());
+
         new AmazonS3().createBucket("tank-results");
 
         ArgumentCaptor<CreateBucketRequest> captor = ArgumentCaptor.forClass(CreateBucketRequest.class);
@@ -126,9 +130,28 @@ public class AmazonS3Test {
     }
 
     @Test
+    public void createBucket_existingBucketIsNotCreated() {
+        new AmazonS3().createBucket("tank-results");
+
+        verify(s3Client).headBucket(HeadBucketRequest.builder().bucket("tank-results").build());
+        verify(s3Client, never()).createBucket(any(CreateBucketRequest.class));
+    }
+
+    @Test
+    public void createBucket_uncheckableBucketIsNotCreated() {
+        when(s3Client.headBucket(any(HeadBucketRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(403).message("Forbidden").build());
+
+        new AmazonS3().createBucket("tank-results");
+
+        verify(s3Client, never()).createBucket(any(CreateBucketRequest.class));
+    }
+
+    @Test
     public void createBucket_s3ExceptionIsOnlyLogged() {
+        when(s3Client.headBucket(any(HeadBucketRequest.class))).thenThrow(NoSuchBucketException.builder().build());
         when(s3Client.createBucket(any(CreateBucketRequest.class)))
-                .thenThrow(S3Exception.builder().message("bucket exists").build());
+                .thenThrow(S3Exception.builder().message("create failed").build());
 
         new AmazonS3().createBucket("tank-results");
 

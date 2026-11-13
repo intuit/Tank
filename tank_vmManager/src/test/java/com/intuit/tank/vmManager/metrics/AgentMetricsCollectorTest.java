@@ -281,6 +281,60 @@ public class AgentMetricsCollectorTest {
     }
 
     @Test
+    public void lookupsRunConcurrentlyButNeverMoreThanTheLimit() {
+        java.util.concurrent.atomic.AtomicInteger inFlight = new java.util.concurrent.atomic.AtomicInteger();
+        java.util.concurrent.atomic.AtomicInteger peak = new java.util.concurrent.atomic.AtomicInteger();
+        when(west.listMetrics(any(ListMetricsRequest.class))).thenAnswer(i -> {
+            peak.accumulateAndGet(inFlight.incrementAndGet(), Math::max);
+            try {
+                Thread.sleep(50);
+                return allMetrics(i.getArgument(0));
+            } finally {
+                inFlight.decrementAndGet();
+            }
+        });
+        List<CloudVmStatus> many = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            many.add(agent("i-" + i, VMRegion.US_WEST_2));
+        }
+        job("1", many.toArray(new CloudVmStatus[0]));
+
+        collector(id -> true).tick();
+
+        verify(west, times(12)).listMetrics(any(ListMetricsRequest.class));
+        assertTrue(peak.get() > 1, "lookups should overlap, peak was " + peak.get());
+        assertTrue(peak.get() <= AgentMetricsCollector.MAX_CONCURRENT_LOOKUPS, "peak was " + peak.get());
+        assertEquals(12, store.snapshot("1").agents().size());
+    }
+
+    @Test
+    public void aFailedLookupFailsTheRegionButTheOtherAgentsStayResolved() {
+        when(west.listMetrics(any(ListMetricsRequest.class))).thenAnswer(i -> {
+            ListMetricsRequest request = i.getArgument(0);
+            if (request.dimensions().get(0).value().equals("i-bad")) {
+                throw CloudWatchException.builder().message("Rate exceeded").build();
+            }
+            return allMetrics(request);
+        });
+        job("1", agent("i-1", VMRegion.US_WEST_2), agent("i-bad", VMRegion.US_WEST_2), agent("i-2", VMRegion.US_WEST_2));
+        AgentMetricsCollector collector = collector(id -> true);
+
+        collector.tick();
+
+        verify(west, times(3)).listMetrics(any(ListMetricsRequest.class));
+        verify(west, org.mockito.Mockito.never()).getMetricData(any(GetMetricDataRequest.class));
+        assertNull(store.snapshot("1"), "nothing has been read yet");
+
+        when(west.listMetrics(any(ListMetricsRequest.class))).thenAnswer(i -> allMetrics(i.getArgument(0)));
+        clock.set(NOW.plusSeconds(300));
+        collector.tick();
+
+        verify(west, times(4)).listMetrics(any(ListMetricsRequest.class));
+        assertFalse(store.snapshot("1").stale());
+        assertEquals(3, store.snapshot("1").agents().size());
+    }
+
+    @Test
     public void oneFailingRegionDoesNotStopTheOthers() {
         when(west.getMetricData(any(GetMetricDataRequest.class))).thenThrow(CloudWatchException.builder().message("boom").build());
         job("1", agent("i-w", VMRegion.US_WEST_2), agent("i-e", VMRegion.US_EAST));
