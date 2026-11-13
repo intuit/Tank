@@ -1,3 +1,15 @@
+# 5.0.2 (Fri Nov 13 2026)
+
+#### 🐛 Bug Fix
+
+- Move to CDI 5.0 and Weld 7.0, and drop Soteria [#579](https://github.com/intuit/Tank/pull/579) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.1 (Thu Nov 12 2026)
 
 #### 🐛 Bug Fix
