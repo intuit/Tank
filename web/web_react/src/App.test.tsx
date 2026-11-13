@@ -151,10 +151,14 @@ describe('app shell', () => {
     expect(screen.getByRole('link', { name: 'Tank docs' })).toHaveAttribute('href', 'https://intuit.github.io/Tank/');
     expect(screen.getByRole('link', { name: 'REST V2 API documentation' })).toHaveAttribute('href', '/swagger-ui.html');
     expect(screen.getByRole('link', { name: 'Javadoc' })).toHaveAttribute('href', '/apidocs/index.html');
-    expect(screen.getAllByRole('link', { name: 'Single-page HTML' }).map((a) => a.getAttribute('href'))).toEqual([
-      '/docs/html_single/index.html',
-      '/docs/install-guide/html_single/index.html',
-    ]);
+    expect(screen.getByRole('link', { name: 'User guide' })).toHaveAttribute(
+      'href',
+      'https://intuit.github.io/Tank/key-concepts/web-ui/',
+    );
+    expect(screen.getByRole('link', { name: 'Installation guide' })).toHaveAttribute(
+      'href',
+      'https://intuit.github.io/Tank/installation-guide/installation/',
+    );
   });
 
   it('shows not found for an unknown route', async () => {

@@ -1,13 +1,17 @@
-nav:    
+nav:
+    - web-ui.md
     - projects.md
     - scripts.md
     - filters.md
+    - datafiles.md
+    - jobs.md
     - functions_variables.md
-    - Types Of In-built Functions: 
+    - Types Of In-built Functions:
         - io-functions.md
         - string-functions.md
         - date-functions.md
         - monetary-functions.md
         - numeric-functions.md
         - tax-functions.md
-    - datafiles.md
+    - scripting.md
+    - glossary.md

@@ -17,15 +17,31 @@ It exposes a RESTful interface for invoking services. Data is stored in a MySql 
 Agents are instantiated on demand and exist for the duration of a test. They communicate with the controller via RESTful interfaces.
 
 ## Documentation
-You can find all the Documentation for Tank at [Tank Documentation](https://intuit.github.io/Tank/) 
+All of Tank's documentation is at [intuit.github.io/Tank](https://intuit.github.io/Tank/): installation, configuration, the user guide, script functions, the tools, and the REST API reference.
+
+The site is built with [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) from the `docs` folder and published by the `Docs` GitHub Actions workflow on every merge to master. To preview your changes locally:
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+pip install -r docs-requirements.txt
+mkdocs serve        # http://127.0.0.1:8000, reloads as you edit
+mkdocs build --strict   # what CI runs; fails on broken links
+```
+
+The API reference page reads `docs/openapi-spec.json`, which is generated from the code rather than committed. To include it locally:
+
+```bash
+mvn -pl rest-mvc/impl -am test -Dtest=OpenApiSpecExportTest -Dsurefire.failIfNoSpecifiedTests=false
+cp rest-mvc/impl/target/openapi/tank-openapi.json docs/openapi-spec.json
+```
 
 ## Building Intuit Tank
 Intuit Tank uses Maven and should be able to be built using public repositories. 
 You may need to increase the default memory settings for maven to build. e.g. export MAVEN_OPTS="-Xmx1g"
 
-There are several profiles (for the initial build you should build the release profile so that the installation guide is built. e.g. mvn clean install -P release)
-* default -- builds source but does not build the docs or package tools.
-* release -- default plus docs and all tools and signs them using a self signed certificate.
+There are several profiles:
+* default -- builds source but does not package tools.
+* release -- default plus all tools and signs them using a self signed certificate.
 * coverage -- runs jacoco code coverage.
 * static-analysis -- runs checkstyle and findbugs.
 
@@ -50,17 +66,15 @@ it for large scale or production testing.
 The integration tests are located in the `test_support` module. They are designed to test the REST API endpoints against the QA Tank environment.
 You can find more information in the [README](test_support/README.md) file in that module.
 
-## Guides
-Installation guide and User guide can be found in the docs folder and are built with the source. and can also be found on our [wiki](https://github.com/intuit/Tank/wiki).
-
 ## Issues & Contributions
 Please [open an issue here on GitHub](https://github.com/intuit/tank/issues/new) if you have a problem, suggestion, or other comment.
 
 Pull requests are welcome and encouraged! There are eclipse code format templates in the dev_environment folder. 
-Any contributions should include new or updated unit tests as necessary to maintain thorough test coverage.
+Any contributions should include new or updated unit tests as necessary to maintain thorough test coverage,
+and an update to the `docs` folder for any change users will notice.
 
 ## License
 Tank is provided under the [Eclipse Public License - Version 1.0](http://www.eclipse.org/legal/epl-v10.html)
 
 ## FAQ
-Please see our [FAQ on our wiki](https://github.com/intuit/Tank/wiki/FAQ).
+Please see the [FAQ](https://intuit.github.io/Tank/faq/).

@@ -1,178 +1,130 @@
 # Projects
 
-Projects define how tests are executed.  
+A project describes a load test: how many virtual users to run, how fast to add them and for how long, which [scripts](scripts.md) they run, which [data files](datafiles.md) and variables the scripts can use, and how the test's agents are set up. You run a project by queueing a **job** from it; see [Jobs and the Agent Tracker](jobs.md).
 
-### Creating a Project 
-#### Configuring Top-level Properties
-The main properties that must be specified include:  
+A project holds:
 
-* `Number of Users` - The Number of test users.
-* `Ramp time` - The Ramp time.
-* `Test length` - The test length.
-* `Scripts` - Which scripts to use.
-* `Data Read` - Whether to read from data.
+```text
+Project
+├── Users and times      workload type, ramp, simulation time, users by region
+├── Test plans           each runs a share of the users
+│   └── Script groups    run in order, each looped
+│       └── Scripts      run in order, each looped
+├── Data files
+├── Variables
+└── Job settings         logging, HTTP client, stop behavior, agents
+```
 
-#### Steps to creation
-Clicking the `Project` tab takes the user to the main screen, which lists all the previously created projects. From this screen, the user can click the `New Project` icon or edit an existing project by clicking the name in the list.  
-<figure markdown>
-  ![Projects Home](../assets/projects/projects_1.png){ width="700" }
-  <figcaption>Projects Home</figcaption>
-</figure>
+## The project list
 
-1. After clicking the `New Project` icon, the user will be presented with a screen where they can name the project.
-2.  Select the `Product` this test belongs to and optionally add comments.
-3. After clicking `Save` in the toolbar, the project will be created and you will be taken to the `Edit project` screen.  
+Open **Projects** in the menu bar. The list is paged and sorted on the server, and its state (page, sort, search) is kept in the address, so a reload or the browser's Back button brings you back to the same view.
 
-<figure markdown>
-  ![Create a New Project](../assets/projects/projects_2.png){ width="700" }
-  <figcaption>Create a New Project</figcaption>
-</figure>
+- **Search** matches the name, product and comments.
+- **All owners** narrows the list to one owner; **My projects** is your own.
+- **Columns** shows or hides columns. Column choices and widths are saved for you; reset them on your [account page](web-ui.md#your-account).
+- Each row can be **opened**, **copied** under a new name, or **deleted**. Tick several rows to delete them together.
 
-### Editing a Project 
-You can click on the `Edit` icon at the far right of the project row or click the name of the Project to edit a project. From the edit screens, you can set the properties of the project as well as run a test.  
+## Creating a project
 
-#### Configuring Top-level Properties
-The main properties that must be specified include:  
+1. Click **New project**.
+2. Enter a **Name** (it must be unique), and optionally choose a **Product** and add **Comments**. Products are a list the administrator configures, used to categorize projects and scripts.
+3. Click **Create**. Tank creates the project with one test plan, **Main**, which runs 100% of the users, and opens it.
 
-<figure markdown>
-  ![Configure Edit Properties](../assets/projects/projects_3.png){ width="700" }
-  <figcaption>Configure Edit Properties</figcaption>
-</figure>
+You need the *Create Project* right to create or copy a project (see [Roles and permissions](../roles.md)).
 
-* `Name` - The name of the Project. This must be unique.
-* `Simulation Time` - This is the length of the test and should be filled in if the `Simulation Time Reached` option is chosen under the `Users and Times` tab. If `Scripts Loops Completed` is chosen on the `Users and Times` tab , this field can be ignored.
-* `Ramp Time` - This is how quickly test users should be added. For example, if the total number of Users is 3000, the Ramp Time is 15 minutes, and the User Increment is 1, then 3.33 users will be added every second.
-* `Owner` - The owner of this Project. Owners and Adminstrators have specific rights to Projects within Intuit Tank. See Security for more information.
-* `Total Users` - This is a `read-only` reference field that will total the users for all the regions configured on the `Users And Times` tab. 
+## The project editor
 
-#### Configuring Additional Properties
-There are additional properties that be configured for a Project. Expand the section below explore further.  
-??? abstract "Additional Project Properties"
+The top of the editor has the project's **Name**, **Product**, **Owner** and **Comments**. Only the owner or an administrator can change the owner.
 
-    === "Users and Times "
-        
-        `Users and Times` is the tab within a Project where you configure the number of users that will be simulated in your test and how the load will be generated and terminated.  
-        <figure markdown>
-          ![Users and Times](../assets/projects/projects_4.png){ width="700" }
-          <figcaption>Users and Times</figcaption>
-        </figure>
+Below them are six tabs: **Users and times**, **Scripts**, **Data files**, **Variables**, **Create job** and **Job queue**. Changes to the first five are kept in the page until you click **Save**; the title shows *(unsaved)* until then, and Tank warns you if you try to leave with unsaved changes.
 
-        * `Users` - Enter the number of users for each Amazon EC2 region to simulate. Regions are the Amazon data center locations. Available regions are configured by the administrator.
-        * `Run Scripts Until` - Simulation Time Reached - Run scripts until simulation time has been reached. Will run trough the script once in its entirety regardless of the simulation time ant then continur running the last script group until the simulation time has been reached.
-        Scripts Loops Completed - Run the script once then terminate the user.
+- **Save** checks the project first. If something is wrong, the problems are listed and the tabs that have them are marked with a count.
+- **Revert** throws away unsaved changes.
+- **Save as…** saves the project under a new name, with your unsaved changes; the original stays as it was last saved.
+- The **trash** button deletes the project.
 
-        * `Workload Type` - Increasing - Users will be added for the length of time specified in the Ramp Time field, after which the test will run at steady state with the number of Total Users until Simulation Time or Script Loops are completed.
-        Steady State - Start all the users at once.
+If someone else saved the project while you were editing it, Tank tells you and offers to reload it.
 
-        * `Initial Users` - The number of users to simulate immediately when the test starts. The typical value is 0.
-        * `User Increment` - The number of users to add at a time during the Ramp Time. The typical value is 1.         
-        
-        
+If you can't edit the project, it opens read-only with a note saying so.
 
-    === "Scripts and Test Plans"
+### Users and times
 
-        The `Scripts` tab is where the the flow of the test is configured. Some key terminology to review here would be: 
+| Setting | Description |
+| :------ | :---------- |
+| **Workload type** | **Increasing (linear user ramp)** adds users in steps over the ramp time, then holds them. **Non-linear (target users per second)** injects new users at a rate that rises from 0 to a target rate over the ramp time. |
+| **Simulation time** | How long the test runs. Required when *Run scripts until* is *Simulation time is reached*. |
+| **Ramp time** | How long it takes to reach full load. |
+| **Initial users** | Users started as soon as the test starts. Usually 0. |
+| **User increment** | *(Increasing only)* Users added at each step of the ramp. Usually 1. With 3,000 users, a 15 minute ramp and an increment of 1, about 3.33 users are added each second. |
+| **Run scripts until** | *(Increasing only)* **Simulation time is reached**, or **Scripts finish**: each user runs its test plan, with its loops, once. |
+| **Target users per second** | *(Non-linear only)* The rate new users are injected at by the end of the ramp. |
+| **Users by region** | *(Increasing)* The number of users to run in each region. **Total users** adds them up. |
+| **Share of users by region** | *(Non-linear)* The percentage of users each region runs. |
 
-        * `Tests and Test Plans` - Tests are a collection of `Test Plans`. A Test Plan consists of one or more `Script Groups`. Test Plans run a percentage of the users for the test.
-        * `Script Groups` - Script Groups contain one or more Scripts. Script groups are intended to be self contained flows for a user to execute.They are the demarkation unit for stopping a test as well as for looping after a test has met the simulation time.
-        * `Scripts` - Scripts are a collection of steps to run. Looping can be configured at either level.
+The regions are the AWS regions the administrator has configured. On a standalone controller there is a single, standalone region.
 
-        === "Adding a Test Plan"
-            1. Click on `Add Test Plan` to add a Test Plan to the project.
-            2. Fill in the name and the percentage of users this plan will run. You are responsible for making sure that the percentages add up to 100%.
-            3. Click the `Add` button to save the Test Plan. The new Test Plan will show up as a new tab in the `Test Groups` tab view.
-              <figure markdown>
-                ![Add a Test Plan](../assets/projects/projects_5.png){ width="700" }
-                <figcaption>Add a Test Plan</figcaption>
-              </figure>
-        === "Adding a Script Group"
-            1. Click on `Insert Script Group` to add a Script Group at the end of the list or the `Insert` icon at the far right of any existing Script Group to add one before the one selected.
-            2. Fill in the name and number of loops.
-            3. Click the `Add` button to save the Script Group.
-              <figure markdown>
-                ![Insert a Script Group](../assets/projects/projects_6.png){ width="700" }
-                <figcaption>Insert a Script Group</figcaption>
-              </figure>
-        === "Editing a Script Group"
-            1. Click on name of Script Group or the `Edit` icon at the far right of any existing Script Group.
-            2. Move scripts from the available box to the selected box by using either the buttons or by dragging the scripts form one to the other. _(Refer to the `Move Script Groups` figure below)_
-            3. You can reorder the Selected Scripts by dragging them up or down in the list. Click the `Add Scripts` button to add the scripts to the script group (lower panel on the `Move Script Groups` figure). 
-            4. You may set the number of loops of the individual script by clicking the `loop number` and changing the value.
-            3. When you are done, Close the `Edit Script Group` Dialog.
-            !!! info "Pro Tip"
-                A user can specify multiple Script Groups and Scripts within each Group. This gives the user a great deal of control over how their test is run.  
-                For example, `Script Group 1` might be looped twice and contain `Script1` (looped once) and `Script2` (looped twice).  
-                Running the test would result in this sequence: `Script1, Script2, Script2, Script1, Script2, Script2`
+Times are written with `d`, `h`, `m`, `s` and `ms`, for example `1h 30m` or `90m`. A time can also refer to the other times: `RT` (ramp time), `ST` (simulation time) and `ET` (execution time), as in `3ET - .5RT`. A region's users can be an expression too, such as `4 * RT / 1000` for four users a second. Separate math symbols with spaces.
 
-              <figure markdown>
-                ![Insert a Script Group](../assets/projects/projects_7.png){ width="700" }
-                <figcaption>Insert a Script Group</figcaption>
-              </figure>
-              <figure markdown>
-                ![Insert a Script Group](../assets/projects/projects_8.png){ width="500" }
-                <figcaption>Move Script Groups</figcaption>
-              </figure>
+### Scripts: test plans and script groups
 
-    === "Data Files"
-        Data Files are `csv` files that can be accessed by the scripts.   
-        Each of the lines in a csv file will get divided evenly among the agents. So if there are 6000 lines in the csv file and there are two agents running (600 users) each agent will get 3000 lines.   
-        When individual user threads access the csv file, the lines are locked as they get doled out so that lines are only given out once.  
-        Use the `Upload Data Files` button to upload Data Files.   
-        Move Data Files from the available to the selected panels using either the buttons or by dragging.  
-        You can view the contents of a Data File by clicking on the `magnifying glass` :material-magnify-scan: icon.  
-        <figure markdown>
-           ![Upload Data Files](../assets/projects/projects_9.png){ width="600" }
-           <figcaption>Upload Data Files</figcaption>
-        </figure>
+The **Scripts** tab sets the flow of the test.
 
-    === "Variables" 
-        A Project can be configured with `Global variables`.   
-        
-        !!! info "Pro Tip"
-            * You can either allow these variables to be overridden by the scripts (or) to be immutable (default).  
-            * You can cause the agent to use a Proxy Server for requests by setting a variable named `TANK_HTTP_PROXY` in the format `proxyHost:proxyport`. e.g. `myProxyserver:80`
+- A **test plan** runs a percentage of the test's users. Every project has at least one. Tank warns you if the percentages don't add up to 100%.
+- A test plan contains **script groups**, which run in order. A script group is a self-contained flow for a user and has its own **Loop** count. Script groups are also where a stopped user can finish (see *Stop behavior* below).
+- A script group contains **scripts**, which run in order, each with its own **Loop** count.
 
-        Use the `Add Variable` button and fill in the key and the value.  
-        Check the `Allow Scripts to Override Project Variables` checkbox to allow scripts to override the variable values.   
-        <figure markdown>
-           ![Add Variable](../assets/projects/projects_11.png ){ width="600" }
-           <figcaption>Add Variable</figcaption>
-        </figure>
+To work with them:
 
-    === "Job scheduling"
-        When you schedule a job, you snapshot it off at that point so that you can then run it exactly as it is set up at the time. A pop up will show the details of the job you are going to run.  
-        ### Configuring Scheduling Properties
+- **Add test plan** adds a plan with a name and user percentage; each plan is a tab. **Delete test plan** removes a plan and its groups.
+- **Add script group** adds a group at the end; the **insert** button on a group's row adds one before it. Each row can also be edited or deleted.
+- In the script group dialog, set the group's **Name** and **Loop**, find scripts under **Add scripts** (by name, product or comments) and click **Add**. Use the arrows to reorder the scripts, set each script's **Loop**, or remove it. Click **Done**, then save the project.
 
-            * `Name` - The name of the job.
-            * `Logging Profile` - How verbose the agent logs should be.
-            * `Tank HTTP Client` - The client implementation you want to use to drive load.
-            * `Stop Behavior` - Where you want the script to exit when stop command is issued.
-            * `Location` - Where the test is running. Configured by the administrator.
-            * `Agent Instance Type` - The instance type for the agent.
-            * `Max Users per Agent` - The number of users each agent should run.
-            * `Assign Elastic IPs` - Whether the agents should use an elastic ip that you have reserved. If no ips are available, then the agent will not get an Elastic IP.        
-        
-        <figure markdown>
-           ![Schedule Job](../assets/projects/projects_12.png){ width="600" }
-           <figcaption>Schedule Job</figcaption>
-        </figure>
+!!! example "Loops"
+    *Script Group 1* loops twice and contains *Script1* (looped once) and *Script2* (looped twice). Each user runs:
+    `Script1, Script2, Script2, Script1, Script2, Script2`
 
-        After you schedule a job you will automatically be taken to the `Job Queue` tab.  
-        !!! warning "Note"
-            It is important that you examine the details of the job, to make sure that everything is as you want it.
-        
-        <figure markdown>
-           ![Add Job to queue](../assets/projects/projects_13.png){ width="500" }
-           <figcaption>Add Job to queue</figcaption>
-        </figure>    
+### Data files
 
+The **Data files** tab lists the [data files](datafiles.md) the project's scripts can read.
 
-    === "Job queue"  
-        The Job Queue show all the jobs tht have been scheduled (or) have run. It allows you to control the execution of the test and monitor the current state of the test.  
-        <figure markdown>
-           ![Job queue](../assets/projects/projects_14.png){ width="600" }
-           <figcaption>Job queue</figcaption>
-        </figure>    
-        
+- Find a file under **Add data files** and click **Add**.
+- **Upload data files** uploads new files and adds them to the project.
+- The **eye** button previews a file; the **remove** button takes it out of the project (the file itself is kept).
 
-        
+When a job runs, each data file's lines are divided evenly among the job's agents. If the job has exactly one data file, it is the default file that `#{ioFunctions.getCSVData(column)}` reads.
+
+### Variables
+
+Project variables are set for every user of every script in the project. Click **Add variable** and enter a name and value. Each name can be used once.
+
+By default a script can't change a project variable. Turn on **Let scripts override project variables** to let scripts set their own values.
+
+!!! tip "Sending requests through a proxy"
+    Set a variable named `TANK_HTTP_PROXY` to `proxyHost:proxyPort`, for example `myProxyServer:80`, to make the agents send requests through that proxy.
+
+See [Functions and variables](functions_variables.md) for how scripts use variables.
+
+### Create job
+
+The **Create job** tab holds the settings a job is made with, and queues the job. The settings are saved with the project.
+
+| Setting | Description |
+| :------ | :---------- |
+| **Job name** | Leave it blank for the default name. |
+| **Logging profile** | How much the agents log about each request: **Terse**, **Standard**, **User Variables** (standard plus user variables), **Verbose** (every field) or **Trace Calls** (every call). |
+| **HTTP client** | The HTTP client implementation the agents use to drive load. The administrator configures the choices. |
+| **Stop behavior** | Where users finish when the job is stopped: after the current **Step**, **Script**, **Script Group**, or the whole **Test**. |
+| **Location** | Where the test runs from, for information. The administrator configures the choices. |
+| **Agent instance type** | The EC2 instance type for the agents. Choosing a type fills in its default users per agent. Not shown on a standalone controller. |
+| **Users per agent** | *(Increasing)* How many users each agent runs, which decides how many agents the job starts. |
+| **Target rate per agent** | *(Non-linear)* How many users per second each agent injects. |
+| **Assign Elastic IPs** | Gives each agent an unassigned Elastic IP in its region. Not shown on a standalone controller. |
+| **Two-step start** | Launches every agent first and waits for **Start load**, so load begins at an exact moment, for example in a spike test. Send *Start load* within 5 to 10 minutes of the agents being ready. |
+
+Click **Validate and queue…**. Unsaved changes are saved first. Tank then shows what the job will be (users, ramp time, simulation time and expected run time) with any errors to fix and warnings to check. If the job is valid, click **Queue job**. The job is a snapshot of the project as it is now, so later edits to the project don't change it. Tank then opens the **Job queue** tab.
+
+You need the *Control Job* right, or to own the project, to queue a job.
+
+### Job queue
+
+The **Job queue** tab shows this project's jobs and their agents, and lets you run, pause, stop or kill them. It is the same view as the [Agent Tracker](jobs.md), limited to one project.

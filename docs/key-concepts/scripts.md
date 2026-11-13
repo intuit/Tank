@@ -1,323 +1,243 @@
 # Scripts
 
-!!! note "Tip"
-    Scripts are accessed from the `Scripts` Top navigation link.
+A script is the list of steps a virtual user runs during a load test. A [project](projects.md) puts scripts into script groups and test plans, and every user runs them in that order.
 
-A Tank performance script is a preset of steps that `virtual`(mocked for load) users will execute during a load test.   
-A `step` can be composed from one of the following step types:  
+A step is one of:
 
-- [x] HTTP Request
-- [x] Think Time
-- [x] Sleep Time
-- [x] Variable
-- [x] Clear Session
-- [x] Logic
+| Step | What it does |
+| :--- | :----------- |
+| **Request** | Sends an HTTP or HTTPS request, then validates the response and saves values from it into variables. |
+| **Think time** | Pauses for a random time between a minimum and a maximum, like a user reading a page. |
+| **Sleep time** | Pauses for a fixed time. |
+| **Variable** | Sets a variable to a value or a [function](functions_variables.md). |
+| **Cookie** | Sets a cookie (name, value, domain and path). |
+| **Authentication** | Supplies credentials (user name, password, realm, host, port and scheme: Basic, Digest or NTLM). |
+| **Clear session** | Clears cookies and the cache, like closing and reopening the browser. |
+| **Logic** | Runs JavaScript to change variables or control the flow of the test. |
+| **Timer** | A pair of start and stop markers that time the steps between them as one transaction. |
 
-### Importing a recorded Script
-There are two ways to generate a script.
- 
-* Importing from a `Tank-Proxy recording`. 
-* Manually creating a script. 
+## The script list
 
-This section will mainly focus on the `Importing` method.    
+Open **Scripts** in the menu bar. Like the project list, it is paged, searchable (by name, product and comments), can be narrowed to one owner, and remembers your columns.
 
-!!! warning "Note"
-    Currently Tank only supports Intuit Tank's own `Proxy Recording` tool. More info on the Recording tool is covered in the later sections.
+Each row can be **opened**, **copied** under a new name, downloaded as **Tank XML** (the script itself, for importing elsewhere) or as **Harness XML** (the form the agent runs), or **deleted**.
 
-#### Steps to Importing a Script
-1. Click on the `New Script` icon which takes you to the `Create Script` form.
-2. Fill in the `Script Name` and select from the appropriate `Product name`.
-3. Click on the `Browse` button to select the recording file or the `zip archive` that contains the recording file. _(If Creating a blank script just select the `Blank Script` radio button and skip this step.)_  
-4. Select the appropriate `Filter Groups` (AND/OR) individual `Filters`. The Filters are used to transform the imported recording to a final  Tank script. _(Refer to the `Filters` section for more details on `Filters` and `Filters Group`.)_
-5. Click on the `Save` button. Once the Intuit Tank script is created, you will be taken back to the `Scripts` section and your script will appear at the top of the list.  
+## Creating a script
 
-    <figure markdown>
-        ![Add a New Script](../assets/scripts/scripts_2.png){ width="600" }
-        <figcaption>Add a New Script</figcaption>
-    </figure> 
+There are three ways to get a script into Tank:
 
-    <figure markdown>
-        ![Create Script](../assets/scripts/scripts_3.png){ width="600" }
-        <figcaption>Create Script</figcaption>
-    </figure> 
+- Record a browser session with the [Tank Proxy](../supplemental-tools.md#tank-proxy-recorder) and create a script from the recording.
+- Start a blank script and add steps by hand.
+- Import a script exported from Tank.
 
-!!! warning "Warning"
-    If uploading a zipped recording, Tank will only extract the first one from the zip, in case there are more than one recordings in the uploaded zip.  
+### Importing a recorded script
 
+1. Record a session with the Tank Proxy. It saves the traffic as XML.
+2. On the Scripts page, click **New script** and choose **From a recording**.
+3. Enter a **Name**, and optionally choose a **Product**.
+4. Under **Recording**, choose the XML file the proxy saved (`.xml`, or gzipped `.gz`).
+5. Under **Filters to apply**, tick the [filter groups](filters.md) and filters to clean up the recording with. Ticking a group ticks its filters; you can then untick any you don't want. The filters run in list order.
+6. Click **Create**. Tank creates the script and opens it.
 
-### Modifying a Script
-Click on the name of the script (or) the `Edit` icon corresponding to the script you wish to edit. This will take you to the `Edit Script` form.  
-  
-The attributes that can be edited include:
+### Starting a blank script
 
-* `Name` - The name of the script. This is an `in-place` editor. Simply click the name once to enter the `Edit` mode.
-* `Product` - The name of the product this script belongs to.
-* `Owner` - The user who owns the script.
-* `Comments` - Comments are accessed by the `Comments` button on the toolbar.   
+Click **New script**, keep **Blank script**, enter a **Name** and optionally a **Product** and **Comments**, and click **Create**.
 
-!!! error "TODO: Edit verbiage for comments heading"
+### Importing Tank XML
 
-#### Step Selection
-Selection of script steps is modelled different than other sections.  
-  
-Instead of check boxes, it uses a standard selection method, and highlights to indicate selection.   
-    <figure markdown>
-        ![Modify Script](../assets/scripts/scripts_4.png){ width="600"}
-        <figcaption>Modify Script</figcaption>
-    </figure> 
+Click **Import Tank XML** and choose one or more scripts exported from Tank: `.xml` files, gzipped `.gz` files, or a `.zip` of them. Each file replaces the script with the ID and name it carries; a file with an ID of 0 creates a new script. If some files fail, the dialog stays open and lists which.
 
-This toolbar has actions for inserting, deleting, and changing the order of the steps.   
+You need the *Create Script* right to create, copy or import scripts.
 
-### Re-ordering Execution steps of a Script
-Below are the instructions to re-order the Script steps.  
+## The script editor
 
-1. To re-order/move a step you will need to click on the button labeled `Reorder Steps` . A pop-up window labeled `Reorder Steps` will appear.
-2. Use the buttons to move steps up or down in the list. You can also drag the steps to the new order.
-3. Click on the `Save` button to save the new ordering.
+The editor shows the script's **Name**, **Product** and **Comments**, then its steps. As in the project editor, changes are kept in the page until you click **Save**; **Revert** discards them. **Save as…** copies the saved script under a new name (save or revert your changes first). The header also has links to download the script as Tank XML and Harness XML.
 
-    <figure markdown>
-        ![Reorder Script steps](../assets/scripts/scripts_5.png){ width="500"}
-        <figcaption>Reorder Script steps</figcaption>
-    </figure> 
+If you can't edit the script, it opens read-only.
 
-!!! warning "Warning"
-    The script is not saved to the database until you click `Save` in the main toolbar. Changes can be discarded at any time by clicking `Cancel` or by navigating to another panel. In general, it is recommended that you periodically save your updates.
- 
-### Variables
-Variables are used to store various values that can be used to parameterize requests (i.e. `hostnames`, `query string`, `POST data`, etc.).   
-You can define a variable to be set to a `literal` value or `function`.   
-A variable can also be set by parsing the `response` or `headers` of a given request. When using variables in requests, you need to add the `@` symbol in front of the variable. This tells Tank to replace the variable with the actual value.
+### Working with steps
 
-#### Adding a Variable
-To add a Variable, 
+- **Add step** adds a step of the chosen type. It goes before the selected step, or at the end when none is selected.
+- Click a step's **Data** cell, or its **Edit** button, to open it.
+- Tick steps to **Copy** them. **Paste** puts copied steps before the selected step, in this script or another one. Copied steps last until you reload the page.
+- Drag steps to reorder them, or select them and use **Move to…** to move them to a position. Scripts with more than 300 steps scroll virtually and can only be reordered with *Move to…*.
+- **Timer group** wraps the selected steps in a timer. The timer's name is the logging key its timing is reported under.
+- **Delete selected** removes the ticked steps. Deleting either half of a timer removes both.
+- **Columns** chooses which columns show: index, group, request name, method, protocol, host, path, data, MIME type, logging key, on failure, comments, validation and assignment.
 
-1. Click on the button labeled `Variable` . The Variable dialog will pop up.
-2. In the `Key` field you will define your variable name.
-3. The `Value` field is where you define the actual value or `function` you use will associate with the variable.
-4. Click on the `Add` or `Save` button when done.
+### Script tools
 
-    <figure markdown>
-        ![Adding a Variable](../assets/scripts/scripts_6.png){ width="500"}
-        <figcaption>Adding a Variable</figcaption>
-    </figure> 
+- **Search** finds steps by text in the parts you choose: any request field, URL, host, path, method, request name, group, logging key, MIME type, query string, post data, request and response headers and cookies, response content, think and sleep times, and variable names and values. `*` matches any text. You can then **replace** the matches, in the ticked steps, in all steps, or one step at a time with a preview. Replacing is an unsaved change like any other.
+- **Apply filters** runs [filters](filters.md) over the script's steps. The result is an unsaved change.
+- **Validate** checks the script: the expected time for one pass through it, the data files it reads, and warnings such as variables that are used but never set, or set but never used.
 
+## Variables
 
-!!! info "Note"
-    You can cause the agent to use a `Proxy Server` for requests by setting a variable named `TANK_HTTP_PROXY` in the format `proxyHost:proxyport`. e.g. `myProxyserver:80`
+Variables hold values used to parameterize requests, such as host names, query strings and post data. A variable can be set:
 
+- by a **Variable** step, to a literal value or a [function](functions_variables.md);
+- by a request's **assignments**, from its response;
+- by a **Logic** step;
+- by the [project](projects.md#variables).
 
-### Think Time and Sleep Time
-`Think Time` is used to simulate a real user's page to page transitions in an application. In Tank, a random think time is generated based on the `min` and `max` values provided.   
-`Sleep time` is used when you wish to wait for a specific amount of time.
+Refer to a variable in a later step as `@name` (for example a host of `@{host}`). See [Functions and variables](functions_variables.md) for the full syntax.
 
-!!! info "Note"
-    Think Time and Sleep Time are entered in `milliseconds`.
+!!! tip "Sending requests through a proxy"
+    Set a variable named `TANK_HTTP_PROXY` to `proxyHost:proxyPort`, for example `myProxyServer:80`, to make the agent send requests through that proxy.
 
-#### Adding Think Time and Sleep Time
+## Think time and sleep time
 
-1. To add a `Think Time` or `Sleep Time`, click on the appropriate button or the link to edit an existing one. The `Insert or Edit` dialog will pop up.
-2. In the `Key` field you will define your variable name.
-3. For `Think Time` you will need to enter the `Minimum` and `Maximum` time in `miliseconds`. For `Sleep Time` you just need to enter a single value.
-4. Click on the `Add` or `Save` button when done.
+**Think time** simulates a user's pause between pages: Tank waits a random time between the **Minimum** and **Maximum**. **Sleep time** waits a fixed time.
 
+Both are in milliseconds. Instead of a number you can use a variable (`@delay`), a function (`#function...`) or an expression (`#{...}`).
 
-    <figure markdown>
-        ![Adding Think Time and Sleep Time](../assets/scripts/scripts_7.png){ width="600"}
-        <figcaption>Adding Think Time and Sleep Time</figcaption>
-    </figure> 
+## Requests
 
-### HTTP Request
-In Tank, a request is either a `HTTP(S)` `GET` or `POST` request. Before we go through the steps of adding a new request, we will go over what makes up the basic request.   
+A request has:
 
-First, will start with the fields that can make up a request:
+| Field | Description |
+| :---- | :---------- |
+| **Name** | An optional label, such as *Login*. |
+| **Group** | Requests with the same group name form a group that the on-failure actions can skip or jump to. Optional. |
+| **Method** | `GET`, `POST`, `PUT`, `DELETE` or `OPTIONS`. |
+| **Protocol** | `http` or `https`. |
+| **Host** | A host name or IP address, optionally with `:port`. It can use variables, such as `@{host}`. |
+| **Path** | The path of the resource. It can use variables and functions. |
+| **On failure** | What the user does when a validation fails (see below). |
+| **Logging key** | Groups this request's timings in the results. |
 
-* `Host` - You can enter either the `FQDN`, `IP address` or variable for the hostname. When you use a variable, you need to add the `&` symbol at the beginning of the variable. (e.g. `@webserver`) You can specify the port by appending a `:[port]` to the host. e.g. `server.domain.com:9001`
-* `Protocol` - Supported protocols `HTTP` or `HTTPS`.
-* `Path` - The path to the requested resource. The path can also be parameterized with variables. For e.g, `#{rootContext}/ajax/logEmail`
-* `Method` - Supported methods are `GET` or `POST`
-* `Query String` - The query parameters expressed as key value pairs that get appended to the `url`.
-* `POST data` - Parameters expressed as key value pairs that get posted in the `body` of the request.
-* `Group` - Allows you to group requests under a `label`. Grouping is used with `On Failure` field below. _`Note`: This field is optional._
-* `Logging` - This field is used to gather response times on a specific request. _`Note`: This field is `optional`._
-* `On Failure` - Defines what action to take next when a response validation has failed.   
-    
-    The following are the 5 actions that can be taken by the tool when validation has failed: 
+Its tabs hold:
 
-    * `Abort Script, goto next Script (Default)` – The virtual user will skip to the next script defined in the project. If there is only one script, the virtual user will start from over from the top of the script. 
-    * `Continue to next request` – Execute next request. 
-    * `Skip remaining requests in a group` – Will execute the next step after the last request with the group label.
-    * `Goto Group` – Jumps to the first step with the group label.
-    * `Terminate user` – The virtual user is terminated.  
+- **Headers**: the request headers, as key and value pairs.
+- **Query string**: parameters added to the URL.
+- **Post data**: the request body, as **Key-Value** pairs, **XML**, **JSON** (with a *Format JSON* button), **Plain Text**, or **Multi-Part**. A recorded multipart body is shown as recorded and can't be edited.
+- **Validations**: checks on the response (see below).
+- **Assignments**: values to copy from the response into variables.
+- **Recorded**: what the recording captured: the cookies sent, the response headers and cookies, and the response body.
 
-* `Name` - Allows a user to uniquely label a request. (i.e. `Login request`, `Signout request` or `Print request`). _`Note`: This field is optional._
+!!! note "Headers that aren't replayed"
+    The agent always sends a `TEST: LoadTest` header. It doesn't replay these recorded headers: `Host`, `Cookie`, `Connection`, `Content-Type`, `Content-Length`, `If-None-Match` and `If-Modified-Since`. To send one anyway, prefix its name with `X-Include-` (for example `X-Include-If-None-Match`); the prefix is removed when the request is sent.
 
-#### Adding a HTTP Request
- 
- To add a HTTP request, 
+    Recorded request cookies are only replayed when their value is a variable (starts with `@`).
 
-1. Click on the appropriate button or the link to edit an existing one. The `Insert` or `Edit` dialog will pop up.
-2. Fill in the appropriate top level attributes such as `Host`, `Path`, `Name`, etc.
-3. For each of the tabs, you can add or modify the key value pairs.
+### Validations
 
-    <figure markdown>
-        ![Adding a HTTP Request](../assets/scripts/scripts_8.png){ width="600"}
-        <figcaption>Adding a HTTP Request</figcaption>
-    </figure> 
+Each validation has:
 
-!!! info "Note"
-    * Key and Value are in-place edit components. click on them to change their value and click the check mark to accept the change or the 'X' to revert.
-    * Not all Heders are re-played. The following are filtered out: 
-        - Host
-        - Cookie
-        - Connection
-        - If-None-Match
-        - If-Modified-Since
-        - Content* (Content-Type, Content-Length)
+- **When**: *After the request* (the usual case) or *Before the request*.
+- **Location**: the response **Body**, a **Header** or a **Cookie**.
+- **Lookup**: for the body, a JSON path (such as `$.status`) or an XPath (such as `/cart/id`), depending on the **Response format** (JSON, XML or RAW); for a header or cookie, its name.
+- **Operator**: *Equals*, *Not equals*, *Is empty*, *Is not empty*, *Contains*, *Does not contain*, *Less than*, *Greater than* or *Equals any*.
+- **Value** to compare with, where the operator needs one.
 
+A lookup of `HTTPRESPONSECODE` checks the HTTP status code (such as `200` or `404`), and `HTTPRESPONSEMESSAGE` the status message (such as `OK` or `Not Found`).
 
-#### Supplemental Properties
-The following Supplemental properties can be added to the HTTP Request.
+### Assignments
 
-* `Response Header` - Response Headers are read only. They are here to help you in creating validation or assignemnts.
-* `Request Cookies` - Cookies lets you see which cookies were set when the request was made. However, only cookies that are set from variables are replayed.
-* `Response Cookies` -  Response Cookies are read only.
-* `Query String` - Used primarily with `GET` requests.
-* `Post Data` - Only valid for POST requests.
-* `Validation` - Perform validation specified. If validation fails, the On Fail action is performed. Key is the xpath or expression for the value.
-* `Assignments` - Assign values to variables for use in other script steps. Key is the variable name and value is the xpath or expression for the value.
+Each assignment has a **Location** (Body, Header or Cookie), the **Variable** to set, and the **Lookup** to read, as for validations.
 
-!!! info "Note"
-    Two Synthetic headers can be validated as well:
+### On failure
 
-        - `HTTPRESPONSEMESSAGE` - The http response message. e.g. `OK` or `Not Found`
-        - `HTTPRESPONSECODE` - The http response code. e.g. `200` or `404`
+When a validation fails, the user does one of:
 
-Finally, Click on the `Save` button when done.
+| Action | Description |
+| :----- | :---------- |
+| **Abort script, goto next script** (default) | Skips the rest of the script and goes to the next script in the project. |
+| **Abort script group goto next script group** | Skips to the next script group. |
+| **Skip remaining requests in group** | Goes to the step after the last request in this request's group. |
+| **Continue to next request** | Carries on. |
+| **Goto specified group** | Jumps to the first step of the group you name. |
+| **Terminate user** | Stops this virtual user. |
+| **Restart user** | Starts this user's test plan again. |
 
+## Clear session
 
-### Clear Session
-Inserting this step clears the session, which can be thought of as comparable to closing and re-opening the browser.   
+Clears the user's cookies and cache, as if the browser were closed and reopened.
 
-This accomplishes the following:
+## Logic
 
-- Clears cookies
-- Clears the cache
+A Logic step runs JavaScript on the agent, between requests. Use it to change variables, control the flow of the test, or do anything too complex for the other steps. The editor's **What can a script use?** button shows the code Tank runs before your script.
 
-### Logic
-Inserting this step allows the user to use `Javascript` to control the flow of the script, change variable values, or perform any custom logic that is too complex for the normal operations.
+A Logic step can read:
 
-Logic step scripts are written in `Javascript`. They have access to the following objects:
+- **variables**: the current user's variables;
+- **request**: the previous request;
+- **response**: the previous response.
 
-* `Variables` - The current variables in the test plan execution.
-* `Request` - The previous request in the test plan execution.
-* `Response` - The previous response in the test plan execution.
+It controls the flow by setting the `action` output on `ioBean`, which the functions below do for you:
 
-!!! info "Note"
-    There are functions that are added to each script for accessing these values.
+| Action | Effect |
+| :----- | :----- |
+| `goto <groupName>` | Jumps to the group with that name in the script. |
+| `restartPlan` | Restarts the test plan from the start. |
+| `abortScriptGroup` | Aborts the current script group and goes to the next one. |
+| `abortScript` | Aborts the current script and goes to the next one. |
+| `abortGroup` | Aborts the current group of requests and goes to the request after it. |
+| `terminateUser` | Stops the current user. |
 
-Control flow is controlled by setting the `action` output parameter in the `ioBean`. Handled values are:
+**Test it** runs your script on the controller against test data you enter (variables, a request and a response), or against the step's previous request with **Use the previous request**, and shows the result. See [Scripting languages](scripting.md) for more on the `ioBean` object.
 
-* `goto:[groupName]` - Jump to a group within the script with the specified name.
-* `restartPlan` - Restart the test plan from the start.
-* `abortScriptGroup` - Aborts the current script group and proceeds to the next script group.
-* `abortScript` - Aborts the current script and proceeds to the next script.
-* `abortGroup` - Aborts the current group within a script and proceeds to the next request after the current group.
-* `terminateUser` - Terminates the current user.
+These functions are added in front of every Logic step. An administrator can change them in the `logic-step` section of the controller's `settings.xml`.
 
-!!! info "Tip"
-    There are functions that are added to each script for accessing these values.
+??? abstract "Functions added to every Logic step"
 
-The following functions are added to each script before it is run and are available for use.
+    === "Logging"
+        ```js
+        /** Prints the line, with the date, to the output. */
+        function logWithDate(line) {
+            ioBean.println(new Date().toString + ": " + line);
+        }
 
-??? abstract "Functions added at each Script"
+        /** Prints the line to the output. */
+        function log(line) {
+            ioBean.println(line);
+        }
 
-    === "Logging functions"
-        ``` js
-            /**
-            * prints the line to the output. will be log
-            * 
-            * @param line
-            *            the line to print
-            */
-            function logWithDate(line) {
-                ioBean.println(new Date().toString + ": " + line);
-            }
+        /** Prints the line at error level. */
+        function error(line) {
+            ioBean.error(line);
+        }
 
-            /**
-            * prints the line in info context.
-            * 
-            * @param line
-            *            the line to print
-            */
-            function log(line) {
-                ioBean.println(line);
-            }
-            /**
-            * prints the line in error context.
-            * 
-            * @param line
-            *            the line to print
-            */
-            function error(line) {
-                ioBean.error(line);
-            }
-
-            /**
-            * prints the line in debug context. Will be logged to console or test but not
-            * to logs when in production.
-            * 
-            * @param line
-            *            the line to print
-            */
-            function debug(line) {
-                ioBean.debug(line);
-            }            
+        /** Prints the line at debug level: shown when testing, not logged in production. */
+        function debug(line) {
+            ioBean.debug(line);
+        }
         ```
-    === "Data Transformational functions"
-        ``` js
-            function toJsonObj(text) {
-               try {
-                    return JSON.parse(text);
-                } catch(e) {
-                    error("Error parsing json: " + e);
-                }
-                return text;
+
+    === "Data transformation"
+        ```js
+        function toJsonObj(text) {
+            try {
+                return JSON.parse(text);
+            } catch(e) {
+                error("Error parsing json: " + e);
             }
-            function toJsonString(jsonObj) {
-                try {
-                    return JSON.stringify(jsonObj, null, '\t');
-                    } catch(e) {
-                    error("Error converting json to string json: " + e);
-                    }
-                    return jsonObj;
-                }
-        ```        
-    === "Data Retrieval functions"
-        ``` js 
-        /**
-        * gets the com.intuit.tank.http.BaseRequest object of the last call made.
-        * 
-        * @return the request or null if no requests have been made
-        */
+            return text;
+        }
+
+        function toJsonString(jsonObj) {
+            try {
+                return JSON.stringify(jsonObj, null, '\t');
+            } catch(e) {
+                error("Error converting json to string json: " + e);
+            }
+            return jsonObj;
+        }
+        ```
+
+    === "Data retrieval"
+        ```js
+        /** The com.intuit.tank.http.BaseRequest of the last call, or null if none was made. */
         function getRequest() {
             return ioBean.getInput("request");
         }
 
-        /**
-        * gets the com.intuit.tank.http.BaseResponse object of the last call made.
-        * 
-        * @return the response or null if no requests have been made
-        * 
-        */
+        /** The com.intuit.tank.http.BaseResponse of the last call, or null if none was made. */
         function getResponse() {
             return ioBean.getInput("response");
         }
 
-        /**
-        * gets the request body as string if not binary
-        * 
-        * @return the body or empty string if null or binary
-        */
+        /** The request body as a string, or "" if there is none. (The name is spelled as shown.) */
         function getResquestBody() {
             if (getRequest() != null) {
                 return getRequest().getBody();
@@ -325,100 +245,59 @@ The following functions are added to each script before it is run and are availa
             return "";
         }
 
-        /**
-        * gets the response body as string if not binary
-        * 
-        * @return the body or empty string if null or binary
-        */
+        /** The response body as a string, or "" if there is none. */
         function getResponseBody() {
             if (getResponse() != null) {
-            return getResponse().getBody();
+                return getResponse().getBody();
             }
             return "";
         }
 
-        /**
-        * Returns the value of the variable or null if variable does not exist
-        * 
-        * @param key
-        *            the variable name
-        * @returns the variable value.
-        */
+        /** The variable's value, or null if it doesn't exist. */
         function getVariable(key) {
             return ioBean.getInput("variables").getVariable(key);
         }
 
-        /**
-        * Sets the value of the variable.
-        * 
-        * @param key
-        *            the variable name to set
-        * @param value
-        *            the value to set it to
-        */
+        /** Sets the variable. */
         function setVariable(key, value) {
             ioBean.getInput("variables").addVariable(key, value);
         }
-        ```   
-    === "Result functions"
+        ```
+
+    === "Flow control"
         ```js
-            /**
-            * jump to a group within the script with the specified name.
-            * 
-            * @param groupName
-            *            the name of the group to go to. if the group does not exist, it
-            *            skips to next script.
-            */
-            function gotoGroup(groupName) {
-                setAction("goto " + groupName);
-            }
+        /** Jumps to the group with this name; if there is none, skips to the next script. */
+        function gotoGroup(groupName) {
+            setAction("goto " + groupName);
+        }
 
-            /**
-            * restart the TestPlan from the start.
-            */
-            function restartPlan() {
-                setAction("restartPlan");
-            }
+        /** Restarts the test plan from the start. */
+        function restartPlan() {
+            setAction("restartPlan");
+        }
 
-            /**
-            * aborts the current ScriptGroup and proceeds to the next.
-            * 
-            * @returns
-            */
-            function abortScriptGroup() {
-                setAction("abortScriptGroup");
-            }
+        /** Aborts the current script group and goes to the next. */
+        function abortScriptGroup() {
+            setAction("abortScriptGroup");
+        }
 
-            /**
-            * aborts the current Script and proceeds to the next.
-            */
-            function abortScript() {
-                setAction("abortScript");
-            }
+        /** Aborts the current script and goes to the next. */
+        function abortScript() {
+            setAction("abortScript");
+        }
 
-            /**
-            * aborts the current group and proceeds to the next request after the current
-            * group.
-            */
-            function abortGroup() {
-                setAction("abortGroup");
-            }
+        /** Aborts the current group and goes to the request after it. */
+        function abortGroup() {
+            setAction("abortGroup");
+        }
 
-            /**
-            * terminates this user.
-            */
-            function terminateUser() {
-                setAction("terminateUser");
-            }
+        /** Stops this user. */
+        function terminateUser() {
+            setAction("terminateUser");
+        }
 
-            /**
-            * sets the action in the output.
-            */
-            function setAction(action) {
-                ioBean.setOutput("action", action);
-            }
-
-        ```    
-
-
-
+        /** Sets the action output. */
+        function setAction(action) {
+            ioBean.setOutput("action", action);
+        }
+        ```

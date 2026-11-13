@@ -1,6 +1,8 @@
 site_name: Tank docs
+site_url: https://intuit.github.io/Tank/
 repo_url: https://github.com/intuit/Tank
 repo_name: intuit/Tank
+edit_uri: edit/master/docs/
 plugins:    
     - search    
     - swagger-ui-tag
@@ -32,6 +34,9 @@ theme:
     - navigation.tracking
     - navigation.tabs.sticky
     - header.autohide
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
   name: material
   
   palette:  
@@ -53,5 +58,5 @@ theme:
     
 extra:
   social:
-    - icon: fontawesome/brands/slack 
-      link: https://twitter.com/squidfunk
+    - icon: fontawesome/brands/github
+      link: https://github.com/intuit/Tank
