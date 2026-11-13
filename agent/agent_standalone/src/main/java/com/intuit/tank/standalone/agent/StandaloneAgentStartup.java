@@ -13,13 +13,16 @@ package com.intuit.tank.standalone.agent;
  * #L%
  */
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -39,10 +42,11 @@ public class StandaloneAgentStartup implements Runnable {
 
     private static Logger LOG = LogManager.getLogger(StandaloneAgentStartup.class);
     public static final String SERVICE_RELATIVE_PATH = "/v2/agent";
-    private static String API_HARNESS_COMMAND = "./startAgent.sh";
+    private static String API_HARNESS_COMMAND = "startAgent.sh";
     public static final String METHOD_SETTINGS = "/settings";
     public static final String METHOD_SUPPORT = "/support-files";
-    private static final String TANK_AGENT_DIR = "/opt/tank_agent";
+    /** The agent package directory, where the agent is started from */
+    private static final String TANK_AGENT_DIR = ".";
     private static final long PING_TIME = 1000 * 60 * 5;// five minutes
 
     private String controllerBase;
@@ -75,33 +79,33 @@ public class StandaloneAgentStartup implements Runnable {
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.DELEGATING);
                 sendAvailability();
                 LOG.info("Starting up: ControllerBaseUrl={}", controllerBase);
-                URL url = URI.create(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS).toURL();
-                LOG.info("Starting up: making call to tank service url to get settings.xml {}", url.toExternalForm());
-                try ( InputStream settingsStream = url.openStream() ) {
-                    Files.write(Paths.get(TANK_AGENT_DIR, "settings.xml"), settingsStream.readAllBytes());
-                    LOG.info("got settings file...");
-                }
-                url = URI.create(controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT).toURL();
-                LOG.info("Making call to tank service url to get support files {}", url.toExternalForm());
-                try( ZipInputStream zip = new ZipInputStream(url.openStream()) ) {
+                Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
+                HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+                LOG.info("Starting up: making call to tank service url to get settings.xml {}", controllerBase + SERVICE_RELATIVE_PATH + METHOD_SETTINGS);
+                Files.write(agentDirPath.resolve("settings.xml"), download(client, METHOD_SETTINGS).readAllBytes());
+                LOG.info("got settings file...");
+                LOG.info("Making call to tank service url to get support files {}", controllerBase + SERVICE_RELATIVE_PATH + METHOD_SUPPORT);
+                try( ZipInputStream zip = new ZipInputStream(download(client, METHOD_SUPPORT)) ) {
                     ZipEntry entry = zip.getNextEntry();
-                    Path agentDirPath = Paths.get(TANK_AGENT_DIR).toAbsolutePath().normalize();
                     while (entry != null) {
                         String filename = entry.getName();
                         LOG.info("Got file from controller: {}", filename);
                         Path targetPath = agentDirPath.resolve(filename).normalize();
                         if (!targetPath.startsWith(agentDirPath)) // Protect "Zip Slip"
                             throw new ZipException("Bad zip entry");
-                        Files.write(targetPath, zip.readAllBytes());
+                        if (!entry.isDirectory()) {
+                            Files.write(targetPath, zip.readAllBytes());
+                        }
                         entry = zip.getNextEntry();
                     }
                 }
                 // now start the harness
-                String[] cmd = {API_HARNESS_COMMAND, " -http=", controllerBase, " -jobId=", request.getJobId(), " -stopBehavior=", request.getStopBehavior()};
-                LOG.info("Starting apiharness with command: {}", Arrays.toString(cmd));
+                String[] cmd = {"/bin/sh", API_HARNESS_COMMAND, "-http=" + controllerBase, "-token=" + token,
+                        "-jobId=" + request.getJobId(), "-stopBehavior=" + request.getStopBehavior()};
+                LOG.info("Starting apiharness for job {}", request.getJobId());
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.RUNNING_JOB);
                 sendAvailability();
-                Process exec = Runtime.getRuntime().exec(cmd);
+                Process exec = new ProcessBuilder(cmd).directory(agentDirPath.toFile()).inheritIO().start();
                 exec.waitFor();
                 currentAvailability.setAvailabilityStatus(AgentAvailabilityStatus.AVAILABLE);
                 sendAvailability();
@@ -113,6 +117,21 @@ public class StandaloneAgentStartup implements Runnable {
             }
         });
         t.start();
+    }
+
+    /**
+     * Fetches an agent resource from the controller, authenticated with the agent token
+     */
+    private InputStream download(HttpClient client, String method) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(controllerBase + SERVICE_RELATIVE_PATH + method))
+                .header("Authorization", "bearer " + token).build();
+        HttpResponse<InputStream> response = client.send(request, BodyHandlers.ofInputStream());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            response.body().close();
+            throw new IOException("GET " + method + " failed: HTTP " + response.statusCode());
+        }
+        return response.body();
     }
 
     private String getInstanceUrl() {

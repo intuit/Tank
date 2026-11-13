@@ -18,23 +18,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.sax.SAXSource;
-
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.apache.http.protocol.HTTP;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
@@ -42,6 +33,7 @@ import com.intuit.tank.vm.api.enumerated.AgentCommand;
 public class CommandListener {
 
     private static Logger LOG = LogManager.getLogger(CommandListener.class);
+    private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
     public static final int PORT = 1090;
     private static boolean started = false;
@@ -91,31 +83,19 @@ public class CommandListener {
             os.write(response.getBytes());
             os.close();
             exchange.close();
-        } catch (SAXException| ParserConfigurationException | IOException e) {
+        } catch (IOException e) {
             LOG.error("error sending response");
         }
     }
 
-    private static StandaloneAgentRequest getRequest(InputStream inputStream) throws SAXException, ParserConfigurationException {
+    /**
+     * @return the job request the controller sent (JobManager.sendRequest posts it as JSON), or null if it can't be read
+     */
+    static StandaloneAgentRequest getRequest(InputStream inputStream) {
         try {
-        	//Source: https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet#Unmarshaller
-        	SAXParserFactory spf = SAXParserFactory.newInstance();
-        	spf.setNamespaceAware(true);
-            spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        	spf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-        	spf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        	spf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            spf.setXIncludeAware(false);
-
-        	
-        	Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(inputStream));
-        	
-            JAXBContext ctx = JAXBContext.newInstance(StandaloneAgentRequest.class.getPackage().getName());
-            Object unmarshalled = ctx.createUnmarshaller().unmarshal(xmlSource);
-            return (StandaloneAgentRequest) unmarshalled;
-        } catch (JAXBException e) {
-            LOG.error("Error unmarshalling body.");
+            return JSON_MAPPER.readValue(inputStream, StandaloneAgentRequest.class);
+        } catch (JacksonException e) {
+            LOG.error("Error unmarshalling body: {}", e.getMessage());
         }
         return null;
     }

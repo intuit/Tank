@@ -1,85 +1,124 @@
 #!/bin/bash
-INSTALL_DIR=$1
-if [ -z "$1" ]
-  then
-    echo "No install dir supplied. Using `pwd`"
-    INSTALL_DIR=`pwd`
-fi
-mkdir -p $INSTALL_DIR 2>/dev/null
-echo "Installing all in one in $INSTALL_DIR"
-echo "downloading and extracting tomcat 9..."
-wget -O /tmp/apache-tomcat.tgz https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.10/bin/apache-tomcat-11.0.10.tar.gz 2>/dev/null
-tar -zxf /tmp/apache-tomcat.tgz -C $INSTALL_DIR 2>/dev/null
-rm -f /tmp/apache-tomcat.tgz 2>/dev/null
-ln -snf $INSTALL_DIR/apache-tomcat-11.0.10 $INSTALL_DIR/tomcat 2>/dev/null
-mkdir $INSTALL_DIR/tomcat/db 2>/dev/null
-mkdir $INSTALL_DIR/tomcat/jars 2>/dev/null
+# Installs a local, single-machine Tank: a standalone controller on Tomcat with an H2 database, and one
+# standalone agent. For trying Tank out and small tests only, not for production or large-scale load.
+#
+# Usage: all-in-one.sh [install-dir]          (default: the current directory)
+#
+# It installs the controller war and agent package built from this source tree, so build them first:
+#   mvn clean install -P release
+# or point it at other copies, for example ones downloaded from a release:
+#   TANK_WAR=/path/to/tank.war TANK_AGENT_ZIP=/path/to/agent-standalone-pkg.zip ./all-in-one.sh
+#
+# Needs Java 21 or later on the PATH (or JAVA_HOME), curl and unzip.
+set -euo pipefail
 
-echo "downloading and extracting agent-standalone..."
-wget -O /tmp/agent-standalone-pkg.zip https://github.com/intuit/Tank/releases/download/4.2.0/agent-standalone-pkg.zip 2>/dev/null
-unzip -q -d $INSTALL_DIR /tmp/agent-standalone-pkg 2>/dev/null
-rm -f /tmp/agent-standalone-pkg 2>/dev/null
+TOMCAT_VERSION=11.0.27
+H2_VERSION=2.3.232
+SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
+TANK_WAR="${TANK_WAR:-$SOURCE_DIR/web/web_ui/target/tank.war}"
+TANK_AGENT_ZIP="${TANK_AGENT_ZIP:-$SOURCE_DIR/agent/agent_standalone_pkg/target/agent-standalone-pkg.zip}"
+TANK_SETTINGS="${TANK_SETTINGS:-$SOURCE_DIR/assets/settings-all-in-one.xml}"
 
-echo "downloading and extracting support libraries..."
-wget -O /$INSTALL_DIR/tomcat/lib/h2-1.4.200.jar https://repo1.maven.org/maven2/com/h2database/h2/2.3.232/h2-2.3.232.jar 2>/dev/null
-wget -O /$INSTALL_DIR/tomcat/settings.xml https://github.com/intuit/Tank/blob/master/assets/settings-all-in-one.xml 2>/dev/null
+fail() {
+    echo "all-in-one: $*" >&2
+    exit 1
+}
 
-echo "downloading and installing tank war file..."
-rm -fr $INSTALL_DIR/tomcat/webapps/docs $INSTALL_DIR/tomcat/webapps/examples $INSTALL_DIR/tomcat/webapps/ROOT 2>/dev/null
-wget -O $INSTALL_DIR/tomcat/webapps/ROOT.war https://github.com/intuit/Tank/releases/download/4.2.0/tank.war 2>/dev/null
+for tool in curl unzip java; do
+    command -v "$tool" >/dev/null || fail "$tool is required"
+done
+java_major=$(java -version 2>&1 | awk -F'"' '/version/ {split($2, v, "."); print v[1]; exit}')
+[ "${java_major:-0}" -ge 21 ] 2>/dev/null || fail "Java 21 or later is required; java -version reports ${java_major:-unknown}"
+for artifact in "$TANK_WAR" "$TANK_AGENT_ZIP" "$TANK_SETTINGS"; do
+    [ -f "$artifact" ] || fail "$artifact not found. Build with 'mvn clean install -P release', or set TANK_WAR, TANK_AGENT_ZIP and TANK_SETTINGS"
+done
+# agents download the test harness from the war's tools folder, which only a release build has
+unzip -l "$TANK_WAR" tools/apiharness-1.0-all.jar >/dev/null 2>&1 \
+    || fail "$TANK_WAR has no tools/apiharness-1.0-all.jar; build it with 'mvn clean install -P release'"
 
-echo "Creating context file at $INSTALL_DIR/start.sh ..."
-cat << EOF > $INSTALL_DIR/tomcat/conf/context.xml
-#!/bin/bash
+INSTALL_DIR="${1:-$(pwd)}"
+mkdir -p "$INSTALL_DIR"
+INSTALL_DIR="$(cd "$INSTALL_DIR" && pwd)"
+TOMCAT_DIR="$INSTALL_DIR/tomcat"
+AGENT_DIR="$INSTALL_DIR/agent-standalone"
+[ -e "$TOMCAT_DIR" ] && fail "$TOMCAT_DIR already exists; run $INSTALL_DIR/stop.sh and remove it, or choose another directory"
+echo "Installing Tank all-in-one in $INSTALL_DIR"
+
+echo "Downloading Tomcat $TOMCAT_VERSION..."
+curl -fsSL "https://archive.apache.org/dist/tomcat/tomcat-11/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz" \
+    | tar -xz -C "$INSTALL_DIR"
+ln -snf "$INSTALL_DIR/apache-tomcat-$TOMCAT_VERSION" "$TOMCAT_DIR"
+rm -rf "$TOMCAT_DIR"/webapps/*
+mkdir -p "$TOMCAT_DIR/jars" "$INSTALL_DIR/data"
+
+echo "Downloading the H2 database driver..."
+curl -fsSL -o "$TOMCAT_DIR/lib/h2-$H2_VERSION.jar" \
+    "https://repo1.maven.org/maven2/com/h2database/h2/$H2_VERSION/h2-$H2_VERSION.jar"
+
+echo "Installing the controller..."
+cp "$TANK_WAR" "$TOMCAT_DIR/webapps/ROOT.war"
+agent_token=$(od -An -tx1 -N24 /dev/urandom | tr -d ' \n')
+sed "s/@AGENT_TOKEN@/$agent_token/" "$TANK_SETTINGS" > "$TOMCAT_DIR/conf/settings.xml"
+# the database is a file under data/, so projects and scripts survive restarts
+cat > "$TOMCAT_DIR/conf/context.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
-
 <Context>
     <Resource name="jdbc/watsDS" auth="Container"
         type="javax.sql.DataSource"
+        factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
         driverClassName="org.h2.Driver"
-        url="jdbc:h2:mem:tank"
+        url="jdbc:h2:file:$INSTALL_DIR/data/tank;MODE=MySQL;DATABASE_TO_LOWER=TRUE;NON_KEYWORDS=USER,VALUE,END"
         username="sa" password=""
-        maxActive="20" maxIdle="10" maxWait="-1"/>
+        maxActive="20" maxIdle="10" maxWait="10000"/>
 </Context>
 EOF
-chmod 644 $INSTALL_DIR/tomcat/conf/context.xml 2>/dev/null
 
-echo "Creating start script at $INSTALL_DIR/start.sh ..."
-cat << EOF > $INSTALL_DIR/start.sh
+echo "Installing the agent..."
+unzip -q -o "$TANK_AGENT_ZIP" -d "$INSTALL_DIR"
+cat > "$AGENT_DIR/run.sh" <<EOF
 #!/bin/bash
-echo "Starting Tomcat..."
-export JAVA_OPTS="-Xms256m -Xmx1024m -XX:PermSize=64m -XX:MaxPermSize=128m -Djava.awt.headless=true"
-cd $INSTALL_DIR/tomcat/
-bin/startup.sh &> /dev/null
-echo "Tomcat started."
-cd $INSTALL_DIR/agent-standalone/
-echo "Starting Agent..."
-./run.sh &> /dev/null
-echo "Agent started."
+cd "\$(dirname "\$0")"
+nohup java -jar agent-standalone-all.jar -controller=http://localhost:8080 -token=$agent_token \\
+    -host=localhost -capacity=400 > agent.out 2>&1 &
+echo \$! > agent.pid
 EOF
-chmod 755 $INSTALL_DIR/start.sh 2>/dev/null
+chmod 700 "$AGENT_DIR/run.sh"
+chmod 600 "$TOMCAT_DIR/conf/settings.xml"
 
-echo "Creating stop script at $INSTALL_DIR/stop.sh..."
-cat << EOF > $INSTALL_DIR/stop.sh
+cat > "$INSTALL_DIR/start.sh" <<EOF
 #!/bin/bash
-echo "Stopping Tomcat..."
-$INSTALL_DIR/tomcat/bin/shutdown.sh &> /dev/null
-echo "Stopping Agent..."
-kill $(ps aux | grep '[a]gent-standalone' | awk '{print $2}') &> /dev/null
-kill $(ps aux | grep '[a]piharness' | awk '{print $2}') &> /dev/null
-kill $(ps aux | grep '[t]omcat' | awk '{print $2}') &> /dev/null
-echo "Tomcat and Agents stopped."
-EOF
-chmod 755 $INSTALL_DIR/stop.sh 2>/dev/null
-
-mkdir -p $INSTALL_DIR/agent-standalone
-cat << EOF > $INSTALL_DIR/agent-standalone/run.sh
-#!/bin/bash
-controller="http://localhost:8080"
-host=`hostname`
-capacity=400
-nohup java -jar agent-standalone-all.jar -controller=$controller -host=$host -capacity=$capacity &
+# Starts the Tank controller and agent installed by all-in-one.sh
+export WATS_PROPERTIES="$TOMCAT_DIR/conf"
+# persistence.xml is written for MySQL; this install uses H2
+export CATALINA_OPTS="-Xms256m -Xmx2g -Djava.awt.headless=true -Dhibernate.dialect=org.hibernate.dialect.H2Dialect"
+cd "$TOMCAT_DIR"
+echo "Starting the controller..."
+bin/startup.sh > /dev/null
+echo "Waiting for http://localhost:8080 ..."
+for i in \$(seq 1 120); do
+    curl -fs -o /dev/null http://localhost:8080/v2/ping && break
+    sleep 2
+done
+curl -fs -o /dev/null http://localhost:8080/v2/ping || { echo "The controller did not start; see $TOMCAT_DIR/logs"; exit 1; }
+echo "Starting the agent..."
+"$AGENT_DIR/run.sh"
+echo "Tank is running at http://localhost:8080 (user admin, password admin)"
 EOF
 
-echo "Installing all in one in $INSTALL_DIR"
-echo "Run $INSTALL_DIR/start.sh to start the all in one server and $INSTALL_DIR/stop.sh to kill it"
+cat > "$INSTALL_DIR/stop.sh" <<EOF
+#!/bin/bash
+# Stops the Tank controller and agent installed by all-in-one.sh
+echo "Stopping the agent..."
+if [ -f "$AGENT_DIR/agent.pid" ]; then
+    kill "\$(cat "$AGENT_DIR/agent.pid")" 2>/dev/null || true
+    rm -f "$AGENT_DIR/agent.pid"
+fi
+pkill -f "com.intuit.tank.harness.APITestHarness" 2>/dev/null || true
+echo "Stopping the controller..."
+"$TOMCAT_DIR/bin/shutdown.sh" > /dev/null 2>&1 || true
+echo "Stopped."
+EOF
+chmod 755 "$INSTALL_DIR/start.sh" "$INSTALL_DIR/stop.sh"
+
+echo
+echo "Installed. Run $INSTALL_DIR/start.sh to start Tank and $INSTALL_DIR/stop.sh to stop it."

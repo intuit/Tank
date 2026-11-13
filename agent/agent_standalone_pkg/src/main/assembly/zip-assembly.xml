@@ -12,6 +12,18 @@
 
     <fileSet>
       <directory>${project.basedir}/agent-standalone</directory>
+      <outputDirectory>agent-standalone</outputDirectory>
+      <excludes>
+        <exclude>*.sh</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.basedir}/agent-standalone</directory>
+      <outputDirectory>agent-standalone</outputDirectory>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <fileMode>0755</fileMode>
     </fileSet>
 
   </fileSets>

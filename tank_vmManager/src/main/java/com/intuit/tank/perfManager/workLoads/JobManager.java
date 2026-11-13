@@ -155,7 +155,7 @@ public class JobManager implements Serializable {
             var request = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .uri(URI.create(instanceUrl + AgentCommand.request.getPath()))
-                    .header(HTTP.CONTENT_TYPE, "application/xml")
+                    .header(HTTP.CONTENT_TYPE, "application/json")
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());

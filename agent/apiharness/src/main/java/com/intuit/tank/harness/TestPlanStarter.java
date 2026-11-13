@@ -76,11 +76,9 @@ public class TestPlanStarter implements Runnable {
         this.rampDelay = calcRampTime();
         this.standalone = ((this.numThreads == 1) && (this.agentRunData.getIncrementStrategy().equals(IncrementStrategy.increasing)));
         if (!this.standalone) {
-            this.cloudWatchClient = CloudWatchAsyncClient.builder()
-                    .overrideConfiguration(ClientOverrideConfiguration.builder()
-                            .retryStrategy(RetryMode.ADAPTIVE_V2)
-                            .build())
-                    .build();
+            this.cloudWatchClient = createCloudWatchClient();
+        }
+        if (this.cloudWatchClient != null) {
             this.testPlan = Dimension.builder()
                     .name("testPlan")
                     .value(plan.getTestPlanName())
@@ -376,8 +374,27 @@ public class TestPlanStarter implements Runnable {
         return activeRunnerThreads.get();
     }
 
+    /**
+     * @return the client, or null where there is no AWS region (a standalone agent off EC2), which turns the
+     *         CloudWatch thread metrics off instead of failing the test
+     */
+    private CloudWatchAsyncClient createCloudWatchClient() {
+        try {
+            return CloudWatchAsyncClient.builder()
+                    .overrideConfiguration(ClientOverrideConfiguration.builder()
+                            .retryStrategy(RetryMode.ADAPTIVE_V2)
+                            .build())
+                    .build();
+        } catch (RuntimeException e) {
+            // an SdkClientException, caught as its superclass: the debugger jar doesn't ship the AWS SDK, and naming
+            // the class here would fail TestPlanStarter's verification there
+            LOG.warn(LogUtil.getLogMessage("Not sending thread metrics to CloudWatch: " + e.getMessage()));
+            return null;
+        }
+    }
+
     private void sendCloudWatchMetrics(long activeCount) {
-        if (!this.standalone && send.before(new Date())) { // Send thread metrics every <interval> seconds
+        if (cloudWatchClient != null && send.before(new Date())) { // Send thread metrics every <interval> seconds
             Instant timestamp = new Date().toInstant();
             List<MetricDatum> datumList = new ArrayList<>();
             TPSInfoContainer tpsInfo = APITestHarness.getInstance().getTPSMonitor().getTPSInfo();

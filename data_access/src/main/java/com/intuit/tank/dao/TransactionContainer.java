@@ -16,6 +16,8 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
@@ -38,6 +40,7 @@ import org.apache.logging.log4j.Logger;
 public class TransactionContainer {
 
     private static final Logger LOG = LogManager.getLogger(TransactionContainer.class);
+    static final String DIALECT_PROPERTY = "hibernate.dialect";
 
     @PersistenceUnit(unitName = "tank")
     private static EntityManagerFactory entityManagerFactory;
@@ -56,12 +59,21 @@ public class TransactionContainer {
                 return;
             }
             try{
-                entityManagerFactory = Persistence.createEntityManagerFactory("tank");
+                entityManagerFactory = Persistence.createEntityManagerFactory("tank", persistenceOverrides());
                 initialized = true;
             } catch(Throwable t){
                 LOG.error("Failed to setup persistence unit!", t);
             }
         }
+    }
+
+    /**
+     * persistence.xml is written for MySQL; a different database, such as the H2 one all-in-one.sh installs,
+     * names its dialect with -Dhibernate.dialect
+     */
+    static Map<String, Object> persistenceOverrides() {
+        String dialect = System.getProperty(DIALECT_PROPERTY);
+        return dialect == null || dialect.isBlank() ? Map.of() : Map.of(DIALECT_PROPERTY, dialect);
     }
 
     /**

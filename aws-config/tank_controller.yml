@@ -143,6 +143,8 @@ Resources:
 
                 [Service]
                 Type=simple
+                User=tomcat
+                Group=tomcat
                 EnvironmentFile=/etc/sysconfig/tomcat
                 Environment=CATALINA_HOME=/opt/tomcat
                 WorkingDirectory=/opt/tomcat
@@ -160,6 +162,7 @@ Resources:
             /etc/sysconfig/tomcat:
               content: |
                 CATALINA_OPTS="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC -Xlog:gc=debug:file=/var/log/tomcat/gc.log:time,uptime,level,tags:filecount=3,filesize=200m -javaagent:/opt/aws-otel/aws-opentelemetry-agent.jar"
+                WATS_PROPERTIES=/opt/tomcat/conf
                 OTEL_SERVICE_NAME=Tank
                 OTEL_TRACES_SAMPLER=xray
                 OTEL_METRICS_EXPORTER=none
@@ -201,15 +204,13 @@ Resources:
             020_clear_out_builtin:
               command: 'rm -rf /opt/tomcat/webapps/*'
             030_download_settings:
-              command: !Sub 'aws s3 cp ${TankSettings} /usr/share/tomcat/settings.xml'
-            031_permissions:
-              command:  'chown tomcat:tomcat /usr/share/tomcat/settings.xml'
+              command: !Sub 'aws s3 cp ${TankSettings} /opt/tomcat/conf/settings.xml'
             050_copy_context:
               command: 'cp /tmp/context.xml /opt/tomcat/conf/context.xml'
             #031_set_publicDNSName:
-            #  command: !Sub 'sed -i "s/localhost:8080/${ControllerInstance.PublicDnsName}:8080/" /usr/share/tomcat/settings.xml'
+            #  command: !Sub 'sed -i "s/localhost:8080/${ControllerInstance.PublicDnsName}:8080/" /opt/tomcat/conf/settings.xml'
             060_download_tank:
-              command: !Sub 'aws s3 cp ${TankWar} /usr/share/tomcat/webapps/ROOT.war'
+              command: !Sub 'aws s3 cp ${TankWar} /opt/tomcat/webapps/ROOT.war'
             070_permissions:
               command: 'chown -R tomcat:tomcat /opt/apache-tomcat-11.0.27'
             080_systemd_reload:

@@ -160,6 +160,8 @@ public class APITestHarness {
     private void initializeFromArgs(String[] args) {
         String controllerBase = null;
         String token = null;
+        boolean jobFromArgs = false;
+        boolean stopBehaviorFromArgs = false;
         for (String argument : args) {
             LOG.info(new ObjectMessage(Map.of("Message", "checking arg " + argument)));
 
@@ -192,8 +194,10 @@ public class APITestHarness {
                 agentRunData.setNumStartUsers(Integer.parseInt(values[1]));
             } else if (values[0].equalsIgnoreCase("-jobId")) {
                 agentRunData.setJobId(values[1]);
+                jobFromArgs = true;
             } else if (values[0].equalsIgnoreCase("-stopBehavior")) {
                 agentRunData.setStopBehavior(StopBehavior.fromString(values[1]));
+                stopBehaviorFromArgs = true;
             } else if (values[0].equalsIgnoreCase("-http")) {
                 controllerBase = (values.length > 1 ? values[1] : null);
             } else if (values[0].equalsIgnoreCase("-token")) {
@@ -220,7 +224,7 @@ public class APITestHarness {
 
         if (controllerBase != null) {
             resultsReporter = ReportingFactory.getResultsReporter();
-            startHttp(controllerBase, token);
+            startHttp(controllerBase, token, jobFromArgs, stopBehaviorFromArgs);
         } else {
             resultsReporter = new DummyResultsReporter();
             TestPlanSingleton.getInstance().setTestPlans(testPlans);
@@ -265,7 +269,11 @@ public class APITestHarness {
         System.out.println("-t:  Turns trace on to print each request");
     }
 
-    private void startHttp(String baseUrl, String token) {
+    /**
+     * @param jobFromArgs true when -jobId was given; a standalone agent passes it, an EC2 agent reads it from user data
+     * @param stopBehaviorFromArgs true when -stopBehavior was given
+     */
+    private void startHttp(String baseUrl, String token, boolean jobFromArgs, boolean stopBehaviorFromArgs) {
         isLocal = false;
         boolean wsEnabled = isCommandWsEnabled();
         baseUrl = (baseUrl == null) ? AmazonUtil.getControllerBaseUrl() : baseUrl;
@@ -273,12 +281,16 @@ public class APITestHarness {
         if (capacity < 0) {
             capacity = AmazonUtil.getCapacity();
         }
-        agentRunData.setJobId(AmazonUtil.getJobId());
+        if (!jobFromArgs) {
+            agentRunData.setJobId(AmazonUtil.getJobId());
+        }
         if (agentRunData.getJobId() == null || "unknown".equals(agentRunData.getJobId()) || agentRunData.getJobId().isBlank()) {
             LOG.error("Missing jobId in userdata — cannot start WS agent. Exiting.");
             System.exit(1);
         }
-        agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
+        if (!stopBehaviorFromArgs) {
+            agentRunData.setStopBehavior(AmazonUtil.getStopBehavior());
+        }
         LogUtil.getLogEvent().setJobId(agentRunData.getJobId());
         if (wsEnabled) {
             try {

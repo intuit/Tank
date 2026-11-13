@@ -231,6 +231,40 @@ public class APITestHarnessStartHttpTest {
     }
 
     @Test
+    public void testStartHttpUsesJobFromArgsForStandaloneAgent() throws Exception {
+        FileUtils.writeStringToFile(SCRIPT_FILE, scriptXml, StandardCharsets.UTF_8);
+        AgentTestStartData startData = startData(baseUrl + "/script.xml");
+        startData.setJobId("555");
+        server.createContext("/v2/agent/ready", exchange -> {
+            readyBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            respond(exchange, JSON_MAPPER.writeValueAsBytes(startData));
+        });
+        server.createContext("/script.xml", exchange -> {
+            exchange.getResponseHeaders().add("Content-Encoding", "gzip");
+            respond(exchange, gzip(scriptXml));
+        });
+
+        try (MockedStatic<AmazonUtil> amazonUtil = mockAmazonUtil(false);
+             MockedStatic<ReportingFactory> reportingFactory = Mockito.mockStatic(ReportingFactory.class);
+             MockedStatic<CommandListener> ignored = Mockito.mockStatic(CommandListener.class);
+             MockedConstruction<StartedChecker> ignoredCheckers = Mockito.mockConstruction(StartedChecker.class)) {
+            reportingFactory.when(ReportingFactory::getResultsReporter).thenReturn(mock(ResultsReporter.class));
+            // a standalone agent has no EC2 user data
+            amazonUtil.when(AmazonUtil::getJobId).thenReturn("unknown");
+            amazonUtil.when(AmazonUtil::getPublicHostName).thenReturn("agent-host");
+
+            // what the standalone agent passes when the controller starts a job on it
+            APITestHarness.main(new String[]{"-http=" + baseUrl, "-token=agent-token", "-instanceId=standalone",
+                    "-jobId=555", "-stopBehavior=END_OF_TEST"});
+
+            AgentRunData runData = APITestHarness.getInstance().getAgentRunData();
+            assertEquals("555", JSON_MAPPER.readTree(readyBody.get()).get("jobId").asString());
+            assertEquals("555", runData.getJobId());
+            assertEquals(StopBehavior.END_OF_TEST, runData.getStopBehavior());
+        }
+    }
+
+    @Test
     public void testStartHttpBootstrapsOverCommandWebSocket() throws Exception {
         FileUtils.writeStringToFile(SCRIPT_FILE, scriptXml, StandardCharsets.UTF_8);
         AgentTestStartData startData = startData("unused");

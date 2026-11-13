@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClientBuilder;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
@@ -118,6 +119,21 @@ public class TestPlanStarterTest {
 
         // Assert
         assertEquals(_hdTestPlanMock, _sut.getPlan(), "TestPlan assigned to TestPlanStarter");
+    }
+
+    @Test
+    public void constructor_Without_AWS_Region_Skips_CloudWatch() {
+        // Arrange: a standalone agent off EC2 has no region for the client
+        when(_hdTestPlanMock.getUserPercentage()).thenReturn(100);
+        when(CloudWatchAsyncClient.builder().build())
+                .thenThrow(SdkClientException.create("Unable to load region from any of the providers"));
+
+        // Act
+        _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, _threadCountStub, _tankHttpClientClassStub, _threadGroupNameStub, _agentRunData);
+
+        // Assert: the plan still runs, without the CloudWatch dimensions
+        assertEquals(_threadCountStub, _sut.getNumThreads());
+        mock_AmazonUtil.verify(AmazonUtil::getInstanceId, never());
     }
 
     @Test
