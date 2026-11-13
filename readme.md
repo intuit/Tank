@@ -55,11 +55,16 @@ There are several artifacts that are important.
 * proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser.
 
 ## Quickstart
-There is a shell script to install and configure a standalone controller and agent and configured with a java database for 
-Mac and Linux. Windows users should install some POSIX tooling such as [Babun](http://babun.github.io) or [Cygwin](https://www.cygwin.com). 
-It can be downloaded from our [public site](http://tank-public.s3-website-us-east-1.amazonaws.com/all-in-one.sh) or 
-in the root of the distribution. You can use this version for small tests to try out the tools but should not use 
-it for large scale or production testing.
+`all-in-one.sh` installs a local controller (Tomcat with an H2 database) and a standalone agent on Mac or Linux,
+using the artifacts you build here. It's for trying Tank out and small tests, not for large-scale or production testing.
+
+```bash
+mvn clean install -P release -DskipTests
+./all-in-one.sh ~/tank-aio
+~/tank-aio/start.sh    # then open http://localhost:8080 (admin / admin)
+```
+
+See the [Quickstart](https://intuit.github.io/Tank/installation-guide/quickstart/) for details.
 
 ## Integration Tests
 

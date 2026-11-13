@@ -66,9 +66,11 @@ Chooses how agents report results and how the controller reads them back. Withou
 | Reporter / reader | Use |
 |-------------------|-----|
 | `com.intuit.tank.reporting.db.DatabaseResultsReporter` / `...DatabaseResultsReader` | The default. Writes results to the store set by `vm-manager/results/provider` (CloudWatch in the default file). |
-| `com.intuit.tank.reporting.rest.RestResultsReporter` / `...RestResultsReader` | Agents post results straight to the controller. Only for standalone or small tests: it overloads the controller under heavy load. |
 
 `provider/config` is passed to the reporter as-is.
+
+!!! note "No REST reporter"
+    Older settings files name `com.intuit.tank.reporting.rest.RestResultsReporter`, which posted results to the controller. It is no longer built and the test harness doesn't include it, so an agent configured with it logs "Error instantiating reporter" and records no response times. Use `DatabaseResultsReporter` with one of the stores below.
 
 ## Agent settings: `agent-config`
 
@@ -182,7 +184,7 @@ Each region you can run agents in needs an `instance-descriptions` block with an
 | `public-ip` | An Elastic IP to bind when a single agent is launched. |
 
 !!! note
-    The element is `instance-description`. Older copies of the settings file, including `assets/settings-all-in-one.xml`, spell it `instance-descripion`; Tank ignores that spelling.
+    The element is `instance-description`. Older copies of the settings file spell it `instance-descripion`; Tank ignores that spelling.
 
 ### Instance types
 

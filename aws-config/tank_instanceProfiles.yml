@@ -41,6 +41,16 @@ Resources:
                   - cloudwatch:GetMetricData
                   - cloudwatch:ListMetrics
                 Resource: "*"
+              -
+                # the agent AMI (ssm-ami in settings.xml) and an OIDC client secret stored as a parameter;
+                # a SecureString encrypted with a customer managed key also needs kms:Decrypt on that key
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub 'arn:${AWS::Partition}:ssm:*:${AWS::AccountId}:parameter/*'
+                  # public parameters such as /aws/service/ami-amazon-linux-latest/...
+                  - !Sub 'arn:${AWS::Partition}:ssm:*::parameter/aws/service/*'
   AgentProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:

@@ -7,21 +7,19 @@
 <tank-settings>
 <!-- The server side storage directory for datafiles -->
 <data-file-storage>datafiles</data-file-storage>
-<!-- The server side storage directory for timing data -->
-<timing-file-storage>timing</timing-file-storage>
 <!-- The server side storage directory for temp script files -->
 <tmp-file-storage>tmpfiles</tmp-file-storage>
 <!-- The server side storage directory for agent files to be sent to agents -->
 <jar-file-storage>jars</jar-file-storage>
 <!-- name of this instance (no spaces). used in timing table names. -->
 <instance-name>tank-demo-all-in-one</instance-name>
-<!-- The baseUrl for the controller. Must include the context (tank) -->
+<!-- The baseUrl agents use to reach the controller. all-in-one.sh deploys Tank as ROOT.war, so there is no context path -->
 <controller-base-url>http://localhost:8080</controller-base-url>
 <!-- if this instance is a standalone instance and should not start agents 
     automatically. -->
 <standalone>true</standalone>
 <!-- if this rest calls require authentication using api key or username/password 
-    or logged in via session -->
+    or logged in via session. Off for a local trial: anyone who can reach port 8080 has full rights -->
 <rest-security-enabled>false</rest-security-enabled>
 <!-- Products that can be selected by users for categorization -->
 <products>
@@ -42,8 +40,9 @@
       
     </provider>
      --> 
-    <!-- Use this for Rest reporting directly to the controller. 
-      Only for standalone or all in one. will over tax the controller if used for large load -->
+    <!-- Agents need an external results store (see the configuration reference) to record timing results.
+      The harness doesn't include this REST reporter, so an all-in-one test runs without them;
+      its job shows users and status but no response times. -->
     <provider>
       <reporter>com.intuit.tank.reporting.rest.RestResultsReporter</reporter>
       <reader>com.intuit.tank.reporting.rest.RestResultsReader</reader>
@@ -61,13 +60,13 @@
     <agent-data-file-storage>/tmp</agent-data-file-storage>
 
     <!-- port that controller talks to agent on -->
-    <agent-http-port>8090</agent-http-port>
+    <agent-port>8090</agent-port>
+
+    <!-- shared secret the standalone agent authenticates with. all-in-one.sh generates it -->
+    <agent-token>@AGENT_TOKEN@</agent-token>
 
     <!-- Max size of response body to log on error -->
     <max-body-report-size>5000</max-body-report-size>
-
-    <!-- time to wait before re-establishing ssl -->
-    <ssl-timeout>360000</ssl-timeout>
 
     <!-- connection timeout setting. set to zero to not have a timeout -->
     <connection-timeout>15000</connection-timeout>
@@ -85,14 +84,8 @@
     <!-- Max amount of time after simulation time to run the test. -->
     <over-simulation-max-time>7200000</over-simulation-max-time>
 
-    <!-- set to true to log each post request. -->
-    <log-post-request>false</log-post-request>
-
     <!-- set to true to log each post response. -->
     <log-post-response>false</log-post-response>
-
-    <!-- set to true to log each variable set or unset. -->
-    <log-variables>false</log-variables>
 
     <!-- how long of a period to calculate the TPS -->
     <tps-period>30</tps-period>
@@ -126,7 +119,6 @@
     <default-instance-description>
       <security-group>security_group</security-group>
       <keypair>myKey</keypair>
-      <reuse-instances>false</reuse-instances>
     </default-instance-description>
 
     <!-- Credentials for the cloud provider -->
@@ -142,34 +134,31 @@
 
     <!-- Instance descriptions for regions -->
     <instance-descriptions region="US_WEST_2">
-      <instance-descripion name="AGENT">
+      <instance-description name="AGENT">
         <ami>[AMI-ID]</ami>
         <keypair>[KEYPAIR]</keypair>
-      </instance-descripion>
+      </instance-description>
     </instance-descriptions>
 
     <instance-descriptions region="US_EAST_2">
-      <instance-descripion name="AGENT">
+      <instance-description name="AGENT">
         <ami>[AMI-ID]</ami>
         <keypair>[KEYPAIR]</keypair>
-      </instance-descripion>
+      </instance-description>
     </instance-descriptions>
 
     <!-- used to set agent instnces and calculate costs. -->
   <instance-types type="amazon">
-    <type name="m8g.large" cost=".0898" users="500" cpus="2" ecus="8" mem="8" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
-    <type name="m8g.xlarge" cost=".1795" users="2000" cpus="4" ecus="16" mem="16" default="true" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
-    <type name="m8g.2xlarge" cost=".3590" users="4000" cpus="8" ecus="31" mem="32" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
-    <type name="m8g.4xlarge" cost=".7181" users="8000" cpus="16" ecus="61" mem="64" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
-    <type name="m8g.9xlarge" cost="1.436" users="16000" cpus="36" ecus="139" mem="128" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    <type name="m8g.large" types="m8g.large" cost=".0898" users="500" cpus="2" ecus="8" mem="8" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    <type name="m8g.xlarge" types="m8g.xlarge" cost=".1795" users="2000" cpus="4" ecus="16" mem="16" default="true" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    <type name="m8g.2xlarge" types="m8g.2xlarge" cost=".3590" users="4000" cpus="8" ecus="31" mem="32" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    <type name="m8g.4xlarge" types="m8g.4xlarge" cost=".7181" users="8000" cpus="16" ecus="61" mem="64" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
+    <type name="m8g.9xlarge" types="m8g.9xlarge" cost="1.436" users="16000" cpus="36" ecus="139" mem="128" jvmArgs="-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC" />
   </instance-types>
 
 
     <!-- watchdog is used to check if all agents start correctly. -->
     <watchdog>
-      <!-- The maximum amount of time to wait for the agents to start before 
-        restarting -->
-      <max-time-for-agent-start>5m</max-time-for-agent-start>
       <!-- The maximum amount of time to wait for the agents to report to 
         the controller before restarting -->
       <max-time-for-agent-report>10m</max-time-for-agent-report>
@@ -178,10 +167,6 @@
       <!-- The amount of time to wait between checking for agent start -->
       <sleep-time-between-check>30s</sleep-time-between-check>
     </watchdog>
-
-    <results>
-      <provider>com.intuit.tank.persistence.databases.CloudWatchDataSource</provider>
-    </results>
 
   </vm-manager>
 <security>

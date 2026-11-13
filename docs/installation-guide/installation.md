@@ -71,8 +71,10 @@ The `aws-config/` folder in the repository has CloudFormation templates for most
 | `tank_controller.yml` | An RDS MySQL 8.4 instance, security groups, and a Graviton (arm64) Amazon Linux 2023 controller with Tomcat 11, the CloudWatch agent and the AWS OpenTelemetry Java agent. It takes the S3 locations of `tank.war` and `settings.xml` as parameters. |
 | `tank_agent.yml` | A Graviton (arm64) Amazon Linux 2023 instance with the agent installed as a `systemd` service, ready to snapshot into an agent AMI. It takes the S3 location of `agent-startup-pkg.zip`. |
 
-!!! warning "Review the controller template before you use it"
-    `tank_controller.yml` copies `settings.xml` to `/usr/share/tomcat/settings.xml` and the war to `/usr/share/tomcat/webapps/ROOT.war`, but it runs Tomcat from `/opt/tomcat` (working directory `/opt/tomcat`) and doesn't set `WATS_PROPERTIES`. As written, Tomcat won't find either file. Change those paths, or set `WATS_PROPERTIES`, before you rely on it. The templates also install Amazon Corretto 25 (`java-25-amazon-corretto-headless`); change the package if your organization requires a different OpenJDK distribution.
+The controller template installs Tomcat in `/opt/tomcat` and runs it as the `tomcat` user. It copies `settings.xml` to `/opt/tomcat/conf/settings.xml`, sets `WATS_PROPERTIES=/opt/tomcat/conf` in `/etc/sysconfig/tomcat`, and deploys the war as `/opt/tomcat/webapps/ROOT.war`. Tomcat's and Tank's logs are in `/opt/tomcat/logs` (linked from `/var/log/tomcat`).
+
+!!! note "JDK"
+    The templates install Amazon Corretto 25 (`java-25-amazon-corretto-headless`). Change the package if your organization requires a different OpenJDK distribution.
 
 ### Key pair
 
@@ -94,11 +96,11 @@ Prefer instance profiles to access keys. Without keys in `settings.xml`, Tank us
 
 `tank_instanceProfiles.yml` grants:
 
-- **Controller role**: the managed policies `AmazonEC2FullAccess`, `AmazonS3FullAccess`, `AWSXrayWriteOnlyAccess` and `CloudWatchAgentServerPolicy`, plus `iam:PassRole`, `iam:ListInstanceProfiles`, `iam:AddRoleToInstanceProfile`, `appconfig:GetConfiguration`, `cloudwatch:GetMetricData` and `cloudwatch:ListMetrics`. The controller needs `iam:PassRole` to launch agents with the agent instance profile, and `cloudwatch:GetMetricData` to show agent metrics.
+- **Controller role**: the managed policies `AmazonEC2FullAccess`, `AmazonS3FullAccess`, `AWSXrayWriteOnlyAccess` and `CloudWatchAgentServerPolicy`, plus `iam:PassRole`, `iam:ListInstanceProfiles`, `iam:AddRoleToInstanceProfile`, `appconfig:GetConfiguration`, `cloudwatch:GetMetricData`, `cloudwatch:ListMetrics` and `ssm:GetParameter`. The controller needs `iam:PassRole` to launch agents with the agent instance profile, `cloudwatch:GetMetricData` to show agent metrics, and `ssm:GetParameter` for `ssm-ami` and an OIDC client secret stored in Parameter Store.
 - **Agent role**: `AmazonS3FullAccess` and `CloudWatchAgentServerPolicy`, plus `cloudwatch:PutMetricData` and `cloudwatch:PutMetricStream`.
 
 !!! note
-    The template's controller role has no `ssm:GetParameter` permission. Add it if you use `ssm-ami` for the agent AMI or an SSM parameter for the OIDC client secret. You can also narrow the managed policies to the buckets and actions you use.
+    `ssm:GetParameter` covers your account's parameters and the public `/aws/service/...` ones. A `SecureString` encrypted with a customer managed KMS key also needs `kms:Decrypt` on that key. You can also narrow the managed policies to the buckets and actions you use.
 
 If you can't use instance profiles, set access keys through the `credentials` element (see [Configuration](configuration.md#credentials)). The controller passes those keys to every agent in the EC2 user data.
 
@@ -218,21 +220,9 @@ Agents keep running while the controller restarts. With `command-ws-enabled` set
 In standalone mode the controller doesn't start EC2 instances. Instead, standalone agents that you run yourself register with the controller and wait for work. Use it for small tests or where you can't use EC2.
 
 1. Install the controller and database as above.
-2. In `settings.xml`, set `<standalone>true</standalone>`. For small tests you can also send results straight to the controller with the REST reporter, as the all-in-one settings file (`assets/settings-all-in-one.xml`) does:
-
-    ```xml
-    <reporting>
-      <provider>
-        <reporter>com.intuit.tank.reporting.rest.RestResultsReporter</reporter>
-        <reader>com.intuit.tank.reporting.rest.RestResultsReader</reader>
-      </provider>
-    </reporting>
-    ```
-
-    The REST reporter sends every result through the controller, so don't use it for large tests.
-
+2. In `settings.xml`, set `<standalone>true</standalone>`. Agents record response times in the results store configured under `<reporting>` (see [Configuration](configuration.md)), so give the agent machines access to it.
 3. Set an `agent-token` in `settings.xml`. Standalone agents need a token to start.
-4. On each agent machine, unzip `agent-standalone-pkg.zip` and start the agent:
+4. On each agent machine (Java 21 or later), unzip `agent-standalone-pkg.zip` and edit `agent-standalone/run.sh` to set the controller URL and the agent token, then run it. `run.sh` starts:
 
     ```bash
     java -jar agent-standalone-all.jar \
@@ -249,9 +239,6 @@ In standalone mode the controller doesn't start EC2 instances. Instead, standalo
     | `-host` | The address the controller uses to reach this agent. Optional if the agent can work it out. |
     | `-capacity` | The number of users this agent can run. Defaults to 4000. |
 
-The agent listens on TCP 1090 for the controller, so open that port to the controller. It reports its availability every five minutes. When it gets a job, it downloads the settings and support files into `/opt/tank_agent` (create that folder and make it writable by the agent's user) and runs `./startAgent.sh` from its working directory.
+The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the `agent-port` (8090 by default); open both to the controller. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs `startAgent.sh` there. Set `TANK_AGENT_JVM_ARGS` to change the harness's JVM options (default `-XX:MaxRAMPercentage=70.0`).
 
 When you start a test, the controller picks available standalone agents with enough total capacity for the test's users. If there isn't enough capacity, the job is aborted.
-
-!!! warning "Standalone package not verified end to end"
-    The `run.sh` and `README.txt` in the standalone package predate the required `-token` option, so `run.sh` as shipped exits with a usage message. The package also ships `start_wats.sh` rather than the `startAgent.sh` that the agent runs. Check both before you rely on standalone agents.
