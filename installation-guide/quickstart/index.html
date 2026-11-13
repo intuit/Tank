@@ -290,6 +290,25 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#the-all-in-one-install">
+<span class="md-ellipsis">
+      
+        The all-in-one install
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tomcat-and-mysql-by-hand">
+<span class="md-ellipsis">
+      
+        Tomcat and MySQL by hand
+      
+    </span>
+</a>
+<nav aria-label="Tomcat and MySQL by hand" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
 <a class="md-nav__link" href="#1-build-the-war">
 <span class="md-ellipsis">
       
@@ -334,11 +353,14 @@
     </span>
 </a>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#older-quickstart-scripts">
+<a class="md-nav__link" href="#the-docker-experimental-folder">
 <span class="md-ellipsis">
       
-        Older quickstart scripts
+        The docker-experimental folder
       
     </span>
 </a>
@@ -765,6 +787,25 @@
 </a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="#the-all-in-one-install">
+<span class="md-ellipsis">
+      
+        The all-in-one install
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tomcat-and-mysql-by-hand">
+<span class="md-ellipsis">
+      
+        Tomcat and MySQL by hand
+      
+    </span>
+</a>
+<nav aria-label="Tomcat and MySQL by hand" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
 <a class="md-nav__link" href="#1-build-the-war">
 <span class="md-ellipsis">
       
@@ -809,11 +850,14 @@
     </span>
 </a>
 </li>
+</ul>
+</nav>
+</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#older-quickstart-scripts">
+<a class="md-nav__link" href="#the-docker-experimental-folder">
 <span class="md-ellipsis">
       
-        Older quickstart scripts
+        The docker-experimental folder
       
     </span>
 </a>
@@ -829,94 +873,106 @@
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
 </a>
 <h1 id="quickstart">Quickstart</h1>
-<p>This page gets a Tank controller running on your own machine, with MySQL in Docker, so you can explore the UI, record and edit scripts, and build projects. It's for trying Tank out, not for large or production tests. For a full install, see <a href="../installation/">Installation</a>.</p>
+<p>This page gets Tank running on your own machine so you can explore the UI, record and edit scripts, build projects and run small tests. It's for trying Tank out, not for large or production tests. For a full install, see <a href="../installation/">Installation</a>.</p>
+<p>There are two ways to do it:</p>
+<ul>
+<li><strong><code>all-in-one.sh</code></strong>: one script installs a controller with an H2 database and a standalone agent, ready to run tests. Start here.</li>
+<li><strong>Tomcat and MySQL by hand</strong>: closer to a real deployment, and the database is MySQL as in production.</li>
+</ul>
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li>An OpenJDK distribution approved by your organization, Java 21 or later. Set <code>JAVA_HOME</code> to it explicitly and check it with <code>java -version</code>, as described in <a href="../installation/#choosing-a-jdk">Choosing a JDK</a>.</li>
 <li>Maven, to build Tank.</li>
-<li>Docker, for MySQL.</li>
-<li><a href="https://tomcat.apache.org/">Apache Tomcat 11</a>.</li>
+<li><code>curl</code> and <code>unzip</code>.</li>
+<li>For the MySQL path only: Docker and <a href="https://tomcat.apache.org/">Apache Tomcat 11</a>.</li>
 </ul>
-<h2 id="1-build-the-war">1. Build the war</h2>
-<p>From the root of the repository:</p>
+<h2 id="the-all-in-one-install">The all-in-one install</h2>
+<p>Build Tank with the <code>release</code> profile, which packages the agent and the test harness the agent downloads, then run the script with the directory to install into:</p>
 <div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MAVEN_OPTS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$MAVEN_OPTS</span><span class="s2"> -Xms2g -Xmx3g"</span>
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>mvn<span class="w"> </span>clean<span class="w"> </span>install<span class="w"> </span>-DskipTests
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>mvn<span class="w"> </span>clean<span class="w"> </span>install<span class="w"> </span>-P<span class="w"> </span>release<span class="w"> </span>-DskipTests
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>./all-in-one.sh<span class="w"> </span>~/tank-aio
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>~/tank-aio/start.sh
+</code></pre></div>
+<p><code>all-in-one.sh</code> downloads Tomcat 11 and the H2 database driver, deploys the war you just built as <code>ROOT.war</code>, writes <code>settings.xml</code> from <code>assets/settings-all-in-one.xml</code> with a generated agent token, and unpacks a standalone agent that registers with the controller. <code>start.sh</code> waits until the controller answers, then starts the agent. Open <code>http://localhost:8080/</code> and sign in as <code>admin</code> / <code>admin</code>.</p>
+<p>To use copies of the war and agent package from somewhere else, set <code>TANK_WAR</code> and <code>TANK_AGENT_ZIP</code> (and optionally <code>TANK_SETTINGS</code>) before running the script.</p>
+<p>Stop everything with <code>~/tank-aio/stop.sh</code>. The database is a file under <code>~/tank-aio/data</code>, so your scripts and projects are still there after a restart. To start over, stop Tank and delete the directory.</p>
+<div class="admonition note">
+<p class="admonition-title">Limits of the all-in-one install</p>
+<ul>
+<li>REST security is off (<code>rest-security-enabled</code> is <code>false</code>), so anyone who can reach port 8080 has full rights. Keep it on your own machine.</li>
+<li>Tank's results stores are external services (CloudWatch, S3, DynamoDB, Wavefront or Graphite; see <a href="../configuration/">Configuration</a>). Without one, a test runs and reports its users and status, but no response times are recorded.</li>
+<li>H2 is only for trying Tank out. Use MySQL for anything you keep.</li>
+</ul>
+</div>
+<h2 id="tomcat-and-mysql-by-hand">Tomcat and MySQL by hand</h2>
+<h3 id="1-build-the-war">1. Build the war</h3>
+<p>From the root of the repository:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MAVEN_OPTS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$MAVEN_OPTS</span><span class="s2"> -Xms2g -Xmx3g"</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>mvn<span class="w"> </span>clean<span class="w"> </span>install<span class="w"> </span>-DskipTests
 </code></pre></div>
 <p>The controller is <code>web/web_ui/target/tank.war</code>. Add <code>-P release</code> if you also want the agent packages and tools.</p>
-<h2 id="2-start-mysql">2. Start MySQL</h2>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>tank-mysql<span class="w"> </span>-p<span class="w"> </span><span class="m">3306</span>:3306<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_DATABASE</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_USER</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_PASSWORD</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span>mysql:8.4
+<h3 id="2-start-mysql">2. Start MySQL</h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>tank-mysql<span class="w"> </span>-p<span class="w"> </span><span class="m">3306</span>:3306<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_DATABASE</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_USER</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_PASSWORD</span><span class="o">=</span>tank<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="w">  </span>mysql:8.4
 </code></pre></div>
 <p>You don't need to load a schema: Tank creates its tables when it starts.</p>
-<h2 id="3-install-tomcat-and-tank">3. Install Tomcat and Tank</h2>
+<h3 id="3-install-tomcat-and-tank">3. Install Tomcat and Tank</h3>
 <p>Unpack Tomcat 11 somewhere, for example <code>~/tank/tomcat</code>, then deploy Tank at the root context:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>~/tank/tomcat
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>rm<span class="w"> </span>-rf<span class="w"> </span>webapps/*
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>cp<span class="w"> </span>/path/to/Tank/web/web_ui/target/tank.war<span class="w"> </span>webapps/ROOT.war
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>~/tank/tomcat
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>rm<span class="w"> </span>-rf<span class="w"> </span>webapps/*
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>cp<span class="w"> </span>/path/to/Tank/web/web_ui/target/tank.war<span class="w"> </span>webapps/ROOT.war
 </code></pre></div>
 <p>Replace <code>conf/context.xml</code> with a data source for the database:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
-<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nt">&lt;Context&gt;</span>
-<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="nt">&lt;Resource</span><span class="w"> </span><span class="na">name=</span><span class="s">"jdbc/watsDS"</span><span class="w"> </span><span class="na">auth=</span><span class="s">"Container"</span>
-<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">        </span><span class="na">type=</span><span class="s">"javax.sql.DataSource"</span>
-<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">        </span><span class="na">factory=</span><span class="s">"org.apache.tomcat.jdbc.pool.DataSourceFactory"</span>
-<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="w">        </span><span class="na">maxWait=</span><span class="s">"10000"</span>
-<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">        </span><span class="na">username=</span><span class="s">"tank"</span><span class="w"> </span><span class="na">password=</span><span class="s">"tank"</span>
-<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">        </span><span class="na">testOnBorrow=</span><span class="s">"true"</span>
-<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">        </span><span class="na">validationQuery=</span><span class="s">"SELECT 1"</span>
-<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">        </span><span class="na">driverClassName=</span><span class="s">"com.mysql.cj.jdbc.Driver"</span>
-<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">        </span><span class="na">url=</span><span class="s">"jdbc:mysql://localhost:3306/tank"</span><span class="nt">/&gt;</span>
-<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="nt">&lt;/Context&gt;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="nt">&lt;Context&gt;</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="nt">&lt;Resource</span><span class="w"> </span><span class="na">name=</span><span class="s">"jdbc/watsDS"</span><span class="w"> </span><span class="na">auth=</span><span class="s">"Container"</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">        </span><span class="na">type=</span><span class="s">"javax.sql.DataSource"</span>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">        </span><span class="na">factory=</span><span class="s">"org.apache.tomcat.jdbc.pool.DataSourceFactory"</span>
+<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="w">        </span><span class="na">maxWait=</span><span class="s">"10000"</span>
+<a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="w">        </span><span class="na">username=</span><span class="s">"tank"</span><span class="w"> </span><span class="na">password=</span><span class="s">"tank"</span>
+<a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="w">        </span><span class="na">testOnBorrow=</span><span class="s">"true"</span>
+<a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="w">        </span><span class="na">validationQuery=</span><span class="s">"SELECT 1"</span>
+<a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="w">        </span><span class="na">driverClassName=</span><span class="s">"com.mysql.cj.jdbc.Driver"</span>
+<a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="w">        </span><span class="na">url=</span><span class="s">"jdbc:mysql://localhost:3306/tank"</span><span class="nt">/&gt;</span>
+<a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="nt">&lt;/Context&gt;</span>
 </code></pre></div>
 <p>Tell Tank where to keep its settings file by creating <code>bin/setenv.sh</code>:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">WATS_PROPERTIES</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/tank/conf"</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">WATS_PROPERTIES</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/tank/conf"</span>
 </code></pre></div>
-<h2 id="4-start-then-configure">4. Start, then configure</h2>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>bin/catalina.sh<span class="w"> </span>run
+<h3 id="4-start-then-configure">4. Start, then configure</h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>bin/catalina.sh<span class="w"> </span>run
 </code></pre></div>
 <p>On first start Tank writes a default <code>settings.xml</code> to <code>~/tank/conf</code>, creates its tables, and creates the user <code>admin</code> with the password <code>admin</code>. Stop Tomcat (Ctrl+C) and edit <code>~/tank/conf/settings.xml</code> for local use:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">&lt;controller-base-url&gt;</span>http://localhost:8080<span class="nt">&lt;/controller-base-url&gt;</span>
-<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="nt">&lt;standalone&gt;</span>true<span class="nt">&lt;/standalone&gt;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">&lt;controller-base-url&gt;</span>http://localhost:8080<span class="nt">&lt;/controller-base-url&gt;</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="nt">&lt;standalone&gt;</span>true<span class="nt">&lt;/standalone&gt;</span>
 </code></pre></div>
 <p>Inside <code>&lt;agent-config&gt;</code>, set a token for agents:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">&lt;agent-token&gt;</span>choose-a-long-random-string<span class="nt">&lt;/agent-token&gt;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">&lt;agent-token&gt;</span>choose-a-long-random-string<span class="nt">&lt;/agent-token&gt;</span>
 </code></pre></div>
 <p>Inside <code>&lt;vm-manager&gt;</code>, turn off CloudWatch agent metrics, which need AWS credentials:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">&lt;agent-metrics&gt;</span>
-<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
-<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="nt">&lt;/agent-metrics&gt;</span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nt">&lt;agent-metrics&gt;</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span><span class="nt">&lt;enabled&gt;</span>false<span class="nt">&lt;/enabled&gt;</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="nt">&lt;/agent-metrics&gt;</span>
 </code></pre></div>
-<p>Then replace the <code>&lt;reporting&gt;</code> section so results go straight to the controller instead of CloudWatch:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="nt">&lt;reporting&gt;</span>
-<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span><span class="nt">&lt;provider&gt;</span>
-<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">    </span><span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.rest.RestResultsReporter<span class="nt">&lt;/reporter&gt;</span>
-<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">    </span><span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.rest.RestResultsReader<span class="nt">&lt;/reader&gt;</span>
-<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">  </span><span class="nt">&lt;/provider&gt;</span>
-<a href="#__codelineno-9-6" id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="nt">&lt;/reporting&gt;</span>
-</code></pre></div>
+<p>The default <code>&lt;reporting&gt;</code> section sends results to CloudWatch, which needs AWS credentials. Without them a test still runs, but records no response times; see <a href="../configuration/">Configuration</a> for the other results stores.</p>
 <p>Start Tomcat again and open:</p>
 <ul>
 <li><code>http://localhost:8080/</code>: the web UI. Sign in as <code>admin</code> / <code>admin</code>, then change the password.</li>
 <li><code>http://localhost:8080/classic/</code>: the classic JSF UI.</li>
 </ul>
 <p>See <a href="../configuration/">Configuration</a> for everything else in the file.</p>
-<h2 id="5-run-a-test">5. Run a test</h2>
-<p>In standalone mode the controller doesn't start agents in AWS: it uses standalone agents that register with it. See <a href="../installation/#standalone-deployment">Standalone deployment</a> for how to start one, and read the warning there first.</p>
+<h3 id="5-run-a-test">5. Run a test</h3>
+<p>In standalone mode the controller doesn't start agents in AWS: it uses standalone agents that register with it. See <a href="../installation/#standalone-deployment">Standalone deployment</a> for how to start one.</p>
 <p>To check a script or project without any agents, use the Tank debugger (<code>Tank-Debugger-all.jar</code>, built by <code>-P release</code>). See <a href="../../supplemental-tools/">Supplemental tools</a>.</p>
 <p>To run tests from EC2 agents instead, set <code>&lt;standalone&gt;false&lt;/standalone&gt;</code>, give the controller AWS credentials, and complete the agent setup in <a href="../installation/#agent-ami">Installation</a>.</p>
-<h2 id="older-quickstart-scripts">Older quickstart scripts</h2>
-<p>The repository has two older quickstart paths. Neither works as shipped with current Tank:</p>
+<h2 id="the-docker-experimental-folder">The docker-experimental folder</h2>
 <div class="admonition warning">
-<p class="admonition-title"><code>all-in-one.sh</code></p>
-<p>The script downloads Tank 4.2.0 artifacts, not the current release. It fetches the settings file from a GitHub page URL (<code>.../blob/...</code>), which returns HTML rather than XML. The <code>context.xml</code> it writes starts with a <code>#!/bin/bash</code> line before the XML declaration. Its <code>start.sh</code> sets <code>-XX:PermSize</code> and <code>-XX:MaxPermSize</code>, which current JVMs reject at startup. Its generated agent <code>run.sh</code> loses the controller URL, host and capacity values (they're expanded while the script runs) and passes no <code>-token</code>.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title"><code>docker-experimental/</code></p>
-<p>The Compose file starts MySQL 5.7; Tank's deployment template uses MySQL 8.4. <code>setup.sh</code> copies a schema into a container named <code>docker_db_1</code>, which only matches if you run Compose from a folder named <code>docker</code>, and the schema dump is years older than the current data model. The bundled <code>context.xml</code> and MySQL driver are for Tomcat 8.5. Hibernate creates the tables itself, so you don't need the schema; use the steps above instead.</p>
+<p class="admonition-title"><code>docker-experimental/</code> doesn't work with current Tank</p>
+<p>The Compose file starts MySQL 5.7; Tank's deployment template uses MySQL 8.4. <code>setup.sh</code> copies a schema into a container named <code>docker_db_1</code>, which only matches if you run Compose from a folder named <code>docker</code>, and the schema dump is years older than the current data model. The bundled <code>context.xml</code> and MySQL driver are for Tomcat 8.5. Use one of the two paths above instead.</p>
 </div>
 </article>
 </div>

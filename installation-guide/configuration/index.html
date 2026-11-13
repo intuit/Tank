@@ -1126,13 +1126,13 @@
 <td><code>com.intuit.tank.reporting.db.DatabaseResultsReporter</code> / <code>...DatabaseResultsReader</code></td>
 <td>The default. Writes results to the store set by <code>vm-manager/results/provider</code> (CloudWatch in the default file).</td>
 </tr>
-<tr>
-<td><code>com.intuit.tank.reporting.rest.RestResultsReporter</code> / <code>...RestResultsReader</code></td>
-<td>Agents post results straight to the controller. Only for standalone or small tests: it overloads the controller under heavy load.</td>
-</tr>
 </tbody>
 </table>
 <p><code>provider/config</code> is passed to the reporter as-is.</p>
+<div class="admonition note">
+<p class="admonition-title">No REST reporter</p>
+<p>Older settings files name <code>com.intuit.tank.reporting.rest.RestResultsReporter</code>, which posted results to the controller. It is no longer built and the test harness doesn't include it, so an agent configured with it logs "Error instantiating reporter" and records no response times. Use <code>DatabaseResultsReporter</code> with one of the stores below.</p>
+</div>
 <h2 id="agent-settings-agent-config">Agent settings: <code>agent-config</code></h2>
 <table>
 <thead>
@@ -1448,7 +1448,7 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The element is <code>instance-description</code>. Older copies of the settings file, including <code>assets/settings-all-in-one.xml</code>, spell it <code>instance-descripion</code>; Tank ignores that spelling.</p>
+<p>The element is <code>instance-description</code>. Older copies of the settings file spell it <code>instance-descripion</code>; Tank ignores that spelling.</p>
 </div>
 <h3 id="instance-types">Instance types</h3>
 <p>The agent sizes users can choose, and the figures Tank uses to estimate cost and agent count:</p>

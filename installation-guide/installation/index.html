@@ -1062,9 +1062,10 @@
 </tr>
 </tbody>
 </table>
-<div class="admonition warning">
-<p class="admonition-title">Review the controller template before you use it</p>
-<p><code>tank_controller.yml</code> copies <code>settings.xml</code> to <code>/usr/share/tomcat/settings.xml</code> and the war to <code>/usr/share/tomcat/webapps/ROOT.war</code>, but it runs Tomcat from <code>/opt/tomcat</code> (working directory <code>/opt/tomcat</code>) and doesn't set <code>WATS_PROPERTIES</code>. As written, Tomcat won't find either file. Change those paths, or set <code>WATS_PROPERTIES</code>, before you rely on it. The templates also install Amazon Corretto 25 (<code>java-25-amazon-corretto-headless</code>); change the package if your organization requires a different OpenJDK distribution.</p>
+<p>The controller template installs Tomcat in <code>/opt/tomcat</code> and runs it as the <code>tomcat</code> user. It copies <code>settings.xml</code> to <code>/opt/tomcat/conf/settings.xml</code>, sets <code>WATS_PROPERTIES=/opt/tomcat/conf</code> in <code>/etc/sysconfig/tomcat</code>, and deploys the war as <code>/opt/tomcat/webapps/ROOT.war</code>. Tomcat's and Tank's logs are in <code>/opt/tomcat/logs</code> (linked from <code>/var/log/tomcat</code>).</p>
+<div class="admonition note">
+<p class="admonition-title">JDK</p>
+<p>The templates install Amazon Corretto 25 (<code>java-25-amazon-corretto-headless</code>). Change the package if your organization requires a different OpenJDK distribution.</p>
 </div>
 <h3 id="key-pair">Key pair</h3>
 <p>Create an EC2 key pair in each region you will run agents in, and keep the private key: AWS can't give it back to you. The key pair name goes in the <code>keypair</code> setting.</p>
@@ -1096,12 +1097,12 @@
 <p>Prefer instance profiles to access keys. Without keys in <code>settings.xml</code>, Tank uses the AWS SDK's default credential chain, which picks up the instance profile.</p>
 <p><code>tank_instanceProfiles.yml</code> grants:</p>
 <ul>
-<li><strong>Controller role</strong>: the managed policies <code>AmazonEC2FullAccess</code>, <code>AmazonS3FullAccess</code>, <code>AWSXrayWriteOnlyAccess</code> and <code>CloudWatchAgentServerPolicy</code>, plus <code>iam:PassRole</code>, <code>iam:ListInstanceProfiles</code>, <code>iam:AddRoleToInstanceProfile</code>, <code>appconfig:GetConfiguration</code>, <code>cloudwatch:GetMetricData</code> and <code>cloudwatch:ListMetrics</code>. The controller needs <code>iam:PassRole</code> to launch agents with the agent instance profile, and <code>cloudwatch:GetMetricData</code> to show agent metrics.</li>
+<li><strong>Controller role</strong>: the managed policies <code>AmazonEC2FullAccess</code>, <code>AmazonS3FullAccess</code>, <code>AWSXrayWriteOnlyAccess</code> and <code>CloudWatchAgentServerPolicy</code>, plus <code>iam:PassRole</code>, <code>iam:ListInstanceProfiles</code>, <code>iam:AddRoleToInstanceProfile</code>, <code>appconfig:GetConfiguration</code>, <code>cloudwatch:GetMetricData</code>, <code>cloudwatch:ListMetrics</code> and <code>ssm:GetParameter</code>. The controller needs <code>iam:PassRole</code> to launch agents with the agent instance profile, <code>cloudwatch:GetMetricData</code> to show agent metrics, and <code>ssm:GetParameter</code> for <code>ssm-ami</code> and an OIDC client secret stored in Parameter Store.</li>
 <li><strong>Agent role</strong>: <code>AmazonS3FullAccess</code> and <code>CloudWatchAgentServerPolicy</code>, plus <code>cloudwatch:PutMetricData</code> and <code>cloudwatch:PutMetricStream</code>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The template's controller role has no <code>ssm:GetParameter</code> permission. Add it if you use <code>ssm-ami</code> for the agent AMI or an SSM parameter for the OIDC client secret. You can also narrow the managed policies to the buckets and actions you use.</p>
+<p><code>ssm:GetParameter</code> covers your account's parameters and the public <code>/aws/service/...</code> ones. A <code>SecureString</code> encrypted with a customer managed KMS key also needs <code>kms:Decrypt</code> on that key. You can also narrow the managed policies to the buckets and actions you use.</p>
 </div>
 <p>If you can't use instance profiles, set access keys through the <code>credentials</code> element (see <a href="../configuration/#credentials">Configuration</a>). The controller passes those keys to every agent in the EC2 user data.</p>
 <h3 id="database">Database</h3>
@@ -1219,27 +1220,15 @@
 <p>In standalone mode the controller doesn't start EC2 instances. Instead, standalone agents that you run yourself register with the controller and wait for work. Use it for small tests or where you can't use EC2.</p>
 <ol>
 <li>Install the controller and database as above.</li>
+<li>In <code>settings.xml</code>, set <code>&lt;standalone&gt;true&lt;/standalone&gt;</code>. Agents record response times in the results store configured under <code>&lt;reporting&gt;</code> (see <a href="../configuration/">Configuration</a>), so give the agent machines access to it.</li>
+<li>Set an <code>agent-token</code> in <code>settings.xml</code>. Standalone agents need a token to start.</li>
 <li>
-<p>In <code>settings.xml</code>, set <code>&lt;standalone&gt;true&lt;/standalone&gt;</code>. For small tests you can also send results straight to the controller with the REST reporter, as the all-in-one settings file (<code>assets/settings-all-in-one.xml</code>) does:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">&lt;reporting&gt;</span>
-<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;provider&gt;</span>
-<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.rest.RestResultsReporter<span class="nt">&lt;/reporter&gt;</span>
-<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">    </span><span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.rest.RestResultsReader<span class="nt">&lt;/reader&gt;</span>
-<a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">  </span><span class="nt">&lt;/provider&gt;</span>
-<a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="nt">&lt;/reporting&gt;</span>
-</code></pre></div>
-<p>The REST reporter sends every result through the controller, so don't use it for large tests.</p>
-</li>
-<li>
-<p>Set an <code>agent-token</code> in <code>settings.xml</code>. Standalone agents need a token to start.</p>
-</li>
-<li>
-<p>On each agent machine, unzip <code>agent-standalone-pkg.zip</code> and start the agent:</p>
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>agent-standalone-all.jar<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span>-controller<span class="o">=</span>http://&lt;controller-host&gt;:8080<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span>-token<span class="o">=</span>&lt;agent-token&gt;<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">  </span>-host<span class="o">=</span>&lt;this-machine<span class="err">'</span>s-address&gt;<span class="w"> </span><span class="se">\</span>
-<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">  </span>-capacity<span class="o">=</span><span class="m">4000</span>
+<p>On each agent machine (Java 21 or later), unzip <code>agent-standalone-pkg.zip</code> and edit <code>agent-standalone/run.sh</code> to set the controller URL and the agent token, then run it. <code>run.sh</code> starts:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>agent-standalone-all.jar<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span>-controller<span class="o">=</span>http://&lt;controller-host&gt;:8080<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">  </span>-token<span class="o">=</span>&lt;agent-token&gt;<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">  </span>-host<span class="o">=</span>&lt;this-machine<span class="err">'</span>s-address&gt;<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">  </span>-capacity<span class="o">=</span><span class="m">4000</span>
 </code></pre></div>
 <table>
 <thead>
@@ -1269,12 +1258,8 @@
 </table>
 </li>
 </ol>
-<p>The agent listens on TCP 1090 for the controller, so open that port to the controller. It reports its availability every five minutes. When it gets a job, it downloads the settings and support files into <code>/opt/tank_agent</code> (create that folder and make it writable by the agent's user) and runs <code>./startAgent.sh</code> from its working directory.</p>
+<p>The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the <code>agent-port</code> (8090 by default); open both to the controller. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs <code>startAgent.sh</code> there. Set <code>TANK_AGENT_JVM_ARGS</code> to change the harness's JVM options (default <code>-XX:MaxRAMPercentage=70.0</code>).</p>
 <p>When you start a test, the controller picks available standalone agents with enough total capacity for the test's users. If there isn't enough capacity, the job is aborted.</p>
-<div class="admonition warning">
-<p class="admonition-title">Standalone package not verified end to end</p>
-<p>The <code>run.sh</code> and <code>README.txt</code> in the standalone package predate the required <code>-token</code> option, so <code>run.sh</code> as shipped exits with a usage message. The package also ships <code>start_wats.sh</code> rather than the <code>startAgent.sh</code> that the agent runs. Check both before you rely on standalone agents.</p>
-</div>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
