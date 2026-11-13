@@ -1,98 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/administration/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/faq/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/gatlings-vs-tank/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/roles/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/supplemental-tools/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/api/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/api/reference/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/installation-guide/configuration/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/installation-guide/installation/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/installation-guide/quickstart/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/datafiles/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/date-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/filters/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/functions_variables/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/glossary/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/io-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/jobs/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-08-01</lastmod>
-         <changefreq>daily</changefreq>
+         <loc>https://intuit.github.io/Tank/key-concepts/monetary-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/numeric-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/projects/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/scripting/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/scripts/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/string-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/tax-functions/</loc>
+         <lastmod>2026-11-13</lastmod>
+    </url>
+    <url>
+         <loc>https://intuit.github.io/Tank/key-concepts/web-ui/</loc>
+         <lastmod>2026-11-13</lastmod>
     </url>
 </urlset>

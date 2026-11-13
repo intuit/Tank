@@ -1,0 +1,1828 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://intuit.github.io/Tank/installation-guide/configuration/" rel="canonical"/>
+<link href="../installation/" rel="prev"/>
+<link href="../../key-concepts/web-ui/" rel="next"/>
+<link href="../../assets/TankLogo.svg" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Configuration - Tank docs</title>
+<link href="../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#configuration">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
+<img alt="logo" src="../../assets/TankLogo.svg"/>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Tank docs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Configuration
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    intuit/Tank
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
+        
+  
+  
+    
+  
+  Intuit Tank
+
+      </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../quickstart/">
+          
+  
+  
+  Set-up and Installation
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../key-concepts/web-ui/">
+          
+  
+  
+  User Guide
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../administration/">
+          
+  
+  
+  Administration
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../supplemental-tools/">
+        
+  
+  
+    
+  
+  Supplemental Tools
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../api/">
+          
+  
+  
+  REST API
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../faq/">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../gatlings-vs-tank/">
+        
+  
+  
+    
+  
+  Ideology: Gatling vs Tank
+
+      </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Tank docs" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
+<img alt="logo" src="../../assets/TankLogo.svg"/>
+</a>
+    Tank docs
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+</div>
+<div class="md-source__repository">
+    intuit/Tank
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    
+  
+    Intuit Tank
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Set-up and Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Set-up and Installation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../installation/">
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#where-the-file-lives">
+<span class="md-ellipsis">
+      
+        Where the file lives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#global-settings">
+<span class="md-ellipsis">
+      
+        Global settings
+      
+    </span>
+</a>
+<nav aria-label="Global settings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#products-and-locations">
+<span class="md-ellipsis">
+      
+        Products and locations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reporting">
+<span class="md-ellipsis">
+      
+        Reporting
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-settings-agent-config">
+<span class="md-ellipsis">
+      
+        Agent settings: agent-config
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cloud-settings-vm-manager">
+<span class="md-ellipsis">
+      
+        Cloud settings: vm-manager
+      
+    </span>
+</a>
+<nav aria-label="Cloud settings: vm-manager" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#credentials">
+<span class="md-ellipsis">
+      
+        Credentials
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instance-descriptions">
+<span class="md-ellipsis">
+      
+        Instance descriptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instance-types">
+<span class="md-ellipsis">
+      
+        Instance types
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#watchdog">
+<span class="md-ellipsis">
+      
+        Watchdog
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#results-store">
+<span class="md-ellipsis">
+      
+        Results store
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-metrics">
+<span class="md-ellipsis">
+      
+        Agent metrics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-security">
+<span class="md-ellipsis">
+      
+        Security: security
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#single-sign-on-oidc-sso">
+<span class="md-ellipsis">
+      
+        Single sign-on: oidc-sso
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-functions-logic-step">
+<span class="md-ellipsis">
+      
+        Script functions: logic-step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#settings-with-no-effect">
+<span class="md-ellipsis">
+      
+        Settings with no effect
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/web-ui/">
+<span class="md-ellipsis">
+    
+  
+    The Web UI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/projects/">
+<span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/scripts/">
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/filters/">
+<span class="md-ellipsis">
+    
+  
+    Filters and Filter Groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/datafiles/">
+<span class="md-ellipsis">
+    
+  
+    Data Files
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/jobs/">
+<span class="md-ellipsis">
+    
+  
+    Jobs and the Agent Tracker
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/functions_variables/">
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Types Of In-built Functions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Types Of In-built Functions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/io-functions/">
+<span class="md-ellipsis">
+    
+  
+    IO Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/string-functions/">
+<span class="md-ellipsis">
+    
+  
+    String Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/date-functions/">
+<span class="md-ellipsis">
+    
+  
+    Date Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/monetary-functions/">
+<span class="md-ellipsis">
+    
+  
+    Monetary Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/numeric-functions/">
+<span class="md-ellipsis">
+    
+  
+    Numeric Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/tax-functions/">
+<span class="md-ellipsis">
+    
+  
+    Tax Functions
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/scripting/">
+<span class="md-ellipsis">
+    
+  
+    Scripting Languages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/glossary/">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../administration/">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../roles/">
+<span class="md-ellipsis">
+    
+  
+    Roles and Permissions
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../supplemental-tools/">
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/">
+<span class="md-ellipsis">
+    
+  
+    Using the REST API
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/reference/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../faq/">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../gatlings-vs-tank/">
+<span class="md-ellipsis">
+    
+  
+    Ideology: Gatling vs Tank
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#where-the-file-lives">
+<span class="md-ellipsis">
+      
+        Where the file lives
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#global-settings">
+<span class="md-ellipsis">
+      
+        Global settings
+      
+    </span>
+</a>
+<nav aria-label="Global settings" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#products-and-locations">
+<span class="md-ellipsis">
+      
+        Products and locations
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#reporting">
+<span class="md-ellipsis">
+      
+        Reporting
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-settings-agent-config">
+<span class="md-ellipsis">
+      
+        Agent settings: agent-config
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cloud-settings-vm-manager">
+<span class="md-ellipsis">
+      
+        Cloud settings: vm-manager
+      
+    </span>
+</a>
+<nav aria-label="Cloud settings: vm-manager" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#credentials">
+<span class="md-ellipsis">
+      
+        Credentials
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instance-descriptions">
+<span class="md-ellipsis">
+      
+        Instance descriptions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#instance-types">
+<span class="md-ellipsis">
+      
+        Instance types
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#watchdog">
+<span class="md-ellipsis">
+      
+        Watchdog
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#results-store">
+<span class="md-ellipsis">
+      
+        Results store
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-metrics">
+<span class="md-ellipsis">
+      
+        Agent metrics
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-security">
+<span class="md-ellipsis">
+      
+        Security: security
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#single-sign-on-oidc-sso">
+<span class="md-ellipsis">
+      
+        Single sign-on: oidc-sso
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-functions-logic-step">
+<span class="md-ellipsis">
+      
+        Script functions: logic-step
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#settings-with-no-effect">
+<span class="md-ellipsis">
+      
+        Settings with no effect
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/installation-guide/configuration.md" rel="edit" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+</a>
+<h1 id="configuration">Configuration</h1>
+<p>The controller is configured by one XML file, <code>settings.xml</code>. This page lists every setting the code reads, with the value it uses when the setting is missing.</p>
+<h2 id="where-the-file-lives">Where the file lives</h2>
+<p>Tank looks for <code>settings.xml</code> in this order:</p>
+<ol>
+<li><code>settings.xml</code> in the controller's working directory (for Tomcat, the directory you start it from).</li>
+<li><code>$WATS_PROPERTIES/settings.xml</code>, where <code>WATS_PROPERTIES</code> is an environment variable or, if that isn't set, a Java system property (<code>-DWATS_PROPERTIES=/path</code>).</li>
+</ol>
+<p>If the file doesn't exist, Tank writes its built-in default (<code>api/src/main/resources/settings.xml</code> in the source) to that location on first start, creating the folder if needed. Edit that copy, then restart the controller.</p>
+<p>The root element is <code>&lt;tank-settings&gt;</code>. Each section below is independent and can appear in any order. Relative paths are resolved from the controller's working directory.</p>
+<div class="admonition tip">
+<p class="admonition-title">Settings for agents</p>
+<p>Agents download the controller's settings file when they start, and the agent settings below are read from that copy. If a file named <code>agent-settings.xml</code> sits next to <code>settings.xml</code>, agents get it instead. Use it to keep credentials, SSO settings and other controller-only values off agent machines.</p>
+</div>
+<h2 id="global-settings">Global settings</h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instance-name</code></td>
+<td><code>prod</code></td>
+<td>The name of this controller, without spaces. Tank tags each agent instance with it (<code>Controller</code> tag) and uses the tag to find its own agents after a restart. Give every controller sharing an AWS account a different name.</td>
+</tr>
+<tr>
+<td><code>controller-base-url</code></td>
+<td><code>http://tank.controller/</code></td>
+<td>The URL agents use to reach the controller. Include the context path if Tank isn't deployed at the root (for example <code>http://host:8080/tank</code>). Agents receive it in their EC2 user data.</td>
+</tr>
+<tr>
+<td><code>standalone</code></td>
+<td><code>false</code></td>
+<td><code>true</code> means the controller doesn't start EC2 agents and uses registered standalone agents instead. See <a href="../installation/#standalone-deployment">Standalone deployment</a>.</td>
+</tr>
+<tr>
+<td><code>data-file-storage</code></td>
+<td><code>/tmp/tank/datafiles</code></td>
+<td>Where uploaded data files are stored. A local path, or an S3 bucket written as <code>s3:bucket-name</code>.</td>
+</tr>
+<tr>
+<td><code>jar-file-storage</code></td>
+<td><code>/tmp/tank/jars</code></td>
+<td>Files in this location are zipped and sent to every agent as support files, along with the test harness. A local path or <code>s3:bucket-name</code>.</td>
+</tr>
+<tr>
+<td><code>tmp-file-storage</code></td>
+<td><code>/tmp/tank/tmpfiles</code></td>
+<td>Scratch space for generated scripts and the support-file zip. Must be a local path.</td>
+</tr>
+<tr>
+<td><code>s3-encrypt</code></td>
+<td><code>false</code></td>
+<td><code>true</code> to request server-side encryption when writing to S3 storage.</td>
+</tr>
+<tr>
+<td><code>rest-security-enabled</code></td>
+<td><code>false</code></td>
+<td><code>true</code> rejects <code>/v2</code> REST calls that carry no credentials (a session, a user API token or the agent token) with HTTP 401. When <code>false</code>, unauthenticated calls are allowed and permission checks pass for them. The login endpoints are always open.</td>
+</tr>
+<tr>
+<td><code>banner-text</code></td>
+<td>empty</td>
+<td>A notice shown to users in the web UI.</td>
+</tr>
+<tr>
+<td><code>user-auto-deletion-enabled</code></td>
+<td><code>false</code></td>
+<td>On startup, Tank looks for users who haven't logged in for the retention period. When <code>false</code> it only logs what it would do; when <code>true</code> it deletes (anonymizes) them. Can also be turned on with the system property <code>tank.user.auto-deletion.enabled</code> or the environment variable <code>TANK_USER_AUTO_DELETION_ENABLED</code>.</td>
+</tr>
+<tr>
+<td><code>user-auto-deletion-retention-days</code></td>
+<td><code>730</code></td>
+<td>The inactivity period for user auto-deletion. The system property <code>tank.user.auto-deletion.retention-days</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>user-auto-deletion-permitted-users</code></td>
+<td>empty</td>
+<td>A comma-separated list of user names that auto-deletion never removes.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="products-and-locations">Products and locations</h3>
+<p>Lists the users can pick from in the UI. They're labels only.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">&lt;products&gt;</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">  </span><span class="nt">&lt;product</span><span class="w"> </span><span class="na">name=</span><span class="s">""</span><span class="nt">&gt;</span>All<span class="w"> </span>Products<span class="nt">&lt;/product&gt;</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span><span class="nt">&lt;product</span><span class="w"> </span><span class="na">name=</span><span class="s">"MyProduct"</span><span class="nt">&gt;</span>My<span class="w"> </span>Product<span class="nt">&lt;/product&gt;</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="nt">&lt;/products&gt;</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="nt">&lt;locations&gt;</span>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">  </span><span class="nt">&lt;location</span><span class="w"> </span><span class="na">name=</span><span class="s">"unspecified"</span><span class="w"> </span><span class="na">displayName=</span><span class="s">"Unspecified"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">  </span><span class="nt">&lt;location</span><span class="w"> </span><span class="na">name=</span><span class="s">"san_diego"</span><span class="w"> </span><span class="na">displayName=</span><span class="s">"San Diego, CA"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="nt">&lt;/locations&gt;</span>
+</code></pre></div>
+<h3 id="reporting">Reporting</h3>
+<p>Chooses how agents report results and how the controller reads them back. Without this section Tank uses the database reporter.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">&lt;reporting&gt;</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">  </span><span class="nt">&lt;provider&gt;</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">    </span><span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReporter<span class="nt">&lt;/reporter&gt;</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReader<span class="nt">&lt;/reader&gt;</span>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">    </span><span class="nt">&lt;config&gt;&lt;/config&gt;</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nt">&lt;/provider&gt;</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="nt">&lt;/reporting&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Reporter / reader</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>com.intuit.tank.reporting.db.DatabaseResultsReporter</code> / <code>...DatabaseResultsReader</code></td>
+<td>The default. Writes results to the store set by <code>vm-manager/results/provider</code> (CloudWatch in the default file).</td>
+</tr>
+<tr>
+<td><code>com.intuit.tank.reporting.rest.RestResultsReporter</code> / <code>...RestResultsReader</code></td>
+<td>Agents post results straight to the controller. Only for standalone or small tests: it overloads the controller under heavy load.</td>
+</tr>
+</tbody>
+</table>
+<p><code>provider/config</code> is passed to the reporter as-is.</p>
+<h2 id="agent-settings-agent-config">Agent settings: <code>agent-config</code></h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent-port</code></td>
+<td><code>8090</code></td>
+<td>The port agents listen on for the controller's HTTP and WebSocket calls. Open it from the controller to the agents.</td>
+</tr>
+<tr>
+<td><code>agent-token</code></td>
+<td>empty</td>
+<td>A shared secret that agents send as <code>Authorization: Bearer &lt;token&gt;</code>. A request with this token can do anything, so keep it secret. Set it when <code>rest-security-enabled</code> is <code>true</code>, and for standalone agents.</td>
+</tr>
+<tr>
+<td><code>agent-data-file-storage</code></td>
+<td><code>/tmp</code></td>
+<td>Where agents store data files during a test.</td>
+</tr>
+<tr>
+<td><code>connection-timeout</code></td>
+<td><code>40000</code></td>
+<td>HTTP connection timeout for test requests, in milliseconds.</td>
+</tr>
+<tr>
+<td><code>max-body-report-size</code></td>
+<td><code>5000</code></td>
+<td>The most response-body characters logged for a failed request.</td>
+</tr>
+<tr>
+<td><code>valid-mime-types/mime-type-regex</code></td>
+<td>none</td>
+<td>Regular expressions for the content types whose bodies are logged on error. The default file lists <code>.*text.*</code>, <code>.*json.*</code> and <code>.*xml.*</code>.</td>
+</tr>
+<tr>
+<td><code>log-post-response</code></td>
+<td><code>false</code></td>
+<td><code>true</code> logs the response to each POST request.</td>
+</tr>
+<tr>
+<td><code>max-response-time</code></td>
+<td><code>5000</code></td>
+<td>If a response takes longer than this (ms), the agent waits extra time before the user's next request.</td>
+</tr>
+<tr>
+<td><code>max-failed-wait-time</code></td>
+<td><code>180000</code></td>
+<td>The longest extra wait after a slow response (ms). Helps keep a struggling server from backing up.</td>
+</tr>
+<tr>
+<td><code>over-simulation-max-time</code></td>
+<td><code>7200000</code></td>
+<td>How long a test may run past its planned simulation time (ms).</td>
+</tr>
+<tr>
+<td><code>status_report_interval_milis</code></td>
+<td>set by the caller</td>
+<td>How often agents report status (ms). The default file sets <code>30000</code>.</td>
+</tr>
+<tr>
+<td><code>tps-period</code></td>
+<td><code>15</code></td>
+<td>The period, in seconds, over which agents calculate transactions per second. The default file sets <code>30</code>.</td>
+</tr>
+<tr>
+<td><code>duration-simulation/simulation</code></td>
+<td>post 500–1000, get 50–300, process 10–50</td>
+<td>Assumed request times (ms), by step type, used to estimate how long a script takes: <code>&lt;simulation for="get" min="50" max="300" /&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>request-headers/header</code></td>
+<td>none</td>
+<td>Headers added to every request: <code>&lt;header key="name"&gt;value&lt;/header&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>tank-http-clients/tank-client</code></td>
+<td>Apache HttpClient 4.5, Apache HttpClient 5, JDK client</td>
+<td>The HTTP clients users can choose for a test: <code>&lt;tank-client name="Display name"&gt;class&lt;/tank-client&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>default-tank-client</code></td>
+<td><code>Apache HttpClient 4.5</code></td>
+<td>The display name of the default client. The default file sets <code>JDK HttpClient</code>.</td>
+</tr>
+<tr>
+<td><code>command-ws-enabled</code></td>
+<td><code>false</code></td>
+<td><code>true</code> makes the controller send agent commands over a WebSocket connection to <code>agent-port</code> instead of plain HTTP calls.</td>
+</tr>
+<tr>
+<td><code>agent-readoption-enabled</code></td>
+<td><code>0</code></td>
+<td>Seconds between passes in which the controller reconnects to running agents found by their <code>Controller</code> and <code>JobId</code> tags, for example after a controller restart. <code>0</code> turns it off; the default file suggests <code>300</code>. Needs <code>command-ws-enabled</code>; ignored in standalone mode.</td>
+</tr>
+</tbody>
+</table>
+<p>The HTTP client classes that ship with Tank are:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Client</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>com.intuit.tank.httpclient4.TankHttpClient4</code></td>
+<td>Apache HttpClient 4.5</td>
+</tr>
+<tr>
+<td><code>com.intuit.tank.httpclient5.TankHttpClient5</code></td>
+<td>Apache HttpClient 5</td>
+</tr>
+<tr>
+<td><code>com.intuit.tank.httpclientjdk.TankHttpClientJDK</code></td>
+<td>The JDK's <code>java.net.http</code> client</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cloud-settings-vm-manager">Cloud settings: <code>vm-manager</code></h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>default-region</code></td>
+<td><code>US_EAST</code></td>
+<td>The default region for tests (a name from the region table below).</td>
+</tr>
+<tr>
+<td><code>use-agent-elastic-ips</code></td>
+<td><code>false</code></td>
+<td>Default for binding available Elastic IPs to agents.</td>
+</tr>
+<tr>
+<td><code>reserved-elastic-ips/eip</code></td>
+<td>none</td>
+<td>Elastic IPs that Tank must never bind to agents.</td>
+</tr>
+<tr>
+<td><code>tags/tag</code></td>
+<td>none</td>
+<td>Extra tags for agent instances: <code>&lt;tag name="admin_contact"&gt;tank_admin&lt;/tag&gt;</code>. Tank adds <code>Name</code>, <code>Controller</code>, <code>JobId</code> and <code>JobName</code> itself.</td>
+</tr>
+</tbody>
+</table>
+<p>Regions use these names:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>AWS region</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>US_EAST</code></td>
+<td>us-east-1</td>
+</tr>
+<tr>
+<td><code>US_EAST_2</code></td>
+<td>us-east-2</td>
+</tr>
+<tr>
+<td><code>US_WEST_1</code></td>
+<td>us-west-1</td>
+</tr>
+<tr>
+<td><code>US_WEST_2</code></td>
+<td>us-west-2</td>
+</tr>
+<tr>
+<td><code>EUROPE</code></td>
+<td>eu-west-1</td>
+</tr>
+<tr>
+<td><code>ASIA_1</code></td>
+<td>ap-southeast-1</td>
+</tr>
+<tr>
+<td><code>ASIA_2</code></td>
+<td>ap-southeast-2</td>
+</tr>
+<tr>
+<td><code>ASIA_3</code></td>
+<td>ap-northeast-1</td>
+</tr>
+<tr>
+<td><code>SOUTH_AMERICA</code></td>
+<td>sa-east-1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="credentials">Credentials</h3>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nt">&lt;credentials</span><span class="w"> </span><span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="cm">&lt;!-- &lt;secret-key-id&gt;...&lt;/secret-key-id&gt; &lt;secret-key&gt;...&lt;/secret-key&gt; --&gt;</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="cm">&lt;!-- &lt;proxy-host&gt;&lt;/proxy-host&gt; &lt;proxy-port&gt;80&lt;/proxy-port&gt; --&gt;</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="nt">&lt;/credentials&gt;</span>
+</code></pre></div>
+<p>Keep this element, even empty: the controller expects it when it launches agents. With no keys, Tank uses the AWS SDK's default credential chain (an instance profile on EC2), which is the recommended setup.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>secret-key-id-property</code></td>
+<td>The name of a Java system property or environment variable that holds the access key ID. Defaults to <code>AWS_SECRET_KEY_ID</code>.</td>
+</tr>
+<tr>
+<td><code>secret-key-property</code></td>
+<td>The same for the secret access key. Defaults to <code>AWS_SECRET_KEY</code>.</td>
+</tr>
+<tr>
+<td><code>secret-key-id</code>, <code>secret-key</code></td>
+<td>Keys written into the file, used only when the property or variable above is empty.</td>
+</tr>
+<tr>
+<td><code>proxy-host</code>, <code>proxy-port</code></td>
+<td>A proxy for the controller's EC2 API calls.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If access keys are configured by any of these means, the controller passes them to every agent in the EC2 user data.</p>
+</div>
+<h3 id="instance-descriptions">Instance descriptions</h3>
+<p>Each region you can run agents in needs an <code>instance-descriptions</code> block with an <code>AGENT</code> description. Only regions with one appear in the UI. Values in <code>default-instance-description</code> apply to every region unless the region sets its own.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nt">&lt;default-instance-description&gt;</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="w">  </span><span class="nt">&lt;security-group&gt;</span>security_group<span class="nt">&lt;/security-group&gt;</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">  </span><span class="nt">&lt;keypair&gt;</span>myKey<span class="nt">&lt;/keypair&gt;</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="nt">&lt;/default-instance-description&gt;</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="nt">&lt;instance-descriptions</span><span class="w"> </span><span class="na">region=</span><span class="s">"US_WEST_2"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">  </span><span class="nt">&lt;instance-description</span><span class="w"> </span><span class="na">name=</span><span class="s">"AGENT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">    </span><span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="nt">&lt;iam-role&gt;</span>[INSTANCE-PROFILE-NAME]<span class="nt">&lt;/iam-role&gt;</span>
+<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="w">    </span><span class="nt">&lt;vpc-subnet&gt;</span>[SUBNET-1]<span class="nt">&lt;/vpc-subnet&gt;</span>
+<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="nt">&lt;vpc-subnet&gt;</span>[SUBNET-2]<span class="nt">&lt;/vpc-subnet&gt;</span>
+<a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">    </span><span class="nt">&lt;security-group-ids&gt;</span>[SG-ID]<span class="nt">&lt;/security-group-ids&gt;</span>
+<a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="w">  </span><span class="nt">&lt;/instance-description&gt;</span>
+<a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="nt">&lt;/instance-descriptions&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ami</code></td>
+<td>The agent AMI ID.</td>
+</tr>
+<tr>
+<td><code>ssm-ami</code></td>
+<td>The name of an SSM parameter holding the AMI ID. Used in preference to <code>ami</code>, which is the fallback if the lookup fails. The controller needs <code>ssm:GetParameter</code>.</td>
+</tr>
+<tr>
+<td><code>keypair</code></td>
+<td>The EC2 key pair name.</td>
+</tr>
+<tr>
+<td><code>iam-role</code></td>
+<td>The <strong>instance profile</strong> name to launch agents with. Recommended over access keys.</td>
+</tr>
+<tr>
+<td><code>vpc-subnet</code></td>
+<td>A subnet to launch agents in. Repeat it to spread agents over several subnets.</td>
+</tr>
+<tr>
+<td><code>security-group-ids</code></td>
+<td>Security group IDs for agents in a VPC.</td>
+</tr>
+<tr>
+<td><code>security-group</code></td>
+<td>A security group name, used when <code>security-group-ids</code> is empty.</td>
+</tr>
+<tr>
+<td><code>zone</code></td>
+<td>An Availability Zone to place agents in.</td>
+</tr>
+<tr>
+<td><code>Tenancy</code></td>
+<td>EC2 tenancy (for example <code>dedicated</code>). Defaults to <code>default</code>. Note the capital T.</td>
+</tr>
+<tr>
+<td><code>vpc</code></td>
+<td><code>true</code> if Elastic IPs for these agents are VPC addresses.</td>
+</tr>
+<tr>
+<td><code>public-ip</code></td>
+<td>An Elastic IP to bind when a single agent is launched.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The element is <code>instance-description</code>. Older copies of the settings file, including <code>assets/settings-all-in-one.xml</code>, spell it <code>instance-descripion</code>; Tank ignores that spelling.</p>
+</div>
+<h3 id="instance-types">Instance types</h3>
+<p>The agent sizes users can choose, and the figures Tank uses to estimate cost and agent count:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nt">&lt;instance-types</span><span class="w"> </span><span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">  </span><span class="nt">&lt;type</span><span class="w"> </span><span class="na">name=</span><span class="s">"m.xlarge"</span><span class="w"> </span><span class="na">types=</span><span class="s">"m8g.xlarge,m7g.xlarge"</span><span class="w"> </span><span class="na">cost=</span><span class="s">".1795"</span><span class="w"> </span><span class="na">users=</span><span class="s">"2000"</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">        </span><span class="na">cpus=</span><span class="s">"4"</span><span class="w"> </span><span class="na">ecus=</span><span class="s">"16"</span><span class="w"> </span><span class="na">mem=</span><span class="s">"16"</span><span class="w"> </span><span class="na">default=</span><span class="s">"true"</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">        </span><span class="na">jvmArgs=</span><span class="s">"-XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=70.0 -XX:+UseG1GC"</span><span class="w"> </span><span class="nt">/&gt;</span>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="nt">&lt;/instance-types&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>The name shown to users.</td>
+</tr>
+<tr>
+<td><code>types</code></td>
+<td>Required. A comma-separated list of EC2 instance types for this size.</td>
+</tr>
+<tr>
+<td><code>cost</code></td>
+<td>Hourly cost, for estimates.</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td>Users one agent of this size runs.</td>
+</tr>
+<tr>
+<td><code>cpus</code>, <code>ecus</code>, <code>mem</code></td>
+<td>Informational sizes.</td>
+</tr>
+<tr>
+<td><code>jvmArgs</code></td>
+<td>JVM options for the agent's test harness.</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td><code>true</code> for the size selected by default.</td>
+</tr>
+</tbody>
+</table>
+<p>The default file's sizes are Graviton (arm64) types, so the agent AMI must be arm64.</p>
+<h3 id="watchdog">Watchdog</h3>
+<p>The watchdog checks that launched agents report in, and relaunches them if they don't. Durations are written like <code>30s</code>, <code>3m</code> or <code>1h</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>watchdog/max-time-for-agent-report</code></td>
+<td><code>3m</code></td>
+<td>How long to wait for agents to report before relaunching them.</td>
+</tr>
+<tr>
+<td><code>watchdog/max-time-for-agent-report-&lt;region&gt;</code></td>
+<td>the value above</td>
+<td>The same for one region, named by its AWS code, for example <code>max-time-for-agent-report-us-east-2</code>.</td>
+</tr>
+<tr>
+<td><code>watchdog/max-restarts</code></td>
+<td><code>3</code></td>
+<td>Relaunch attempts before the job is stopped.</td>
+</tr>
+<tr>
+<td><code>watchdog/sleep-time-between-check</code></td>
+<td><code>30s</code></td>
+<td>How often the watchdog checks.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="results-store">Results store</h3>
+<p>Where <code>DatabaseResultsReporter</code> writes results:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nt">&lt;results&gt;</span>
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="w">  </span><span class="nt">&lt;provider&gt;</span>com.intuit.tank.persistence.databases.CloudWatchDataSource<span class="nt">&lt;/provider&gt;</span>
+<a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="w">  </span><span class="nt">&lt;config&gt;&lt;/config&gt;</span>
+<a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="nt">&lt;/results&gt;</span>
+</code></pre></div>
+<p>If <code>provider</code> is missing, Tank uses <code>AmazonDynamoDatabaseDocApi</code>; the default file sets <code>CloudWatchDataSource</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Provider class (<code>com.intuit.tank.persistence.databases.</code>)</th>
+<th>Keys in <code>results/config</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CloudWatchDataSource</code></td>
+<td>None. Writes metrics to the <code>Intuit/Tank</code> namespace.</td>
+</tr>
+<tr>
+<td><code>AmazonDynamoDatabaseDocApi</code></td>
+<td><code>read-capacity</code> (default 10), <code>write-capacity</code> (default 50).</td>
+</tr>
+<tr>
+<td><code>S3Datasource</code></td>
+<td><code>bucket</code> (default <code>tank-test</code>), <code>metricString</code> (default <code>test.tank.transaction</code>), <code>tags</code>.</td>
+</tr>
+<tr>
+<td><code>WavefrontDatasource</code></td>
+<td><code>wavefrontHost</code>, <code>wavefrontPort</code>, <code>metricString</code>.</td>
+</tr>
+<tr>
+<td><code>GraphiteDatasource</code></td>
+<td><code>graphiteHost</code>, <code>graphitePort</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="agent-metrics">Agent metrics</h3>
+<p>The controller reads agent CPU, memory, JVM and TCP metrics from CloudWatch for the Agent Tracker. Agents must publish them (see the CloudWatch agent setup in <code>aws-config/tank_agent.yml</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent-metrics/enabled</code></td>
+<td><code>true</code></td>
+<td>Turns collection on or off.</td>
+</tr>
+<tr>
+<td><code>agent-metrics/poll-interval-seconds</code></td>
+<td><code>60</code></td>
+<td>How often to poll CloudWatch. Minimum 15.</td>
+</tr>
+<tr>
+<td><code>agent-metrics/retention-points</code></td>
+<td><code>60</code></td>
+<td>Data points kept per agent. Minimum 2.</td>
+</tr>
+<tr>
+<td><code>agent-metrics/finished-job-grace-minutes</code></td>
+<td><code>15</code></td>
+<td>How long to keep collecting after a job finishes.</td>
+</tr>
+<tr>
+<td><code>agent-metrics/vcpus</code></td>
+<td><code>0</code></td>
+<td>The agents' vCPU count. CloudWatch reports CPU as a percentage of one core; with this set, Tank divides by it. <code>0</code> caps the figure at 100 instead.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="security-security">Security: <code>security</code></h2>
+<p>Defines groups, which groups can do what, and users created on startup. See <a href="../../roles/">Roles and permissions</a> for what the groups mean.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nt">&lt;security&gt;</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="w">  </span><span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">    </span><span class="nt">&lt;group</span><span class="w"> </span><span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">    </span><span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">    </span><span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">    </span><span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">    </span><span class="nt">&lt;group</span><span class="w"> </span><span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>guest<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">  </span><span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">  </span><span class="nt">&lt;restrictions&gt;</span>
+<a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">    </span><span class="nt">&lt;restriction</span><span class="w"> </span><span class="na">operation=</span><span class="s">"CREATE_PROJECT"</span><span class="nt">&gt;</span>
+<a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">      </span><span class="nt">&lt;groups&gt;</span>
+<a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="w">        </span><span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-14" id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="w">        </span><span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-15" id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="w">      </span><span class="nt">&lt;/groups&gt;</span>
+<a href="#__codelineno-6-16" id="__codelineno-6-16" name="__codelineno-6-16"></a><span class="w">    </span><span class="nt">&lt;/restriction&gt;</span>
+<a href="#__codelineno-6-17" id="__codelineno-6-17" name="__codelineno-6-17"></a><span class="w">    </span><span class="cm">&lt;!-- ... --&gt;</span>
+<a href="#__codelineno-6-18" id="__codelineno-6-18" name="__codelineno-6-18"></a><span class="w">  </span><span class="nt">&lt;/restrictions&gt;</span>
+<a href="#__codelineno-6-19" id="__codelineno-6-19" name="__codelineno-6-19"></a><span class="w">  </span><span class="nt">&lt;users&gt;</span>
+<a href="#__codelineno-6-20" id="__codelineno-6-20" name="__codelineno-6-20"></a><span class="w">    </span><span class="nt">&lt;user&gt;</span>
+<a href="#__codelineno-6-21" id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="w">      </span><span class="nt">&lt;name&gt;</span>admin<span class="nt">&lt;/name&gt;</span>
+<a href="#__codelineno-6-22" id="__codelineno-6-22" name="__codelineno-6-22"></a><span class="w">      </span><span class="nt">&lt;password&gt;</span>admin<span class="nt">&lt;/password&gt;</span>
+<a href="#__codelineno-6-23" id="__codelineno-6-23" name="__codelineno-6-23"></a><span class="w">      </span><span class="nt">&lt;email&gt;</span>admin@example.com<span class="nt">&lt;/email&gt;</span>
+<a href="#__codelineno-6-24" id="__codelineno-6-24" name="__codelineno-6-24"></a><span class="w">      </span><span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
+<a href="#__codelineno-6-25" id="__codelineno-6-25" name="__codelineno-6-25"></a><span class="w">    </span><span class="nt">&lt;/user&gt;</span>
+<a href="#__codelineno-6-26" id="__codelineno-6-26" name="__codelineno-6-26"></a><span class="w">  </span><span class="nt">&lt;/users&gt;</span>
+<a href="#__codelineno-6-27" id="__codelineno-6-27" name="__codelineno-6-27"></a><span class="nt">&lt;/security&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>groups/group</code></td>
+<td>The groups that exist. Tank creates any that are missing on startup. <code>isDefault="true"</code> groups are given to new users.</td>
+</tr>
+<tr>
+<td><code>restrictions/restriction</code></td>
+<td>For each <code>operation</code>, the groups allowed to perform it. The default file covers <code>CREATE_PROJECT</code>, <code>DELETE_PROJECT</code>, <code>EDIT_PROJECT</code>, <code>CREATE_SCRIPT</code>, <code>DELETE_SCRIPT</code>, <code>EDIT_SCRIPT</code>, <code>CREATE_FILTER</code>, <code>DELETE_FILTER</code>, <code>EDIT_FILTER</code>, <code>CREATE_DATAFILE</code>, <code>DELETE_DATAFILE</code> and <code>CONTROL_JOB</code>. Admins can do everything.</td>
+</tr>
+<tr>
+<td><code>users/user</code></td>
+<td>Users created on startup if no user with that <code>name</code> exists, with <code>password</code>, <code>email</code> and one or more <code>group</code> entries (plus the default groups). Existing users are never changed, so editing the password here after the first start has no effect.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="single-sign-on-oidc-sso">Single sign-on: <code>oidc-sso</code></h2>
+<p>Add this section to let users sign in through an OpenID Connect provider. If it's absent, SSO is off.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nt">&lt;oidc-sso&gt;</span>
+<a href="#__codelineno-7-2" id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="w">  </span><span class="nt">&lt;client-id&gt;</span>...<span class="nt">&lt;/client-id&gt;</span>
+<a href="#__codelineno-7-3" id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="w">  </span><span class="nt">&lt;client-secret&gt;</span>/path/to/ssm/parameter<span class="nt">&lt;/client-secret&gt;</span>
+<a href="#__codelineno-7-4" id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="w">  </span><span class="nt">&lt;authorization-url&gt;</span>https://idp.example.com/oauth2/authorize<span class="nt">&lt;/authorization-url&gt;</span>
+<a href="#__codelineno-7-5" id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="w">  </span><span class="nt">&lt;redirect-url&gt;</span>https://tank.example.com/v2/auth/sso/callback<span class="nt">&lt;/redirect-url&gt;</span>
+<a href="#__codelineno-7-6" id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="w">  </span><span class="nt">&lt;issuer&gt;</span>idp.example.com<span class="nt">&lt;/issuer&gt;</span>
+<a href="#__codelineno-7-7" id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="w">  </span><span class="nt">&lt;token-endpoint&gt;</span>/oauth2/token<span class="nt">&lt;/token-endpoint&gt;</span>
+<a href="#__codelineno-7-8" id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="nt">&lt;/oidc-sso&gt;</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client-id</code></td>
+<td>The client ID registered with the provider. The ID token's audience must match it.</td>
+</tr>
+<tr>
+<td><code>client-secret</code></td>
+<td>The client secret, or, if it starts with <code>/</code>, the name of an SSM SecureString parameter that holds it.</td>
+</tr>
+<tr>
+<td><code>authorization-url</code></td>
+<td>The provider's authorization URL users are sent to.</td>
+</tr>
+<tr>
+<td><code>redirect-url</code></td>
+<td>The callback URL registered with the provider. The REST API's callback, <code>&lt;controller-url&gt;/v2/auth/sso/callback</code>, completes the login and returns the user to the page that started it.</td>
+</tr>
+<tr>
+<td><code>issuer</code></td>
+<td>The provider's host name. Tank calls <code>https://&lt;issuer&gt;&lt;token-endpoint&gt;</code> to exchange the code.</td>
+</tr>
+<tr>
+<td><code>token-endpoint</code></td>
+<td>The path of the token endpoint on that host.</td>
+</tr>
+</tbody>
+</table>
+<p><code>OidcSsoConfig</code> also defines <code>authorization-endpoint</code>, but nothing reads it.</p>
+<h2 id="script-functions-logic-step">Script functions: <code>logic-step</code></h2>
+<p><code>logic-step/insert-before</code> and <code>logic-step/append-after</code> hold JavaScript that Tank adds before and after every logic step script. The default file defines helper functions such as <code>log</code>, <code>getVariable</code>, <code>setVariable</code>, <code>getResponseBody</code>, <code>gotoGroup</code> and <code>abortScript</code>. Leave them unless you're adding helpers of your own.</p>
+<h2 id="settings-with-no-effect">Settings with no effect</h2>
+<p>The default file and older guides contain these elements, but current code doesn't read them. You can delete them.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agent-config/agent-http-port</code></td>
+<td>The port setting is <code>agent-port</code>.</td>
+</tr>
+<tr>
+<td><code>agent-config/ssl-timeout</code></td>
+<td>Not read.</td>
+</tr>
+<tr>
+<td><code>agent-config/log-post-request</code>, <code>agent-config/log-variables</code></td>
+<td>Not read.</td>
+</tr>
+<tr>
+<td><code>timing-file-storage</code></td>
+<td>Not read.</td>
+</tr>
+<tr>
+<td><code>vm-manager/watchdog/max-time-for-agent-start</code></td>
+<td>Not read; only <code>max-time-for-agent-report</code> is used.</td>
+</tr>
+<tr>
+<td><code>vm-manager/default-instance-description/reuse-instances</code></td>
+<td>Not read.</td>
+</tr>
+<tr>
+<td><code>vm-manager/results/write-capacity</code></td>
+<td>Not read. DynamoDB capacity is set in <code>results/config</code>.</td>
+</tr>
+<tr>
+<td><code>mail</code></td>
+<td>Not read. No current code sends email.</td>
+</tr>
+</tbody>
+</table>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/intuit/Tank" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+<script>document$.subscribe(() => {
+            window.update_swagger_ui_iframe_height = function (id) {
+                var iFrameID = document.getElementById(id);
+                if (iFrameID) {
+                    full_height = (iFrameID.contentWindow.document.body.scrollHeight + 80) + "px";
+                    iFrameID.height = full_height;
+                    iFrameID.style.height = full_height;
+                }
+            }
+        
+            window.scheme = document.body.getAttribute("data-md-color-scheme")
+            const options = {
+                childList: true,
+                attributes: true,
+                characterData: false,
+                subtree: false,
+                attributeFilter: ['data-md-color-scheme'],
+                attributeOldValue: false,
+                characterDataOldValue: false
+            };
+            function color_scheme_callback(mutations) {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === "data-md-color-scheme") {
+                        scheme = document.body.getAttribute("data-md-color-scheme")
+                        var iframe_list = document.getElementsByClassName("swagger-ui-iframe")
+                        for(var i = 0; i < iframe_list.length; i++) {
+                            var ele = iframe_list.item(i);
+                            if (ele) {
+                                if (scheme === "slate") {
+                                    ele.contentWindow.enable_dark_mode();
+                                } else {
+                                    ele.contentWindow.disable_dark_mode();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            observer = new MutationObserver(color_scheme_callback);
+            observer.observe(document.body, options);
+            })</script></body>
+</html>

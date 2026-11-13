@@ -5,35 +5,37 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://intuit.github.io/Tank/installation-guide/installation/" rel="canonical"/>
+<link href="../quickstart/" rel="prev"/>
+<link href="../configuration/" rel="next"/>
 <link href="../../assets/TankLogo.svg" rel="icon"/>
-<meta content="mkdocs-1.3.1, mkdocs-material-8.2.13" name="generator"/>
-<title>Set-up &amp; Installation - Tank docs</title>
-<link href="../../assets/stylesheets/main.e411adfe.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.cc9b2e1e.min.css" rel="stylesheet"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
+<title>Installation - Tank docs</title>
+<link href="../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
 <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-<script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 </head>
 <body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
-<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#set-up-installation">
+<a class="md-skip" href="#installation">
           Skip to content
         </a>
 </div>
 <div data-md-component="announce">
 </div>
-<header class="md-header md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
 <nav aria-label="Header" class="md-header__inner md-grid">
 <a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
 <img alt="logo" src="../../assets/TankLogo.svg"/>
 </a>
 <label class="md-header__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
 </label>
 <div class="md-header__title" data-md-component="header-title">
 <div class="md-header__ellipsis">
@@ -45,24 +47,25 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Set-up &amp; Installation
+              Installation
             
           </span>
 </div>
 </div>
 </div>
 <form class="md-header__option" data-md-component="palette">
-<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"></path></svg>
 </label>
-<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"></path></svg>
 </label>
 </form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
 <label class="md-header__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
 </label>
 <div class="md-search" data-md-component="search" role="dialog">
 <label class="md-search__overlay" for="__search"></label>
@@ -70,22 +73,22 @@
 <form class="md-search__form" name="search">
 <input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
 <label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </label>
 <nav aria-label="Search" class="md-search__options">
-<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
 </button>
 </nav>
 </form>
 <div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
 <div class="md-search-result" data-md-component="search-result">
 <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
 </div>
 </div>
@@ -94,7 +97,7 @@
 <div class="md-header__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -103,42 +106,87 @@
 </div>
 </nav>
 <nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
-<div class="md-tabs__inner md-grid">
+<div class="md-grid">
 <ul class="md-tabs__list">
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../..">
-      Welcome to Intuit Tank
-    </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../key-concepts/projects/">
-        Key Concepts
+        
+  
+  
+    
+  
+  Intuit Tank
+
       </a>
 </li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../quickstart/">
+          
+  
+  
+  Set-up and Installation
+
+        </a>
+</li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../roles/">
-      Roles and Permissions
-    </a>
+<a class="md-tabs__link" href="../../key-concepts/web-ui/">
+          
+  
+  
+  User Guide
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../administration/">
-      Administration
-    </a>
+          
+  
+  
+  Administration
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../supplemental-tools/">
-      Supplemental Tools
-    </a>
+        
+  
+  
+    
+  
+  Supplemental Tools
+
+      </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link md-tabs__link--active" href="./">
-      Set-up &amp; Installation
-    </a>
+<a class="md-tabs__link" href="../../api/">
+          
+  
+  
+  REST API
+
+        </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../apispec/">
-      Tank API Reference
-    </a>
+<a class="md-tabs__link" href="../../faq/">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../gatlings-vs-tank/">
+        
+  
+  
+    
+  
+  Ideology: Gatling vs Tank
+
+      </a>
 </li>
 </ul>
 </div>
@@ -160,7 +208,7 @@
 <div class="md-nav__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -170,118 +218,74 @@
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../..">
-        Welcome to Intuit Tank
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Intuit Tank
+  
+
+    
+  </span>
+</a>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2">
-          Key Concepts
-          <span class="md-nav__icon md-icon"></span>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Set-up and Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-label="Key Concepts" class="md-nav" data-md-level="1">
+<nav aria-expanded="true" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_2">
 <span class="md-nav__icon md-icon"></span>
-          Key Concepts
-        </label>
+            
+  
+    Set-up and Installation
+  
+
+          </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/projects/">
-        Projects
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/scripts/">
-        Scripts
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/filters/">
-        Filters and Filter Groups
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/functions_variables/">
-        Functions and Variables
-      </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" id="__nav_2_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2_5">
-          Types Of In-built Functions
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-label="Types Of In-built Functions" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_2_5">
-<span class="md-nav__icon md-icon"></span>
-          Types Of In-built Functions
-        </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/io-functions/">
-        IO Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/string-functions/">
-        String Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/date-functions/">
-        Date Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/monetary-functions/">
-        Monetary Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/numeric-functions/">
-        Numeric Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/tax-functions/">
-        Tax Functions
-      </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../key-concepts/datafiles/">
-        Data Files
-      </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../roles/">
-        Roles and Permissions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../administration/">
-        Administration
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../supplemental-tools/">
-        Supplemental Tools
-      </a>
+<a class="md-nav__link" href="../quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-          Set-up &amp; Installation
-          <span class="md-nav__icon md-icon"></span>
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
-        Set-up &amp; Installation
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+</a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
 <span class="md-nav__icon md-icon"></span>
@@ -289,69 +293,510 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#preface">
-    Preface
-  </a>
-<nav aria-label="Preface" class="md-nav">
+<a class="md-nav__link" href="#requirements">
+<span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+</a>
+<nav aria-label="Requirements" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#cloud-services-used">
-    Cloud Services Used
-  </a>
+<a class="md-nav__link" href="#choosing-a-jdk">
+<span class="md-ellipsis">
+      
+        Choosing a JDK
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#environment">
-    Environment
-  </a>
-<nav aria-label="Environment" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#retrieve-security-credentials">
-    Retrieve Security Credentials
-  </a>
+<a class="md-nav__link" href="#build-tank">
+<span class="md-ellipsis">
+      
+        Build Tank
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#creating-essential-resources">
-    Creating Essential Resources
-  </a>
+<a class="md-nav__link" href="#aws-resources">
+<span class="md-ellipsis">
+      
+        AWS resources
+      
+    </span>
+</a>
+<nav aria-label="AWS resources" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-pair">
+<span class="md-ellipsis">
+      
+        Key pair
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-groups">
+<span class="md-ellipsis">
+      
+        Security groups
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#iam">
+<span class="md-ellipsis">
+      
+        IAM
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#database">
+<span class="md-ellipsis">
+      
+        Database
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-ami">
+<span class="md-ellipsis">
+      
+        Agent AMI
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controller">
+<span class="md-ellipsis">
+      
+        Controller
+      
+    </span>
+</a>
+<nav aria-label="Controller" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#upgrading">
+<span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#standalone-deployment">
-    Standalone Deployment
-  </a>
+<span class="md-ellipsis">
+      
+        Standalone deployment
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#deployment-strategy">
-    Deployment Strategy
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration">
+<a class="md-nav__link" href="../configuration/">
+<span class="md-ellipsis">
+    
+  
     Configuration
-  </a>
-<nav aria-label="Configuration" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-entries">
-    Configuration Entries
-  </a>
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/web-ui/">
+<span class="md-ellipsis">
+    
+  
+    The Web UI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/projects/">
+<span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/scripts/">
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/filters/">
+<span class="md-ellipsis">
+    
+  
+    Filters and Filter Groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/datafiles/">
+<span class="md-ellipsis">
+    
+  
+    Data Files
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/jobs/">
+<span class="md-ellipsis">
+    
+  
+    Jobs and the Agent Tracker
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/functions_variables/">
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Types Of In-built Functions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Types Of In-built Functions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/io-functions/">
+<span class="md-ellipsis">
+    
+  
+    IO Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/string-functions/">
+<span class="md-ellipsis">
+    
+  
+    String Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/date-functions/">
+<span class="md-ellipsis">
+    
+  
+    Date Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/monetary-functions/">
+<span class="md-ellipsis">
+    
+  
+    Monetary Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/numeric-functions/">
+<span class="md-ellipsis">
+    
+  
+    Numeric Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/tax-functions/">
+<span class="md-ellipsis">
+    
+  
+    Tax Functions
+  
+
+    
+  </span>
+</a>
+</li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../apispec/">
-        Tank API Reference
-      </a>
+<a class="md-nav__link" href="../../key-concepts/scripting/">
+<span class="md-ellipsis">
+    
+  
+    Scripting Languages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../key-concepts/glossary/">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../administration/">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../roles/">
+<span class="md-ellipsis">
+    
+  
+    Roles and Permissions
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../supplemental-tools/">
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/">
+<span class="md-ellipsis">
+    
+  
+    Using the REST API
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/reference/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../faq/">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../gatlings-vs-tank/">
+<span class="md-ellipsis">
+    
+  
+    Ideology: Gatling vs Tank
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -368,61 +813,124 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#preface">
-    Preface
-  </a>
-<nav aria-label="Preface" class="md-nav">
+<a class="md-nav__link" href="#requirements">
+<span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+</a>
+<nav aria-label="Requirements" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#cloud-services-used">
-    Cloud Services Used
-  </a>
+<a class="md-nav__link" href="#choosing-a-jdk">
+<span class="md-ellipsis">
+      
+        Choosing a JDK
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#environment">
-    Environment
-  </a>
-<nav aria-label="Environment" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#retrieve-security-credentials">
-    Retrieve Security Credentials
-  </a>
+<a class="md-nav__link" href="#build-tank">
+<span class="md-ellipsis">
+      
+        Build Tank
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#creating-essential-resources">
-    Creating Essential Resources
-  </a>
+<a class="md-nav__link" href="#aws-resources">
+<span class="md-ellipsis">
+      
+        AWS resources
+      
+    </span>
+</a>
+<nav aria-label="AWS resources" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#key-pair">
+<span class="md-ellipsis">
+      
+        Key pair
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#security-groups">
+<span class="md-ellipsis">
+      
+        Security groups
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#iam">
+<span class="md-ellipsis">
+      
+        IAM
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#database">
+<span class="md-ellipsis">
+      
+        Database
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-ami">
+<span class="md-ellipsis">
+      
+        Agent AMI
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#controller">
+<span class="md-ellipsis">
+      
+        Controller
+      
+    </span>
+</a>
+<nav aria-label="Controller" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#upgrading">
+<span class="md-ellipsis">
+      
+        Upgrading
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#standalone-deployment">
-    Standalone Deployment
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#deployment-strategy">
-    Deployment Strategy
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration">
-    Configuration
-  </a>
-<nav aria-label="Configuration" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#configuration-entries">
-    Configuration Entries
-  </a>
-</li>
-</ul>
-</nav>
+<span class="md-ellipsis">
+      
+        Standalone deployment
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -431,615 +939,352 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/installation-guide/installation.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/installation-guide/installation.md" rel="edit" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
 </a>
-<h1 id="set-up-installation">Set-up &amp; Installation</h1>
-<h2 id="preface">Preface</h2>
-<p>The purpose of this guide is to describe the IT concepts and strategies employed by Tank.</p>
-<p>Tank is meant to be an integrated testing solution for driving load against production systems. It includes a central controller for coordinating test agents and driving the UI for setting up and reporting on the tests. <br/>
-The agents are instantiated on demand and terminated when they are no longer needed. This helps keep the costs of running large tests to a minimum.  </p>
-<p>Tank is meant to be a load test solution and is not currently optimized for functional testing. This does not mean that it is not useful for functional testing, but many of the paradigms and toolsets needed for functional testing may be lacking.  </p>
-<h3 id="cloud-services-used">Cloud Services Used</h3>
-<p>Tank uses a gamut of Cloud Service to fulfill the mission of Load Testing. The below section (expand for more info) gives a brief on each of the cloud services.</p>
-<details class="abstract">
-<summary>Cloud Services used</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"><input id="__tabbed_1_4" name="__tabbed_1" type="radio"><input id="__tabbed_1_5" name="__tabbed_1" type="radio"><div class="tabbed-labels"><label for="__tabbed_1_1">EC2</label><label for="__tabbed_1_2">S3</label><label for="__tabbed_1_3">DynamoDB</label><label for="__tabbed_1_4">RDS</label><label for="__tabbed_1_5">IAM</label></div>
+<h1 id="installation">Installation</h1>
+<p>This page covers a production-style install in AWS: the AWS resources, the controller on Tomcat, and the agent image the controller launches. To try Tank on one machine first, see the <a href="../quickstart/">Quickstart</a>. Every setting mentioned here is described in <a href="../configuration/">Configuration</a>.</p>
+<h2 id="requirements">Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td>21 or later. The build targets Java 21 (<code>maven.compiler.release</code>); the project badge lists 21 and 25.</td>
+</tr>
+<tr>
+<td>Apache Tomcat</td>
+<td>11.0 (the build compiles against Tomcat 11.0.x). The project badge also lists 10.1.</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.x. The CloudFormation template creates RDS MySQL 8.4. The war bundles MySQL Connector/J (<code>com.mysql.cj.jdbc.Driver</code>).</td>
+</tr>
+<tr>
+<td>Maven</td>
+<td>Only to build from source. The build downloads its own Node.js to build the React UI.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="choosing-a-jdk">Choosing a JDK</h3>
+<p>Use an OpenJDK distribution approved by your organization, on both the controller and the agents, at the Java major version above. Don't select a JDK by version alone: point <code>JAVA_HOME</code> at the exact installation you intend to use.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1">macOS</label><label for="__tabbed_1_2">Linux</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Elastic Compute Cloud (<code>EC2</code>) is the service that is used to create compute resources to drive load (agents). There are several parts of this service used.</p>
-<ul>
-<li><code>Instances</code> are the actual compute resources used to run load.</li>
-<li><code>Security Groups</code> are used to control access to and from the agent instances and the controller instance.</li>
-<li><code>AMIs</code> are used as the templates for instantiating new resources.</li>
-<li><code>Load balancers</code> are used to distribute load to the controller.</li>
-<li><code>Elastic IPs</code> are used to bind specific IP addresses to agent instances and can be used in firewall rules to allow access from agents to the datacenter.</li>
-<li><code>Volumes</code> are used for persisted data that is not stored in <code>S3</code>.</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<p>Simple Storage Service is used to store document-based items such as data files and response time reports.</p>
-</div>
-<div class="tabbed-block">
-<p>DynamoDb is a key value data store used to collect response metrics during the execution of a test. They are typically aggregated after the test is run.</p>
-</div>
-<div class="tabbed-block">
-<p>Relational Data Service (<code>MySQL</code>) is used to store the metadata about the projects including scripts, filters, and project configuration used by the controller.</p>
-</div>
-<div class="tabbed-block">
-<p>Identity and Access Management is used to control access and permissions to cloud resources.</p>
-</div>
-</div>
-</input></input></input></input></input></div>
-</details>
-<h2 id="environment">Environment</h2>
-<details class="tip">
-<summary>Payment set-up for creating Cloud Account</summary>
-<p>You will need a Credit Card or arrange payment in order to complete the following steps.  </p>
-<div class="highlight"><pre><span></span><code>* Go to http://aws.amazon.com/ and click on the "Sign Up" button.
-* Complete all steps for creating an account.
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># List installed JDKs and their paths</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>/usr/libexec/java_home<span class="w"> </span>-V
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="c1"># Set JAVA_HOME to the exact JDK you chose</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span>&lt;path-to-intended-jdk&gt;/Contents/Home
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$JAVA_HOME</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
 </code></pre></div>
-</details>
-<h3 id="retrieve-security-credentials">Retrieve Security Credentials</h3>
-<p>Thera are two methods of setting up access to resources from the controller and agent instances.  </p>
-<div class="admonition abstract">
-<p class="admonition-title">Access Mechanism</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"><input id="__tabbed_2_2" name="__tabbed_2" type="radio"><div class="tabbed-labels"><label for="__tabbed_2_1">IAM role</label><label for="__tabbed_2_2">Access Keys</label></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span>&lt;path-to-intended-jdk&gt;
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$JAVA_HOME</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Replace <code>&lt;path-to-intended-jdk&gt;</code> with the install directory of the JDK you chose. Then check it with <code>java -version</code>: the first line shows the major version (it must be 21 or later) and the runtime line names the vendor's build. Confirm both are what you intended before you build or deploy.</p>
+<h2 id="build-tank">Build Tank</h2>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MAVEN_OPTS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$MAVEN_OPTS</span><span class="s2"> -Xms2g -Xmx3g"</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>mvn<span class="w"> </span>clean<span class="w"> </span>install<span class="w"> </span>-P<span class="w"> </span>release
+</code></pre></div>
+<p>The <code>release</code> profile also builds the agent packages and tools. A plain <code>mvn clean install</code> builds the war but not the agent zips.</p>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Path</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controller</td>
+<td><code>web/web_ui/target/tank.war</code></td>
+<td>Deploy to Tomcat.</td>
+</tr>
+<tr>
+<td>Agent startup package</td>
+<td><code>agent/agent_startup_pkg/target/agent-startup-pkg.zip</code></td>
+<td>Baked into the agent AMI.</td>
+</tr>
+<tr>
+<td>Standalone agent package</td>
+<td><code>agent/agent_standalone_pkg/target/agent-standalone-pkg.zip</code></td>
+<td><a href="#standalone-deployment">Standalone agents</a>.</td>
+</tr>
+<tr>
+<td>Debugger, script filter, proxy</td>
+<td>See <a href="../../supplemental-tools/">Supplemental tools</a>.</td>
+<td>Desktop tools.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="aws-resources">AWS resources</h2>
+<p>Tank uses these AWS services:</p>
+<ul>
+<li><strong>EC2</strong>: agent instances, AMIs, security groups, key pairs and, optionally, Elastic IPs bound to agents so the system under test can allow-list them.</li>
+<li><strong>RDS for MySQL</strong> (or any MySQL 8 server you run and back up yourself).</li>
+<li><strong>IAM</strong>: instance profiles for the controller and the agents.</li>
+<li><strong>CloudWatch</strong>: test results (the default results store), agent logs and host metrics.</li>
+<li><strong>S3</strong>: optional storage for data files and agent support files, and optional results storage.</li>
+<li><strong>SSM Parameter Store</strong>: optional, for the agent AMI ID and the OIDC client secret.</li>
+<li><strong>X-Ray</strong>: optional tracing of the controller.</li>
+</ul>
+<p>The <code>aws-config/</code> folder in the repository has CloudFormation templates for most of this:</p>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Creates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tank_instanceProfiles.yml</code></td>
+<td>The controller and agent IAM roles and instance profiles. It exports <code>TankControllerProfile</code>, which the controller template imports. Deploy it first.</td>
+</tr>
+<tr>
+<td><code>tank_controller.yml</code></td>
+<td>An RDS MySQL 8.4 instance, security groups, and a Graviton (arm64) Amazon Linux 2023 controller with Tomcat 11, the CloudWatch agent and the AWS OpenTelemetry Java agent. It takes the S3 locations of <code>tank.war</code> and <code>settings.xml</code> as parameters.</td>
+</tr>
+<tr>
+<td><code>tank_agent.yml</code></td>
+<td>A Graviton (arm64) Amazon Linux 2023 instance with the agent installed as a <code>systemd</code> service, ready to snapshot into an agent AMI. It takes the S3 location of <code>agent-startup-pkg.zip</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Review the controller template before you use it</p>
+<p><code>tank_controller.yml</code> copies <code>settings.xml</code> to <code>/usr/share/tomcat/settings.xml</code> and the war to <code>/usr/share/tomcat/webapps/ROOT.war</code>, but it runs Tomcat from <code>/opt/tomcat</code> (working directory <code>/opt/tomcat</code>) and doesn't set <code>WATS_PROPERTIES</code>. As written, Tomcat won't find either file. Change those paths, or set <code>WATS_PROPERTIES</code>, before you rely on it. The templates also install Amazon Corretto 25 (<code>java-25-amazon-corretto-headless</code>); change the package if your organization requires a different OpenJDK distribution.</p>
+</div>
+<h3 id="key-pair">Key pair</h3>
+<p>Create an EC2 key pair in each region you will run agents in, and keep the private key: AWS can't give it back to you. The key pair name goes in the <code>keypair</code> setting.</p>
+<h3 id="security-groups">Security groups</h3>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Inbound rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controller</td>
+<td>TCP 8080 (Tomcat) from your users and from the agents; SSH 22 from your admin network.</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>The agent port, TCP 8090 by default (<code>agent-port</code>), from the controller. The controller calls agents over HTTP and WebSocket on this port.</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>TCP 3306 from the controller.</td>
+</tr>
+</tbody>
+</table>
+<p>Agents also need outbound access to the controller's <code>controller-base-url</code> and to the systems under test.</p>
+<h3 id="iam">IAM</h3>
+<p>Prefer instance profiles to access keys. Without keys in <code>settings.xml</code>, Tank uses the AWS SDK's default credential chain, which picks up the instance profile.</p>
+<p><code>tank_instanceProfiles.yml</code> grants:</p>
+<ul>
+<li><strong>Controller role</strong>: the managed policies <code>AmazonEC2FullAccess</code>, <code>AmazonS3FullAccess</code>, <code>AWSXrayWriteOnlyAccess</code> and <code>CloudWatchAgentServerPolicy</code>, plus <code>iam:PassRole</code>, <code>iam:ListInstanceProfiles</code>, <code>iam:AddRoleToInstanceProfile</code>, <code>appconfig:GetConfiguration</code>, <code>cloudwatch:GetMetricData</code> and <code>cloudwatch:ListMetrics</code>. The controller needs <code>iam:PassRole</code> to launch agents with the agent instance profile, and <code>cloudwatch:GetMetricData</code> to show agent metrics.</li>
+<li><strong>Agent role</strong>: <code>AmazonS3FullAccess</code> and <code>CloudWatchAgentServerPolicy</code>, plus <code>cloudwatch:PutMetricData</code> and <code>cloudwatch:PutMetricStream</code>.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The template's controller role has no <code>ssm:GetParameter</code> permission. Add it if you use <code>ssm-ami</code> for the agent AMI or an SSM parameter for the OIDC client secret. You can also narrow the managed policies to the buckets and actions you use.</p>
+</div>
+<p>If you can't use instance profiles, set access keys through the <code>credentials</code> element (see <a href="../configuration/#credentials">Configuration</a>). The controller passes those keys to every agent in the EC2 user data.</p>
+<h3 id="database">Database</h3>
+<p>Create an empty database for Tank (the templates name it <code>tank</code>) and a user that can create and alter tables in it. Hibernate creates and updates the schema when the controller starts. Back the database up: it holds all your projects and scripts.</p>
+<h2 id="agent-ami">Agent AMI</h2>
+<p>Agents run from an AMI you build once per region. The default instance types in <code>settings.xml</code> are Graviton (<code>m7g</code>, <code>m8g</code>), so build an <strong>arm64</strong> AMI unless you change the instance types.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio"/><input id="__tabbed_2_2" name="__tabbed_2" type="radio"/><div class="tabbed-labels"><label for="__tabbed_2_1">CloudFormation</label><label for="__tabbed_2_2">Manual</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>Use IAM roles to start the instances giving them access to the needed resources. If you use this method, just make sure you start your resources with the appropriate roles.</p>
+<ol>
+<li>Upload <code>agent-startup-pkg.zip</code> to S3.</li>
+<li>Create a stack from <code>aws-config/tank_agent.yml</code>, passing the zip's S3 location as <code>TankZip</code>, a key pair, subnets and security groups.</li>
+<li>When the stack completes, create an AMI from the instance, then delete the stack.</li>
+</ol>
 </div>
 <div class="tabbed-block">
-<ul>
-<li>Log in to the amazon console from <code>http://aws.amazon.com/</code></li>
-<li>In the top right corner where the account name shows up, click it and select <code>Security Credentials</code> from the drop down menu.</li>
-<li>Scroll down to the <code>Access Keys</code> section and click <code>Create a new Access Key</code>.</li>
-<li>Copy the <code>Access Key ID</code> from the newly created key.</li>
-<li>Click on <code>Show</code> section and copy the <code>Secret Access Key</code>.</li>
-<li>Store these values in a file on your computer somewhere, you will need them for configuration later.</li>
-</ul>
+<p>On an arm64 Linux instance:</p>
+<ol>
+<li>Install an approved OpenJDK (Java 21 or later) and <code>unzip</code>.</li>
+<li>
+<p>Unzip the package into <code>/opt</code>, which creates <code>/opt/tank_agent</code>, and create its log folder:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>sudo<span class="w"> </span>unzip<span class="w"> </span>agent-startup-pkg.zip<span class="w"> </span>-d<span class="w"> </span>/opt
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>sudo<span class="w"> </span>mkdir<span class="w"> </span>/opt/tank_agent/logs
+</code></pre></div>
+</li>
+<li>
+<p>Start <code>/opt/tank_agent/run.sh</code> at boot from <code>/opt/tank_agent</code>. The template's unit file:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">[Unit]</span>
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="na">Description</span><span class="o">=</span><span class="s">Tank agent</span>
+<a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="na">After</span><span class="o">=</span><span class="s">network-online.target</span>
+<a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="na">Wants</span><span class="o">=</span><span class="s">network-online.target</span>
+<a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>
+<a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="k">[Service]</span>
+<a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="na">Type</span><span class="o">=</span><span class="s">simple</span>
+<a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">/opt/tank_agent</span>
+<a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="na">ExecStart</span><span class="o">=</span><span class="s">/opt/tank_agent/run.sh</span>
+<a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="na">LimitNOFILE</span><span class="o">=</span><span class="s">20000</span>
+<a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="na">UMask</span><span class="o">=</span><span class="s">0077</span>
+<a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>
+<a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="k">[Install]</span>
+<a href="#__codelineno-4-14" id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</code></pre></div>
+</li>
+<li>
+<p>Raise the open-file limits and the ephemeral port range for high connection counts. The template sets <code>DefaultLimitNOFILE=81960</code> for <code>systemd</code> and adds <code>net.ipv4.ip_local_port_range=1024 65000</code> to <code>/etc/sysctl.conf</code>.</p>
+</li>
+<li>Optionally install the CloudWatch agent to ship <code>/opt/tank_agent/logs/agent.log</code> and host metrics (see the template for the configuration).</li>
+<li>Create an AMI from the instance.</li>
+</ol>
 </div>
 </div>
-</input></input></div>
 </div>
-<h3 id="creating-essential-resources">Creating Essential Resources</h3>
-<div class="admonition abstract">
-<p class="admonition-title">Creating Essential Resources</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:6"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"><input id="__tabbed_3_2" name="__tabbed_3" type="radio"/><input id="__tabbed_3_3" name="__tabbed_3" type="radio"/><input id="__tabbed_3_4" name="__tabbed_3" type="radio"/><input id="__tabbed_3_5" name="__tabbed_3" type="radio"/><input id="__tabbed_3_6" name="__tabbed_3" type="radio"/><div class="tabbed-labels"><label for="__tabbed_3_1">Key Pair</label><label for="__tabbed_3_2">Security Group</label><label for="__tabbed_3_3">RDS Instance</label><label for="__tabbed_3_4">Base AMI</label><label for="__tabbed_3_5">Controller Instance and its AMI</label><label for="__tabbed_3_6">Agent AMI</label></div>
+<p>Put the AMI ID in the <code>ami</code> setting of each region's <code>instance-description</code>, or publish it as an SSM parameter and use <code>ssm-ami</code>.</p>
+<p>When a test starts, the controller launches instances from this AMI with the controller URL, agent token and job details in the user data. The agent fetches its settings and support files from the controller and then starts the test harness.</p>
+<h2 id="controller">Controller</h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio"/><input id="__tabbed_3_2" name="__tabbed_3" type="radio"/><div class="tabbed-labels"><label for="__tabbed_3_1">CloudFormation</label><label for="__tabbed_3_2">Manual</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>The keypair is used to ssh into the instances that get started. Do not lose these keys as they cannot be retrieved form AWS.</p>
-<ul>
-<li>Log in to the amazon console from <code>http://aws.amazon.com/</code></li>
-<li>Go to <code>EC2</code> tab</li>
-<li>Click on <code>Key Pairs</code> link under the <code>Network &amp; Security</code> section in left navigation panel</li>
-<li>Create a Key Pair and save the downloaded <code>pem</code> file somewhere safe <code>ssh-keygen -y -f [path/to/pem/file].pem [path/to/key/file].pub</code></li>
-<li>Change the Mod settings on the key file to 600 <code>sudo chmod 600 [path/to/pem/file].pem [path/to/key/file].pub</code></li>
-</ul>
+<ol>
+<li>Deploy <code>tank_instanceProfiles.yml</code>.</li>
+<li>Upload <code>tank.war</code> and your <code>settings.xml</code> to S3.</li>
+<li>Deploy <code>tank_controller.yml</code> with those S3 locations, a VPC, subnets, a key pair and an RDS password. Read the warning under <a href="#aws-resources">AWS resources</a> first.</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<ol>
+<li>Install an approved OpenJDK (Java 21 or later) and set <code>JAVA_HOME</code> <a href="#choosing-a-jdk">as above</a>.</li>
+<li>Download Tomcat 11 from <a href="https://tomcat.apache.org/">tomcat.apache.org</a> and unpack it, for example to <code>/opt/tomcat</code>.</li>
+<li>
+<p>Remove the default applications and deploy Tank at the root context:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a>rm<span class="w"> </span>-rf<span class="w"> </span>/opt/tomcat/webapps/*
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>cp<span class="w"> </span>web/web_ui/target/tank.war<span class="w"> </span>/opt/tomcat/webapps/ROOT.war
+</code></pre></div>
+</li>
+<li>
+<p>Define the <code>jdbc/watsDS</code> data source in <code>/opt/tomcat/conf/context.xml</code>. This is the definition the controller template uses:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<a href="#__codelineno-6-2" id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="nt">&lt;Context&gt;</span>
+<a href="#__codelineno-6-3" id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="w">    </span><span class="nt">&lt;Resource</span><span class="w"> </span><span class="na">name=</span><span class="s">"jdbc/watsDS"</span><span class="w"> </span><span class="na">auth=</span><span class="s">"Container"</span>
+<a href="#__codelineno-6-4" id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="w">        </span><span class="na">type=</span><span class="s">"javax.sql.DataSource"</span>
+<a href="#__codelineno-6-5" id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="w">        </span><span class="na">factory=</span><span class="s">"org.apache.tomcat.jdbc.pool.DataSourceFactory"</span>
+<a href="#__codelineno-6-6" id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="w">        </span><span class="na">maxWait=</span><span class="s">"10000"</span>
+<a href="#__codelineno-6-7" id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="w">        </span><span class="na">username=</span><span class="s">"admin"</span><span class="w"> </span><span class="na">password=</span><span class="s">"REPLACE_ME"</span>
+<a href="#__codelineno-6-8" id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="w">        </span><span class="na">testOnBorrow=</span><span class="s">"true"</span>
+<a href="#__codelineno-6-9" id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="w">        </span><span class="na">validationQuery=</span><span class="s">"SELECT 1"</span>
+<a href="#__codelineno-6-10" id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="w">        </span><span class="na">removeAbandonedOnBorrow=</span><span class="s">"true"</span>
+<a href="#__codelineno-6-11" id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="w">        </span><span class="na">removeAbandonedOnMaintenance=</span><span class="s">"true"</span>
+<a href="#__codelineno-6-12" id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="w">        </span><span class="na">removeAbandonedTimeout=</span><span class="s">"60"</span>
+<a href="#__codelineno-6-13" id="__codelineno-6-13" name="__codelineno-6-13"></a><span class="w">        </span><span class="na">driverClassName=</span><span class="s">"com.mysql.cj.jdbc.Driver"</span>
+<a href="#__codelineno-6-14" id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="w">        </span><span class="na">url=</span><span class="s">"jdbc:mysql://DB_HOST:3306/tank"</span><span class="nt">/&gt;</span>
+<a href="#__codelineno-6-15" id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="nt">&lt;/Context&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Tell Tank where its settings file lives. Tank reads <code>settings.xml</code> from Tomcat's working directory, or from the folder in the <code>WATS_PROPERTIES</code> environment variable or Java system property when the working directory has none. For example, in <code>/opt/tomcat/bin/setenv.sh</code>:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-7-1" id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">WATS_PROPERTIES</span><span class="o">=</span>/opt/tank/conf
+</code></pre></div>
+</li>
+<li>
+<p>Start Tomcat. If no settings file exists, Tank writes the default one to that location. Stop Tomcat, edit the file (at least <code>controller-base-url</code>, <code>instance-name</code>, the agent AMIs, the subnets and security groups, and the default admin password), and start Tomcat again.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<p>Then open <code>http://&lt;controller-host&gt;:8080/</code> and sign in. On first start Tank creates the users listed under <code>security/users</code> in <code>settings.xml</code>; the default file creates <code>admin</code> with the password <code>admin</code>. Change that password straight away, or change the entry before the first start.</p>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Optionally create an <code>environment variable</code> for the key. We will use the environment variable <code>AWS_KEY</code> in the rest of this documentation to refer to the key file. You could add the following command into your <code>bashrc</code> or <code>profile</code> file as well. <code>export AWS_KEY=/Home/aws_keys/tank_key.pem</code></p>
+<p class="admonition-title">Keep secrets away from agents</p>
+<p>Agents download the controller's <code>settings.xml</code>. If a file named <code>agent-settings.xml</code> exists in the same folder, agents get that file instead, so you can keep credentials and SSO settings out of what agents receive.</p>
 </div>
-</div>
-<div class="tabbed-block">
-<ul>
-<li>Log in to the amazon console <code>from http://aws.amazon.com/</code></li>
-<li>Go to <code>EC2</code> tab</li>
-<li>Click on <code>Security Groups</code> link under the <code>Network &amp; Security</code> section in left navigation panel</li>
-<li>Click the <code>Create Security Group</code> button in the tool bar area</li>
-<li>Name the security group something appropriate like tank.</li>
-<li>Select the new Group and click the <code>Inbound tab</code> in the lower panel.</li>
-<li>Add appropriate rules. At a minimum, you will need <code>SSH</code>, <code>HTTP</code> (80 and 8080), <code>HTTPS</code>(443 and 8443), and <code>8090</code>(agent)</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<p>If you wish, you can create your own <code>MySQ</code>L instance and point to it instead.</p>
-<ul>
-<li>Log in to the amazon console from <code>http://aws.amazon.com/</code></li>
-<li>Go to <code>RDS</code> tab</li>
-<li>Click on <code>Instaces</code> link in left navigation panel</li>
-<li>Click the <code>Launch DB Instance</code> button in the tool panel</li>
-<li>Select <code>mysql</code> instance</li>
-<li>Set all options appropriately.</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<p>Agent AMIs must be created in each of the Amazon regions that you wish to run tests from. You can use <code>Cloudformation</code> or   <code>chef</code> to provision your instances if you wish.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>There is a Cloudformation script and resources in aws-config in the root of this project's directory that will create the controller and the agent instances that can be used as a starting point for creating the AMIs.</p>
-</div>
-<ul>
-<li>Log in to the amazon console from http://aws.amazon.com/</li>
-<li>Go to EC2 tab</li>
-<li>Click on AMIs link under the Images section in left navigation panel</li>
-<li>Find a suitable 64-bit base image backed by EBS and launch an instance. It does not matter which size or zone you start it in as it will only be used to create a base AMI.</li>
-<li>After it is started, connect via ssh</li>
-<li>Download and install the latest version of Java and add an entry in /etc/profile for a JAVA_HOME variable pointing to the base java directory.</li>
-<li>Ensure that java is installed and that the JAVA_HOME environment variable is set in /etc/profile</li>
-<li>Set the maximum number of open files limit to at least 50000 <code>echo ulimit -n 50000 &gt;&gt;/etc/profile</code></li>
-<li>Select the instance and choose Create Image (EBS AMI) from the Instance Actions dropdown in the toolbar area.</li>
-<li>Give it an appropriate name such as Intuit Tank Base and click OK.</li>
-<li>After the instance is ready, terminate the instance you started.</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<ul>
-<li>Log in to the amazon console from http://aws.amazon.com/</li>
-<li>Go to EC2 tab</li>
-<li>Click on AMIs link under the Images section in left navigation panel</li>
-<li>Launch an instance from your Intuit Tank Base AMI. Select m1.xlarge and the zone your EBS volume is installed in.</li>
-<li>Click on Elastic IPs link under the Network and Security section in left navigation panel</li>
-<li>Click the Allocate New Address button.</li>
-<li>Click the new address and click the Associate Address button.</li>
-<li>Select the new instance you just launched and select ok.</li>
-<li>Connect to the instance <code>ssh -i $AWS_KEY root@[instance]</code></li>
-<li>Download and Install Tomcat 6x from apache <code>wget http://tomcat.apache.org/download-60.cgi</code></li>
-<li>Download mysql connector and install in TOMCAT_HOME/lib <code>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</code> or <code>or wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.zip</code></li>
-<li>Uncompress and move the jar file mysql-connector-java-5.1.30-bin.jar to TOMCAT_HOME/lib</li>
-<li>Download Weld support jar and install in TOMCAT_HOME/lib <code>wget -O TOMCAT_HOME/lib http://central.maven.org/maven2/org/jboss/weld/servlet/weld-tomcat-support/1.0.1-Final/weld-tomcat-support-1.0.1-Final.jar</code></li>
-<li>Upload Intuit Tank war file from your build machine <code>upload PROJECT_ROOT/web/web_ui/target/tank.war from your local machine.</code></li>
-<li>Move it to the webapps dir <code>For context of /tankmv tank.war TOMCAT_HOME/webapps/</code> and <code>For context of /mv tank.war TOMCAT_HOME/webapps/ROOT.war</code></li>
-<li>Create the tank directories. <code>mkdir /mnt/ebs/wats; mkdir /mnt/ebs/wats/conf; mkdir /mnt/ebs/wats/jars</code></li>
-<li>Add Datasource definition to server.xml ``</li>
-</ul>
-</div>
-<div class="tabbed-block">
-<ul>
-<li>Log in to the amazon console from http://aws.amazon.com/</li>
-<li>Go to EC2 tab</li>
-<li>Click on AMIs link under the Images section in left navigation panel</li>
-<li>Launch an instance from your Intuit Tank Base AMI.</li>
-<li>Connect to the instance ssh -i AWS_KEY root@[instance]</li>
-<li>Upload the agent startup zip file from your build machine PROJECT_ROOT/agent/agent_startup_pkg/target/agent-startup-pkg.zip</li>
-<li>unzip the file to /opt cd /opt ; unzip ~/agent-startup-pkg.zip</li>
-<li>Move startup script to /etc/init.d mv tank_agent/tank-agent /etc/init.d/</li>
-<li>Set it to start on startup chkconfig tank-agent on</li>
-<li>Select the instance and choose Create Image (EBS AMI) from the Instance Actions dropdown in the toolbar area.</li>
-<li>Give it an appropriate name such as Intuit Tank Agent and click OK.</li>
-<li>After the instance is ready, terminate the instance you started.</li>
-</ul>
-</div>
-</div>
-</input></div>
-</div>
-<h2 id="standalone-deployment">Standalone Deployment</h2>
-<p>For standalone deployments, you will need to install the controller, database, and as many agent machines as needed. These steps assume that you have java installed on all machines needed.  </p>
-<details class="abstract">
-<summary>Standalone deployment</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio"/><input id="__tabbed_4_2" name="__tabbed_4" type="radio"/><div class="tabbed-labels"><label for="__tabbed_4_1">Install Server Components</label><label for="__tabbed_4_2">Create Agents</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p>On the machine that wil server as the controller.</p>
-<ul>
-<li>Download and Install <code>Tomcat 6x</code> from apache <code>http://tomcat.apache.org/download-60.cgi</code></li>
-<li>Download mysql connector and install in <code>TOMCAT_HOME/lib</code>
-<code>wget http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.30.tar.gz</code></li>
-<li>Uncompress and move the jar file <code>mysql-connector-java-nnnn.jar</code> to <code>TOMCAT_HOME/lib</code></li>
-<li>Download Weld support jar and install in TOMCAT_HOME/lib <code>wget -O TOMCAT_HOME/lib http://central.maven.org/maven2/org/jboss/weld/servlet/weld-tomcat-support/1.0.1-Final/weld-tomcat-support-1.0.1-Final.jar</code></li>
-<li>Build the project <code>mvn clean install -P release</code></li>
-<li>Move the war to the tomcat webapp directory as tank.war or ROOT.war <code>For context /tank mv PROJECT_ROOT/web/web_ui/target/tank.war /opt/tomcat/webapps/tank.war</code> AND <code>For context /mv PROJECT_ROOT/web/web_ui/target/tank.war /opt/tomcat/webapps/ROOT.war</code></li>
-<li>Install <code>MySQL</code> server</li>
-<li>Change the root password <code>mysqladmin -u root password 'NEW_PASSWORD'</code></li>
-<li>Start <code>MySQL</code> client <code>mysql –u root –p</code></li>
-<li>Create tank schema <code>CREATE SCHEMA wats DEFAULT CHARACTER SET utf8;</code></li>
-<li>Create the tank directories. <code>mkdir [TS_HOME]; mkdir [TS_HOME]/conf; mkdir [TS_HOME]/jars</code></li>
-<li>Add variable declarations to <code>/etc/profile</code> and add the following <code>export WATS_PROPERTIES=[TS_HOME]/conf</code></li>
-<li>Start and stop tomcat to initialize the system. Ensure that the settings file is created in $WATS_PROPERTIES and that the database tables are created.</li>
-<li>Edit the <code>settings.xml</code> file. Change the standalone entry to true and change any other settings.</li>
-<li>Add Datasource definition to <code>server.xml</code>. Edit the file <code>[TOMCAT_HOME]/conf/server.xml</code>. Inside the <globalnamingresources> tag add the following replacing values appropriately.<br/>
-<code>&lt;Resource name="jdbc/watsDS" auth="Container"
-            type="javax.sql.DataSource"
-            maxActive="100" maxIdle="30" maxWait="10000"
-            username="admin"  password="replace_password_here"
-            driverClassName="com.mysql.jdbc.Driver"
-            url="jdbc:mysql://replace_host_name_here:3306/replace_db_name_here?autoReconnect=true" /&gt;</code></globalnamingresources></li>
-<li>Add Datasource definition to context.xml. Edit the file [TOMCAT_HOME]/conf/context.xml. Inside the <context> tag add the following:<br/>
-<code>&lt;ResourceLink global='jdbc/watsDS' name='jdbc/watsDS'
-            type="javax.sql.Datasource" /&gt;</code></context></li>
-</ul>
-</div>
-<div class="tabbed-block">
-<p>Agents will typically run on separate machines. The default is <code>4000</code> users per agent but that number can be adjusted by editing the <code>run.sh</code> script.</p>
-<ul>
-<li>Upload the agent standalone zip file <code>PROJECT_ROOT/agent/agent_standalone_pkg/target/agent-standalone-pkg.zip</code></li>
-<li>unzip the file <code>unzip agent-standalone-pkg.zip</code></li>
-<li>Read the <code>README.txt</code> for further instructions.</li>
-</ul>
-</div>
-</div>
-</div>
-</details>
-<h2 id="deployment-strategy">Deployment Strategy</h2>
-<p>Build the project from the root using the release profile.</p>
-<p><code>mvn clean install -P release</code></p>
-<p>Deployment is currently done uploading the war to the TOMCAT_HOME/webapps directory and restarting the server.</p>
-<p>Deployment can also be done via Cloudformation scripts that create new controller resources and then switching the load balancer to point at the new resource. This is the preferred method as it requires no downtime.</p>
-<h2 id="configuration">Configuration</h2>
-<p>Configuration is achieved via an XML file called <code>settings.xml</code>. The default is <code>[TOMCAT_HOME]/settings.xml</code>. The directory location can be specified by setting the environment variable <code>WATS_PROPERTIES</code>.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<ul>
-<li>To get the default settings file, start the server and then stop it. If the <code>settings.xml</code> file is not available, the default settings will be created. You can then edit it.</li>
-<li>This configuration file is broken into several different sections. Each section is independent of the other sections and can occur in any order within the document.</li>
-<li>Relative paths are from the <code>tomcat</code> home.</li>
-</ul>
-</div>
-<h3 id="configuration-entries">Configuration Entries</h3>
-<details class="abstract">
-<summary>Configuration Entries</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:4"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio"/><input id="__tabbed_5_2" name="__tabbed_5" type="radio"/><input id="__tabbed_5_3" name="__tabbed_5" type="radio"/><input id="__tabbed_5_4" name="__tabbed_5" type="radio"/><div class="tabbed-labels"><label for="__tabbed_5_1">Global Configuration Entries</label><label for="__tabbed_5_2">Agent Configuration Entries</label><label for="__tabbed_5_3">VM Manager Entries</label><label for="__tabbed_5_4">Security and Access control Entries</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>    <span class="cm">&lt;!-- The server side storage directory for datafiles. </span>
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-data-files --&gt;</span>
-<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>        <span class="nt">&lt;data-file-storage&gt;</span>datafiles<span class="nt">&lt;/data-file-storage&gt;</span>
-<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>
-<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>        <span class="cm">&lt;!-- The server side storage directory for timing data.</span>
-<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-timing-files --&gt;</span>
-<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>        <span class="nt">&lt;timing-file-storage&gt;</span>timing<span class="nt">&lt;/timing-file-storage&gt;</span>
-<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>
-<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>        <span class="cm">&lt;!-- The server side storage directory for agent files to be sent to agents. All files in this directory will be sent to each agent.</span>
-<a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="cm">        to override the default agent startup behavior, include a start_wats.sh script with modifications.</span>
-<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="cm">        Can be an absolute or relative path or an s3 bucket by prefixing a bucket with s3: e.g. s3:tank-agent-supports --&gt;</span>
-<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>        <span class="nt">&lt;jar-file-storage&gt;</span>jars<span class="nt">&lt;/jar-file-storage&gt;</span>
-<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>
-<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>        <span class="cm">&lt;!-- The server side storage directory for temp script files. must be local file system. --&gt;</span>
-<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>        <span class="nt">&lt;tmp-file-storage&gt;</span>tmpfiles<span class="nt">&lt;/tmp-file-storage&gt;</span>
-<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>
-<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="cm">&lt;!-- name of this instance (no spaces). used in timing table names. --&gt;</span>
-<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>        <span class="nt">&lt;instance-name&gt;</span>tank<span class="nt">&lt;/instance-name&gt;</span>
-<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>
-<a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="cm">&lt;!-- The baseUrl for the controller. Must include the context e.g. tank) --&gt;</span>
-<a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>        <span class="nt">&lt;controller-base-url&gt;</span>http://localhost:8080/tank<span class="nt">&lt;/controller-base-url&gt;</span>
-<a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>
-<a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="cm">&lt;!-- if this instance is a standalone instance and should not start agents automatically. --&gt;</span>
-<a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>        <span class="nt">&lt;standalone&gt;</span>false<span class="nt">&lt;/standalone&gt;</span>
-<a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>
-<a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="cm">&lt;!-- if this rest calls require authentication using api key or username/password or logged in via session --&gt;</span>
-<a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>        <span class="nt">&lt;rest-security-enabled&gt;</span>true<span class="nt">&lt;/rest-security-enabled&gt;</span>
-<a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>
-<a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="cm">&lt;!-- Products that can be selected by users for categorization --&gt;</span>
-<a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="nt">&lt;products&gt;</span>
-<a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">""</span><span class="nt">&gt;</span>All Products<span class="nt">&lt;/product&gt;</span>
-<a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="nt">&lt;product</span> <span class="na">name=</span><span class="s">"MyProduct"</span><span class="nt">&gt;</span>My Product<span class="nt">&lt;/product&gt;</span>
-<a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="nt">&lt;/products&gt;</span>
-<a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a>
-<a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="cm">&lt;!-- Locations used for informational purposes only. --&gt;</span>
-<a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="nt">&lt;locations&gt;</span>
-<a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">"unspecified"</span> <span class="na">displayName=</span><span class="s">"Unspecified"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>        <span class="nt">&lt;location</span> <span class="na">name=</span><span class="s">"san_diego"</span> <span class="na">displayName=</span><span class="s">"San Diego\, CA"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="nt">&lt;/locations&gt;</span>
-<a href="#__codelineno-0-40" id="__codelineno-0-40" name="__codelineno-0-40"></a>
-<a href="#__codelineno-0-41" id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="cm">&lt;!-- mail configuration for notifications --&gt;</span>
-<a href="#__codelineno-0-42" id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="nt">&lt;mail&gt;</span>
-<a href="#__codelineno-0-43" id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="nt">&lt;mail.smtp.host&gt;</span>localhost<span class="nt">&lt;/mail.smtp.host&gt;</span>
-<a href="#__codelineno-0-44" id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="nt">&lt;mail.smtp.port&gt;</span>25<span class="nt">&lt;/mail.smtp.port&gt;</span>
-<a href="#__codelineno-0-45" id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="nt">&lt;from-email&gt;</span>do_not_reply@myCompany.com<span class="nt">&lt;/from-email&gt;</span>
-<a href="#__codelineno-0-46" id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="nt">&lt;/mail&gt;</span>
-<a href="#__codelineno-0-47" id="__codelineno-0-47" name="__codelineno-0-47"></a>
-<a href="#__codelineno-0-48" id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="nt">&lt;reporting&gt;</span>
-<a href="#__codelineno-0-49" id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="nt">&lt;provider&gt;</span>
-<a href="#__codelineno-0-50" id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="cm">&lt;!-- Reporter that uses key value database. currently DynamoDB --&gt;</span>
-<a href="#__codelineno-0-51" id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReporter<span class="nt">&lt;/reporter&gt;</span>
-<a href="#__codelineno-0-52" id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.db.DatabaseResultsReader<span class="nt">&lt;/reader&gt;</span>
-<a href="#__codelineno-0-53" id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="nt">&lt;config&gt;&lt;/config&gt;</span>
-<a href="#__codelineno-0-54" id="__codelineno-0-54" name="__codelineno-0-54"></a>
-<a href="#__codelineno-0-55" id="__codelineno-0-55" name="__codelineno-0-55"></a>        <span class="nt">&lt;/provider&gt;</span>
-<a href="#__codelineno-0-56" id="__codelineno-0-56" name="__codelineno-0-56"></a>
-<a href="#__codelineno-0-57" id="__codelineno-0-57" name="__codelineno-0-57"></a>        <span class="cm">&lt;!-- Use this for Rest reporting directly to the controller. </span>
-<a href="#__codelineno-0-58" id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="cm">        Only for standalone or all in one. will over tax the controller if used for large load --&gt;</span>
-<a href="#__codelineno-0-59" id="__codelineno-0-59" name="__codelineno-0-59"></a>        <span class="cm">&lt;!-- &lt;provider&gt;</span>
-<a href="#__codelineno-0-60" id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="cm">        &lt;reporter&gt;com.intuit.tank.reporting.rest.RestResultsReporter&lt;/reporter&gt;</span>
-<a href="#__codelineno-0-61" id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="cm">        &lt;reader&gt;com.intuit.tank.reporting.rest.RestResultsReader&lt;/reader&gt;</span>
-<a href="#__codelineno-0-62" id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="cm">        &lt;/provider&gt; --&gt;</span>
-<a href="#__codelineno-0-63" id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="nt">&lt;/reporting&gt;</span>
+<h3 id="upgrading">Upgrading</h3>
+<p>Build the new war, replace <code>ROOT.war</code> and restart Tomcat. Tank updates the database schema on startup.</p>
+<p>Agents keep running while the controller restarts. With <code>command-ws-enabled</code> set to <code>true</code> and <code>agent-readoption-enabled</code> set to a number of seconds, the restarted controller finds running agents by their <code>Controller</code> and <code>JobId</code> EC2 tags and reconnects to them.</p>
+<h2 id="standalone-deployment">Standalone deployment</h2>
+<p>In standalone mode the controller doesn't start EC2 instances. Instead, standalone agents that you run yourself register with the controller and wait for work. Use it for small tests or where you can't use EC2.</p>
+<ol>
+<li>Install the controller and database as above.</li>
+<li>
+<p>In <code>settings.xml</code>, set <code>&lt;standalone&gt;true&lt;/standalone&gt;</code>. For small tests you can also send results straight to the controller with the REST reporter, as the all-in-one settings file (<code>assets/settings-all-in-one.xml</code>) does:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-8-1" id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="nt">&lt;reporting&gt;</span>
+<a href="#__codelineno-8-2" id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="w">  </span><span class="nt">&lt;provider&gt;</span>
+<a href="#__codelineno-8-3" id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="w">    </span><span class="nt">&lt;reporter&gt;</span>com.intuit.tank.reporting.rest.RestResultsReporter<span class="nt">&lt;/reporter&gt;</span>
+<a href="#__codelineno-8-4" id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="w">    </span><span class="nt">&lt;reader&gt;</span>com.intuit.tank.reporting.rest.RestResultsReader<span class="nt">&lt;/reader&gt;</span>
+<a href="#__codelineno-8-5" id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="w">  </span><span class="nt">&lt;/provider&gt;</span>
+<a href="#__codelineno-8-6" id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="nt">&lt;/reporting&gt;</span>
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>    <span class="nt">&lt;agent-config&gt;</span>
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>        <span class="cm">&lt;!-- Times used when calculating estimated run time --&gt;</span>
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>        <span class="nt">&lt;duration-simulation&gt;</span>
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"post"</span> <span class="na">min=</span><span class="s">"500"</span> <span class="na">max=</span><span class="s">"1000"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"get"</span> <span class="na">min=</span><span class="s">"50"</span> <span class="na">max=</span><span class="s">"300"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>            <span class="nt">&lt;simulation</span> <span class="na">for=</span><span class="s">"process"</span> <span class="na">min=</span><span class="s">"10"</span> <span class="na">max=</span><span class="s">"50"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>        <span class="nt">&lt;/duration-simulation&gt;</span>
-<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>
-<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>        <span class="cm">&lt;!-- Where to store csv files on the agent --&gt;</span>
-<a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a>        <span class="nt">&lt;agent-data-file-storage&gt;</span>/tmp<span class="nt">&lt;/agent-data-file-storage&gt;</span>
-<a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a>
-<a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a>        <span class="cm">&lt;!-- port that controller talks to agent on --&gt;</span>
-<a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a>        <span class="nt">&lt;agent-http-port&gt;</span>8090<span class="nt">&lt;/agent-http-port&gt;</span>
-<a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a>
-<a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a>        <span class="cm">&lt;!-- Max size of response body to log on error --&gt;</span>
-<a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a>        <span class="nt">&lt;max-body-report-size&gt;</span>5000<span class="nt">&lt;/max-body-report-size&gt;</span>
-<a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a>
-<a href="#__codelineno-1-18" id="__codelineno-1-18" name="__codelineno-1-18"></a>        <span class="cm">&lt;!-- time to wait before re-establishing ssl --&gt;</span>
-<a href="#__codelineno-1-19" id="__codelineno-1-19" name="__codelineno-1-19"></a>        <span class="nt">&lt;ssl-timeout&gt;</span>360000<span class="nt">&lt;/ssl-timeout&gt;</span>
-<a href="#__codelineno-1-20" id="__codelineno-1-20" name="__codelineno-1-20"></a>
-<a href="#__codelineno-1-21" id="__codelineno-1-21" name="__codelineno-1-21"></a>        <span class="cm">&lt;!-- connection timeout setting. set to zero to not have a timeout --&gt;</span>
-<a href="#__codelineno-1-22" id="__codelineno-1-22" name="__codelineno-1-22"></a>        <span class="nt">&lt;connection-timeout&gt;</span>15000<span class="nt">&lt;/connection-timeout&gt;</span>
-<a href="#__codelineno-1-23" id="__codelineno-1-23" name="__codelineno-1-23"></a>
-<a href="#__codelineno-1-24" id="__codelineno-1-24" name="__codelineno-1-24"></a>        <span class="nt">&lt;status_report_interval_milis&gt;</span>30000<span class="nt">&lt;/status_report_interval_milis&gt;</span>
-<a href="#__codelineno-1-25" id="__codelineno-1-25" name="__codelineno-1-25"></a>
-<a href="#__codelineno-1-26" id="__codelineno-1-26" name="__codelineno-1-26"></a>        <span class="cm">&lt;!-- Max response time before waiting additional time between requests. (in ms.) --&gt;</span>
-<a href="#__codelineno-1-27" id="__codelineno-1-27" name="__codelineno-1-27"></a>        <span class="nt">&lt;max-response-time&gt;</span>5000<span class="nt">&lt;/max-response-time&gt;</span>
-<a href="#__codelineno-1-28" id="__codelineno-1-28" name="__codelineno-1-28"></a>
-<a href="#__codelineno-1-29" id="__codelineno-1-29" name="__codelineno-1-29"></a>        <span class="cm">&lt;!-- Max time to wait if if response was too slow. Helps prevent backups if server is running too slow. (in ms.) --&gt;</span>
-<a href="#__codelineno-1-30" id="__codelineno-1-30" name="__codelineno-1-30"></a>        <span class="nt">&lt;max-failed-wait-time&gt;</span>180000<span class="nt">&lt;/max-failed-wait-time&gt;</span>
-<a href="#__codelineno-1-31" id="__codelineno-1-31" name="__codelineno-1-31"></a>
-<a href="#__codelineno-1-32" id="__codelineno-1-32" name="__codelineno-1-32"></a>        <span class="cm">&lt;!-- Max amount of time after simulation time to run the test. --&gt;</span>
-<a href="#__codelineno-1-33" id="__codelineno-1-33" name="__codelineno-1-33"></a>        <span class="nt">&lt;over-simulation-max-time&gt;</span>7200000<span class="nt">&lt;/over-simulation-max-time&gt;</span>
-<a href="#__codelineno-1-34" id="__codelineno-1-34" name="__codelineno-1-34"></a>
-<a href="#__codelineno-1-35" id="__codelineno-1-35" name="__codelineno-1-35"></a>        <span class="cm">&lt;!-- set to true to log each post request. --&gt;</span>
-<a href="#__codelineno-1-36" id="__codelineno-1-36" name="__codelineno-1-36"></a>        <span class="nt">&lt;log-post-request&gt;</span>false<span class="nt">&lt;/log-post-request&gt;</span>
-<a href="#__codelineno-1-37" id="__codelineno-1-37" name="__codelineno-1-37"></a>
-<a href="#__codelineno-1-38" id="__codelineno-1-38" name="__codelineno-1-38"></a>        <span class="cm">&lt;!-- set to true to log each post response. --&gt;</span>
-<a href="#__codelineno-1-39" id="__codelineno-1-39" name="__codelineno-1-39"></a>        <span class="nt">&lt;log-post-response&gt;</span>false<span class="nt">&lt;/log-post-response&gt;</span>
-<a href="#__codelineno-1-40" id="__codelineno-1-40" name="__codelineno-1-40"></a>
-<a href="#__codelineno-1-41" id="__codelineno-1-41" name="__codelineno-1-41"></a>        <span class="cm">&lt;!-- set to true to log each variable set or unset. --&gt;</span>
-<a href="#__codelineno-1-42" id="__codelineno-1-42" name="__codelineno-1-42"></a>        <span class="nt">&lt;log-variables&gt;</span>false<span class="nt">&lt;/log-variables&gt;</span>
-<a href="#__codelineno-1-43" id="__codelineno-1-43" name="__codelineno-1-43"></a>
-<a href="#__codelineno-1-44" id="__codelineno-1-44" name="__codelineno-1-44"></a>        <span class="cm">&lt;!-- Mime type rgex for logging of response body on error. --&gt;</span>
-<a href="#__codelineno-1-45" id="__codelineno-1-45" name="__codelineno-1-45"></a>        <span class="nt">&lt;valid-mime-types&gt;</span>
-<a href="#__codelineno-1-46" id="__codelineno-1-46" name="__codelineno-1-46"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*text.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a href="#__codelineno-1-47" id="__codelineno-1-47" name="__codelineno-1-47"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*json.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a href="#__codelineno-1-48" id="__codelineno-1-48" name="__codelineno-1-48"></a>            <span class="nt">&lt;mime-type-regex&gt;</span>.*xml.*<span class="nt">&lt;/mime-type-regex&gt;</span>
-<a href="#__codelineno-1-49" id="__codelineno-1-49" name="__codelineno-1-49"></a>        <span class="nt">&lt;/valid-mime-types&gt;</span>
-<a href="#__codelineno-1-50" id="__codelineno-1-50" name="__codelineno-1-50"></a>
-<a href="#__codelineno-1-51" id="__codelineno-1-51" name="__codelineno-1-51"></a>        <span class="cm">&lt;!-- add any headers that should be added to each request --&gt;</span>
-<a href="#__codelineno-1-52" id="__codelineno-1-52" name="__codelineno-1-52"></a>        <span class="nt">&lt;request-headers&gt;</span>
-<a href="#__codelineno-1-53" id="__codelineno-1-53" name="__codelineno-1-53"></a>            <span class="nt">&lt;header</span> <span class="na">key=</span><span class="s">"test_flag"</span><span class="nt">&gt;</span>test_flag<span class="nt">&lt;/header&gt;</span>
-<a href="#__codelineno-1-54" id="__codelineno-1-54" name="__codelineno-1-54"></a>        <span class="nt">&lt;/request-headers&gt;</span>
-<a href="#__codelineno-1-55" id="__codelineno-1-55" name="__codelineno-1-55"></a>
-<a href="#__codelineno-1-56" id="__codelineno-1-56" name="__codelineno-1-56"></a>        <span class="cm">&lt;!-- configured TankHttpClients. --&gt;</span>
-<a href="#__codelineno-1-57" id="__codelineno-1-57" name="__codelineno-1-57"></a>        <span class="nt">&lt;tank-http-clients&gt;</span>
-<a href="#__codelineno-1-58" id="__codelineno-1-58" name="__codelineno-1-58"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"Apache HttpClient 3.1"</span><span class="nt">&gt;</span>com.intuit.tank.httpclient3.TankHttpClient3<span class="nt">&lt;/tank-client&gt;</span>
-<a href="#__codelineno-1-59" id="__codelineno-1-59" name="__codelineno-1-59"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"Apache HttpClient 4.5"</span><span class="nt">&gt;</span>com.intuit.tank.httpclient4.TankHttpClient4<span class="nt">&lt;/tank-client&gt;</span>
-<a href="#__codelineno-1-60" id="__codelineno-1-60" name="__codelineno-1-60"></a>            <span class="nt">&lt;tank-client</span> <span class="na">name=</span><span class="s">"OkHttp Client 2.5"</span><span class="nt">&gt;</span>com.intuit.tank.okhttpclient.TankOkHttpClient<span class="nt">&lt;/tank-client&gt;</span>
-<a href="#__codelineno-1-61" id="__codelineno-1-61" name="__codelineno-1-61"></a>        <span class="nt">&lt;/tank-http-clients&gt;</span>
-<a href="#__codelineno-1-62" id="__codelineno-1-62" name="__codelineno-1-62"></a>        <span class="nt">&lt;default-tank-client&gt;</span>Apache HttpClient 4.5<span class="nt">&lt;/default-tank-client&gt;</span>
-<a href="#__codelineno-1-63" id="__codelineno-1-63" name="__codelineno-1-63"></a>
-<a href="#__codelineno-1-64" id="__codelineno-1-64" name="__codelineno-1-64"></a>        <span class="nt">&lt;/agent-config&gt;</span>            
+<p>The REST reporter sends every result through the controller, so don't use it for large tests.</p>
+</li>
+<li>
+<p>Set an <code>agent-token</code> in <code>settings.xml</code>. Standalone agents need a token to start.</p>
+</li>
+<li>
+<p>On each agent machine, unzip <code>agent-standalone-pkg.zip</code> and start the agent:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-9-1" id="__codelineno-9-1" name="__codelineno-9-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>agent-standalone-all.jar<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-9-2" id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="w">  </span>-controller<span class="o">=</span>http://&lt;controller-host&gt;:8080<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-9-3" id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="w">  </span>-token<span class="o">=</span>&lt;agent-token&gt;<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-9-4" id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="w">  </span>-host<span class="o">=</span>&lt;this-machine<span class="err">'</span>s-address&gt;<span class="w"> </span><span class="se">\</span>
+<a href="#__codelineno-9-5" id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="w">  </span>-capacity<span class="o">=</span><span class="m">4000</span>
 </code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-controller</code></td>
+<td>Required. The controller's base URL.</td>
+</tr>
+<tr>
+<td><code>-token</code></td>
+<td>Required. The <code>agent-token</code> from <code>settings.xml</code>, or a user API token.</td>
+</tr>
+<tr>
+<td><code>-host</code></td>
+<td>The address the controller uses to reach this agent. Optional if the agent can work it out.</td>
+</tr>
+<tr>
+<td><code>-capacity</code></td>
+<td>The number of users this agent can run. Defaults to 4000.</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<p>The agent listens on TCP 1090 for the controller, so open that port to the controller. It reports its availability every five minutes. When it gets a job, it downloads the settings and support files into <code>/opt/tank_agent</code> (create that folder and make it writable by the agent's user) and runs <code>./startAgent.sh</code> from its working directory.</p>
+<p>When you start a test, the controller picks available standalone agents with enough total capacity for the test's users. If there isn't enough capacity, the job is aborted.</p>
+<div class="admonition warning">
+<p class="admonition-title">Standalone package not verified end to end</p>
+<p>The <code>run.sh</code> and <code>README.txt</code> in the standalone package predate the required <code>-token</code> option, so <code>run.sh</code> as shipped exits with a usage message. The package also ships <code>start_wats.sh</code> rather than the <code>startAgent.sh</code> that the agent runs. Check both before you rely on standalone agents.</p>
 </div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a>    <span class="nt">&lt;vm-manager&gt;</span>
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a>        <span class="nt">&lt;default-region&gt;</span>US_EAST<span class="nt">&lt;/default-region&gt;</span>
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>        <span class="cm">&lt;!-- &lt;default-region&gt;US_WEST_1&lt;/default-region&gt; --&gt;</span>
-<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>        <span class="cm">&lt;!-- set to true to default use of available eips for agents --&gt;</span>
-<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>        <span class="nt">&lt;use-agent-elastic-ips&gt;</span>false<span class="nt">&lt;/use-agent-elastic-ips&gt;</span>
-<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>        <span class="cm">&lt;!-- reserved eips will not be used --&gt;</span>
-<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>        <span class="nt">&lt;reserved-elastic-ips&gt;</span>
-<a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a>            <span class="cm">&lt;!-- &lt;eip&gt;0.0.0.0&lt;/eip&gt; --&gt;</span>
-<a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>        <span class="nt">&lt;/reserved-elastic-ips&gt;</span>
-<a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>
-<a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a>        <span class="cm">&lt;!-- Default instance description items. can be overridden in instance descriptions. --&gt;</span>
-<a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="nt">&lt;default-instance-description&gt;</span>
-<a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a>            <span class="nt">&lt;security-group&gt;</span>security_group<span class="nt">&lt;/security-group&gt;</span>
-<a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a>            <span class="nt">&lt;keypair&gt;</span>myKey<span class="nt">&lt;/keypair&gt;</span>
-<a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a>            <span class="nt">&lt;reuse-instances&gt;</span>false<span class="nt">&lt;/reuse-instances&gt;</span>
-<a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a>        <span class="nt">&lt;/default-instance-description&gt;</span>
-<a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a>
-<a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a>        <span class="cm">&lt;!-- Credentials for the cloud provider. It is recommended that users us IAM Roles for accessing services insead of embedding AWS keys --&gt;</span>
-<a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a>        <span class="nt">&lt;credentials</span> <span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a>        <span class="cm">&lt;!-- Set credentials via system or java properties. --&gt;</span>
-<a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a>            <span class="nt">&lt;secret-key-id-property&gt;</span>AWS_SECRET_KEY_ID<span class="nt">&lt;/secret-key-id-property&gt;</span>
-<a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a>            <span class="nt">&lt;secret-key-property&gt;</span>AWS_SECRET_KEY<span class="nt">&lt;/secret-key-property&gt;</span>
-<a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a>            <span class="cm">&lt;!-- Set if you want to specifiy credentials directly here. less secure! --&gt;</span>
-<a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a>            <span class="cm">&lt;!-- </span>
-<a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="cm">            &lt;secret-key-id&gt;[AWS_SECRET_KEY_ID]&lt;/secret-key-id&gt;</span>
-<a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a><span class="cm">            &lt;secret-key&gt;[AWS_SECRET_KEY]&lt;/secret-key&gt;</span>
-<a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="cm">            --&gt;</span>
-<a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a>            <span class="cm">&lt;!-- Set if you need a proxy to talk to amazon services --&gt;</span>
-<a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a>            <span class="cm">&lt;!-- </span>
-<a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="cm">            &lt;proxy-host&gt;&lt;/proxy-host&gt;</span>
-<a href="#__codelineno-2-36" id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="cm">            &lt;proxy-port&gt;80&lt;/proxy-port&gt;</span>
-<a href="#__codelineno-2-37" id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="cm">            --&gt;</span>
-<a href="#__codelineno-2-38" id="__codelineno-2-38" name="__codelineno-2-38"></a>        <span class="nt">&lt;/credentials&gt;</span>
-<a href="#__codelineno-2-39" id="__codelineno-2-39" name="__codelineno-2-39"></a>
-<a href="#__codelineno-2-40" id="__codelineno-2-40" name="__codelineno-2-40"></a>        <span class="cm">&lt;!-- Instance descriptions for regions --&gt;</span>
-<a href="#__codelineno-2-41" id="__codelineno-2-41" name="__codelineno-2-41"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">"US_WEST_1"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-42" id="__codelineno-2-42" name="__codelineno-2-42"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">"AGENT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-43" id="__codelineno-2-43" name="__codelineno-2-43"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
-<a href="#__codelineno-2-44" id="__codelineno-2-44" name="__codelineno-2-44"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
-<a href="#__codelineno-2-45" id="__codelineno-2-45" name="__codelineno-2-45"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a href="#__codelineno-2-46" id="__codelineno-2-46" name="__codelineno-2-46"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a href="#__codelineno-2-47" id="__codelineno-2-47" name="__codelineno-2-47"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a href="#__codelineno-2-48" id="__codelineno-2-48" name="__codelineno-2-48"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a href="#__codelineno-2-49" id="__codelineno-2-49" name="__codelineno-2-49"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a href="#__codelineno-2-50" id="__codelineno-2-50" name="__codelineno-2-50"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
-<a href="#__codelineno-2-51" id="__codelineno-2-51" name="__codelineno-2-51"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
-<a href="#__codelineno-2-52" id="__codelineno-2-52" name="__codelineno-2-52"></a>
-<a href="#__codelineno-2-53" id="__codelineno-2-53" name="__codelineno-2-53"></a>        <span class="nt">&lt;instance-descriptions</span> <span class="na">region=</span><span class="s">"US_EAST"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-54" id="__codelineno-2-54" name="__codelineno-2-54"></a>            <span class="nt">&lt;instance-descripion</span> <span class="na">name=</span><span class="s">"AGENT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-55" id="__codelineno-2-55" name="__codelineno-2-55"></a>            <span class="nt">&lt;ami&gt;</span>[AMI-ID]<span class="nt">&lt;/ami&gt;</span>
-<a href="#__codelineno-2-56" id="__codelineno-2-56" name="__codelineno-2-56"></a>            <span class="nt">&lt;keypair&gt;</span>[KEYPAIR]<span class="nt">&lt;/keypair&gt;</span>
-<a href="#__codelineno-2-57" id="__codelineno-2-57" name="__codelineno-2-57"></a>            <span class="cm">&lt;!--  if using roles. recommended over using security keys --&gt;</span>
-<a href="#__codelineno-2-58" id="__codelineno-2-58" name="__codelineno-2-58"></a>            <span class="cm">&lt;!-- &lt;iam-role&gt;role&lt;/iam-role&gt; --&gt;</span>
-<a href="#__codelineno-2-59" id="__codelineno-2-59" name="__codelineno-2-59"></a>            <span class="cm">&lt;!--  optional if running ni a subnet in a vpc, use the subnetIds --&gt;</span>
-<a href="#__codelineno-2-60" id="__codelineno-2-60" name="__codelineno-2-60"></a>            <span class="cm">&lt;!-- &lt;vpc-subnet&gt;subnet-472b9f30&lt;/vpc-subnet&gt;</span>
-<a href="#__codelineno-2-61" id="__codelineno-2-61" name="__codelineno-2-61"></a><span class="cm">            &lt;security-group-ids&gt;sg-1234aaa, sg-1234bbb&lt;/security-group-ids&gt; --&gt;</span>
-<a href="#__codelineno-2-62" id="__codelineno-2-62" name="__codelineno-2-62"></a>            <span class="nt">&lt;/instance-descripion&gt;</span>
-<a href="#__codelineno-2-63" id="__codelineno-2-63" name="__codelineno-2-63"></a>        <span class="nt">&lt;/instance-descriptions&gt;</span>
-<a href="#__codelineno-2-64" id="__codelineno-2-64" name="__codelineno-2-64"></a>
-<a href="#__codelineno-2-65" id="__codelineno-2-65" name="__codelineno-2-65"></a>        <span class="cm">&lt;!-- allowed instance types and their costs. update costs as necessary --&gt;</span>
-<a href="#__codelineno-2-66" id="__codelineno-2-66" name="__codelineno-2-66"></a>        <span class="nt">&lt;instance-types</span> <span class="na">type=</span><span class="s">"amazon"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-2-67" id="__codelineno-2-67" name="__codelineno-2-67"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.large"</span> <span class="na">cost=</span><span class="s">".105"</span> <span class="na">users=</span><span class="s">"500"</span> <span class="na">cpus=</span><span class="s">"2"</span> <span class="na">ecus=</span><span class="s">"7"</span> <span class="na">mem=</span><span class="s">"3.75"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms2560m -Xmx2560m"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-2-68" id="__codelineno-2-68" name="__codelineno-2-68"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.xlarge"</span> <span class="na">cost=</span><span class="s">".21"</span> <span class="na">users=</span><span class="s">"2000"</span> <span class="na">cpus=</span><span class="s">"4"</span> <span class="na">ecus=</span><span class="s">"14"</span> <span class="na">mem=</span><span class="s">"7.5"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms6g -Xmx6g"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-2-69" id="__codelineno-2-69" name="__codelineno-2-69"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.2xlarge"</span> <span class="na">cost=</span><span class="s">".42"</span> <span class="na">users=</span><span class="s">"4000"</span> <span class="na">cpus=</span><span class="s">"8"</span> <span class="na">ecus=</span><span class="s">"28"</span> <span class="na">mem=</span><span class="s">"15"</span> <span class="na">default=</span><span class="s">"true"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms12g -Xmx12g"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-2-70" id="__codelineno-2-70" name="__codelineno-2-70"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.4xlarge"</span> <span class="na">cost=</span><span class="s">".84"</span> <span class="na">users=</span><span class="s">"8000"</span> <span class="na">cpus=</span><span class="s">"16"</span> <span class="na">ecus=</span><span class="s">"55"</span> <span class="na">mem=</span><span class="s">"30"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms125g -Xmx25g"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-2-71" id="__codelineno-2-71" name="__codelineno-2-71"></a>            <span class="nt">&lt;type</span> <span class="na">name=</span><span class="s">"c3.8xlarge"</span> <span class="na">cost=</span><span class="s">"1.68"</span> <span class="na">users=</span><span class="s">"16000"</span> <span class="na">cpus=</span><span class="s">"32"</span> <span class="na">ecus=</span><span class="s">"108"</span> <span class="na">mem=</span><span class="s">"60"</span> <span class="na">jvmArgs=</span><span class="s">"-Xms50g -Xmx50g"</span> <span class="nt">/&gt;</span>
-<a href="#__codelineno-2-72" id="__codelineno-2-72" name="__codelineno-2-72"></a>        <span class="nt">&lt;/instance-types&gt;</span>
-<a href="#__codelineno-2-73" id="__codelineno-2-73" name="__codelineno-2-73"></a>
-<a href="#__codelineno-2-74" id="__codelineno-2-74" name="__codelineno-2-74"></a>        <span class="cm">&lt;!-- watchdog is used to check if all agents start correctly. --&gt;</span>
-<a href="#__codelineno-2-75" id="__codelineno-2-75" name="__codelineno-2-75"></a>        <span class="nt">&lt;watchdog&gt;</span>
-<a href="#__codelineno-2-76" id="__codelineno-2-76" name="__codelineno-2-76"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to start before restarting --&gt;</span>
-<a href="#__codelineno-2-77" id="__codelineno-2-77" name="__codelineno-2-77"></a>            <span class="nt">&lt;max-time-for-agent-start&gt;</span>3m<span class="nt">&lt;/max-time-for-agent-start&gt;</span>
-<a href="#__codelineno-2-78" id="__codelineno-2-78" name="__codelineno-2-78"></a>            <span class="cm">&lt;!-- The maximum amount of time to wait for the agents to report to the controller before restarting --&gt;</span>
-<a href="#__codelineno-2-79" id="__codelineno-2-79" name="__codelineno-2-79"></a>            <span class="nt">&lt;max-time-for-agent-report&gt;</span>5m<span class="nt">&lt;/max-time-for-agent-report&gt;</span>
-<a href="#__codelineno-2-80" id="__codelineno-2-80" name="__codelineno-2-80"></a>            <span class="cm">&lt;!-- the maximum number of restarts before stopping test --&gt;</span>
-<a href="#__codelineno-2-81" id="__codelineno-2-81" name="__codelineno-2-81"></a>            <span class="nt">&lt;max-restarts&gt;</span>2<span class="nt">&lt;/max-restarts&gt;</span>
-<a href="#__codelineno-2-82" id="__codelineno-2-82" name="__codelineno-2-82"></a>            <span class="cm">&lt;!-- The amount of time to wait between checking for agent start --&gt;</span>
-<a href="#__codelineno-2-83" id="__codelineno-2-83" name="__codelineno-2-83"></a>            <span class="nt">&lt;sleep-time-between-check&gt;</span>30s<span class="nt">&lt;/sleep-time-between-check&gt;</span>
-<a href="#__codelineno-2-84" id="__codelineno-2-84" name="__codelineno-2-84"></a>        <span class="nt">&lt;/watchdog&gt;</span>
-<a href="#__codelineno-2-85" id="__codelineno-2-85" name="__codelineno-2-85"></a>
-<a href="#__codelineno-2-86" id="__codelineno-2-86" name="__codelineno-2-86"></a>        <span class="cm">&lt;!--Configure the results database implementation if reporting is configured via com.intuit.tank.reporting.db.DatabaseResultsReporter --&gt;</span>
-<a href="#__codelineno-2-87" id="__codelineno-2-87" name="__codelineno-2-87"></a>        <span class="nt">&lt;results&gt;</span>
-<a href="#__codelineno-2-88" id="__codelineno-2-88" name="__codelineno-2-88"></a>        <span class="nt">&lt;config&gt;</span>
-<a href="#__codelineno-2-89" id="__codelineno-2-89" name="__codelineno-2-89"></a>            <span class="nt">&lt;write-capacity&gt;</span>50<span class="nt">&lt;/write-capacity&gt;</span>
-<a href="#__codelineno-2-90" id="__codelineno-2-90" name="__codelineno-2-90"></a>            <span class="nt">&lt;read-capacity&gt;</span>10<span class="nt">&lt;/read-capacity&gt;</span>
-<a href="#__codelineno-2-91" id="__codelineno-2-91" name="__codelineno-2-91"></a>        <span class="nt">&lt;/config&gt;</span>
-<a href="#__codelineno-2-92" id="__codelineno-2-92" name="__codelineno-2-92"></a>        <span class="nt">&lt;provider&gt;</span>com.intuit.tank.persistence.databases.AmazonDynamoDatabaseDocApi<span class="nt">&lt;/provider&gt;</span>
-<a href="#__codelineno-2-93" id="__codelineno-2-93" name="__codelineno-2-93"></a>        <span class="cm">&lt;!-- &lt;provider&gt;com.intuit.tank.persistence.databases.AmazonSimpleDatabase&lt;/provider&gt; --&gt;</span>
-<a href="#__codelineno-2-94" id="__codelineno-2-94" name="__codelineno-2-94"></a>        <span class="nt">&lt;/results&gt;</span>
-<a href="#__codelineno-2-95" id="__codelineno-2-95" name="__codelineno-2-95"></a>
-<a href="#__codelineno-2-96" id="__codelineno-2-96" name="__codelineno-2-96"></a>        <span class="nt">&lt;/vm-manager&gt;</span>        
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>    <span class="nt">&lt;security&gt;</span>
-<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a>        <span class="cm">&lt;!-- groups that can be assigned to users. set isDefault to tru to have these selected when creating new users --&gt;</span>
-<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>        <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>            <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>            <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>            <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>            <span class="nt">&lt;group</span> <span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">&gt;</span>guest<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>        <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>        <span class="cm">&lt;!-- restrictions set which groups can perform which actions. --&gt;</span>
-<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>        <span class="nt">&lt;restrictions&gt;</span>
-<a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a>            <span class="cm">&lt;!-- Project permissions --&gt;</span>
-<a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_PROJECT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_PROJECT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_PROJECT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-30" id="__codelineno-3-30" name="__codelineno-3-30"></a>            <span class="cm">&lt;!-- Script permissions --&gt;</span>
-<a href="#__codelineno-3-31" id="__codelineno-3-31" name="__codelineno-3-31"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_SCRIPT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-32" id="__codelineno-3-32" name="__codelineno-3-32"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-33" id="__codelineno-3-33" name="__codelineno-3-33"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-34" id="__codelineno-3-34" name="__codelineno-3-34"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-35" id="__codelineno-3-35" name="__codelineno-3-35"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-36" id="__codelineno-3-36" name="__codelineno-3-36"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-37" id="__codelineno-3-37" name="__codelineno-3-37"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_SCRIPT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-38" id="__codelineno-3-38" name="__codelineno-3-38"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-39" id="__codelineno-3-39" name="__codelineno-3-39"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-40" id="__codelineno-3-40" name="__codelineno-3-40"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-41" id="__codelineno-3-41" name="__codelineno-3-41"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-42" id="__codelineno-3-42" name="__codelineno-3-42"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_SCRIPT"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-43" id="__codelineno-3-43" name="__codelineno-3-43"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-44" id="__codelineno-3-44" name="__codelineno-3-44"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-45" id="__codelineno-3-45" name="__codelineno-3-45"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-46" id="__codelineno-3-46" name="__codelineno-3-46"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-47" id="__codelineno-3-47" name="__codelineno-3-47"></a>            <span class="cm">&lt;!-- Filter permissions --&gt;</span>
-<a href="#__codelineno-3-48" id="__codelineno-3-48" name="__codelineno-3-48"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_FILTER"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-49" id="__codelineno-3-49" name="__codelineno-3-49"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-50" id="__codelineno-3-50" name="__codelineno-3-50"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-51" id="__codelineno-3-51" name="__codelineno-3-51"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-52" id="__codelineno-3-52" name="__codelineno-3-52"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-53" id="__codelineno-3-53" name="__codelineno-3-53"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-54" id="__codelineno-3-54" name="__codelineno-3-54"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_FILTER"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-55" id="__codelineno-3-55" name="__codelineno-3-55"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-56" id="__codelineno-3-56" name="__codelineno-3-56"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-57" id="__codelineno-3-57" name="__codelineno-3-57"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-58" id="__codelineno-3-58" name="__codelineno-3-58"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-59" id="__codelineno-3-59" name="__codelineno-3-59"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"EDIT_FILTER"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-60" id="__codelineno-3-60" name="__codelineno-3-60"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-61" id="__codelineno-3-61" name="__codelineno-3-61"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-62" id="__codelineno-3-62" name="__codelineno-3-62"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-63" id="__codelineno-3-63" name="__codelineno-3-63"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-64" id="__codelineno-3-64" name="__codelineno-3-64"></a>            <span class="cm">&lt;!-- Data File permissions --&gt;</span>
-<a href="#__codelineno-3-65" id="__codelineno-3-65" name="__codelineno-3-65"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CREATE_DATAFILE"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-66" id="__codelineno-3-66" name="__codelineno-3-66"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-67" id="__codelineno-3-67" name="__codelineno-3-67"></a>                <span class="nt">&lt;group&gt;</span>user<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-68" id="__codelineno-3-68" name="__codelineno-3-68"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-69" id="__codelineno-3-69" name="__codelineno-3-69"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-70" id="__codelineno-3-70" name="__codelineno-3-70"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-71" id="__codelineno-3-71" name="__codelineno-3-71"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-72" id="__codelineno-3-72" name="__codelineno-3-72"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"DELETE_DATAFILE"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-73" id="__codelineno-3-73" name="__codelineno-3-73"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-74" id="__codelineno-3-74" name="__codelineno-3-74"></a>                <span class="nt">&lt;group&gt;</span>script-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-75" id="__codelineno-3-75" name="__codelineno-3-75"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-76" id="__codelineno-3-76" name="__codelineno-3-76"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-77" id="__codelineno-3-77" name="__codelineno-3-77"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-78" id="__codelineno-3-78" name="__codelineno-3-78"></a>            <span class="cm">&lt;!-- Job permissions --&gt;</span>
-<a href="#__codelineno-3-79" id="__codelineno-3-79" name="__codelineno-3-79"></a>            <span class="nt">&lt;restriction</span> <span class="na">operation=</span><span class="s">"CONTROL_JOB"</span><span class="nt">&gt;</span>
-<a href="#__codelineno-3-80" id="__codelineno-3-80" name="__codelineno-3-80"></a>            <span class="nt">&lt;groups&gt;</span>
-<a href="#__codelineno-3-81" id="__codelineno-3-81" name="__codelineno-3-81"></a>                <span class="nt">&lt;group&gt;</span>job-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-82" id="__codelineno-3-82" name="__codelineno-3-82"></a>                <span class="nt">&lt;group&gt;</span>project-manager<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-83" id="__codelineno-3-83" name="__codelineno-3-83"></a>            <span class="nt">&lt;/groups&gt;</span>
-<a href="#__codelineno-3-84" id="__codelineno-3-84" name="__codelineno-3-84"></a>            <span class="nt">&lt;/restriction&gt;</span>
-<a href="#__codelineno-3-85" id="__codelineno-3-85" name="__codelineno-3-85"></a>        <span class="nt">&lt;/restrictions&gt;</span>
-<a href="#__codelineno-3-86" id="__codelineno-3-86" name="__codelineno-3-86"></a>        <span class="cm">&lt;!-- Define users to be created on startup if they do not exist. --&gt;</span>
-<a href="#__codelineno-3-87" id="__codelineno-3-87" name="__codelineno-3-87"></a>        <span class="nt">&lt;users&gt;</span>
-<a href="#__codelineno-3-88" id="__codelineno-3-88" name="__codelineno-3-88"></a>            <span class="nt">&lt;user&gt;</span>
-<a href="#__codelineno-3-89" id="__codelineno-3-89" name="__codelineno-3-89"></a>            <span class="nt">&lt;name&gt;</span>admin<span class="nt">&lt;/name&gt;</span>
-<a href="#__codelineno-3-90" id="__codelineno-3-90" name="__codelineno-3-90"></a>            <span class="nt">&lt;password&gt;</span>admin<span class="nt">&lt;/password&gt;</span>
-<a href="#__codelineno-3-91" id="__codelineno-3-91" name="__codelineno-3-91"></a>            <span class="nt">&lt;email&gt;</span>email@company.com<span class="nt">&lt;/email&gt;</span>
-<a href="#__codelineno-3-92" id="__codelineno-3-92" name="__codelineno-3-92"></a>            <span class="nt">&lt;group&gt;</span>admin<span class="nt">&lt;/group&gt;</span>
-<a href="#__codelineno-3-93" id="__codelineno-3-93" name="__codelineno-3-93"></a>            <span class="nt">&lt;/user&gt;</span>
-<a href="#__codelineno-3-94" id="__codelineno-3-94" name="__codelineno-3-94"></a>        <span class="nt">&lt;/users&gt;</span>
-<a href="#__codelineno-3-95" id="__codelineno-3-95" name="__codelineno-3-95"></a>        <span class="nt">&lt;/security&gt;</span>                    
-</code></pre></div>
-</div>
-</div>
-</div>
-</details>
 </article>
 </div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
 </div>
-<a class="md-top md-icon" data-md-component="top" data-md-state="hidden" href="#">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
-            Back to top
-          </a>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
 </main>
 <footer class="md-footer">
-<nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Supplemental Tools" class="md-footer__link md-footer__link--prev" href="../../supplemental-tools/" rel="prev">
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</div>
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Previous
-              </span>
-              Supplemental Tools
-            </div>
-</div>
-</a>
-<a aria-label="Next: Tank API Reference" class="md-footer__link md-footer__link--next" href="../../apispec/" rel="next">
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Next
-              </span>
-              Tank API Reference
-            </div>
-</div>
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
-</div>
-</a>
-</nav>
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-copyright">
@@ -1051,8 +1296,8 @@ The agents are instantiated on demand and terminated when they are no longer nee
     </a>
 </div>
 <div class="md-social">
-<a class="md-social__link" href="https://twitter.com/squidfunk" rel="noopener" target="_blank" title="twitter.com">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"></path></svg>
+<a class="md-social__link" href="https://github.com/intuit/Tank" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
 </a>
 </div>
 </div>
@@ -1062,8 +1307,8 @@ The agents are instantiated on demand and terminated when they are no longer nee
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-<script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
+<script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script>document$.subscribe(() => {
             window.update_swagger_ui_iframe_height = function (id) {
                 var iFrameID = document.getElementById(id);

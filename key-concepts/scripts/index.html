@@ -5,18 +5,20 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://intuit.github.io/Tank/key-concepts/scripts/" rel="canonical"/>
+<link href="../projects/" rel="prev"/>
+<link href="../filters/" rel="next"/>
 <link href="../../assets/TankLogo.svg" rel="icon"/>
-<meta content="mkdocs-1.3.1, mkdocs-material-8.2.13" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Scripts - Tank docs</title>
-<link href="../../assets/stylesheets/main.e411adfe.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.cc9b2e1e.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
 <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-<script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 </head>
 <body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
-<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
@@ -27,13 +29,13 @@
 </div>
 <div data-md-component="announce">
 </div>
-<header class="md-header md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
 <nav aria-label="Header" class="md-header__inner md-grid">
 <a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
 <img alt="logo" src="../../assets/TankLogo.svg"/>
 </a>
 <label class="md-header__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
 </label>
 <div class="md-header__title" data-md-component="header-title">
 <div class="md-header__ellipsis">
@@ -52,17 +54,18 @@
 </div>
 </div>
 <form class="md-header__option" data-md-component="palette">
-<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"></path></svg>
 </label>
-<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"></path></svg>
 </label>
 </form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
 <label class="md-header__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
 </label>
 <div class="md-search" data-md-component="search" role="dialog">
 <label class="md-search__overlay" for="__search"></label>
@@ -70,22 +73,22 @@
 <form class="md-search__form" name="search">
 <input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
 <label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </label>
 <nav aria-label="Search" class="md-search__options">
-<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
 </button>
 </nav>
 </form>
 <div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
 <div class="md-search-result" data-md-component="search-result">
 <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
 </div>
 </div>
@@ -94,7 +97,7 @@
 <div class="md-header__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -103,42 +106,87 @@
 </div>
 </nav>
 <nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
-<div class="md-tabs__inner md-grid">
+<div class="md-grid">
 <ul class="md-tabs__list">
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../..">
-      Welcome to Intuit Tank
-    </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link md-tabs__link--active" href="../projects/">
-        Key Concepts
+        
+  
+  
+    
+  
+  Intuit Tank
+
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../roles/">
-      Roles and Permissions
-    </a>
+<a class="md-tabs__link" href="../../installation-guide/quickstart/">
+          
+  
+  
+  Set-up and Installation
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../web-ui/">
+          
+  
+  
+  User Guide
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../administration/">
-      Administration
-    </a>
+          
+  
+  
+  Administration
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../supplemental-tools/">
-      Supplemental Tools
-    </a>
+        
+  
+  
+    
+  
+  Supplemental Tools
+
+      </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../installation-guide/installation/">
-      Set-up &amp; Installation
-    </a>
+<a class="md-tabs__link" href="../../api/">
+          
+  
+  
+  REST API
+
+        </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../apispec/">
-      Tank API Reference
-    </a>
+<a class="md-tabs__link" href="../../faq/">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../gatlings-vs-tank/">
+        
+  
+  
+    
+  
+  Ideology: Gatling vs Tank
+
+      </a>
 </li>
 </ul>
 </div>
@@ -160,7 +208,7 @@
 <div class="md-nav__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -170,35 +218,148 @@
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../..">
-        Welcome to Intuit Tank
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Intuit Tank
+  
+
+    
+  </span>
+</a>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2">
-          Key Concepts
-          <span class="md-nav__icon md-icon"></span>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Set-up and Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-label="Key Concepts" class="md-nav" data-md-level="1">
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_2">
 <span class="md-nav__icon md-icon"></span>
-          Key Concepts
-        </label>
+            
+  
+    Set-up and Installation
+  
+
+          </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/installation/">
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/configuration/">
+<span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../web-ui/">
+<span class="md-ellipsis">
+    
+  
+    The Web UI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../projects/">
-        Projects
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-          Scripts
-          <span class="md-nav__icon md-icon"></span>
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
-        Scripts
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+</a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
 <span class="md-nav__icon md-icon"></span>
@@ -206,185 +367,472 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#the-script-list">
+<span class="md-ellipsis">
+      
+        The script list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-a-script">
+<span class="md-ellipsis">
+      
+        Creating a script
+      
+    </span>
+</a>
+<nav aria-label="Creating a script" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
 <a class="md-nav__link" href="#importing-a-recorded-script">
-    Importing a recorded Script
-  </a>
-<nav aria-label="Importing a recorded Script" class="md-nav">
-<ul class="md-nav__list">
+<span class="md-ellipsis">
+      
+        Importing a recorded script
+      
+    </span>
+</a>
+</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#steps-to-importing-a-script">
-    Steps to Importing a Script
-  </a>
+<a class="md-nav__link" href="#starting-a-blank-script">
+<span class="md-ellipsis">
+      
+        Starting a blank script
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#importing-tank-xml">
+<span class="md-ellipsis">
+      
+        Importing Tank XML
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#modifying-a-script">
-    Modifying a Script
-  </a>
-<nav aria-label="Modifying a Script" class="md-nav">
+<a class="md-nav__link" href="#the-script-editor">
+<span class="md-ellipsis">
+      
+        The script editor
+      
+    </span>
+</a>
+<nav aria-label="The script editor" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#step-selection">
-    Step Selection
-  </a>
+<a class="md-nav__link" href="#working-with-steps">
+<span class="md-ellipsis">
+      
+        Working with steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-tools">
+<span class="md-ellipsis">
+      
+        Script tools
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#re-ordering-execution-steps-of-a-script">
-    Re-ordering Execution steps of a Script
-  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#variables">
-    Variables
-  </a>
-<nav aria-label="Variables" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#adding-a-variable">
-    Adding a Variable
-  </a>
-</li>
-</ul>
-</nav>
+<span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#think-time-and-sleep-time">
-    Think Time and Sleep Time
-  </a>
-<nav aria-label="Think Time and Sleep Time" class="md-nav">
+<span class="md-ellipsis">
+      
+        Think time and sleep time
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#requests">
+<span class="md-ellipsis">
+      
+        Requests
+      
+    </span>
+</a>
+<nav aria-label="Requests" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#adding-think-time-and-sleep-time">
-    Adding Think Time and Sleep Time
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#http-request">
-    HTTP Request
-  </a>
-<nav aria-label="HTTP Request" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#adding-a-http-request">
-    Adding a HTTP Request
-  </a>
+<a class="md-nav__link" href="#validations">
+<span class="md-ellipsis">
+      
+        Validations
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#supplemental-properties">
-    Supplemental Properties
-  </a>
+<a class="md-nav__link" href="#assignments">
+<span class="md-ellipsis">
+      
+        Assignments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#on-failure">
+<span class="md-ellipsis">
+      
+        On failure
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#clear-session">
-    Clear Session
-  </a>
+<span class="md-ellipsis">
+      
+        Clear session
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#logic">
-    Logic
-  </a>
+<span class="md-ellipsis">
+      
+        Logic
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../filters/">
-        Filters and Filter Groups
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../functions_variables/">
-        Functions and Variables
-      </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" id="__nav_2_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2_5">
-          Types Of In-built Functions
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-label="Types Of In-built Functions" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_2_5">
-<span class="md-nav__icon md-icon"></span>
-          Types Of In-built Functions
-        </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../io-functions/">
-        IO Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../string-functions/">
-        String Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../date-functions/">
-        Date Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../monetary-functions/">
-        Monetary Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../numeric-functions/">
-        Numeric Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../tax-functions/">
-        Tax Functions
-      </a>
-</li>
-</ul>
-</nav>
+<span class="md-ellipsis">
+    
+  
+    Filters and Filter Groups
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../datafiles/">
-        Data Files
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Data Files
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../jobs/">
+<span class="md-ellipsis">
+    
+  
+    Jobs and the Agent Tracker
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../functions_variables/">
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Types Of In-built Functions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Types Of In-built Functions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../io-functions/">
+<span class="md-ellipsis">
+    
+  
+    IO Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../string-functions/">
+<span class="md-ellipsis">
+    
+  
+    String Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../date-functions/">
+<span class="md-ellipsis">
+    
+  
+    Date Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../monetary-functions/">
+<span class="md-ellipsis">
+    
+  
+    Monetary Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../numeric-functions/">
+<span class="md-ellipsis">
+    
+  
+    Numeric Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tax-functions/">
+<span class="md-ellipsis">
+    
+  
+    Tax Functions
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../roles/">
-        Roles and Permissions
-      </a>
+<a class="md-nav__link" href="../scripting/">
+<span class="md-ellipsis">
+    
+  
+    Scripting Languages
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../glossary/">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
 <a class="md-nav__link" href="../../administration/">
-        Administration
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../roles/">
+<span class="md-ellipsis">
+    
+  
+    Roles and Permissions
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../../supplemental-tools/">
-        Supplemental Tools
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/">
+<span class="md-ellipsis">
+    
+  
+    Using the REST API
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../installation-guide/installation/">
-        Set-up &amp; Installation
-      </a>
+<a class="md-nav__link" href="../../api/reference/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../apispec/">
-        Tank API Reference
-      </a>
+<a class="md-nav__link" href="../../faq/">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../gatlings-vs-tank/">
+<span class="md-ellipsis">
+    
+  
+    Ideology: Gatling vs Tank
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -401,94 +849,160 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#the-script-list">
+<span class="md-ellipsis">
+      
+        The script list
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-a-script">
+<span class="md-ellipsis">
+      
+        Creating a script
+      
+    </span>
+</a>
+<nav aria-label="Creating a script" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
 <a class="md-nav__link" href="#importing-a-recorded-script">
-    Importing a recorded Script
-  </a>
-<nav aria-label="Importing a recorded Script" class="md-nav">
-<ul class="md-nav__list">
+<span class="md-ellipsis">
+      
+        Importing a recorded script
+      
+    </span>
+</a>
+</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#steps-to-importing-a-script">
-    Steps to Importing a Script
-  </a>
+<a class="md-nav__link" href="#starting-a-blank-script">
+<span class="md-ellipsis">
+      
+        Starting a blank script
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#importing-tank-xml">
+<span class="md-ellipsis">
+      
+        Importing Tank XML
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#modifying-a-script">
-    Modifying a Script
-  </a>
-<nav aria-label="Modifying a Script" class="md-nav">
+<a class="md-nav__link" href="#the-script-editor">
+<span class="md-ellipsis">
+      
+        The script editor
+      
+    </span>
+</a>
+<nav aria-label="The script editor" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#step-selection">
-    Step Selection
-  </a>
+<a class="md-nav__link" href="#working-with-steps">
+<span class="md-ellipsis">
+      
+        Working with steps
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-tools">
+<span class="md-ellipsis">
+      
+        Script tools
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#re-ordering-execution-steps-of-a-script">
-    Re-ordering Execution steps of a Script
-  </a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#variables">
-    Variables
-  </a>
-<nav aria-label="Variables" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#adding-a-variable">
-    Adding a Variable
-  </a>
-</li>
-</ul>
-</nav>
+<span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#think-time-and-sleep-time">
-    Think Time and Sleep Time
-  </a>
-<nav aria-label="Think Time and Sleep Time" class="md-nav">
+<span class="md-ellipsis">
+      
+        Think time and sleep time
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#requests">
+<span class="md-ellipsis">
+      
+        Requests
+      
+    </span>
+</a>
+<nav aria-label="Requests" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#adding-think-time-and-sleep-time">
-    Adding Think Time and Sleep Time
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#http-request">
-    HTTP Request
-  </a>
-<nav aria-label="HTTP Request" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#adding-a-http-request">
-    Adding a HTTP Request
-  </a>
+<a class="md-nav__link" href="#validations">
+<span class="md-ellipsis">
+      
+        Validations
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#supplemental-properties">
-    Supplemental Properties
-  </a>
+<a class="md-nav__link" href="#assignments">
+<span class="md-ellipsis">
+      
+        Assignments
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#on-failure">
+<span class="md-ellipsis">
+      
+        On failure
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#clear-session">
-    Clear Session
-  </a>
+<span class="md-ellipsis">
+      
+        Clear session
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#logic">
-    Logic
-  </a>
+<span class="md-ellipsis">
+      
+        Logic
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -497,474 +1011,408 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/key-concepts/scripts.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/key-concepts/scripts.md" rel="edit" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
 </a>
 <h1 id="scripts">Scripts</h1>
+<p>A script is the list of steps a virtual user runs during a load test. A <a href="../projects/">project</a> puts scripts into script groups and test plans, and every user runs them in that order.</p>
+<p>A step is one of:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Request</strong></td>
+<td style="text-align: left;">Sends an HTTP or HTTPS request, then validates the response and saves values from it into variables.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Think time</strong></td>
+<td style="text-align: left;">Pauses for a random time between a minimum and a maximum, like a user reading a page.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Sleep time</strong></td>
+<td style="text-align: left;">Pauses for a fixed time.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Variable</strong></td>
+<td style="text-align: left;">Sets a variable to a value or a <a href="../functions_variables/">function</a>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cookie</strong></td>
+<td style="text-align: left;">Sets a cookie (name, value, domain and path).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Authentication</strong></td>
+<td style="text-align: left;">Supplies credentials (user name, password, realm, host, port and scheme: Basic, Digest or NTLM).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Clear session</strong></td>
+<td style="text-align: left;">Clears cookies and the cache, like closing and reopening the browser.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Logic</strong></td>
+<td style="text-align: left;">Runs JavaScript to change variables or control the flow of the test.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Timer</strong></td>
+<td style="text-align: left;">A pair of start and stop markers that time the steps between them as one transaction.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-script-list">The script list</h2>
+<p>Open <strong>Scripts</strong> in the menu bar. Like the project list, it is paged, searchable (by name, product and comments), can be narrowed to one owner, and remembers your columns.</p>
+<p>Each row can be <strong>opened</strong>, <strong>copied</strong> under a new name, downloaded as <strong>Tank XML</strong> (the script itself, for importing elsewhere) or as <strong>Harness XML</strong> (the form the agent runs), or <strong>deleted</strong>.</p>
+<h2 id="creating-a-script">Creating a script</h2>
+<p>There are three ways to get a script into Tank:</p>
+<ul>
+<li>Record a browser session with the <a href="../../supplemental-tools/#tank-proxy-recorder">Tank Proxy</a> and create a script from the recording.</li>
+<li>Start a blank script and add steps by hand.</li>
+<li>Import a script exported from Tank.</li>
+</ul>
+<h3 id="importing-a-recorded-script">Importing a recorded script</h3>
+<ol>
+<li>Record a session with the Tank Proxy. It saves the traffic as XML.</li>
+<li>On the Scripts page, click <strong>New script</strong> and choose <strong>From a recording</strong>.</li>
+<li>Enter a <strong>Name</strong>, and optionally choose a <strong>Product</strong>.</li>
+<li>Under <strong>Recording</strong>, choose the XML file the proxy saved (<code>.xml</code>, or gzipped <code>.gz</code>).</li>
+<li>Under <strong>Filters to apply</strong>, tick the <a href="../filters/">filter groups</a> and filters to clean up the recording with. Ticking a group ticks its filters; you can then untick any you don't want. The filters run in list order.</li>
+<li>Click <strong>Create</strong>. Tank creates the script and opens it.</li>
+</ol>
+<h3 id="starting-a-blank-script">Starting a blank script</h3>
+<p>Click <strong>New script</strong>, keep <strong>Blank script</strong>, enter a <strong>Name</strong> and optionally a <strong>Product</strong> and <strong>Comments</strong>, and click <strong>Create</strong>.</p>
+<h3 id="importing-tank-xml">Importing Tank XML</h3>
+<p>Click <strong>Import Tank XML</strong> and choose one or more scripts exported from Tank: <code>.xml</code> files, gzipped <code>.gz</code> files, or a <code>.zip</code> of them. Each file replaces the script with the ID and name it carries; a file with an ID of 0 creates a new script. If some files fail, the dialog stays open and lists which.</p>
+<p>You need the <em>Create Script</em> right to create, copy or import scripts.</p>
+<h2 id="the-script-editor">The script editor</h2>
+<p>The editor shows the script's <strong>Name</strong>, <strong>Product</strong> and <strong>Comments</strong>, then its steps. As in the project editor, changes are kept in the page until you click <strong>Save</strong>; <strong>Revert</strong> discards them. <strong>Save as…</strong> copies the saved script under a new name (save or revert your changes first). The header also has links to download the script as Tank XML and Harness XML.</p>
+<p>If you can't edit the script, it opens read-only.</p>
+<h3 id="working-with-steps">Working with steps</h3>
+<ul>
+<li><strong>Add step</strong> adds a step of the chosen type. It goes before the selected step, or at the end when none is selected.</li>
+<li>Click a step's <strong>Data</strong> cell, or its <strong>Edit</strong> button, to open it.</li>
+<li>Tick steps to <strong>Copy</strong> them. <strong>Paste</strong> puts copied steps before the selected step, in this script or another one. Copied steps last until you reload the page.</li>
+<li>Drag steps to reorder them, or select them and use <strong>Move to…</strong> to move them to a position. Scripts with more than 300 steps scroll virtually and can only be reordered with <em>Move to…</em>.</li>
+<li><strong>Timer group</strong> wraps the selected steps in a timer. The timer's name is the logging key its timing is reported under.</li>
+<li><strong>Delete selected</strong> removes the ticked steps. Deleting either half of a timer removes both.</li>
+<li><strong>Columns</strong> chooses which columns show: index, group, request name, method, protocol, host, path, data, MIME type, logging key, on failure, comments, validation and assignment.</li>
+</ul>
+<h3 id="script-tools">Script tools</h3>
+<ul>
+<li><strong>Search</strong> finds steps by text in the parts you choose: any request field, URL, host, path, method, request name, group, logging key, MIME type, query string, post data, request and response headers and cookies, response content, think and sleep times, and variable names and values. <code>*</code> matches any text. You can then <strong>replace</strong> the matches, in the ticked steps, in all steps, or one step at a time with a preview. Replacing is an unsaved change like any other.</li>
+<li><strong>Apply filters</strong> runs <a href="../filters/">filters</a> over the script's steps. The result is an unsaved change.</li>
+<li><strong>Validate</strong> checks the script: the expected time for one pass through it, the data files it reads, and warnings such as variables that are used but never set, or set but never used.</li>
+</ul>
+<h2 id="variables">Variables</h2>
+<p>Variables hold values used to parameterize requests, such as host names, query strings and post data. A variable can be set:</p>
+<ul>
+<li>by a <strong>Variable</strong> step, to a literal value or a <a href="../functions_variables/">function</a>;</li>
+<li>by a request's <strong>assignments</strong>, from its response;</li>
+<li>by a <strong>Logic</strong> step;</li>
+<li>by the <a href="../projects/#variables">project</a>.</li>
+</ul>
+<p>Refer to a variable in a later step as <code>@name</code> (for example a host of <code>@{host}</code>). See <a href="../functions_variables/">Functions and variables</a> for the full syntax.</p>
+<div class="admonition tip">
+<p class="admonition-title">Sending requests through a proxy</p>
+<p>Set a variable named <code>TANK_HTTP_PROXY</code> to <code>proxyHost:proxyPort</code>, for example <code>myProxyServer:80</code>, to make the agent send requests through that proxy.</p>
+</div>
+<h2 id="think-time-and-sleep-time">Think time and sleep time</h2>
+<p><strong>Think time</strong> simulates a user's pause between pages: Tank waits a random time between the <strong>Minimum</strong> and <strong>Maximum</strong>. <strong>Sleep time</strong> waits a fixed time.</p>
+<p>Both are in milliseconds. Instead of a number you can use a variable (<code>@delay</code>), a function (<code>#function...</code>) or an expression (<code>#{...}</code>).</p>
+<h2 id="requests">Requests</h2>
+<p>A request has:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Name</strong></td>
+<td style="text-align: left;">An optional label, such as <em>Login</em>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Group</strong></td>
+<td style="text-align: left;">Requests with the same group name form a group that the on-failure actions can skip or jump to. Optional.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Method</strong></td>
+<td style="text-align: left;"><code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code> or <code>OPTIONS</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Protocol</strong></td>
+<td style="text-align: left;"><code>http</code> or <code>https</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Host</strong></td>
+<td style="text-align: left;">A host name or IP address, optionally with <code>:port</code>. It can use variables, such as <code>@{host}</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Path</strong></td>
+<td style="text-align: left;">The path of the resource. It can use variables and functions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>On failure</strong></td>
+<td style="text-align: left;">What the user does when a validation fails (see below).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Logging key</strong></td>
+<td style="text-align: left;">Groups this request's timings in the results.</td>
+</tr>
+</tbody>
+</table>
+<p>Its tabs hold:</p>
+<ul>
+<li><strong>Headers</strong>: the request headers, as key and value pairs.</li>
+<li><strong>Query string</strong>: parameters added to the URL.</li>
+<li><strong>Post data</strong>: the request body, as <strong>Key-Value</strong> pairs, <strong>XML</strong>, <strong>JSON</strong> (with a <em>Format JSON</em> button), <strong>Plain Text</strong>, or <strong>Multi-Part</strong>. A recorded multipart body is shown as recorded and can't be edited.</li>
+<li><strong>Validations</strong>: checks on the response (see below).</li>
+<li><strong>Assignments</strong>: values to copy from the response into variables.</li>
+<li><strong>Recorded</strong>: what the recording captured: the cookies sent, the response headers and cookies, and the response body.</li>
+</ul>
 <div class="admonition note">
-<p class="admonition-title">Tip</p>
-<p>Scripts are accessed from the <code>Scripts</code> Top navigation link.</p>
+<p class="admonition-title">Headers that aren't replayed</p>
+<p>The agent always sends a <code>TEST: LoadTest</code> header. It doesn't replay these recorded headers: <code>Host</code>, <code>Cookie</code>, <code>Connection</code>, <code>Content-Type</code>, <code>Content-Length</code>, <code>If-None-Match</code> and <code>If-Modified-Since</code>. To send one anyway, prefix its name with <code>X-Include-</code> (for example <code>X-Include-If-None-Match</code>); the prefix is removed when the request is sent.</p>
+<p>Recorded request cookies are only replayed when their value is a variable (starts with <code>@</code>).</p>
 </div>
-<p>A Tank performance script is a preset of steps that <code>virtual</code>(mocked for load) users will execute during a load test. <br/>
-A <code>step</code> can be composed from one of the following step types:  </p>
-<ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> HTTP Request</li>
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> Think Time</li>
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> Sleep Time</li>
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> Variable</li>
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> Clear Session</li>
-<li class="task-list-item"><label class="task-list-control"><input checked="" disabled="" type="checkbox"><span class="task-list-indicator"></span></input></label> Logic</li>
-</ul>
-<h3 id="importing-a-recorded-script">Importing a recorded Script</h3>
-<p>There are two ways to generate a script.</p>
+<h3 id="validations">Validations</h3>
+<p>Each validation has:</p>
 <ul>
-<li>Importing from a <code>Tank-Proxy recording</code>. </li>
-<li>Manually creating a script. </li>
+<li><strong>When</strong>: <em>After the request</em> (the usual case) or <em>Before the request</em>.</li>
+<li><strong>Location</strong>: the response <strong>Body</strong>, a <strong>Header</strong> or a <strong>Cookie</strong>.</li>
+<li><strong>Lookup</strong>: for the body, a JSON path (such as <code>$.status</code>) or an XPath (such as <code>/cart/id</code>), depending on the <strong>Response format</strong> (JSON, XML or RAW); for a header or cookie, its name.</li>
+<li><strong>Operator</strong>: <em>Equals</em>, <em>Not equals</em>, <em>Is empty</em>, <em>Is not empty</em>, <em>Contains</em>, <em>Does not contain</em>, <em>Less than</em>, <em>Greater than</em> or <em>Equals any</em>.</li>
+<li><strong>Value</strong> to compare with, where the operator needs one.</li>
 </ul>
-<p>This section will mainly focus on the <code>Importing</code> method.    </p>
-<div class="admonition warning">
-<p class="admonition-title">Note</p>
-<p>Currently Tank only supports Intuit Tank's own <code>Proxy Recording</code> tool. More info on the Recording tool is covered in the later sections.</p>
-</div>
-<h4 id="steps-to-importing-a-script">Steps to Importing a Script</h4>
-<ol>
-<li>Click on the <code>New Script</code> icon which takes you to the <code>Create Script</code> form.</li>
-<li>Fill in the <code>Script Name</code> and select from the appropriate <code>Product name</code>.</li>
-<li>Click on the <code>Browse</code> button to select the recording file or the <code>zip archive</code> that contains the recording file. <em>(If Creating a blank script just select the <code>Blank Script</code> radio button and skip this step.)</em> </li>
-<li>Select the appropriate <code>Filter Groups</code> (AND/OR) individual <code>Filters</code>. The Filters are used to transform the imported recording to a final  Tank script. <em>(Refer to the <code>Filters</code> section for more details on <code>Filters</code> and <code>Filters Group</code>.)</em></li>
-<li>
-<p>Click on the <code>Save</code> button. Once the Intuit Tank script is created, you will be taken back to the <code>Scripts</code> section and your script will appear at the top of the list.  </p>
-<p><figure markdown="">
-<img alt="Add a New Script" src="../../assets/scripts/scripts_2.png" width="600">
-<figcaption>Add a New Script</figcaption>
-</img></figure> </p>
-<p><figure markdown="">
-<img alt="Create Script" src="../../assets/scripts/scripts_3.png" width="600">
-<figcaption>Create Script</figcaption>
-</img></figure> </p>
-</li>
-</ol>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>If uploading a zipped recording, Tank will only extract the first one from the zip, in case there are more than one recordings in the uploaded zip.  </p>
-</div>
-<h3 id="modifying-a-script">Modifying a Script</h3>
-<p>Click on the name of the script (or) the <code>Edit</code> icon corresponding to the script you wish to edit. This will take you to the <code>Edit Script</code> form.  </p>
-<p>The attributes that can be edited include:</p>
+<p>A lookup of <code>HTTPRESPONSECODE</code> checks the HTTP status code (such as <code>200</code> or <code>404</code>), and <code>HTTPRESPONSEMESSAGE</code> the status message (such as <code>OK</code> or <code>Not Found</code>).</p>
+<h3 id="assignments">Assignments</h3>
+<p>Each assignment has a <strong>Location</strong> (Body, Header or Cookie), the <strong>Variable</strong> to set, and the <strong>Lookup</strong> to read, as for validations.</p>
+<h3 id="on-failure">On failure</h3>
+<p>When a validation fails, the user does one of:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Action</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Abort script, goto next script</strong> (default)</td>
+<td style="text-align: left;">Skips the rest of the script and goes to the next script in the project.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Abort script group goto next script group</strong></td>
+<td style="text-align: left;">Skips to the next script group.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Skip remaining requests in group</strong></td>
+<td style="text-align: left;">Goes to the step after the last request in this request's group.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Continue to next request</strong></td>
+<td style="text-align: left;">Carries on.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Goto specified group</strong></td>
+<td style="text-align: left;">Jumps to the first step of the group you name.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Terminate user</strong></td>
+<td style="text-align: left;">Stops this virtual user.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Restart user</strong></td>
+<td style="text-align: left;">Starts this user's test plan again.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="clear-session">Clear session</h2>
+<p>Clears the user's cookies and cache, as if the browser were closed and reopened.</p>
+<h2 id="logic">Logic</h2>
+<p>A Logic step runs JavaScript on the agent, between requests. Use it to change variables, control the flow of the test, or do anything too complex for the other steps. The editor's <strong>What can a script use?</strong> button shows the code Tank runs before your script.</p>
+<p>A Logic step can read:</p>
 <ul>
-<li><code>Name</code> - The name of the script. This is an <code>in-place</code> editor. Simply click the name once to enter the <code>Edit</code> mode.</li>
-<li><code>Product</code> - The name of the product this script belongs to.</li>
-<li><code>Owner</code> - The user who owns the script.</li>
-<li><code>Comments</code> - Comments are accessed by the <code>Comments</code> button on the toolbar.   </li>
+<li><strong>variables</strong>: the current user's variables;</li>
+<li><strong>request</strong>: the previous request;</li>
+<li><strong>response</strong>: the previous response.</li>
 </ul>
-<div class="admonition error">
-<p class="admonition-title">TODO: Edit verbiage for comments heading</p>
-</div>
-<h4 id="step-selection">Step Selection</h4>
-<p>Selection of script steps is modelled different than other sections.  </p>
-<p>Instead of check boxes, it uses a standard selection method, and highlights to indicate selection. <br/>
-<figure markdown="">
-<img alt="Modify Script" src="../../assets/scripts/scripts_4.png" width="600"/>
-<figcaption>Modify Script</figcaption>
-</figure> </p>
-<p>This toolbar has actions for inserting, deleting, and changing the order of the steps.   </p>
-<h3 id="re-ordering-execution-steps-of-a-script">Re-ordering Execution steps of a Script</h3>
-<p>Below are the instructions to re-order the Script steps.  </p>
-<ol>
-<li>To re-order/move a step you will need to click on the button labeled <code>Reorder Steps</code> . A pop-up window labeled <code>Reorder Steps</code> will appear.</li>
-<li>Use the buttons to move steps up or down in the list. You can also drag the steps to the new order.</li>
-<li>
-<p>Click on the <code>Save</code> button to save the new ordering.</p>
-<p><figure markdown="">
-<img alt="Reorder Script steps" src="../../assets/scripts/scripts_5.png" width="500"/>
-<figcaption>Reorder Script steps</figcaption>
-</figure> </p>
-</li>
-</ol>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The script is not saved to the database until you click <code>Save</code> in the main toolbar. Changes can be discarded at any time by clicking <code>Cancel</code> or by navigating to another panel. In general, it is recommended that you periodically save your updates.</p>
-</div>
-<h3 id="variables">Variables</h3>
-<p>Variables are used to store various values that can be used to parameterize requests (i.e. <code>hostnames</code>, <code>query string</code>, <code>POST data</code>, etc.). <br/>
-You can define a variable to be set to a <code>literal</code> value or <code>function</code>. <br/>
-A variable can also be set by parsing the <code>response</code> or <code>headers</code> of a given request. When using variables in requests, you need to add the <code>@</code> symbol in front of the variable. This tells Tank to replace the variable with the actual value.</p>
-<h4 id="adding-a-variable">Adding a Variable</h4>
-<p>To add a Variable, </p>
-<ol>
-<li>Click on the button labeled <code>Variable</code> . The Variable dialog will pop up.</li>
-<li>In the <code>Key</code> field you will define your variable name.</li>
-<li>The <code>Value</code> field is where you define the actual value or <code>function</code> you use will associate with the variable.</li>
-<li>
-<p>Click on the <code>Add</code> or <code>Save</code> button when done.</p>
-<p><figure markdown="">
-<img alt="Adding a Variable" src="../../assets/scripts/scripts_6.png" width="500"/>
-<figcaption>Adding a Variable</figcaption>
-</figure> </p>
-</li>
-</ol>
-<div class="admonition info">
-<p class="admonition-title">Note</p>
-<p>You can cause the agent to use a <code>Proxy Server</code> for requests by setting a variable named <code>TANK_HTTP_PROXY</code> in the format <code>proxyHost:proxyport</code>. e.g. <code>myProxyserver:80</code></p>
-</div>
-<h3 id="think-time-and-sleep-time">Think Time and Sleep Time</h3>
-<p><code>Think Time</code> is used to simulate a real user's page to page transitions in an application. In Tank, a random think time is generated based on the <code>min</code> and <code>max</code> values provided. <br/>
-<code>Sleep time</code> is used when you wish to wait for a specific amount of time.</p>
-<div class="admonition info">
-<p class="admonition-title">Note</p>
-<p>Think Time and Sleep Time are entered in <code>milliseconds</code>.</p>
-</div>
-<h4 id="adding-think-time-and-sleep-time">Adding Think Time and Sleep Time</h4>
-<ol>
-<li>To add a <code>Think Time</code> or <code>Sleep Time</code>, click on the appropriate button or the link to edit an existing one. The <code>Insert or Edit</code> dialog will pop up.</li>
-<li>In the <code>Key</code> field you will define your variable name.</li>
-<li>For <code>Think Time</code> you will need to enter the <code>Minimum</code> and <code>Maximum</code> time in <code>miliseconds</code>. For <code>Sleep Time</code> you just need to enter a single value.</li>
-<li>
-<p>Click on the <code>Add</code> or <code>Save</code> button when done.</p>
-<p><figure markdown="">
-<img alt="Adding Think Time and Sleep Time" src="../../assets/scripts/scripts_7.png" width="600"/>
-<figcaption>Adding Think Time and Sleep Time</figcaption>
-</figure> </p>
-</li>
-</ol>
-<h3 id="http-request">HTTP Request</h3>
-<p>In Tank, a request is either a <code>HTTP(S)</code> <code>GET</code> or <code>POST</code> request. Before we go through the steps of adding a new request, we will go over what makes up the basic request.   </p>
-<p>First, will start with the fields that can make up a request:</p>
-<ul>
-<li><code>Host</code> - You can enter either the <code>FQDN</code>, <code>IP address</code> or variable for the hostname. When you use a variable, you need to add the <code>&amp;</code> symbol at the beginning of the variable. (e.g. <code>@webserver</code>) You can specify the port by appending a <code>:[port]</code> to the host. e.g. <code>server.domain.com:9001</code></li>
-<li><code>Protocol</code> - Supported protocols <code>HTTP</code> or <code>HTTPS</code>.</li>
-<li><code>Path</code> - The path to the requested resource. The path can also be parameterized with variables. For e.g, <code>#{rootContext}/ajax/logEmail</code></li>
-<li><code>Method</code> - Supported methods are <code>GET</code> or <code>POST</code></li>
-<li><code>Query String</code> - The query parameters expressed as key value pairs that get appended to the <code>url</code>.</li>
-<li><code>POST data</code> - Parameters expressed as key value pairs that get posted in the <code>body</code> of the request.</li>
-<li><code>Group</code> - Allows you to group requests under a <code>label</code>. Grouping is used with <code>On Failure</code> field below. <em><code>Note</code>: This field is optional.</em></li>
-<li><code>Logging</code> - This field is used to gather response times on a specific request. <em><code>Note</code>: This field is <code>optional</code>.</em></li>
-<li>
-<p><code>On Failure</code> - Defines what action to take next when a response validation has failed.   </p>
-<p>The following are the 5 actions that can be taken by the tool when validation has failed: </p>
-<ul>
-<li><code>Abort Script, goto next Script (Default)</code> – The virtual user will skip to the next script defined in the project. If there is only one script, the virtual user will start from over from the top of the script. </li>
-<li><code>Continue to next request</code> – Execute next request. </li>
-<li><code>Skip remaining requests in a group</code> – Will execute the next step after the last request with the group label.</li>
-<li><code>Goto Group</code> – Jumps to the first step with the group label.</li>
-<li><code>Terminate user</code> – The virtual user is terminated.  </li>
-</ul>
-</li>
-<li>
-<p><code>Name</code> - Allows a user to uniquely label a request. (i.e. <code>Login request</code>, <code>Signout request</code> or <code>Print request</code>). <em><code>Note</code>: This field is optional.</em></p>
-</li>
-</ul>
-<h4 id="adding-a-http-request">Adding a HTTP Request</h4>
-<p>To add a HTTP request, </p>
-<ol>
-<li>Click on the appropriate button or the link to edit an existing one. The <code>Insert</code> or <code>Edit</code> dialog will pop up.</li>
-<li>Fill in the appropriate top level attributes such as <code>Host</code>, <code>Path</code>, <code>Name</code>, etc.</li>
-<li>
-<p>For each of the tabs, you can add or modify the key value pairs.</p>
-<p><figure markdown="">
-<img alt="Adding a HTTP Request" src="../../assets/scripts/scripts_8.png" width="600"/>
-<figcaption>Adding a HTTP Request</figcaption>
-</figure> </p>
-</li>
-</ol>
-<div class="admonition info">
-<p class="admonition-title">Note</p>
-<ul>
-<li>Key and Value are in-place edit components. click on them to change their value and click the check mark to accept the change or the 'X' to revert.</li>
-<li>Not all Heders are re-played. The following are filtered out: <ul>
-<li>Host</li>
-<li>Cookie</li>
-<li>Connection</li>
-<li>If-None-Match</li>
-<li>If-Modified-Since</li>
-<li>Content* (Content-Type, Content-Length)</li>
-</ul>
-</li>
-</ul>
-</div>
-<h4 id="supplemental-properties">Supplemental Properties</h4>
-<p>The following Supplemental properties can be added to the HTTP Request.</p>
-<ul>
-<li><code>Response Header</code> - Response Headers are read only. They are here to help you in creating validation or assignemnts.</li>
-<li><code>Request Cookies</code> - Cookies lets you see which cookies were set when the request was made. However, only cookies that are set from variables are replayed.</li>
-<li><code>Response Cookies</code> -  Response Cookies are read only.</li>
-<li><code>Query String</code> - Used primarily with <code>GET</code> requests.</li>
-<li><code>Post Data</code> - Only valid for POST requests.</li>
-<li><code>Validation</code> - Perform validation specified. If validation fails, the On Fail action is performed. Key is the xpath or expression for the value.</li>
-<li><code>Assignments</code> - Assign values to variables for use in other script steps. Key is the variable name and value is the xpath or expression for the value.</li>
-</ul>
-<div class="admonition info">
-<p class="admonition-title">Note</p>
-<p>Two Synthetic headers can be validated as well:</p>
-<div class="highlight"><pre><span></span><code>- `HTTPRESPONSEMESSAGE` - The http response message. e.g. `OK` or `Not Found`
-- `HTTPRESPONSECODE` - The http response code. e.g. `200` or `404`
-</code></pre></div>
-</div>
-<p>Finally, Click on the <code>Save</code> button when done.</p>
-<h3 id="clear-session">Clear Session</h3>
-<p>Inserting this step clears the session, which can be thought of as comparable to closing and re-opening the browser.   </p>
-<p>This accomplishes the following:</p>
-<ul>
-<li>Clears cookies</li>
-<li>Clears the cache</li>
-</ul>
-<h3 id="logic">Logic</h3>
-<p>Inserting this step allows the user to use <code>Javascript</code> to control the flow of the script, change variable values, or perform any custom logic that is too complex for the normal operations.</p>
-<p>Logic step scripts are written in <code>Javascript</code>. They have access to the following objects:</p>
-<ul>
-<li><code>Variables</code> - The current variables in the test plan execution.</li>
-<li><code>Request</code> - The previous request in the test plan execution.</li>
-<li><code>Response</code> - The previous response in the test plan execution.</li>
-</ul>
-<div class="admonition info">
-<p class="admonition-title">Note</p>
-<p>There are functions that are added to each script for accessing these values.</p>
-</div>
-<p>Control flow is controlled by setting the <code>action</code> output parameter in the <code>ioBean</code>. Handled values are:</p>
-<ul>
-<li><code>goto:[groupName]</code> - Jump to a group within the script with the specified name.</li>
-<li><code>restartPlan</code> - Restart the test plan from the start.</li>
-<li><code>abortScriptGroup</code> - Aborts the current script group and proceeds to the next script group.</li>
-<li><code>abortScript</code> - Aborts the current script and proceeds to the next script.</li>
-<li><code>abortGroup</code> - Aborts the current group within a script and proceeds to the next request after the current group.</li>
-<li><code>terminateUser</code> - Terminates the current user.</li>
-</ul>
-<div class="admonition info">
-<p class="admonition-title">Tip</p>
-<p>There are functions that are added to each script for accessing these values.</p>
-</div>
-<p>The following functions are added to each script before it is run and are available for use.</p>
+<p>It controls the flow by setting the <code>action</code> output on <code>ioBean</code>, which the functions below do for you:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Action</th>
+<th style="text-align: left;">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>goto &lt;groupName&gt;</code></td>
+<td style="text-align: left;">Jumps to the group with that name in the script.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>restartPlan</code></td>
+<td style="text-align: left;">Restarts the test plan from the start.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>abortScriptGroup</code></td>
+<td style="text-align: left;">Aborts the current script group and goes to the next one.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>abortScript</code></td>
+<td style="text-align: left;">Aborts the current script and goes to the next one.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>abortGroup</code></td>
+<td style="text-align: left;">Aborts the current group of requests and goes to the request after it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>terminateUser</code></td>
+<td style="text-align: left;">Stops the current user.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Test it</strong> runs your script on the controller against test data you enter (variables, a request and a response), or against the step's previous request with <strong>Use the previous request</strong>, and shows the result. See <a href="../scripting/">Scripting languages</a> for more on the <code>ioBean</code> object.</p>
+<p>These functions are added in front of every Logic step. An administrator can change them in the <code>logic-step</code> section of the controller's <code>settings.xml</code>.</p>
 <details class="abstract">
-<summary>Functions added at each Script</summary>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"><input id="__tabbed_1_2" name="__tabbed_1" type="radio"><input id="__tabbed_1_3" name="__tabbed_1" type="radio"/><input id="__tabbed_1_4" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1">Logging functions</label><label for="__tabbed_1_2">Data Transformational functions</label><label for="__tabbed_1_3">Data Retrieval functions</label><label for="__tabbed_1_4">Result functions</label></div>
+<summary>Functions added to every Logic step</summary>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio"/><input id="__tabbed_1_2" name="__tabbed_1" type="radio"/><input id="__tabbed_1_3" name="__tabbed_1" type="radio"/><input id="__tabbed_1_4" name="__tabbed_1" type="radio"/><div class="tabbed-labels"><label for="__tabbed_1_1">Logging</label><label for="__tabbed_1_2">Data transformation</label><label for="__tabbed_1_3">Data retrieval</label><label for="__tabbed_1_4">Flow control</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="cm">    * prints the line to the output. will be log</span>
-<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="cm">    * </span>
-<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="cm">    * @param line</span>
-<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="cm">    *            the line to print</span>
-<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">logWithDate</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">        </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">println</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toString</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">": "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">line</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="cm">/** Prints the line, with the date, to the output. */</span>
+<a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">logWithDate</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">println</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toString</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">": "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">line</span><span class="p">);</span>
+<a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="p">}</span>
+<a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>
+<a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="cm">/** Prints the line to the output. */</span>
+<a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="kd">function</span><span class="w"> </span><span class="nx">log</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">println</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+<a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="p">}</span>
 <a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>
-<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="cm">    * prints the line in info context.</span>
-<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="cm">    * </span>
-<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="cm">    * @param line</span>
-<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="cm">    *            the line to print</span>
-<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">log</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">        </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">println</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="cm">    * prints the line in error context.</span>
-<a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="cm">    * </span>
-<a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="cm">    * @param line</span>
-<a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="cm">    *            the line to print</span>
-<a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">error</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">        </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>
-<a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="cm">    * prints the line in debug context. Will be logged to console or test but not</span>
-<a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="cm">    * to logs when in production.</span>
-<a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="cm">    * </span>
-<a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="cm">    * @param line</span>
-<a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="cm">    *            the line to print</span>
-<a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">debug</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">        </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-0-39" id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="w">    </span><span class="p">}</span><span class="w">            </span>
+<a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="cm">/** Prints the line at error level. */</span>
+<a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="kd">function</span><span class="w"> </span><span class="nx">error</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+<a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="p">}</span>
+<a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>
+<a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="cm">/** Prints the line at debug level: shown when testing, not logged in production. */</span>
+<a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="kd">function</span><span class="w"> </span><span class="nx">debug</span><span class="p">(</span><span class="nx">line</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="nx">line</span><span class="p">);</span>
+<a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">toJsonObj</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">       </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">            </span><span class="nx">error</span><span class="p">(</span><span class="s2">"Error parsing json: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">        </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="p">;</span><span class="w"></span>
-<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">toJsonString</span><span class="p">(</span><span class="nx">jsonObj</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">jsonObj</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s1">'\t'</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">            </span><span class="nx">error</span><span class="p">(</span><span class="s2">"Error converting json to string json: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">            </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">jsonObj</span><span class="p">;</span><span class="w"></span>
-<a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">        </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kd">function</span><span class="w"> </span><span class="nx">toJsonObj</span><span class="p">(</span><span class="nx">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">text</span><span class="p">);</span>
+<a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">        </span><span class="nx">error</span><span class="p">(</span><span class="s2">"Error parsing json: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
+<a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">text</span><span class="p">;</span>
+<a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="p">}</span>
+<a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a>
+<a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="kd">function</span><span class="w"> </span><span class="nx">toJsonString</span><span class="p">(</span><span class="nx">jsonObj</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">jsonObj</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s1">'\t'</span><span class="p">);</span>
+<a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-1-14" id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">        </span><span class="nx">error</span><span class="p">(</span><span class="s2">"Error converting json to string json: "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
+<a href="#__codelineno-1-15" id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-1-16" id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">jsonObj</span><span class="p">;</span>
+<a href="#__codelineno-1-17" id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="cm">* gets the com.intuit.tank.http.BaseRequest object of the last call made.</span>
-<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="cm">* </span>
-<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="cm">* @return the request or null if no requests have been made</span>
-<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getRequest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"request"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>
-<a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="cm">* gets the com.intuit.tank.http.BaseResponse object of the last call made.</span>
-<a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="cm">* </span>
-<a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="cm">* @return the response or null if no requests have been made</span>
-<a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="cm">* </span>
-<a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResponse</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"response"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a>
-<a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="cm">* gets the request body as string if not binary</span>
-<a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="cm">* </span>
-<a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="cm">* @return the body or empty string if null or binary</span>
-<a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResquestBody</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">getRequest</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">getRequest</span><span class="p">().</span><span class="nx">getBody</span><span class="p">();</span><span class="w"></span>
-<a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">""</span><span class="p">;</span><span class="w"></span>
-<a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="cm">/** The com.intuit.tank.http.BaseRequest of the last call, or null if none was made. */</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getRequest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"request"</span><span class="p">);</span>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="p">}</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="cm">/** The com.intuit.tank.http.BaseResponse of the last call, or null if none was made. */</span>
+<a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResponse</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"response"</span><span class="p">);</span>
+<a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="p">}</span>
+<a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>
+<a href="#__codelineno-2-11" id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="cm">/** The request body as a string, or "" if there is none. (The name is spelled as shown.) */</span>
+<a href="#__codelineno-2-12" id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResquestBody</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-13" id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">getRequest</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-14" id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">getRequest</span><span class="p">().</span><span class="nx">getBody</span><span class="p">();</span>
+<a href="#__codelineno-2-15" id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-2-16" id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">""</span><span class="p">;</span>
+<a href="#__codelineno-2-17" id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="p">}</span>
+<a href="#__codelineno-2-18" id="__codelineno-2-18" name="__codelineno-2-18"></a>
+<a href="#__codelineno-2-19" id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="cm">/** The response body as a string, or "" if there is none. */</span>
+<a href="#__codelineno-2-20" id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResponseBody</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-21" id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">getResponse</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-22" id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">getResponse</span><span class="p">().</span><span class="nx">getBody</span><span class="p">();</span>
+<a href="#__codelineno-2-23" id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="w">    </span><span class="p">}</span>
+<a href="#__codelineno-2-24" id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">""</span><span class="p">;</span>
+<a href="#__codelineno-2-25" id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="p">}</span>
+<a href="#__codelineno-2-26" id="__codelineno-2-26" name="__codelineno-2-26"></a>
+<a href="#__codelineno-2-27" id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="cm">/** The variable's value, or null if it doesn't exist. */</span>
+<a href="#__codelineno-2-28" id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-29" id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"variables"</span><span class="p">).</span><span class="nx">getVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+<a href="#__codelineno-2-30" id="__codelineno-2-30" name="__codelineno-2-30"></a><span class="p">}</span>
 <a href="#__codelineno-2-31" id="__codelineno-2-31" name="__codelineno-2-31"></a>
-<a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="cm">* gets the response body as string if not binary</span>
-<a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="cm">* </span>
-<a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="cm">* @return the body or empty string if null or binary</span>
-<a href="#__codelineno-2-36" id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-37" id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getResponseBody</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-38" id="__codelineno-2-38" name="__codelineno-2-38"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">getResponse</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-39" id="__codelineno-2-39" name="__codelineno-2-39"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">getResponse</span><span class="p">().</span><span class="nx">getBody</span><span class="p">();</span><span class="w"></span>
-<a href="#__codelineno-2-40" id="__codelineno-2-40" name="__codelineno-2-40"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-41" id="__codelineno-2-41" name="__codelineno-2-41"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s2">""</span><span class="p">;</span><span class="w"></span>
-<a href="#__codelineno-2-42" id="__codelineno-2-42" name="__codelineno-2-42"></a><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-43" id="__codelineno-2-43" name="__codelineno-2-43"></a>
-<a href="#__codelineno-2-44" id="__codelineno-2-44" name="__codelineno-2-44"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-45" id="__codelineno-2-45" name="__codelineno-2-45"></a><span class="cm">* Returns the value of the variable or null if variable does not exist</span>
-<a href="#__codelineno-2-46" id="__codelineno-2-46" name="__codelineno-2-46"></a><span class="cm">* </span>
-<a href="#__codelineno-2-47" id="__codelineno-2-47" name="__codelineno-2-47"></a><span class="cm">* @param key</span>
-<a href="#__codelineno-2-48" id="__codelineno-2-48" name="__codelineno-2-48"></a><span class="cm">*            the variable name</span>
-<a href="#__codelineno-2-49" id="__codelineno-2-49" name="__codelineno-2-49"></a><span class="cm">* @returns the variable value.</span>
-<a href="#__codelineno-2-50" id="__codelineno-2-50" name="__codelineno-2-50"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-51" id="__codelineno-2-51" name="__codelineno-2-51"></a><span class="kd">function</span><span class="w"> </span><span class="nx">getVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-52" id="__codelineno-2-52" name="__codelineno-2-52"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"variables"</span><span class="p">).</span><span class="nx">getVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-2-53" id="__codelineno-2-53" name="__codelineno-2-53"></a><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-2-54" id="__codelineno-2-54" name="__codelineno-2-54"></a>
-<a href="#__codelineno-2-55" id="__codelineno-2-55" name="__codelineno-2-55"></a><span class="cm">/**</span>
-<a href="#__codelineno-2-56" id="__codelineno-2-56" name="__codelineno-2-56"></a><span class="cm">* Sets the value of the variable.</span>
-<a href="#__codelineno-2-57" id="__codelineno-2-57" name="__codelineno-2-57"></a><span class="cm">* </span>
-<a href="#__codelineno-2-58" id="__codelineno-2-58" name="__codelineno-2-58"></a><span class="cm">* @param key</span>
-<a href="#__codelineno-2-59" id="__codelineno-2-59" name="__codelineno-2-59"></a><span class="cm">*            the variable name to set</span>
-<a href="#__codelineno-2-60" id="__codelineno-2-60" name="__codelineno-2-60"></a><span class="cm">* @param value</span>
-<a href="#__codelineno-2-61" id="__codelineno-2-61" name="__codelineno-2-61"></a><span class="cm">*            the value to set it to</span>
-<a href="#__codelineno-2-62" id="__codelineno-2-62" name="__codelineno-2-62"></a><span class="cm">*/</span><span class="w"></span>
-<a href="#__codelineno-2-63" id="__codelineno-2-63" name="__codelineno-2-63"></a><span class="kd">function</span><span class="w"> </span><span class="nx">setVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-2-64" id="__codelineno-2-64" name="__codelineno-2-64"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"variables"</span><span class="p">).</span><span class="nx">addVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-2-65" id="__codelineno-2-65" name="__codelineno-2-65"></a><span class="p">}</span><span class="w"></span>
+<a href="#__codelineno-2-32" id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="cm">/** Sets the variable. */</span>
+<a href="#__codelineno-2-33" id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="kd">function</span><span class="w"> </span><span class="nx">setVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-2-34" id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">getInput</span><span class="p">(</span><span class="s2">"variables"</span><span class="p">).</span><span class="nx">addVariable</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="p">);</span>
+<a href="#__codelineno-2-35" id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="cm">    * jump to a group within the script with the specified name.</span>
-<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="cm">    * </span>
-<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="cm">    * @param groupName</span>
-<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="cm">    *            the name of the group to go to. if the group does not exist, it</span>
-<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="cm">    *            skips to next script.</span>
-<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">gotoGroup</span><span class="p">(</span><span class="nx">groupName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"goto "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">groupName</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>
-<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="cm">    * restart the TestPlan from the start.</span>
-<a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">restartPlan</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"restartPlan"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a>
-<a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="cm">    * aborts the current ScriptGroup and proceeds to the next.</span>
-<a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="cm">    * </span>
-<a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="cm">    * @returns</span>
-<a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">abortScriptGroup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortScriptGroup"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a>
-<a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="cm">    * aborts the current Script and proceeds to the next.</span>
-<a href="#__codelineno-3-30" id="__codelineno-3-30" name="__codelineno-3-30"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-31" id="__codelineno-3-31" name="__codelineno-3-31"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">abortScript</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-32" id="__codelineno-3-32" name="__codelineno-3-32"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortScript"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-33" id="__codelineno-3-33" name="__codelineno-3-33"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-34" id="__codelineno-3-34" name="__codelineno-3-34"></a>
-<a href="#__codelineno-3-35" id="__codelineno-3-35" name="__codelineno-3-35"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-36" id="__codelineno-3-36" name="__codelineno-3-36"></a><span class="cm">    * aborts the current group and proceeds to the next request after the current</span>
-<a href="#__codelineno-3-37" id="__codelineno-3-37" name="__codelineno-3-37"></a><span class="cm">    * group.</span>
-<a href="#__codelineno-3-38" id="__codelineno-3-38" name="__codelineno-3-38"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-39" id="__codelineno-3-39" name="__codelineno-3-39"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">abortGroup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-40" id="__codelineno-3-40" name="__codelineno-3-40"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortGroup"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-41" id="__codelineno-3-41" name="__codelineno-3-41"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-42" id="__codelineno-3-42" name="__codelineno-3-42"></a>
-<a href="#__codelineno-3-43" id="__codelineno-3-43" name="__codelineno-3-43"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-44" id="__codelineno-3-44" name="__codelineno-3-44"></a><span class="cm">    * terminates this user.</span>
-<a href="#__codelineno-3-45" id="__codelineno-3-45" name="__codelineno-3-45"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-46" id="__codelineno-3-46" name="__codelineno-3-46"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">terminateUser</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-47" id="__codelineno-3-47" name="__codelineno-3-47"></a><span class="w">        </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"terminateUser"</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-48" id="__codelineno-3-48" name="__codelineno-3-48"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
-<a href="#__codelineno-3-49" id="__codelineno-3-49" name="__codelineno-3-49"></a>
-<a href="#__codelineno-3-50" id="__codelineno-3-50" name="__codelineno-3-50"></a><span class="w">    </span><span class="cm">/**</span>
-<a href="#__codelineno-3-51" id="__codelineno-3-51" name="__codelineno-3-51"></a><span class="cm">    * sets the action in the output.</span>
-<a href="#__codelineno-3-52" id="__codelineno-3-52" name="__codelineno-3-52"></a><span class="cm">    */</span><span class="w"></span>
-<a href="#__codelineno-3-53" id="__codelineno-3-53" name="__codelineno-3-53"></a><span class="w">    </span><span class="kd">function</span><span class="w"> </span><span class="nx">setAction</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<a href="#__codelineno-3-54" id="__codelineno-3-54" name="__codelineno-3-54"></a><span class="w">        </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">setOutput</span><span class="p">(</span><span class="s2">"action"</span><span class="p">,</span><span class="w"> </span><span class="nx">action</span><span class="p">);</span><span class="w"></span>
-<a href="#__codelineno-3-55" id="__codelineno-3-55" name="__codelineno-3-55"></a><span class="w">    </span><span class="p">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="cm">/** Jumps to the group with this name; if there is none, skips to the next script. */</span>
+<a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kd">function</span><span class="w"> </span><span class="nx">gotoGroup</span><span class="p">(</span><span class="nx">groupName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"goto "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">groupName</span><span class="p">);</span>
+<a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="p">}</span>
+<a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>
+<a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="cm">/** Restarts the test plan from the start. */</span>
+<a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="kd">function</span><span class="w"> </span><span class="nx">restartPlan</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"restartPlan"</span><span class="p">);</span>
+<a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="p">}</span>
+<a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>
+<a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="cm">/** Aborts the current script group and goes to the next. */</span>
+<a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="kd">function</span><span class="w"> </span><span class="nx">abortScriptGroup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-13" id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortScriptGroup"</span><span class="p">);</span>
+<a href="#__codelineno-3-14" id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="p">}</span>
+<a href="#__codelineno-3-15" id="__codelineno-3-15" name="__codelineno-3-15"></a>
+<a href="#__codelineno-3-16" id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="cm">/** Aborts the current script and goes to the next. */</span>
+<a href="#__codelineno-3-17" id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="kd">function</span><span class="w"> </span><span class="nx">abortScript</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-18" id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortScript"</span><span class="p">);</span>
+<a href="#__codelineno-3-19" id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="p">}</span>
+<a href="#__codelineno-3-20" id="__codelineno-3-20" name="__codelineno-3-20"></a>
+<a href="#__codelineno-3-21" id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="cm">/** Aborts the current group and goes to the request after it. */</span>
+<a href="#__codelineno-3-22" id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="kd">function</span><span class="w"> </span><span class="nx">abortGroup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-23" id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"abortGroup"</span><span class="p">);</span>
+<a href="#__codelineno-3-24" id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="p">}</span>
+<a href="#__codelineno-3-25" id="__codelineno-3-25" name="__codelineno-3-25"></a>
+<a href="#__codelineno-3-26" id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="cm">/** Stops this user. */</span>
+<a href="#__codelineno-3-27" id="__codelineno-3-27" name="__codelineno-3-27"></a><span class="kd">function</span><span class="w"> </span><span class="nx">terminateUser</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-28" id="__codelineno-3-28" name="__codelineno-3-28"></a><span class="w">    </span><span class="nx">setAction</span><span class="p">(</span><span class="s2">"terminateUser"</span><span class="p">);</span>
+<a href="#__codelineno-3-29" id="__codelineno-3-29" name="__codelineno-3-29"></a><span class="p">}</span>
+<a href="#__codelineno-3-30" id="__codelineno-3-30" name="__codelineno-3-30"></a>
+<a href="#__codelineno-3-31" id="__codelineno-3-31" name="__codelineno-3-31"></a><span class="cm">/** Sets the action output. */</span>
+<a href="#__codelineno-3-32" id="__codelineno-3-32" name="__codelineno-3-32"></a><span class="kd">function</span><span class="w"> </span><span class="nx">setAction</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a href="#__codelineno-3-33" id="__codelineno-3-33" name="__codelineno-3-33"></a><span class="w">    </span><span class="nx">ioBean</span><span class="p">.</span><span class="nx">setOutput</span><span class="p">(</span><span class="s2">"action"</span><span class="p">,</span><span class="w"> </span><span class="nx">action</span><span class="p">);</span>
+<a href="#__codelineno-3-34" id="__codelineno-3-34" name="__codelineno-3-34"></a><span class="p">}</span>
 </code></pre></div>
 </div>
 </div>
-</input></input></div>
+</div>
 </details>
 </article>
 </div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
 </div>
-<a class="md-top md-icon" data-md-component="top" data-md-state="hidden" href="#">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
-            Back to top
-          </a>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
 </main>
 <footer class="md-footer">
-<nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Projects" class="md-footer__link md-footer__link--prev" href="../projects/" rel="prev">
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</div>
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Previous
-              </span>
-              Projects
-            </div>
-</div>
-</a>
-<a aria-label="Next: Filters and Filter Groups" class="md-footer__link md-footer__link--next" href="../filters/" rel="next">
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Next
-              </span>
-              Filters and Filter Groups
-            </div>
-</div>
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
-</div>
-</a>
-</nav>
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-copyright">
@@ -976,8 +1424,8 @@ A variable can also be set by parsing the <code>response</code> or <code>headers
     </a>
 </div>
 <div class="md-social">
-<a class="md-social__link" href="https://twitter.com/squidfunk" rel="noopener" target="_blank" title="twitter.com">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"></path></svg>
+<a class="md-social__link" href="https://github.com/intuit/Tank" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
 </a>
 </div>
 </div>
@@ -987,8 +1435,8 @@ A variable can also be set by parsing the <code>response</code> or <code>headers
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-<script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
+<script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script>document$.subscribe(() => {
             window.update_swagger_ui_iframe_height = function (id) {
                 var iFrameID = document.getElementById(id);

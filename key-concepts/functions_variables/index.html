@@ -5,18 +5,20 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://intuit.github.io/Tank/key-concepts/functions_variables/" rel="canonical"/>
+<link href="../jobs/" rel="prev"/>
+<link href="../io-functions/" rel="next"/>
 <link href="../../assets/TankLogo.svg" rel="icon"/>
-<meta content="mkdocs-1.3.1, mkdocs-material-8.2.13" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Functions and Variables - Tank docs</title>
-<link href="../../assets/stylesheets/main.e411adfe.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.cc9b2e1e.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
 <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-<script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 </head>
 <body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
-<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
@@ -27,13 +29,13 @@
 </div>
 <div data-md-component="announce">
 </div>
-<header class="md-header md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
 <nav aria-label="Header" class="md-header__inner md-grid">
 <a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="Tank docs">
 <img alt="logo" src="../../assets/TankLogo.svg"/>
 </a>
 <label class="md-header__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
 </label>
 <div class="md-header__title" data-md-component="header-title">
 <div class="md-header__ellipsis">
@@ -52,17 +54,18 @@
 </div>
 </div>
 <form class="md-header__option" data-md-component="palette">
-<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"></path></svg>
 </label>
-<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"></path></svg>
 </label>
 </form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
 <label class="md-header__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
 </label>
 <div class="md-search" data-md-component="search" role="dialog">
 <label class="md-search__overlay" for="__search"></label>
@@ -70,22 +73,22 @@
 <form class="md-search__form" name="search">
 <input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
 <label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </label>
 <nav aria-label="Search" class="md-search__options">
-<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
 </button>
 </nav>
 </form>
 <div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
 <div class="md-search-result" data-md-component="search-result">
 <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
 </div>
 </div>
@@ -94,7 +97,7 @@
 <div class="md-header__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -103,42 +106,87 @@
 </div>
 </nav>
 <nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
-<div class="md-tabs__inner md-grid">
+<div class="md-grid">
 <ul class="md-tabs__list">
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../..">
-      Welcome to Intuit Tank
-    </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link md-tabs__link--active" href="../projects/">
-        Key Concepts
+        
+  
+  
+    
+  
+  Intuit Tank
+
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../roles/">
-      Roles and Permissions
-    </a>
+<a class="md-tabs__link" href="../../installation-guide/quickstart/">
+          
+  
+  
+  Set-up and Installation
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../web-ui/">
+          
+  
+  
+  User Guide
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../administration/">
-      Administration
-    </a>
+          
+  
+  
+  Administration
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../../supplemental-tools/">
-      Supplemental Tools
-    </a>
+        
+  
+  
+    
+  
+  Supplemental Tools
+
+      </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../installation-guide/installation/">
-      Set-up &amp; Installation
-    </a>
+<a class="md-tabs__link" href="../../api/">
+          
+  
+  
+  REST API
+
+        </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../apispec/">
-      Tank API Reference
-    </a>
+<a class="md-tabs__link" href="../../faq/">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../gatlings-vs-tank/">
+        
+  
+  
+    
+  
+  Ideology: Gatling vs Tank
+
+      </a>
 </li>
 </ul>
 </div>
@@ -160,7 +208,7 @@
 <div class="md-nav__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -170,45 +218,196 @@
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../..">
-        Welcome to Intuit Tank
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Intuit Tank
+  
+
+    
+  </span>
+</a>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2">
-          Key Concepts
-          <span class="md-nav__icon md-icon"></span>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Set-up and Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-label="Key Concepts" class="md-nav" data-md-level="1">
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_2">
 <span class="md-nav__icon md-icon"></span>
-          Key Concepts
-        </label>
+            
+  
+    Set-up and Installation
+  
+
+          </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/installation/">
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../installation-guide/configuration/">
+<span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../web-ui/">
+<span class="md-ellipsis">
+    
+  
+    The Web UI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../projects/">
-        Projects
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../scripts/">
-        Scripts
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../filters/">
-        Filters and Filter Groups
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Filters and Filter Groups
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../datafiles/">
+<span class="md-ellipsis">
+    
+  
+    Data Files
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../jobs/">
+<span class="md-ellipsis">
+    
+  
+    Jobs and the Agent Tracker
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-          Functions and Variables
-          <span class="md-nav__icon md-icon"></span>
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
-        Functions and Variables
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+</a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
 <span class="md-nav__icon md-icon"></span>
@@ -216,90 +415,317 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#types-of-functions">
-    Types of Functions
-  </a>
+<a class="md-nav__link" href="#variables">
+<span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#using-variables-and-functions">
+<span class="md-ellipsis">
+      
+        Using variables and functions
+      
+    </span>
+</a>
+<nav aria-label="Using variables and functions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expressions">
+<span class="md-ellipsis">
+      
+        Expressions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#built-in-functions">
+<span class="md-ellipsis">
+      
+        Built-in functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#legacy-function-syntax">
+<span class="md-ellipsis">
+      
+        Legacy #function syntax
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" id="__nav_2_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2_5">
-          Types Of In-built Functions
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-label="Types Of In-built Functions" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_2_5">
+<input class="md-nav__toggle md-toggle" id="__nav_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Types Of In-built Functions
+  
+
+    
+  </span>
 <span class="md-nav__icon md-icon"></span>
-          Types Of In-built Functions
-        </label>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Types Of In-built Functions
+  
+
+          </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="../io-functions/">
-        IO Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    IO Functions
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../string-functions/">
-        String Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    String Functions
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../date-functions/">
-        Date Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Date Functions
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../monetary-functions/">
-        Monetary Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Monetary Functions
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../numeric-functions/">
-        Numeric Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Numeric Functions
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../tax-functions/">
-        Tax Functions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Tax Functions
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../datafiles/">
-        Data Files
-      </a>
+<a class="md-nav__link" href="../scripting/">
+<span class="md-ellipsis">
+    
+  
+    Scripting Languages
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../glossary/">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../administration/">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../../roles/">
-        Roles and Permissions
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Roles and Permissions
+  
+
+    
+  </span>
+</a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../administration/">
-        Administration
-      </a>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../../supplemental-tools/">
-        Supplemental Tools
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/">
+<span class="md-ellipsis">
+    
+  
+    Using the REST API
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../installation-guide/installation/">
-        Set-up &amp; Installation
-      </a>
+<a class="md-nav__link" href="../../api/reference/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../apispec/">
-        Tank API Reference
-      </a>
+<a class="md-nav__link" href="../../faq/">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../gatlings-vs-tank/">
+<span class="md-ellipsis">
+    
+  
+    Ideology: Gatling vs Tank
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -316,9 +742,53 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#types-of-functions">
-    Types of Functions
-  </a>
+<a class="md-nav__link" href="#variables">
+<span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#using-variables-and-functions">
+<span class="md-ellipsis">
+      
+        Using variables and functions
+      
+    </span>
+</a>
+<nav aria-label="Using variables and functions" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#expressions">
+<span class="md-ellipsis">
+      
+        Expressions
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#built-in-functions">
+<span class="md-ellipsis">
+      
+        Built-in functions
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#legacy-function-syntax">
+<span class="md-ellipsis">
+      
+        Legacy #function syntax
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -327,73 +797,317 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/key-concepts/functions_variables.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/key-concepts/functions_variables.md" rel="edit" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
 </a>
 <h1 id="functions-and-variables">Functions and Variables</h1>
-<p>Functions can be used to manipulate data during test execution. They can be used anywhere in place of a Value.  </p>
-<p>Functions and Variables both use the same format. They start with either a <code>#</code> or <code>$</code> and then are enclosed in parentheses. <code>e.g. #{functionType.function(param, param2)}</code> or <code>${functionType.function(param, param2)}</code>. Variables have no parentheses. <code>e.g. #{varName}</code></p>
-<p>Functions or variables can be nested in other functions. <br/>
-<code>e.g. #{stringFunctions.toBase64(ioFunctions.getFileData(fileName)}</code> <br/>
-In this example the variable is <code>fileName</code> which is passed to the <code>getFileDataFunction</code> which is passed to the <code>toBase64</code> function.</p>
-<details class="info">
-<summary>Example: Using Functions</summary>
+<p>Variables and functions make a script dynamic: they put different data into each request, for each virtual user, while the test runs. They're evaluated on the agent.</p>
+<h2 id="variables">Variables</h2>
+<p>A variable is a named string. You can set one:</p>
 <ul>
-<li>Declaring the function <code>#{stringFunctions.concat('Intuit ', 'Tank ',' Rocks')}</code> would yield <code>Intuit Tank Rocks</code>.</li>
-<li>Declaring the function <code>#{numericFunctions.mod(authId, 10)}</code> with the variable <code>${authId}</code> defined as <code>51</code>would result in <code>51 % 10 = 1</code>.</li>
+<li><strong>In the project</strong>, as a global variable on the project's <strong>Variables</strong> tab (see <a href="../projects/">Projects</a>). Unless you allow scripts to override project variables, a script step can't change them.</li>
+<li><strong>With a Variable step</strong> in a script (see <a href="../scripts/#variables">Scripts</a>). The value can be a literal, an expression or a function.</li>
+<li><strong>With an assignment</strong> on a request, which stores part of the response (body, header or cookie) in a variable.</li>
+<li><strong>From a Logic step</strong>, with <code>setVariable(name, value)</code> (see <a href="../scripting/">Scripting Languages</a>).</li>
 </ul>
-</details>
-<h2 id="types-of-functions">Types of Functions</h2>
-<p>There are 6 built in function types.  </p>
+<p>Each virtual user has its own copy of every variable. Tank also sets these:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>THREAD_ID</code></td>
+<td style="text-align: left;">The number of the virtual user on its agent. It can't be overridden.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>TANK_HTTP_PROXY</code></td>
+<td style="text-align: left;">Not set by Tank. If you set it to <code>host:port</code>, the agent sends requests through that proxy, for example <code>myProxyserver:80</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="using-variables-and-functions">Using variables and functions</h2>
+<p>There are two ways to use a variable, and two to call a function.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Syntax</th>
+<th style="text-align: left;">Where it works</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>#{expression}</code></td>
+<td style="text-align: left;">Anywhere in a value, any number of times. Use this.</td>
+<td style="text-align: left;"><code>#{rootContext}/ajax/logEmail</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>@name</code></td>
+<td style="text-align: left;">Only when it is the whole value. Replaced by the value of variable <code>name</code>.</td>
+<td style="text-align: left;"><code>@webserver</code> in a request's Host</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.category.name.arg1.arg2</code></td>
+<td style="text-align: left;">Only when it is the whole value. The legacy function syntax, described <a href="#legacy-function-syntax">below</a>.</td>
+<td style="text-align: left;"><code>#function.date.currentDate.yyyy-MM-dd</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>#{...}</code> expressions are evaluated in request hosts, paths, protocols and ports, query strings, POST data and request bodies, headers, cookies, validations, assignments, authentication fields, think and sleep times, and Variable steps.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>${...}</code> isn't evaluated</p>
+<p>Older guides show <code>${name}</code> as an alternative to <code>#{name}</code>. Tank no longer evaluates it: <code>${name}</code> is sent as the literal text <code>${name}</code>. Use <code>#{name}</code>.</p>
+</div>
+<h3 id="expressions">Expressions</h3>
+<p>The text between <code>#{</code> and <code>}</code> is a <a href="https://commons.apache.org/proper/commons-jexl/reference/syntax.html">JEXL</a> expression. Inside it:</p>
 <ul>
-<li><code>ioFunctions</code></li>
-<li><code>stringFunctions</code></li>
-<li><code>dateFunctions</code></li>
-<li><code>monetaryFunctions</code></li>
-<li><code>numericFunctions</code></li>
-<li><code>taxFunctions</code></li>
+<li>A bare name is a variable: <code>#{userName}</code>. Use letters, digits and underscores in names you refer to this way; <code>#{user-name}</code> would mean <code>user</code> minus <code>name</code>.</li>
+<li>Strings are quoted with <code>'</code> or <code>"</code>: <code>#{stringFunctions.concat('Intuit ', 'Tank')}</code>.</li>
+<li>
+<p>Functions are called as <code>category.function(arguments)</code>, and arguments can be variables or other function calls:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>#{stringFunctions.toBase64(ioFunctions.getFileData(fileName))}
+</code></pre></div>
+<p>Here <code>fileName</code> is a variable whose value is passed to <code>getFileData</code>, whose result is passed to <code>toBase64</code>.</p>
+</li>
+<li>
+<p><code>+</code> joins strings and <code>? :</code> chooses between values: <code>#{env == 'prod' ? 'api.example.com' : 'qa.example.com'}</code>.</p>
+</li>
 </ul>
-<details class="info">
-<summary>Tip: Types of Functions and their usage</summary>
-<p>Check out the sub-sction <code>Types of Functions</code> on the left navigation bar for Information on each Function Type and their usage.</p>
-</details>
+<p>For example, with a variable <code>authId</code> set to <code>51</code>, <code>#{numericFunctions.mod(authId, 10)}</code> returns <code>1</code>, and <code>#{stringFunctions.concat('Intuit ', 'Tank ', 'Rocks')}</code> returns <code>Intuit Tank Rocks</code>.</p>
+<p>Keep these rules in mind:</p>
+<ul>
+<li><strong>An expression must produce a string.</strong> All the built-in functions return strings, apart from <code>ioFunctions.getFileBytes</code>. Arithmetic such as <code>#{count + 1}</code> produces a number and fails the step; use <code>#{numericFunctions.add(count, 1)}</code>.</li>
+<li><strong>Errors give an empty string.</strong> An unknown variable, a misspelled function or wrong arguments evaluate to <code>""</code> rather than stopping the test. If a value comes out empty, check the spelling against the function pages.</li>
+<li><strong>An expression ends at the first <code>}</code></strong>, so it can't contain a literal <code>}</code>.</li>
+<li><strong>When an expression is evaluated matters.</strong> A Variable step evaluates its value once, when the step runs: a variable set to <code>#{stringFunctions.getUUID()}</code> keeps the same UUID until it is set again. An expression written straight into a request field is evaluated every time the request runs.</li>
+<li>Only Tank's functions can be called. Java methods on values, such as <code>#{name.toUpperCase()}</code>, aren't allowed and return an empty string.</li>
+</ul>
+<h2 id="built-in-functions">Built-in functions</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Category</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="../io-functions/"><code>ioFunctions</code></a></td>
+<td style="text-align: left;">Read values from CSV data files, and read whole files.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="../string-functions/"><code>stringFunctions</code></a></td>
+<td style="text-align: left;">Join, cut, encode and decode strings; random strings, UUIDs and user IDs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="../date-functions/"><code>dateFunctions</code></a></td>
+<td style="text-align: left;">The current date and time, in any format and time zone.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="../monetary-functions/"><code>monetaryFunctions</code></a></td>
+<td style="text-align: left;">Random money amounts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="../numeric-functions/"><code>numericFunctions</code></a></td>
+<td style="text-align: left;">Arithmetic and random numbers.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="../tax-functions/"><code>taxFunctions</code></a></td>
+<td style="text-align: left;">Social Security Numbers.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="legacy-function-syntax">Legacy <code>#function</code> syntax</h2>
+<p>Before <code>#{...}</code> expressions, Tank called functions with a dotted syntax: <code>#function.&lt;category&gt;.&lt;name&gt;.&lt;arg1&gt;.&lt;arg2&gt;...</code>. It still works, and a few functions are only available this way, but prefer <code>#{...}</code> for new scripts. The rules:</p>
+<ul>
+<li>The value must start with <code>#function</code>, and the function is the whole value; it can't be combined with other text.</li>
+<li>Category and function names aren't case sensitive.</li>
+<li>Arguments are separated by <code>.</code>. To put a dot inside an argument, write <code>-dot-</code>: <code>#function.date.currentDateTime.HH:mm:ss-dot-SSS</code>.</li>
+<li>An argument that starts with <code>@</code> is replaced by that variable's value: <code>#function.string.concat.user-.@THREAD_ID</code>. This doesn't work for the <code>numeric</code> functions or <code>monetary.randomNegative</code>, whose arguments must be literal numbers.</li>
+<li>A function that fails, or a value that isn't a valid function, gives an empty value.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>#function.date.currentDate.&lt;format&gt;</code></td>
+<td style="text-align: left;">Today's date in the agent's time zone.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.date.currentDateTime.&lt;format&gt;</code></td>
+<td style="text-align: left;">The current date and time. Default format <code>yyyy-MM-dd HH:mm:ss</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.date.currentUTC.&lt;format&gt;</code></td>
+<td style="text-align: left;">The current UTC time. Accepts the <a href="../date-functions/#named-utc-formats">named UTC formats</a>; default ISO 8601.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.date.addDays.&lt;days&gt;.&lt;format&gt;</code></td>
+<td style="text-align: left;">The date <code>days</code> days from today (negative to go back).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.date.addDaysUTC.&lt;days&gt;.&lt;format&gt;</code></td>
+<td style="text-align: left;">The UTC date and time <code>days</code> days from now. Accepts the named UTC formats; default ISO 8601. Example: <code>#function.date.addDaysUTC.1.ISO_UTC</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.monetary.randomPositive.&lt;length&gt;</code></td>
+<td style="text-align: left;">A random positive amount with <code>length</code> whole digits and two decimals.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.monetary.randomNegative.&lt;length&gt;</code></td>
+<td style="text-align: left;">A random negative amount.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.add.&lt;v1&gt;.&lt;v2&gt;...</code></td>
+<td style="text-align: left;">The sum of the values, as a decimal (<code>#function.numeric.add.1.2.3</code> gives <code>6.0</code>). Write decimals with <code>-dot-</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.subtract.&lt;v1&gt;.&lt;v2&gt;...</code></td>
+<td style="text-align: left;">The first value minus the others, as a decimal.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.mod.&lt;value&gt;.&lt;modulo&gt;</code></td>
+<td style="text-align: left;"><code>value % modulo</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.randomPositiveWhole.&lt;length&gt;</code></td>
+<td style="text-align: left;">A random whole number with <code>length</code> digits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.randomNegativeWhole.&lt;length&gt;</code></td>
+<td style="text-align: left;">Its negative.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.randomPositiveFloat.&lt;length&gt;.&lt;decimals&gt;</code></td>
+<td style="text-align: left;">A random number with <code>length</code> whole digits and <code>decimals</code> decimal places.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.numeric.randomNegativeFloat.&lt;length&gt;.&lt;decimals&gt;</code></td>
+<td style="text-align: left;">Its negative.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.concat.&lt;v1&gt;.&lt;v2&gt;...</code></td>
+<td style="text-align: left;">The arguments joined together.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.substring.&lt;subject&gt;.&lt;start&gt;[.&lt;stop&gt;]</code></td>
+<td style="text-align: left;">Part of <code>subject</code> from <code>start</code> (inclusive) to <code>stop</code> (exclusive, optional).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.substring.&lt;startMarker&gt;.&lt;endMarker&gt;</code></td>
+<td style="text-align: left;">In a body assignment or body validation only: the text of the response body between the first <code>startMarker</code> and the next <code>endMarker</code> (to the end of the body if <code>endMarker</code> isn't found). Used when the second argument isn't a number. Example: <code>#function.string.substring.token=.&amp;</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.lastSubstring.&lt;startMarker&gt;.&lt;endMarker&gt;</code></td>
+<td style="text-align: left;">Like the response-body <code>substring</code>, but starts at the last <code>startMarker</code>. Useful for the final event of a streamed response.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.userid.&lt;prefixLength&gt;.&lt;format&gt;</code></td>
+<td style="text-align: left;">A random letters-and-digits prefix followed by today's date, like <code>stringFunctions.userIdDate</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaLower.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random lower-case letters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaUpper.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random upper-case letters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaMixed.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random letters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomNumeric.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random digits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomSpecial.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random special characters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaMixedNumeric.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random letters and digits.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaMixedSpecial.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random letters and special characters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.randomAlphaMixedNumericSpecial.&lt;length&gt;</code></td>
+<td style="text-align: left;">Random letters, digits and special characters.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRange.&lt;min&gt;.&lt;max&gt;[.&lt;patterns&gt;]</code></td>
+<td style="text-align: left;">A unique number from <code>min</code> (inclusive) to <code>max</code> (exclusive), split between agents like <code>stringFunctions.userIdFromRange</code>. Numbers matching any of <code>patterns</code> are skipped.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRangeExclude.&lt;min&gt;.&lt;max&gt;.&lt;patterns&gt;</code></td>
+<td style="text-align: left;">The same as <code>useridFromRange</code> with patterns.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRangeInclude.&lt;min&gt;.&lt;max&gt;.&lt;patterns&gt;</code></td>
+<td style="text-align: left;">As <code>useridFromRange</code>, but only numbers that match one of <code>patterns</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRangeWithMod.&lt;min&gt;.&lt;max&gt;.&lt;mod&gt;</code></td>
+<td style="text-align: left;">As <code>useridFromRange</code>, but only multiples of <code>mod</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRangeWithModInclude.&lt;min&gt;.&lt;max&gt;.&lt;mod&gt;</code></td>
+<td style="text-align: left;">The same as <code>useridFromRangeWithMod</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.string.useridFromRangeWithModExclude.&lt;min&gt;.&lt;max&gt;.&lt;mod&gt;</code></td>
+<td style="text-align: left;">As <code>useridFromRange</code>, but only numbers that aren't multiples of <code>mod</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.generic.getcsv.&lt;column&gt;</code></td>
+<td style="text-align: left;">Column <code>column</code> (zero-based) of the next line of <code>csv-data.txt</code>, read the same way as <a href="../io-functions/"><code>ioFunctions.getCSVData</code></a>. Empty when the file runs out.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.generic.getfiledata.&lt;fileName&gt;.&lt;column&gt;</code></td>
+<td style="text-align: left;">Column <code>column</code> of the next line of <code>fileName</code>. Dots in the file name can be written as-is.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.generic.getssn[.&lt;startSsn&gt;]</code></td>
+<td style="text-align: left;">The next valid Social Security Number, unique across all agents: the range from <code>startSsn</code> (default 100000000) to 899999999 is split between the agents.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.tax.getssn</code></td>
+<td style="text-align: left;">The next valid Social Security Number after the value of the variable <code>SSN_START</code>, like <code>taxFunctions.getSsn</code>. Empty if <code>SSN_START</code> isn't set.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>#function.datatype.&lt;name&gt;</code></td>
+<td style="text-align: left;">A boundary value for testing input validation. See the table below.</td>
+</tr>
+</tbody>
+</table>
+<p><code>patterns</code> for the <code>useridFromRange</code> functions are comma-separated Java regular expressions, each matched against the whole number: <code>#function.string.useridFromRangeInclude.1000.2000.1[0-4]\d\d</code> gives numbers from 1000 to 1499. Write any <code>.</code> in a pattern as <code>-dot-</code>.</p>
+<p>The <code>datatype</code> names are <code>BYTE_Max</code>, <code>BYTE_Min</code>, <code>BYTE_Max_Plus</code>, <code>BYTE_Min_Minus</code>, <code>SHORT_Max</code>, <code>SHORT_Min</code>, <code>SHORT_Max_Plus</code>, <code>SHORT_Min_Minus</code>, <code>INT_Max</code>, <code>INT_Min</code>, <code>INT_Max_Plus</code>, <code>INT_Min_Minus</code>, <code>LONG_Max</code>, <code>LONG_Min</code>, <code>LONG_Max_Plus</code> and <code>LONG_Min_Minus</code>: the largest or smallest value of the Java type, or one beyond it. For example, <code>#function.datatype.SHORT_Max_Plus</code> gives <code>32768</code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>INT_Max_Plus</code> and <code>INT_Min_Minus</code> overflow: they give <code>-2147483648</code> and <code>2147483647</code> rather than <code>2147483648</code> and <code>-2147483649</code>.</p>
+</div>
 </article>
 </div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
 </div>
-<a class="md-top md-icon" data-md-component="top" data-md-state="hidden" href="#">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
-            Back to top
-          </a>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
 </main>
 <footer class="md-footer">
-<nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Filters and Filter Groups" class="md-footer__link md-footer__link--prev" href="../filters/" rel="prev">
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</div>
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Previous
-              </span>
-              Filters and Filter Groups
-            </div>
-</div>
-</a>
-<a aria-label="Next: IO Functions" class="md-footer__link md-footer__link--next" href="../io-functions/" rel="next">
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Next
-              </span>
-              IO Functions
-            </div>
-</div>
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
-</div>
-</a>
-</nav>
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-copyright">
@@ -405,8 +1119,8 @@ In this example the variable is <code>fileName</code> which is passed to the <co
     </a>
 </div>
 <div class="md-social">
-<a class="md-social__link" href="https://twitter.com/squidfunk" rel="noopener" target="_blank" title="twitter.com">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"></path></svg>
+<a class="md-social__link" href="https://github.com/intuit/Tank" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
 </a>
 </div>
 </div>
@@ -416,8 +1130,8 @@ In this example the variable is <code>fileName</code> which is passed to the <co
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-<script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
+<script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script>document$.subscribe(() => {
             window.update_swagger_ui_iframe_height = function (id) {
                 var iFrameID = document.getElementById(id);

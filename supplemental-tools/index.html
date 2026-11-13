@@ -5,18 +5,20 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://intuit.github.io/Tank/supplemental-tools/" rel="canonical"/>
+<link href="../roles/" rel="prev"/>
+<link href="../api/" rel="next"/>
 <link href="../assets/TankLogo.svg" rel="icon"/>
-<meta content="mkdocs-1.3.1, mkdocs-material-8.2.13" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.7" name="generator"/>
 <title>Supplemental Tools - Tank docs</title>
-<link href="../assets/stylesheets/main.e411adfe.min.css" rel="stylesheet"/>
-<link href="../assets/stylesheets/palette.cc9b2e1e.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/main.ec1eaa64.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
 <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-<script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 </head>
 <body data-md-color-accent="teal" data-md-color-primary="orange" data-md-color-scheme="default" dir="ltr">
-<script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
 <input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
@@ -27,13 +29,13 @@
 </div>
 <div data-md-component="announce">
 </div>
-<header class="md-header md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
 <nav aria-label="Header" class="md-header__inner md-grid">
 <a aria-label="Tank docs" class="md-header__button md-logo" data-md-component="logo" href=".." title="Tank docs">
 <img alt="logo" src="../assets/TankLogo.svg"/>
 </a>
 <label class="md-header__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
 </label>
 <div class="md-header__title" data-md-component="header-title">
 <div class="md-header__ellipsis">
@@ -52,17 +54,18 @@
 </div>
 </div>
 <form class="md-header__option" data-md-component="palette">
-<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_2" hidden="" title="Switch to dark mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="teal" data-md-color-media="" data-md-color-primary="orange" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"></path></svg>
 </label>
-<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_2" name="__palette" type="radio"/>
-<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to light mode">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"></path></svg>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="orange" data-md-color-media="" data-md-color-primary="teal" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"></path></svg>
 </label>
 </form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
 <label class="md-header__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
 </label>
 <div class="md-search" data-md-component="search" role="dialog">
 <label class="md-search__overlay" for="__search"></label>
@@ -70,22 +73,22 @@
 <form class="md-search__form" name="search">
 <input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
 <label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
 </label>
 <nav aria-label="Search" class="md-search__options">
-<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"></path></svg>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
 </button>
 </nav>
 </form>
 <div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
 <div class="md-search-result" data-md-component="search-result">
 <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+<ol class="md-search-result__list" role="presentation"></ol>
 </div>
 </div>
 </div>
@@ -94,7 +97,7 @@
 <div class="md-header__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -103,42 +106,87 @@
 </div>
 </nav>
 <nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
-<div class="md-tabs__inner md-grid">
+<div class="md-grid">
 <ul class="md-tabs__list">
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="..">
-      Welcome to Intuit Tank
-    </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../key-concepts/projects/">
-        Key Concepts
+        
+  
+  
+    
+  
+  Intuit Tank
+
       </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../roles/">
-      Roles and Permissions
-    </a>
+<a class="md-tabs__link" href="../installation-guide/quickstart/">
+          
+  
+  
+  Set-up and Installation
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../key-concepts/web-ui/">
+          
+  
+  
+  User Guide
+
+        </a>
 </li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../administration/">
-      Administration
-    </a>
+          
+  
+  
+  Administration
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+        
+  
+  
+    
+  
+  Supplemental Tools
+
+      </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link md-tabs__link--active" href="./">
-      Supplemental Tools
-    </a>
+<a class="md-tabs__link" href="../api/">
+          
+  
+  
+  REST API
+
+        </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../installation-guide/installation/">
-      Set-up &amp; Installation
-    </a>
+<a class="md-tabs__link" href="../faq/">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../apispec/">
-      Tank API Reference
-    </a>
+<a class="md-tabs__link" href="../gatlings-vs-tank/">
+        
+  
+  
+    
+  
+  Ideology: Gatling vs Tank
+
+      </a>
 </li>
 </ul>
 </div>
@@ -160,7 +208,7 @@
 <div class="md-nav__source">
 <a class="md-source" data-md-component="source" href="https://github.com/intuit/Tank" title="Go to repository">
 <div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"></path></svg>
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
 </div>
 <div class="md-source__repository">
     intuit/Tank
@@ -170,113 +218,383 @@
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
 <a class="md-nav__link" href="..">
-        Welcome to Intuit Tank
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Intuit Tank
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" id="__nav_2" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2">
-          Key Concepts
-          <span class="md-nav__icon md-icon"></span>
+<input class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Set-up and Installation
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-label="Key Concepts" class="md-nav" data-md-level="1">
+<nav aria-expanded="false" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_2">
 <span class="md-nav__icon md-icon"></span>
-          Key Concepts
-        </label>
+            
+  
+    Set-up and Installation
+  
+
+          </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="../installation-guide/quickstart/">
+<span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../installation-guide/installation/">
+<span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../installation-guide/configuration/">
+<span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/web-ui/">
+<span class="md-ellipsis">
+    
+  
+    The Web UI
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="../key-concepts/projects/">
-        Projects
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../key-concepts/scripts/">
-        Scripts
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../key-concepts/filters/">
-        Filters and Filter Groups
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/functions_variables/">
-        Functions and Variables
-      </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_5" id="__nav_2_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_2_5">
-          Types Of In-built Functions
-          <span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-label="Types Of In-built Functions" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_2_5">
-<span class="md-nav__icon md-icon"></span>
-          Types Of In-built Functions
-        </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/io-functions/">
-        IO Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/string-functions/">
-        String Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/date-functions/">
-        Date Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/monetary-functions/">
-        Monetary Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/numeric-functions/">
-        Numeric Functions
-      </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../key-concepts/tax-functions/">
-        Tax Functions
-      </a>
-</li>
-</ul>
-</nav>
+<span class="md-ellipsis">
+    
+  
+    Filters and Filter Groups
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../key-concepts/datafiles/">
-        Data Files
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Data Files
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/jobs/">
+<span class="md-ellipsis">
+    
+  
+    Jobs and the Agent Tracker
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/functions_variables/">
+<span class="md-ellipsis">
+    
+  
+    Functions and Variables
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_3_8" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Types Of In-built Functions
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_3_8_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_3_8">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Types Of In-built Functions
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/io-functions/">
+<span class="md-ellipsis">
+    
+  
+    IO Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/string-functions/">
+<span class="md-ellipsis">
+    
+  
+    String Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/date-functions/">
+<span class="md-ellipsis">
+    
+  
+    Date Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/monetary-functions/">
+<span class="md-ellipsis">
+    
+  
+    Monetary Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/numeric-functions/">
+<span class="md-ellipsis">
+    
+  
+    Numeric Functions
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/tax-functions/">
+<span class="md-ellipsis">
+    
+  
+    Tax Functions
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../roles/">
-        Roles and Permissions
-      </a>
+<a class="md-nav__link" href="../key-concepts/scripting/">
+<span class="md-ellipsis">
+    
+  
+    Scripting Languages
+  
+
+    
+  </span>
+</a>
 </li>
 <li class="md-nav__item">
+<a class="md-nav__link" href="../key-concepts/glossary/">
+<span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Administration
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
 <a class="md-nav__link" href="../administration/">
-        Administration
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Administration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../roles/">
+<span class="md-ellipsis">
+    
+  
+    Roles and Permissions
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
 <label class="md-nav__link md-nav__link--active" for="__toc">
-          Supplemental Tools
-          <span class="md-nav__icon md-icon"></span>
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
 </label>
 <a class="md-nav__link md-nav__link--active" href="./">
-        Supplemental Tools
-      </a>
+<span class="md-ellipsis">
+    
+  
+    Supplemental Tools
+  
+
+    
+  </span>
+</a>
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">
 <span class="md-nav__icon md-icon"></span>
@@ -284,83 +602,201 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#java-applet-tools">
-    Java "Applet" Tools
-  </a>
-<nav applet"="" aria-label="Java " class="md-nav" tools"="">
+<a class="md-nav__link" href="#downloading-the-tools">
+<span class="md-ellipsis">
+      
+        Downloading the tools
+      
+    </span>
+</a>
+<nav aria-label="Downloading the tools" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#list-of-available-applets">
-    List of available Applets
-  </a>
-<nav aria-label="List of available Applets" class="md-nav">
+<a class="md-nav__link" href="#from-the-web-ui">
+<span class="md-ellipsis">
+      
+        From the web UI
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#with-an-api-token">
+<span class="md-ellipsis">
+      
+        With an API token
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#agent-visual-debugger">
+<span class="md-ellipsis">
+      
+        Agent Visual Debugger
+      
+    </span>
+</a>
+<nav aria-label="Agent Visual Debugger" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#tank-agent-visual-debugger">
-    Tank Agent Visual Debugger
-  </a>
+<a class="md-nav__link" href="#using-the-debugger">
+<span class="md-ellipsis">
+      
+        Using the debugger
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#tank-script-filter-editor">
-    Tank Script Filter Editor
-  </a>
+<a class="md-nav__link" href="#debuggerproperties">
+<span class="md-ellipsis">
+      
+        debugger.properties
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#headless-mode">
+<span class="md-ellipsis">
+      
+        Headless mode
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
-</ul>
-</nav>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-filter-editor">
+<span class="md-ellipsis">
+      
+        Script Filter Editor
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#downloadable-tools">
-    Downloadable Tools
-  </a>
-<nav aria-label="Downloadable Tools" class="md-nav">
+<a class="md-nav__link" href="#tank-proxy-recorder">
+<span class="md-ellipsis">
+      
+        Tank Proxy (recorder)
+      
+    </span>
+</a>
+<nav aria-label="Tank Proxy (recorder)" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#list-of-downloadable-tools">
-    List of downloadable Tools
-  </a>
-<nav aria-label="List of downloadable Tools" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-agent-visual-debugger_1">
-    Tank Agent Visual Debugger
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-script-filter-editor_1">
-    Tank Script Filter Editor
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-proxy-package">
-    Tank Proxy Package
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#api-test-harness-debugger-package">
-    API Test Harness Debugger Package
-  </a>
-</li>
-</ul>
-</nav>
-</li>
-</ul>
-</nav>
+<a class="md-nav__link" href="#recording-a-session">
+<span class="md-ellipsis">
+      
+        Recording a session
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../installation-guide/installation/">
-        Set-up &amp; Installation
-      </a>
+<a class="md-nav__link" href="#api-test-harness">
+<span class="md-ellipsis">
+      
+        API Test Harness
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="../apispec/">
-        Tank API Reference
-      </a>
+<a class="md-nav__link" href="#jenkins-plugin-not-built">
+<span class="md-ellipsis">
+      
+        Jenkins plugin (not built)
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_6" type="checkbox"/>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../api/">
+<span class="md-ellipsis">
+    
+  
+    Using the REST API
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../api/reference/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../faq/">
+<span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../gatlings-vs-tank/">
+<span class="md-ellipsis">
+    
+  
+    Ideology: Gatling vs Tank
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -377,70 +813,124 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#java-applet-tools">
-    Java "Applet" Tools
-  </a>
-<nav applet"="" aria-label="Java " class="md-nav" tools"="">
+<a class="md-nav__link" href="#downloading-the-tools">
+<span class="md-ellipsis">
+      
+        Downloading the tools
+      
+    </span>
+</a>
+<nav aria-label="Downloading the tools" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#list-of-available-applets">
-    List of available Applets
-  </a>
-<nav aria-label="List of available Applets" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-agent-visual-debugger">
-    Tank Agent Visual Debugger
-  </a>
+<a class="md-nav__link" href="#from-the-web-ui">
+<span class="md-ellipsis">
+      
+        From the web UI
+      
+    </span>
+</a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#tank-script-filter-editor">
-    Tank Script Filter Editor
-  </a>
+<a class="md-nav__link" href="#with-an-api-token">
+<span class="md-ellipsis">
+      
+        With an API token
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
-</ul>
-</nav>
-</li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#downloadable-tools">
-    Downloadable Tools
-  </a>
-<nav aria-label="Downloadable Tools" class="md-nav">
+<a class="md-nav__link" href="#agent-visual-debugger">
+<span class="md-ellipsis">
+      
+        Agent Visual Debugger
+      
+    </span>
+</a>
+<nav aria-label="Agent Visual Debugger" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#list-of-downloadable-tools">
-    List of downloadable Tools
-  </a>
-<nav aria-label="List of downloadable Tools" class="md-nav">
+<a class="md-nav__link" href="#using-the-debugger">
+<span class="md-ellipsis">
+      
+        Using the debugger
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debuggerproperties">
+<span class="md-ellipsis">
+      
+        debugger.properties
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#headless-mode">
+<span class="md-ellipsis">
+      
+        Headless mode
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#script-filter-editor">
+<span class="md-ellipsis">
+      
+        Script Filter Editor
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tank-proxy-recorder">
+<span class="md-ellipsis">
+      
+        Tank Proxy (recorder)
+      
+    </span>
+</a>
+<nav aria-label="Tank Proxy (recorder)" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
-<a class="md-nav__link" href="#tank-agent-visual-debugger_1">
-    Tank Agent Visual Debugger
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-script-filter-editor_1">
-    Tank Script Filter Editor
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#tank-proxy-package">
-    Tank Proxy Package
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#api-test-harness-debugger-package">
-    API Test Harness Debugger Package
-  </a>
+<a class="md-nav__link" href="#recording-a-session">
+<span class="md-ellipsis">
+      
+        Recording a session
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
 </li>
-</ul>
-</nav>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#api-test-harness">
+<span class="md-ellipsis">
+      
+        API Test Harness
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jenkins-plugin-not-built">
+<span class="md-ellipsis">
+      
+        Jenkins plugin (not built)
+      
+    </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -449,82 +939,333 @@
 </div>
 <div class="md-content" data-md-component="content">
 <article class="md-content__inner md-typeset">
-<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/supplemental-tools.md" title="Edit this page">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"></path></svg>
+<a class="md-content__button md-icon" href="https://github.com/intuit/Tank/edit/master/docs/supplemental-tools.md" rel="edit" title="Edit this page">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
 </a>
 <h1 id="supplemental-tools">Supplemental Tools</h1>
-<p>Tank includes several external/supplemental tools that can be used in conjunction with it for a comprehensive load testing experience.</p>
-<details class="tip">
-<summary>Tip: Navigating to the Tools page</summary>
-<p>Clicking the <code>Tools</code> tab takes the user to the main screen, which has links to <code>downloads</code> (AND) pages for launching the tools as <code>java applets</code>.</p>
-</details>
-<p>There are two sections of links for the tools, <code>Applets</code> and <code>Downlaodable</code> Tools.</p>
-<figure>
-<p><img alt="Tools Main page" src="../assets/tools/tools_1.png" width="500">
-</img></p>
-<figcaption>Tools Main Page</figcaption>
-</figure>
-<h2 id="java-applet-tools">Java "Applet" Tools</h2>
-<p>Applets are rich clients that are run using <code>Java Applet</code> technology. <br/>
-They access system resources, and so they are signed using a <code>self-signed certificate</code>. This would mean you will be prompted to trust the applet when you launch it.</p>
-<figure>
-<p><img alt='"Applets": Trust certs' src="../assets/tools/tools_2.png" width="500">
-</img></p>
-<figcaption>"Applets": Trust certs</figcaption>
-</figure>
-<h3 id="list-of-available-applets">List of available Applets</h3>
-<h4 id="tank-agent-visual-debugger">Tank Agent Visual Debugger</h4>
-<p>Allows for the debugging of scripts or projects in a visual manner.</p>
-<h4 id="tank-script-filter-editor">Tank Script Filter Editor</h4>
-<p>Allows for the editing and creation and testing of filter scripts (external scripts) in a visual environment.</p>
-<h2 id="downloadable-tools">Downloadable Tools</h2>
-<p>Downloadable Tools are meant to be run from your local machine. They require that java is installed on your local machine.  </p>
-<h3 id="list-of-downloadable-tools">List of downloadable Tools</h3>
-<h4 id="tank-agent-visual-debugger_1">Tank Agent Visual Debugger</h4>
-<p>The Tank Agent Visual Debugger is downloaded as an executable jar file. It may be run by double clicking on the jar or by running from the command line. If run from the command line, you can additionally specify the url of Intuit Tank you wish to connect to. e.g. java -jar Tank-Debugger-all.jar http://my.tank/tank  </p>
-<h4 id="tank-script-filter-editor_1">Tank Script Filter Editor</h4>
-<p>The Tank Script Filter Editor allows for the editing and creation and testing of filter scripts (external scripts) in a visual environment</p>
-<h4 id="tank-proxy-package">Tank Proxy Package</h4>
-<p>The proxy package is a zip file that contains the proxy recorder. See the readme.txt file for instructions on setup.</p>
-<h4 id="api-test-harness-debugger-package">API Test Harness Debugger Package</h4>
-<p>Command line debugger for agent scripts.</p>
+<p>Tank ships four tools that run on your own machine, alongside the controller:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>File</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#agent-visual-debugger">Agent Visual Debugger</a></td>
+<td><code>Tank-Debugger-all.jar</code></td>
+<td>Steps through a script request by request. With <code>--headless</code>, replays a project from the command line</td>
+</tr>
+<tr>
+<td><a href="#script-filter-editor">Script Filter Editor</a></td>
+<td><code>Tank-Script-Runner-all.jar</code></td>
+<td>Writes and tests external (JavaScript) filters against a Tank XML script</td>
+</tr>
+<tr>
+<td><a href="#tank-proxy-recorder">Tank Proxy</a></td>
+<td><code>Tank-Proxy-pkg.zip</code></td>
+<td>Records a browser session as a Tank XML script to upload</td>
+</tr>
+<tr>
+<td><a href="#api-test-harness">API Test Harness</a></td>
+<td><code>apiharness-1.0-all.jar</code></td>
+<td>The agent's harness, for running a harness XML file locally from the command line</td>
+</tr>
+</tbody>
+</table>
+<p>All of them need Java 21 or later. Each one is built with the controller that serves it, so download them from the controller you use.</p>
+<h2 id="downloading-the-tools">Downloading the tools</h2>
+<h3 id="from-the-web-ui">From the web UI</h3>
+<p>Open the <code>Tools</code> page. It lists each tool with the controller's version and build date, and a download link for each.</p>
+<div class="admonition note">
+<p class="admonition-title">Release builds only</p>
+<p>The controller has the tools only when it was built with <code>mvn clean install -P release</code>. A development build has none: the download returns 404, and the Tools page in the new UI shows "Not included in this build".</p>
+</div>
+<h3 id="with-an-api-token">With an API token</h3>
+<p>Scripts and CI jobs can download each tool from the <a href="../api/">REST API</a> with a user's API token, instead of a web login:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Endpoint</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent Visual Debugger</td>
+<td><code>GET /v2/tools/debugger</code></td>
+<td><code>Tank-Debugger-all.jar</code></td>
+</tr>
+<tr>
+<td>Script Filter Editor</td>
+<td><code>GET /v2/tools/script-runner</code></td>
+<td><code>Tank-Script-Runner-all.jar</code></td>
+</tr>
+<tr>
+<td>Tank Proxy</td>
+<td><code>GET /v2/tools/proxy</code></td>
+<td><code>Tank-Proxy-pkg.zip</code></td>
+</tr>
+<tr>
+<td>API Test Harness</td>
+<td><code>GET /v2/tools/api-harness</code></td>
+<td><code>apiharness-1.0-all.jar</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>curl<span class="w"> </span>-fsS<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TANK_TOKEN</span><span class="s2">"</span><span class="w"> </span>-o<span class="w"> </span>Tank-Debugger-all.jar<span class="w"> </span>&lt;tank_url&gt;/v2/tools/debugger
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>The file</td>
+</tr>
+<tr>
+<td>401</td>
+<td>No user is signed in, or the token is invalid</td>
+</tr>
+<tr>
+<td>403</td>
+<td>The agent token was used. These endpoints need a user's token or session</td>
+</tr>
+<tr>
+<td>404</td>
+<td>The controller was built without <code>-P release</code>, so it has no tools</td>
+</tr>
+</tbody>
+</table>
+<p>Create your API token on your account page in the web UI (see <a href="../api/#authentication">Authentication</a>).</p>
+<h2 id="agent-visual-debugger">Agent Visual Debugger</h2>
+<p><code>Tank-Debugger-all.jar</code> runs a script on your machine one request at a time, showing each request, response and variable as it goes.</p>
+<p>Start it by double-clicking the jar, or from the command line. On the command line you can give the controller URL, and optionally your API token, as positional arguments:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Debugger-all.jar<span class="w">                                  </span><span class="c1"># pick the Tank instance later</span>
+<a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Debugger-all.jar<span class="w"> </span>https://tank.example.com<span class="w">      </span><span class="c1"># connect to this controller</span>
+<a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Debugger-all.jar<span class="w"> </span>https://tank.example.com<span class="w"> </span>&lt;token&gt;
+</code></pre></div>
+<h3 id="using-the-debugger">Using the debugger</h3>
+<ul>
+<li><strong>Connect to a Tank:</strong> <code>File &gt; Select Tank Instance...</code> asks for the base URL and your API token. It checks the connection before using it.</li>
+<li><strong>Load a script:</strong> open a file from disk, or use <code>Choose Script</code> or <code>Choose Project</code> to load one from the connected controller. <code>Reload</code> fetches it again. <code>Choose Datafile</code> and <code>Show Project Variables</code> supply the data a project's script uses.</li>
+<li><strong>Run:</strong> <code>Start</code>, <code>Next Step</code>, <code>Skip</code>, <code>Run to Breakpoint...</code>, <code>Pause</code> and <code>Stop</code> are on the toolbar, the <code>Run</code> menu and the script's right-click menu. Set breakpoints and skipped steps with <code>Toggle Breakpoint</code> and <code>Toggle Skip Step</code> on the right-click menu, and clear them all with <code>Clear All Breakpoints</code> and <code>Clear All Skips</code>.</li>
+<li><strong>HTTP client:</strong> pick which agent HTTP client runs the requests. The list comes from the connected controller.</li>
+<li><strong>Sleep and think steps:</strong> the <code>Run Sleep Steps</code> and <code>Run Think Steps</code> check boxes decide whether timing steps actually wait. Both are off by default.</li>
+<li><strong>Output:</strong> the <code>Actions</code> menu saves the requests and responses (<code>debuggerOutput.txt</code>) or the log (<code>debuggerLog.txt</code>), and clears the log output.</li>
+</ul>
+<h3 id="debuggerproperties">debugger.properties</h3>
+<p>On first use the debugger writes <code>debugger.properties</code> to the directory you start it from. Edit it to list the controllers in the <code>Select Tank Instance</code> drop-down and to set the timing-step defaults:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1"># One line per controller: tank.instance.&lt;name&gt;=&lt;base url&gt;</span>
+<a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="na">tank.instance.TANK</span><span class="o">=</span><span class="s">http://tank-url</span>
+<a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>
+<a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="c1"># Set to true to run sleep/think steps, false to skip them</span>
+<a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="na">run.sleep.steps</span><span class="o">=</span><span class="s">false</span>
+<a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="na">run.think.steps</span><span class="o">=</span><span class="s">false</span>
+</code></pre></div>
+<p>When you connect to an instance from the list with a token, the debugger saves that token in the same file as <code>tank.token.&lt;name&gt;</code>. Keep the file private.</p>
+<h3 id="headless-mode">Headless mode</h3>
+<p>With <code>--headless</code>, the same jar replays a Tank project from the command line, with no window. It is meant for Jenkins jobs and scripts. It writes the <code>authid</code> and the result of each step to files in the current directory.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Debugger-all.jar<span class="w"> </span>--headless<span class="w"> </span>-h<span class="o">=</span>&lt;controller_base_url&gt;<span class="w"> </span>-p<span class="o">=</span>&lt;projectId&gt;<span class="w"> </span>-t<span class="o">=</span>&lt;token&gt;
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--headless</code></td>
+<td>Run from the command line. Without it, the visual debugger opens</td>
+</tr>
+<tr>
+<td><code>-h</code>, <code>--host</code></td>
+<td>Tank controller URL, for example <code>https://tank.example.com</code> (required; include the context path, such as <code>/tank</code>, if the war isn't deployed as <code>ROOT.war</code>)</td>
+</tr>
+<tr>
+<td><code>-p</code>, <code>--project</code></td>
+<td>Id of the Tank project whose script to run (required)</td>
+</tr>
+<tr>
+<td><code>-t</code>, <code>--token</code></td>
+<td>Tank API token (required)</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Usage and exit codes</td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>Build version and git commit</td>
+</tr>
+</tbody>
+</table>
+<p>The exit code reports whether the run finished. It does not validate the result: read <code>output.log</code> for that.</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>The run finished</td>
+</tr>
+<tr>
+<td>1</td>
+<td>The script failed the hostname replacement check (not filtered for production)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Invalid command line arguments</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Could not get the project or its script from Tank</td>
+</tr>
+<tr>
+<td>4</td>
+<td>The run could not be started or did not finish</td>
+</tr>
+</tbody>
+</table>
+<p>Output files, written to the current working directory:</p>
+<ul>
+<li><code>output.log</code>: the result summary, one <code>key,value</code> per line. The line <code>authid,&lt;value&gt;</code> is the authid. Other lines: <code>project</code>, <code>project_id</code>, <code>username</code>, <code>srsversion</code>, <code>total_steps</code>, <code>total_executed</code>, <code>execution_percentage</code>, <code>taxhub_flow</code>, <code>filing_status</code>, <code>timestamp</code>. Failed steps also log the full request, response and variables.</li>
+<li><code>validation-report.json</code>: every step with its pass or fail result and validation errors.</li>
+<li><code>debugger.log</code>: general debug log.</li>
+</ul>
+<p>The machine must reach the Tank controller over HTTP(S), and the hosts the replayed script calls.</p>
+<h2 id="script-filter-editor">Script Filter Editor</h2>
+<p><code>Tank-Script-Runner-all.jar</code> (window title "Intuit Tank Script Filter Editor") is for writing and testing external filters: scripts that change a Tank script's steps when an internal <a href="../key-concepts/filters/">filter</a> can't express the change.</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Script-Runner-all.jar
+<a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Script-Runner-all.jar<span class="w"> </span>https://tank.example.com<span class="w"> </span>&lt;token&gt;
+</code></pre></div>
+<p>The optional positional arguments are the controller URL (default <code>http://localhost:8080/</code>) and your API token. The controller is only used in remote storage mode.</p>
+<p>To test a filter:</p>
+<ol>
+<li><code>Select Tank XML</code> &gt; <code>Select File...</code> loads a script exported from Tank (<code>GET /v2/scripts/download/{scriptId}</code> returns this format).</li>
+<li>Choose the script language, write the filter in the editor, and click <code>Run Script</code>. The filter reads the loaded script with <code>ioBean.getInput("script")</code>, the same input the controller gives external filters when it applies them, and can log with <code>ioBean.println</code>, <code>ioBean.debug</code> and <code>ioBean.error</code>. Output appears in the lower pane.</li>
+<li><code>Show XML</code> displays the script after the filter ran; <code>Save XML</code> writes it to a file.</li>
+</ol>
+<p><code>Open Script...</code>, <code>Save Script...</code> and <code>Save Script As...</code> work on the local disk in local storage mode (the default). <code>Toggle Storage Mode</code> switches to remote mode, where they list and save the controller's external scripts instead.</p>
+<div class="admonition note">
+<p class="admonition-title">Languages</p>
+<p>JavaScript (Nashorn) is always included. Groovy and Ruby (JRuby) appear in the language list only when the jar was built with <code>mvn clean install -P release,script-engines</code>.</p>
+</div>
+<h2 id="tank-proxy-recorder">Tank Proxy (recorder)</h2>
+<p>The Tank Proxy records the traffic of a browser session and saves it as Tank XML, which you then upload as a new script (see <a href="../key-concepts/scripts/#importing-a-recorded-script">Importing a recorded Script</a>).</p>
+<p><code>Tank-Proxy-pkg.zip</code> unzips to an <code>Intuit-Tank-Proxy</code> directory containing:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tank-Proxy-all.jar</code></td>
+<td>The recording proxy</td>
+</tr>
+<tr>
+<td><code>startProxy.sh</code></td>
+<td>Runs <code>java -jar Tank-Proxy-all.jar</code></td>
+</tr>
+<tr>
+<td><code>recording-proxy-config-default.xml</code></td>
+<td>Default settings: port <code>8888</code>, output file <code>outputFile.xml</code>, and image and PDF response bodies excluded</td>
+</tr>
+<tr>
+<td><code>auto_generated_ca.p12</code>, <code>auto_generated_ca.pem</code></td>
+<td>The certificate authority the proxy signs HTTPS certificates with</td>
+</tr>
+<tr>
+<td><code>readme.txt</code></td>
+<td>Setup notes</td>
+</tr>
+</tbody>
+</table>
+<p>Run it from that directory, so it finds the configuration and the CA files:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>Intuit-Tank-Proxy
+<a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Proxy-all.jar
+</code></pre></div>
+<h3 id="recording-a-session">Recording a session</h3>
+<ol>
+<li>Trust the proxy's CA in your browser or operating system: import <code>auto_generated_ca.pem</code> as a trusted certificate authority ("OWASP Custom CA for Tank"). On Windows you can import the <code>.p12</code> from the command prompt with <code>certutil -f -p password -importpfx auto_generated_ca.p12</code>. If the <code>.p12</code> is missing from the working directory, the proxy generates a new CA and writes a new <code>auto_generated_ca.pem</code>, which you must trust instead.</li>
+<li>Set your browser's HTTP and HTTPS proxy to <code>localhost</code> and the proxy port (8888 by default).</li>
+<li>Optionally open <code>File &gt; Settings</code> to change the port, the output file and the request and body inclusion and exclusion rules. The settings dialog can save and open them as XML files.</li>
+<li>Click <code>Start Recording</code> (also in the <code>Session</code> menu). <code>Pause Recording</code> and <code>Stop Recording</code> are next to it.</li>
+<li>Exercise the application in the browser. Each transaction appears in the table; use the filter box to search them and <code>Delete Selected</code> to drop ones you don't want.</li>
+<li>Click <code>Stop Recording</code>, then <code>Save</code> (<code>File</code> menu). <code>File &gt; Open Recording...</code> reopens a saved recording, and <code>Session &gt; Hosts...</code> lists the hosts that were recorded.</li>
+<li>Upload the saved XML to Tank as a new script.</li>
+</ol>
+<h2 id="api-test-harness">API Test Harness</h2>
+<p><code>apiharness-1.0-all.jar</code> is the harness the agents run. Locally it runs a harness XML file (which you can download with <code>GET /v2/projects/download/{projectId}</code> or <code>GET /v2/scripts/harness/download/{scriptId}</code>) from the command line, which helps when you debug a script:</p>
+<div class="highlight"><pre><span></span><code><a href="#__codelineno-6-1" id="__codelineno-6-1" name="__codelineno-6-1"></a>java<span class="w"> </span>-jar<span class="w"> </span>apiharness-1.0-all.jar<span class="w"> </span>-tp<span class="o">=</span>&lt;<span class="nb">test</span><span class="w"> </span>plan<span class="w"> </span>file&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-tp=&lt;file&gt;</code></td>
+<td>The harness XML file to run. Several files can be given, separated by commas</td>
+</tr>
+<tr>
+<td><code>-users=&lt;n&gt;</code></td>
+<td>Number of users to run concurrently</td>
+</tr>
+<tr>
+<td><code>-start=&lt;n&gt;</code></td>
+<td>Number of users to start with</td>
+</tr>
+<tr>
+<td><code>-ramp=&lt;minutes&gt;</code></td>
+<td>Time to get from the start users to the full number of users</td>
+</tr>
+<tr>
+<td><code>-time=&lt;minutes&gt;</code></td>
+<td>Length of the simulation</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>Debug: step through each request</td>
+</tr>
+<tr>
+<td><code>-t</code></td>
+<td>Trace: print each request</td>
+</tr>
+</tbody>
+</table>
+<p>The harness's other options (<code>-http</code>, <code>-token</code>, <code>-jobId</code> and so on) are how a controller starts an agent, and are not needed for a local run.</p>
+<h2 id="jenkins-plugin-not-built">Jenkins plugin (not built)</h2>
+<p><code>tools/jenkins_plugin</code> holds the source of an old Jenkins plugin that started a Tank Proxy before a build and stopped it afterwards. It is not part of any build (its module is commented out in <code>tools/pom.xml</code>) and is not shipped. To run Tank from Jenkins, download the tools with an <a href="#with-an-api-token">API token</a> and use the debugger's <a href="#headless-mode">headless mode</a> or the <a href="../api/">REST API</a>.</p>
 </article>
 </div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
 </div>
-<a class="md-top md-icon" data-md-component="top" data-md-state="hidden" href="#">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"></path></svg>
-            Back to top
-          </a>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
 </main>
 <footer class="md-footer">
-<nav aria-label="Footer" class="md-footer__inner md-grid">
-<a aria-label="Previous: Administration" class="md-footer__link md-footer__link--prev" href="../administration/" rel="prev">
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"></path></svg>
-</div>
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Previous
-              </span>
-              Administration
-            </div>
-</div>
-</a>
-<a aria-label="Next: Set-up &amp; Installation" class="md-footer__link md-footer__link--next" href="../installation-guide/installation/" rel="next">
-<div class="md-footer__title">
-<div class="md-ellipsis">
-<span class="md-footer__direction">
-                Next
-              </span>
-              Set-up &amp; Installation
-            </div>
-</div>
-<div class="md-footer__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"></path></svg>
-</div>
-</a>
-</nav>
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-copyright">
@@ -536,8 +1277,8 @@ They access system resources, and so they are signed using a <code>self-signed c
     </a>
 </div>
 <div class="md-social">
-<a class="md-social__link" href="https://twitter.com/squidfunk" rel="noopener" target="_blank" title="twitter.com">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M94.12 315.1c0 25.9-21.16 47.06-47.06 47.06S0 341 0 315.1c0-25.9 21.16-47.06 47.06-47.06h47.06v47.06zm23.72 0c0-25.9 21.16-47.06 47.06-47.06s47.06 21.16 47.06 47.06v117.84c0 25.9-21.16 47.06-47.06 47.06s-47.06-21.16-47.06-47.06V315.1zm47.06-188.98c-25.9 0-47.06-21.16-47.06-47.06S139 32 164.9 32s47.06 21.16 47.06 47.06v47.06H164.9zm0 23.72c25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06H47.06C21.16 243.96 0 222.8 0 196.9s21.16-47.06 47.06-47.06H164.9zm188.98 47.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06s-21.16 47.06-47.06 47.06h-47.06V196.9zm-23.72 0c0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06V79.06c0-25.9 21.16-47.06 47.06-47.06 25.9 0 47.06 21.16 47.06 47.06V196.9zM283.1 385.88c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06-25.9 0-47.06-21.16-47.06-47.06v-47.06h47.06zm0-23.72c-25.9 0-47.06-21.16-47.06-47.06 0-25.9 21.16-47.06 47.06-47.06h117.84c25.9 0 47.06 21.16 47.06 47.06 0 25.9-21.16 47.06-47.06 47.06H283.1z"></path></svg>
+<a class="md-social__link" href="https://github.com/intuit/Tank" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
 </a>
 </div>
 </div>
@@ -547,8 +1288,8 @@ They access system resources, and so they are signed using a <code>self-signed c
 <div class="md-dialog" data-md-component="dialog">
 <div class="md-dialog__inner md-typeset"></div>
 </div>
-<script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide"], "search": "../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
-<script src="../assets/javascripts/bundle.ed9748b7.min.js"></script>
+<script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.top", "navigation.tabs", "navigation.tracking", "navigation.tabs.sticky", "header.autohide", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
 <script>document$.subscribe(() => {
             window.update_swagger_ui_iframe_height = function (id) {
                 var iFrameID = document.getElementById(id);
