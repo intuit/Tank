@@ -7,6 +7,7 @@
  */
 package com.intuit.tank.rest.mvc.rest.util;
 
+import com.intuit.tank.dao.JobInstanceDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.jobs.models.JobTO;
 
@@ -27,6 +28,24 @@ public class JobServiceUtil {
                 .withNumUsers(job.getTotalVirtualUsers())
                 .withRampTimeMilis(job.getRampTime())
                 .withSimulationTimeMilis(job.getSimulationTime())
+                .build();
+    }
+
+    /**
+     * @param job
+     * @return JobTO
+     */
+    public static JobTO jobToTO(JobInstanceDao.JobSummary job) {
+        return JobTO.builder()
+                .withId(job.id())
+                .withName(job.name())
+                .withEndTime(job.endTime())
+                .withStartTime(job.startTime())
+                .withLocation(job.location())
+                .withStatus(job.status().name())
+                .withNumUsers(job.totalVirtualUsers())
+                .withRampTimeMilis(job.rampTime())
+                .withSimulationTimeMilis(job.simulationTime())
                 .build();
     }
 

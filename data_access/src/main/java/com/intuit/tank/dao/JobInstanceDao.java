@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,12 @@ import java.util.function.Function;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 
 /**
@@ -106,6 +110,70 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         Map<Integer, JobQueueStatus> statuses = new LinkedHashMap<>();
         rows.forEach(row -> statuses.put(row.get(0, Integer.class), row.get(1, JobQueueStatus.class)));
         return statuses;
+    }
+
+    /**
+     * What a job list shows about each job.
+     */
+    public record JobSummary(int id, String name, Date startTime, Date endTime, String location,
+            JobQueueStatus status, int totalVirtualUsers, long rampTime, long simulationTime) {
+    }
+
+    /**
+     * Reads the summary of every job that is not deleted without loading the jobs and their eager collections.
+     *
+     * @return the jobs' summaries, newest first
+     */
+    public List<JobSummary> findSummaries() {
+        return listSummaries(cb -> {
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<JobInstance> job = query.from(JobInstance.class);
+            return summariesOf(cb, query, job)
+                    .where(cb.notEqual(job.get(JobInstance.PROPERTY_STATUS), JobQueueStatus.Deleted));
+        });
+    }
+
+    /**
+     * Reads the summary of every job in a project's queue that is not deleted without loading the jobs and their
+     * eager collections.
+     *
+     * @param projectId
+     * @return the jobs' summaries, newest first; empty when the project has no queue yet
+     */
+    public List<JobSummary> findSummariesByProjectId(int projectId) {
+        return listSummaries(cb -> {
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<JobQueue> queue = query.from(JobQueue.class);
+            Join<JobQueue, JobInstance> job = queue.join(JobQueue.PROPERTY_JOBS);
+            return summariesOf(cb, query, job).where(
+                    cb.equal(queue.get(JobQueue.PROPERTY_PROJECT_ID), projectId),
+                    cb.notEqual(job.get(JobInstance.PROPERTY_STATUS), JobQueueStatus.Deleted));
+        });
+    }
+
+    private static CriteriaQuery<Tuple> summariesOf(CriteriaBuilder cb, CriteriaQuery<Tuple> query,
+            From<?, JobInstance> job) {
+        return query.multiselect(job.get(JobInstance.PROPERTY_ID), job.get("name"),
+                job.get(JobInstance.PROPERTY_START_TIME), job.get(JobInstance.PROPERTY_END_TIME),
+                job.get("location"), job.get(JobInstance.PROPERTY_STATUS), job.get("totalVirtualUsers"),
+                job.get("rampTime"), job.get("rampTimeSeconds"),
+                job.get("simulationTime"), job.get("simulationTimeSeconds"))
+                .orderBy(cb.desc(job.get(JobInstance.PROPERTY_CREATE)), cb.desc(job.get(JobInstance.PROPERTY_ID)));
+    }
+
+    private List<JobSummary> listSummaries(Function<CriteriaBuilder, CriteriaQuery<Tuple>> build) {
+        return list(build).stream().map(row -> new JobSummary(
+                row.get(0, Integer.class),
+                row.get(1, String.class),
+                row.get(2, Date.class),
+                row.get(3, Date.class),
+                row.get(4, String.class),
+                row.get(5, JobQueueStatus.class),
+                row.get(6, Integer.class),
+                // same fallback to the legacy seconds columns as BaseJob.getRampTime and getSimulationTime
+                row.get(7, Long.class) != null ? row.get(7, Long.class) : row.get(8, Integer.class) * 1000L,
+                row.get(9, Long.class) != null ? row.get(9, Long.class) : row.get(10, Integer.class) * 1000L))
+                .toList();
     }
 
     /**

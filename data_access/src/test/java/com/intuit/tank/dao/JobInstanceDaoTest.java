@@ -27,6 +27,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 
+import jakarta.persistence.EntityManager;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 
@@ -34,6 +36,7 @@ import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobNotification;
+import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.test.TestGroups;
@@ -112,6 +115,104 @@ public class JobInstanceDaoTest {
             statistics.setStatisticsEnabled(false);
             dao.delete(running);
             dao.delete(completed);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findSummaries_readsNewestFirstWithoutDeletedInOneQuery() {
+        JobInstance older = getBaseInstance();
+        older.setName("older");
+        older.setStatus(JobQueueStatus.Running);
+        older.setLocation("us-west-2");
+        older = dao.saveOrUpdate(jobWithCollections(older));
+        JobInstance deleted = getBaseInstance();
+        deleted.setStatus(JobQueueStatus.Deleted);
+        deleted = dao.saveOrUpdate(deleted);
+        JobInstance newer = getBaseInstance();
+        newer.setName("newer");
+        newer.setStatus(JobQueueStatus.Completed);
+        newer = dao.saveOrUpdate(jobWithCollections(newer));
+        Statistics statistics = statistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<JobInstanceDao.JobSummary> summaries = dao.findSummaries();
+
+            assertEquals(1, statistics.getPrepareStatementCount());
+            assertEquals(List.of(newer.getId(), older.getId()), summaries.stream().map(JobInstanceDao.JobSummary::id).toList(),
+                    "newest first, without the deleted job");
+            JobInstanceDao.JobSummary summary = summaries.get(1);
+            assertEquals("older", summary.name());
+            assertEquals(JobQueueStatus.Running, summary.status());
+            assertEquals("us-west-2", summary.location());
+            assertEquals(3000, summary.totalVirtualUsers());
+            assertEquals(1000L * 60 * 60 * 30, summary.rampTime());
+            assertEquals(1000L * 60 * 60 * 60, summary.simulationTime());
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            dao.delete(older);
+            dao.delete(deleted);
+            dao.delete(newer);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findSummaries_fallsBackToLegacySecondsColumns() {
+        JobInstance job = dao.saveOrUpdate(getBaseInstance());
+        EntityManager em = dao.getEntityManager();
+        em.getTransaction().begin();
+        em.createNativeQuery("update job_instance set ramp_time_ms = null, ramp_time_seconds = 7,"
+                + " simulation_time_ms = null, simulation_time = 9 where id = ?1")
+                .setParameter(1, job.getId()).executeUpdate();
+        em.getTransaction().commit();
+        try {
+            JobInstanceDao.JobSummary summary = dao.findSummaries().get(0);
+
+            assertEquals(job.getId(), summary.id());
+            assertEquals(7000L, summary.rampTime());
+            assertEquals(9000L, summary.simulationTime());
+        } finally {
+            dao.delete(job);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findSummariesByProjectId_readsOnlyThatProjectsJobsInOneQuery() {
+        int projectId = 987654;
+        JobInstance older = jobWithCollections(getBaseInstance());
+        JobInstance deleted = getBaseInstance();
+        deleted.setStatus(JobQueueStatus.Deleted);
+        JobInstance newer = jobWithCollections(getBaseInstance());
+        JobQueueDao queueDao = new JobQueueDao();
+        // the queue cascades the save to its jobs
+        JobQueue queue = new JobQueue(projectId);
+        queue.addJob(older);
+        queue.addJob(deleted);
+        queue.addJob(newer);
+        queue = queueDao.saveOrUpdate(queue);
+        JobQueue otherQueue = new JobQueue(projectId + 1);
+        otherQueue.addJob(getBaseInstance());
+        otherQueue = queueDao.saveOrUpdate(otherQueue);
+        Statistics statistics = statistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<JobInstanceDao.JobSummary> summaries = dao.findSummariesByProjectId(projectId);
+
+            assertEquals(1, statistics.getPrepareStatementCount());
+            assertEquals(queue.getJobs().stream().filter(j -> j.getStatus() != JobQueueStatus.Deleted)
+                            .map(JobInstance::getId).sorted(java.util.Comparator.reverseOrder()).toList(),
+                    summaries.stream().map(JobInstanceDao.JobSummary::id).toList(),
+                    "newest first, without the deleted job or another project's job");
+            assertEquals(3000, summaries.get(0).totalVirtualUsers());
+            assertEquals(List.of(), dao.findSummariesByProjectId(projectId + 2), "a project without a queue has no jobs");
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            queueDao.delete(queue);
+            queueDao.delete(otherQueue);
         }
     }
 
