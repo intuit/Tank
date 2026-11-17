@@ -19,6 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
@@ -63,13 +64,22 @@ public class APIMonitor implements Runnable {
     @Override
     public void run() {
         LOG.debug(LogUtil.getLogMessage("APIMonitor thread started."));
+        long pause = staggerDelay(reportInterval);
         while (doMonitor) {
             updateInstanceStatus();
             try {
-                Thread.sleep(reportInterval);
+                Thread.sleep(pause);
             } catch ( InterruptedException ie) { /*Ignore*/ }
+            pause = reportInterval;
         }
         updateInstanceStatus();
+    }
+
+    /**
+     * @return a random delay in [0, reportInterval) for the pause after the first report
+     */
+    static long staggerDelay(long reportInterval) {
+        return ThreadLocalRandom.current().nextLong(reportInterval);
     }
 
     private void updateInstanceStatus() {

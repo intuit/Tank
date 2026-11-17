@@ -25,6 +25,7 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.vmManager.environment.amazon.CloudWatchClientFactory;
+import io.opentelemetry.context.Context;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Initialized;
@@ -57,8 +58,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -89,6 +94,8 @@ public class AgentMetricsCollector {
     /** An agent missing some metrics is looked up again after this long (an old AMI never gains them) */
     static final Duration RESOLVE_RETRY = Duration.ofMinutes(3);
     static final Duration MAX_BACKOFF = Duration.ofMinutes(10);
+    /** ListMetrics calls in flight at once; the API's rate limit is low */
+    static final int MAX_CONCURRENT_LOOKUPS = 5;
 
     private static final double BYTES_PER_MB = 1024d * 1024d;
 
@@ -305,9 +312,7 @@ public class AgentMetricsCollector {
 
     private void readRegion(VMRegion region, Map<String, String> instances, Instant now) {
         CloudWatchClient client = clients.forRegion(region);
-        for (String instanceId : instances.keySet()) {
-            resolve(client, instanceId, now);
-        }
+        resolveAll(client, instances.keySet(), now);
 
         // one query per (agent, source) the agent actually publishes
         List<Query> queries = new ArrayList<>();
@@ -404,12 +409,53 @@ public class AgentMetricsCollector {
         return Math.min(100d, vcpus > 0 ? value / vcpus : value);
     }
 
-    /** Finds the exact dimensions each metric of the agent is published with, once, and again if it was incomplete */
-    private void resolve(CloudWatchClient client, String instanceId, Instant now) {
-        Resolved known = resolved.get(instanceId);
-        if (known != null && (known.complete() || now.isBefore(known.at.plus(RESOLVE_RETRY)))) {
+    /**
+     * Finds the exact dimensions each metric of the agents is published with, once per agent, and again if it was
+     * incomplete. The lookups run concurrently, a few at a time to stay under the ListMetrics rate limit; the results
+     * are stored here, since {@code resolved} belongs to the polling thread.
+     */
+    private void resolveAll(CloudWatchClient client, Set<String> instanceIds, Instant now) {
+        List<String> pending = instanceIds.stream().filter(id -> needsResolve(id, now)).toList();
+        if (pending.isEmpty()) {
             return;
         }
+        Semaphore permits = new Semaphore(MAX_CONCURRENT_LOOKUPS);
+        Map<String, Future<Map<Source, List<Dimension>>>> lookups = new LinkedHashMap<>();
+        RuntimeException failure = null;
+        try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (String instanceId : pending) {
+                lookups.put(instanceId, pool.submit(Context.current().wrap(() -> {
+                    permits.acquire();
+                    try {
+                        return listDimensions(client, instanceId);
+                    } finally {
+                        permits.release();
+                    }
+                })));
+            }
+            for (Map.Entry<String, Future<Map<Source, List<Dimension>>>> lookup : lookups.entrySet()) {
+                try {
+                    resolved.put(lookup.getKey(), new Resolved(now, lookup.getValue().get()));
+                } catch (ExecutionException e) {
+                    failure = failure != null ? failure : e.getCause() instanceof RuntimeException re ? re
+                            : new IllegalStateException(e.getCause());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+        if (failure != null) {
+            throw failure;
+        }
+    }
+
+    private boolean needsResolve(String instanceId, Instant now) {
+        Resolved known = resolved.get(instanceId);
+        return known == null || !(known.complete() || now.isBefore(known.at.plus(RESOLVE_RETRY)));
+    }
+
+    private Map<Source, List<Dimension>> listDimensions(CloudWatchClient client, String instanceId) {
         Map<Source, List<Dimension>> found = new EnumMap<>(Source.class);
         String token = null;
         do {
@@ -426,7 +472,7 @@ public class AgentMetricsCollector {
             }
             token = response.nextToken();
         } while (token != null);
-        resolved.put(instanceId, new Resolved(now, found));
+        return found;
     }
 
     /** The java process for procstat, the TankAgent service for the rest, else the first seen */

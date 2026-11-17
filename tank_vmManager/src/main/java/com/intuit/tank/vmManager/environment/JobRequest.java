@@ -14,7 +14,9 @@ package com.intuit.tank.vmManager.environment;
  */
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import com.intuit.tank.tracing.Tracing;
 
@@ -47,6 +49,8 @@ import org.apache.logging.log4j.message.ObjectMessage;
 public class JobRequest implements Runnable {
 
     static Logger logger = LogManager.getLogger(JobRequest.class);
+
+    private static final Set<String> TERMINAL_STATES = Set.of("shutting-down", "terminated", "stopping", "stopped");
 
     private VMJobRequest request = null;
     private VMTracker vmTracker;
@@ -150,33 +154,22 @@ public class JobRequest implements Runnable {
     }
 
     private void connectAndBootstrapAgent(ControllerInitiatedAgentWsClient wsClient, VMInstanceRequest instanceRequest,
-                                          VMInformation info, String token, int port, long helloTimeoutMillis,
+                                          VMInformation launched, String token, int port, long helloTimeoutMillis,
                                           long transferTimeoutMillis, long maxConnectWaitMillis) {
         IEnvironmentInstance environment = getEnvironment();
         long start = System.currentTimeMillis();
+        VMInformation info = launched;
         int attempt = 1;
         while (System.currentTimeMillis() - start < maxConnectWaitMillis) {
             // The launch response has no public IP yet; pick it up here rather than holding up the launch
             info = refreshPublicAddress(info, environment);
-            String host = resolveWsHost(request.getRegion(), info);
-            String wsUrl = "ws://" + host + ":" + port + "/ws/control";
-            try {
-                if (host == null) {
-                    throw new IllegalStateException("No reachable host found");
-                }
-                String instanceUrl = "http://" + host + ":" + port;
-                boolean complete = wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl,
-                        token, helloTimeoutMillis, transferTimeoutMillis);
-                if (complete) {
-                    return;
-                }
-                logger.info(new ObjectMessage(Map.of("Message",
-                        "[WS] Controller initiated connect attempt " + attempt + " incomplete for "
-                                + info.getInstanceId() + " at " + wsUrl + " — will retry")));
-            } catch (Exception e) {
-                logger.warn(new ObjectMessage(Map.of("Message",
-                        "[WS] Controller initiated connect attempt " + attempt + " failed for "
-                                + info.getInstanceId() + " at " + wsUrl + ": " + e.getMessage())));
+            if (isGone(info)) {
+                giveUp("Agent " + info.getInstanceId() + " is " + info.getState() + ", not connecting controller-initiated WS for job "
+                        + instanceRequest.getJobId());
+                return;
+            }
+            if (connectOnce(wsClient, info, token, port, helloTimeoutMillis, transferTimeoutMillis, attempt)) {
+                return;
             }
             try {
                 Thread.sleep(Math.min(10_000L, 2_000L * attempt));
@@ -186,20 +179,55 @@ public class JobRequest implements Runnable {
             }
             attempt++;
         }
-        logger.error(new ObjectMessage(Map.of("Message",
-                "[WS] Timed out connecting controller-initiated WS to " + info.getInstanceId()
-                        + " for job " + instanceRequest.getJobId())));
+        giveUp("Timed out connecting controller-initiated WS to " + launched.getInstanceId() + " for job "
+                + instanceRequest.getJobId());
     }
 
     /**
-     * Re-describe an agent that has no public address yet; whether it gets one depends on its subnet, not its
-     * region. Stops once the instance is running: a public IP is assigned by then if it is getting one, so a
-     * private-only agent keeps its private IP without further lookups.
+     * @return true once the agent is fully bootstrapped
+     */
+    private boolean connectOnce(ControllerInitiatedAgentWsClient wsClient, VMInformation info, String token, int port,
+                                long helloTimeoutMillis, long transferTimeoutMillis, int attempt) {
+        String host = resolveWsHost(request.getRegion(), info);
+        String wsUrl = "ws://" + host + ":" + port + "/ws/control";
+        try {
+            if (host == null) {
+                throw new IllegalStateException("No reachable host found");
+            }
+            String instanceUrl = "http://" + host + ":" + port;
+            if (wsClient.connectAndBootstrap(jobManager, info.getInstanceId(), instanceUrl, wsUrl, token,
+                    helloTimeoutMillis, transferTimeoutMillis)) {
+                return true;
+            }
+            logger.info(new ObjectMessage(Map.of("Message",
+                    "[WS] Controller initiated connect attempt " + attempt + " incomplete for "
+                            + info.getInstanceId() + " at " + wsUrl + " — will retry")));
+        } catch (Exception e) {
+            logger.warn(new ObjectMessage(Map.of("Message",
+                    "[WS] Controller initiated connect attempt " + attempt + " failed for "
+                            + info.getInstanceId() + " at " + wsUrl + ": " + e.getMessage())));
+        }
+        return false;
+    }
+
+    private static void giveUp(String message) {
+        logger.error(new ObjectMessage(Map.of("Message", "[WS] " + message)));
+    }
+
+    /**
+     * Whether the instance has been shut down, so there is nothing left to connect to.
+     */
+    private static boolean isGone(VMInformation info) {
+        return info.getState() != null && TERMINAL_STATES.contains(info.getState().toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * Re-describe an agent that is not running yet, to pick up its public address and notice if it was shut down.
+     * Stops once the instance is running: a public IP is assigned by then if it is getting one, so a private-only
+     * agent keeps its private IP without further lookups.
      */
     static VMInformation refreshPublicAddress(VMInformation info, IEnvironmentInstance environment) {
-        if (environment == null
-                || isNotBlank(info.getPublicIp()) || isNotBlank(info.getPublicDNS())
-                || "running".equalsIgnoreCase(info.getState())) {
+        if (environment == null || "running".equalsIgnoreCase(info.getState())) {
             return info;
         }
         List<VMInformation> described = environment.describeInstances(List.of(info.getInstanceId()));

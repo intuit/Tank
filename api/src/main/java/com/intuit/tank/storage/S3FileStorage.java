@@ -149,6 +149,16 @@ public class S3FileStorage implements FileStorage, Serializable {
 
     private void createBucket(String bucketName) {
         try {
+            // Check first: scoped roles can list a bucket but not create one, and a denied create is traced as a fault
+            try {
+                s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+                return;
+            } catch (NoSuchBucketException e) {
+                // missing, create it below
+            } catch (S3Exception e) {
+                LOG.warn("Unable to check for bucket {}, not creating it: {}", bucketName, e.getMessage());
+                return;
+            }
             s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             LOG.info("Created bucket {} at now", bucketName);
         } catch (BucketAlreadyExistsException | BucketAlreadyOwnedByYouException baee) {//Good

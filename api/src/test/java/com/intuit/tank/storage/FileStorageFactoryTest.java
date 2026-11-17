@@ -28,7 +28,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -124,6 +127,7 @@ public class FileStorageFactoryTest {
         String s = "This is a test";
 
         ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes());
+        when(mock_S3Client.headBucket(any(HeadBucketRequest.class))).thenThrow(NoSuchBucketException.builder().build());
         FileStorage storage = FileStorageFactory.getFileStorage("s3:systemstorage/extra/", false);
         assertInstanceOf(S3FileStorage.class, storage);
         verify(mock_S3Client, times(1))
@@ -143,10 +147,29 @@ public class FileStorageFactoryTest {
                 .deleteObject(DeleteObjectRequest.builder().bucket("systemstorage").key(any()).build());
     }
 
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testS3FileStorageExistingBucketIsNotCreated() {
+        FileStorage storage = FileStorageFactory.getFileStorage("s3:existingbucket", false);
+        assertInstanceOf(S3FileStorage.class, storage);
+        verify(mock_S3Client).headBucket(HeadBucketRequest.builder().bucket("existingbucket").build());
+        verify(mock_S3Client, never()).createBucket(any(CreateBucketRequest.class));
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void testS3FileStorageUncheckableBucketIsNotCreated() {
+        when(mock_S3Client.headBucket(any(HeadBucketRequest.class)))
+                .thenThrow(S3Exception.builder().statusCode(403).message("Forbidden").build());
+        FileStorage storage = FileStorageFactory.getFileStorage("s3:forbiddenbucket", false);
+        assertInstanceOf(S3FileStorage.class, storage);
+        verify(mock_S3Client, never()).createBucket(any(CreateBucketRequest.class));
+    }
+
     /**
      * set the enviroment variables AWS_SECRET_KEY_ID and AWS_SECRET_KEY before
      * running this test.
-     * 
+     *
      * @throws Exception
      */
     @Test

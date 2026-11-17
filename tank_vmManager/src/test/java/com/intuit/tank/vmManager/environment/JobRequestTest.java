@@ -73,11 +73,13 @@ public class JobRequestTest {
     }
 
     @Test
-    public void refreshPublicAddress_skipsWhenPublicIpKnown() {
+    public void refreshPublicAddress_describesPendingInstanceEvenWithPublicIp() {
         VMInformation launched = vm("pending", "54.0.0.1");
+        VMInformation terminated = vm("terminated", null);
+        when(environment.describeInstances(List.of("i-1"))).thenReturn(List.of(terminated));
 
-        assertSame(launched, JobRequest.refreshPublicAddress(launched, environment));
-        verify(environment, never()).describeInstances(any());
+        // the state is what tells a shut-down agent from a slow one
+        assertSame(terminated, JobRequest.refreshPublicAddress(launched, environment));
     }
 
     @Test
@@ -98,13 +100,10 @@ public class JobRequestTest {
     }
 
     @Test
-    public void refreshPublicAddress_skipsWithoutEnvironmentOrWhenPublicDnsKnown() {
+    public void refreshPublicAddress_skipsWithoutEnvironment() {
         VMInformation launched = vm("pending", null);
-        assertSame(launched, JobRequest.refreshPublicAddress(launched, null));
 
-        launched.setPublicDNS("ec2-54-0-0-1.compute.amazonaws.com");
-        assertSame(launched, JobRequest.refreshPublicAddress(launched, environment));
-        verify(environment, never()).describeInstances(any());
+        assertSame(launched, JobRequest.refreshPublicAddress(launched, null));
     }
 
     @Test
@@ -308,6 +307,15 @@ public class JobRequestTest {
 
         verifyNoInteractions(wsClient);
         assertFalse(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
+    public void connectAndBootstrapAgent_stopsWithoutConnectingWhenAgentWasShutDown() throws Exception {
+        ControllerInitiatedAgentWsClient wsClient = mock(ControllerInitiatedAgentWsClient.class);
+
+        invokeConnectAndBootstrapAgent(pharosJobRequest(VMRegion.US_EAST_2), wsClient, vm("terminated", null), 60_000L);
+
+        verifyNoInteractions(wsClient);
     }
 
     private static JobRequest pharosJobRequest(VMRegion region) {
