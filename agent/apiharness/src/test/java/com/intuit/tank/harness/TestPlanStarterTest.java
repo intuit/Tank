@@ -278,8 +278,8 @@ public class TestPlanStarterTest {
     }
 
     @Test
-    public void run_Linear_Given_Run_Until_Loops_Completed_Stops_Once_Ramp_Time_Passed() {
-        // Arrange
+    public void run_Linear_Given_Run_Until_Loops_Completed_Starts_Every_User_Then_Stops() {
+        // Arrange: the ramp time passed long ago, which used to end the ramp before the remaining users started
         when(_hdTestPlanMock.getUserPercentage()).thenReturn(100);
         linearWorkload(1);
         when(_agentRunData.getSimulationTimeMillis()).thenReturn(0L);
@@ -289,11 +289,33 @@ public class TestPlanStarterTest {
         try (MockedConstruction<TestPlanRunner> runners = mockRunners()) {
             _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 3, _tankHttpClientClassStub, _threadGroupNameStub, _agentRunData);
             _sut.run();
-        }
 
-        // Assert
+            // Assert: each user runs the loops once, so none is replaced
+            assertEquals(3, runners.constructed().size());
+        }
         assertTrue(_sut.isDone());
-        assertEquals(1, _sut.getThreadsStarted(), "only the initial user starts");
+        assertEquals(3, _sut.getThreadsStarted());
+    }
+
+    @Test
+    public void run_Linear_Given_Run_Until_Loops_Completed_With_No_Start_Users_Or_Ramp_Starts_Every_User() {
+        // Arrange: no initial users and a ramp time of 0, which used to start no users at all
+        when(_hdTestPlanMock.getUserPercentage()).thenReturn(100);
+        linearWorkload(0);
+        when(_agentRunData.getSimulationTimeMillis()).thenReturn(0L);
+        when(_agentRunData.getRampTimeMillis()).thenReturn(0L);
+        when(_harnessMock.getStartTime()).thenReturn(System.currentTimeMillis() - 1_000);
+
+        // Act
+        try (MockedConstruction<TestPlanRunner> runners = mockRunners()) {
+            _sut = new TestPlanStarter(_httpClientMock, _hdTestPlanMock, 2, _tankHttpClientClassStub, _threadGroupNameStub, _agentRunData);
+            _sut.run();
+
+            // Assert
+            assertEquals(2, runners.constructed().size());
+        }
+        assertTrue(_sut.isDone());
+        assertEquals(2, _sut.getThreadsStarted());
     }
 
     @Test

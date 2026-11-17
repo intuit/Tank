@@ -137,8 +137,9 @@ public class TestPlanStarter implements Runnable {
                             || APITestHarness.getInstance().getCmd() == AgentCommand.kill
                             || APITestHarness.getInstance().hasMetSimulationTime()
                             || APITestHarness.getInstance().isDebug()
-                            || (agentRunData.getSimulationTimeMillis() == 0 //Run Until: Loops Completed
-                            && System.currentTimeMillis() - APITestHarness.getInstance().getStartTime() > agentRunData.getRampTimeMillis())) {
+                            // Run Until: Loops Completed runs each user once, so the ramp ends when all have started.
+                            // The ramp time only spaces the starts: ending on it stopped before the last user started.
+                            || (agentRunData.getSimulationTimeMillis() == 0 && threadsStarted >= numThreads)) {
                         done = true;
                         break;
                     }
