@@ -1,3 +1,15 @@
+# 5.0.4 (Tue Nov 17 2026)
+
+#### 🐛 Bug Fix
+
+- Start every user in a linear "run until loops complete" ramp [#582](https://github.com/intuit/Tank/pull/582) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.3 (Fri Nov 13 2026)
 
 #### 🐛 Bug Fix
