@@ -1,3 +1,15 @@
+# 5.0.5 (Tue Nov 17 2026)
+
+#### 🐛 Bug Fix
+
+- Controller and agent fixes from QA trace review [#583](https://github.com/intuit/Tank/pull/583) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.4 (Tue Nov 17 2026)
 
 #### 🐛 Bug Fix
