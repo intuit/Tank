@@ -1,3 +1,15 @@
+# 5.0.6 (Tue Nov 17 2026)
+
+#### 🐛 Bug Fix
+
+- Read the job list in one query instead of loading every job [#584](https://github.com/intuit/Tank/pull/584) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.5 (Tue Nov 17 2026)
 
 #### 🐛 Bug Fix
