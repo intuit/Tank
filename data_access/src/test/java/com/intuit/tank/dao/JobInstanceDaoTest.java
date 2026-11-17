@@ -36,6 +36,7 @@ import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.EntityVersion;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.JobNotification;
+import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.vm.api.enumerated.JobQueueStatus;
 import com.intuit.tank.test.TestGroups;
@@ -174,6 +175,44 @@ public class JobInstanceDaoTest {
             assertEquals(9000L, summary.simulationTime());
         } finally {
             dao.delete(job);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
+    public void findSummariesByProjectId_readsOnlyThatProjectsJobsInOneQuery() {
+        int projectId = 987654;
+        JobInstance older = jobWithCollections(getBaseInstance());
+        JobInstance deleted = getBaseInstance();
+        deleted.setStatus(JobQueueStatus.Deleted);
+        JobInstance newer = jobWithCollections(getBaseInstance());
+        JobQueueDao queueDao = new JobQueueDao();
+        // the queue cascades the save to its jobs
+        JobQueue queue = new JobQueue(projectId);
+        queue.addJob(older);
+        queue.addJob(deleted);
+        queue.addJob(newer);
+        queue = queueDao.saveOrUpdate(queue);
+        JobQueue otherQueue = new JobQueue(projectId + 1);
+        otherQueue.addJob(getBaseInstance());
+        otherQueue = queueDao.saveOrUpdate(otherQueue);
+        Statistics statistics = statistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            List<JobInstanceDao.JobSummary> summaries = dao.findSummariesByProjectId(projectId);
+
+            assertEquals(1, statistics.getPrepareStatementCount());
+            assertEquals(queue.getJobs().stream().filter(j -> j.getStatus() != JobQueueStatus.Deleted)
+                            .map(JobInstance::getId).sorted(java.util.Comparator.reverseOrder()).toList(),
+                    summaries.stream().map(JobInstanceDao.JobSummary::id).toList(),
+                    "newest first, without the deleted job or another project's job");
+            assertEquals(3000, summaries.get(0).totalVirtualUsers());
+            assertEquals(List.of(), dao.findSummariesByProjectId(projectId + 2), "a project without a queue has no jobs");
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            queueDao.delete(queue);
+            queueDao.delete(otherQueue);
         }
     }
 

@@ -8,7 +8,6 @@
 package com.intuit.tank.rest.mvc.rest.services.jobs;
 
 import com.intuit.tank.dao.JobInstanceDao;
-import com.intuit.tank.dao.JobQueueDao;
 import com.intuit.tank.dao.JobRegionDao;
 import com.intuit.tank.dao.ProjectDao;
 import com.intuit.tank.dao.WorkloadDao;
@@ -16,7 +15,6 @@ import com.intuit.tank.dao.util.ProjectDaoUtil;
 import com.intuit.tank.harness.StopBehavior;
 import com.intuit.tank.project.JobConfiguration;
 import com.intuit.tank.project.JobInstance;
-import com.intuit.tank.project.JobQueue;
 import com.intuit.tank.project.JobRegion;
 import com.intuit.tank.project.Project;
 import com.intuit.tank.project.ScriptGroupStep;
@@ -34,8 +32,6 @@ import com.intuit.tank.rest.mvc.rest.cloud.JobEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.JobQueueEventSender;
 import com.intuit.tank.rest.mvc.rest.util.JobInstanceFactory;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
-import com.intuit.tank.util.CreateDateComparator;
-import com.intuit.tank.util.CreateDateComparator.SortOrder;
 import com.intuit.tank.vm.api.enumerated.VMRegion;
 import com.intuit.tank.vm.api.enumerated.TerminationPolicy;
 
@@ -96,11 +92,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
         try {
             Project prj = new ProjectDao().findByIdEager(projectId);
             if (prj != null) {
-                JobQueue queue = new JobQueueDao().findOrCreateForProjectId(projectId);
-                List<JobInstance> jobs = new ArrayList<JobInstance>(queue.getJobs());
-                jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
-                jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
-                List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
+                List<JobTO> list = new JobInstanceDao().findSummariesByProjectId(projectId).stream()
+                        .map(JobServiceUtil::jobToTO).collect(Collectors.toList());
                 return JobContainer.builder().withJobs(list).build();
             } else {
                 return null;

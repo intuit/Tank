@@ -143,22 +143,47 @@ class JobServiceV2ImplTest {
         Project project = new Project();
         project.setId(10);
         project.setName("proj");
-
-        JobInstance job1 = createJobInstance(1, "job1", JobQueueStatus.Created);
-        JobInstance job2 = createJobInstance(2, "job2", JobQueueStatus.Running);
-        JobQueue queue = new JobQueue(10);
-        queue.addJob(job1);
-        queue.addJob(job2);
+        Date start = new Date(1000);
+        List<JobInstanceDao.JobSummary> jobs = List.of(
+                new JobInstanceDao.JobSummary(2, "job2", start, null, "us-west-2", JobQueueStatus.Running, 50, 6000L, 9000L),
+                new JobInstanceDao.JobSummary(1, "job1", null, null, "unspecified", JobQueueStatus.Created, 10, 0L, 0L));
 
         try (MockedConstruction<ProjectDao> projDaoMock = Mockito.mockConstruction(ProjectDao.class,
                      (mock, ctx) -> when(mock.findByIdEager(10)).thenReturn(project));
-             MockedConstruction<JobQueueDao> queueDaoMock = Mockito.mockConstruction(JobQueueDao.class,
-                     (mock, ctx) -> when(mock.findOrCreateForProjectId(10)).thenReturn(queue))) {
+             MockedConstruction<JobInstanceDao> jobDaoMock = Mockito.mockConstruction(JobInstanceDao.class,
+                     (mock, ctx) -> when(mock.findSummariesByProjectId(10)).thenReturn(jobs));
+             MockedConstruction<JobQueueDao> queueDaoMock = Mockito.mockConstruction(JobQueueDao.class)) {
 
             JobContainer result = service.getJobsByProject(10);
 
             assertNotNull(result);
-            assertEquals(2, result.getJobs().size());
+            assertEquals(List.of(2, 1), result.getJobs().stream().map(JobTO::getId).toList(), "keeps the dao's order");
+            JobTO first = result.getJobs().get(0);
+            assertEquals("job2", first.getName());
+            assertEquals("Running", first.getStatus());
+            assertEquals("us-west-2", first.getLocation());
+            assertEquals(50, first.getNumUsers());
+            assertEquals(start, first.getStartTime());
+            assertEquals(6000L, first.getRampTimeMilis());
+            assertEquals(9000L, first.getSimulationTimeMilis());
+            assertTrue(queueDaoMock.constructed().isEmpty(), "does not load the project's job queue");
+        }
+    }
+
+    @Test
+    void getJobsByProject_noJobs_returnsEmptyContainer() {
+        Project project = new Project();
+        project.setId(11);
+
+        try (MockedConstruction<ProjectDao> projDaoMock = Mockito.mockConstruction(ProjectDao.class,
+                     (mock, ctx) -> when(mock.findByIdEager(11)).thenReturn(project));
+             MockedConstruction<JobInstanceDao> jobDaoMock = Mockito.mockConstruction(JobInstanceDao.class,
+                     (mock, ctx) -> when(mock.findSummariesByProjectId(11)).thenReturn(List.of()))) {
+
+            JobContainer result = service.getJobsByProject(11);
+
+            assertNotNull(result);
+            assertTrue(result.getJobs().isEmpty());
         }
     }
 
