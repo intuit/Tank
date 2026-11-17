@@ -115,10 +115,8 @@ public class JobServiceV2Impl implements JobServiceV2 {
     public JobContainer getAllJobs() {
         try {
             JobInstanceDao dao = new JobInstanceDao();
-            List<JobInstance> jobs = dao.findAll();
-            jobs.removeIf(j -> j.getStatus() == JobQueueStatus.Deleted);
+            List<JobInstanceDao.JobSummary> jobs = dao.findSummaries();
             if (!jobs.isEmpty()) {
-                jobs.sort(new CreateDateComparator(SortOrder.DESCENDING));
                 List<JobTO> list = jobs.stream().map(JobServiceUtil::jobToTO).collect(Collectors.toList());
                 return JobContainer.builder().withJobs(list).build();
             } else {

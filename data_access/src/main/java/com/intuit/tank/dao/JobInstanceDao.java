@@ -16,6 +16,7 @@ package com.intuit.tank.dao;
  * #L%
  */
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,44 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         Map<Integer, JobQueueStatus> statuses = new LinkedHashMap<>();
         rows.forEach(row -> statuses.put(row.get(0, Integer.class), row.get(1, JobQueueStatus.class)));
         return statuses;
+    }
+
+    /**
+     * What a job list shows about each job.
+     */
+    public record JobSummary(int id, String name, Date startTime, Date endTime, String location,
+            JobQueueStatus status, int totalVirtualUsers, long rampTime, long simulationTime) {
+    }
+
+    /**
+     * Reads the summary of every job that is not deleted without loading the jobs and their eager collections.
+     *
+     * @return the jobs' summaries, newest first
+     */
+    public List<JobSummary> findSummaries() {
+        List<Tuple> rows = list(cb -> {
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<JobInstance> job = query.from(JobInstance.class);
+            return query.multiselect(job.get(JobInstance.PROPERTY_ID), job.get("name"),
+                    job.get(JobInstance.PROPERTY_START_TIME), job.get(JobInstance.PROPERTY_END_TIME),
+                    job.get("location"), job.get(JobInstance.PROPERTY_STATUS), job.get("totalVirtualUsers"),
+                    job.get("rampTime"), job.get("rampTimeSeconds"),
+                    job.get("simulationTime"), job.get("simulationTimeSeconds"))
+                    .where(cb.notEqual(job.get(JobInstance.PROPERTY_STATUS), JobQueueStatus.Deleted))
+                    .orderBy(cb.desc(job.get(JobInstance.PROPERTY_CREATE)), cb.desc(job.get(JobInstance.PROPERTY_ID)));
+        });
+        return rows.stream().map(row -> new JobSummary(
+                row.get(0, Integer.class),
+                row.get(1, String.class),
+                row.get(2, Date.class),
+                row.get(3, Date.class),
+                row.get(4, String.class),
+                row.get(5, JobQueueStatus.class),
+                row.get(6, Integer.class),
+                // same fallback to the legacy seconds columns as BaseJob.getRampTime and getSimulationTime
+                row.get(7, Long.class) != null ? row.get(7, Long.class) : row.get(8, Integer.class) * 1000L,
+                row.get(9, Long.class) != null ? row.get(9, Long.class) : row.get(10, Integer.class) * 1000L))
+                .toList();
     }
 
     /**
