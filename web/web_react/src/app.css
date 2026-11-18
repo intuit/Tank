@@ -1579,6 +1579,24 @@ body {
   text-align: right;
 }
 
+/* the card's failure count opens the failures popover, as the table's does */
+.job-card-figure.job-card-failure-link {
+  align-self: flex-end;
+  color: var(--red-600);
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.job-card-failure-link:hover {
+  text-decoration-style: solid;
+}
+
 .job-card-figure {
   color: var(--text-color);
   font-size: 1.4rem;

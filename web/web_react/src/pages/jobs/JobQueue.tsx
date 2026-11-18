@@ -12,7 +12,7 @@ import { SelectButton } from 'primereact/selectbutton';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type SyntheticEvent } from 'react';
 import { Link } from 'react-router';
 import { contextPath, type Schemas } from '../../api/client';
 import { toApiError } from '../../api/errors';
@@ -304,11 +304,17 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     );
   };
 
+  const openFailures = (event: SyntheticEvent, job: JobNode, agent?: AgentNode) => {
+    setFailuresFor({ jobId: job.jobId!, instanceId: agent?.instanceId });
+    failuresPanel.current?.toggle(event);
+  };
+
   const viewProps = (data: JobTree) => ({
     tree: data,
     metrics: agentMetrics,
     actionsFor,
     onDetails: (job: JobNode, agent?: AgentNode) => setDetailsFor({ job, agent }),
+    onFailures: openFailures,
   });
 
   const nameCell = (row: Row) =>
@@ -349,10 +355,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
         aria-haspopup="dialog"
         tooltip="What failed, and where"
         tooltipOptions={{ position: 'top', showDelay: 500 }}
-        onClick={(e) => {
-          setFailuresFor({ jobId: row.job.jobId!, instanceId: row.kind === 'agent' ? row.agent.instanceId : undefined });
-          failuresPanel.current?.toggle(e);
-        }}
+        onClick={(e) => openFailures(e, row.job, row.kind === 'agent' ? row.agent : undefined)}
       />
     );
   };

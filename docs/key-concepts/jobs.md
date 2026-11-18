@@ -43,7 +43,7 @@ The users charts come from what agents report to the controller you are using, f
 
 ### Failures
 
-In the table, a job's or agent's failure count opens a breakdown:
+A failure count opens a breakdown: a job's or agent's in the table, and a job's on its card in the Jobs view. It shows:
 
 - how many failures came in the last minute, while the job runs;
 - the failures by the **On failure** action of the requests that failed (see [Scripts](scripts.md#on-failure)), largest first, with each one's share;
