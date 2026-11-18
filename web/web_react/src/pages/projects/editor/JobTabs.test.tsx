@@ -194,15 +194,16 @@ describe('job charts', () => {
     expect(rows.indexOf('POST /pay353527.5')).toBeLessThan(rows.indexOf('GET /cart151512.5'));
   });
 
-  it("charts one agent's TPS", async () => {
+  it("charts one agent's users and TPS", async () => {
     const { calls } = await openTab('Job queue', chartHandlers);
     await screen.findByRole('button', { name: 'Checkout load 1' });
     await userEvent.click(screen.getAllByRole('button', { name: /toggle|expand/i })[0]!);
     await userEvent.click(await screen.findByRole('button', { name: 'Charts for i-0abc' }));
 
-    expect(await screen.findByText('Transactions per second on i-0abc')).toBeInTheDocument();
+    expect(await screen.findByText('Active users by script on i-0abc')).toBeInTheDocument();
+    expect(screen.getByText('Transactions per second on i-0abc')).toBeInTheDocument();
+    await waitFor(() => expect(calls('GET /v2/jobs/12/users-timeseries').at(-1)?.get('instanceId')).toBe('i-0abc'));
     await waitFor(() => expect(calls('GET /v2/jobs/12/tps-timeseries').at(-1)?.get('instanceId')).toBe('i-0abc'));
-    expect(calls('GET /v2/jobs/12/users-timeseries')).toHaveLength(0);
   });
 });
 

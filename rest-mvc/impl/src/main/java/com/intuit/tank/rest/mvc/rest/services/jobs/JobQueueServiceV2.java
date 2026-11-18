@@ -61,8 +61,10 @@ public interface JobQueueServiceV2 {
 
     /**
      * Users per script over time, as reported by the job's agents to this controller.
+     *
+     * @param instanceId only this agent, or null for the whole job
      */
-    Timeseries getUserSeries(Integer jobId);
+    Timeseries getUserSeries(Integer jobId, String instanceId);
 
     /**
      * Transactions per second per request over time.

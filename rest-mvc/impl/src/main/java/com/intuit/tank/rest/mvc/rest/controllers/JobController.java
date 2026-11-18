@@ -318,8 +318,10 @@ public class JobController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the series"),
             @ApiResponse(responseCode = "404", description = "No such job", content = @Content)
     })
-    public ResponseEntity<Timeseries> getUserSeries(@PathVariable @Parameter(description = "The job ID", required = true) Integer jobId) {
-        return ResponseEntity.ok(jobQueueService.getUserSeries(jobId));
+    public ResponseEntity<Timeseries> getUserSeries(
+            @PathVariable @Parameter(description = "The job ID", required = true) Integer jobId,
+            @RequestParam(required = false) @Parameter(description = "Only this agent") String instanceId) {
+        return ResponseEntity.ok(jobQueueService.getUserSeries(jobId, instanceId));
     }
 
     @RequestMapping(value = "/{jobId}/agent-metrics", method = RequestMethod.GET)

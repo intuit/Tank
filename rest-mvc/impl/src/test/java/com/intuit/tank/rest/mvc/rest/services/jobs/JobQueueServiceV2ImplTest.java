@@ -48,6 +48,7 @@ import com.intuit.tank.vm.settings.AccessRight;
 import com.intuit.tank.vm.vmManager.VMTracker;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
+import com.intuit.tank.vm.vmManager.models.UserDetail;
 import com.intuit.tank.vm.vmManager.models.ValidationStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import jakarta.servlet.ServletContext;
@@ -385,7 +386,26 @@ class JobQueueServiceV2ImplTest {
 
     @Test
     void userSeriesWithoutLiveData() {
-        assertEquals(new Timeseries(List.of(), List.of()), service.getUserSeries(10));
+        assertEquals(new Timeseries(List.of(), List.of()), service.getUserSeries(10, null));
+    }
+
+    @Test
+    void userSeriesForOneAgent() {
+        CloudVmStatus a = agent("i-1", "10", VMStatus.running, JobStatus.Running);
+        a.setUserDetails(List.of(new UserDetail("checkout", 5)));
+        CloudVmStatus b = agent("i-2", "10", VMStatus.running, JobStatus.Running);
+        b.setUserDetails(List.of(new UserDetail("checkout", 7)));
+        CloudVmStatusContainer container = new CloudVmStatusContainer(new HashSet<>(Set.of(a, b)));
+        container.calculateUserDetails();
+        when(tracker.getVmStatusForJob("10")).thenReturn(container);
+
+        assertEquals(List.of(12), seriesValues(service.getUserSeries(10, null), "checkout"));
+        assertEquals(List.of(5), seriesValues(service.getUserSeries(10, "i-1"), "checkout"));
+        assertEquals(List.of(), service.getUserSeries(10, "i-9").series());
+    }
+
+    private static List<Integer> seriesValues(Timeseries series, String name) {
+        return series.series().stream().filter(s -> s.name().equals(name)).findFirst().orElseThrow().values();
     }
 
     @Test

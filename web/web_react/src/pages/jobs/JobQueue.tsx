@@ -270,7 +270,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           rounded
           text
           aria-label={`Charts for ${name}`}
-          tooltip={row.kind === 'job' ? 'Users and TPS' : 'TPS for this agent'}
+          tooltip={row.kind === 'job' ? 'Users and TPS' : 'Users and TPS for this agent'}
           tooltipOptions={{ position: 'top' }}
           onClick={() => setDetailsFor(row.kind === 'job' ? { job: row.job } : { job: row.job, agent: row.agent })}
         />
@@ -721,7 +721,7 @@ function targetUsers(row: Row) {
   return formatCount(figures(row).totalUsers);
 }
 
-/** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its TPS */
+/** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its charts */
 function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentNode; onHide: () => void }) {
   const { client } = useSession();
   const details = useQuery({

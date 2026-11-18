@@ -222,7 +222,7 @@ export function FailuresPanel({
         to the next request aren&apos;t counted.
       </p>
       <div className="failures-panel-footer">
-        <Button label={agent ? 'Agent TPS' : 'Job details and charts'} icon="pi pi-chart-line" text size="small" onClick={onDetails} />
+        <Button label={agent ? 'Agent charts' : 'Job details and charts'} icon="pi pi-chart-line" text size="small" onClick={onDetails} />
       </div>
     </div>
   );
