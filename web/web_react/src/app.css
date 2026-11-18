@@ -1597,6 +1597,23 @@ body {
   text-decoration-style: solid;
 }
 
+/* the heat map panel's failure count opens the failures popover too */
+.heat-panel-failures {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--red-600);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.heat-panel-failures:hover {
+  text-decoration-style: solid;
+}
+
 .job-card-figure {
   color: var(--text-color);
   font-size: 1.4rem;
