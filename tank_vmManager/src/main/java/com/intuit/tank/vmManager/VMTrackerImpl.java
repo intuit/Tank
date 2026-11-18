@@ -54,6 +54,7 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatusContainer;
 import com.intuit.tank.vm.vmManager.models.ProjectStatusContainer;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.dao.JobInstanceDao.JobState;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Workload;
@@ -290,6 +291,15 @@ public class VMTrackerImpl implements VMTracker {
         return true;
     }
 
+    /** Whether two job states match, times to the second: the database keeps no finer, and returns Timestamps */
+    private static boolean sameState(JobState a, JobState b) {
+        return a.status() == b.status() && sameSecond(a.startTime(), b.startTime()) && sameSecond(a.endTime(), b.endTime());
+    }
+
+    private static boolean sameSecond(Date a, Date b) {
+        return a == null ? b == null : b != null && a.getTime() / 1000 == b.getTime() / 1000;
+    }
+
     /** Statuses an agent reaches only after registering, which a launch status must not undo */
     private static final Set<VMStatus> REGISTERED = EnumSet.of(VMStatus.pending, VMStatus.ready, VMStatus.running);
 
@@ -366,15 +376,19 @@ public class VMTrackerImpl implements VMTracker {
         boolean stopped = true;
         boolean running = true;
 
-        // look up the job
-        JobInstance job = jobInstanceDao.get().findById(Integer.parseInt(status.getJobId()));
+        // look up the job's status and times only: every agent reports every few seconds, and loading the
+        // job loads all its VM instances
+        int jobId = Integer.parseInt(status.getJobId());
+        JobState job = jobInstanceDao.get().findState(jobId);
         
         // Take a snapshot to avoid ConcurrentModificationException if another thread modifies
         // the set while we iterate (defense in depth, even though we're synchronized)
         Set<CloudVmStatus> statusesSnapshot = new HashSet<>(cloudVmStatusContainer.getStatuses());
         
         int activeInstanceCount = 0;
-        for (CloudVmStatus s : statusesSnapshot) {
+        for (CloudVmStatus containerStatus : statusesSnapshot) {
+            // each instance's latest status: the container's copy can be older, if its update was dropped
+            CloudVmStatus s = statusMap.getOrDefault(containerStatus.getInstanceId(), containerStatus);
             VMStatus vmStatus = s.getVmStatus();
             // skip replaced instances - these were replaced by AgentWatchdog due to failure
             // but do NOT skip terminated/stopping/stopped/shutting_down - these are active agents in transition
@@ -425,12 +439,13 @@ public class VMTrackerImpl implements VMTracker {
             cloudVmStatusContainer.setEndTime(new Date());
         }
         if (job != null) {
-            job.setEndTime(cloudVmStatusContainer.getEndTime());
-            JobQueueStatus oldStatus = job.getStatus();
-            JobQueueStatus newStatus = job.getStatus();
+            Date startTime = job.startTime();
+            Date endTime = cloudVmStatusContainer.getEndTime();
+            JobQueueStatus oldStatus = job.status();
+            JobQueueStatus newStatus = job.status();
             if (isFinished) {
                 newStatus = JobQueueStatus.Completed;
-                stopJob(Integer.toString(job.getId()));
+                stopJob(status.getJobId());
             } else if (paused) {
                 newStatus = JobQueueStatus.Paused;
             } else if (rampPaused) {
@@ -439,9 +454,9 @@ public class VMTrackerImpl implements VMTracker {
                 newStatus = JobQueueStatus.Stopped;
             } else if (running) {
                 newStatus = JobQueueStatus.Running;
-                if (job.getStartTime() == null && status.getJobStatus() == JobStatus.Running) {
-                    job.setStartTime(status.getStartTime());
-                    jobEventProducer.fire(new JobEvent(Integer.toString(job.getId()), "", JobLifecycleEvent.LOAD_STARTED));
+                if (startTime == null && status.getJobStatus() == JobStatus.Running) {
+                    startTime = status.getStartTime();
+                    jobEventProducer.fire(new JobEvent(status.getJobId(), "", JobLifecycleEvent.LOAD_STARTED));
                 }
             }
 
@@ -452,13 +467,15 @@ public class VMTrackerImpl implements VMTracker {
                     ", stopped=" + stopped + ", running=" + running + ")")));
             }
             LOG.trace("Setting Container for job=" + status.getJobId() + " newStatus to " + newStatus);
-            job.setStatus(newStatus);
-            jobInstanceDao.get().saveOrUpdate(job);
+            JobState newState = new JobState(newStatus, startTime, endTime);
+            if (!sameState(job, newState)) {
+                jobInstanceDao.get().updateState(jobId, newState);
+            }
 
             // Job StartTime is source of truth for cloudVMStatusContainer StartTime
-            if (job.getStartTime() != null && cloudVmStatusContainer.getStartTime() != null) {
-                if (job.getStartTime().before(cloudVmStatusContainer.getStartTime())) {
-                    cloudVmStatusContainer.setStartTime(job.getStartTime());
+            if (startTime != null && cloudVmStatusContainer.getStartTime() != null) {
+                if (startTime.before(cloudVmStatusContainer.getStartTime())) {
+                    cloudVmStatusContainer.setStartTime(startTime);
                 }
             }
         }

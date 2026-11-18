@@ -25,6 +25,7 @@ import java.util.function.Function;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
@@ -110,6 +111,58 @@ public class JobInstanceDao extends BaseDao<JobInstance> {
         Map<Integer, JobQueueStatus> statuses = new LinkedHashMap<>();
         rows.forEach(row -> statuses.put(row.get(0, Integer.class), row.get(1, JobQueueStatus.class)));
         return statuses;
+    }
+
+    /**
+     * A job's status and times: what its agents' statuses change while it runs.
+     */
+    public record JobState(JobQueueStatus status, Date startTime, Date endTime) {
+    }
+
+    /**
+     * Reads one job's status and times without loading the job and its eager collections.
+     *
+     * @param jobId
+     * @return the job's state, or null when there is no such job
+     */
+    public JobState findState(int jobId) {
+        List<Tuple> rows = list(cb -> {
+            CriteriaQuery<Tuple> query = cb.createTupleQuery();
+            Root<JobInstance> job = query.from(JobInstance.class);
+            return query.multiselect(job.get(JobInstance.PROPERTY_STATUS), job.get(JobInstance.PROPERTY_START_TIME),
+                    job.get(JobInstance.PROPERTY_END_TIME))
+                    .where(cb.equal(job.get(JobInstance.PROPERTY_ID), jobId));
+        });
+        return rows.isEmpty() ? null
+                : new JobState(rows.get(0).get(0, JobQueueStatus.class), rows.get(0).get(1, Date.class), rows.get(0).get(2, Date.class));
+    }
+
+    /**
+     * Sets one job's status and times, and its modified time, without loading the job and its eager collections.
+     *
+     * @param jobId
+     * @param state
+     */
+    public void updateState(int jobId, JobState state) {
+        try {
+            begin();
+            CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+            CriteriaUpdate<JobInstance> update = cb.createCriteriaUpdate(JobInstance.class);
+            Root<JobInstance> job = update.from(JobInstance.class);
+            update.set(job.<JobQueueStatus>get(JobInstance.PROPERTY_STATUS), state.status())
+                    .set(job.<Date>get(JobInstance.PROPERTY_START_TIME), state.startTime())
+                    .set(job.<Date>get(JobInstance.PROPERTY_END_TIME), state.endTime())
+                    // a bulk update skips @PreUpdate, which keeps modified current
+                    .set(job.<Date>get(JobInstance.PROPERTY_MODIFIED), new Date())
+                    .where(cb.equal(job.get(JobInstance.PROPERTY_ID), jobId));
+            getEntityManager().createQuery(update).executeUpdate();
+            commit();
+        } catch (Exception e) {
+            rollback();
+            throw new RuntimeException(e);
+        } finally {
+            cleanup();
+        }
     }
 
     /**

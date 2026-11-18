@@ -120,6 +120,39 @@ public class JobInstanceDaoTest {
 
     @Test
     @Tag(TestGroups.FUNCTIONAL)
+    public void findAndUpdateState_touchOnlyTheJobsStatusAndTimes() {
+        JobInstance job = getBaseInstance();
+        job.setStatus(JobQueueStatus.Starting);
+        job = dao.saveOrUpdate(jobWithCollections(job));
+        Statistics statistics = statistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+        try {
+            assertEquals(new JobInstanceDao.JobState(JobQueueStatus.Starting, null, null), dao.findState(job.getId()));
+            assertEquals(1, statistics.getPrepareStatementCount(), "one query, without the job's collections");
+            assertNull(dao.findState(-1));
+
+            // whole seconds: the database keeps no finer
+            Date start = new Date(1_700_000_000_000L);
+            Date end = new Date(1_700_000_600_000L);
+            statistics.clear();
+            dao.updateState(job.getId(), new JobInstanceDao.JobState(JobQueueStatus.Completed, start, end));
+            assertEquals(1, statistics.getPrepareStatementCount(), "one update, without loading the job");
+
+            JobInstance updated = dao.findById(job.getId());
+            assertEquals(JobQueueStatus.Completed, updated.getStatus());
+            assertEquals(start.getTime(), updated.getStartTime().getTime());
+            assertEquals(end.getTime(), updated.getEndTime().getTime());
+            assertEquals(job.getName(), updated.getName(), "the rest of the job is untouched");
+            assertEquals(job.getVariables(), updated.getVariables());
+        } finally {
+            statistics.setStatisticsEnabled(false);
+            dao.delete(job);
+        }
+    }
+
+    @Test
+    @Tag(TestGroups.FUNCTIONAL)
     public void findSummaries_readsNewestFirstWithoutDeletedInOneQuery() {
         JobInstance older = getBaseInstance();
         older.setName("older");
