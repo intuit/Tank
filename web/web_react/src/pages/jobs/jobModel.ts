@@ -39,6 +39,13 @@ export function jobEntries(tree: JobTree): JobEntry[] {
   ];
 }
 
+const FINISHED = ['completed', 'stopped', 'aborted', 'deleted'];
+
+/** Whether a job is over: its figures won't change */
+export function isFinished(job: JobNode): boolean {
+  return FINISHED.includes(job.status?.toLowerCase() ?? '');
+}
+
 /** An agent silent this long is worth a look, though still connected */
 export const SILENT_SECONDS = 30;
 

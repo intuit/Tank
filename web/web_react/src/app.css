@@ -974,6 +974,131 @@ body {
   font-weight: 600;
 }
 
+.p-button.p-button-link.failure-link {
+  padding: 0;
+  color: var(--red-600);
+  font-weight: 600;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+/* The failures popover from the Failures column: total, last minute, by action, by agent */
+.failures-overlay {
+  width: min(30rem, calc(100vw - 32px));
+}
+
+.failures-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.failures-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-right: 24px;
+}
+
+.failures-panel-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.p-button.p-button-link.failures-panel-back {
+  padding: 2px 0 0;
+  font-size: 0.8125rem;
+}
+
+.failures-panel-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+}
+
+.failures-panel-total .failure-count,
+.failures-panel-total > span:first-child {
+  font-size: 1.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.failures-recent {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.failures-recent.failures-rising {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+.failure-kinds,
+.failures-agents table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.failure-kinds th,
+.failure-kinds td,
+.failures-agents td {
+  padding: 4px 0;
+  vertical-align: middle;
+}
+
+.failure-kinds th {
+  font-weight: 600;
+  text-align: left;
+}
+
+.failure-kinds th .field-help {
+  display: block;
+  font-weight: 400;
+}
+
+.failure-kinds td.num-col,
+.failures-agents td.num-col {
+  padding-left: 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.failure-kind-bar {
+  width: 30%;
+  padding-left: 12px;
+}
+
+.failure-kind-bar span {
+  display: block;
+  min-width: 2px;
+  height: 8px;
+  border-radius: 4px;
+  background: #ef9f4a;
+}
+
+.failure-kinds-none {
+  margin: 4px 0 0;
+}
+
+.failures-agents .p-button.p-button-link {
+  padding: 0;
+}
+
+.failures-agents p {
+  margin: 4px 0 0;
+}
+
+.failures-note {
+  margin: 0;
+}
+
+.failures-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .job-tree td.date-col {
   font-size: 0.8125rem;
   color: var(--text-color-secondary);

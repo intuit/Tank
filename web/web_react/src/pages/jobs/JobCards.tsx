@@ -5,6 +5,7 @@ import {
   agentHealth,
   agentSummary,
   formatCount,
+  isFinished,
   jobEntries,
   secondsSinceSeen,
   severityOf,
@@ -42,9 +43,6 @@ export function useTpsHistory(tree: JobTree | undefined): TpsHistory {
 
 const TIME = new Intl.DateTimeFormat(undefined, { timeStyle: 'short' });
 
-/** Finished jobs fade, so what is live reads first */
-const FINISHED = ['completed', 'stopped', 'aborted', 'deleted'];
-
 /** One card per job: users against target, TPS and its trend, failures, its agents at a glance, and its actions */
 export function JobCards({ tree, actionsFor, onDetails, tpsHistory }: JobViewProps & { tpsHistory: TpsHistory }) {
   const entries = jobEntries(tree);
@@ -58,7 +56,8 @@ export function JobCards({ tree, actionsFor, onDetails, tpsHistory }: JobViewPro
           const target = job.totalUsers ?? 0;
           const active = job.activeUsers ?? 0;
           const failures = job.failures?.total ?? 0;
-          const finished = FINISHED.includes(job.status?.toLowerCase() ?? '');
+          // finished jobs fade, so what is live reads first
+          const finished = isFinished(job);
           const agents = job.agents ?? [];
           return (
             <article
