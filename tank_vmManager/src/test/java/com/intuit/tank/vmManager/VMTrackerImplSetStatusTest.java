@@ -303,18 +303,32 @@ public class VMTrackerImplSetStatusTest {
     // ============ async setStatus, publishEvent, removeStatusForJob, init ============
 
     @Test
-    @DisplayName("setStatus applies the update on the background executor")
-    void setStatus_async_updatesStatusMap() throws Exception {
+    @DisplayName("setStatus records the instance's status at once and updates the job's container in the background")
+    void setStatus_recordsStatusAtOnce_containerFollows() throws Exception {
         when(jobInstanceDao.findById(anyInt())).thenReturn(null);
         CloudVmStatus status = status("i-async", VMStatus.starting, JobStatus.Starting);
 
         vmTracker.setStatus(status);
 
+        // an agent can register straight after launch: its status must already be there
+        assertSame(status, vmTracker.getStatus("i-async"));
         long deadline = System.currentTimeMillis() + 5_000;
-        while (vmTracker.getStatus("i-async") == null && System.currentTimeMillis() < deadline) {
+        while (vmTracker.getVmStatusForJob(JOB_ID) == null && System.currentTimeMillis() < deadline) {
             Thread.sleep(10);
         }
-        assertSame(status, vmTracker.getStatus("i-async"));
+        assertTrue(vmTracker.getVmStatusForJob(JOB_ID).getStatuses().contains(status));
+    }
+
+    @Test
+    @DisplayName("A launch status recorded after the agent registered doesn't undo the registration")
+    void setStatus_lateLaunchStatus_keepsRegisteredStatus() throws Exception {
+        when(jobInstanceDao.findById(anyInt())).thenReturn(null);
+        CloudVmStatus registered = status("i-1", VMStatus.pending, JobStatus.Starting);
+        invokeSetStatusThread(registered);
+
+        invokeSetStatusThread(status("i-1", VMStatus.starting, JobStatus.Starting));
+
+        assertSame(registered, vmTracker.getStatus("i-1"));
     }
 
     @Test

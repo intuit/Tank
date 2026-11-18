@@ -447,6 +447,14 @@ public class AgentCommandWebSocketHandler extends TextWebSocketHandler implement
                 LOG.info(new ObjectMessage(Map.of("Message", "[WS] ⚙ " + agentId + " | Registering agent for job " + jobId)));
                 AgentData agentData = jobManager.buildAgentDataForWsHello(
                         jobId, agentId, resolveInstanceUrl(session), hello.getCapacity());
+                if (agentData == null) {
+                    LOG.warn(new ObjectMessage(Map.of("Message", "[WS] ✗ " + agentId + " | region unknown for job " + jobId + "; not registering")));
+                    try {
+                        sendEnvelope(session, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Agent's region is unknown"));
+                        session.close(CloseStatus.SERVER_ERROR);
+                    } catch (IOException ignored) {}
+                    return;
+                }
 
                 AgentTestStartData startData = jobManager.registerAgentForJob(agentData);
                 if (startData == null) {

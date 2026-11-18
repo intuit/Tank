@@ -288,6 +288,11 @@ public class ControllerInitiatedAgentWsClient implements AgentWsCommandSender {
             agentWsState.put(agentId, "registered");
             AgentData agentData = jobManager.buildAgentDataForWsHello(
                     hello.getJobId(), agentId, instanceUrl, hello.getCapacity());
+            if (agentData == null) {
+                sendEnvelope(context, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Agent's region is unknown"));
+                context.close();
+                return false;
+            }
             AgentTestStartData startData = jobManager.registerAgentForJob(agentData);
             if (startData == null) {
                 sendEnvelope(context, AgentWsEnvelope.close(agentId, "bootstrap_failed", "Job not found in controller cache"));

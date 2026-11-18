@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.inject.Instance;
 
@@ -293,7 +294,66 @@ public class JobManagerLifecycleTest {
         assertEquals(1, result.getConcurrentUsers());
     }
 
+    @Test
+    void registerAgentForJobGivesAgentsBeyondARegionsShareNoPlace() throws Exception {
+        Object jobInfo = nonlinearJobInfo();
+        jobInfoCache().put(JOB_ID, jobInfo);
+        // the start thread the last registration triggers sends over WS, so every agent is immediately ready
+        when(agentConfig.isCommandWsEnabled()).thenReturn(true);
+        AgentWsCommandSender.setStaticInstance(readySender());
+
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-east-1", "http://e1:8090", 1, VMRegion.US_EAST, "z"));
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-east-2", "http://e2:8090", 1, VMRegion.US_EAST, "z"));
+
+        // the second agent in the east doesn't count: the job still waits for the west
+        assertEquals(Set.of("i-east-1"), registeredIds(jobInfo));
+        assertFalse(isFilled(jobInfo));
+
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-west-1", "http://w1:8090", 1, VMRegion.US_WEST_2, "z"));
+
+        assertEquals(Set.of("i-east-1", "i-west-1"), registeredIds(jobInfo));
+        assertTrue(isFilled(jobInfo));
+        Thread startThread = awaitStartTestThread();
+        startThread.interrupt();
+        startThread.join(TimeUnit.SECONDS.toMillis(10));
+    }
+
+    @Test
+    void registerAgentForJobGivesAReplacedAgentsPlaceToItsReplacement() throws Exception {
+        Object jobInfo = nonlinearJobInfo();
+        jobInfoCache().put(JOB_ID, jobInfo);
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-old", "http://old:8090", 1, VMRegion.US_EAST, "z"));
+        CloudVmStatus replaced = mock(CloudVmStatus.class);
+        when(replaced.getVmStatus()).thenReturn(VMStatus.replaced);
+        when(vmTracker.getStatus("i-old")).thenReturn(replaced);
+
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-new", "http://new:8090", 1, VMRegion.US_EAST, "z"));
+
+        assertEquals(Set.of("i-new"), registeredIds(jobInfo));
+        assertFalse(isFilled(jobInfo), "the west still has no agent");
+    }
+
     // ---------------------------------------------------------------- buildAgentDataForWsHello
+
+    @Test
+    void buildAgentDataForWsHelloTakesAMultiRegionJobsAgentRegionFromItsLaunch() throws Exception {
+        jobInfoCache().put(JOB_ID, nonlinearJobInfo());
+        fixture = spy(fixture);
+        doReturn(VMRegion.US_WEST_2).when(fixture).launchedRegion("i-1");
+
+        AgentData result = fixture.buildAgentDataForWsHello(JOB_ID, "i-1", "http://agent:8090", 1);
+
+        assertEquals(VMRegion.US_WEST_2, result.getRegion());
+    }
+
+    @Test
+    void buildAgentDataForWsHelloWontGuessAMultiRegionJobsAgentRegion() throws Exception {
+        jobInfoCache().put(JOB_ID, nonlinearJobInfo());
+        fixture = spy(fixture);
+        doReturn(null).when(fixture).launchedRegion("i-1");
+
+        assertNull(fixture.buildAgentDataForWsHello(JOB_ID, "i-1", "http://agent:8090", 1));
+    }
 
     @Test
     void buildAgentDataForWsHelloUsesTheTrackedRegionAndGivenUrl() {
@@ -780,6 +840,22 @@ public class JobManagerLifecycleTest {
         Field field = jobInfo.getClass().getDeclaredField(name);
         field.setAccessible(true);
         return field.get(jobInfo);
+    }
+
+    /** A nonlinear job of two agents, one in US_EAST and one in US_WEST_2 */
+    private Object nonlinearJobInfo() throws Exception {
+        JobRequest jobRequest = increasingJob(JOB_ID, region(VMRegion.US_EAST, "0", "50"), region(VMRegion.US_WEST_2, "0", "50"));
+        when(jobRequest.getIncrementStrategy()).thenReturn(IncrementStrategy.standard);
+        when(jobRequest.getNumAgents()).thenReturn(2);
+        Object jobInfo = newJobInfo(jobRequest);
+        assertEquals(2, getJobInfoField(jobInfo, "numberOfMachines"));
+        return jobInfo;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<String> registeredIds(Object jobInfo) throws Exception {
+        return ((Set<AgentData>) getJobInfoField(jobInfo, "agentData")).stream()
+                .map(AgentData::getInstanceId).collect(Collectors.toSet());
     }
 
     private boolean isFilled(Object jobInfo) throws Exception {

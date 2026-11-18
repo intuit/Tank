@@ -21,6 +21,7 @@ import static com.intuit.tank.vm.common.TankConstants.NOTIFICATIONS_EVENT_EVENT_
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -102,7 +103,21 @@ public class VMTrackerImpl implements VMTracker {
                         t.setDaemon(true);
                         return t;
                     },
-                    new ThreadPoolExecutor.DiscardOldestPolicy());
+                    VMTrackerImpl::discardOldest);
+
+    /**
+     * When the queue is full, drops the oldest queued job container update to make room, and says so.
+     * Instance statuses don't depend on it: {@link #setStatus} records them before queueing.
+     */
+    private static void discardOldest(Runnable task, ThreadPoolExecutor executor) {
+        if (executor.isShutdown()) {
+            return;
+        }
+        executor.getQueue().poll();
+        LOG.warn(new ObjectMessage(Map.of("Message",
+                "Status update queue is full; dropped the oldest job container update")));
+        executor.execute(task);
+    }
 
     /**
      * 
@@ -141,32 +156,56 @@ public class VMTrackerImpl implements VMTracker {
      */
     @Override
     public void setStatus(@Nonnull final CloudVmStatus status) {
+        // Recorded now, so getStatus sees it at once: an agent can register seconds after launch, and the
+        // queue below can lag, or drop updates, when many agents report at once
+        boolean recorded = recordStatus(status);
         // The reporting request has already returned 204; trace the update as part of that request's trace
-        Runnable task = Context.current().wrap(() -> Tracing.inSpan("VMTracker.SetStatus", () -> setStatusThread(status)));
+        Runnable task = Context.current().wrap(() -> Tracing.inSpan("VMTracker.SetStatus",
+                () -> updateJobContainers(status, recorded)));
         EXECUTOR.execute(task);
     }
 
+    /** Both steps of {@link #setStatus} on the calling thread */
     private void setStatusThread(@Nonnull final CloudVmStatus status) {
-        synchronized (getCacheSyncObject(status.getJobId())) {
-            status.setReportTime(new Date());
-            CloudVmStatus currentStatus = getStatus(status.getInstanceId());
+        updateJobContainers(status, recordStatus(status));
+    }
+
+    /**
+     * Records an instance's status, unless the one it has should stand: an instance that is shutting
+     * down or gone keeps that status, and a launch status ({@link VMStatus#starting}) never replaces
+     * one the agent has moved past, as when it registers before the launch status is recorded.
+     *
+     * @return whether the status was recorded
+     */
+    private boolean recordStatus(@Nonnull final CloudVmStatus status) {
+        status.setReportTime(new Date());
+        boolean[] recorded = { false };
+        statusMap.compute(status.getInstanceId(), (id, currentStatus) -> {
             // agents that don't report their zone keep the one recorded at launch
             if (status.getZone() == null && currentStatus != null) {
                 status.setZone(currentStatus.getZone());
             }
-            
-            if (shouldUpdateStatus(currentStatus)) {
-                statusMap.put(status.getInstanceId(), status);
+            if (!shouldUpdateStatus(currentStatus, status)) {
+                LOG.debug(new ObjectMessage(Map.of("Message",
+                    "Skipping status update for instance " + id + " - current status is "
+                    + (currentStatus != null ? currentStatus.getVmStatus() : "null"))));
+                return currentStatus;
+            }
+            recorded[0] = true;
+            return status;
+        });
+        return recorded[0];
+    }
+
+    private void updateJobContainers(@Nonnull final CloudVmStatus status, boolean recorded) {
+        synchronized (getCacheSyncObject(status.getJobId())) {
+            if (recorded) {
                 if (status.getVmStatus() == VMStatus.running
                 		&& (status.getJobStatus() == JobStatus.Completed)
                 		&& !isDevMode()) {
 	                        AmazonInstance amzInstance = new AmazonInstance(status.getVmRegion());
 	                        amzInstance.killInstances(Collections.singletonList(status.getInstanceId()));
                 }
-            } else {
-                LOG.debug(new ObjectMessage(Map.of("Message",
-                    "Skipping status update for instance " + status.getInstanceId() +
-                    " - current status is " + (currentStatus != null ? currentStatus.getVmStatus() : "null"))));
             }
             String jobId = status.getJobId();
             CloudVmStatusContainer cloudVmStatusContainer = jobMap.get(jobId);
@@ -237,16 +276,22 @@ public class VMTrackerImpl implements VMTracker {
         return oldStatus;
     }
 
-    private boolean shouldUpdateStatus(CloudVmStatus currentStatus) {
-        if (currentStatus != null) {
+    private boolean shouldUpdateStatus(CloudVmStatus currentStatus, CloudVmStatus newStatus) {
+        if (currentStatus != null && currentStatus != newStatus) {
             VMStatus status = currentStatus.getVmStatus();
-            return (status != VMStatus.shutting_down
-                    && status != VMStatus.stopped
-                    && status != VMStatus.stopping
-                    && status != VMStatus.terminated);
+            if (status == VMStatus.shutting_down
+                    || status == VMStatus.stopped
+                    || status == VMStatus.stopping
+                    || status == VMStatus.terminated) {
+                return false;
+            }
+            return !(newStatus.getVmStatus() == VMStatus.starting && REGISTERED.contains(status));
         }
         return true;
     }
+
+    /** Statuses an agent reaches only after registering, which a launch status must not undo */
+    private static final Set<VMStatus> REGISTERED = EnumSet.of(VMStatus.pending, VMStatus.ready, VMStatus.running);
 
     /**
      * 
