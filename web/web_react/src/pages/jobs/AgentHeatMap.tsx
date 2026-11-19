@@ -1,6 +1,6 @@
 import { SelectButton } from 'primereact/selectbutton';
 import { Tag } from 'primereact/tag';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   agentHealth,
   agentSummary,
@@ -55,7 +55,7 @@ interface Tile {
  * agent that is slow, failing or silent stands out among dozens. A tile opens the agent's figures
  * and actions beside the map.
  */
-export function AgentHeatMap({ tree, actionsFor, onDetails, metrics }: JobViewProps) {
+export function AgentHeatMap({ tree, actionsFor, onDetails, onFailures, metrics }: JobViewProps) {
   const [metric, setMetric] = useState<Metric>('tps');
   const [selectedId, setSelectedId] = useState<string>();
   const def: MetricDef = METRICS.find((m) => m.value === metric)!;
@@ -275,7 +275,25 @@ export function AgentHeatMap({ tree, actionsFor, onDetails, metrics }: JobViewPr
               <dl className="heat-panel-facts">
                 <Fact label="Active users" value={formatCount(selected.agent.activeUsers)} />
                 <Fact label="TPS" value={formatCount(selected.agent.tps)} />
-                <Fact label="Failures" value={formatCount(selected.agent.failures?.total)} />
+                <Fact
+                  label="Failures"
+                  value={
+                    (selected.agent.failures?.total ?? 0) > 0 ? (
+                      <button
+                        type="button"
+                        className="failure-count heat-panel-failures"
+                        aria-label={`${formatCount(selected.agent.failures?.total)} failures for agent ${selected.agent.instanceId}: breakdown`}
+                        aria-haspopup="dialog"
+                        title="What failed"
+                        onClick={(e) => onFailures(e, selected.entry.job, selected.agent)}
+                      >
+                        {formatCount(selected.agent.failures?.total)}
+                      </button>
+                    ) : (
+                      formatCount(selected.agent.failures?.total)
+                    )
+                  }
+                />
                 <Fact
                   label="Last seen"
                   value={
@@ -353,7 +371,7 @@ export function Stat({ label, value, sub, alert }: { label: string; value: strin
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
       <dt>{label}</dt>

@@ -12,17 +12,16 @@ const TOTAL_TPS = 'Total TPS';
 
 /**
  * Active users by script and total TPS over time, refreshed while open (initChartModel and getTpsMap
- * in JobTreeTableBean). Two charts, never two axes on one. For one agent only TPS is available.
+ * in JobTreeTableBean). Two charts, never two axes on one. For one agent, both are that agent's alone.
  */
 export function JobCharts({ jobId, instanceId }: { jobId: number; instanceId?: string }) {
   const { client } = useSession();
 
   const users = useQuery({
-    queryKey: ['jobs', jobId, 'users-timeseries'],
-    enabled: !instanceId,
+    queryKey: ['jobs', jobId, 'users-timeseries', instanceId],
     queryFn: async ({ signal }) => {
       const { data, error, response } = await client.GET('/v2/jobs/{jobId}/users-timeseries', {
-        params: { path: { jobId } },
+        params: { path: { jobId }, query: { instanceId } },
         signal,
       });
       if (!data) {
@@ -57,18 +56,23 @@ export function JobCharts({ jobId, instanceId }: { jobId: number; instanceId?: s
 
   return (
     <div className="job-charts">
-      {!instanceId &&
-        (users.error ? (
-          <Message severity="error" text={users.error.message} />
-        ) : (
-          <LineChart
-            title="Active users by script"
-            times={userTimes}
-            series={colorSeries(seriesOf(users.data))}
-            loading={users.isFetching && !users.isPending}
-            emptyMessage={users.isPending ? 'Loading…' : 'No user reports yet. They start when agents begin running.'}
-          />
-        ))}
+      {users.error ? (
+        <Message severity="error" text={users.error.message} />
+      ) : (
+        <LineChart
+          title={instanceId ? `Active users by script on ${instanceId}` : 'Active users by script'}
+          times={userTimes}
+          series={colorSeries(seriesOf(users.data))}
+          loading={users.isFetching && !users.isPending}
+          emptyMessage={
+            users.isPending
+              ? 'Loading…'
+              : instanceId
+                ? 'No user reports from this agent yet. They start when it begins running.'
+                : 'No user reports yet. They start when agents begin running.'
+          }
+        />
+      )}
       {tps.error ? (
         <Message severity="error" text={tps.error.message} />
       ) : (

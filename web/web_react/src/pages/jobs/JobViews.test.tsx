@@ -154,6 +154,34 @@ describe('job queue views', () => {
     expect(within(card).getByRole('button', { name: 'Stop Checkout load 1' })).toBeInTheDocument();
   });
 
+  it("opens a card's failures breakdown from its count", async () => {
+    localStorage.setItem('tank.jobs.view', 'jobs');
+    renderApp('/jobs', handlers());
+
+    const card = await screen.findByRole('article', { name: 'Job Checkout load 1' });
+    await userEvent.click(within(card).getByRole('button', { name: '4 failures for job Checkout load 1: breakdown' }));
+
+    // jsdom gives the popover no offsetParent, so PrimeReact's measuring leaves it display: none
+    const panel = await waitFor(() => within(document.querySelector<HTMLElement>('.failures-overlay')!));
+    expect(await panel.findByText('Job 12: Checkout load 1')).toBeInTheDocument();
+    expect(panel.getByRole('button', { name: 'Failures for agent i-0aaaaaaaaaaaa1111', hidden: true })).toBeInTheDocument();
+  });
+
+  it("opens a picked agent's failures breakdown from the heat map", async () => {
+    renderApp('/jobs', handlers());
+    await openView('Heat map');
+
+    const job = await screen.findByRole('region', { name: 'Job Checkout load 1' });
+    await userEvent.click(within(job).getByRole('button', { name: /i-0aaaaaaaaaaaa1111/ }));
+    const selected = screen.getByRole('complementary', { name: 'Selected agent' });
+    await userEvent.click(within(selected).getByRole('button', { name: '4 failures for agent i-0aaaaaaaaaaaa1111: breakdown' }));
+
+    // jsdom gives the popover no offsetParent, so PrimeReact's measuring leaves it display: none
+    const panel = await waitFor(() => within(document.querySelector<HTMLElement>('.failures-overlay')!));
+    expect(await panel.findByText('Agent i-0aaaaaaaaaaaa1111')).toBeInTheDocument();
+    expect(panel.getByRole('button', { name: 'Job 12: 4 in all', hidden: true })).toBeInTheDocument();
+  });
+
   it('sums agents by region and availability zone', async () => {
     renderApp('/jobs', handlers());
     await openView('Regions');

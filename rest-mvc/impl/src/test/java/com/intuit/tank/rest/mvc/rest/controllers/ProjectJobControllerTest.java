@@ -93,9 +93,9 @@ class ProjectJobControllerTest {
         when(service.getJobDetails(10)).thenReturn(details);
         assertSame(details, jobs.getJobDetails(10).getBody());
         Timeseries series = new Timeseries(List.of(), List.of());
-        when(service.getUserSeries(10)).thenReturn(series);
+        when(service.getUserSeries(10, null)).thenReturn(series);
         when(service.getTpsSeries(10, "i-1", 5L)).thenReturn(series);
-        assertSame(series, jobs.getUserSeries(10).getBody());
+        assertSame(series, jobs.getUserSeries(10, null).getBody());
         assertSame(series, jobs.getTpsSeries(10, "i-1", 5L).getBody());
         com.intuit.tank.rest.mvc.rest.models.AgentMetrics metrics =
                 new com.intuit.tank.rest.mvc.rest.models.AgentMetrics(10, "2026-11-06T19:22:00Z", false, List.of(), List.of());

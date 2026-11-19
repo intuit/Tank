@@ -7,11 +7,12 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputSwitch } from 'primereact/inputswitch';
 import { Message } from 'primereact/message';
 import { MultiSelect } from 'primereact/multiselect';
+import { OverlayPanel } from 'primereact/overlaypanel';
 import { SelectButton } from 'primereact/selectbutton';
 import { Tag } from 'primereact/tag';
 import { TreeTable } from 'primereact/treetable';
 import type { TreeNode } from 'primereact/treenode';
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type SyntheticEvent } from 'react';
 import { Link } from 'react-router';
 import { contextPath, type Schemas } from '../../api/client';
 import { toApiError } from '../../api/errors';
@@ -24,6 +25,13 @@ import { AgentMetricsView } from './AgentMetricsView';
 import { agentFigure, type AgentMetricsLookup, type MetricKey } from './agentMetricsModel';
 import { Meter } from './MetricWidgets';
 import { useAgentMetrics } from './useAgentMetrics';
+import {
+  FailureBreakdown,
+  FailuresPanel,
+  findFailuresTarget,
+  useFailureHistory,
+  type FailuresTarget,
+} from './FailureDetails';
 import { JobCards, useTpsHistory } from './JobCards';
 import { JobCharts } from './JobCharts';
 import {
@@ -125,6 +133,8 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   const [includeFinished, setIncludeFinished] = useState(false);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [detailsFor, setDetailsFor] = useState<{ job: JobNode; agent?: AgentNode }>();
+  const [failuresFor, setFailuresFor] = useState<FailuresTarget>();
+  const failuresPanel = useRef<OverlayPanel>(null);
   const [refreshSeconds, setRefreshSeconds] = useState(storedRefreshSeconds);
   const [view, setView] = useState(storedView);
   const preferences = useTablePreferences('jobs');
@@ -186,6 +196,8 @@ export function JobQueue({ projectId }: { projectId?: number }) {
   });
 
   const tpsHistory = useTpsHistory(tree.data);
+  const failureHistory = useFailureHistory(tree.data);
+  const failuresShown = findFailuresTarget(tree.data, failuresFor);
   const nodes = useMemo(() => (tree.data ? toNodes(tree.data, projectId === undefined) : []), [tree.data, projectId]);
 
   // Projects start expanded so their jobs show; agents start collapsed
@@ -258,7 +270,7 @@ export function JobQueue({ projectId }: { projectId?: number }) {
           rounded
           text
           aria-label={`Charts for ${name}`}
-          tooltip={row.kind === 'job' ? 'Users and TPS' : 'TPS for this agent'}
+          tooltip={row.kind === 'job' ? 'Users and TPS' : 'Users and TPS for this agent'}
           tooltipOptions={{ position: 'top' }}
           onClick={() => setDetailsFor(row.kind === 'job' ? { job: row.job } : { job: row.job, agent: row.agent })}
         />
@@ -292,11 +304,17 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     );
   };
 
+  const openFailures = (event: SyntheticEvent, job: JobNode, agent?: AgentNode) => {
+    setFailuresFor({ jobId: job.jobId!, instanceId: agent?.instanceId });
+    failuresPanel.current?.toggle(event);
+  };
+
   const viewProps = (data: JobTree) => ({
     tree: data,
     metrics: agentMetrics,
     actionsFor,
     onDetails: (job: JobNode, agent?: AgentNode) => setDetailsFor({ job, agent }),
+    onFailures: openFailures,
   });
 
   const nameCell = (row: Row) =>
@@ -320,6 +338,27 @@ export function JobQueue({ projectId }: { projectId?: number }) {
     ) : (
       <span className="agent-id">{row.agent.instanceId}</span>
     );
+
+  // Failures stand out once there are any, and open their breakdown
+  const failuresCell = (row: Row) => {
+    const total = figures(row).failures?.total ?? 0;
+    if (row.kind === 'project' || total === 0) {
+      return total > 0 ? <span className="failure-count">{formatCount(total)}</span> : formatCount(total);
+    }
+    const name = row.kind === 'job' ? `job ${row.job.name}` : `agent ${row.agent.instanceId}`;
+    return (
+      <Button
+        label={formatCount(total)}
+        link
+        className="link-cell failure-count failure-link"
+        aria-label={`${formatCount(total)} failures for ${name}: breakdown`}
+        aria-haspopup="dialog"
+        tooltip="What failed, and where"
+        tooltipOptions={{ position: 'top', showDelay: 500 }}
+        onClick={(e) => openFailures(e, row.job, row.kind === 'agent' ? row.agent : undefined)}
+      />
+    );
+  };
 
   return (
     <div className="job-queue-views">
@@ -442,13 +481,44 @@ export function JobQueue({ projectId }: { projectId?: number }) {
               field={c.expander ? 'name' : undefined}
               header={c.header}
               expander={c.expander}
-              body={(n: TreeNode) => (c.expander ? nameCell(n.data as Row) : c.actions ? actionsFor(n.data as Row) : c.body!(n.data as Row, agentMetrics))}
+              body={(n: TreeNode) =>
+                c.expander
+                  ? nameCell(n.data as Row)
+                  : c.actions
+                    ? actionsFor(n.data as Row)
+                    : c.failures
+                      ? failuresCell(n.data as Row)
+                      : c.body!(n.data as Row, agentMetrics)
+              }
               className={c.className}
               style={{ ...c.style, width: widthOf(c.pref) }}
             />
           ))}
         </TreeTable>
       )}
+
+      <OverlayPanel
+        ref={failuresPanel}
+        className="failures-overlay"
+        aria-label="Failures"
+        closeOnEscape
+        showCloseIcon
+        ariaCloseLabel="Close failures"
+        onHide={() => setFailuresFor(undefined)}
+      >
+        {failuresShown && (
+          <FailuresPanel
+            job={failuresShown.job}
+            agent={failuresShown.agent}
+            history={failureHistory}
+            onSelect={setFailuresFor}
+            onDetails={() => {
+              failuresPanel.current?.hide();
+              setDetailsFor(failuresShown);
+            }}
+          />
+        )}
+      </OverlayPanel>
 
       {detailsFor && (
         <JobDetailsDialog job={detailsFor.job} agent={detailsFor.agent} onHide={() => setDetailsFor(undefined)} />
@@ -467,6 +537,7 @@ interface JobColumn {
   className?: string;
   expander?: boolean;
   actions?: boolean;
+  failures?: boolean;
 }
 
 const COLUMNS: JobColumn[] = [
@@ -478,7 +549,7 @@ const COLUMNS: JobColumn[] = [
   { pref: 'activeUsersColumn', header: 'Active users', body: (row) => formatCount(figures(row).activeUsers), className: 'num-col' },
   { pref: 'totalUsersColumn', header: 'Target users', body: targetUsers, className: 'num-col' },
   { pref: 'tpsColumn', header: 'TPS', body: (row) => formatCount(figures(row).tps), className: 'num-col' },
-  { pref: 'validationColumn', header: 'Failures', body: failuresCell, className: 'num-col' },
+  { pref: 'validationColumn', header: 'Failures', failures: true, className: 'num-col' },
   { pref: 'cpuColumn', header: 'CPU', body: metricCell('cpu'), style: { minWidth: '7rem' } },
   { pref: 'memColumn', header: 'Memory', body: metricCell('mem'), style: { minWidth: '7rem' } },
   { pref: 'heapColumn', header: 'Heap', body: metricCell('heap'), style: { minWidth: '7rem' } },
@@ -524,12 +595,6 @@ function dateCell(iso: string | undefined) {
       <span className="nowrap">{text.slice(0, split + 1)}</span> <span className="nowrap">{text.slice(split + 2)}</span>
     </>
   );
-}
-
-/** Failures stand out once there are any */
-function failuresCell(row: Row) {
-  const total = figures(row).failures?.total ?? 0;
-  return total > 0 ? <span className="failure-count">{formatCount(total)}</span> : formatCount(total);
 }
 
 function toNodes(data: JobTree, byProject: boolean): TreeNode[] {
@@ -659,7 +724,7 @@ function targetUsers(row: Row) {
   return formatCount(figures(row).totalUsers);
 }
 
-/** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its TPS */
+/** A job's summary, failure counts and charts (GET /v2/jobs/{id}/details); for an agent, its charts */
 function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentNode; onHide: () => void }) {
   const { client } = useSession();
   const details = useQuery({
@@ -677,7 +742,6 @@ function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentN
     },
   });
   const d = details.data;
-  const failures = d?.failures ?? {};
   return (
     <Dialog
       header={agent ? `Agent ${agent.instanceId} (job ${job.jobId})` : `Job ${job.jobId}: ${job.name}`}
@@ -706,9 +770,8 @@ function JobDetailsDialog({ job, agent, onHide }: { job: JobNode; agent?: AgentN
           </dd>
           <dt>Failures</dt>
           <dd>
-            {failures.total ?? 0} in all: {failures.kills ?? 0} kills, {failures.aborts ?? 0} aborts,{' '}
-            {failures.restarts ?? 0} restarts, {failures.gotos ?? 0} gotos, {failures.skips ?? 0} skips,{' '}
-            {failures.skipGroups ?? 0} group skips
+            {formatCount(d.failures?.total)} in all
+            <FailureBreakdown failures={d.failures} />
           </dd>
         </dl>
       )}

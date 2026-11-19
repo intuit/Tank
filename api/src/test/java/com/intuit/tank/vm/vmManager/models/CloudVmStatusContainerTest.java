@@ -575,4 +575,26 @@ public class CloudVmStatusContainerTest {
         fixture.setStatus(status);
 
     }
+
+    @Test
+    public void testCalculateUserDetails_keepsEachAgentsHistory() {
+        CloudVmStatus a = new CloudVmStatus();
+        a.setInstanceId("i-1");
+        a.setUserDetails(List.of(new UserDetail("search", 2), new UserDetail("checkout", 5)));
+        CloudVmStatus b = new CloudVmStatus();
+        b.setInstanceId("i-2");
+        b.setUserDetails(List.of(new UserDetail("checkout", 7)));
+        CloudVmStatusContainer fixture = new CloudVmStatusContainer(new HashSet<>(Set.of(a, b)));
+
+        fixture.calculateUserDetails();
+
+        Map<Date, List<UserDetail>> agent = fixture.getDetailMapForAgent("i-1");
+        assertEquals(1, agent.size());
+        List<UserDetail> details = agent.values().iterator().next();
+        assertEquals(List.of("checkout", "search"), details.stream().map(UserDetail::getScript).toList());
+        assertEquals(List.of(5, 2), details.stream().map(UserDetail::getUsers).toList());
+        assertEquals(agent.keySet(), fixture.getDetailMap().keySet());
+        assertTrue(fixture.getDetailMapForAgent("i-9").isEmpty());
+        assertTrue(fixture.getDetailMapForAgent(null).isEmpty());
+    }
 }

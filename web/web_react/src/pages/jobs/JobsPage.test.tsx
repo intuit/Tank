@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import type { Schemas } from '../../api/client';
@@ -208,6 +208,51 @@ describe('job queue page', () => {
     await waitFor(() => expect(screen.queryByRole('columnheader', { name: 'Region' })).not.toBeInTheDocument());
     expect(screen.getByRole('columnheader', { name: 'TPS' })).toBeInTheDocument();
     expect(screen.getAllByLabelText('Visible columns').length).toBeGreaterThan(0);
+  });
+
+  it("breaks a job's failures down by action and agent", async () => {
+    const tree: Schemas['JobTree'] = {
+      generatedAt: TREE.generatedAt,
+      otherJobs: [
+        {
+          jobId: '12',
+          name: 'Checkout load 1',
+          status: 'Running',
+          failures: { total: 10, aborts: 7, kills: 3 },
+          actions: { ...NONE },
+          agents: [
+            { instanceId: 'i-123', status: 'running', failures: { total: 2, kills: 2 }, actions: { ...NONE } },
+            { instanceId: 'i-456', status: 'running', failures: { total: 8, aborts: 7, kills: 1 }, actions: { ...NONE } },
+            { instanceId: 'i-789', status: 'running', failures: { total: 0 }, actions: { ...NONE } },
+          ],
+        },
+        { jobId: '13', name: 'Quiet job', status: 'Running', failures: { total: 0 }, actions: { ...NONE }, agents: [] },
+      ],
+    };
+    renderApp('/jobs', handlers({ 'GET /v2/jobs/tree': () => ({ status: 200, body: tree }) }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Table' }));
+
+    const quiet = (await screen.findByRole('button', { name: 'Quiet job' })).closest('tr')!;
+    expect(within(quiet).queryByRole('button', { name: /failures for/ })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: '10 failures for job Checkout load 1: breakdown' }));
+
+    // jsdom gives the popover no offsetParent, so PrimeReact's measuring leaves it display: none
+    const panel = await waitFor(() => within(document.querySelector<HTMLElement>('.failures-overlay')!));
+    const kinds = () => panel.getByRole('table', { name: 'Failures by On failure action', hidden: true });
+    const rows = within(kinds()).getAllByRole('row', { hidden: true });
+    expect(rows.map((r) => within(r).getByRole('rowheader', { hidden: true }).firstChild?.textContent)).toEqual(['Aborts', 'Kills']);
+    expect(rows[0]).toHaveTextContent('70%');
+    expect(panel.getByText(/^None: group skips, skips, gotos, restarts$/)).toBeInTheDocument();
+    const byAgent = panel.getAllByRole('button', { name: /^Failures for agent/, hidden: true });
+    expect(byAgent.map((b) => b.textContent)).toEqual(['i-456', 'i-123']);
+
+    fireEvent.click(byAgent[1]!);
+
+    expect(await panel.findByText('Agent i-123')).toBeInTheDocument();
+    expect(within(kinds()).getAllByRole('row', { hidden: true })).toHaveLength(1);
+    fireEvent.click(panel.getByRole('button', { name: 'Job 12: 10 in all', hidden: true }));
+    expect(await panel.findByText('Job 12: Checkout load 1')).toBeInTheDocument();
   });
 
   it('is in the menu', async () => {

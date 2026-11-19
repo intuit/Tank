@@ -5,6 +5,7 @@ import {
   agentHealth,
   agentSummary,
   formatCount,
+  isFinished,
   jobEntries,
   secondsSinceSeen,
   severityOf,
@@ -42,11 +43,8 @@ export function useTpsHistory(tree: JobTree | undefined): TpsHistory {
 
 const TIME = new Intl.DateTimeFormat(undefined, { timeStyle: 'short' });
 
-/** Finished jobs fade, so what is live reads first */
-const FINISHED = ['completed', 'stopped', 'aborted', 'deleted'];
-
 /** One card per job: users against target, TPS and its trend, failures, its agents at a glance, and its actions */
-export function JobCards({ tree, actionsFor, onDetails, tpsHistory }: JobViewProps & { tpsHistory: TpsHistory }) {
+export function JobCards({ tree, actionsFor, onDetails, onFailures, tpsHistory }: JobViewProps & { tpsHistory: TpsHistory }) {
   const entries = jobEntries(tree);
   if (entries.length === 0) {
     return <p className="job-view-empty">No queued or running jobs. Turn on &quot;Show finished jobs&quot; to see past ones.</p>;
@@ -58,7 +56,8 @@ export function JobCards({ tree, actionsFor, onDetails, tpsHistory }: JobViewPro
           const target = job.totalUsers ?? 0;
           const active = job.activeUsers ?? 0;
           const failures = job.failures?.total ?? 0;
-          const finished = FINISHED.includes(job.status?.toLowerCase() ?? '');
+          // finished jobs fade, so what is live reads first
+          const finished = isFinished(job);
           const agents = job.agents ?? [];
           return (
             <article
@@ -106,9 +105,20 @@ export function JobCards({ tree, actionsFor, onDetails, tpsHistory }: JobViewPro
                 <Sparkline values={tpsHistory.get(String(job.jobId)) ?? []} />
                 <div className="job-card-failures">
                   <span className="job-stat-label">Failures</span>
-                  <span className={failures > 0 ? 'job-card-figure failure-count' : 'job-card-figure'}>
-                    {formatCount(failures)}
-                  </span>
+                  {failures > 0 ? (
+                    <button
+                      type="button"
+                      className="job-card-figure failure-count job-card-failure-link"
+                      aria-label={`${formatCount(failures)} failures for job ${job.name}: breakdown`}
+                      aria-haspopup="dialog"
+                      title="What failed, and where"
+                      onClick={(e) => onFailures(e, job)}
+                    >
+                      {formatCount(failures)}
+                    </button>
+                  ) : (
+                    <span className="job-card-figure">{formatCount(failures)}</span>
+                  )}
                 </div>
               </div>
 

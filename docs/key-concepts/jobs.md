@@ -37,7 +37,19 @@ CPU, memory and JVM figures come from CloudWatch, where the controller collects 
 
 ### Job details and charts
 
-The **chart** button on a job (or a job's name) opens its details: status, who created it and when, start and end times, active and total users, and failure counts (kills, aborts, restarts, gotos, skips and group skips). It also shows the job's settings as they were queued, and charts of **active users by script** and **TPS** over time, including the TPS of each request. For a single agent, the chart button shows that agent's TPS.
+The **chart** button on a job (or a job's name) opens its details: status, who created it and when, start and end times, active and total users, and failure counts (kills, aborts, restarts, gotos, skips and group skips). It also shows the job's settings as they were queued, and charts of **active users by script** and **TPS** over time, including the TPS of each request. For a single agent, the chart button shows that agent's own active users by script and TPS.
+
+The users charts come from what agents report to the controller you are using, from when it first heard from them, so after a controller restart they start again from then.
+
+### Failures
+
+A failure count opens a breakdown: a job's or agent's in the table, a job's on its card in the Jobs view, and the picked agent's in the Heat map. It shows:
+
+- how many failures came in the last minute, while the job runs;
+- the failures by the **On failure** action of the requests that failed (see [Scripts](scripts.md#on-failure)), largest first, with each one's share;
+- for a job, its agents with the most failures. Pick one to see its own breakdown.
+
+Failures are counted only for requests whose **On failure** action is something other than *Continue to next request*.
 
 A project's row has a button to download its **Harness XML**, the file the agents run.
 

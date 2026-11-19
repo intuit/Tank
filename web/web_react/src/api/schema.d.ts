@@ -5931,7 +5931,10 @@ export interface operations {
     };
     getUserSeries: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Only this agent */
+                instanceId?: string;
+            };
             header?: never;
             path: {
                 /** @description The job ID */

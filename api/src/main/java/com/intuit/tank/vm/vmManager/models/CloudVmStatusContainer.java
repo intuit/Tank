@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -84,6 +85,10 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
     @XmlTransient
     private Map<Date, List<UserDetail>> detailMap = new HashMap<Date, List<UserDetail>>();
 
+    /** Each agent's users per script over time, as detailMap holds the job's, keyed by instance ID */
+    @XmlTransient
+    private Map<String, Map<Date, List<UserDetail>>> agentDetailMaps = new ConcurrentHashMap<>();
+
     /**
      * @FrameworkUseOnly
      */
@@ -108,7 +113,12 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
     public void calculateUserDetails() {
         List<UserDetail> details;
         Map<String, Integer> map = new HashMap<String, Integer>();
+        Date period = TimeUtil.normalizeToPeriod(15, new Date());
         for (CloudVmStatus status : statuses) {
+            if (status.getInstanceId() != null) {
+                agentDetailMaps.computeIfAbsent(status.getInstanceId(), id -> new ConcurrentHashMap<>())
+                        .put(period, status.getUserDetails().stream().sorted().collect(Collectors.toList()));
+            }
             for (UserDetail detail : status.getUserDetails()) {
                 Integer val = map.get(detail.getScript());
                 if (val == null) {
@@ -119,7 +129,7 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
         }
         details = map.entrySet().stream().map(entry -> new UserDetail(entry.getKey(), entry.getValue())).sorted().collect(Collectors.toList());
         userDetails = details;
-        detailMap.put(TimeUtil.normalizeToPeriod(15, new Date()), details);
+        detailMap.put(period, details);
     }
 
     /**
@@ -127,6 +137,19 @@ public class CloudVmStatusContainer implements Serializable, Comparable<CloudVmS
      */
     public Map<Date, List<UserDetail>> getDetailMap() {
         return detailMap;
+    }
+
+    /**
+     * One agent's users per script over time. A method rather than a property, so the container's
+     * JSON stays as it was.
+     *
+     * @param instanceId
+     *            the agent's instance ID
+     * @return the agent's detail map, empty if it has not reported
+     */
+    public Map<Date, List<UserDetail>> getDetailMapForAgent(String instanceId) {
+        Map<Date, List<UserDetail>> map = instanceId != null ? agentDetailMaps.get(instanceId) : null;
+        return map != null ? map : Map.of();
     }
 
     /**

@@ -219,11 +219,16 @@ public class JobQueueServiceV2Impl implements JobQueueServiceV2 {
     }
 
     @Override
-    public Timeseries getUserSeries(Integer jobId) {
+    public Timeseries getUserSeries(Integer jobId, String instanceId) {
         RestAuthorization.requireUser(SERVICE);
         findJob(jobId);
         CloudVmStatusContainer container = bean(VMTracker.class).getVmStatusForJob(Integer.toString(jobId));
-        return JobCharts.users(container != null ? container.getDetailMap() : null);
+        if (container == null) {
+            return JobCharts.users(null);
+        }
+        return JobCharts.users(StringUtils.isNotBlank(instanceId)
+                ? container.getDetailMapForAgent(instanceId)
+                : container.getDetailMap());
     }
 
     @Override

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, SyntheticEvent } from 'react';
 import type { Schemas } from '../../api/client';
 import type { AgentMetricsLookup } from './agentMetricsModel';
 
@@ -16,13 +16,15 @@ export type Row =
 /** The rows actions can be sent to */
 export type Target = Exclude<Row, { kind: 'project' }>;
 
-/** What every view of the queue gets from JobQueue: the data, its actions and the details dialog */
+/** What every view of the queue gets from JobQueue: the data, its actions, the details dialog and the failures popover */
 export interface JobViewProps {
   tree: JobTree;
   /** Host and JVM figures from CloudWatch, where the controller has them */
   metrics?: AgentMetricsLookup;
   actionsFor: (row: Target) => ReactNode;
   onDetails: (job: JobNode, agent?: AgentNode) => void;
+  /** Opens (or closes) the failures popover beside the element the event came from */
+  onFailures: (event: SyntheticEvent, job: JobNode, agent?: AgentNode) => void;
 }
 
 /** A job with the project it was listed under, if any */
@@ -37,6 +39,13 @@ export function jobEntries(tree: JobTree): JobEntry[] {
     ...(tree.projects ?? []).flatMap((project) => (project.jobs ?? []).map((job) => ({ job, project }))),
     ...(tree.otherJobs ?? []).map((job) => ({ job })),
   ];
+}
+
+const FINISHED = ['completed', 'stopped', 'aborted', 'deleted'];
+
+/** Whether a job is over: its figures won't change */
+export function isFinished(job: JobNode): boolean {
+  return FINISHED.includes(job.status?.toLowerCase() ?? '');
 }
 
 /** An agent silent this long is worth a look, though still connected */
