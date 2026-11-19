@@ -3723,6 +3723,14 @@
             "type" : "integer",
             "format" : "int32"
           }
+        }, {
+          "description" : "Only this agent",
+          "in" : "query",
+          "name" : "instanceId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
         } ],
         "responses" : {
           "200" : {
