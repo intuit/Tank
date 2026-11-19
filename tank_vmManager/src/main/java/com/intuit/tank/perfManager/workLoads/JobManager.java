@@ -48,8 +48,10 @@ import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
 import com.intuit.tank.vm.vmManager.models.VMStatus;
 import com.intuit.tank.dao.DataFileDao;
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.dao.VMImageDao;
 import com.intuit.tank.project.DataFile;
 import com.intuit.tank.project.JobInstance;
+import com.intuit.tank.project.VMInstance;
 import com.intuit.tank.util.DataFileUtil;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
@@ -181,13 +183,31 @@ public class JobManager implements Serializable {
                         .orElse(null);
 
                 int assignedUsers;
+                boolean admitted = true;
                 if (existingAgent != null) {
                     assignedUsers = existingAgent.getUsers();
                     LOG.info(new ObjectMessage(Map.of("Message", "Duplicate agent registration received for "
                             + agentData.getInstanceId() + " on job " + agentData.getJobId() + ", reusing existing allocation")));
                 } else {
-                    assignedUsers = jobInfo.getUsers(agentData);
+                    // a replaced agent that registered gives its place to the one that replaced it
+                    if (!jobInfo.hasRoom(agentData.getRegion())) {
+                        jobInfo.agentData.stream()
+                                .filter(a -> a.getRegion() == agentData.getRegion() && isGone(a.getInstanceId()))
+                                .findFirst()
+                                .ifPresent(gone -> {
+                                    jobInfo.release(gone);
+                                    LOG.info(new ObjectMessage(Map.of("Message", "Agent " + gone.getInstanceId()
+                                            + " is gone; " + agentData.getInstanceId() + " takes its place in job " + agentData.getJobId())));
+                                });
+                    }
+                    admitted = jobInfo.hasRoom(agentData.getRegion());
+                    assignedUsers = admitted ? jobInfo.getUsers(agentData) : 0;
                     agentData.setUsers(assignedUsers);
+                    if (!admitted) {
+                        LOG.warn(new ObjectMessage(Map.of("Message", "Agent " + agentData.getInstanceId() + " registered for job "
+                                + agentData.getJobId() + " in " + agentData.getRegion()
+                                + ", which already has all its agents; it gets no share of the load")));
+                    }
                 }
 
                 ret = new AgentTestStartData(jobInfo.scripts, assignedUsers, jobInfo.jobRequest.getRampTime());
@@ -200,7 +220,7 @@ public class JobManager implements Serializable {
                 ret.setIncrementStrategy(jobInfo.jobRequest.getIncrementStrategy());
                 ret.setUserIntervalIncrement(jobInfo.jobRequest.getUserIntervalIncrement());
                 ret.setTargetRampRate(jobInfo.jobRequest.getTargetRatePerAgent());
-                if (existingAgent == null) {
+                if (existingAgent == null && admitted) {
                     jobInfo.agentData.add(agentData);
                 }
                 LOG.info(new ObjectMessage(Map.of("Message", "Agent " + agentData.getInstanceId() + 
@@ -221,6 +241,14 @@ public class JobManager implements Serializable {
         return ret;
     }
 
+    /**
+     * The registration a WebSocket hello stands for. The hello doesn't say where the agent runs, so its
+     * region is the one it was launched in: from the tracker, else the VM image saved at launch, else the
+     * job's only region.
+     *
+     * @return the agent's data, or null if the job has several regions and this agent's is unknown, as
+     *         counting it in the wrong one would leave the other short of agents
+     */
     public AgentData buildAgentDataForWsHello(String jobId, String instanceId, String instanceUrl, Integer capacity) {
         JobInfo jobInfo = jobInfoMapLocalCache.get(jobId);
 
@@ -236,8 +264,17 @@ public class JobManager implements Serializable {
             if (resolvedCapacity <= 0) {
                 resolvedCapacity = Math.max(1, jobInfo.jobRequest.getNumUsersPerAgent());
             }
-            if (region == null && jobInfo.jobRequest.getRegions() != null && !jobInfo.jobRequest.getRegions().isEmpty()) {
-                region = jobInfo.jobRequest.getRegions().iterator().next().getRegion();
+            Set<? extends RegionRequest> regions = jobInfo.jobRequest.getRegions();
+            if (region == null && regions != null && regions.size() > 1) {
+                region = launchedRegion(instanceId);
+                if (region == null) {
+                    LOG.error(new ObjectMessage(Map.of("Message", "Cannot tell which of job " + jobId
+                            + "'s regions agent " + instanceId + " was launched in; not registering it")));
+                    return null;
+                }
+            }
+            if (region == null && regions != null && !regions.isEmpty()) {
+                region = regions.iterator().next().getRegion();
             }
         }
 
@@ -251,6 +288,25 @@ public class JobManager implements Serializable {
 
         return new AgentData(jobId, instanceId, resolvedInstanceUrl, resolvedCapacity, region, "unknown");
     }
+
+    /** The region an agent was launched in, from the VM image saved at launch; null if there is none */
+    protected VMRegion launchedRegion(String instanceId) {
+        try {
+            VMInstance image = new VMImageDao().getImageByInstanceId(instanceId);
+            return image != null ? image.getRegion() : null;
+        } catch (Exception e) {
+            LOG.warn(new ObjectMessage(Map.of("Message", "Cannot look up the launch region of " + instanceId + ": " + e)));
+            return null;
+        }
+    }
+
+    /** Whether an agent has been replaced or shut down since it registered */
+    private boolean isGone(String instanceId) {
+        CloudVmStatus status = vmTracker != null ? vmTracker.getStatus(instanceId) : null;
+        return status != null && GONE.contains(status.getVmStatus());
+    }
+
+    private static final Set<VMStatus> GONE = EnumSet.of(VMStatus.replaced, VMStatus.terminated, VMStatus.shutting_down);
 
     private void startTest(final JobInfo info) {
         ControllerLoggingConfig.setupThreadContext();
@@ -578,13 +634,31 @@ public class JobManager implements Serializable {
             scripts = jobRequest.getScriptsXmlUrl();
         }
 
+        /** Whether every region has its agents (or, for an increasing job, its users) */
         public boolean isFilled() {
             for (Integer i : userMap.values()) {
-                if (i != 0) {
+                if (i > 0) {
                     return false;
                 }
             }
             return true;
+        }
+
+        /** Whether a new agent in this region gets a place: a region of the job still short of agents or users */
+        public boolean hasRoom(VMRegion region) {
+            return userMap.entrySet().stream().anyMatch(e -> e.getKey().getRegion() == region && e.getValue() > 0);
+        }
+
+        /** Gives back a registered agent's place, as if it had never registered */
+        public void release(AgentData agent) {
+            agentData.remove(agent);
+            for (Map.Entry<RegionRequest, Integer> e : userMap.entrySet()) {
+                if (e.getKey().getRegion() == agent.getRegion()) {
+                    boolean byUsers = jobRequest.getIncrementStrategy().equals(IncrementStrategy.increasing);
+                    e.setValue(e.getValue() + (byUsers ? agent.getUsers() : 1));
+                    return;
+                }
+            }
         }
 
         public void start() {

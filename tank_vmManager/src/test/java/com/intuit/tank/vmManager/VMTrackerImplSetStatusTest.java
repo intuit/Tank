@@ -1,6 +1,7 @@
 package com.intuit.tank.vmManager;
 
 import com.intuit.tank.dao.JobInstanceDao;
+import com.intuit.tank.dao.JobInstanceDao.JobState;
 import com.intuit.tank.dao.WorkloadDao;
 import com.intuit.tank.project.JobInstance;
 import com.intuit.tank.project.Project;
@@ -40,6 +41,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -83,6 +86,7 @@ public class VMTrackerImplSetStatusTest {
     void setStatus_firstRunningReport_createsContainersAndStartsJob() throws Exception {
         JobInstance job = job(JobQueueStatus.Starting);
         when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Starting, null, null));
         mockProject(job, 7);
 
         CloudVmStatus status = new CloudVmStatus("i-1", JOB_ID, "sg-test", JobStatus.Running, VMImageType.AGENT,
@@ -102,9 +106,9 @@ public class VMTrackerImplSetStatusTest {
         assertNotNull(container.getReportTime());
         assertTrue(vmTracker.getAllJobs().contains(container));
 
-        verify(job).setStartTime(status.getStartTime());
-        verify(job, atLeastOnce()).setStatus(JobQueueStatus.Running);
-        verify(jobInstanceDao).saveOrUpdate(job);
+        verify(jobInstanceDao).updateState(42, new JobState(JobQueueStatus.Running, status.getStartTime(), null));
+        // the job's status and times are written on their own: the job and its VM instances aren't loaded
+        verify(jobInstanceDao, never()).saveOrUpdate(any());
         assertEquals(JobLifecycleEvent.LOAD_STARTED, firedEvents().get(0).getEvent());
 
         assertNotNull(vmTracker.getProjectStatusContainer("7"));
@@ -187,6 +191,7 @@ public class VMTrackerImplSetStatusTest {
     void setStatus_completedOnRunningVm_killsInstanceAndFinishesJob() throws Exception {
         JobInstance job = job(JobQueueStatus.Running);
         when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Running, new Date(1_000), null));
         mockProject(job, 7);
 
         CloudVmStatus status = status("i-1", VMStatus.running, JobStatus.Completed);
@@ -199,7 +204,8 @@ public class VMTrackerImplSetStatusTest {
         CloudVmStatusContainer container = vmTracker.getVmStatusForJob(JOB_ID);
         assertNotNull(container.getEndTime());
         assertEquals(JobLifecycleEvent.JOB_FINISHED, firedEvents().get(0).getEvent());
-        verify(job, atLeastOnce()).setStatus(JobQueueStatus.Completed);
+        verify(jobInstanceDao, atLeastOnce()).updateState(eq(42), argThat(state -> state.status() == JobQueueStatus.Completed
+                && state.endTime() != null && new Date(1_000).equals(state.startTime())));
         assertFalse(vmTracker.isRunning(JOB_ID));
 
         // a second completed report does not fire JOB_FINISHED again
@@ -245,38 +251,34 @@ public class VMTrackerImplSetStatusTest {
     @Test
     @DisplayName("Mixed agent statuses leave the job's queue status unchanged")
     void setStatus_mixedStatuses_jobStatusUnchanged() throws Exception {
-        JobInstance job = job(JobQueueStatus.Starting);
-        when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Starting, null, null));
         prepopulateContainer(null);
 
         invokeSetStatusThread(status("i-1", VMStatus.running, JobStatus.Running));
         invokeSetStatusThread(status("i-2", VMStatus.starting, JobStatus.Starting));
 
-        // first report: the only agent is running; second report: agents disagree so the job keeps its status
-        verify(job).setStatus(JobQueueStatus.Running);
-        verify(job).setStatus(JobQueueStatus.Starting);
+        // first report: the only agent is running; second report: agents disagree so the job keeps its
+        // status, which isn't written again
+        verify(jobInstanceDao, times(1)).updateState(eq(42), any());
+        verify(jobInstanceDao).updateState(eq(42), argThat(state -> state.status() == JobQueueStatus.Running));
     }
 
     @Test
     @DisplayName("Report for a replaced agent with no other active agents skips the status calculation")
     void setStatus_onlyReplacedAgents_skipsCalculation() throws Exception {
-        JobInstance job = job(JobQueueStatus.Running);
-        when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Running, null, null));
         prepopulateContainer(null);
 
         invokeSetStatusThread(status("i-1", VMStatus.replaced, JobStatus.Stopped));
 
-        verify(job, never()).setStatus(any());
-        verify(jobInstanceDao, never()).saveOrUpdate(any());
+        verify(jobInstanceDao, never()).updateState(anyInt(), any());
     }
 
     @Test
     @DisplayName("An earlier job start time overrides the container start time")
     void setStatus_jobStartedEarlier_updatesContainerStartTime() throws Exception {
-        JobInstance job = job(JobQueueStatus.Running);
         Date jobStart = new Date(1_000);
-        when(job.getStartTime()).thenReturn(jobStart);
-        when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Running, jobStart, null));
         CloudVmStatusContainer container = prepopulateContainer(new Date(5_000));
 
         invokeSetStatusThread(status("i-1", VMStatus.running, JobStatus.Running));
@@ -284,14 +286,30 @@ public class VMTrackerImplSetStatusTest {
         assertEquals(jobStart, container.getStartTime());
         // the job already has a start time, so LOAD_STARTED is not fired again
         verify(jobEventProducer, never()).fire(any());
+        // and its state is unchanged, so nothing is written
+        verify(jobInstanceDao, never()).updateState(anyInt(), any());
+    }
+
+    @Test
+    @DisplayName("The job's status follows each agent's latest status, though the container holds an older one")
+    void setStatus_staleContainerCopy_usesLatestInstanceStatus() throws Exception {
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Starting, null, null));
+        prepopulateContainer(null);
+        invokeSetStatusThread(status("i-1", VMStatus.starting, JobStatus.Starting));
+        // i-1's running report is recorded, but its container update is dropped
+        Method recordStatus = VMTrackerImpl.class.getDeclaredMethod("recordStatus", CloudVmStatus.class);
+        recordStatus.setAccessible(true);
+        recordStatus.invoke(vmTracker, status("i-1", VMStatus.running, JobStatus.Running));
+
+        invokeSetStatusThread(status("i-2", VMStatus.running, JobStatus.Running));
+
+        verify(jobInstanceDao).updateState(eq(42), argThat(state -> state.status() == JobQueueStatus.Running));
     }
 
     @Test
     @DisplayName("A later job start time leaves the container start time alone")
     void setStatus_jobStartedLater_keepsContainerStartTime() throws Exception {
-        JobInstance job = job(JobQueueStatus.Running);
-        when(job.getStartTime()).thenReturn(new Date(9_000));
-        when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Running, new Date(9_000), null));
         Date containerStart = new Date(5_000);
         CloudVmStatusContainer container = prepopulateContainer(containerStart);
 
@@ -303,18 +321,32 @@ public class VMTrackerImplSetStatusTest {
     // ============ async setStatus, publishEvent, removeStatusForJob, init ============
 
     @Test
-    @DisplayName("setStatus applies the update on the background executor")
-    void setStatus_async_updatesStatusMap() throws Exception {
+    @DisplayName("setStatus records the instance's status at once and updates the job's container in the background")
+    void setStatus_recordsStatusAtOnce_containerFollows() throws Exception {
         when(jobInstanceDao.findById(anyInt())).thenReturn(null);
         CloudVmStatus status = status("i-async", VMStatus.starting, JobStatus.Starting);
 
         vmTracker.setStatus(status);
 
+        // an agent can register straight after launch: its status must already be there
+        assertSame(status, vmTracker.getStatus("i-async"));
         long deadline = System.currentTimeMillis() + 5_000;
-        while (vmTracker.getStatus("i-async") == null && System.currentTimeMillis() < deadline) {
+        while (vmTracker.getVmStatusForJob(JOB_ID) == null && System.currentTimeMillis() < deadline) {
             Thread.sleep(10);
         }
-        assertSame(status, vmTracker.getStatus("i-async"));
+        assertTrue(vmTracker.getVmStatusForJob(JOB_ID).getStatuses().contains(status));
+    }
+
+    @Test
+    @DisplayName("A launch status recorded after the agent registered doesn't undo the registration")
+    void setStatus_lateLaunchStatus_keepsRegisteredStatus() throws Exception {
+        when(jobInstanceDao.findById(anyInt())).thenReturn(null);
+        CloudVmStatus registered = status("i-1", VMStatus.pending, JobStatus.Starting);
+        invokeSetStatusThread(registered);
+
+        invokeSetStatusThread(status("i-1", VMStatus.starting, JobStatus.Starting));
+
+        assertSame(registered, vmTracker.getStatus("i-1"));
     }
 
     @Test
@@ -353,15 +385,13 @@ public class VMTrackerImplSetStatusTest {
     // ============ helpers ============
 
     private void assertAggregateStatus(JobStatus agentStatus, JobQueueStatus expected) throws Exception {
-        JobInstance job = job(JobQueueStatus.Running);
-        when(jobInstanceDao.findById(42)).thenReturn(job);
+        when(jobInstanceDao.findState(42)).thenReturn(new JobState(JobQueueStatus.Running, null, null));
         prepopulateContainer(null);
 
         invokeSetStatusThread(status("i-1", VMStatus.running, agentStatus));
         invokeSetStatusThread(status("i-2", VMStatus.running, agentStatus));
 
-        verify(job, atLeastOnce()).setStatus(expected);
-        verify(jobInstanceDao, atLeastOnce()).saveOrUpdate(job);
+        verify(jobInstanceDao, atLeastOnce()).updateState(eq(42), argThat(state -> state.status() == expected));
     }
 
     private JobInstance job(JobQueueStatus initial) {

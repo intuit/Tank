@@ -199,9 +199,11 @@ public class AgentWatchdog implements Runnable {
             stopped = true;
             throw new RuntimeException("Job appears to have been stopped. Exiting...");
         }
-        for (CloudVmStatus status : vmStatusForJob.getStatuses()) {
-            // Checks the state of Tank job.
-            VMStatus s = status.getVmStatus();
+        // each instance's own status, which the tracker records at once; the job's container of
+        // statuses is updated in the background, so it can lag behind an agent that has registered
+        for (VMInformation started : new ArrayList<>(startedInstances)) {
+            CloudVmStatus status = vmTracker.getStatus(started.getInstanceId());
+            VMStatus s = status != null ? status.getVmStatus() : null;
             if (s == VMStatus.pending || s == VMStatus.ready || s == VMStatus.running) { // agent reported back ready, only relaunch "starting" agents
                 VMInformation removedInstance = removeInstance(startedInstances, status.getInstanceId());
                 if (removedInstance != null) {

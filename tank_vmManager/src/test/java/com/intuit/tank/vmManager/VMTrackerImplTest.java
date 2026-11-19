@@ -128,9 +128,13 @@ public class VMTrackerImplTest {
      * Use reflection to test the private shouldUpdateStatus method.
      */
     private boolean invokeShouldUpdateStatus(CloudVmStatus status) throws Exception {
-        Method method = VMTrackerImpl.class.getDeclaredMethod("shouldUpdateStatus", CloudVmStatus.class);
+        return invokeShouldUpdateStatus(status, createStatus("i-123", VMStatus.running));
+    }
+
+    private boolean invokeShouldUpdateStatus(CloudVmStatus current, CloudVmStatus update) throws Exception {
+        Method method = VMTrackerImpl.class.getDeclaredMethod("shouldUpdateStatus", CloudVmStatus.class, CloudVmStatus.class);
         method.setAccessible(true);
-        return (boolean) method.invoke(vmTracker, status);
+        return (boolean) method.invoke(vmTracker, current, update);
     }
 
     private CloudVmStatus createStatus(String instanceId, VMStatus vmStatus) {
@@ -185,6 +189,20 @@ public class VMTrackerImplTest {
         // NOT by blocking in shouldUpdateStatus (which would break killJobDirectly)
         assertTrue(invokeShouldUpdateStatus(replacedStatus),
             "Replaced instances should allow updates (e.g., replaced -> terminated for killJobDirectly)");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = VMStatus.class, names = {"pending", "ready", "running"})
+    @DisplayName("shouldUpdateStatus keeps a registered agent's status over a late launch status")
+    void shouldUpdateStatus_launchStatusAfterRegistration_returnsFalse(VMStatus registered) throws Exception {
+        assertFalse(invokeShouldUpdateStatus(createStatus("i-123", registered), createStatus("i-123", VMStatus.starting)));
+    }
+
+    @Test
+    @DisplayName("shouldUpdateStatus re-records the same status object, as registration does after changing it")
+    void shouldUpdateStatus_sameObject_returnsTrue() throws Exception {
+        CloudVmStatus status = createStatus("i-123", VMStatus.pending);
+        assertTrue(invokeShouldUpdateStatus(status, status));
     }
 
     // ============ VMStatus.replaced integration tests ============

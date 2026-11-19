@@ -204,6 +204,8 @@ public class ControllerInitiatedAgentWsClientFlowTest {
                 AgentWsEnvelope.hello(null, "job-1", "agent-session", null, 5));
         List<AgentWsEnvelope> sent = recordSentText(session);
         JobManager jobManager = mock(JobManager.class);
+        when(jobManager.buildAgentDataForWsHello(any(), any(), any(), any()))
+                .thenReturn(new AgentData("job-1", "i-agent", "http://agent:8090", 5, VMRegion.US_EAST, "unknown"));
 
         boolean result = client.connectAndBootstrap(jobManager, "i-agent", "http://agent:8090",
                 "ws://agent:8090/ws", "tok", 1_000L, 1_000L);
@@ -217,6 +219,28 @@ public class ControllerInitiatedAgentWsClientFlowTest {
     }
 
     @Test
+    void testConnectAndBootstrapClosesWhenAgentRegionIsUnknown() throws Exception {
+        ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
+        Session session = openSession();
+        AtomicReference<ControllerInitiatedAgentWsClient.Endpoint> endpoint = new AtomicReference<>();
+        stubWsClient(client, session, endpoint, new AtomicReference<>(),
+                AgentWsEnvelope.hello("i-agent", "job-1", "agent-session", null, 5));
+        List<AgentWsEnvelope> sent = recordSentText(session);
+        // a multi-region job whose agent's launch region can't be found
+        JobManager jobManager = mock(JobManager.class);
+        when(jobManager.buildAgentDataForWsHello(any(), any(), any(), any())).thenReturn(null);
+
+        boolean result = client.connectAndBootstrap(jobManager, "i-agent", "http://agent:8090",
+                "ws://agent:8090/ws", "tok", 1_000L, 1_000L);
+
+        assertFalse(result);
+        assertEquals("bootstrap_failed", sent.get(0).getReasonCode());
+        assertEquals("Agent's region is unknown", sent.get(0).getReason());
+        verify(jobManager, never()).registerAgentForJob(any());
+        verify(session).close(anyInt(), anyString(), any(Callback.class));
+    }
+
+    @Test
     void testConnectAndBootstrapAbortsWhenTransferSourceFails() throws Exception {
         ControllerInitiatedAgentWsClient client = new ControllerInitiatedAgentWsClient();
         Session session = openSession();
@@ -225,6 +249,8 @@ public class ControllerInitiatedAgentWsClientFlowTest {
                 AgentWsEnvelope.hello("i-agent", "job-1", "agent-session", null, 5));
         AgentTestStartData startData = new AgentTestStartData(baseUrl + "/files/broken", 1, 0);
         JobManager jobManager = mock(JobManager.class);
+        when(jobManager.buildAgentDataForWsHello(any(), any(), any(), any()))
+                .thenReturn(new AgentData("job-1", "i-agent", "http://agent:8090", 5, VMRegion.US_EAST, "unknown"));
         when(jobManager.registerAgentForJob(any())).thenReturn(startData);
 
         boolean result = client.connectAndBootstrap(jobManager, "i-agent", "http://agent:8090",
@@ -250,6 +276,8 @@ public class ControllerInitiatedAgentWsClientFlowTest {
         AgentTestStartData startData = new AgentTestStartData(baseUrl + "/files/script", 1, 0);
         startData.setJobId("job-1");
         JobManager jobManager = mock(JobManager.class);
+        when(jobManager.buildAgentDataForWsHello(any(), any(), any(), any()))
+                .thenReturn(new AgentData("job-1", "i-agent", "http://agent:8090", 5, VMRegion.US_EAST, "unknown"));
         when(jobManager.registerAgentForJob(any())).thenReturn(startData);
 
         boolean result = client.connectAndBootstrap(jobManager, "i-agent", "http://agent:8090",
