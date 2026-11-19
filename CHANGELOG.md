@@ -1,3 +1,15 @@
+# 5.0.7 (Thu Nov 19 2026)
+
+#### 🐛 Bug Fix
+
+- Keep track of agents that register, and keep up with their status reports [#586](https://github.com/intuit/Tank/pull/586) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.6 (Tue Nov 17 2026)
 
 #### 🐛 Bug Fix
