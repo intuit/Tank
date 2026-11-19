@@ -1,3 +1,15 @@
+# 5.0.8 (Thu Nov 19 2026)
+
+#### 🐛 Bug Fix
+
+- Agent Tracker: failures breakdown and per-agent users charts [#585](https://github.com/intuit/Tank/pull/585) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.7 (Thu Nov 19 2026)
 
 #### 🐛 Bug Fix
