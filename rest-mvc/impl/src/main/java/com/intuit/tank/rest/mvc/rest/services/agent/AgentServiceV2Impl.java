@@ -161,7 +161,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
 
     @Nonnull
     @Override
-    public AgentTestStartData agentReady(AgentData data) {
+    public AgentTestStartData agentReady(AgentData data, String commandToken) {
         RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         AgentTestStartData response;
         LOGGER.info(new ObjectMessage(Map.of("Message", "Agent ready: " + data)));
@@ -169,7 +169,7 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
         Tracing.annotate("InstanceId", data.getInstanceId());
         try {
             JobManager jobManager = new ServletInjector<JobManager>().getManagedBean(servletContext, JobManager.class);
-            response = jobManager.registerAgentForJob(data);
+            response = jobManager.registerAgentForJob(data, commandToken);
         } catch (Exception e) {
             LOGGER.error("Error registering agent for a job: " + e.getMessage(), e);
             throw new GenericServiceBadRequestException("agent", "agent", "Error registering agent for a job with AgentData:  " + data);
@@ -212,12 +212,12 @@ public class AgentServiceV2Impl implements AgentServiceV2 {
     }
 
     @Override
-    public void setStandaloneAgentAvailability(AgentAvailability availability) {
+    public void setStandaloneAgentAvailability(AgentAvailability availability, String commandToken) {
         RestAuthorization.requireAgentOrRight(AccessRight.CONTROL_JOB, "agent");
         try {
             StandaloneAgentTracker tracker = new ServletInjector<StandaloneAgentTracker>().getManagedBean(servletContext, StandaloneAgentTracker.class);
             LOGGER.info("Adding agent availability: " + availability);
-            tracker.addAvailability(availability);
+            tracker.addAvailability(availability, commandToken);
         } catch (Exception e) {
             LOGGER.error("Error setting agent availability: " + e.getMessage(), e);
             throw new GenericServiceCreateOrUpdateException("agent", "agent availability", e);

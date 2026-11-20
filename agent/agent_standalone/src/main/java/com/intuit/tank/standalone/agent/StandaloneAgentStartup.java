@@ -60,7 +60,7 @@ public class StandaloneAgentStartup implements Runnable {
 
     @Override
     public void run() {
-        CommandListener.startHttpServer(CommandListener.PORT, this);
+        CommandListener.startHttpServer(CommandListener.PORT, this, token);
         agentClient = new AgentClient(controllerBase, token);
 
         if (hostname != null) {

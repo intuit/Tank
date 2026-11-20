@@ -336,7 +336,7 @@ public class APITestHarness {
             }
         }
 
-        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort());
+        CommandListener.startHttpServer(tankConfig.getAgentConfig().getAgentPort(), token);
         HostInfo hostInfo = new HostInfo();
         String instanceUrl = null;
         int retryCount = 0;

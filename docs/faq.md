@@ -46,6 +46,7 @@ The controller's watchdog relaunches agents that don't report in time (`max-time
 - The controller can reach agents on the agent port, TCP 8090 by default (`agent-port`).
 - The agent AMI's architecture matches the instance types. The default instance types are Graviton (arm64).
 - When `rest-security-enabled` is `true`, `agent-token` is set.
+- The agent log doesn't show `Rejected command ... missing or wrong agent token`. Agents with a token reject commands that don't carry it, for example from a controller older than the agents.
 - The agent logs, in `/opt/tank_agent/logs/agent.log` on the agent (and in CloudWatch Logs if you installed the CloudWatch agent), show what failed.
 
 ## Does Tank need ActiveMQ or another message queue?

@@ -56,4 +56,22 @@ public class StandaloneAgentTrackerTest {
         assertNull(agents);
     }
 
+    @Test
+    public void keepsTheTokenEachAgentReportedWith() {
+        AgentAvailability a = new AgentAvailability("instance-a", "url", 500, AgentAvailabilityStatus.AVAILABLE);
+        AgentAvailability b = new AgentAvailability("instance-b", "url", 500, AgentAvailabilityStatus.AVAILABLE);
+
+        tracker.addAvailability(a, "token-a");
+        tracker.addAvailability(b);
+
+        assertEquals("token-a", tracker.getCommandToken("instance-a"));
+        assertNull(tracker.getCommandToken("instance-b"));
+
+        // the latest report wins
+        tracker.addAvailability(a, "token-a2");
+        assertEquals("token-a2", tracker.getCommandToken("instance-a"));
+        tracker.addAvailability(a, " ");
+        assertNull(tracker.getCommandToken("instance-a"));
+    }
+
 }

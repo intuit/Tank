@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
@@ -21,12 +21,13 @@ jobs:
       - name: Fetch all tags
         run: git fetch --tags
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
 
+      # Exact versions: this job holds a token that can push to master
       - name: Install auto and plugins
-        run: npm install auto @auto-it/maven
+        run: npm install auto@11.3.6 @auto-it/maven@11.3.6
 
       - name: Release
         env:

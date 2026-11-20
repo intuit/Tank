@@ -4,6 +4,7 @@ import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope;
 import tools.jackson.core.JacksonException;
 import com.intuit.tank.vm.agent.messages.AgentWsEnvelope.AckStatus;
+import com.intuit.tank.vm.common.AgentCommandAuth;
 import com.intuit.tank.vm.common.TankConstants;
 import com.intuit.tank.vm.settings.TankConfig;
 import com.intuit.tank.vm.vmManager.models.CloudVmStatus;
@@ -36,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
@@ -192,16 +192,7 @@ public class AgentCommandWebSocketServer {
     }
 
     private boolean isAuthorized(String authorization) {
-        if (agentToken == null || agentToken.isBlank()) {
-            return true;
-        }
-        String prefix = "bearer ";
-        if (authorization == null || !authorization.regionMatches(true, 0, prefix, 0, prefix.length())) {
-            return false;
-        }
-        return MessageDigest.isEqual(
-                authorization.substring(prefix.length()).trim().getBytes(StandardCharsets.UTF_8),
-                agentToken.getBytes(StandardCharsets.UTF_8));
+        return AgentCommandAuth.isAuthorized(agentToken, authorization);
     }
 
     static String queryParam(String query, String name) {

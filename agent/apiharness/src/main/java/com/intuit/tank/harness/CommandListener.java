@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.intuit.tank.harness.logging.LogUtil;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import com.intuit.tank.vm.common.AgentCommandAuth;
 
 public class CommandListener {
 
@@ -40,6 +41,11 @@ public class CommandListener {
 
     private static final String LEGACY_STATUS_PATH = "/staus";
 
+    private static final String AUTHORIZATION = "Authorization";
+
+    /** The token commands must carry; blank accepts every command */
+    private static volatile String commandToken;
+
     public static void main(String[] args) {
         APITestHarness.getInstance();
         startHttpServer(8080);
@@ -47,7 +53,16 @@ public class CommandListener {
     }
 
     public synchronized static void startHttpServer(int port) {
+        startHttpServer(port, null);
+    }
+
+    /**
+     * @param token the token the agent calls the controller with; commands must carry it as
+     *              {@code Authorization: Bearer}, unless it is blank
+     */
+    public synchronized static void startHttpServer(int port, String token) {
         if (!started) {
+            commandToken = token;
             int attempt = 1;
             while (attempt <= MAX_RETRIES) {
                 try {
@@ -76,24 +91,32 @@ public class CommandListener {
 
     private static void handleRequest(HttpExchange exchange) {
         String path = exchange.getRequestURI().getPath();
+        boolean authorized = AgentCommandAuth.isAuthorized(commandToken,
+                exchange.getRequestHeaders().getFirst(AUTHORIZATION));
         // a kill exits the JVM, so it runs only after the reply has been written
-        boolean kill = path.startsWith(AgentCommand.kill.getPath());
+        boolean kill = authorized && path.startsWith(AgentCommand.kill.getPath());
         try {
-            String response = "Not Found";
-            try {
-                response = applyHttpPathCommand(path);
-            } catch (UnsupportedOperationException ignored) {
-                response = "Not Found";
+            String response;
+            int code;
+            if (!authorized) {
+                LOG.warn(LogUtil.getLogMessage("Rejected command " + path + " from " + exchange.getRemoteAddress()
+                        + ": missing or wrong agent token"));
+                response = "Unauthorized";
+                code = 401;
+            } else {
+                try {
+                    response = applyHttpPathCommand(path);
+                    code = 202;
+                } catch (UnsupportedOperationException ignored) {
+                    response = "Not Found";
+                    code = 404;
+                }
+                LOG.info(LogUtil.getLogMessage(response));
             }
-            LOG.info(LogUtil.getLogMessage(response));
 
             exchange.getResponseHeaders().set(HTTP.CONTENT_TYPE, "text/plain");
             exchange.getResponseHeaders().set(HTTP.SERVER_HEADER,"Intuit Tank Agent/4.0.0");
-            if (response.equalsIgnoreCase("Not Found")) {
-                exchange.sendResponseHeaders(404, response.length());
-            } else {
-                exchange.sendResponseHeaders(202, response.length());
-            }
+            exchange.sendResponseHeaders(code, response.length());
             OutputStream os = exchange.getResponseBody();
             os.write(response.getBytes());
             os.close();
