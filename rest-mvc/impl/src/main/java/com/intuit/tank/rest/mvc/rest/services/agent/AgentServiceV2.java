@@ -55,11 +55,14 @@ public interface AgentServiceV2 {
      *
      * @param agentData
      *            agentData payload
+     * @param commandToken
+     *            the bearer token the agent called with, which the controller's HTTP commands to it carry;
+     *            null if it sent none
      * @throws GenericServiceResourceNotFoundException
      *         if there is an error registering agent for a job
      * @return AgentStartData JSON response
      */
-    public AgentTestStartData agentReady(AgentData agentData);
+    public AgentTestStartData agentReady(AgentData agentData, String commandToken);
 
     /**
      * Gets the agent headers
@@ -84,10 +87,13 @@ public interface AgentServiceV2 {
     /**
      * Sets the availability status for a standalone agent
      *
+     * @param commandToken
+     *            the bearer token the agent called with, which the controller's requests to it carry;
+     *            null if it sent none
      * @throws GenericServiceCreateOrUpdateException
      *        if there is an error setting standalone agent availability
      */
-    public void setStandaloneAgentAvailability(AgentAvailability availability);
+    public void setStandaloneAgentAvailability(AgentAvailability availability, String commandToken);
 
 
     // Instance status operations

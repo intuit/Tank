@@ -58,6 +58,7 @@ import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
 import com.intuit.tank.vm.agent.messages.DataFileRequest;
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
+import com.intuit.tank.vm.common.AgentCommandAuth;
 import com.intuit.tank.vm.perfManager.StandaloneAgentTracker;
 import com.intuit.tank.vm.settings.AgentConfig;
 import com.intuit.tank.vm.settings.TankConfig;
@@ -80,6 +81,7 @@ public class JobManager implements Serializable {
     private static final Logger LOG = LogManager.getLogger(JobManager.class);
 
     private static final int MAX_RETRIES = 60;
+    private static final String AUTHORIZATION = "Authorization";
     private static final long RETRY_SLEEP = 30 * 1000; // 30 second
 
     @Inject
@@ -97,6 +99,9 @@ public class JobManager implements Serializable {
     private Map<String, JobInfo> jobInfoMapLocalCache = new ConcurrentHashMap<>();
 
     private final Map<String, String> adoptedAgentJobs = new ConcurrentHashMap<>();
+
+    /** The bearer token each agent last registered with, by instance id, which HTTP commands to it carry */
+    private final Map<String, String> agentCommandTokens = new ConcurrentHashMap<>();
 
     private Map<Integer, Integer> dataFileCountMap = new ConcurrentHashMap<Integer, Integer>();
 
@@ -134,7 +139,7 @@ public class JobManager implements Serializable {
                         StandaloneAgentRequest standaloneAgentRequest = new StandaloneAgentRequest(
                                 Integer.toString(id), a.getInstanceId(), jobRequest.getTotalVirtualUsers());
                         standaloneAgentRequest.setStopBehavior(jobRequest.getStopBehavior());
-                        sendRequest(a.getInstanceUrl(), standaloneAgentRequest);
+                        sendRequest(a.getInstanceUrl(), standaloneCommandToken(a.getInstanceId()), standaloneAgentRequest);
                     }
                 } catch (Exception e) {
                     LOG.error(new ObjectMessage(Map.of("Message", "Error starting agents: " + e)), e);
@@ -150,15 +155,15 @@ public class JobManager implements Serializable {
         }
     }
 
-    private void sendRequest(String instanceUrl, StandaloneAgentRequest standaloneAgentRequest) {
+    private void sendRequest(String instanceUrl, String commandToken, StandaloneAgentRequest standaloneAgentRequest) {
         try {
             String requestBody = JSON_MAPPER
                     .writeValueAsString(standaloneAgentRequest);
-            var request = HttpRequest.newBuilder()
+            var builder = HttpRequest.newBuilder()
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .uri(URI.create(instanceUrl + AgentCommand.request.getPath()))
-                    .header(HTTP.CONTENT_TYPE, "application/json")
-                    .build();
+                    .header(HTTP.CONTENT_TYPE, "application/json");
+            var request = withCommandToken(builder, commandToken).build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
@@ -170,6 +175,14 @@ public class JobManager implements Serializable {
     }
 
     public AgentTestStartData registerAgentForJob(AgentData agentData) {
+        return registerAgentForJob(agentData, null);
+    }
+
+    /**
+     * @param commandToken the bearer token the agent registered with, which HTTP commands to it carry; null if
+     *                     it sent none
+     */
+    public AgentTestStartData registerAgentForJob(AgentData agentData, String commandToken) {
         ControllerLoggingConfig.setupThreadContext();
         LOG.info(new ObjectMessage(Map.of("Message","Received Agent Ready call from " + agentData.getInstanceId() + " with Agent Data: " + agentData)));
         AgentTestStartData ret = null;
@@ -208,6 +221,10 @@ public class JobManager implements Serializable {
                                 + agentData.getJobId() + " in " + agentData.getRegion()
                                 + ", which already has all its agents; it gets no share of the load")));
                     }
+                }
+
+                if (StringUtils.isNotBlank(commandToken)) {
+                    agentCommandTokens.put(agentData.getInstanceId(), commandToken);
                 }
 
                 ret = new AgentTestStartData(jobInfo.scripts, assignedUsers, jobInfo.jobRequest.getRampTime());
@@ -383,7 +400,7 @@ public class JobManager implements Serializable {
 
                     String url = agentData.getInstanceUrl() + AgentCommand.start.getPath();
                     LOG.info(new ObjectMessage(Map.of("Message", "Sending command to url " + url)));
-                    CompletableFuture<?> future = sendCommand(URI.create(url), MAX_RETRIES);
+                    CompletableFuture<?> future = sendCommand(URI.create(url), commandToken(instanceId), MAX_RETRIES);
                     HttpResponse response = (HttpResponse) future.join();
                     if (response != null && Set.of(HttpStatus.SC_OK, HttpStatus.SC_ACCEPTED).contains(response.statusCode())) {
                         LOG.info(new ObjectMessage(Map.of(
@@ -459,12 +476,10 @@ public class JobManager implements Serializable {
                     .collect(Collectors.toList());
         }
 
-        List<String> instanceUrls = getInstanceUrl(instanceIds);
-
-        return instanceUrls.parallelStream()
-                .map(instanceUrl -> {
-                    URI uri = URI.create(instanceUrl + cmd.getPath());
-                    return sendCommand(uri, 0);
+        return getAgents(instanceIds).parallelStream()
+                .map(agent -> {
+                    URI uri = URI.create(agent.getInstanceUrl() + cmd.getPath());
+                    return sendCommand(uri, commandToken(agent.getInstanceId()), 0);
                 })
                 .collect(Collectors.toList());
     }
@@ -475,6 +490,14 @@ public class JobManager implements Serializable {
      * @return List of InstanceUrls
      */
     protected List<String> getInstanceUrl(List<String> instanceIds) {
+        return getAgents(instanceIds).stream().map(AgentData::getInstanceUrl).collect(Collectors.toList());
+    }
+
+    /**
+     * The registered agents with these ids; an agent the controller doesn't know, as after a restart, is looked up in AWS
+     * @return the agents found, in no particular order
+     */
+    protected List<AgentData> getAgents(List<String> instanceIds) {
         final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         final Context traceContext = Context.current(); // parallelStream workers don't inherit the caller's trace
         return instanceIds.parallelStream()
@@ -491,8 +514,32 @@ public class JobManager implements Serializable {
                         })
                 )
                 .filter(Objects::nonNull)
-                .map(AgentData::getInstanceUrl)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * The token HTTP commands to an agent carry: the one it registered with, else the configured agent token,
+     * which every agent the controller launched uses. Null when there is neither.
+     */
+    String commandToken(String instanceId) {
+        String token = agentCommandTokens.get(instanceId);
+        return token != null ? token : configuredAgentToken();
+    }
+
+    /** The token requests to a standalone agent carry: the one it reported its availability with, else the agent token */
+    String standaloneCommandToken(String instanceId) {
+        String token = standaloneTracker != null ? standaloneTracker.getCommandToken(instanceId) : null;
+        return StringUtils.isNotBlank(token) ? token : configuredAgentToken();
+    }
+
+    private String configuredAgentToken() {
+        String token = tankConfig != null ? tankConfig.getAgentConfig().getAgentToken() : null;
+        return StringUtils.isNotBlank(token) ? token : null;
+    }
+
+    private static HttpRequest.Builder withCommandToken(HttpRequest.Builder builder, String commandToken) {
+        String authorization = AgentCommandAuth.authorizationHeader(commandToken);
+        return authorization != null ? builder.header(AUTHORIZATION, authorization) : builder;
     }
 
     /**
@@ -518,9 +565,9 @@ public class JobManager implements Serializable {
      * @param retry count attempts
      * @return CompletableFuture Array
      */
-    private CompletableFuture<?> sendCommand(final URI uri, final int retry) {
+    private CompletableFuture<?> sendCommand(final URI uri, final String commandToken, final int retry) {
         ControllerLoggingConfig.setupThreadContext();
-        HttpRequest request = HttpRequest.newBuilder(uri).build();
+        HttpRequest request = withCommandToken(HttpRequest.newBuilder(uri), commandToken).build();
         LOG.info(new ObjectMessage(Map.of("Message","Sending command to url " + uri)));
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .whenCompleteAsync((response, t) -> {
@@ -530,7 +577,7 @@ public class JobManager implements Serializable {
                             try {
                                 Thread.sleep(RETRY_SLEEP);// 30 seconds
                             } catch (InterruptedException ignored) {}
-                            sendCommand(uri, (retry - 1));
+                            sendCommand(uri, commandToken, (retry - 1));
                         }
                     }
                 }).exceptionally( ex -> {

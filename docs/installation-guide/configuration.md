@@ -77,7 +77,7 @@ Chooses how agents report results and how the controller reads them back. Withou
 | Element | Default | Description |
 |---------|---------|-------------|
 | `agent-port` | `8090` | The port agents listen on for the controller's HTTP and WebSocket calls. Open it from the controller to the agents. |
-| `agent-token` | empty | A shared secret that agents send as `Authorization: Bearer <token>`. A request with this token can do anything, so keep it secret. Set it when `rest-security-enabled` is `true`, and for standalone agents. |
+| `agent-token` | empty | A shared secret that agents send as `Authorization: Bearer <token>`. A request with this token can do anything, so keep it secret. Set it when `rest-security-enabled` is `true`, and for standalone agents. Agents that have a token accept commands only when the commands carry it, over HTTP and WebSocket alike; the controller sends the token each agent registered with. With no token set, agents accept commands from any host that can reach `agent-port`. |
 | `agent-data-file-storage` | `/tmp` | Where agents store data files during a test. |
 | `connection-timeout` | `40000` | HTTP connection timeout for test requests, in milliseconds. |
 | `max-body-report-size` | `5000` | The most response-body characters logged for a failed request. |

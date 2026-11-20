@@ -140,24 +140,30 @@ The Tank Proxy records the traffic of a browser session and saves it as Tank XML
 | `Tank-Proxy-all.jar` | The recording proxy |
 | `startProxy.sh` | Runs `java -jar Tank-Proxy-all.jar` |
 | `recording-proxy-config-default.xml` | Default settings: port `8888`, output file `outputFile.xml`, and image and PDF response bodies excluded |
-| `auto_generated_ca.p12`, `auto_generated_ca.pem` | The certificate authority the proxy signs HTTPS certificates with |
 | `readme.txt` | Setup notes |
 
-Run it from that directory, so it finds the configuration and the CA files:
+Run it from that directory, so it finds the configuration and keeps its certificate authority there:
 
 ```bash
 cd Intuit-Tank-Proxy
 java -jar Tank-Proxy-all.jar
 ```
 
+### Trusting the proxy's certificate authority
+The first time you click `Start Recording`, the proxy creates a certificate authority for this installation in its working directory: `auto_generated_ca.p12` holds the private key it signs HTTPS certificates with, and `auto_generated_ca.pem` is the certificate. To record HTTPS sites, import `auto_generated_ca.pem` into your browser or operating system as a trusted certificate authority ("OWASP Custom CA for Tank"). On Windows you can import it from the command prompt with `certutil -user -addstore Root auto_generated_ca.pem`.
+
+Keep `auto_generated_ca.p12` private: anyone who has it can intercept HTTPS traffic from a browser that trusts the CA. If you delete it, the proxy creates a new CA, and you trust the new `auto_generated_ca.pem` instead.
+
+!!! warning "Proxy packages from Tank 5.0.7 and earlier"
+    Earlier packages shipped the same certificate authority to everyone, and its private key is public. If you trusted "OWASP Custom CA for Tank" from one of those packages, remove it from your browser and operating system trust stores, and delete the old `auto_generated_ca.p12` and `auto_generated_ca.pem` so the proxy creates a new CA.
+
 ### Recording a session
-1. Trust the proxy's CA in your browser or operating system: import `auto_generated_ca.pem` as a trusted certificate authority ("OWASP Custom CA for Tank"). On Windows you can import the `.p12` from the command prompt with `certutil -f -p password -importpfx auto_generated_ca.p12`. If the `.p12` is missing from the working directory, the proxy generates a new CA and writes a new `auto_generated_ca.pem`, which you must trust instead.
-2. Set your browser's HTTP and HTTPS proxy to `localhost` and the proxy port (8888 by default).
-3. Optionally open `File > Settings` to change the port, the output file and the request and body inclusion and exclusion rules. The settings dialog can save and open them as XML files.
-4. Click `Start Recording` (also in the `Session` menu). `Pause Recording` and `Stop Recording` are next to it.
-5. Exercise the application in the browser. Each transaction appears in the table; use the filter box to search them and `Delete Selected` to drop ones you don't want.
-6. Click `Stop Recording`, then `Save` (`File` menu). `File > Open Recording...` reopens a saved recording, and `Session > Hosts...` lists the hosts that were recorded.
-7. Upload the saved XML to Tank as a new script.
+1. Set your browser's HTTP and HTTPS proxy to `localhost` and the proxy port (8888 by default).
+2. Optionally open `File > Settings` to change the port, the output file and the request and body inclusion and exclusion rules. The settings dialog can save and open them as XML files.
+3. Click `Start Recording` (also in the `Session` menu). `Pause Recording` and `Stop Recording` are next to it. The first time, trust the new certificate authority (see above) before you browse to HTTPS sites.
+4. Exercise the application in the browser. Each transaction appears in the table; use the filter box to search them and `Delete Selected` to drop ones you don't want.
+5. Click `Stop Recording`, then `Save` (`File` menu). `File > Open Recording...` reopens a saved recording, and `Session > Hosts...` lists the hosts that were recorded.
+6. Upload the saved XML to Tank as a new script.
 
 ## API Test Harness
 `apiharness-1.0-all.jar` is the harness the agents run. Locally it runs a harness XML file (which you can download with `GET /v2/projects/download/{projectId}` or `GET /v2/scripts/harness/download/{scriptId}`) from the command line, which helps when you debug a script:

@@ -51,14 +51,6 @@
                       <targetPath>${project.build.directory}/tank/tools</targetPath>
                     </resource>
                     <resource>
-                      <directory>${cert.dir}</directory>
-                      <includes>
-                        <include>${cert.p12}</include>
-                      </includes>
-                      <targetPath>${project.build.directory}/tank/tools</targetPath>
-                      
-                    </resource>
-                    <resource>
                       <directory>${project.parent.parent.basedir}/agent/apiharness_pkg/target</directory>
                       <includes>
                         <include>apiharness-1.0-pkg.zip</include>

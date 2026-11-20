@@ -122,13 +122,21 @@ public class AgentControllerTest {
         testAgentStartData.setJobId("2");
         testAgentStartData.setRampTime(1L);
         testAgentStartData.setTotalAgents(1000);
-        when(agentService.agentReady(testAgentData)).thenReturn(testAgentStartData);
-        ResponseEntity<AgentTestStartData> result = agentController.agentReady(testAgentData);
+        when(agentService.agentReady(testAgentData, "agent-token")).thenReturn(testAgentStartData);
+        ResponseEntity<AgentTestStartData> result = agentController.agentReady(testAgentData, "bearer agent-token");
         assertEquals("2", result.getBody().getJobId());
         assertEquals(1L, result.getBody().getRampTime());
         assertEquals(1000, result.getBody().getTotalAgents());
         assertEquals(200, result.getStatusCode().value());
-        verify(agentService).agentReady(testAgentData);
+        // the controller's commands to the agent carry the token it registered with
+        verify(agentService).agentReady(testAgentData, "agent-token");
+    }
+
+    @Test
+    public void testAgentReadyWithoutToken() {
+        AgentData testAgentData = new AgentData();
+        agentController.agentReady(testAgentData, null);
+        verify(agentService).agentReady(testAgentData, null);
     }
 
     @Test
@@ -136,8 +144,9 @@ public class AgentControllerTest {
         AgentAvailability availability = new AgentAvailability("testInstanceId",
                 "testInstanceUrl", 5,
                 AgentAvailabilityStatus.AVAILABLE);
-        ResponseEntity<Void> result = agentController.setStandaloneAgentAvailability(availability);
+        ResponseEntity<Void> result = agentController.setStandaloneAgentAvailability(availability, "Bearer user-token");
         assertEquals(200, result.getStatusCode().value());
+        verify(agentService).setStandaloneAgentAvailability(availability, "user-token");
     }
 
     // Instance status operations

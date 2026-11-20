@@ -239,6 +239,6 @@ In standalone mode the controller doesn't start EC2 instances. Instead, standalo
     | `-host` | The address the controller uses to reach this agent. Optional if the agent can work it out. |
     | `-capacity` | The number of users this agent can run. Defaults to 4000. |
 
-The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the `agent-port` (8090 by default); open both to the controller. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs `startAgent.sh` there. Set `TANK_AGENT_JVM_ARGS` to change the harness's JVM options (default `-XX:MaxRAMPercentage=70.0`).
+The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the `agent-port` (8090 by default); open both to the controller. Both accept only requests that carry the agent's `-token`, which the controller sends back from the agent's registration, so upgrade the controller before the agents. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs `startAgent.sh` there. Set `TANK_AGENT_JVM_ARGS` to change the harness's JVM options (default `-XX:MaxRAMPercentage=70.0`).
 
 When you start a test, the controller picks available standalone agents with enough total capacity for the test's users. If there isn't enough capacity, the job is aborted.

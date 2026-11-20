@@ -293,12 +293,12 @@ class AgentServiceV2ImplTest {
         startData.setJobId("42");
 
         JobManager mockJobManager = mock(JobManager.class);
-        when(mockJobManager.registerAgentForJob(agentData)).thenReturn(startData);
+        when(mockJobManager.registerAgentForJob(agentData, "agent-token")).thenReturn(startData);
 
         try (@SuppressWarnings({"rawtypes", "unchecked"}) MockedConstruction<ServletInjector> ignored = Mockito.mockConstruction(ServletInjector.class,
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobManager.class))).thenReturn(mockJobManager))) {
 
-            AgentTestStartData result = service.agentReady(agentData);
+            AgentTestStartData result = service.agentReady(agentData, "agent-token");
 
             assertEquals("42", result.getJobId());
         }
@@ -312,7 +312,7 @@ class AgentServiceV2ImplTest {
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(JobManager.class)))
                         .thenThrow(new RuntimeException("CDI error")))) {
 
-            assertThrows(GenericServiceBadRequestException.class, () -> service.agentReady(agentData));
+            assertThrows(GenericServiceBadRequestException.class, () -> service.agentReady(agentData, null));
         }
     }
 
@@ -329,9 +329,9 @@ class AgentServiceV2ImplTest {
                 (mock, ctx) -> when(mock.getManagedBean(eq(servletContext), eq(StandaloneAgentTracker.class)))
                         .thenReturn(tracker))) {
 
-            service.setStandaloneAgentAvailability(availability);
+            service.setStandaloneAgentAvailability(availability, "agent-token");
 
-            verify(tracker).addAvailability(availability);
+            verify(tracker).addAvailability(availability, "agent-token");
         }
     }
 
@@ -344,7 +344,7 @@ class AgentServiceV2ImplTest {
                         .thenThrow(new RuntimeException("CDI error")))) {
 
             assertThrows(GenericServiceCreateOrUpdateException.class,
-                    () -> service.setStandaloneAgentAvailability(availability));
+                    () -> service.setStandaloneAgentAvailability(availability, null));
         }
     }
 

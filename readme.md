@@ -41,7 +41,7 @@ You may need to increase the default memory settings for maven to build. e.g. ex
 
 There are several profiles:
 * default -- builds source but does not package tools.
-* release -- default plus all tools and signs them using a self signed certificate.
+* release -- default plus all tools and their packages.
 * coverage -- runs jacoco code coverage.
 * static-analysis -- runs checkstyle and findbugs.
 

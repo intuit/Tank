@@ -53,6 +53,7 @@ public class CommandListenerTest {
     private APITestHarness originalHarness;
     private Runnable originalKillAction;
     private boolean originalStarted;
+    private Object originalCommandToken;
     private final AtomicInteger kills = new AtomicInteger();
     private final WatsAgentStatusResponse status = new WatsAgentStatusResponse(1000, 0, 0, 0, 0, 0, 0, 3, 10, 0);
 
@@ -72,6 +73,7 @@ public class CommandListenerTest {
         LogUtil.getLogEvent(); // build this thread's log event from a real harness, as other tests would
         instance.set(null, harness);
         originalStarted = staticField(CommandListener.class, "started").getBoolean(null);
+        originalCommandToken = staticField(CommandListener.class, "commandToken").get(null);
         originalKillAction = CommandListener.killAction;
         CommandListener.killAction = kills::incrementAndGet;
     }
@@ -80,6 +82,7 @@ public class CommandListenerTest {
     public void tearDown() throws Exception {
         CommandListener.killAction = originalKillAction;
         staticField(CommandListener.class, "started").setBoolean(null, originalStarted);
+        staticField(CommandListener.class, "commandToken").set(null, originalCommandToken);
         staticField(APITestHarness.class, "instance").set(null, originalHarness);
     }
 
@@ -301,15 +304,59 @@ public class CommandListenerTest {
         verify(exchange, never()).close();
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {"NONE", "bearer wrong-token", "Basic secret-token", "bearer"}, nullValues = "NONE")
+    public void testHttpCommandWithoutTheAgentTokenIsRejected(String authorization) throws IOException {
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        HttpExchange exchange = exchange("/stop", new Headers(), body);
+        if (authorization != null) {
+            exchange.getRequestHeaders().set("Authorization", authorization);
+        }
+
+        captureHandler("secret-token").handle(exchange);
+
+        verify(exchange).sendResponseHeaders(401, "Unauthorized".length());
+        assertEquals("Unauthorized", body.toString(StandardCharsets.UTF_8));
+        verify(harness, never()).setCommand(any());
+    }
+
+    @Test
+    public void testHttpKillWithoutTheAgentTokenDoesNotKill() throws IOException {
+        HttpExchange exchange = exchange("/kill", new Headers(), new ByteArrayOutputStream());
+
+        captureHandler("secret-token").handle(exchange);
+
+        verify(exchange).sendResponseHeaders(eq(401), anyLong());
+        assertEquals(0, kills.get());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"bearer secret-token", "Bearer secret-token"})
+    public void testHttpCommandWithTheAgentTokenIsAccepted(String authorization) throws IOException {
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        HttpExchange exchange = exchange("/stop", new Headers(), body);
+        exchange.getRequestHeaders().set("Authorization", authorization);
+
+        captureHandler("secret-token").handle(exchange);
+
+        verify(harness).setCommand(AgentCommand.stop);
+        verify(exchange).sendResponseHeaders(eq(202), anyLong());
+    }
+
     /** Starts the listener against a mocked server and returns the handler it registered. */
     private HttpHandler captureHandler() {
+        return captureHandler(null);
+    }
+
+    /** Starts the listener, requiring {@code token} on commands, and returns the handler it registered. */
+    private HttpHandler captureHandler(String token) {
         try (MockedStatic<HttpServer> httpServer = mockStatic(HttpServer.class)) {
             HttpServer server = mock(HttpServer.class);
             HttpContext context = mock(HttpContext.class);
             when(server.createContext("/")).thenReturn(context);
             httpServer.when(() -> HttpServer.create(any(InetSocketAddress.class), anyInt())).thenReturn(server);
 
-            CommandListener.startHttpServer(8090);
+            CommandListener.startHttpServer(8090, token);
 
             ArgumentCaptor<HttpHandler> handler = ArgumentCaptor.forClass(HttpHandler.class);
             verify(context).setHandler(handler.capture());
@@ -327,6 +374,7 @@ public class CommandListenerTest {
     private static HttpExchange exchange(String path, Headers headers, OutputStream body) {
         HttpExchange exchange = mock(HttpExchange.class);
         when(exchange.getRequestURI()).thenReturn(URI.create("http://localhost:8090" + path));
+        when(exchange.getRequestHeaders()).thenReturn(new Headers());
         when(exchange.getResponseHeaders()).thenReturn(headers);
         when(exchange.getResponseBody()).thenReturn(body);
         return exchange;

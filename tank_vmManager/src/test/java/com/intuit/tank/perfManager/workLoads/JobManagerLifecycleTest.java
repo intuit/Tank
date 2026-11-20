@@ -172,6 +172,26 @@ public class JobManagerLifecycleTest {
     }
 
     @Test
+    void startJobStandaloneSendsTheTokenTheAgentReportedWith() throws Exception {
+        JobRequest jobRequest = increasingJob(JOB_ID, region(VMRegion.US_EAST, "1", "100"));
+        stubWorkLoadFactory(jobRequest);
+        when(tankConfig.getStandalone()).thenReturn(true);
+        when(agentConfig.getAgentToken()).thenReturn("configured-token");
+        StandaloneAgentTracker tracker = mock(StandaloneAgentTracker.class);
+        when(tracker.getAgents(anyInt())).thenReturn(List.of(new AgentAvailability("i-1", "http://agent-1:8090", 10, null)));
+        when(tracker.getCommandToken("i-1")).thenReturn("user-token");
+        setField("standaloneTracker", tracker);
+        doReturn(response(200)).when(httpClient).send(any(HttpRequest.class), any());
+
+        try (MockedConstruction<JobInstanceDao> ignored = mockConstruction(JobInstanceDao.class,
+                (mock, context) -> when(mock.findById(42)).thenReturn(mock(JobInstance.class)))) {
+            fixture.startJob(42);
+        }
+
+        verify(httpClient).send(argThat(request -> authorization(request).equals(Optional.of("bearer user-token"))), any());
+    }
+
+    @Test
     void startJobStandaloneAbortsWhenAnAgentRejectsTheStartRequest() throws Exception {
         JobRequest jobRequest = increasingJob(JOB_ID, region(VMRegion.US_EAST, "1", "100"));
         stubWorkLoadFactory(jobRequest);
@@ -562,6 +582,63 @@ public class JobManagerLifecycleTest {
     }
 
     @Test
+    void sendCommandOverHttpCarriesTheTokenTheAgentRegisteredWith() throws Exception {
+        jobInfoCache().put(JOB_ID, newJobInfo(increasingJob(JOB_ID, region(VMRegion.US_EAST, "5", "100"))));
+        when(agentConfig.getAgentToken()).thenReturn("configured-token");
+        // a standalone agent can register with a user's API token rather than the agent token
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-1", "http://agent-1:8090", 1, VMRegion.US_EAST, "zone"), "user-token");
+        doReturn(CompletableFuture.completedFuture(response(202))).when(httpClient).sendAsync(any(HttpRequest.class), any());
+
+        fixture.sendCommand(List.of("i-1"), AgentCommand.stop);
+
+        verify(httpClient).sendAsync(argThat(r -> authorization(r).equals(Optional.of("bearer user-token"))), any());
+    }
+
+    @Test
+    void sendCommandOverHttpCarriesTheTokenTheAgentLastRegisteredWith() throws Exception {
+        // a standalone agent keeps its instance id from job to job, and may be restarted with another token
+        String otherJob = "43";
+        jobInfoCache().put(JOB_ID, newJobInfo(increasingJob(JOB_ID, region(VMRegion.US_EAST, "5", "100"))));
+        jobInfoCache().put(otherJob, newJobInfo(increasingJob(otherJob, region(VMRegion.US_EAST, "5", "100"))));
+        fixture.registerAgentForJob(new AgentData(JOB_ID, "i-1", "http://agent-1:8090", 1, VMRegion.US_EAST, "zone"), "old-token");
+        fixture.registerAgentForJob(new AgentData(otherJob, "i-1", "http://agent-1:8090", 1, VMRegion.US_EAST, "zone"), "new-token");
+        doReturn(CompletableFuture.completedFuture(response(202))).when(httpClient).sendAsync(any(HttpRequest.class), any());
+
+        fixture.sendCommand(List.of("i-1"), AgentCommand.stop);
+
+        verify(httpClient).sendAsync(argThat(r -> authorization(r).equals(Optional.of("bearer new-token"))), any());
+    }
+
+    @Test
+    void sendCommandOverHttpFallsBackToTheAgentToken() throws Exception {
+        // after a controller restart the agent is found in AWS, and agents the controller launched use the agent token
+        stubRegions(VMRegion.US_EAST);
+        when(agentConfig.getAgentToken()).thenReturn("configured-token");
+        doReturn(CompletableFuture.completedFuture(response(202))).when(httpClient).sendAsync(any(HttpRequest.class), any());
+
+        try (MockedConstruction<AmazonInstance> ignored = mockConstruction(AmazonInstance.class,
+                (mock, context) -> when(mock.findDNSName("i-aws")).thenReturn(Optional.of("ec2-host")))) {
+            fixture.sendCommand(List.of("i-aws"), AgentCommand.kill);
+        }
+
+        verify(httpClient).sendAsync(argThat(r -> r.uri().toString().equals("http://ec2-host:8090" + AgentCommand.kill.getPath())
+                && authorization(r).equals(Optional.of("bearer configured-token"))), any());
+    }
+
+    @Test
+    void sendCommandOverHttpSendsNoTokenWhenThereIsNone() throws Exception {
+        Object jobInfo = newJobInfo(increasingJob(JOB_ID));
+        addAgent(jobInfo, "i-1", "http://agent-1:8090");
+        jobInfoCache().put(JOB_ID, jobInfo);
+        when(agentConfig.getAgentToken()).thenReturn("");
+        doReturn(CompletableFuture.completedFuture(response(202))).when(httpClient).sendAsync(any(HttpRequest.class), any());
+
+        fixture.sendCommand(List.of("i-1"), AgentCommand.stop);
+
+        verify(httpClient).sendAsync(argThat(r -> authorization(r).isEmpty()), any());
+    }
+
+    @Test
     void sendCommandOverHttpLogsNoRouteToHostFailures() throws Exception {
         Object jobInfo = newJobInfo(increasingJob(JOB_ID));
         addAgent(jobInfo, "i-1", "http://agent-1:8090");
@@ -808,6 +885,10 @@ public class JobManagerLifecycleTest {
         VmManagerConfig vmManagerConfig = mock(VmManagerConfig.class);
         when(vmManagerConfig.getRegions()).thenReturn(new LinkedHashSet<>(List.of(regions)));
         when(tankConfig.getVmManagerConfig()).thenReturn(vmManagerConfig);
+    }
+
+    private static Optional<String> authorization(HttpRequest request) {
+        return request.headers().firstValue("Authorization");
     }
 
     @SuppressWarnings("unchecked")

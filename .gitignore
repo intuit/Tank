@@ -49,6 +49,10 @@ tank.mwb
 agent/http_client_5/settings.xml
 agent/http_client_4/settings.xml
 agent/http_client_jdk/settings.xml
+# written by local runs from the repo root (the settings.xml can hold tokens and passwords)
+/settings.xml
+/debugger.properties
+/debugger.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
