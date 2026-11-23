@@ -1151,7 +1151,7 @@
 <tr>
 <td><code>agent-token</code></td>
 <td>empty</td>
-<td>A shared secret that agents send as <code>Authorization: Bearer &lt;token&gt;</code>. A request with this token can do anything, so keep it secret. Set it when <code>rest-security-enabled</code> is <code>true</code>, and for standalone agents.</td>
+<td>A shared secret that agents send as <code>Authorization: Bearer &lt;token&gt;</code>. A request with this token can do anything, so keep it secret. Set it when <code>rest-security-enabled</code> is <code>true</code>, and for standalone agents. Agents that have a token accept commands only when the commands carry it, over HTTP and WebSocket alike; the controller sends the token each agent registered with. With no token set, agents accept commands from any host that can reach <code>agent-port</code>.</td>
 </tr>
 <tr>
 <td><code>agent-data-file-storage</code></td>

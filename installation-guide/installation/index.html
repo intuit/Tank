@@ -1258,7 +1258,7 @@
 </table>
 </li>
 </ol>
-<p>The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the <code>agent-port</code> (8090 by default); open both to the controller. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs <code>startAgent.sh</code> there. Set <code>TANK_AGENT_JVM_ARGS</code> to change the harness's JVM options (default <code>-XX:MaxRAMPercentage=70.0</code>).</p>
+<p>The agent listens on TCP 1090 for the controller, and the test harness it starts listens on the <code>agent-port</code> (8090 by default); open both to the controller. Both accept only requests that carry the agent's <code>-token</code>, which the controller sends back from the agent's registration, so upgrade the controller before the agents. The agent reports its availability every five minutes. When it gets a job, it downloads the settings and the test harness into its own directory and runs <code>startAgent.sh</code> there. Set <code>TANK_AGENT_JVM_ARGS</code> to change the harness's JVM options (default <code>-XX:MaxRAMPercentage=70.0</code>).</p>
 <p>When you start a test, the controller picks available standalone agents with enough total capacity for the test's users. If there isn't enough capacity, the job is aborted.</p>
 </article>
 </div>

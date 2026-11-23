@@ -692,6 +692,15 @@
 <nav aria-label="Tank Proxy (recorder)" class="md-nav">
 <ul class="md-nav__list">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#trusting-the-proxys-certificate-authority">
+<span class="md-ellipsis">
+      
+        Trusting the proxy's certificate authority
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#recording-a-session">
 <span class="md-ellipsis">
       
@@ -902,6 +911,15 @@
 </a>
 <nav aria-label="Tank Proxy (recorder)" class="md-nav">
 <ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#trusting-the-proxys-certificate-authority">
+<span class="md-ellipsis">
+      
+        Trusting the proxy's certificate authority
+      
+    </span>
+</a>
+</li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="#recording-a-session">
 <span class="md-ellipsis">
@@ -1188,25 +1206,27 @@
 <td>Default settings: port <code>8888</code>, output file <code>outputFile.xml</code>, and image and PDF response bodies excluded</td>
 </tr>
 <tr>
-<td><code>auto_generated_ca.p12</code>, <code>auto_generated_ca.pem</code></td>
-<td>The certificate authority the proxy signs HTTPS certificates with</td>
-</tr>
-<tr>
 <td><code>readme.txt</code></td>
 <td>Setup notes</td>
 </tr>
 </tbody>
 </table>
-<p>Run it from that directory, so it finds the configuration and the CA files:</p>
+<p>Run it from that directory, so it finds the configuration and keeps its certificate authority there:</p>
 <div class="highlight"><pre><span></span><code><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>Intuit-Tank-Proxy
 <a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a>java<span class="w"> </span>-jar<span class="w"> </span>Tank-Proxy-all.jar
 </code></pre></div>
+<h3 id="trusting-the-proxys-certificate-authority">Trusting the proxy's certificate authority</h3>
+<p>The first time you click <code>Start Recording</code>, the proxy creates a certificate authority for this installation in its working directory: <code>auto_generated_ca.p12</code> holds the private key it signs HTTPS certificates with, and <code>auto_generated_ca.pem</code> is the certificate. To record HTTPS sites, import <code>auto_generated_ca.pem</code> into your browser or operating system as a trusted certificate authority ("OWASP Custom CA for Tank"). On Windows you can import it from the command prompt with <code>certutil -user -addstore Root auto_generated_ca.pem</code>.</p>
+<p>Keep <code>auto_generated_ca.p12</code> private: anyone who has it can intercept HTTPS traffic from a browser that trusts the CA. If you delete it, the proxy creates a new CA, and you trust the new <code>auto_generated_ca.pem</code> instead.</p>
+<div class="admonition warning">
+<p class="admonition-title">Proxy packages from Tank 5.0.7 and earlier</p>
+<p>Earlier packages shipped the same certificate authority to everyone, and its private key is public. If you trusted "OWASP Custom CA for Tank" from one of those packages, remove it from your browser and operating system trust stores, and delete the old <code>auto_generated_ca.p12</code> and <code>auto_generated_ca.pem</code> so the proxy creates a new CA.</p>
+</div>
 <h3 id="recording-a-session">Recording a session</h3>
 <ol>
-<li>Trust the proxy's CA in your browser or operating system: import <code>auto_generated_ca.pem</code> as a trusted certificate authority ("OWASP Custom CA for Tank"). On Windows you can import the <code>.p12</code> from the command prompt with <code>certutil -f -p password -importpfx auto_generated_ca.p12</code>. If the <code>.p12</code> is missing from the working directory, the proxy generates a new CA and writes a new <code>auto_generated_ca.pem</code>, which you must trust instead.</li>
 <li>Set your browser's HTTP and HTTPS proxy to <code>localhost</code> and the proxy port (8888 by default).</li>
 <li>Optionally open <code>File &gt; Settings</code> to change the port, the output file and the request and body inclusion and exclusion rules. The settings dialog can save and open them as XML files.</li>
-<li>Click <code>Start Recording</code> (also in the <code>Session</code> menu). <code>Pause Recording</code> and <code>Stop Recording</code> are next to it.</li>
+<li>Click <code>Start Recording</code> (also in the <code>Session</code> menu). <code>Pause Recording</code> and <code>Stop Recording</code> are next to it. The first time, trust the new certificate authority (see above) before you browse to HTTPS sites.</li>
 <li>Exercise the application in the browser. Each transaction appears in the table; use the filter box to search them and <code>Delete Selected</code> to drop ones you don't want.</li>
 <li>Click <code>Stop Recording</code>, then <code>Save</code> (<code>File</code> menu). <code>File &gt; Open Recording...</code> reopens a saved recording, and <code>Session &gt; Hosts...</code> lists the hosts that were recorded.</li>
 <li>Upload the saved XML to Tank as a new script.</li>

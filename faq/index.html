@@ -891,6 +891,7 @@
 <li>The controller can reach agents on the agent port, TCP 8090 by default (<code>agent-port</code>).</li>
 <li>The agent AMI's architecture matches the instance types. The default instance types are Graviton (arm64).</li>
 <li>When <code>rest-security-enabled</code> is <code>true</code>, <code>agent-token</code> is set.</li>
+<li>The agent log doesn't show <code>Rejected command ... missing or wrong agent token</code>. Agents with a token reject commands that don't carry it, for example from a controller older than the agents.</li>
 <li>The agent logs, in <code>/opt/tank_agent/logs/agent.log</code> on the agent (and in CloudWatch Logs if you installed the CloudWatch agent), show what failed.</li>
 </ul>
 <h2 id="does-tank-need-activemq-or-another-message-queue">Does Tank need ActiveMQ or another message queue?</h2>
