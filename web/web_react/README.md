@@ -11,7 +11,7 @@ it, and `CustomWebMvcConfigurer` serves it at the WAR's root:
 
 - `/assets/**` are content-hashed and cached for a year
 - any other path without a file extension returns `index.html`, so deep links load the app, except
-  under `/v2` and `/v3` (the REST API), `/classic` (the JSF UI) and `/docs`, `/apidocs` and `/restdocs`
+  under `/v2` and `/v3` (the REST API), `/classic` (the JSF UI) and `/docs` and `/apidocs`
 - `index.html`'s `<base href="/">` is rewritten to the WAR's context path (`/tank/`), so one build
   works under any context path; the app reads its context path back from it
 - links from when the app was under `/app` redirect to the same page at the root

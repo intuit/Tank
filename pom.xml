@@ -31,8 +31,6 @@
     <cdi.version>5.0.0</cdi.version>
     <version.weld-junit>6.0.0.Final</version.weld-junit>
 
-    <version.enunciate>2.20.1</version.enunciate>
-
     <version.faces>4.1.2</version.faces>
     <version.primefaces>15.0.17</version.primefaces>
     <version.primefaces-ext>15.0.17</version.primefaces-ext>
@@ -151,25 +149,6 @@
     </profile>
 
     <profile>
-      <id>static-analysis</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <id>release</id>
       <activation>
         <activeByDefault>false</activeByDefault>
@@ -191,112 +170,6 @@
         <module>web</module>
         <module>system_tests</module>
       </modules>
-    </profile>
-
-    <profile>
-      <id>integration</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <modules>
-        <module>agent</module>
-        <module>tools</module>
-        <module>rest-mvc</module>
-        <module>proxy-parent</module>
-        <module>script_processor</module>
-        <module>tank_common</module>
-        <module>harness_data</module>
-        <module>reporting</module>
-        <module>test_support</module>
-        <module>api</module>
-        <module>data_model</module>
-        <module>data_access</module>
-        <module>tank_vmManager</module>
-        <module>web</module>
-      </modules>
-      <build>
-        <plugins>
-          <!-- Integration Tests Configuration -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${version.surefire}</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <includes>
-                <include>**/*IT.java</include>
-                <include>**/integration/**/*.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>system-integration</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <modules>
-        <module>agent</module>
-        <module>tools</module>
-        <module>rest-mvc</module>
-        <module>tank_common</module>
-        <module>proxy-parent</module>
-        <module>script_processor</module>
-        <module>harness_data</module>
-        <module>reporting</module>
-        <module>test_support</module>
-        <module>api</module>
-        <module>data_model</module>
-        <module>data_access</module>
-        <module>tank_vmManager</module>
-        <module>web</module>
-        <module>system_tests</module>
-      </modules>
-    </profile>
-
-    <profile>
-      <id>wildfly</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <modules>
-        <module>agent</module>
-        <module>tools</module>
-        <module>rest-mvc</module>
-        <module>proxy-parent</module>
-        <module>script_processor</module>
-        <module>tank_common</module>
-        <module>harness_data</module>
-        <module>reporting</module>
-        <module>test_support</module>
-        <module>api</module>
-        <module>data_model</module>
-        <module>data_access</module>
-        <module>tank_vmManager</module>
-        <module>web</module>
-      </modules>
-
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>${version.hibernate}</version>
-            <scope>provided</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
-
     </profile>
 
   </profiles>
@@ -565,11 +438,6 @@
         <version>3.21.0</version>
       </dependency>
       <dependency>
-        <groupId>com.sun.mail</groupId>
-        <artifactId>jakarta.mail</artifactId>
-        <version>2.0.2</version>
-      </dependency>
-      <dependency>
         <groupId>de.congrace</groupId>
         <artifactId>exp4j</artifactId>
         <version>0.3.11</version>
@@ -835,18 +703,6 @@
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
-          <artifactId>license-maven-plugin</artifactId>
-          <version>2.7.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>com.webcohesion.enunciate</groupId>
-          <artifactId>enunciate-maven-plugin</artifactId>
-          <version>${version.enunciate}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.6.2</version>
         </plugin>
@@ -867,57 +723,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${version.surefire}</version>
-          <executions>
-            <execution>
-              <id>unit-test-report</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>report</goal>
-              </goals>
-              <configuration>
-                <outputName>unit-test-report</outputName>
-              </configuration>
-            </execution>
-            <execution>
-              <id>integration-test-report</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>report</goal>
-              </goals>
-              <configuration>
-                <outputName>integration-test-report</outputName>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>3.0.5</version>
-          <configuration>
-            <!-- Enables analysis which takes more memory but finds more bugs. If you run out of memory, changes the value of the effort element to 'Low'. -->
-            <effort>Max</effort>
-            <!-- Build doesn't fail if problems are found -->
-            <failOnError>false</failOnError>
-            <!-- Reports all bugs (other values are medium and max) -->
-            <threshold>Low</threshold>
-            <!-- Produces XML report -->
-            <xmlOutput>true</xmlOutput>
-            <!-- Configures the directory in which the XML report is created -->
-            <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-          </configuration>
-          <executions>
-            <!-- Ensures that FindBugs inspects source code when project is compiled. -->
-            <execution>
-              <id>analyze-compile</id>
-              <phase>compile</phase>
-              <goals>
-                <goal>check</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
@@ -986,31 +793,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-
-        <configuration>
-          <licenseResolver>file://${env.TANK_HOME}/src/license</licenseResolver>
-          <verbose>false</verbose>
-          <addSvnKeyWords>false</addSvnKeyWords>
-          <inceptionYear>2011</inceptionYear>
-          <organizationName>Intuit Inc.</organizationName>
-          <canUpdateCopyright>true</canUpdateCopyright>
-          <licenseName>eclipse</licenseName>
-          <roots>
-            <root>src/main/java</root>
-            <root>src/main/resources</root>
-            <root>src/test/java</root>
-          </roots>
-          <excludes>
-            <exclude>**/org/**</exclude>
-            <exclude>**/trial/**</exclude>
-          </excludes>
-        </configuration>
-
       </plugin>
 
       <plugin>
@@ -1087,7 +869,6 @@
           <reuseForks>true</reuseForks>
           <includes>
             <include>**/*Test.java</include>
-            <include>**/*Spec.groovy</include>
           </includes>
           <excludes>
             <exclude>**/*IT.java</exclude>
@@ -1108,10 +889,6 @@
         <version>${version.surefire}</version>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <reportSets>
@@ -1128,54 +905,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-  <repositories>
-    <repository>
-      <id>Maven Central</id>
-      <url>https://repo1.maven.org/maven2/</url>
-    </repository>
-    <repository>
-      <id>jboss-repo</id>
-      <name>Jboss maven repo</name>
-      <url>https://repository.jboss.org/nexus/content/groups/public</url>
-    </repository>
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>
-    </repository>
-    <repository>
-      <id>thirdparty-releases</id>
-      <name>JBoss Thirdparty Releases</name>
-      <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
-    </repository>
-    <repository>
-      <id>prime-repo</id>
-      <name>PrimeFaces Maven Repository</name>
-      <url>https://repository.primefaces.org</url>
-      <layout>default</layout>
-    </repository>
-    <repository>
-      <id>codehaus</id>
-      <name>Codehaus Repo</name>
-      <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-
-    <pluginRepository>
-      <id>JBoss Repo</id>
-      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
-      <name>JBoss Repo</name>
-      <layout>default</layout>
-    </pluginRepository>
-    <pluginRepository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Maven Repository Group</name>
-      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-      <layout>default</layout>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
