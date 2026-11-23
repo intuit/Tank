@@ -14,6 +14,7 @@ import com.intuit.tank.vm.agent.messages.Headers;
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentData;
 import com.intuit.tank.vm.agent.messages.AgentTestStartData;
+import com.intuit.tank.vm.common.AgentCommandAuth;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -84,8 +85,11 @@ public class AgentController {
             @ApiResponse(responseCode = "400", description = "Could not register agent due to bad request", content = @Content)
     })
     public ResponseEntity<AgentTestStartData> agentReady(
-            @RequestBody @Parameter(description = "agentData object that contains agent data settings", required = true) AgentData agentData) {
-        return new ResponseEntity<AgentTestStartData>(agentService.agentReady(agentData), HttpStatus.OK);
+            @RequestBody @Parameter(description = "agentData object that contains agent data settings", required = true) AgentData agentData,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) @Parameter(hidden = true) String authorization) {
+        // the agent's HTTP command listener expects the token it called with
+        return new ResponseEntity<AgentTestStartData>(
+                agentService.agentReady(agentData, AgentCommandAuth.bearerToken(authorization)), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/headers", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
@@ -115,8 +119,9 @@ public class AgentController {
             @ApiResponse(responseCode = "400", description = "Could not update agent availability due to bad request", content = @Content)
     })
     public ResponseEntity<Void> setStandaloneAgentAvailability(
-            @RequestBody @Parameter(description = "Agent availability request to update standalone agent availability", required = true) AgentAvailability availability) {
-        agentService.setStandaloneAgentAvailability(availability);
+            @RequestBody @Parameter(description = "Agent availability request to update standalone agent availability", required = true) AgentAvailability availability,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) @Parameter(hidden = true) String authorization) {
+        agentService.setStandaloneAgentAvailability(availability, AgentCommandAuth.bearerToken(authorization));
         return ResponseEntity.ok().build();
     }
 

@@ -22,13 +22,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <cert.dir>${project.parent.parent.basedir}/certs</cert.dir>
-    <cert.keystore>self_signed_certs.ks</cert.keystore>
-    <cert.alias>tank</cert.alias>
-    <cert.store.password>tanktank</cert.store.password>
-    <cert.password>tanktank</cert.password>
-    <cert.p12>self_signed_tank.p12</cert.p12>
-
     <version.hibernate>7.4.14.Final</version.hibernate>
     <version.software.amazon.awssdk>2.57.9</version.software.amazon.awssdk>
     <version.opentelemetry>1.67.0</version.opentelemetry>
@@ -862,33 +855,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>3.3.2</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jarsigner-plugin</artifactId>
-          <version>3.0.0</version>
-          <executions>
-            <execution>
-              <id>sign</id>
-              <goals>
-                <goal>sign</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>verify</id>
-              <goals>
-                <goal>verify</goal>
-              </goals>
-            </execution>
-          </executions>
-
-          <configuration>
-            <keystore>${cert.dir}/${cert.keystore}</keystore>
-            <alias>${cert.alias}</alias>
-            <storepass>${cert.store.password}</storepass>
-            <keypass>${cert.password}</keypass>
-          </configuration>
         </plugin>
 
         <plugin>

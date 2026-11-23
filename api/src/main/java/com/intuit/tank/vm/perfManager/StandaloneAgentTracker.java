@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import jakarta.annotation.Nullable;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.intuit.tank.vm.agent.messages.AgentAvailability;
 import com.intuit.tank.vm.agent.messages.AgentAvailabilityStatus;
 
@@ -39,13 +41,37 @@ public class StandaloneAgentTracker {
 
     private Map<String, AgentAvailability> availabilityMap = new ConcurrentHashMap<String, AgentAvailability>();
 
+    /** The token each agent reported its availability with, which the controller's requests to it must carry */
+    private final Map<String, String> commandTokens = new ConcurrentHashMap<>();
+
     /**
      * 
      * @param availability
      */
     public void addAvailability(AgentAvailability availability) {
+        addAvailability(availability, null);
+    }
+
+    /**
+     * @param availability
+     * @param commandToken the bearer token the agent reported with, or null if it sent none
+     */
+    public void addAvailability(AgentAvailability availability, @Nullable String commandToken) {
         cleanOutdatedAvailability();
         availabilityMap.put(availability.getInstanceId(), availability);
+        if (StringUtils.isNotBlank(commandToken)) {
+            commandTokens.put(availability.getInstanceId(), commandToken);
+        } else {
+            commandTokens.remove(availability.getInstanceId());
+        }
+    }
+
+    /**
+     * @return the token the agent reported its availability with, or null if it sent none
+     */
+    @Nullable
+    public String getCommandToken(String instanceId) {
+        return commandTokens.get(instanceId);
     }
 
     /**
@@ -101,6 +127,7 @@ public class StandaloneAgentTracker {
         List<String> toClean = availabilityMap.values().stream().filter(a -> !isValid(a)).map(AgentAvailability::getInstanceId).collect(Collectors.toList());
         for (String s : toClean) {
             availabilityMap.remove(s);
+            commandTokens.remove(s);
         }
     }
 

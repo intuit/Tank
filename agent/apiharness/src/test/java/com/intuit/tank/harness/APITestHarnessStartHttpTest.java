@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -205,7 +206,8 @@ public class APITestHarnessStartHttpTest {
             int agentPort = harness.getTankConfig().getAgentConfig().getAgentPort();
             assertFalse(harness.isLocal());
             assertSame(reporter, harness.getResultsReporter());
-            commandListener.verify(() -> CommandListener.startHttpServer(agentPort));
+            // commands must carry the same token the agent calls the controller with
+            commandListener.verify(() -> CommandListener.startHttpServer(agentPort, "agent-token"));
 
             // the ready call identifies this agent to the controller
             assertEquals("bearer agent-token", readyAuthorization.get());
@@ -301,7 +303,7 @@ public class APITestHarnessStartHttpTest {
             assertFalse(harness.isLocal());
             assertEquals(1, checkers.constructed().size());
             // the HTTP command listener is not used on the WebSocket path
-            commandListener.verify(() -> CommandListener.startHttpServer(anyInt()), Mockito.never());
+            commandListener.verify(() -> CommandListener.startHttpServer(anyInt(), any()), Mockito.never());
         }
     }
 }

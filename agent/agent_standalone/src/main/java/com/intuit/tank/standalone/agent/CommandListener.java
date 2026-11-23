@@ -29,6 +29,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import com.intuit.tank.vm.agent.messages.StandaloneAgentRequest;
 import com.intuit.tank.vm.api.enumerated.AgentCommand;
+import com.intuit.tank.vm.common.AgentCommandAuth;
 
 public class CommandListener {
 
@@ -40,9 +41,17 @@ public class CommandListener {
 
     private static StandaloneAgentStartup agentStarter;
 
-    public synchronized static void startHttpServer(int port, StandaloneAgentStartup standaloneAgentStartup) {
+    /** The token requests must carry; blank accepts every request */
+    private static volatile String commandToken;
+
+    /**
+     * @param token the token the agent calls the controller with; requests must carry it as
+     *              {@code Authorization: Bearer}, unless it is blank
+     */
+    public synchronized static void startHttpServer(int port, StandaloneAgentStartup standaloneAgentStartup, String token) {
         if (!started) {
             agentStarter = standaloneAgentStartup;
+            commandToken = token;
             try {
                 HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
                 HttpContext context = server.createContext("/");
@@ -62,7 +71,11 @@ public class CommandListener {
             String response = "unknown path";
             int code = 200;
             String path = exchange.getRequestURI().getPath();
-            if (path.equals(AgentCommand.request.getPath())) {
+            if (!AgentCommandAuth.isAuthorized(commandToken, exchange.getRequestHeaders().getFirst("Authorization"))) {
+                LOG.warn("Rejected request {} from {}: missing or wrong agent token", path, exchange.getRemoteAddress());
+                response = "Unauthorized";
+                code = 401;
+            } else if (path.equals(AgentCommand.request.getPath())) {
                 response = "Requesting users ";
                 StandaloneAgentRequest agentRequest = getRequest(exchange.getRequestBody());
                 if (agentRequest == null) {
