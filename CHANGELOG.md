@@ -1,3 +1,23 @@
+# 5.1.0 (Tue Nov 24 2026)
+
+#### 🚀 Enhancement
+
+- Nashorn to GraalVM Migration [#458](https://github.com/intuit/Tank/pull/458) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🐛 Bug Fix
+
+- Remove committed keys and require the agent token on HTTP agent commands [#587](https://github.com/intuit/Tank/pull/587) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### 🏠 Internal
+
+- Remove dead build configuration and resolve everything from Maven Central [#588](https://github.com/intuit/Tank/pull/588) ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+#### Authors: 1
+
+- Kevin McGoldrick ([@kevin-mcgoldrick](https://github.com/kevin-mcgoldrick))
+
+---
+
 # 5.0.8 (Thu Nov 19 2026)
 
 #### 🐛 Bug Fix
