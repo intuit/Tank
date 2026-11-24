@@ -140,8 +140,16 @@ public class ScriptProcessor implements Runnable, Serializable {
     }
 
     public List<ScriptStep> getScriptSteps(Reader reader, Collection<ScriptFilter> filters) throws WatsParseException {
+        return getScriptSteps(reader, filters, new OwaspReader());
+    }
+
+    /**
+     * @param scriptReader
+     *            reads the recording format: {@link OwaspReader} for Tank Proxy XML, {@link com.intuit.tank.script.util.HarReader} for a HAR
+     */
+    public List<ScriptStep> getScriptSteps(Reader reader, Collection<ScriptFilter> filters,
+            RecordedScriptReader scriptReader) throws WatsParseException {
         List<ScriptStep> entries = null;
-        RecordedScriptReader scriptReader = new OwaspReader();
         if (script != null) {
             setScriptSteps(script, scriptReader.read(reader));
             ScriptFilterUtil.applyFiltersToScript(filters, script);

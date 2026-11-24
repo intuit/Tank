@@ -133,6 +133,9 @@ To test a filter:
 ## Tank Proxy (recorder)
 The Tank Proxy records the traffic of a browser session and saves it as Tank XML, which you then upload as a new script (see [Importing a recorded Script](key-concepts/scripts.md#importing-a-recorded-script)).
 
+!!! tip "No proxy needed"
+    A HAR file saved from your browser's developer tools imports the same way, so you can record without installing anything. See [Importing a recorded script](key-concepts/scripts.md#importing-a-recorded-script).
+
 `Tank-Proxy-pkg.zip` unzips to an `Intuit-Tank-Proxy` directory containing:
 
 | File | Purpose |

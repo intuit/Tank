@@ -13,7 +13,7 @@ import { useConfigOptions } from '../../hooks/useConfigOptions';
 import { useNotify } from '../../notify';
 import { useSession } from '../../session';
 import { FilterPicker } from './FilterPicker';
-import { SCRIPT_FILE_TYPES, uploadScript } from './scriptUpload';
+import { RECORDING_FILE_TYPES, uploadScript } from './scriptUpload';
 import { focusOnShow } from '../../components/focusOnShow';
 
 type Mode = 'blank' | 'recording';
@@ -23,7 +23,7 @@ const MODES = [
 ];
 
 /**
- * Creates a script, blank or from a Tank Proxy recording with filters applied (ScriptCreationBean),
+ * Creates a script, blank or from a Tank Proxy recording or a browser HAR with filters applied (ScriptCreationBean),
  * then opens it.
  */
 export function NewScriptDialog({ onHide }: { onHide: () => void }) {
@@ -114,11 +114,14 @@ export function NewScriptDialog({ onHide }: { onHide: () => void }) {
             <input
               id="script-file"
               type="file"
-              accept={SCRIPT_FILE_TYPES}
+              accept={RECORDING_FILE_TYPES}
               onChange={(e) => setFile(e.target.files?.[0])}
               className="file-input"
             />
-            <small className="field-help">The XML the Tank Proxy recorded (.xml, or gzipped .gz)</small>
+            <small className="field-help">
+              The XML the Tank Proxy recorded, or a HAR saved from your browser's developer tools (.xml or .har, or gzipped .gz).
+              A HAR keeps its http and https requests that got a response, and its text response bodies.
+            </small>
 
             <h3 className="form-section">Filters to apply</h3>
             <FilterPicker value={filterIds} onChange={setFilterIds} />

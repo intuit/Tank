@@ -32,12 +32,26 @@ There are three ways to get a script into Tank:
 
 ### Importing a recorded script
 
-1. Record a session with the Tank Proxy. It saves the traffic as XML.
-2. On the Scripts page, click **New script** and choose **From a recording**.
-3. Enter a **Name**, and optionally choose a **Product**.
-4. Under **Recording**, choose the XML file the proxy saved (`.xml`, or gzipped `.gz`).
-5. Under **Filters to apply**, tick the [filter groups](filters.md) and filters to clean up the recording with. Ticking a group ticks its filters; you can then untick any you don't want. The filters run in list order.
-6. Click **Create**. Tank creates the script and opens it.
+You can start from a recording made two ways:
+
+- **A HAR file from your browser.** In Chrome, Edge or Firefox open the developer tools, go to the **Network** tab, and reproduce the session. Then save it: right-click the list and choose **Save all as HAR with content**. This needs no extra tool.
+- **The Tank Proxy.** Record a session with the [Tank Proxy](../supplemental-tools.md#tank-proxy-recorder). It saves the traffic as XML.
+
+Then:
+
+1. On the Scripts page, click **New script** and choose **From a recording**.
+2. Enter a **Name**, and optionally choose a **Product**.
+3. Under **Recording**, choose the file: the proxy's XML (`.xml`), or a HAR (`.har`). Either can be gzipped (`.gz`). Tank tells which it is from the contents.
+4. Under **Filters to apply**, tick the [filter groups](filters.md) and filters to clean up the recording with. Ticking a group ticks its filters; you can then untick any you don't want. The filters run in list order.
+5. Click **Create**. Tank creates the script and opens it.
+
+!!! note "What a HAR import keeps"
+    - Only `http` and `https` requests that got a response. WebSocket, `data:` and `chrome-extension:` entries, and requests the browser blocked or cancelled, are skipped.
+    - Response bodies only when they are text (HTML, JSON, XML, JavaScript and the like). Images and other binary bodies are dropped, which keeps the script small.
+    - Requests are ordered by when they started, as the browser recorded.
+    - HTTP/2 pseudo-headers such as `:authority` are not kept as headers; `Host` is set from them.
+
+    Browsers record every request, including analytics and static files, so apply [filters](filters.md) as you would to a proxy recording. Browsers may also leave out request cookies or response bodies, depending on a setting in the developer tools, so check the steps you expect to correlate on.
 
 ### Starting a blank script
 

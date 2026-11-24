@@ -13,6 +13,8 @@ import com.intuit.tank.dao.ScriptDao;
 import com.intuit.tank.dao.ScriptFilterDao;
 import com.intuit.tank.project.Script;
 import com.intuit.tank.project.ScriptFilter;
+import com.intuit.tank.script.util.OwaspReader;
+import com.intuit.tank.script.util.RecordedScriptReader;
 import com.intuit.tank.project.ScriptStep;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
@@ -285,8 +287,10 @@ class ScriptServiceV2ImplEditorTest {
         assertEquals("99", result.get("scriptId"));
         assertEquals("Shop", saved.get(0).getProductName());
         ArgumentCaptor<Collection<ScriptFilter>> filters = ArgumentCaptor.forClass(Collection.class);
-        verify(processor).getScriptSteps(any(), filters.capture());
+        ArgumentCaptor<RecordedScriptReader> reader = ArgumentCaptor.forClass(RecordedScriptReader.class);
+        verify(processor).getScriptSteps(any(), filters.capture(), reader.capture());
         assertEquals(List.of(3, 1), filters.getValue().stream().map(ScriptFilter::getId).toList());
+        assertInstanceOf(OwaspReader.class, reader.getValue(), "XML is read as a Tank Proxy recording");
     }
 
     @Test

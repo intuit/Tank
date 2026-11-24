@@ -2,7 +2,8 @@ import type { TankClient } from '../../api/client';
 import { toApiError } from '../../api/errors';
 import { zipEntries } from './zip';
 
-export const SCRIPT_FILE_TYPES = '.xml,.gz';
+/** What a recording upload takes: the Tank Proxy's XML, a HAR saved from the browser dev tools, either gzipped */
+export const RECORDING_FILE_TYPES = '.xml,.har,.gz';
 
 /** What Import Tank XML takes: scripts, gzipped scripts, and zips of scripts (TankXmlUploadBean) */
 export const IMPORT_FILE_TYPES = '.xml,.gz,.zip';
@@ -23,7 +24,7 @@ export async function scriptsToImport(files: File[]): Promise<File[]> {
 }
 
 /**
- * Uploads a script file to POST /v2/scripts: a Tank Proxy recording when `recording` is given, else
+ * Uploads a script file to POST /v2/scripts: a Tank Proxy recording or HAR when `recording` is given, else
  * a Tank script XML (which updates the script its XML names, or creates one when that ID is 0).
  * A .gz file is sent as gzip.
  *
