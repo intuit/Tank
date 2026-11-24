@@ -182,12 +182,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
@@ -272,6 +266,22 @@
         <artifactId>tomcat-servlet-api</artifactId>
         <version>${version.tomcat}</version>
         <scope>provided</scope>
+      </dependency>
+      <!-- Tomcat supplies these three, so web_ui declares them provided to keep them out of WEB-INF/lib. -->
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>6.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${version.tomcat}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.el</groupId>
+        <artifactId>jakarta.el-api</artifactId>
+        <version>6.0.1</version>
       </dependency>
       <!-- Weld servlet, EL and JSP required for testing CDI injections -->
 
@@ -400,6 +410,17 @@
       </dependency>
 
       <dependency>
+        <!-- Routes SLF4J (AWS SDK, Spring, springdoc) into log4j. It needs the 2.x API; the AWS SDK asks for 1.7. -->
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j2-impl</artifactId>
+        <version>${version.log4j}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.20</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-layout-template-json</artifactId>
         <version>${version.log4j}</version>
@@ -437,11 +458,6 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>3.21.0</version>
-      </dependency>
-      <dependency>
-        <groupId>de.congrace</groupId>
-        <artifactId>exp4j</artifactId>
-        <version>0.3.11</version>
       </dependency>
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
@@ -513,12 +529,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>3.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
         <version>${version.jaxb}</version>
@@ -534,9 +544,9 @@
         <version>${version.jaxb}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.groovy</groupId>
+        <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-jsr223</artifactId>
-        <version>3.0.25</version>
+        <version>4.0.33</version>
       </dependency>
       <dependency>
         <groupId>org.jruby</groupId>

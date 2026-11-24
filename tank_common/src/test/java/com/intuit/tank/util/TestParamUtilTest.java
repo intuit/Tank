@@ -47,7 +47,14 @@ public class TestParamUtilTest {
                 Arguments.of( "(3ET + 2RT) / 2", 75000L ),
                 Arguments.of( "(ET3 + RT2) / ST", 5L ),
                 Arguments.of( "(3ET + RT2) / (2 * ST)", 3L ),
-                Arguments.of( "(3ET + RT2) / (2 * 2ST)", 1L )
+                Arguments.of( "(3ET + RT2) / (2 * 2ST)", 1L ),
+                // numbers are doubles, so division is not integer division
+                Arguments.of( "7 / 2", 4L ),
+                Arguments.of( "(10 + 5) / 2", 8L ),
+                // ^ is a power, not a bitwise xor
+                Arguments.of( "2 ^ 3", 8L ),
+                Arguments.of( "7 % 4", 3L ),
+                Arguments.of( "-2 + 5", 3L )
         );
     }
 
@@ -57,7 +64,14 @@ public class TestParamUtilTest {
                 Arguments.of( "" ),
                 Arguments.of( "10X" ),
                 Arguments.of( "((3ET + 2RT) / 2" ),
-                Arguments.of( "22% * 5" )
+                Arguments.of( "22% * 5" ),
+                Arguments.of( "10 / 0" ),
+                Arguments.of( "3 * ET / 0" ),
+                // anything beyond arithmetic is refused
+                Arguments.of( "'a'.length()" ),
+                Arguments.of( "new('java.io.File', 'x')" ),
+                Arguments.of( "ET = 5" ),
+                Arguments.of( "1 < 2" )
         );
     }
 

@@ -21,32 +21,8 @@
 			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
-					<artifactId>servlet-api</artifactId>
-					<groupId>jakarta.servlet</groupId>
-				</exclusion>
-				<exclusion>
 					<groupId>software.amazon.awssdk</groupId>
 					<artifactId>*</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.hibernate</groupId>
-					<artifactId>hibernate-envers</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>serializer</artifactId>
-					<groupId>xalan</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>validation-api</artifactId>
-					<groupId>jakarta.validation</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>javassist</artifactId>
-					<groupId>org.javassist</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>opencsv</artifactId>
-					<groupId>net.sf.opencsv</groupId>
 				</exclusion>
 				<exclusion>
 			      <groupId>org.jboss.weld.servlet</groupId>
