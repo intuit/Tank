@@ -45,9 +45,11 @@ public class ConfiguredLanguage {
     private static final List<ConfiguredLanguage> configuredLanguages = new ArrayList<ConfiguredLanguage>();
     private static final Set<String> extensionSet = new HashSet<String>();
 
+    private static final String JS_LANGUAGE = "ECMAScript";
+
     private static final String[][] data = {
-            { "ECMAScript", SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
-                    "org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory", "js" },
+            { JS_LANGUAGE, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT, "Javascript",
+                    "com.oracle.truffle.js.scriptengine.GraalJSScriptEngineFactory", "js" },
             { "ruby", SyntaxConstants.SYNTAX_STYLE_RUBY, "Ruby", "org.jruby.embed.jsr223.JRubyEngineFactory", "rb" },
             { "groovy", SyntaxConstants.SYNTAX_STYLE_GROOVY, "Groovy",
                     "org.codehaus.groovy.jsr223.GroovyScriptEngineFactory", "groovy" }
@@ -112,9 +114,14 @@ public class ConfiguredLanguage {
     }
 
     /**
-     * @return the name
+     * @return a script engine for this language. JavaScript comes from {@link JsEngineFactory}, because a
+     *         GraalJS engine from the {@link ScriptEngineManager} has host access turned off and scripts
+     *         could not call {@code ioBean}.
      */
     public ScriptEngine getEngine() {
+        if (JS_LANGUAGE.equals(name)) {
+            return JsEngineFactory.createJsEngine();
+        }
         return manager.getEngineByName(name);
     }
 
