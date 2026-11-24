@@ -45,11 +45,6 @@
     </dependency>
 
     <dependency>
-      <groupId>de.congrace</groupId>
-      <artifactId>exp4j</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-api</artifactId>
     </dependency>

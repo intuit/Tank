@@ -18,6 +18,11 @@ import java.util.regex.Pattern;
 
 import jakarta.annotation.Nonnull;
 
+import org.apache.commons.jexl3.JexlArithmetic;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlFeatures;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +30,6 @@ import org.apache.logging.log4j.Logger;
 import com.intuit.tank.util.TestParameterContainer.Builder;
 import com.intuit.tank.vm.settings.TimeUtil;
 
-import de.congrace.exp4j.Calculable;
-import de.congrace.exp4j.ExpressionBuilder;
 
 /**
  * 
@@ -45,6 +48,30 @@ public final class TestParamUtil {
     private static final String RAMP_TIME = "rt";
     private static final String SIMULATION_TIME = "st";
     private static final long TEST_VALUE = 30000L;
+
+    /**
+     * Arithmetic only. These expressions come from users, so JEXL's scripting features (method calls, object
+     * creation, assignment, loops, lambdas) are all switched off.
+     */
+    private static final JexlEngine JEXL = new JexlBuilder()
+            .features(new JexlFeatures()
+                    .loops(false)
+                    .lambda(false)
+                    .newInstance(false)
+                    .methodCall(false)
+                    .structuredLiteral(false)
+                    .register(false)
+                    .sideEffect(false)
+                    .sideEffectGlobal(false)
+                    .annotation(false)
+                    .pragma(false)
+                    .localVar(false)
+                    .script(false))
+            .arithmetic(new ExpressionArithmetic())
+            .strict(true)
+            .silent(false)
+            .cache(256)
+            .create();
 
     /**
      * private constructor to implement util pattern
@@ -115,12 +142,19 @@ public final class TestParamUtil {
         }
         String expression = normalizeExpression(value);
         try {
-            Calculable calc = new ExpressionBuilder(expression)
-                    .withVariable(ESTIMATED_RUN_TIME, executionTime)
-                    .withVariable(SIMULATION_TIME, simulationTime)
-                    .withVariable(RAMP_TIME, rampTime)
-                    .build();
-            long result = Math.round(calc.calculate());
+            MapContext context = new MapContext();
+            context.set(ESTIMATED_RUN_TIME, (double) executionTime);
+            context.set(SIMULATION_TIME, (double) simulationTime);
+            context.set(RAMP_TIME, (double) rampTime);
+            Object evaluated = JEXL.createExpression(expression).evaluate(context);
+            if (!(evaluated instanceof Number)) {
+                throw new IllegalArgumentException("not a number: " + evaluated);
+            }
+            double calculated = ((Number) evaluated).doubleValue();
+            if (Double.isNaN(calculated) || Double.isInfinite(calculated)) {
+                throw new IllegalArgumentException("not a finite number: " + calculated);
+            }
+            long result = Math.round(calculated);
             LOG.debug(value + " --> " + expression + " = " + Long.toString(result));
             return result;
         } catch (Exception e) {
@@ -201,4 +235,28 @@ public final class TestParamUtil {
         sb.append(s);
     }
 
+
+    /**
+     * Keeps the arithmetic the expressions had before they were evaluated by JEXL: every number is a double, so
+     * {@code 7 / 2} is 3.5 rather than 3, and {@code ^} raises to a power instead of being a bitwise xor.
+     */
+    private static final class ExpressionArithmetic extends JexlArithmetic {
+        ExpressionArithmetic() {
+            super(true);
+        }
+
+        @Override
+        public Object divide(Object left, Object right) {
+            double divisor = toDouble(right);
+            if (divisor == 0d) {
+                throw new ArithmeticException("division by zero");
+            }
+            return toDouble(left) / divisor;
+        }
+
+        @Override
+        public Object xor(Object left, Object right) {
+            return Math.pow(toDouble(left), toDouble(right));
+        }
+    }
 }

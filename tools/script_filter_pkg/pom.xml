@@ -23,7 +23,7 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
+          <groupId>org.apache.groovy</groupId>
           <artifactId>groovy-jsr223</artifactId>
           <scope>runtime</scope>
         </dependency>

@@ -47,8 +47,11 @@
     </dependency>
 
     <dependency>
+      <!-- commons-configuration2 loads JXPath for its XPath expression engine (TankConfig). api never imports it;
+           agent-common, which does, declares its own dependency. -->
       <groupId>commons-jxpath</groupId>
       <artifactId>commons-jxpath</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>
