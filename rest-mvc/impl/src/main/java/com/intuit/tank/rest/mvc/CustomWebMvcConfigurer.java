@@ -37,7 +37,7 @@ public class CustomWebMvcConfigurer implements WebMvcConfigurer {
     /** The JSF UI, which the React app replaced at the root */
     static final String CLASSIC_FOLDER = "/classic/";
     /** Folders of the war served as they are: the JSF UI's static files and the docs a release build adds */
-    static final List<String> STATIC_FOLDERS = List.of(CLASSIC_FOLDER, "/docs/", "/apidocs/", "/restdocs/");
+    static final List<String> STATIC_FOLDERS = List.of(CLASSIC_FOLDER, "/docs/", "/apidocs/");
 
     @Autowired
     private ServletContext context;

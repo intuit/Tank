@@ -43,16 +43,17 @@ There are several profiles:
 * default -- builds source but does not package tools.
 * release -- default plus all tools and their packages.
 * coverage -- runs jacoco code coverage.
-* static-analysis -- runs checkstyle and findbugs.
 
-`mvn clean install` runs all unit tests and integration tests by default under their respective maven stages - `test` and `verify`.
+`mvn checkstyle:check` lists style warnings against `test_support/src/main/resources/checkstyle.xml`; it doesn't fail the build.
+
+`mvn clean install` runs the unit tests. With `-P release` it also runs the system tests in `system_tests`, against an embedded Tomcat and H2. The integration tests against a QA environment run separately; see [Integration Tests](#integration-tests).
 
 There are several artifacts that are important.
 * web/web_ui/target/tank.war -- the main deployment file. Intended for deployment to a tomcat web server.
-* agent/agentManager_pkg/target/agent-startup-pkg.zip -- the agent app that gets started when the agent starts and manages communicating with the tank controller and coordinating the tests.
+* agent/agent_startup_pkg/target/agent-startup-pkg.zip -- the agent app that gets started when the agent starts and manages communicating with the tank controller and coordinating the tests.
 * tools/agent_debugger_pkg/target/Tank-Debugger-all.jar -- the visual debugger jar. can be launched to debug scripts or projects. With --headless it replays a project from the command line and writes the authid and step results to output.log. See tools/agent_debugger/README.md.
 * tools/script_filter_pkg/target/Tank-Script-Runner-all.jar -- the visual script filter tool for writing scripts to filter or manipulate scripts on import.
-* proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.jar -- the proxy recording tool. A Tool to record scripts using your browser.
+* proxy-parent/proxy_pkg/target/Tank-Proxy-pkg.zip -- the proxy recording tool. A Tool to record scripts using your browser.
 
 ## Quickstart
 `all-in-one.sh` installs a local controller (Tomcat with an H2 database) and a standalone agent on Mac or Linux,

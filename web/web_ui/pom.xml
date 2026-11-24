@@ -78,27 +78,6 @@
             </executions>
           </plugin>
 
-          <plugin>
-		    <groupId>com.webcohesion.enunciate</groupId>
-		    <artifactId>enunciate-maven-plugin</artifactId>
-            <configuration>
-              <configFile>enunciate.xml</configFile>
-            </configuration>
-
-            <executions>
-              <execution>
-                <goals>
-                  <goal>docs</goal>
-                </goals>
-                <configuration>
-                  <!-- the directory where to put the docs -->
-                  <docsDir>${project.build.directory}/tank/restdocs</docsDir>
-
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
         </plugins>
       </build>
     </profile>
