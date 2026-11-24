@@ -19,7 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import javax.swing.Box;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -29,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import com.intuit.tank.harness.data.HDTestPlan;
 
 public class ActionComponents implements ScriptChangedListener {
@@ -44,6 +47,7 @@ public class ActionComponents implements ScriptChangedListener {
     private JCheckBox runSleepStepsCB;
     private JCheckBox runThinkStepsCB;
     private JLabel titleLabel;
+    private JPanel choosersPanel;
 
     /**
      * 
@@ -86,6 +90,7 @@ public class ActionComponents implements ScriptChangedListener {
         popupMenu.add(actions.getClearSkipsAction());
         popupMenu.addSeparator();
         popupMenu.add(actions.getFindAction());
+        DebuggerTheme.updateOnThemeChange(popupMenu);
     }
 
     /**
@@ -163,43 +168,33 @@ public class ActionComponents implements ScriptChangedListener {
     private void createToolBar(JComboBox testPlanChooser, JComboBox<TankClientChoice> tankClientChooser, ActionProducer actions, boolean standalone) {
         if (toolBar == null) {
             toolBar = new JToolBar("Toolbar");
-            toolBar.setMargin(new Insets(5, 5, 5, 5));
+            toolBar.setFloatable(false);
+            toolBar.setMargin(new Insets(2, 4, 2, 4));
             if (standalone) {
                 toolBar.add(actions.getOpenAction());
-                toolBar.add(new JLabel(" "));
             }
             toolBar.add(actions.getOpenScriptAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getOpenProjectAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getReloadAction());
 
             toolBar.addSeparator();
             toolBar.add(actions.getSelectDataFileAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getShowVariablesAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getFindAction());
 
             toolBar.addSeparator();
 
             toolBar.add(actions.getStartAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getEndDebugAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getSkipAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getNextStepAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getRunToAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getPauseAction());
             toolBar.addSeparator();
             toolBar.add(actions.getCSVAction());
             toolBar.addSeparator();
 
             toolBar.add(actions.getClearBookmarksAction());
-            toolBar.add(new JLabel(" "));
             toolBar.add(actions.getClearSkipsAction());
 
             actions.getStartAction().setEnabled(false);
@@ -211,18 +206,26 @@ public class ActionComponents implements ScriptChangedListener {
 
             toolBar.addSeparator();
             titleLabel = new JLabel("");
+            titleLabel.putClientProperty(FlatClientProperties.STYLE, "font: bold");
             toolBar.add(titleLabel);
 
-            JPanel clientWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-            clientWrapper.add(new JLabel("Http Client: "));
-            clientWrapper.add(tankClientChooser);
-            toolBar.add(clientWrapper);
-            
-            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-            wrapper.add(new JLabel("Test Plan: "));
-            wrapper.add(testPlanChooser);
-            toolBar.add(wrapper);
+            // outside the toolbar so the combo boxes keep their preferred width as their contents change
+            tankClientChooser.putClientProperty(FlatClientProperties.MINIMUM_WIDTH, 170);
+            testPlanChooser.putClientProperty(FlatClientProperties.MINIMUM_WIDTH, 200);
+            choosersPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING, 6, 4));
+            choosersPanel.add(new JLabel("Http Client"));
+            choosersPanel.add(tankClientChooser);
+            choosersPanel.add(Box.createHorizontalStrut(6));
+            choosersPanel.add(new JLabel("Test Plan"));
+            choosersPanel.add(testPlanChooser);
         }
+    }
+
+    /**
+     * @return the panel with the http client and test plan choosers
+     */
+    public JPanel getChoosersPanel() {
+        return choosersPanel;
     }
 
     /**
@@ -289,6 +292,12 @@ public class ActionComponents implements ScriptChangedListener {
             actionsMenu.addSeparator();
             actionsMenu.add(actions.getClearLogOutputAction());
             menuBar.add(actionsMenu);
+
+            JMenu viewMenu = new JMenu("View");
+            JCheckBoxMenuItem darkThemeItem = new JCheckBoxMenuItem("Dark Theme", DebuggerTheme.isDark());
+            darkThemeItem.addActionListener(e -> DebuggerTheme.setDark(darkThemeItem.isSelected()));
+            viewMenu.add(darkThemeItem);
+            menuBar.add(viewMenu);
         }
     }
 

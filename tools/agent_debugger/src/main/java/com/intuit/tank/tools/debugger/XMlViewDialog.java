@@ -72,6 +72,7 @@ public class XMlViewDialog extends JDialog implements ActionListener {
         xmlViewTA.setEditable(false);
         xmlViewTA.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
         RTextScrollPane sp = new RTextScrollPane(xmlViewTA);
+        DebuggerTheme.apply(xmlViewTA);
         add(sp, BorderLayout.CENTER);
         JButton button = new JButton("Close");
         button.addActionListener( (ActionEvent e) -> setVisible(false));
