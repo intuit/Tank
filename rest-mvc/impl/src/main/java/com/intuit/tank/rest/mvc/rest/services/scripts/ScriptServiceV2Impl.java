@@ -37,6 +37,9 @@ import com.intuit.tank.script.models.*;
 import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.processor.ScriptProcessor;
+import com.intuit.tank.script.util.HarReader;
+import com.intuit.tank.script.util.OwaspReader;
+import com.intuit.tank.script.util.RecordedScriptReader;
 import com.intuit.tank.rest.mvc.rest.cloud.MessageEventSender;
 import com.intuit.tank.rest.mvc.rest.cloud.ServletInjector;
 import com.intuit.tank.transform.scriptGenerator.ConverterUtil;
@@ -164,7 +167,9 @@ public class ScriptServiceV2Impl implements ScriptServiceV2 {
             if (productName != null) {
                 script.setProductName(productName);
             }
-            scriptProcessor.getScriptSteps(bufferedReader, filters);
+            // a HAR from the browser dev tools is read the same way as a Tank Proxy recording, whatever the file is called
+            RecordedScriptReader recordingReader = HarReader.looksLikeHar(bufferedReader) ? new HarReader() : new OwaspReader();
+            scriptProcessor.getScriptSteps(bufferedReader, filters, recordingReader);
             script = new ScriptDao().saveOrUpdate(script);
             sendMsg(script, ModificationType.UPDATE);
             if (scriptId.equals(0)) {

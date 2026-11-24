@@ -14,8 +14,12 @@ import com.intuit.tank.rest.mvc.rest.util.ResponseUtil;
 import com.intuit.tank.rest.mvc.rest.util.ScriptServiceUtil;
 import com.intuit.tank.script.models.*;
 import com.intuit.tank.script.processor.ScriptProcessor;
+import com.intuit.tank.script.util.HarReader;
+import com.intuit.tank.script.util.OwaspReader;
+import com.intuit.tank.script.util.RecordedScriptReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedConstruction;
@@ -318,6 +322,40 @@ class ScriptServiceV2ImplTest {
             assertNotNull(result);
             assertTrue(result.get("message").contains("overwritten"));
         }
+    }
+
+    private RecordedScriptReader readerUsedForRecording(String content) throws IOException {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+        Script savedScript = createScript(5, "Recorded");
+        ScriptProcessor mockProcessor = mock(ScriptProcessor.class);
+        MessageEventSender mockSender = mock(MessageEventSender.class);
+
+        try (MockedConstruction<ScriptDao> daoMock = Mockito.mockConstruction(ScriptDao.class,
+                (mock, ctx) -> {
+                    when(mock.findById(0)).thenReturn(null);
+                    when(mock.saveOrUpdate(any(Script.class))).thenReturn(savedScript);
+                });
+             MockedConstruction<ServletInjector> injectorMock = Mockito.mockConstruction(ServletInjector.class,
+                (mock, ctx) -> {
+                    when(mock.getManagedBean(eq(servletContext), eq(ScriptProcessor.class))).thenReturn(mockProcessor);
+                    when(mock.getManagedBean(eq(servletContext), eq(MessageEventSender.class))).thenReturn(mockSender);
+                })) {
+            service.createScript("Recorded", null, "recording", null, null, null, file);
+        }
+        ArgumentCaptor<RecordedScriptReader> reader = ArgumentCaptor.forClass(RecordedScriptReader.class);
+        verify(mockProcessor).getScriptSteps(any(java.io.Reader.class), any(), reader.capture());
+        return reader.getValue();
+    }
+
+    @Test
+    void createScript_recordingPath_readsAHarWithTheHarReader() throws IOException {
+        assertTrue(readerUsedForRecording("  {\"log\": {\"entries\": []}}") instanceof HarReader);
+    }
+
+    @Test
+    void createScript_recordingPath_readsProxyXmlWithTheOwaspReader() throws IOException {
+        assertTrue(readerUsedForRecording("<?xml version=\"1.0\"?><session/>") instanceof OwaspReader);
     }
 
     // =====================================================================

@@ -1734,7 +1734,7 @@ export interface paths {
          *
          *
          *
-         *     Tank Proxy Recording Upload:
+         *     Tank Proxy Recording or HAR Upload:
          *
          *             curl -v -X POST -H "Authorization: Bearer <token>" -F "file=@<filename>" 'https://{tank-base-url}/v2/scripts?recording&id=<scriptId>&name=<script-name>'
          *
@@ -1752,7 +1752,7 @@ export interface paths {
          *
          *       - **Tank Script Upload**: Only accepts Tank script XML files for an existing Tank script to update. The script ID and script name defined in the first few lines of script XML file should match an existing script entry in Tank to update that script, but setting the script ID to 0 will create a new script with any name.
          *
-         *      - **Tank Proxy Recording Upload**: Only accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional. productName sets the script's product, and filterIds applies those script filters to the recording, in order
+         *      - **Tank Proxy Recording or HAR Upload**: Accepts the XML script file recorded and produced by the Tank Proxy Package (see Tools tab in Tank), or a HAR file saved from a browser's developer tools (the Network tab's "Save all as HAR"); which one it is, is detected from the content. Setting id to an existing scriptId will overwrite that script, both scriptId and name parameters are optional. productName sets the script's product, and filterIds applies those script filters to the recording, in order. From a HAR, only http and https requests that got a response are imported, and only text response bodies are kept
          *
          *       - **Copying**: You must pass a value for the name parameter to successfully create a copy of an existing script.
          */

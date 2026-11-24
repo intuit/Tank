@@ -143,6 +143,26 @@ describe('scripts list', () => {
     expect(upload!.multipart).toBe(true);
   });
 
+  it('takes a HAR for a recording', async () => {
+    renderApp(
+      '/scripts',
+      handlers({
+        'GET /v2/filters': () => ({ status: 200, body: { filters: [] } }),
+        'GET /v2/filters/groups': () => ({ status: 200, body: { filterGroups: [] } }),
+      }),
+    );
+    await rows();
+
+    await userEvent.click(screen.getByRole('button', { name: 'New script' }));
+    const dialog = await screen.findByRole('dialog', { name: 'New script' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'From a recording' }));
+    const input = within(dialog).getByLabelText('Recording') as HTMLInputElement;
+    expect(input.accept.split(',')).toEqual(expect.arrayContaining(['.xml', '.har', '.gz']));
+    // user-event drops files the input does not accept, so the file arriving shows .har is accepted
+    await userEvent.upload(input, new File(['{"log":{"entries":[]}}'], 'checkout.har', { type: 'application/json' }));
+    expect(input.files).toHaveLength(1);
+  });
+
   it('imports a Tank XML script', async () => {
     let query: URLSearchParams | undefined;
     const { calls } = renderApp(
